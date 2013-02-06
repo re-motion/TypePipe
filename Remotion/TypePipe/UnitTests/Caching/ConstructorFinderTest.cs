@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     [Test]
     [ExpectedException (typeof (MissingMethodException), ExpectedMessage =
-        "Type Remotion.TypePipe.UnitTests.Caching.ConstructorFinderTest+RequestedType does not contain a constructor with the following signature: "
+        "Type 'Remotion.TypePipe.UnitTests.Caching.ConstructorFinderTest+RequestedType' does not contain a constructor with the following signature: "
         + "(IDisposable, String).")]
     public void GetConstructor_ThrowsForMissingMember ()
     {
@@ -73,7 +73,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     [Test]
     [ExpectedException (typeof (MissingMethodException), ExpectedMessage =
-        "Type Remotion.TypePipe.UnitTests.Caching.ConstructorFinderTest+RequestedType contains a constructor with the required signature, but "
+        "Type 'Remotion.TypePipe.UnitTests.Caching.ConstructorFinderTest+RequestedType' contains a constructor with the required signature, but "
         + "it is not public (and the allowNonPublic flag is not set).")]
     public void GetConstructor_ThrowsForNonPublic ()
     {

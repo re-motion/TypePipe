@@ -144,6 +144,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
             || (ctorAdapter1 != null && ctorAdapter2 != null && ctorAdapter1.AdaptedConstructor == ctorAdapter2.AdaptedConstructor),
             Is.True, "Adapted MethodInfo is not equal (non-virtual or ctor).");
       }
+      else if (value1 is MemberInfo && value2 is MemberInfo)
+        Assert.That (value1, Is.EqualTo (value2).Using (MemberInfoEqualityComparer<MemberInfo>.Instance), GetMessage (value1, value2, "MemberInfos"));
       else
         Assert.AreEqual (value1, value2, GetMessage (expected, actual, "Property " + property.Name));
     }

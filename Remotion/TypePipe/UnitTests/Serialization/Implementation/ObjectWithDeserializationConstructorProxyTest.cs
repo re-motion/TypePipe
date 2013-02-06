@@ -18,6 +18,7 @@ using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Serialization.Implementation;
 using Rhino.Mocks;
@@ -36,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     public void SetUp ()
     {
       _underlyingType = ReflectionObjectMother.GetSomeType();
-      _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeDifferentType(), new FormatterConverter());
+      _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
 
       _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
     }

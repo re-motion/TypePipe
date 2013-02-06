@@ -154,11 +154,27 @@
     <Compile Include="IObjectFactory.cs" />
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
+    <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\FieldOnTypeInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\IMethodAdjuster.cs" />
+    <Compile Include="MutableReflection\Generics\IParameterAdjuster.cs" />
+    <Compile Include="MutableReflection\Generics\ITypeAdjuster.cs" />
+    <Compile Include="MutableReflection\Generics\ITypeInstantiator.cs" />
+    <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\TypeInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\TypeInstantiator.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomConstructorInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomEventInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomMethodInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomParameterInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomFieldInfo.cs" />
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomPropertyInfo.cs" />
     <Compile Include="MutableReflection\Implementation\IProxyTypeModelFactory.cs" />
     <Compile Include="MutableReflection\Implementation\IUnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\ThrowingUnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
@@ -190,7 +206,7 @@
     <Compile Include="MutableReflection\ICustomAttributeNamedArgument.cs" />
     <Compile Include="MutableReflection\Implementation\IMemberSelector.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedMethodFinder.cs" />
-    <Compile Include="MutableReflection\IOwnCustomAttributeDataProvider.cs" />
+    <Compile Include="MutableReflection\Implementation\IOwnCustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\MemberSelector.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyCreationContext.cs" />
@@ -204,7 +220,7 @@
     <Compile Include="MutableReflection\Implementation\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\Implementation\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />
-    <Compile Include="MutableReflection\MethodAttributesExtensions.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtility.cs" />
     <Compile Include="MutableReflection\Implementation\SubclassFilterUtility.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinder.cs" />
@@ -358,10 +374,9 @@
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
-    <None Include="Configuration\TypePipeConfigurationSchema.xsd">
+    <EmbeddedResource Include="Configuration\TypePipeConfigurationSchema.xsd">
       <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
     <None Include="Dlr\Preserve-Dlr.licenseheader" />
     <EmbeddedResource Include="StrongNaming\FallbackKey.snk" />
   </ItemGroup>
@@ -371,6 +386,7 @@
       <Name>Core.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

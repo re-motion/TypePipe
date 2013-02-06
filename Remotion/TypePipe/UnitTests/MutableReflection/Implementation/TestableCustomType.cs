@@ -32,8 +32,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Type baseType,
         string name,
         string @namespace,
-        string fullName)
-        : base (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName)
+        string fullName,
+        TypeAttributes attributes,
+        bool isGenericType,
+        bool isGenericTypeDefinition,
+        IEnumerable<Type> typeArguments)
+        : base (
+            memberSelector,
+            underlyingTypeFactory,
+            declaringType,
+            baseType,
+            name,
+            @namespace,
+            fullName,
+            attributes,
+            isGenericType,
+            isGenericTypeDefinition,
+            typeArguments)
     {
     }
 
@@ -42,6 +57,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public IEnumerable<FieldInfo> Fields;
     public IEnumerable<ConstructorInfo> Constructors;
     public IEnumerable<MethodInfo> Methods;
+    public IEnumerable<PropertyInfo> Properties;
+    public IEnumerable<EventInfo> Events;
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
@@ -49,11 +66,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override TypeAttributes GetAttributeFlagsImpl ()
     {
       throw new NotImplementedException();
     }
@@ -76,6 +88,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
       return Methods;
+    }
+
+    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    {
+      return Properties;
+    }
+
+    protected override IEnumerable<EventInfo> GetAllEvents ()
+    {
+      return Events;
     }
   }
 }

@@ -17,8 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -32,11 +30,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a <see cref="ConstructorInfo"/> that can be modified.
   /// </summary>
-  [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableConstructorInfo : ConstructorInfo, IMutableMethodBase
+  public class MutableConstructorInfo : CustomConstructorInfo, IMutableMethodBase
   {
-    private readonly ProxyType _declaringType;
-    private readonly MethodAttributes _attributes;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
 
@@ -46,39 +41,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableConstructorInfo (
         ProxyType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
+        : base (declaringType, attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("body", body);
       Assertion.IsTrue (body.Type == typeof (void));
 
       var paras = parameters.ConvertToCollection();
 
-      _declaringType = declaringType;
-      _attributes = attributes;
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
       _body = body;
-    }
-
-    public override Type DeclaringType
-    {
-      get { return _declaringType; }
-    }
-
-    public override string Name
-    {
-      get { return IsStatic ? TypeConstructorName : ConstructorName; }
-    }
-
-    public override MethodAttributes Attributes
-    {
-      get { return _attributes; }
-    }
-
-    public override CallingConventions CallingConvention
-    {
-      get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -106,7 +79,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new ConstructorBodyModificationContext (_declaringType, IsStatic, ParameterExpressions, _body, memberSelector);
+      var context = new ConstructorBodyModificationContext ((ProxyType) DeclaringType, IsStatic, ParameterExpressions, _body, memberSelector);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 
@@ -122,77 +95,9 @@ namespace Remotion.TypePipe.MutableReflection
       _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
     }
 
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
-    {
-      return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      return CustomAttributeFinder.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
-    }
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
-    }
-
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetConstructorSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("MutableConstructor = \"{0}\", DeclaringType = \"{1}\"", ToString (), DeclaringType);
-    }
-
-    #region Not Implemented from ConstructorInfo interface
-
-    public override MethodImplAttributes GetMethodImplementationFlags ()
-    {
-      // TODO
-      throw new NotImplementedException();
-    }
-
-    #endregion
-
-    #region Unsupported Members
-
-    public override RuntimeMethodHandle MethodHandle
-    {
-      get { throw new NotSupportedException ("Property MethodHandle is not supported."); }
-    }
-
-    public override Type ReflectedType
-    {
-      get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
-    }
-
-    public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
-    {
-      throw new NotSupportedException ("Method Invoke is not supported.");
-    }
-
-    public override object Invoke (BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)
-    {
-      throw new NotSupportedException ("Method Invoke is not supported.");
-    }
-
-    #endregion
   }
 }

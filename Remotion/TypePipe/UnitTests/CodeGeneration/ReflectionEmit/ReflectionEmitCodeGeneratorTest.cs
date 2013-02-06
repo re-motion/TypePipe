@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
@@ -152,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var name = "DomainType";
       var attributes = (TypeAttributes) 7;
       var type = ReflectionObjectMother.GetSomeType();
-      var otherType = ReflectionObjectMother.GetSomeDifferentType();
+      var otherType = ReflectionObjectMother.GetSomeOtherType();
       var forceStrongNaming = BooleanObjectMother.GetRandomBoolean();
       var keyFilePath = "key file path";
 

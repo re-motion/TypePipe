@@ -86,6 +86,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.Name, Is.EqualTo (name));
       Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));
       Assert.That (proxyType.FullName, Is.EqualTo (fullname));
+      _memberSelectorMock.Stub (mock => mock.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      Assert.That (proxyType.Attributes, Is.EqualTo (attributes));
+      Assert.That (proxyType.IsGenericType, Is.False);
+      Assert.That (proxyType.IsGenericTypeDefinition, Is.False);
+      Assert.That (proxyType.GetGenericArguments(), Is.Empty);
 
       Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
       Assert.That (proxyType.Initializations, Is.Empty);
@@ -135,18 +140,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_proxyType.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
       Assert.That (_proxyType.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
-    }
-
-    [Test]
-    public void AddCustomAttribute_Serializable ()
-    {
-      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory());
-      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
-      Assert.That (proxyType.IsSerializable, Is.False);
-
-      proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
-
-      Assert.That (proxyType.IsSerializable, Is.True);
     }
 
     [Test]
@@ -414,6 +407,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetAttributeFlagsImpl_Serializable ()
+    {
+      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory());
+      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      Assert.That (proxyType.IsSerializable, Is.False);
+
+      proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
+
+      Assert.That (proxyType.IsSerializable, Is.True);
+    }
+
+    [Test]
     public void GetAttributeFlagsImpl_Abstract ()
     {
       var allMethods = GetAllMethods (_proxyType);
@@ -537,13 +542,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (result, Has.Member (fakeOverride));
       Assert.That (result, Has.No.Member (baseMethod));
-    }
-
-    [Test]
-    public new void ToString ()
-    {
-      // Note: ToString() is implemented in CustomType base class.
-      Assert.That (_proxyType.ToString(), Is.EqualTo ("Proxy"));
     }
 
     [Test]

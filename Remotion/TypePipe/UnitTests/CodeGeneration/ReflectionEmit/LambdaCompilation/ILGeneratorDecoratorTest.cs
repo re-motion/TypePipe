@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -60,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void BeginCatchBlock ()
     {
       var exceptionType = ReflectionObjectMother.GetSomeType();
-      var fakeEmittableOperand = ReflectionObjectMother.GetSomeDifferentType();
+      var fakeEmittableOperand = ReflectionObjectMother.GetSomeOtherType();
       _emittableOperandProviderStub.Stub (stub => stub.GetEmittableType (exceptionType)).Return (fakeEmittableOperand);
 
       _innerILGeneratorMock.Expect (mock => mock.BeginCatchBlock (fakeEmittableOperand));

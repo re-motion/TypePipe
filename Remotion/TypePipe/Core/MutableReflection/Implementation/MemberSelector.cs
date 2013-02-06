@@ -39,11 +39,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
-    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr)
+    public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      return fields.Where (field => _bindingFlagsEvaluator.HasRightAttributes (field.Attributes, bindingAttr));
+      return FilterByFlags (fields, bindingAttr, declaringType, f => _bindingFlagsEvaluator.HasRightAttributes (f.Attributes, bindingAttr));
     }
 
     public IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
@@ -52,21 +53,33 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("methods", methods);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
-      var candidates = methods.Where (m => _bindingFlagsEvaluator.HasRightAttributes (m.Attributes, bindingAttr));
-      if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
-        candidates = candidates.Where (m => declaringType == m.DeclaringType);
-
-      return candidates;
+      return FilterByFlags (methods, bindingAttr, declaringType, m => _bindingFlagsEvaluator.HasRightAttributes (m.Attributes, bindingAttr));
     }
 
-    public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name)
+    public IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr, Type declaringType)
+    {
+      ArgumentUtility.CheckNotNull ("properties", properties);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+      Func<PropertyInfo, bool> predicate = p => p.GetAccessors (true).Any (a => _bindingFlagsEvaluator.HasRightAttributes (a.Attributes, bindingAttr));
+      return FilterByFlags (properties, bindingAttr, declaringType, predicate);
+    }
+
+    public IEnumerable<EventInfo> SelectEvents (IEnumerable<EventInfo> events, BindingFlags bindingAttr, Type declaringType)
+    {
+      ArgumentUtility.CheckNotNull ("events", events);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+      Func<EventInfo, bool> predicate = e => _bindingFlagsEvaluator.HasRightAttributes (e.GetAddMethod (true).Attributes, bindingAttr);
+      return FilterByFlags (events, bindingAttr, declaringType, predicate);
+    }
+
+    public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      var candidates = fields.Where (fi => fi.Name == name);
-
-      var message = string.Format ("Ambiguous field name '{0}'.", name);
-      return SelectFields (candidates, bindingAttr).SingleOrDefault (() => new AmbiguousMatchException (message));
+      return SelectSingle (fields, name, bindingAttr, declaringType, SelectFields, "field");
     }
 
     public T SelectSingleMethod<T> (
@@ -75,16 +88,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         BindingFlags bindingAttr,
         string nameOrNull,
         Type declaringType,
-        Type[] typesOrNull,
+        Type[] parameterTypesOrNull,
         ParameterModifier[] modifiersOrNull)
         where T : MethodBase
     {
       ArgumentUtility.CheckNotNull ("methods", methods);
       ArgumentUtility.CheckNotNull ("binder", binder);
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-
-      if (typesOrNull == null && modifiersOrNull != null)
-        throw new ArgumentException ("Modifiers must not be specified if types are null.", "modifiersOrNull");
+      CheckModifiers (parameterTypesOrNull, modifiersOrNull);
 
       if (nameOrNull != null)
         methods = methods.Where (m => m.Name == nameOrNull);
@@ -93,7 +104,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (candidates.Length == 0)
         return null;
 
-      if (typesOrNull == null)
+      if (parameterTypesOrNull == null)
       {
         if (candidates.Length > 1)
         {
@@ -104,7 +115,74 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         return candidates.Single();
       }
 
-      return (T) binder.SelectMethod (bindingAttr, candidates, typesOrNull, modifiersOrNull);
+      // DefaultBinder does *not* support null 'parameterTypes'.
+      return (T) binder.SelectMethod (bindingAttr, candidates, parameterTypesOrNull, modifiersOrNull);
+    }
+
+    public PropertyInfo SelectSingleProperty (
+        IEnumerable<PropertyInfo> properties,
+        Binder binder,
+        BindingFlags bindingAttr,
+        string name,
+        Type declaringType,
+        Type propertyTypeOrNull,
+        Type[] indexerTypesOrNull,
+        ParameterModifier[] modifiersOrNull)
+    {
+      ArgumentUtility.CheckNotNull ("properties", properties);
+      ArgumentUtility.CheckNotNull ("binder", binder);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+      CheckModifiers (indexerTypesOrNull, modifiersOrNull);
+
+      var byName = properties.Where (p => p.Name == name);
+      var candidates = SelectProperties (byName, bindingAttr, declaringType).ToArray();
+      if (candidates.Length == 0)
+        return null;
+
+      // DefaultBinder does support null 'propertyType' and/or 'indexerTypes'.
+      return binder.SelectProperty (bindingAttr, candidates, propertyTypeOrNull, indexerTypesOrNull, modifiersOrNull);
+    }
+
+    public EventInfo SelectSingleEvent (IEnumerable<EventInfo> events, BindingFlags bindingAttr, string name, Type declaringType)
+    {
+      ArgumentUtility.CheckNotNull ("events", events);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+
+      return SelectSingle (events, name, bindingAttr, declaringType, SelectEvents, "event");
+    }
+
+    private IEnumerable<T> FilterByFlags<T> (IEnumerable<T> candidates, BindingFlags bindingAttr, Type declaringType, Func<T, bool> predicate)
+        where T : MemberInfo
+    {
+      if ((bindingAttr & BindingFlags.DeclaredOnly) == BindingFlags.DeclaredOnly)
+        candidates = candidates.Where (m => m.DeclaringType == declaringType);
+
+      return candidates.Where (predicate);
+    }
+
+    private T SelectSingle<T> (
+        IEnumerable<T> members,
+        string name,
+        BindingFlags bindingAttr,
+        Type declaringType,
+        Func<IEnumerable<T>, BindingFlags, Type, IEnumerable<T>> selectMembers,
+        string memberKind)
+        where T : MemberInfo
+    {
+      var byName = members.Where (m => m.Name == name);
+      var byFlags = selectMembers (byName, bindingAttr, declaringType);
+
+      var message = string.Format ("Ambiguous {0} name '{1}'.", memberKind, name);
+      return byFlags.SingleOrDefault (() => new AmbiguousMatchException (message));
+    }
+
+    private void CheckModifiers (Type[] parameterTypes, ParameterModifier[] modifiers)
+    {
+      if (parameterTypes == null && modifiers != null)
+        throw new ArgumentException ("Modifiers must not be specified if parameter types are null.", "modifiers");
     }
   }
 }

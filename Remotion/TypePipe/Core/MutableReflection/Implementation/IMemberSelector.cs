@@ -26,11 +26,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public interface IMemberSelector
   {
-    IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr);
+    IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, Type declaringType);
+
     IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
         where T : MethodBase;
 
-    FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name);
+    IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr, Type declaringType);
+
+    IEnumerable<EventInfo> SelectEvents (IEnumerable<EventInfo> events, BindingFlags bindingAttr, Type declaringType);
+
+
+    FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType);
 
     T SelectSingleMethod<T> (
         IEnumerable<T> methods,
@@ -38,8 +44,20 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         BindingFlags bindingAttr,
         string nameOrNull,
         Type declaringType,
-        Type[] typesOrNull,
+        Type[] parameterTypesOrNull,
         ParameterModifier[] modifiersOrNull)
-        where T: MethodBase;
+        where T : MethodBase;
+
+    PropertyInfo SelectSingleProperty (
+        IEnumerable<PropertyInfo> properties,
+        Binder binder,
+        BindingFlags bindingAttr,
+        string name,
+        Type declaringType,
+        Type propertyTypeOrNull,
+        Type[] indexerTypesOrNull,
+        ParameterModifier[] modifiersOrNull);
+
+    EventInfo SelectSingleEvent (IEnumerable<EventInfo> events, BindingFlags bindingAttr, string name, Type declaringType);
   }
 }

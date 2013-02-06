@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -29,7 +30,7 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A custom type that re-implements parts of the reflection API. Other classes may derive from this class to inherit the implementation.
+  /// A custom <see cref="Type"/> that re-implements parts of the reflection API. Other classes may derive from this class to inherit the implementation.
   /// Note that the equality members <see cref="Equals(object)"/>, <see cref="Equals(System.Type)"/> and <see cref="GetHashCode"/> are implemented for
   /// reference equality.
   /// </summary>
@@ -48,6 +49,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
+    private readonly TypeAttributes _attributes;
+    private readonly bool _isGenericType;
+    private readonly bool _isGenericTypeDefinition;
+    private readonly ReadOnlyCollection<Type> _typeArguments;
 
     private Type _underlyingSystemType;
 
@@ -58,7 +63,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type baseType,
         string name,
         string @namespace,
-        string fullName)
+        string fullName,
+        TypeAttributes attributes,
+        bool isGenericType,
+        bool isGenericTypeDefinition,
+        IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
@@ -68,6 +77,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
 
       _memberSelector = memberSelector;
       _underlyingTypeFactory = underlyingTypeFactory;
@@ -76,16 +86,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
+      _attributes = attributes;
+      _isGenericType = isGenericType;
+      _isGenericTypeDefinition = isGenericTypeDefinition;
+      _typeArguments = typeArguments.ToList().AsReadOnly();
+
+      Assertion.IsTrue ((isGenericType && _typeArguments.Count > 0) || (!isGenericType && _typeArguments.Count == 0));
+      Assertion.IsTrue ((isGenericTypeDefinition && isGenericType) || (!isGenericTypeDefinition));
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
     public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
 
-    protected abstract override TypeAttributes GetAttributeFlagsImpl ();
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
     protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
     protected abstract IEnumerable<MethodInfo> GetAllMethods ();
+    protected abstract IEnumerable<PropertyInfo> GetAllProperties ();
+    protected abstract IEnumerable<EventInfo> GetAllEvents ();
 
     public override Assembly Assembly
     {
@@ -120,6 +138,21 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override string FullName
     {
       get { return _fullName; }
+    }
+
+    public override string AssemblyQualifiedName
+    {
+      get { return _fullName + ", TypePipe_GeneratedAssembly"; }
+    }
+
+    public override bool IsGenericType
+    {
+      get { return _isGenericType; }
+    }
+
+    public override bool IsGenericTypeDefinition
+    {
+      get { return _isGenericTypeDefinition; }
     }
 
     /// <summary>
@@ -176,6 +209,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return null;
     }
 
+    public override Type[] GetGenericArguments ()
+    {
+      return _typeArguments.ToArray();
+    }
+
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
     {
       return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
@@ -218,14 +256,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)
     {
-      return _memberSelector.SelectFields (GetAllFields(), bindingAttr).ToArray ();
+      return _memberSelector.SelectFields (GetAllFields(), bindingAttr, this).ToArray();
     }
 
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
-      return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name);
+      return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name, this);
     }
 
     public override ConstructorInfo[] GetConstructors (BindingFlags bindingAttr)
@@ -238,9 +276,31 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray();
     }
 
+    public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectProperties (GetAllProperties(), bindingAttr, this).ToArray();
+    }
+
+    public override EventInfo[] GetEvents (BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectEvents (GetAllEvents(), bindingAttr, this).ToArray();
+    }
+
+    public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      return _memberSelector.SelectSingleEvent (GetAllEvents(), bindingAttr, name, this);
+    }
+
     protected void InvalidateUnderlyingSystemType ()
     {
       _underlyingSystemType = null;
+    }
+
+    protected override TypeAttributes GetAttributeFlagsImpl ()
+    {
+      return _attributes;
     }
 
     protected override ConstructorInfo GetConstructorImpl (
@@ -258,8 +318,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type[] typesOrNull,
         ParameterModifier[] modifiersOrNull)
     {
+      // TODO 4836: Consider CallingConventions.
       var binder = binderOrNull ?? DefaultBinder;
       return _memberSelector.SelectSingleMethod (GetAllMethods(), binder, bindingAttr, name, this, typesOrNull, modifiersOrNull);
+    }
+
+    protected override PropertyInfo GetPropertyImpl (
+        string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnTypeOrNull, Type[] typesOrNull, ParameterModifier[] modifiersOrNull)
+    {
+      var binder = binderOrNull ?? DefaultBinder;
+      return _memberSelector.SelectSingleProperty (GetAllProperties(), binder, bindingAttr, name, this, returnTypeOrNull, typesOrNull, modifiersOrNull);
     }
 
     protected override bool HasElementTypeImpl ()
@@ -292,6 +360,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return false;
     }
 
+    public override string ToString ()
+    {
+      return SignatureDebugStringGenerator.GetTypeSignature (this);
+    }
+
+    public string ToDebugString ()
+    {
+      return string.Format ("{0} = \"{1}\"", GetType ().Name, ToString ());
+    }
+
     #region Not YET implemented abstract members of Type class
 
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
@@ -304,16 +382,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return new MemberInfo[0]; // Needed for GetMember(..) - virtual method check
     }
 
-    public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override EventInfo[] GetEvents (BindingFlags bindingAttr)
-    {
-      return new EventInfo[0]; // Needed for GetEvents() - virtual method check
-    }
-
     public override Type[] GetNestedTypes (BindingFlags bindingAttr)
     {
       return new Type[0]; // Needed for virtual method check
@@ -322,27 +390,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type GetNestedType (string name, BindingFlags bindingAttr)
     {
       throw new NotImplementedException ();
-    }
-
-    protected override PropertyInfo GetPropertyImpl (string name, BindingFlags bindingAttr, Binder binderOrNull, Type returnType, Type[] types, ParameterModifier[] modifiers)
-    {
-      //types = types ?? Type.EmptyTypes;
-      throw new NotImplementedException ();
-    }
-
-    public override PropertyInfo[] GetProperties (BindingFlags bindingAttr)
-    {
-      return new PropertyInfo[0]; // Needed for virtual method check
-    }
-
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetTypeSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("{0} = \"{1}\"", GetType().Name, ToString());
     }
 
     #endregion
@@ -357,11 +404,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Guid GUID
     {
       get { throw new NotSupportedException ("Property GUID is not supported."); }
-    }
-
-    public override string AssemblyQualifiedName
-    {
-      get { throw new NotSupportedException ("Property AssemblyQualifiedName is not supported."); }
     }
 
     public override StructLayoutAttribute StructLayoutAttribute
@@ -427,11 +469,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type MakeGenericType (params Type[] typeArguments)
     {
       throw new NotSupportedException ("Method MakeGenericType is not supported.");
-    }
-
-    public override Type[] GetGenericArguments ()
-    {
-      throw new NotSupportedException ("Method GetGenericArguments is not supported.");
     }
 
     public override Type GetGenericTypeDefinition ()

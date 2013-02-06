@@ -19,6 +19,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Rhino.Mocks;
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var attributes = (TypeAttributes) 7;
       var baseType = ReflectionObjectMother.GetSomeType();
 
-      var emittableBaseType = ReflectionObjectMother.GetSomeDifferentType();
+      var emittableBaseType = ReflectionObjectMother.GetSomeOtherType();
       var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
       _operandProvider.Expect (mock => mock.GetEmittableType (baseType)).Return (emittableBaseType);
       _innerMock.Expect (mock => mock.DefineType (name, attributes, emittableBaseType)).Return (fakeTypeBuilder);

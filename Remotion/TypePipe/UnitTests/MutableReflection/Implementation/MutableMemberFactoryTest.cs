@@ -231,6 +231,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Assert.That (ctx.Parameters.Select (p => p.Type), Is.EqualTo (new[] { typeof (double), typeof (string) }));
         Assert.That (ctx.Parameters.Select (p => p.Name), Is.EqualTo (new[] { "hans", "franz" }));
         Assert.That (ctx.IsStatic, Is.False);
+        Assert.That (ctx.ReturnType, Is.SameAs (returnType));
         Assert.That (ctx.HasBaseMethod, Is.False);
 
         return fakeBody;
@@ -242,7 +243,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (method.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
-      Assert.That (method.ReturnType, Is.EqualTo (returnType));
+      Assert.That (method.ReturnType, Is.SameAs (returnType));
 
       var returnParameter = method.ReturnParameter;
       Assertion.IsNotNull (returnParameter);

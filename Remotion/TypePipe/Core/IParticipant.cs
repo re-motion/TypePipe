@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 
@@ -33,6 +34,8 @@ namespace Remotion.TypePipe
   /// In addition, it contains all modifications applied by preceding participants in the pipeline.
   /// </para>
   /// </remarks>
+  [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
+                           + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true)]
   public interface IParticipant
   {
     /// <summary>

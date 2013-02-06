@@ -33,23 +33,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string name = "CustomType",
         string @namespace = "My",
         string fullName = "My.CustomType",
+        TypeAttributes attributes = (TypeAttributes) 7,
         IEnumerable<Type> interfaces = null,
         IEnumerable<FieldInfo> fields = null,
         IEnumerable<ConstructorInfo> constructors = null,
-        IEnumerable<MethodInfo> methods = null)
+        IEnumerable<MethodInfo> methods = null,
+        IEnumerable<PropertyInfo> properties = null,
+        IEnumerable<EventInfo> events = null,
+        bool isGenericType = false,
+        bool isGenericTypeDefinition = false,
+        IEnumerable<Type> typeArguments = null)
     {
       memberSelector = memberSelector ?? MockRepository.GenerateStub<IMemberSelector>();
       underlyingTypeFactory = underlyingTypeFactory ?? MockRepository.GenerateStub<IUnderlyingTypeFactory>();
       // Declaring type stays null.
       baseType = baseType ?? typeof (UnspecifiedType);
+      typeArguments = typeArguments ?? Type.EmptyTypes;
 
-      var customType = new TestableCustomType (memberSelector, underlyingTypeFactory, declaringType, baseType, name, @namespace, fullName);
-      customType.Interfaces = interfaces ?? Type.EmptyTypes;
-      customType.Fields = fields ?? new FieldInfo[0];
-      customType.Constructors = constructors ?? new ConstructorInfo[0];
-      customType.Methods = methods ?? new MethodInfo[0];
-
-      return customType;
+      return new TestableCustomType (
+          memberSelector,
+          underlyingTypeFactory,
+          declaringType,
+          baseType,
+          name,
+          @namespace,
+          fullName,
+          attributes,
+          isGenericType,
+          isGenericTypeDefinition,
+          typeArguments)
+             {
+                 Interfaces = interfaces ?? Type.EmptyTypes,
+                 Fields = fields ?? new FieldInfo[0],
+                 Constructors = constructors ?? new ConstructorInfo[0],
+                 Methods = methods ?? new MethodInfo[0],
+                 Properties = properties ?? new PropertyInfo[0],
+                 Events = events ?? new EventInfo[0]
+             };
     }
 
     public class UnspecifiedType { }

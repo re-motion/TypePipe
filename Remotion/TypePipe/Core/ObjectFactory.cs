@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -65,17 +64,6 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
       return _typeCache.GetOrCreateType (requestedType);
-    }
-
-    public object GetUninitializedObject (Type requestedType)
-    {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-
-      var assembledType = GetAssembledType (requestedType);
-      var instance = FormatterServices.GetUninitializedObject (assembledType);
-      PrepareExternalUninitializedObject (instance);
-
-      return instance;
     }
 
     public void PrepareExternalUninitializedObject (object instance)

@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.ObjectMothers;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -34,10 +35,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   public class MethodBodyModificationContextTest
   {
     private ProxyType _declaringType;
-    private ParameterExpression[] _parameters;
-    private Expression _previousBody;
-    private MethodInfo _baseMethod;
     private bool _isStatic;
+    private ParameterExpression[] _parameters;
+    private Type _returnType;
+    private MethodInfo _baseMethod;
+    private Expression _previousBody;
     private IMemberSelector _memberSelector;
 
     private MethodBodyModificationContext _context;
@@ -47,25 +49,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void SetUp ()
     {
       _declaringType = ProxyTypeObjectMother.Create ();
-      _parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
-      _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _isStatic = BooleanObjectMother.GetRandomBoolean();
+      _parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
+      _returnType = ReflectionObjectMother.GetSomeType();
+      _previousBody = Expression.Block (_parameters[0], _parameters[1]);
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters.AsOneTime(), _previousBody, _baseMethod, _memberSelector);
-      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters, null, _baseMethod, _memberSelector);
+      _context = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters.AsOneTime(), _returnType, _baseMethod, _previousBody, _memberSelector);
+      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters, _returnType, _baseMethod, null, _memberSelector);
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_context.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (_context.Parameters, Is.EqualTo (_parameters));
-      Assert.That (_context.HasPreviousBody, Is.True);
-      Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));
       Assert.That (_context.IsStatic, Is.EqualTo (_isStatic));
-      Assert.That (_context.BaseMethod, Is.SameAs(_baseMethod));
+      Assert.That (_context.Parameters, Is.EqualTo (_parameters));
+      Assert.That (_context.ReturnType, Is.SameAs (_returnType));
+      Assert.That (_context.BaseMethod, Is.SameAs (_baseMethod));
+      Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));
     }
 
     [Test]

@@ -14,11 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -29,48 +28,24 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a <see cref="FieldInfo"/> that can be modified.
   /// </summary>
-  [DebuggerDisplay ("{ToDebugString(),nq}")]
-  public class MutableFieldInfo : FieldInfo, IMutableInfo
+  public class MutableFieldInfo : CustomFieldInfo, IMutableInfo
   {
-    private readonly ProxyType _declaringType;
-    private readonly string _name;
-    private readonly Type _type;
-
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
-    private FieldAttributes _attributes;
-
     public MutableFieldInfo (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
+        : base (declaringType, name, type, attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
-      Assertion.IsTrue (type != typeof (void));
-
-      _declaringType = declaringType;
-      _name = name;
-      _type = type;
-      _attributes = attributes;
-    }
-
-    public override Type DeclaringType
-    {
-      get { return _declaringType; }
-    }
-
-    public override string Name
-    {
-      get { return _name; }
-    }
-
-    public override Type FieldType
-    {
-      get { return _type; }
     }
 
     public override FieldAttributes Attributes
     {
-      get { return _attributes; }
+      get
+      {
+        if (_customAttributeContainer.AddedCustomAttributes.Any (a => a.Type == typeof (NonSerializedAttribute)))
+          return base.Attributes | FieldAttributes.NotSerialized;
+
+        return base.Attributes;
+      }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -83,72 +58,11 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
       _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
-
-      if (customAttributeDeclaration.Type == typeof (NonSerializedAttribute))
-        _attributes |= FieldAttributes.NotSerialized;
     }
 
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
-
-    public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
-    {
-      return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (bool inherit)
-    {
-      return CustomAttributeFinder.GetCustomAttributes (this, inherit);
-    }
-
-    public override object[] GetCustomAttributes (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
-    }
-
-    public override bool IsDefined (Type attributeType, bool inherit)
-    {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
-
-      return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
-    }
-
-    public override string ToString ()
-    {
-      return SignatureDebugStringGenerator.GetFieldSignature (this);
-    }
-
-    public string ToDebugString ()
-    {
-      return string.Format ("MutableField = \"{0}\", DeclaringType = \"{1}\"", ToString(), DeclaringType);
-    }
-
-    #region Unsupported Members
-
-    public override RuntimeFieldHandle FieldHandle
-    {
-      get { throw new NotSupportedException ("Property FieldHandle is not supported."); }
-    }
-
-    public override Type ReflectedType
-    {
-      get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
-    }
-
-    public override object GetValue (object obj)
-    {
-      throw new NotSupportedException ("Method GetValue is not supported.");
-    }
-
-    public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, CultureInfo culture)
-    {
-      throw new NotSupportedException ("Method SetValue is not supported.");
-    }
-
-    #endregion
   }
 }

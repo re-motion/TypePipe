@@ -110,10 +110,12 @@ namespace Remotion.TypePipe.Caching
     {
       var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
       return string.Format (
-          "An error occurred during code generation for '{0}': {1} "
-          + "The following participants are currently configured and may have caused the error: {2}.",
+          "An error occurred during code generation for '{0}':{1}{2}{3}"
+          + "The following participants are currently configured and may have caused the error: {4}.",
           proxyType.Name,
+          Environment.NewLine,
           exception.Message,
+          Environment.NewLine,
           participantList);
     }
   }

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
@@ -40,6 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private string _name;
     private string _namespace;
     private string _fullName;
+    private TypeAttributes _attributes;
 
     private TestableCustomType _customType;
 
@@ -53,7 +55,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _baseType = ReflectionObjectMother.GetSomeSubclassableType();
       _name = "type name";
       _namespace = "namespace";
-      _fullName = "full type name";
+      _fullName = "MyNameSpace.MyTypeName";
+      _attributes = (TypeAttributes) 7;
 
       _customType = new TestableCustomType (
           _memberSelectorMock,
@@ -62,13 +65,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _baseType,
           _name,
           _namespace,
-          _fullName);
+          _fullName,
+          _attributes,
+          isGenericType: false,
+          isGenericTypeDefinition: false,
+          typeArguments: Type.EmptyTypes);
 
       // Initialize test implementation with members.
       _customType.Interfaces = new[] { typeof (IDisposable) };
       _customType.Fields = new[] { ReflectionObjectMother.GetSomeField() };
       _customType.Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() };
       _customType.Methods = new[] { ReflectionObjectMother.GetSomeMethod() };
+      _customType.Properties = new[] { ReflectionObjectMother.GetSomeProperty() };
+      _customType.Events = new[] { ReflectionObjectMother.GetSomeEvent() };
     }
 
     [Test]
@@ -79,19 +88,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Name, Is.EqualTo (_name));
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
       Assert.That (_customType.FullName, Is.EqualTo (_fullName));
+      Assert.That (_customType.Attributes, Is.EqualTo (_attributes));
+      Assert.That (_customType.IsGenericType, Is.False);
+      Assert.That (_customType.IsGenericTypeDefinition, Is.False);
+      Assert.That (_customType.GetGenericArguments(), Is.Empty);
+
+      var typeArgument = ReflectionObjectMother.GetSomeType();
+      var genericCustomType = CustomTypeObjectMother.Create (
+          isGenericType: true, isGenericTypeDefinition: true, typeArguments: new[] { typeArgument });
+      Assert.That (genericCustomType.IsGenericType, Is.True);
+      Assert.That (genericCustomType.IsGenericTypeDefinition, Is.True);
+      Assert.That (genericCustomType.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
     }
 
     [Test]
-    public void Initialization_Null ()
+    public void Initialization_NullDeclaringType_AndTypeArguments ()
     {
       var customType = new TestableCustomType (
-          _memberSelectorMock,
-          _underlyingTypeFactoryMock,
-          declaringType: null,
-          baseType: _baseType,
-          name: _name,
-          @namespace: _namespace,
-          fullName: _fullName);
+          _memberSelectorMock, _underlyingTypeFactoryMock, null, _baseType, _name, _namespace, _fullName, _attributes, false, false, Type.EmptyTypes);
 
       Assert.That (customType.DeclaringType, Is.Null);
     }
@@ -106,6 +120,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void Module ()
     {
       Assert.That (_customType.Module, Is.Null);
+    }
+
+    [Test]
+    public void AssemblyQualifiedName ()
+    {
+      Assert.That (_customType.AssemblyQualifiedName, Is.EqualTo ("MyNameSpace.MyTypeName, TypePipe_GeneratedAssembly"));
     }
 
     [Test]
@@ -175,7 +195,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetElementType ()
     {
-      Assert.That (_customType.GetElementType (), Is.Null);
+      Assert.That (_customType.GetElementType(), Is.Null);
     }
 
     [Test]
@@ -240,9 +260,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetFields ()
     {
+      Assert.That (_customType.Fields, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeField () };
-      _memberSelectorMock.Expect (mock => mock.SelectFields (_customType.Fields, bindingAttr)).Return (fakeResult);
+      _memberSelectorMock.Expect (mock => mock.SelectFields (_customType.Fields, bindingAttr, _customType)).Return (fakeResult);
 
       var result = _customType.GetFields (bindingAttr);
 
@@ -253,20 +274,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetField ()
     {
+      Assert.That (_customType.Fields, Is.Not.Null.And.Not.Empty);
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
-      var fakeResult = ReflectionObjectMother.GetSomeField ();
-      _memberSelectorMock.Expect (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name)).Return (fakeResult);
+      var fakeResult = ReflectionObjectMother.GetSomeField();
+      _memberSelectorMock.Expect (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name, _customType)).Return (fakeResult);
 
       var resultField = _customType.GetField (name, bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations ();
+      _memberSelectorMock.VerifyAllExpectations();
       Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
     [Test]
     public void GetConstructors ()
     {
+      Assert.That (_customType.Constructors, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor() };
       _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Constructors, bindingAttr, _customType)).Return (fakeResult);
@@ -280,6 +303,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetMethods ()
     {
+      Assert.That (_customType.Methods, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeMethod() };
       _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Methods, bindingAttr, _customType)).Return (fakeResult);
@@ -291,10 +315,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void GetProperties ()
+    {
+      Assert.That (_customType.Properties, Is.Not.Null.And.Not.Empty);
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeProperty() };
+      _memberSelectorMock.Expect (mock => mock.SelectProperties (_customType.Properties, bindingAttr, _customType)).Return (fakeResult);
+
+      var result = _customType.GetProperties (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void GetEvents ()
+    {
+      Assert.That (_customType.Events, Is.Not.Null.And.Not.Empty);
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeEvent() };
+      _memberSelectorMock.Expect (mock => mock.SelectEvents (_customType.Events, bindingAttr, _customType)).Return (fakeResult);
+
+      var result = _customType.GetEvents (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void GetEvent ()
+    {
+      Assert.That (_customType.Fields, Is.Not.Null.And.Not.Empty);
+      var name = "some name";
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = ReflectionObjectMother.GetSomeEvent();
+      _memberSelectorMock.Expect (mock => mock.SelectSingleEvent (_customType.Events, bindingAttr, name, _customType)).Return (fakeResult);
+
+      var resultField = _customType.GetEvent (name, bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (resultField, Is.SameAs (fakeResult));
+    }
+
+    [Test]
     public void InvalidateUnderlyingSystemType_CausesRegenerationOfUnderlyingSystemType ()
     {
       var fakeUnderlyingType1 = ReflectionObjectMother.GetSomeType ();
-      var fakeUnderlyingType2 = ReflectionObjectMother.GetSomeDifferentType ();
+      var fakeUnderlyingType2 = ReflectionObjectMother.GetSomeOtherType ();
       _underlyingTypeFactoryMock
           .Stub (stub => stub.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
           .Return (fakeUnderlyingType1).Repeat.Once ();
@@ -318,6 +385,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [TestCaseSource ("GetBinderTestCases")]
     public void GetConstructorImpl (Binder inputBinder, Binder expectedBinder)
     {
+      Assert.That (_customType.Constructors, Is.Not.Null.And.Not.Empty);
       var callingConvention = CallingConventions.Any;
       var bindingAttr = BindingFlags.NonPublic;
       var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
@@ -330,16 +398,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Return (fakeResult);
 
       var arguments = new object[] { bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
-      var resultConstructor = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
+      var result = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
 
       _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultConstructor, Is.SameAs (fakeResult));
+      Assert.That (result, Is.SameAs (fakeResult));
     }
 
     [Test]
     [TestCaseSource ("GetBinderTestCases")]
     public void GetMethodImpl (Binder inputBinder, Binder expectedBinder)
     {
+      Assert.That (_customType.Methods, Is.Not.Null.And.Not.Empty);
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var callingConvention = CallingConventions.Any;
@@ -353,10 +422,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Return (fakeResult);
 
       var arguments = new object[] { name, bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
-      var resultMethod = (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetMethodImpl", arguments);
+      var result = (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetMethodImpl", arguments);
 
       _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (resultMethod, Is.SameAs (fakeResult));
+      Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
+    [TestCaseSource ("GetBinderTestCases")]
+    public void GetPropertyImpl (Binder inputBinder, Binder expectedBinder)
+    {
+      Assert.That (_customType.Properties, Is.Not.Null.And.Not.Empty);
+      var name = "some name";
+      var bindingAttr = BindingFlags.NonPublic;
+      var returnTypeOrNull = ReflectionObjectMother.GetSomeType();
+      var typesOrNull = new[] { ReflectionObjectMother.GetSomeType() };
+      var modifiersOrNull = new[] { new ParameterModifier (1) };
+
+      var fakeResult = ReflectionObjectMother.GetSomeProperty();
+      _memberSelectorMock
+          .Expect (
+              mock => mock.SelectSingleProperty (
+                  _customType.Properties, expectedBinder, bindingAttr, name, _customType, returnTypeOrNull, typesOrNull, modifiersOrNull))
+          .Return (fakeResult);
+
+      var arguments = new object[] { name, bindingAttr, inputBinder, returnTypeOrNull, typesOrNull, modifiersOrNull };
+      var result = (PropertyInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetPropertyImpl", arguments);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeResult));
     }
 
     public static IEnumerable GetBinderTestCases ()
@@ -405,44 +499,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public new void ToString ()
     {
+
       Assert.That (_customType.ToString(), Is.EqualTo ("type name"));
     }
 
     [Test]
     public void ToDebugString ()
     {
-      // ReSharper disable PossibleMistakenCallToGetType.2
-      var typeName = _customType.GetType().Name;
-      // ReSharper restore PossibleMistakenCallToGetType.2
-      Assert.That (_customType.ToDebugString(), Is.EqualTo (typeName + " = \"type name\""));
+      Assert.That (_customType.ToDebugString(), Is.EqualTo ("TestableCustomType = \"type name\""));
     }
 
     [Test]
     public void VirtualMethodsImplementedByType ()
     {
-      var customTypeWithUnderlyingSystemTypeFactoryStub = CustomTypeObjectMother.Create();
-
-      // None of these members should throw an exception 
-      Dev.Null = _customType.MemberType;
-      Dev.Null = _customType.DeclaringMethod;
-      Dev.Null = _customType.ReflectedType;
-      Dev.Null = _customType.IsGenericType;
-      Dev.Null = _customType.IsGenericTypeDefinition;
-      Dev.Null = _customType.IsGenericParameter;
-      Dev.Null = _customType.ContainsGenericParameters;
-
-      Dev.Null = _customType.IsValueType; // IsValueTypeImpl()
-      Dev.Null = customTypeWithUnderlyingSystemTypeFactoryStub.IsContextful; // IsContextfulImpl()
-      Dev.Null = customTypeWithUnderlyingSystemTypeFactoryStub.IsMarshalByRef; // IsMarshalByRefImpl()
-
-      Dev.Null = _customType.FindInterfaces ((type, filterCriteria) => true, filterCriteria: null);
-      Dev.Null = _customType.GetEvents ();
-      Dev.Null = _customType.GetMember ("name", BindingFlags.Default);
-      Dev.Null = _customType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
-      Dev.Null = _customType.IsSubclassOf (null);
-      Dev.Null = _customType.IsInstanceOfType (null);
-      Dev.Null = _customType.IsAssignableFrom (null);
-
+      _memberSelectorMock
+          .Stub (stub => stub.SelectEvents (Arg<IEnumerable<EventInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new EventInfo[0]);
       _memberSelectorMock
           .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new MethodInfo[0]);
@@ -450,9 +522,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new ConstructorInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
           .Return (new FieldInfo[0]);
-      _customType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
+      _memberSelectorMock
+          .Stub (stub => stub.SelectProperties (Arg<IEnumerable<PropertyInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<ProxyType>.Is.Anything))
+          .Return (new PropertyInfo[0]);
+      var customTypeWithUnderlyingSystemTypeFactoryStub = CustomTypeObjectMother.Create();
+
+      // None of these members should throw an exception.
+      Dev.Null = _customType.MemberType;
+      Dev.Null = _customType.DeclaringMethod;
+      Dev.Null = _customType.ReflectedType;
+      Dev.Null = _customType.IsGenericParameter;
+      Dev.Null = CustomTypeObjectMother.Create (isGenericType: false).ContainsGenericParameters;
+
+      Dev.Null = _customType.IsValueType; // IsValueTypeImpl()
+      Dev.Null = customTypeWithUnderlyingSystemTypeFactoryStub.IsContextful; // IsContextfulImpl()
+      Dev.Null = customTypeWithUnderlyingSystemTypeFactoryStub.IsMarshalByRef; // IsMarshalByRefImpl()
+
+      Dev.Null = _customType.FindInterfaces ((type, filterCriteria) => true, filterCriteria: null);
+      Dev.Null = _customType.GetEvents();
+      Dev.Null = _customType.GetMember ("name", BindingFlags.Default);
+      Dev.Null = _customType.GetMember ("name", MemberTypes.All, BindingFlags.Default);
+      Dev.Null = _customType.IsSubclassOf (null);
+      Dev.Null = _customType.IsInstanceOfType (null);
+      Dev.Null = _customType.IsAssignableFrom (null);
+      Dev.Null = _customType.FindMembers (MemberTypes.All, BindingFlags.Default, filter: null, filterCriteria: null);
     }
 
     [Test]
@@ -460,7 +555,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.MetadataToken, "MetadataToken");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GUID, "GUID");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.AssemblyQualifiedName, "AssemblyQualifiedName");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.StructLayoutAttribute, "StructLayoutAttribute");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterAttributes, "GenericParameterAttributes");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterPosition, "GenericParameterPosition");
@@ -475,7 +569,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetArrayRank(), "GetArrayRank");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericParameterConstraints(), "GetGenericParameterConstraints");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeGenericType(), "MakeGenericType");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericArguments(), "GetGenericArguments");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericTypeDefinition(), "GetGenericTypeDefinition");
     }
 

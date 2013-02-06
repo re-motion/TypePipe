@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
     {
-      // strParamName may be null for return parameters
+      // Parameter name may be null.
 
       var parameterBuilder = _methodBuilder.DefineParameter (iSequence, attributes, strParamName);
       return new ParameterBuilderAdapter (parameterBuilder);

@@ -15,15 +15,26 @@
 // under the License.
 // 
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
-  /// <summary>
-  /// Provides access to the <see cref="ICustomAttributeData"/> for custom attributes that are declared directly on the member or parameter.
-  /// </summary>
-  public interface IOwnCustomAttributeDataProvider : System.Reflection.ICustomAttributeProvider
+  public static class CustomConstructorInfoObjectMother
   {
-    IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
+    public static CustomConstructorInfo Create (
+        CustomType declaringType = null, MethodAttributes attributes = (MethodAttributes) 7, IEnumerable<ParameterInfo> parameters = null)
+    {
+      declaringType = declaringType ?? CustomTypeObjectMother.Create();
+      parameters = parameters ?? new ParameterInfo[0];
+
+      var customConstructor = new TestableCustomConstructorInfo (declaringType, attributes);
+      customConstructor.Parameters = parameters.ToArray();
+
+      return customConstructor;
+    }
   }
 }

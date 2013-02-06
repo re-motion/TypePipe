@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 

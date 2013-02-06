@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -29,9 +30,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         ProxyType declaringType,
         bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
+        Type returnType,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, baseMethod, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, returnType, baseMethod, memberSelector)
     {
     }
   }

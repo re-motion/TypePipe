@@ -73,8 +73,17 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     private void DeserializeSection (string xmlFragment)
     {
       xmlFragment = xmlFragment.Replace ("{xmlns}", "xmlns=\"" + _section.XmlNamespace + "\"");
-      var xsdPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"Configuration\TypePipeConfigurationSchema.xsd");
-      ConfigurationHelper.DeserializeSection (_section, xmlFragment, xsdPath);
+      var xsdContent = GetSchemaContent();
+
+      ConfigurationHelper.DeserializeSection (_section, xmlFragment, xsdContent);
+    }
+
+    private string GetSchemaContent ()
+    {
+      var assembly = typeof (TypePipeConfigurationSection).Assembly;
+      using (var resourceStream = assembly.GetManifestResourceStream (typeof (TypePipeConfigurationSection), "TypePipeConfigurationSchema.xsd"))
+      using (var reader = new StreamReader (resourceStream))
+        return reader.ReadToEnd();
     }
   }
 }

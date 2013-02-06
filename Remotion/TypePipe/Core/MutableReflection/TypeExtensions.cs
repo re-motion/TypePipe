@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static bool IsAssignableFromFast (this Type toType, Type fromType)
     {
       ArgumentUtility.CheckNotNull ("toType", toType);
-      ArgumentUtility.CheckNotNull ("fromType", fromType);
+      // fromType may be null.
 
       // CustomTypes are only assignable from themselves.
       if (toType is CustomType)
@@ -69,6 +69,15 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("type", type);
 
       return type is CustomType ? TypeCode.Object : Type.GetTypeCode (type);
+    }
+
+    // TODO 5390: docs
+    public static Type MakeTypePipeGenericType (this Type type, params Type[] typeArguments)
+    {
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
+
+      return null;
     }
   }
 }

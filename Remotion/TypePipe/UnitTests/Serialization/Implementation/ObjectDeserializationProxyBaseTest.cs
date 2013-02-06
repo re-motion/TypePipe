@@ -18,6 +18,7 @@ using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Rhino.Mocks;

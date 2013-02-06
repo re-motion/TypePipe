@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection
     public ParameterDeclaration (Type type, string name, ParameterAttributes attributes = ParameterAttributes.None)
     {
       ArgumentUtility.CheckNotNull ("type", type);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Name may be null.
 
       if (type == typeof (void))
         throw new ArgumentException ("Parameter cannot be of type void.", "type");

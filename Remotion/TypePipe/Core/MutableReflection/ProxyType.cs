@@ -50,7 +50,6 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
     private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo>();
 
-    private TypeAttributes _attributes;
     private MutableConstructorInfo _typeInitializer;
 
     public ProxyType (
@@ -63,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, underlyingTypeFactory, null, baseType, name, @namespace, fullName)
+        : base (memberSelector, underlyingTypeFactory, null, baseType, name, @namespace, fullName, attributes, false, false, EmptyTypes)
     {
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
@@ -79,7 +78,6 @@ namespace Remotion.TypePipe.MutableReflection
             "baseType");
       }
 
-      _attributes = attributes;
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
     }
@@ -130,9 +128,6 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
 
       _customAttributes.AddCustomAttribute (customAttributeDeclaration);
-
-      if (customAttributeDeclaration.Type == typeof (SerializableAttribute))
-        _attributes |= TypeAttributes.Serializable;
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -159,8 +154,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <para>
     /// The added initializations are not executed when instances of the type are created directly through the
     /// <see cref="FormatterServices.GetUninitializedObject"/> API, which creates an object of a type without invoking any constructor.
-    /// If possible, use <see cref="IObjectFactory.GetUninitializedObject"/> on <see cref="IObjectFactory"/> which is a simple wrapper but also
-    /// executes the specified instance initializations.
+    /// Such instances must be prepared with <see cref="IObjectFactory.PrepareExternalUninitializedObject"/> before usage.
     /// </para>
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>
@@ -339,11 +333,16 @@ namespace Remotion.TypePipe.MutableReflection
           .Select (m => m.GetBaseDefinition())
           .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
           .Any();
+      var isSerializable = _customAttributes.AddedCustomAttributes.Any (a => a.Type == typeof (SerializableAttribute));
+
+      var attributes = base.GetAttributeFlagsImpl();
+      if (isSerializable)
+        attributes |= TypeAttributes.Serializable;
 
       if (hasAbstractMethods)
-        return _attributes | TypeAttributes.Abstract;
+        return attributes | TypeAttributes.Abstract;
       else
-        return _attributes & ~TypeAttributes.Abstract;
+        return attributes & ~TypeAttributes.Abstract;
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()
@@ -375,6 +374,20 @@ namespace Remotion.TypePipe.MutableReflection
       var filteredBaseMethods = BaseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
 
       return _addedMethods.Cast<MethodInfo>().Concat (filteredBaseMethods);
+    }
+
+    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    {
+      // TODO; implement correctly
+      var all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      return BaseType.GetProperties (all);
+    }
+
+    protected override IEnumerable<EventInfo> GetAllEvents ()
+    {
+      // TODO; implement correctly
+      var all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      return BaseType.GetEvents (all);
     }
 
     private static bool CanNotBeSubclassed (Type type)

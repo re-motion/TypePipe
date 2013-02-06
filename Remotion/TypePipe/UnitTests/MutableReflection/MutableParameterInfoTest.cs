@@ -18,8 +18,8 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -64,39 +64,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public new void ToString ()
-    {
-      var parameter = MutableParameterInfoObjectMother.Create (name: "param1", type: typeof (int), attributes: ParameterAttributes.Out);
-
-      Assert.That (parameter.ToString(), Is.EqualTo ("Int32 param1"));
-    }
-
-    [Test]
-    public void ToDebugString ()
-    {
-      var declaringMemberName = _parameter.Member.Name;
-      var parameterType = _parameter.ParameterType.Name;
-      var parameterName = _parameter.Name;
-      var expected = "MutableParameter = \"" + parameterType + " " + parameterName + "\", DeclaringMember = \"" + declaringMemberName + "\"";
-
-      Assert.That (_parameter.ToDebugString(), Is.EqualTo (expected));
-    }
-
-    [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
       _parameter.AddCustomAttribute (declaration);
 
       Assert.That (_parameter.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
-
       Assert.That (_parameter.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+    }
 
-      Assert.That (_parameter.GetCustomAttributes (false).Single(), Is.TypeOf<ObsoleteAttribute>());
-      Assert.That (_parameter.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+    [Test]
+    public void ToDebugString ()
+    {
+      // Node: ToDebugString is defined in CustomParameterInfo base class.
+      var memberName = _parameter.Member.Name;
+      var parameterType = _parameter.ParameterType.Name;
+      var parameterName = _parameter.Name;
+      var expected = "MutableParameter = \"" + parameterType + " " + parameterName + "\", Member = \"" + memberName + "\"";
 
-      Assert.That (_parameter.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
-      Assert.That (_parameter.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
+      Assert.That (_parameter.ToDebugString(), Is.EqualTo (expected));
     }
   }
 }

@@ -76,16 +76,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetParameterSignature ()
     {
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<string>.Dummy));
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (ref Dev<int>.Dummy, null));
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7, out Dev<string>.Dummy));
 
-      var result1 = SignatureDebugStringGenerator.GetParameterSignature (method.GetParameters()[1]);
-      var result2 = SignatureDebugStringGenerator.GetParameterSignature (method.GetParameters()[0]);
+      var result1 = SignatureDebugStringGenerator.GetParameterSignature (method.GetParameters()[0]);
+      var result2 = SignatureDebugStringGenerator.GetParameterSignature (method.GetParameters()[1]);
       var result3 = SignatureDebugStringGenerator.GetParameterSignature (ctor.GetParameters()[1]);
 
-      Assert.That (result1, Is.EqualTo ("Dictionary`2[Int32,DateTime] dictionary"));
-      Assert.That (result2, Is.EqualTo ("Int32& i"));
+      Assert.That (result1, Is.EqualTo ("Int32& i"));
+      Assert.That (result2, Is.EqualTo ("Dictionary`2[Int32,DateTime] dictionary"));
       Assert.That (result3, Is.EqualTo ("String& s"));
+    }
+
+    [Test]
+    public void GetPropertySignature ()
+    {
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+
+      var result = SignatureDebugStringGenerator.GetPropertySignature (property);
+
+      Assert.That (result, Is.EqualTo ("String Property"));
+    }
+
+    [Test]
+    public void GetEventSignature ()
+    {
+      var event_ = typeof (DomainType).GetEvent ("Event");
+
+      var result = SignatureDebugStringGenerator.GetEventSignature (event_);
+
+      Assert.That (result, Is.EqualTo ("EventHandler Event"));
     }
 
     class DomainType
@@ -109,6 +129,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Dev.Null = dictionary;
         return ""; 
       }
+
+      public string Property { get { return ""; } }
+
+      public event EventHandler Event;
     }
   }
 }
