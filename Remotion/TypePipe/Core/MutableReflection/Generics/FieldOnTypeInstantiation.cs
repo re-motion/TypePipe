@@ -14,26 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// Defines methods for substituting generic type parameters with type arguments in members of a generic type definition.
+  /// Represents a field on a constructed type.
   /// </summary>
-  public interface ITypeInstantiator : ITypeAdjuster
+  public class FieldOnTypeInstantiation : CustomFieldInfo
   {
-    IEnumerable<Type> TypeArguments { get; }
+    public FieldOnTypeInstantiation (TypeInstantiation declaringType, ITypeAdjuster typeAdjuster, FieldInfo field)
+        : base (declaringType, field.Name, typeAdjuster.SubstituteGenericParameters (field.FieldType), field.Attributes)
+    {
+    }
 
-    string GetSimpleName (Type genericTypeDefinition);
-    string GetFullName (Type genericTypeDefinition);
-
-    FieldInfo SubstituteGenericParameters (FieldInfo field);
-    ConstructorInfo SubstituteGenericParameters (ConstructorInfo constructor);
-    MethodInfo SubstituteGenericParameters (MethodInfo method);
-    PropertyInfo SubstituteGenericParameters (PropertyInfo property);
-    EventInfo SubstituteGenericParameters (EventInfo event_);
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

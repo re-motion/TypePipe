@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.FullName, Is.EqualTo ("full name"));
       Assert.That (instantiation.Attributes, Is.EqualTo (genericTypeDefinition.Attributes));
       Assert.That (instantiation.IsGenericType, Is.True);
-      Assert.That (instantiation.IsGenericTypeDefinition, Is.True);
+      Assert.That (instantiation.IsGenericTypeDefinition, Is.False);
       Assert.That (instantiation.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
     }
 

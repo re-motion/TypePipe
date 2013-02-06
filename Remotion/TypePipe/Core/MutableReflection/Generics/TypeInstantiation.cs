@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             typeInstantiator.GetFullName (genericTypeDefinition),
             genericTypeDefinition.Attributes,
             isGenericType: true,
-            isGenericTypeDefinition: true,
+            isGenericTypeDefinition: false,
             typeArguments: typeInstantiator.TypeArguments)
     {
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
