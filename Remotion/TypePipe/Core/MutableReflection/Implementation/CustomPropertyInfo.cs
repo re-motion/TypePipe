@@ -59,6 +59,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       Assertion.IsTrue (type != typeof (void));
       Assertion.IsTrue (getMethod != null || setMethod != null);
       // TODO xxx: Maybe (if it is easy) add assertions that getMethod and setMethod have the right parameters/return type.
+      //var parametersBase = indexParameters.Select (p => p.ParameterType).ToArray();
+      //Assertion.IsTrue (
+      //    getMethod == null
+      //    || (getMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parametersBase) && getMethod.ReturnType == type));
+      //Assertion.IsTrue (
+      //    setMethod == null || setMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parametersBase.Concat (new[] { _type })));
 
       _declaringType = declaringType;
       _name = name;
@@ -98,21 +104,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo GetGetMethod (bool nonPublic)
     {
-      // TODO xxx: getter and setter may be null, but at least one of them must be non-null.
-      return _getMethod.IsPublic || nonPublic ? _getMethod : null;
+      return GetAccessorOrNull (_getMethod, nonPublic);
     }
 
     public override MethodInfo GetSetMethod (bool nonPublic)
     {
-      // Maybe extract int own private helper method: 'GetAccessorMethod(setterORgetter, nonPublic)
-      //if (nonPublic)
-      //  return _setMethod;
-
-      //return _setMethod != null && _setMethod.IsPublic ? _setMethod : null;
-
-
-      // TODO xxx: getter and setter may be null, but at least one of them must be non-null.
-      return _setMethod.IsPublic || nonPublic ? _setMethod : null;
+      return GetAccessorOrNull (_setMethod, nonPublic);
     }
 
     public override MethodInfo[] GetAccessors (bool nonPublic)
@@ -152,6 +149,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public string ToDebugString ()
     {
       return string.Format ("{0} = \"{1}\", DeclaringType = \"{2}\"", GetType ().Name.Replace ("Info", ""), ToString (), DeclaringType);
+    }
+
+    private MethodInfo GetAccessorOrNull (MethodInfo accessor, bool nonPublic)
+    {
+      return accessor != null && (accessor.IsPublic || nonPublic) ? accessor : null;
     }
 
     #region Unsupported Members

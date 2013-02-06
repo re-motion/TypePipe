@@ -54,11 +54,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var publicMethod = ReflectionObjectMother.GetSomePublicMethod();
       var property1 = CustomPropertyInfoObjectMother.Create (getMethod: nonPublicMethod);
       var property2 = CustomPropertyInfoObjectMother.Create (getMethod: publicMethod);
+      var property3 = CustomPropertyInfoObjectMother.Create (getMethod: null, setMethod: publicMethod);
 
       Assert.That (property1.GetGetMethod (true), Is.SameAs (nonPublicMethod));
       Assert.That (property1.GetGetMethod (false), Is.Null);
       Assert.That (property2.GetGetMethod (true), Is.SameAs (publicMethod));
       Assert.That (property2.GetGetMethod (false), Is.SameAs (publicMethod));
+      Assert.That (property3.GetGetMethod (true), Is.Null);
+      Assert.That (property3.GetGetMethod (false), Is.Null);
     }
 
     [Test]
@@ -68,11 +71,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var publicMethod = ReflectionObjectMother.GetSomePublicMethod();
       var property1 = CustomPropertyInfoObjectMother.Create (setMethod: nonPublicMethod);
       var property2 = CustomPropertyInfoObjectMother.Create (setMethod: publicMethod);
+      var property3 = CustomPropertyInfoObjectMother.Create (setMethod: null);
 
       Assert.That (property1.GetSetMethod (true), Is.SameAs (nonPublicMethod));
       Assert.That (property1.GetSetMethod (false), Is.Null);
       Assert.That (property2.GetSetMethod (true), Is.SameAs (publicMethod));
       Assert.That (property2.GetSetMethod (false), Is.SameAs (publicMethod));
+      Assert.That (property3.GetSetMethod (true), Is.Null);
+      Assert.That (property3.GetSetMethod (false), Is.Null);
     }
 
     [Test]
