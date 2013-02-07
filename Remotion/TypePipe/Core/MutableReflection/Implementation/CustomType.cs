@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       // Declaring type may be null (for non-nested types).
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      Assertion.IsTrue (baseType != null || (attributes & TypeAttributes.Interface) == TypeAttributes.Interface);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);

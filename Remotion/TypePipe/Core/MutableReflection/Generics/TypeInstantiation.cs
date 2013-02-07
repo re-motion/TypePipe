@@ -20,6 +20,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Remotion.Collections;
+using Remotion.FunctionalProgramming;
+using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -40,6 +43,118 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<MethodInfo> _methods;
     private readonly ReadOnlyCollection<PropertyInfo> _properties;
     private readonly ReadOnlyCollection<EventInfo> _events;
+
+    public static TypeInstantiation Create (
+        Type genericTypeDefinition, Type[] typeArguments, IMemberSelector memberSelector, IUnderlyingTypeFactory underlyingTypeFactory)
+    {
+      ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
+      Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
+      Assertion.IsTrue (genericTypeDefinition.GetGenericArguments().Length == typeArguments.Length);
+
+      var parametersToArguments = genericTypeDefinition.GetGenericArguments().Zip (typeArguments).ToDictionary (t => t.Item1, t => t.Item2);
+      var baseType = SubstituteGenericParameters (genericTypeDefinition.BaseType, parametersToArguments, memberSelector, underlyingTypeFactory);
+      var fullName = GetFullName (genericTypeDefinition, typeArguments);
+
+      return new TypeInstantiation (
+          memberSelector, underlyingTypeFactory, genericTypeDefinition, parametersToArguments, baseType, fullName, typeArguments);
+    }
+
+    private static string GetFullName (Type genericTypeDefinition, Type[] typeArguments)
+    {
+      var typeArgumentString = SeparatedStringBuilder.Build (",", typeArguments, t => "[" + t.AssemblyQualifiedName + "]");
+      return string.Format ("{0}[{1}]", genericTypeDefinition.FullName, typeArgumentString);
+    }
+
+    private static Type SubstituteGenericParameters (
+        Type type, Dictionary<Type, Type> parametersToArguments, IMemberSelector memberSelector, IUnderlyingTypeFactory underlyingTypeFactory)
+    {
+      if (type == null)
+        return null;
+
+      var typeArgument = parametersToArguments.GetValueOrDefault (type);
+      if (typeArgument != null)
+        return typeArgument;
+
+      if (!type.IsGenericType)
+        return type;
+
+      var oldTypeArguments = type.GetGenericArguments ();
+      // TODO: This should be a List 'newTypeArguments', not a Dictionary.
+      var mapping = oldTypeArguments.ToDictionary (
+          a => a, a => SubstituteGenericParameters (a, parametersToArguments, memberSelector, underlyingTypeFactory));
+
+      // No substitution necessary (this is an optimization only).
+      // TODO: Either remove, or change to compare oldTypeArguments.SequenceEqual (newTypeArguments).
+      if (mapping.All (pair => pair.Key == pair.Value))
+        return type;
+
+      var genericTypeDefinition = type.GetGenericTypeDefinition();
+      Assertion.IsNotNull (genericTypeDefinition);
+
+      // TODO Later: return typeDefinition.MakeTypePipeGenericType (mapping); - and move the code below to that API
+
+      var newTypeArguments = mapping.Values.ToArray ();
+
+      // Make RuntimeType if all type arguments are RuntimeTypes.
+      // if (newTypeArguments.All (typeArg => typeArg.IsRuntimeType()))
+      if (mapping.Values.All (typeArg => typeArg.IsRuntimeType()))
+        return genericTypeDefinition.MakeGenericType (newTypeArguments);
+      else
+        return Create (genericTypeDefinition, newTypeArguments, memberSelector, underlyingTypeFactory);
+    }
+
+    private readonly IMemberSelector _memberSelector;
+    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
+    private readonly Type _genericTypeDefinition;
+    private readonly Dictionary<Type, Type> _parametersToArguments;
+
+    private TypeInstantiation (
+        IMemberSelector memberSelector,
+        IUnderlyingTypeFactory underlyingTypeFactory,
+        Type genericTypeDefinition,
+        Dictionary<Type, Type> parametersToArguments,
+        Type baseType,
+        string fullName,
+        Type[] typeArguments)
+        : base (
+            memberSelector,
+            underlyingTypeFactory,
+            null,
+            baseType,
+            genericTypeDefinition.Name,
+            genericTypeDefinition.Namespace,
+            fullName,
+            genericTypeDefinition.Attributes,
+            isGenericType: true,
+            isGenericTypeDefinition: false,
+            typeArguments: typeArguments)
+    {
+      _memberSelector = memberSelector;
+      _underlyingTypeFactory = underlyingTypeFactory;
+      _genericTypeDefinition = genericTypeDefinition;
+      _parametersToArguments = parametersToArguments;
+
+      _interfaces = genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters).ToList().AsReadOnly();
+      //_fields = genericTypeDefinition.GetFields(c_allMembers).Select(f => new FieldOnTypeInstantiation(this, ))
+    }
+
+    public override Type GetGenericTypeDefinition ()
+    {
+      return _genericTypeDefinition;
+    }
+
+    public Type SubstituteGenericParameters (Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return SubstituteGenericParameters (type, _parametersToArguments, _memberSelector, _underlyingTypeFactory);
+    }
+
+    // TODO: override declaringType with throwing ex
+    // tODO: override getgenericTypeDefintion
 
     public TypeInstantiation (
         IMemberSelector memberSelector,
