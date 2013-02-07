@@ -15,14 +15,17 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -34,8 +37,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private Type _genericTypeDefinition;
     private CustomType _customType;
     private Type[] _typeArguments;
+    private Type _runtimeType;
+    private Type[] _typeArgumentsWithRuntimeType;
 
     private TypeInstantiation _instantiation;
+    private TypeInstantiation _instantiationWithRuntimeType;
 
     [SetUp]
     public void SetUp ()
@@ -46,8 +52,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _genericTypeDefinition = typeof (GenericType<>);
       _customType = CustomTypeObjectMother.Create (fullName: "MyNs.Blub");
       _typeArguments = new Type[] { _customType };
+      _runtimeType = ReflectionObjectMother.GetSomeType();
+      _typeArgumentsWithRuntimeType = new[] { _runtimeType };
 
       _instantiation = TypeInstantiation.Create (_genericTypeDefinition, _typeArguments, memberSelector, underlyingTypeFactory);
+      _instantiationWithRuntimeType = TypeInstantiation.Create (
+          _genericTypeDefinition, _typeArgumentsWithRuntimeType, memberSelector, underlyingTypeFactory);
     }
 
     [Test]
@@ -95,9 +105,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Create_Fields ()
     {
-      var field = _instantiation.GetFields (c_allMembers).Single ();
+      var field = _instantiation.GetField ("Field", c_allMembers);
 
-      var fieldOnGenericType = _genericTypeDefinition.GetFields(c_allMembers).Single();
+      var fieldOnGenericType = _genericTypeDefinition.GetField ("Field", c_allMembers);
       Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation> ());
       Assert.That (field.DeclaringType, Is.SameAs (_instantiation));
       Assert.That (field.As<FieldOnTypeInstantiation> ().FieldOnGenericType, Is.EqualTo (fieldOnGenericType));
@@ -125,10 +135,67 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (method.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (methodOnGenericType));
     }
 
+    [Test]
+    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Property DeclaringType is not supported.")]
+    public void DeclaringType ()
+    {
+      Dev.Null = _instantiation.DeclaringType;
+    }
+
+    [Ignore]
+    [Test]
+    public void SubstituteGenericParameters_CustomType ()
+    {
+      var recursiveGeneric = _genericTypeDefinition.GetField ("RecursiveGeneric").FieldType;
+      var list = _instantiation.SubstituteGenericParameters (recursiveGeneric);
+
+      Assert.That (list, Is.TypeOf<TypeInstantiation>());
+      Assert.That (list.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
+
+      var func = list.GetGenericArguments().Single();
+      Assert.That (func, Is.TypeOf<TypeInstantiation>());
+      Assert.That (func.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
+
+      var typeArgument = func.GetGenericArguments().Single();
+      Assert.That (typeArgument, Is.SameAs (_customType));
+    }
+
+    [Ignore]
+    [Test]
+    public void SubstituteGenericParameters_RuntimeType ()
+    {
+      var recursiveGeneric = _genericTypeDefinition.GetField ("RecursiveGeneric").FieldType;
+      var list = _instantiationWithRuntimeType.SubstituteGenericParameters (recursiveGeneric);
+
+      Assert.That (list.IsRuntimeType(), Is.True);
+      Assert.That (list.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
+
+      var func = list.GetGenericArguments().Single();
+      Assert.That (func.IsRuntimeType(), Is.True);
+      Assert.That (func.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
+
+      var typeArgument = func.GetGenericArguments().Single();
+      Assert.That (typeArgument, Is.SameAs (_runtimeType));
+    }
+
+    [Ignore]
+    [Test]
+    public void name ()
+    {
+      var generic = _genericTypeDefinition.GetField ("Field").FieldType;
+      var typeArgument = _instantiationWithRuntimeType.SubstituteGenericParameters (generic);
+
+      Assert.That (typeArgument, Is.SameAs (_runtimeType));
+    }
+
     interface IMyInterface<T> {}
     class BaseType<T> { }
+    //class GenericType<T>
     class GenericType<T> : BaseType<T>, IMyInterface<T>
     {
+      //public List<Func<T>> RecursiveGeneric;
+      //public List<T> RecursiveGeneric;
+
       public T Field;
       public GenericType (T arg) { }
       public void Method (T arg) { }

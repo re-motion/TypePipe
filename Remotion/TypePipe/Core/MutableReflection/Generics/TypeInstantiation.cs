@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
       Assertion.IsTrue (genericTypeDefinition.GetGenericArguments().Length == typeArguments.Length);
-
+      
       var parametersToArguments = genericTypeDefinition.GetGenericArguments().Zip (typeArguments).ToDictionary (t => t.Item1, t => t.Item2);
       var baseType = SubstituteGenericParameters (genericTypeDefinition.BaseType, parametersToArguments, memberSelector, underlyingTypeFactory);
       var fullName = GetFullName (genericTypeDefinition, typeArguments);
@@ -73,6 +73,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       if (type == null)
         return null;
+
+      Console.WriteLine (type.Name);
 
       var typeArgument = parametersToArguments.GetValueOrDefault (type);
       if (typeArgument != null)
@@ -100,10 +102,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       // Make RuntimeType if all type arguments are RuntimeTypes.
       // if (newTypeArguments.All (typeArg => typeArg.IsRuntimeType()))
-      if (mapping.Values.All (typeArg => typeArg.IsRuntimeType()))
-        return genericTypeDefinition.MakeGenericType (newTypeArguments);
-      else
-        return Create (genericTypeDefinition, newTypeArguments, memberSelector, underlyingTypeFactory);
+      var constructedType = mapping.Values.All (typeArg => typeArg.IsRuntimeType())
+                                ? genericTypeDefinition.MakeGenericType (newTypeArguments)
+                                : Create (genericTypeDefinition, newTypeArguments, memberSelector, underlyingTypeFactory);
+
+      return constructedType;
     }
 
     private readonly IMemberSelector _memberSelector;
@@ -132,6 +135,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             isGenericTypeDefinition: false,
             typeArguments: typeArguments)
     {
+      Console.WriteLine (baseType);
       _memberSelector = memberSelector;
       _underlyingTypeFactory = underlyingTypeFactory;
       _genericTypeDefinition = genericTypeDefinition;
@@ -144,11 +148,22 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _constructors = genericTypeDefinition
           .GetConstructors (c_allMembers)
           .Select (c => new ConstructorOnTypeInstantiation (this, this, c)).Cast<ConstructorInfo>().ToList().AsReadOnly();
+
+      //foreach (var m  in genericTypeDefinition.GetMethods(c_allMembers))
+      //{
+      //  Console.WriteLine (m);
+      //}
+
       _methods = genericTypeDefinition
           .GetMethods (c_allMembers)
           .Select (m => new MethodOnTypeInstantiation (this, this, m)).Cast<MethodInfo>().ToList().AsReadOnly();
       _properties = null;
       _events = null;
+    }
+
+    public override Type DeclaringType
+    {
+      get { throw new NotSupportedException ("Property DeclaringType is not supported."); }
     }
 
     public override Type GetGenericTypeDefinition ()
@@ -162,8 +177,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       return SubstituteGenericParameters (type, _parametersToArguments, _memberSelector, _underlyingTypeFactory);
     }
-
-    // TODO: override declaringType with throwing ex
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
