@@ -144,6 +144,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _constructors = genericTypeDefinition
           .GetConstructors (c_allMembers)
           .Select (c => new ConstructorOnTypeInstantiation (this, this, c)).Cast<ConstructorInfo>().ToList().AsReadOnly();
+      _methods = genericTypeDefinition
+          .GetMethods (c_allMembers)
+          .Select (m => new MethodOnTypeInstantiation (this, this, m)).Cast<MethodInfo>().ToList().AsReadOnly();
     }
 
     public override Type GetGenericTypeDefinition ()

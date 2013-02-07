@@ -114,7 +114,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [Ignore]
     public void Create_Methods ()
     {
       var method = _instantiation.GetMethod ("Method", c_allMembers);

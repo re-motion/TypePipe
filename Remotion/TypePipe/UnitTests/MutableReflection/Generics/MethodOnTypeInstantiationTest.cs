@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.Utilities;
 using Rhino.Mocks;
 using System.Linq;
 
@@ -29,13 +30,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   public class MethodOnTypeInstantiationTest
   {
     private TypeInstantiation _declaringType;
-    private IParameterAdjuster _parameterAdjuster;
+    private ITypeAdjuster _typeAdjusterMock;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = TypeInstantiationObjectMother.Create();
-      _parameterAdjuster = MockRepository.GenerateStrictMock<IParameterAdjuster>();
+      _typeAdjusterMock = MockRepository.GenerateStrictMock<ITypeAdjuster> ();
     }
 
     [Test]
@@ -43,30 +44,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (7));
 
-      var fakeReturnParameter = ReflectionObjectMother.GetSomeParameter();
-      var fakeParameter = ReflectionObjectMother.GetSomeParameter();
-      object backReference = null;
-      _parameterAdjuster
-          .Expect (mock => mock.SubstituteGenericParameters (Arg<MemberInfo>.Is.Anything, Arg.Is (method.ReturnParameter)))
-          .Return (fakeReturnParameter)
-          .WhenCalled (mi => backReference = mi.Arguments[0]);
-      _parameterAdjuster
-          .Expect (mock => mock.SubstituteGenericParameters (Arg<MemberInfo>.Is.Anything, Arg.Is (method.GetParameters().Single())))
-          .Return (fakeParameter)
-          .WhenCalled (mi => Assert.That (mi.Arguments[0], Is.Not.Null.And.SameAs (backReference)));
+      var fakeReturnType = ReflectionObjectMother.GetSomeType();
+      var fakeParameterType = ReflectionObjectMother.GetSomeOtherType();
+      _typeAdjusterMock
+          .Expect (mock => mock.SubstituteGenericParameters (method.ReturnType))
+          .Return (fakeReturnType);
+      _typeAdjusterMock
+          .Expect (mock => mock.SubstituteGenericParameters (method.GetParameters().Single().ParameterType))
+          .Return (fakeParameterType);
+      
+      var result = new MethodOnTypeInstantiation (_declaringType, _typeAdjusterMock, method);
 
-      var result = new MethodOnTypeInstantiation (_declaringType, _parameterAdjuster, method);
-
-      _parameterAdjuster.VerifyAllExpectations();
-      Assert.That (backReference, Is.SameAs (result));
-
+      _typeAdjusterMock.VerifyAllExpectations();
       Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (result.Name, Is.EqualTo (method.Name));
       Assert.That (result.Attributes, Is.EqualTo (method.Attributes));
       Assert.That (result.MethodOnGenericType, Is.SameAs (method));
 
-      Assert.That (result.ReturnParameter, Is.SameAs (fakeReturnParameter));
-      Assert.That (result.GetParameters(), Is.EqualTo (new[] { fakeParameter }));
+      var returnParameter = result.ReturnParameter;
+      Assertion.IsNotNull (returnParameter);
+      Assert.That (returnParameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
+      Assert.That (returnParameter.Member, Is.SameAs (result));
+      Assert.That (returnParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.EqualTo (method.ReturnParameter));
+
+      var parameter = result.GetParameters().Single();
+      Assert.That (parameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
+      Assert.That (parameter.Member, Is.SameAs (result));
+      Assert.That (parameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.EqualTo (method.GetParameters().Single()));
     }
 
     string Method (int i) { Dev.Null = i; return ""; }

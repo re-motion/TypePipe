@@ -34,14 +34,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
-    public MethodOnTypeInstantiation (TypeInstantiation declaringType, IParameterAdjuster parameterAdjuster, MethodInfo method)
+    public MethodOnTypeInstantiation (TypeInstantiation declaringType, ITypeAdjuster typeAdjuster, MethodInfo method)
         : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes)
     {
-      ArgumentUtility.CheckNotNull ("parameterAdjuster", parameterAdjuster);
+      ArgumentUtility.CheckNotNull ("typeAdjuster", typeAdjuster);
 
       _method = method;
-      _returnParameter = parameterAdjuster.SubstituteGenericParameters (this, method.ReturnParameter);
-      _parameters = method.GetParameters().Select (p => parameterAdjuster.SubstituteGenericParameters (this, p)).ToList().AsReadOnly();
+      _returnParameter = new MemberParameterOnTypeInstantiation (this, typeAdjuster, method.ReturnParameter);
+      _parameters = method
+          .GetParameters()
+          .Select (p => new MemberParameterOnTypeInstantiation (this, typeAdjuster, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
     public MethodInfo MethodOnGenericType
