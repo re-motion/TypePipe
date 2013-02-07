@@ -91,16 +91,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_instantiation.GetGenericArguments(), Is.EqualTo (new[] { _customType }));
     }
 
-    //[Test]
-    //public void Create_Fields ()
-    //{
-    //  var field = _instantiation.GetFields (c_allMembers).Single();
+    [Test]
+    public void Create_Fields ()
+    {
+      var field = _instantiation.GetFields (c_allMembers).Single ();
 
-    //  var fieldOnGenericType = _genericTypeDefinition.GetField ("Field");
-    //  Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation>());
-    //  Assert.That (field.DeclaringType, Is.SameAs (_instantiation));
-    //  Assert.That (field.As<FieldOnTypeInstantiation>().FieldOnGenericType, Is.EqualTo (fieldOnGenericType));
-    //}
+      var fieldOnGenericType = _genericTypeDefinition.GetField ("Field");
+      Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation> ());
+      Assert.That (field.DeclaringType, Is.SameAs (_instantiation));
+      Assert.That (field.As<FieldOnTypeInstantiation> ().FieldOnGenericType, Is.EqualTo (fieldOnGenericType));
+    }
 
     interface IMyInterface<T> {}
     class BaseType<T> { }

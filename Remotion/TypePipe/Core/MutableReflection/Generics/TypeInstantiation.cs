@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// This class is needed because the the original reflection classes do not work in combination with <see cref="CustomType"/> instances.
   /// </summary>
   /// <remarks>Instances of this class are returned by <see cref="TypeExtensions.MakeTypePipeGenericType"/>.</remarks>
-  public class TypeInstantiation : CustomType
+  public class TypeInstantiation : CustomType, ITypeAdjuster
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
 
@@ -138,7 +138,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _parametersToArguments = parametersToArguments;
 
       _interfaces = genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters).ToList().AsReadOnly();
-      //_fields = genericTypeDefinition.GetFields(c_allMembers).Select(f => new FieldOnTypeInstantiation(this, ))
+      _fields = genericTypeDefinition.GetFields (c_allMembers)
+                                     .Select (f => new FieldOnTypeInstantiation (this, this, f)).Cast<FieldInfo>().ToList().AsReadOnly();
     }
 
     public override Type GetGenericTypeDefinition ()
