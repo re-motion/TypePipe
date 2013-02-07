@@ -72,20 +72,36 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (!type.IsGenericType)
         return type;
 
-      var typeParameters = type.GetGenericArguments();
-      var mapping = typeParameters.ToDictionary (a => a, SubstituteGenericParameters);
+      var oldTypeArguments = type.GetGenericArguments();
+      // TODO: This should be a List 'newTypeArguments', not a Dictionary.
+      var mapping = oldTypeArguments.ToDictionary (a => a, SubstituteGenericParameters);
+
+      // No substitution necessary (this is an optimization only).
+      // TODO: Either remove, or change to compare oldTypeArguments.SequenceEqual (newTypeArguments).
+      if (mapping.All (pair => pair.Key == pair.Value))
+        return type;
+
+      // TODO: var typeDefinition = type.GetGenericTypeDefinition();
+      
+      // TODO Later: return typeDefinition.MakeTypePipeGenericType (mapping); - and move the code below to that API
 
       // Make RuntimeType if all type arguments are RuntimeTypes.
-      // This implicitly optimizes cases in which all key-value pairs have the same key and value (i.e., pair.Key == pair.Value).
+      // if (newTypeArguments.All (typeArg => typeArg.IsRuntimeType()))
       if (mapping.Values.All (typeArg => typeArg.IsRuntimeType()))
       {
+        // TODO: Remove this.
         // Do not simply use mapping.Values (because order matters).
-        var typeArguments = typeParameters.Select (typeParam => mapping[typeParam]).ToArray();
+        //var typeArguments = typeParameters.Select (typeParam => mapping[typeParam]).ToArray ();
+        var typeArguments = mapping.Values.ToArray();
+
+        // TODO: return typeDefinition.MakeGenericType (newTypeArguments)
         return type.MakeGenericType (typeArguments);
       }
       else
       {
         var typeInstantiator = new TypeInstantiator (_memberSelector, _underlyingTypeFactory, mapping);
+        
+        // TODO: return new TypeInstantiation (_memberSelector, _underlyingTypeFactory, typeDefinition, newTypeArguments);
         return new TypeInstantiation (_memberSelector, _underlyingTypeFactory, typeInstantiator, type);
       }
     }

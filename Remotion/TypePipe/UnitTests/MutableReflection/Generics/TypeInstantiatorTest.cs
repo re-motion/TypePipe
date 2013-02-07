@@ -16,9 +16,11 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
@@ -36,6 +38,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private CustomType _customTypeArgument;
     private Type[] _typeArgs;
     private Type[] _typeArgsWithRuntimeTypes;
+    private Dictionary<Type, Type> _mapping;
+    private Dictionary<Type, Type> _mappingWithRuntimeTypes;
 
     private IMemberSelector _memberSelectorMock;
     private ThrowingUnderlyingTypeFactory _underlyingTypeFactory;
@@ -55,15 +59,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _typeParameters = _genericType.GetGenericArguments();
       _typeArgs = new[] { typeof (string), _customTypeArgument };
       _typeArgsWithRuntimeTypes = new[] { typeof (List<int>), typeof (string) };
-      var mapping = new Dictionary<Type, Type> { { _typeParameters[0], _typeArgs[0] }, { _typeParameters[1], _typeArgs[1] } };
-      var mappingWithRuntimeTypes =
+      _mapping = new Dictionary<Type, Type> { { _typeParameters[0], _typeArgs[0] }, { _typeParameters[1], _typeArgs[1] } };
+      _mappingWithRuntimeTypes =
           new Dictionary<Type, Type> { { _typeParameters[0], _typeArgsWithRuntimeTypes[0] }, { _typeParameters[1], _typeArgsWithRuntimeTypes[1] } };
 
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
 
-      _typeInstantiator = new TypeInstantiator (_memberSelectorMock, _underlyingTypeFactory, mapping);
-      _typeInstantiatorWithRuntimeTypes = new TypeInstantiator (_memberSelectorMock, _underlyingTypeFactory, mappingWithRuntimeTypes);
+      _typeInstantiator = new TypeInstantiator (_memberSelectorMock, _underlyingTypeFactory, _mapping);
+      _typeInstantiatorWithRuntimeTypes = new TypeInstantiator (_memberSelectorMock, _underlyingTypeFactory, _mappingWithRuntimeTypes);
     }
 
     [Test]
@@ -101,6 +105,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       Assert.That (result.IsRuntimeType(), Is.True);
       Assert.That (result.GetGenericArguments(), Is.EqualTo (_typeArgsWithRuntimeTypes));
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_Type_GenericType_NoSubstitutions ()
+    {
+      var genericType = ReflectionObjectMother.GetSomeGenericType();
+      var result = _typeInstantiatorWithRuntimeTypes.SubstituteGenericParameters (genericType);
+
+      Assert.That (result, Is.SameAs (genericType));
     }
 
     [Test]
