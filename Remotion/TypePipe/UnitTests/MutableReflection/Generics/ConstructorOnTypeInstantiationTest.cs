@@ -14,9 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
@@ -29,35 +29,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   public class ConstructorOnTypeInstantiationTest
   {
     private TypeInstantiation _declaringType;
-    private IParameterAdjuster _parameterAdjuster;
+    private ITypeAdjuster _typeAdjusterMock;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = TypeInstantiationObjectMother.Create();
-      _parameterAdjuster = MockRepository.GenerateStrictMock<IParameterAdjuster>();
+      _typeAdjusterMock = MockRepository.GenerateStrictMock<ITypeAdjuster> ();
     }
 
     [Test]
     public void Initialization ()
     {
       var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
-      var fakeParameter = ReflectionObjectMother.GetSomeParameter ();
-      object backReference = null;
-      _parameterAdjuster
-          .Expect (mock => mock.SubstituteGenericParameters (Arg<MemberInfo>.Is.Anything, Arg.Is (ctor.GetParameters().Single())))
-          .Return (fakeParameter)
-          .WhenCalled (mi => backReference = mi.Arguments[0]);
-      var result = new ConstructorOnTypeInstantiation (_declaringType, _parameterAdjuster, ctor);
+      var fakeType = ReflectionObjectMother.GetSomeType();
+      _typeAdjusterMock
+          .Expect (mock => mock.SubstituteGenericParameters (ctor.GetParameters().Single().ParameterType))
+          .Return (fakeType);
+      var result = new ConstructorOnTypeInstantiation (_declaringType, _typeAdjusterMock, ctor);
 
-      _parameterAdjuster.VerifyAllExpectations ();
-      Assert.That (backReference, Is.SameAs (result));
-
+      _typeAdjusterMock.VerifyAllExpectations ();
       Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (result.Attributes, Is.EqualTo (ctor.Attributes));
       Assert.That (result.ConstructorOnGenericType, Is.SameAs (ctor));
 
-      Assert.That (result.GetParameters(), Is.EqualTo (new[] { fakeParameter }));
+      var parameter = result.GetParameters().Single();
+      Assert.That (parameter, Is.TypeOf<MemberParameterOnTypeInstantiation> ());
+      Assert.That (parameter.Member, Is.SameAs (result));
+      Assert.That (parameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.EqualTo (ctor.GetParameters().Single()));
     }
 
     private class DomainType

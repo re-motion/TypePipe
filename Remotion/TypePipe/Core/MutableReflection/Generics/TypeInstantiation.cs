@@ -138,8 +138,12 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _parametersToArguments = parametersToArguments;
 
       _interfaces = genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters).ToList().AsReadOnly();
-      _fields = genericTypeDefinition.GetFields (c_allMembers)
-                                     .Select (f => new FieldOnTypeInstantiation (this, this, f)).Cast<FieldInfo>().ToList().AsReadOnly();
+      _fields = genericTypeDefinition
+          .GetFields (c_allMembers)
+          .Select (f => new FieldOnTypeInstantiation (this, this, f)).Cast<FieldInfo>().ToList().AsReadOnly();
+      _constructors = genericTypeDefinition
+          .GetConstructors (c_allMembers)
+          .Select (c => new ConstructorOnTypeInstantiation (this, this, c)).Cast<ConstructorInfo>().ToList().AsReadOnly();
     }
 
     public override Type GetGenericTypeDefinition ()

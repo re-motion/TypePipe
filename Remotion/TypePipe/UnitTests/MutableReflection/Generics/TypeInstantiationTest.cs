@@ -96,10 +96,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var field = _instantiation.GetFields (c_allMembers).Single ();
 
-      var fieldOnGenericType = _genericTypeDefinition.GetField ("Field");
+      var fieldOnGenericType = _genericTypeDefinition.GetFields(c_allMembers).Single();
       Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation> ());
       Assert.That (field.DeclaringType, Is.SameAs (_instantiation));
       Assert.That (field.As<FieldOnTypeInstantiation> ().FieldOnGenericType, Is.EqualTo (fieldOnGenericType));
+    }
+
+    [Test]
+    public void Create_Constructors ()
+    {
+      var constructor = _instantiation.GetConstructors (c_allMembers).Single();
+
+      var constructorOnGenericType = _genericTypeDefinition.GetConstructors().Single();
+      Assert.That (constructor, Is.TypeOf<ConstructorOnTypeInstantiation>());
+      Assert.That (constructor.DeclaringType, Is.SameAs (_instantiation));
+      Assert.That (constructor.As<ConstructorOnTypeInstantiation>().ConstructorOnGenericType, Is.EqualTo (constructorOnGenericType));
+    }
+
+    [Test]
+    [Ignore]
+    public void Create_Methods ()
+    {
+      var method = _instantiation.GetMethod ("Method", c_allMembers);
+
+      var methodOnGenericType = _genericTypeDefinition.GetMethod ("Method", c_allMembers);
+      Assert.That (method, Is.TypeOf<MethodOnTypeInstantiation>());
+      Assert.That (method.DeclaringType, Is.SameAs (_instantiation));
+      Assert.That (method.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (methodOnGenericType));
     }
 
     interface IMyInterface<T> {}
@@ -107,6 +130,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     class GenericType<T> : BaseType<T>, IMyInterface<T>
     {
       public T Field;
+
+      public GenericType (T arg) { }
+
+      public void Method (T arg) { }
     }
 
     //[Test]

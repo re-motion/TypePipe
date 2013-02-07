@@ -32,13 +32,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ConstructorInfo _constructor;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
-    public ConstructorOnTypeInstantiation (TypeInstantiation declaringType, IParameterAdjuster parameterAdjuster, ConstructorInfo constructor)
+    public ConstructorOnTypeInstantiation (TypeInstantiation declaringType, ITypeAdjuster typeAdjuster, ConstructorInfo constructor)
         : base (declaringType, ArgumentUtility.CheckNotNull ("constructor", constructor).Attributes)
     {
-      ArgumentUtility.CheckNotNull ("parameterAdjuster", parameterAdjuster);
+      ArgumentUtility.CheckNotNull ("typeAdjuster", typeAdjuster);
 
       _constructor = constructor;
-      _parameters = constructor.GetParameters().Select (p => parameterAdjuster.SubstituteGenericParameters (this, p)).ToList().AsReadOnly();
+      _parameters = constructor
+          .GetParameters().Select (p => new MemberParameterOnTypeInstantiation (this, typeAdjuster, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
     public ConstructorInfo ConstructorOnGenericType
