@@ -156,14 +156,10 @@
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\FieldOnTypeInstantiation.cs" />
-    <Compile Include="MutableReflection\Generics\IMethodAdjuster.cs" />
-    <Compile Include="MutableReflection\Generics\IParameterAdjuster.cs" />
     <Compile Include="MutableReflection\Generics\ITypeAdjuster.cs" />
-    <Compile Include="MutableReflection\Generics\ITypeInstantiator.cs" />
     <Compile Include="MutableReflection\Generics\MemberParameterOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiation.cs" />
-    <Compile Include="MutableReflection\Generics\TypeInstantiator.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomEventInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomMethodInfo.cs" />

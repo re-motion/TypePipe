@@ -147,6 +147,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _methods = genericTypeDefinition
           .GetMethods (c_allMembers)
           .Select (m => new MethodOnTypeInstantiation (this, this, m)).Cast<MethodInfo>().ToList().AsReadOnly();
+      _properties = null;
+      _events = null;
     }
 
     public override Type GetGenericTypeDefinition ()
@@ -162,35 +164,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     }
 
     // TODO: override declaringType with throwing ex
-    // tODO: override getgenericTypeDefintion
-
-    public TypeInstantiation (
-        IMemberSelector memberSelector,
-        IUnderlyingTypeFactory underlyingTypeFactory,
-        ITypeInstantiator typeInstantiator,
-        Type genericTypeDefinition)
-        : base (
-            memberSelector,
-            underlyingTypeFactory,
-            null,
-            typeInstantiator.SubstituteGenericParameters (genericTypeDefinition.BaseType),
-            genericTypeDefinition.Name, // Simple names of constructed type and generic type definition are equal.
-            genericTypeDefinition.Namespace,
-            typeInstantiator.GetFullName (genericTypeDefinition),
-            genericTypeDefinition.Attributes,
-            isGenericType: true,
-            isGenericTypeDefinition: false,
-            typeArguments: typeInstantiator.TypeArguments)
-    {
-      Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
-
-      _interfaces = genericTypeDefinition.GetInterfaces().Select (typeInstantiator.SubstituteGenericParameters).ToList().AsReadOnly();
-      _fields = genericTypeDefinition.GetFields (c_allMembers).Select (f => typeInstantiator.SubstituteGenericParameters (this, f)).ToList().AsReadOnly();
-      _constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (c => typeInstantiator.SubstituteGenericParameters (this, c)).ToList().AsReadOnly();
-      _methods = genericTypeDefinition.GetMethods (c_allMembers).Select (m => typeInstantiator.SubstituteGenericParameters (this, m)).ToList().AsReadOnly();
-      _properties = genericTypeDefinition.GetProperties (c_allMembers).Select (p => typeInstantiator.SubstituteGenericParameters (this, p)).ToList().AsReadOnly();
-      _events = genericTypeDefinition.GetEvents (c_allMembers).Select (e => typeInstantiator.SubstituteGenericParameters (this, e)).ToList().AsReadOnly();
-    }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {

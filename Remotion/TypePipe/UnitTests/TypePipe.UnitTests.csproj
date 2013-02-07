@@ -120,7 +120,6 @@
     <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiationTest.cs" />
-    <Compile Include="MutableReflection\Generics\TypeInstantiatorTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfoObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfoTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomEventInfoObjectMother.cs" />

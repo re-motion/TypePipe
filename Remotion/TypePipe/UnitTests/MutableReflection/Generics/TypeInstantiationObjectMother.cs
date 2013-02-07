@@ -16,10 +16,10 @@
 // 
 
 using System;
+using System.Linq;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -27,19 +27,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   {
     public static TypeInstantiation Create (
         Type genericTypeDefinition = null,
-        ITypeInstantiator typeInstantiator = null,
+        Type[] typeArguments = null,
         IMemberSelector memberSelector = null,
         IUnderlyingTypeFactory underlyingTypeFactory = null)
     {
       genericTypeDefinition = genericTypeDefinition ?? typeof (MyGenericType<>);
+      typeArguments = typeArguments ?? genericTypeDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType()).ToArray();
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
-      var mapping = genericTypeDefinition.GetGenericArguments().ToDictionary (a => a, a => ReflectionObjectMother.GetSomeType());
-      typeInstantiator = typeInstantiator ?? new TypeInstantiator (memberSelector, underlyingTypeFactory, mapping);
 
-      return new TypeInstantiation (memberSelector, underlyingTypeFactory, typeInstantiator, genericTypeDefinition);
+      return TypeInstantiation.Create (genericTypeDefinition, typeArguments, memberSelector, underlyingTypeFactory);
     }
 
-    class MyGenericType<T> { }
+    private class MyGenericType<T>
+    {
+    }
   }
 }
