@@ -37,15 +37,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly Type _type;
     private readonly ParameterAttributes _attributes;
 
-    protected CustomParameterInfo (MemberInfo member, int position, string name, Type type, ParameterAttributes attributes)
+    protected CustomParameterInfo (MemberInfo declaringMember, int position, string name, Type type, ParameterAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("member", member);
+      ArgumentUtility.CheckNotNull ("declaringMember", declaringMember);
       // Name may be null.
       ArgumentUtility.CheckNotNull ("type", type);
       Assertion.IsTrue (type != typeof (void) || position == -1);
       Assertion.IsTrue (position >= -1);
 
-      _member = member;
+      _member = declaringMember;
       _position = position;
       _name = name;
       _type = type;

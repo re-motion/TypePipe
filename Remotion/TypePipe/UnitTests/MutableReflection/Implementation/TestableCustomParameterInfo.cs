@@ -25,8 +25,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   public class TestableCustomParameterInfo : CustomParameterInfo
   {
-    public TestableCustomParameterInfo (MemberInfo member, int position, string name, Type type, ParameterAttributes attributes)
-        : base(member, position, name, type, attributes)
+    public TestableCustomParameterInfo (MemberInfo declaringMember, int position, string name, Type type, ParameterAttributes attributes)
+        : base(declaringMember, position, name, type, attributes)
     {
     }
 

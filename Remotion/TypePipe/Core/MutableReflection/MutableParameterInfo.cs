@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
-    public MutableParameterInfo (MemberInfo member, int position, string name, Type type, ParameterAttributes attributes)
-        : base (member, position, name, type, attributes)
+    public MutableParameterInfo (MemberInfo declaringMember, int position, string name, Type type, ParameterAttributes attributes)
+        : base (declaringMember, position, name, type, attributes)
     {
     }
 
