@@ -50,26 +50,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       baseType = baseType ?? typeof (UnspecifiedType);
       typeArguments = typeArguments ?? Type.EmptyTypes;
 
-      return new TestableCustomType (
-          memberSelector,
-          underlyingTypeFactory,
-          declaringType,
-          baseType,
-          name,
-          @namespace,
-          fullName,
-          attributes,
-          isGenericType,
-          isGenericTypeDefinition,
-          typeArguments)
-             {
-                 Interfaces = interfaces ?? Type.EmptyTypes,
-                 Fields = fields ?? new FieldInfo[0],
-                 Constructors = constructors ?? new ConstructorInfo[0],
-                 Methods = methods ?? new MethodInfo[0],
-                 Properties = properties ?? new PropertyInfo[0],
-                 Events = events ?? new EventInfo[0]
-             };
+      var customType =
+          new TestableCustomType (
+              memberSelector,
+              underlyingTypeFactory,
+              declaringType,
+              name,
+              @namespace,
+              fullName,
+              attributes,
+              isGenericType,
+              isGenericTypeDefinition,
+              typeArguments)
+          {
+              Interfaces = interfaces ?? Type.EmptyTypes,
+              Fields = fields ?? new FieldInfo[0],
+              Constructors = constructors ?? new ConstructorInfo[0],
+              Methods = methods ?? new MethodInfo[0],
+              Properties = properties ?? new PropertyInfo[0],
+              Events = events ?? new EventInfo[0]
+          };
+      customType.CallSetBaseType (baseType);
+
+      return customType;
     }
 
     public class UnspecifiedType { }

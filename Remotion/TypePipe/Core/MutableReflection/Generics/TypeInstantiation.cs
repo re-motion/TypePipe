@@ -52,12 +52,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var typeArguments = instantiationInfo.TypeArguments;
 
       var parametersToArguments = genericTypeDefinition.GetGenericArguments().Zip (typeArguments).ToDictionary (t => t.Item1, t => t.Item2);
-      var baseType = SubstituteGenericParameters (
-          genericTypeDefinition.BaseType, parametersToArguments, instantiations, memberSelector, underlyingTypeFactory);
       var fullName = GetFullName (genericTypeDefinition, typeArguments);
 
-      return new TypeInstantiation (
-          memberSelector, underlyingTypeFactory, instantiationInfo, parametersToArguments, instantiations, baseType, fullName);
+      return new TypeInstantiation (memberSelector, underlyingTypeFactory, instantiationInfo, parametersToArguments, instantiations, fullName);
     }
 
     private static string GetFullName (Type genericTypeDefinition, Type[] typeArguments)
@@ -73,9 +70,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         IMemberSelector memberSelector,
         IUnderlyingTypeFactory underlyingTypeFactory)
     {
-      if (type == null)
-        return null;
-
       var typeArgument = parametersToArguments.GetValueOrDefault (type);
       if (typeArgument != null)
         return typeArgument;
@@ -125,13 +119,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         InstantiationInfo instantiationInfo,
         Dictionary<Type, Type> parametersToArguments,
         Dictionary<InstantiationInfo, TypeInstantiation> instantiations,
-        Type baseType,
         string fullName)
         : base (
             memberSelector,
             underlyingTypeFactory,
             null,
-            baseType,
             instantiationInfo.GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
             fullName,
@@ -147,6 +139,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _instantiations = instantiations;
 
       _instantiations.Add (instantiationInfo, this);
+
+      if (_genericTypeDefinition.BaseType != null)
+        SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
 
       _interfaces = _genericTypeDefinition
           .GetInterfaces()

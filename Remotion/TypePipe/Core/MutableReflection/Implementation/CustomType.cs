@@ -45,7 +45,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
 
     private readonly Type _declaringType;
-    private readonly Type _baseType;
     private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
@@ -54,13 +53,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly bool _isGenericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
 
+    private Type _baseType;
     private Type _underlyingSystemType;
 
     protected CustomType (
         IMemberSelector memberSelector,
         IUnderlyingTypeFactory underlyingTypeFactory,
         Type declaringType,
-        Type baseType,
         string name,
         string @namespace,
         string fullName,
@@ -72,7 +71,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       // Declaring type may be null (for non-nested types).
-      Assertion.IsTrue (baseType != null || (attributes & TypeAttributes.Interface) == TypeAttributes.Interface);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
@@ -82,7 +80,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _memberSelector = memberSelector;
       _underlyingTypeFactory = underlyingTypeFactory;
       _declaringType = declaringType;
-      _baseType = baseType;
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
@@ -104,6 +101,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected abstract IEnumerable<MethodInfo> GetAllMethods ();
     protected abstract IEnumerable<PropertyInfo> GetAllProperties ();
     protected abstract IEnumerable<EventInfo> GetAllEvents ();
+
+    protected void SetBaseType (Type baseType)
+    {
+      Assertion.IsTrue (baseType != null || (_attributes & TypeAttributes.Interface) == TypeAttributes.Interface);
+      _baseType = baseType;
+    }
 
     public override Assembly Assembly
     {
@@ -168,7 +171,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       {
         if (_underlyingSystemType == null)
         {
-          var newInterfaces = GetAllInterfaces().Except (_baseType.GetInterfaces());
+          var baseInterfaces = _baseType != null ? _baseType.GetInterfaces() : Type.EmptyTypes;
+          var newInterfaces = GetAllInterfaces().Except (baseInterfaces);
           _underlyingSystemType = _underlyingTypeFactory.CreateUnderlyingSystemType (_baseType, newInterfaces);
         }
 

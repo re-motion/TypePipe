@@ -29,7 +29,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IMemberSelector memberSelector,
         IUnderlyingTypeFactory underlyingTypeFactory,
         Type declaringType,
-        Type baseType,
         string name,
         string @namespace,
         string fullName,
@@ -41,7 +40,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
             memberSelector,
             underlyingTypeFactory,
             declaringType,
-            baseType,
             name,
             @namespace,
             fullName,
@@ -59,6 +57,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public IEnumerable<MethodInfo> Methods;
     public IEnumerable<PropertyInfo> Properties;
     public IEnumerable<EventInfo> Events;
+
+    public void CallSetBaseType (Type baseType)
+    {
+      SetBaseType (baseType);
+    }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
