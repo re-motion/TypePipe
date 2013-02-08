@@ -14,19 +14,21 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// A struct that holds the information needed to instantiate a type.
+  /// A class that holds the information needed to construct a generic type.
   /// </summary>
   /// <remarks>This is used by <see cref="TypeInstantiation"/> as the key in a context dictionary to break cyclic dependencies.</remarks>
-  public struct InstantiationInfo
+  public class InstantiationInfo
   {
+    private readonly Type _genericTypeDefinition;
+    private readonly Type[] _typeArguments;
     private readonly object[] _key;
 
     public InstantiationInfo (Type genericTypeDefinition, Type[] typeArguments)
@@ -34,20 +36,33 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
 
+      _genericTypeDefinition = genericTypeDefinition;
+      _typeArguments = typeArguments;
       _key = new object[] { genericTypeDefinition }.Concat (typeArguments).ToArray();
     }
 
-    public class EqualityComparer : IEqualityComparer<InstantiationInfo>
+    public Type GenericTypeDefinition
     {
-      public bool Equals (InstantiationInfo x, InstantiationInfo y)
-      {
-        return x._key.SequenceEqual (y._key);
-      }
+      get { return _genericTypeDefinition; }
+    }
 
-      public int GetHashCode (InstantiationInfo obj)
-      {
-        return EqualityUtility.GetRotatedHashCode (obj._key);
-      }
+    public Type[] TypeArguments
+    {
+      get { return _typeArguments; }
+    }
+
+    public override bool Equals (object obj)
+    {
+      var other = obj as InstantiationInfo;
+      if (other == null)
+        return false;
+
+      return _key.SequenceEqual (other._key);
+    }
+
+    public override int GetHashCode ()
+    {
+      return EqualityUtility.GetRotatedHashCode (_key);
     }
   }
 }

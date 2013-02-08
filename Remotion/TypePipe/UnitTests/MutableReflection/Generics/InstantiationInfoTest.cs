@@ -24,8 +24,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   [TestFixture]
   public class InstantiationInfoTest
   {
-    private InstantiationInfo.EqualityComparer _comparer;
-
     private InstantiationInfo _info1;
     private InstantiationInfo _info2;
     private InstantiationInfo _info3;
@@ -35,8 +33,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [SetUp]
     public void SetUp ()
     {
-      _comparer = new InstantiationInfo.EqualityComparer();
-
       var genericTypeDef1 = typeof (List<>);
       var genericTypeDef2 = typeof (Func<>);
 
@@ -51,18 +47,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void EqualityComparer_Equals ()
+    public void Initialization ()
     {
-      Assert.That (_comparer.Equals (_info1, _info2), Is.False);
-      Assert.That (_comparer.Equals (_info1, _info3), Is.False);
-      Assert.That (_comparer.Equals (_info1, _info4), Is.False);
-      Assert.That (_comparer.Equals (_info1, _info5), Is.True);
+      Assert.That (_info1.GenericTypeDefinition, Is.SameAs (typeof (List<>)));
+      Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { typeof (int) }));
+    }
+
+    [Test]
+    public void Equals ()
+    {
+      Assert.That (_info1.Equals (new object()), Is.False);
+      Assert.That (_info1.Equals (_info2), Is.False);
+      Assert.That (_info1.Equals (_info3), Is.False);
+      Assert.That (_info1.Equals (_info4), Is.False);
+      Assert.That (_info1.Equals (_info5), Is.True);
     }
 
     [Test]
     public void EqualityComparer_GetHashCode ()
     {
-      Assert.That (_comparer.GetHashCode (_info1), Is.EqualTo (_comparer.GetHashCode (_info5)));
+      Assert.That (_info1.GetHashCode(), Is.EqualTo (_info5.GetHashCode()));
     }
   }
 }
