@@ -25,7 +25,6 @@ using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -155,7 +154,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void SubstituteGenericParameters_CustomType ()
+    public void SubstituteGenericParameters_RecursiveGenericType ()
     {
       var recursiveGeneric = _genericTypeDefinition.GetField ("RecursiveGeneric").FieldType;
       var list = _instantiation.SubstituteGenericParameters (recursiveGeneric);
@@ -169,23 +168,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       var typeArgument = func.GetGenericArguments().Single();
       Assert.That (typeArgument, Is.SameAs (_customType));
-    }
-
-    [Test]
-    public void SubstituteGenericParameters_RuntimeType ()
-    {
-      var recursiveGeneric = _genericTypeDefinition.GetField ("RecursiveGeneric").FieldType;
-      var list = _instantiationWithRuntimeType.SubstituteGenericParameters (recursiveGeneric);
-
-      Assert.That (list.IsRuntimeType(), Is.True);
-      Assert.That (list.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
-
-      var func = list.GetGenericArguments().Single();
-      Assert.That (func.IsRuntimeType(), Is.True);
-      Assert.That (func.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
-
-      var typeArgument = func.GetGenericArguments().Single();
-      Assert.That (typeArgument, Is.SameAs (_runtimeType));
     }
 
     [Test]

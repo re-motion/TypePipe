@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Collections;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -30,6 +31,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// <remarks>This is used by <see cref="TypeInstantiation"/> as the key in a context dictionary to break cyclic dependencies.</remarks>
   public class InstantiationInfo
   {
+    private static readonly IUnderlyingTypeFactory s_underlyingTypeFactory = SafeServiceLocator.Current.GetInstance<IUnderlyingTypeFactory>();
+
     private readonly Type _genericTypeDefinition;
     private readonly Type[] _typeArguments;
     private readonly object[] _key;
@@ -67,9 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return _genericTypeDefinition.MakeGenericType (_typeArguments);
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var underlyingTypeFactory = new UnderlyingTypeFactory();
-
-      return new TypeInstantiation (memberSelector, underlyingTypeFactory, this, instantiations);
+      return new TypeInstantiation (memberSelector, s_underlyingTypeFactory, this, instantiations);
     }
 
     public override bool Equals (object obj)

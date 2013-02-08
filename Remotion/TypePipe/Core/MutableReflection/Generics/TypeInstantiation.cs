@@ -122,6 +122,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _events = null;
     }
 
+    // TODO Review: better option.
     public override Type DeclaringType
     {
       get { throw new NotSupportedException ("Property DeclaringType is not supported."); }

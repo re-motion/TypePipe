@@ -89,7 +89,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void MakeTypePipeGenericType_ ()
     {
-      
     }
   }
 }

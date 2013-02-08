@@ -17,17 +17,24 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
   public class InstantiationInfoTest
   {
+    private Type _customType;
+    private Type _runtimeType;
+
     private InstantiationInfo _info1;
     private InstantiationInfo _info2;
     private InstantiationInfo _info3;
     private InstantiationInfo _info4;
+
+    private Dictionary<InstantiationInfo, TypeInstantiation> _instantiations;
 
     [SetUp]
     public void SetUp ()
@@ -35,20 +42,57 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDef1 = typeof (List<>);
       var genericTypeDef2 = typeof (Func<>);
 
-      var typeArg1 = typeof (int);
-      var typeArg2 = typeof (string);
+      _customType = CustomTypeObjectMother.Create();
+      _runtimeType = ReflectionObjectMother.GetSomeType();
 
-      _info1 = new InstantiationInfo (genericTypeDef1, new[] { typeArg1 });
-      _info2 = new InstantiationInfo (genericTypeDef2, new[] { typeArg1 });
-      _info3 = new InstantiationInfo (genericTypeDef1, new[] { typeArg2 });
-      _info4 = new InstantiationInfo (genericTypeDef1, new[] { typeArg1 });
+      _info1 = new InstantiationInfo (genericTypeDef1, new[] { _customType });
+      _info2 = new InstantiationInfo (genericTypeDef2, new[] { _customType });
+      _info3 = new InstantiationInfo (genericTypeDef1, new[] { _runtimeType });
+      _info4 = new InstantiationInfo (genericTypeDef1, new[] { _customType });
+
+      _instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_info1.GenericTypeDefinition, Is.SameAs (typeof (List<>)));
-      Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { typeof (int) }));
+      Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { _customType }));
+    }
+
+    [Test]
+    public void MakeGenericType_CustomType ()
+    {
+      var result = _info1.MakeGenericType (_instantiations);
+
+      Assert.That (result, Is.TypeOf<TypeInstantiation>());
+      Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_info1.GenericTypeDefinition));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (_info1.TypeArguments));
+    }
+
+    [Test]
+    public void MakeGenericType_RuntimeType ()
+    {
+      var result = _info2.MakeGenericType (_instantiations);
+
+      Assert.That (result, Is.TypeOf<TypeInstantiation>());
+      Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_info2.GenericTypeDefinition));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (_info2.TypeArguments));
+    }
+
+    [Test]
+    public void MakeGenericType_AlreadyInContext ()
+    {
+      var result1 = _info1.MakeGenericType (_instantiations);
+      Assert.That (_instantiations[_info1], Is.SameAs (result1));
+      var count = _instantiations.Count;
+
+      var result2 = _info1.MakeGenericType (_instantiations);
+      var result3 = _info1.MakeGenericType (new Dictionary<InstantiationInfo, TypeInstantiation>());
+
+      Assert.That (_instantiations, Has.Count.EqualTo (count));
+      Assert.That (result2, Is.SameAs (result1));
+      Assert.That (result3, Is.Not.SameAs (result1));
     }
 
     [Test]
