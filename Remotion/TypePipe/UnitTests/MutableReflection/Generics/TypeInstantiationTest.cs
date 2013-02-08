@@ -34,6 +34,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
 
+    private MemberSelector _memberSelector;
+    private ThrowingUnderlyingTypeFactory _underlyingTypeFactory;
+
     private Type _genericTypeDefinition;
     private CustomType _customType;
     private Type[] _typeArguments;
@@ -49,8 +52,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [SetUp]
     public void SetUp ()
     {
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
+      _memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      _underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
 
       _genericTypeDefinition = typeof (GenericType<>);
       _customType = CustomTypeObjectMother.Create (fullName: "MyNs.Blub");
@@ -64,8 +67,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var info1 = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
       var info2 = new InstantiationInfo (_genericTypeDefinition, _typeArgumentsWithRuntimeType);
 
-      _instantiation = TypeInstantiation.Create (info1, _instantiationContext1, memberSelector, underlyingTypeFactory);
-      _instantiationWithRuntimeType = TypeInstantiation.Create (info2, _instantiationContext2, memberSelector, underlyingTypeFactory);
+      _instantiation = TypeInstantiation.Create (info1, _instantiationContext1, _memberSelector, _underlyingTypeFactory);
+      _instantiationWithRuntimeType = TypeInstantiation.Create (info2, _instantiationContext2, _memberSelector, _underlyingTypeFactory);
     }
 
     [Test]
@@ -193,15 +196,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result, Is.SameAs (nonGeneric));
     }
 
-    interface IMyInterface<T> {}
+    [Ignore]
+    [Test]
+    public void SubstituteGenericParameters_RecursiveGenericInBaseType ()
+    {
+      var genericRuntimeType = typeof (RecursiveGenericType<int>);
+      var genericBaseRuntimeType = typeof (BaseType<RecursiveGenericType<int>>);
+      Assert.That (genericRuntimeType, Is.SameAs (genericBaseRuntimeType.GetGenericArguments().Single()), "Assert original reflection behavior.");
+
+      var genericTypeDefinition = typeof (RecursiveGenericType<>);
+      var typeArguments = new Type[] { _customType };
+      var info = new InstantiationInfo (genericTypeDefinition, typeArguments);
+      var instantiation = TypeInstantiation.Create (info, _instantiationContext1, _memberSelector, _underlyingTypeFactory);
+
+      Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));
+    }
+
+    interface IMyInterface<T> { }
     class BaseType<T> { }
-    class GenericType<T> : BaseType<T>, IMyInterface<T>
+    private class GenericType<T> : BaseType<T>, IMyInterface<T>
     {
       public List<Func<T>> RecursiveGeneric;
-
       public T Field;
       public GenericType (T arg) { }
       public void Method (T arg) { }
     }
+    class RecursiveGenericType<T> : BaseType<RecursiveGenericType<T>> { }
   }
 }
