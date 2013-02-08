@@ -150,7 +150,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Dev.Null = _instantiation.DeclaringType;
     }
 
-    [Ignore]
     [Test]
     public void SubstituteGenericParameters_CustomType ()
     {
@@ -168,7 +167,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (typeArgument, Is.SameAs (_customType));
     }
 
-    [Ignore]
     [Test]
     public void SubstituteGenericParameters_RuntimeType ()
     {
@@ -187,12 +185,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void name ()
+    public void SubstituteGenericParameters_NonGenericType ()
     {
-      var generic = _genericTypeDefinition.GetField ("Field").FieldType;
-      var typeArgument = _instantiationWithRuntimeType.SubstituteGenericParameters (generic);
+      var nonGeneric = ReflectionObjectMother.GetSomeNonGenericType();
+      var result = _instantiationWithRuntimeType.SubstituteGenericParameters (nonGeneric);
 
-      Assert.That (typeArgument, Is.SameAs (_runtimeType));
+      Assert.That (result, Is.SameAs (nonGeneric));
     }
 
     interface IMyInterface<T> {}

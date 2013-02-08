@@ -94,7 +94,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var genericTypeDefinition = type.GetGenericTypeDefinition();
       Assertion.IsNotNull (genericTypeDefinition);
 
-      var typeInstantiation = instantiations.GetValueOrDefault (new InstantiationInfo (genericTypeDefinition, newTypeArguments));
+      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
+      var typeInstantiation = instantiations.GetValueOrDefault (instantiationInfo);
       if (typeInstantiation != null)
         return typeInstantiation;
 
@@ -102,10 +103,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (newTypeArguments.All (typeArg => typeArg.IsRuntimeType()))
         return genericTypeDefinition.MakeGenericType (newTypeArguments);
       else
-      {
-        var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
         return Create (instantiationInfo, instantiations, memberSelector, underlyingTypeFactory);
-      }
     }
 
     private readonly IMemberSelector _memberSelector;
