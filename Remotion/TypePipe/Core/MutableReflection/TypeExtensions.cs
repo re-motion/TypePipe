@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -74,18 +75,65 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO 5390: docs
-    // TODO one positive test that needs substitition + argument checks
     public static Type MakeTypePipeGenericType (this Type genericTypeDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
 
-      // TODO argument checks.
+      if (!genericTypeDefinition.IsGenericTypeDefinition)
+      {
+        var message = string.Format (
+            "'{0}' is not a generic type definition. MakeGenericType may only be called on a type for which Type.IsGenericTypeDefinition is true.",
+            genericTypeDefinition.Name);
+        throw new InvalidOperationException (message);
+      }
+
+      var typeParameters = genericTypeDefinition.GetGenericArguments();
+      if (typeParameters.Length != typeArguments.Length)
+      {
+        var message = string.Format (
+            "The type has {0} generic parameter(s), but {1} generic argument(s) were provided. "
+            + "A generic argument must be provided for each generic parameter.",
+            typeParameters.Length,
+            typeArguments.Length);
+        throw new ArgumentException (message, "typeArguments");
+      }
+
+      for (int i = 0; i < typeParameters.Length; i++)
+      {
+        var parameter = typeParameters[i];
+        var argument = typeArguments[i];
+
+        if (!IsValidGenericArgument (parameter, argument))
+        {
+          var message = string.Format (
+              "Generic argument '{0}' at position {1} on '{2}' violates a constraint of type parameter '{3}'.",
+              argument.Name, i, genericTypeDefinition.Name, parameter.Name);
+          throw new ArgumentException (message, "typeArguments");
+        }
+      }
 
       var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
       var instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
 
       return instantiationInfo.MakeGenericType (instantiations);
+    }
+
+    private static bool IsValidGenericArgument (Type parameter, Type argument)
+    {
+      var attr = parameter.GenericParameterAttributes;
+
+      if (attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) && argument.GetConstructor (Type.EmptyTypes) == null)
+        return false;
+
+
+      return true;
+    }
+
+    private static bool IsSet (this GenericParameterAttributes attributes, GenericParameterAttributes flag)
+    {
+      Assertion.IsTrue (flag != 0);
+      return (attributes & flag) == flag;
     }
   }
 }

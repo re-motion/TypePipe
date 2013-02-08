@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private ModuleBuilder _moduleBuilder;
     private int _counter;
 
+    // TODO Review: What about structs and generic base types?
     public Type CreateUnderlyingSystemType (Type baseTypeOrNull, IEnumerable<Type> newInterfaces)
     {
       // Base type may be null (for interfaces).

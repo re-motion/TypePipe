@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SetUp ()
     {
       _declaringType = TypeInstantiationObjectMother.Create();
-      _typeAdjusterMock = MockRepository.GenerateStrictMock<ITypeAdjuster> ();
+      _typeAdjusterMock = MockRepository.GenerateStrictMock<ITypeAdjuster>();
     }
 
     [Test]

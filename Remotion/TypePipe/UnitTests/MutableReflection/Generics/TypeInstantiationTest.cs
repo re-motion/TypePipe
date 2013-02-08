@@ -157,15 +157,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SubstituteGenericParameters_RecursiveGenericType ()
     {
       var recursiveGeneric = _genericTypeDefinition.GetField ("RecursiveGeneric").FieldType;
+
       var list = _instantiation.SubstituteGenericParameters (recursiveGeneric);
 
-      Assert.That (list, Is.TypeOf<TypeInstantiation>());
       Assert.That (list.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
-
       var func = list.GetGenericArguments().Single();
-      Assert.That (func, Is.TypeOf<TypeInstantiation>());
       Assert.That (func.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
-
       var typeArgument = func.GetGenericArguments().Single();
       Assert.That (typeArgument, Is.SameAs (_customType));
     }
