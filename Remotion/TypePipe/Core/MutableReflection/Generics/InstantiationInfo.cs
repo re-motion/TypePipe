@@ -1,0 +1,53 @@
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
+// 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Remotion.Utilities;
+
+namespace Remotion.TypePipe.MutableReflection.Generics
+{
+  /// <summary>
+  /// A struct that holds the information needed to instantiate a type.
+  /// </summary>
+  /// <remarks>This is used by <see cref="TypeInstantiation"/> as the key in a context dictionary to break cyclic dependencies.</remarks>
+  public struct InstantiationInfo
+  {
+    private readonly object[] _key;
+
+    public InstantiationInfo (Type genericTypeDefinition, Type[] typeArguments)
+    {
+      ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
+      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
+
+      _key = new object[] { genericTypeDefinition }.Concat (typeArguments).ToArray();
+    }
+
+    public class EqualityComparer : IEqualityComparer<InstantiationInfo>
+    {
+      public bool Equals (InstantiationInfo x, InstantiationInfo y)
+      {
+        return x._key.SequenceEqual (y._key);
+      }
+
+      public int GetHashCode (InstantiationInfo obj)
+      {
+        return EqualityUtility.GetRotatedHashCode (obj._key);
+      }
+    }
+  }
+}
