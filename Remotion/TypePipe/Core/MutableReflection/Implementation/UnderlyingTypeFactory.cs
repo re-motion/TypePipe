@@ -33,17 +33,21 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private ModuleBuilder _moduleBuilder;
     private int _counter;
 
-    public Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces)
+    public Type CreateUnderlyingSystemType (Type baseTypeOrNull, IEnumerable<Type> newInterfaces)
     {
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      // Base type may be null (for interfaces).
       ArgumentUtility.CheckNotNull ("newInterfaces", newInterfaces);
 
       _moduleBuilder = _moduleBuilder ?? CreateModuleBuilder();
       _counter++;
 
+      var isClass = baseTypeOrNull != null;
       var name = "UnderlyingSystemType" + _counter;
-      var typeBuilder = _moduleBuilder.DefineType (name, TypeAttributes.Abstract, baseType, newInterfaces.ToArray());
-      AddDummyConstructor (typeBuilder);
+      var attributes = (isClass ? TypeAttributes.Class : TypeAttributes.Interface) | TypeAttributes.Abstract;
+
+      var typeBuilder = _moduleBuilder.DefineType (name, attributes, baseTypeOrNull, newInterfaces.ToArray());
+      if (isClass)
+        AddDummyConstructor (typeBuilder);
 
       return typeBuilder.CreateType();
     }

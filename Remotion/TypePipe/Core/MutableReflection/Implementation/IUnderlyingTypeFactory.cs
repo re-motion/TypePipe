@@ -29,6 +29,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   [ConcreteImplementation (typeof (UnderlyingTypeFactory))]
   public interface IUnderlyingTypeFactory
   {
-    Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces);
+    Type CreateUnderlyingSystemType (Type baseTypeOrNull, IEnumerable<Type> newInterfaces);
   }
 }
