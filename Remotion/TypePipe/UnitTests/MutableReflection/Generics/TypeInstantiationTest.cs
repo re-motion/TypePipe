@@ -119,6 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var field = _instantiation.GetField ("Field", c_allMembers);
 
       var fieldOnGenericType = _genericTypeDefinition.GetField ("Field", c_allMembers);
+      Assertion.IsNotNull (field);
       Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation> ());
       Assert.That (field.DeclaringType, Is.SameAs (_instantiation));
       Assert.That (field.As<FieldOnTypeInstantiation> ().FieldOnGenericType, Is.EqualTo (fieldOnGenericType));
@@ -196,7 +197,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result, Is.SameAs (nonGeneric));
     }
 
-    [Ignore]
     [Test]
     public void SubstituteGenericParameters_RecursiveGenericInBaseType ()
     {
@@ -209,6 +209,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var info = new InstantiationInfo (genericTypeDefinition, typeArguments);
       var instantiation = TypeInstantiation.Create (info, _instantiationContext1, _memberSelector, _underlyingTypeFactory);
 
+      Assertion.IsNotNull (instantiation.BaseType);
       Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));
     }
 
