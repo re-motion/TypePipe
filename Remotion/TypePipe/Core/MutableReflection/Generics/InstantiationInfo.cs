@@ -16,7 +16,10 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Remotion.Collections;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
@@ -51,6 +54,22 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public Type[] TypeArguments
     {
       get { return _typeArguments; }
+    }
+
+    public Type MakeGenericType (Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
+    {
+      var typeInstantiation = instantiations.GetValueOrDefault (this);
+      if (typeInstantiation != null)
+        return typeInstantiation;
+
+      // Make RuntimeType if all type arguments are RuntimeTypes.
+      if (_typeArguments.All (typeArg => typeArg.IsRuntimeType()))
+        return _genericTypeDefinition.MakeGenericType (_typeArguments);
+
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var underlyingTypeFactory = new UnderlyingTypeFactory();
+
+      return new TypeInstantiation (memberSelector, underlyingTypeFactory, this, instantiations);
     }
 
     public override bool Equals (object obj)

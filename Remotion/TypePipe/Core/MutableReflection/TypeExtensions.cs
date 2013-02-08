@@ -83,11 +83,9 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO argument checks.
 
       var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiationContext = new Dictionary<InstantiationInfo, TypeInstantiation>();
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var underlyingTypeFactory = new UnderlyingTypeFactory();
+      var instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
 
-      return TypeInstantiation.Create (instantiationInfo, instantiationContext, memberSelector, underlyingTypeFactory);
+      return instantiationInfo.MakeGenericType (instantiations);
     }
   }
 }

@@ -37,38 +37,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
 
-    public static TypeInstantiation Create (
-        InstantiationInfo instantiationInfo,
-        Dictionary<InstantiationInfo, TypeInstantiation> instantiations,
-        IMemberSelector memberSelector,
-        IUnderlyingTypeFactory underlyingTypeFactory)
+    private static string GetFullName (InstantiationInfo info)
     {
-      ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo);
-      ArgumentUtility.CheckNotNull ("instantiations", instantiations);
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
-
-      var genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
-      var typeArguments = instantiationInfo.TypeArguments;
-
-      var parametersToArguments = genericTypeDefinition.GetGenericArguments().Zip (typeArguments).ToDictionary (t => t.Item1, t => t.Item2);
-      var fullName = GetFullName (genericTypeDefinition, typeArguments);
-
-      return new TypeInstantiation (memberSelector, underlyingTypeFactory, instantiationInfo, parametersToArguments, instantiations, fullName);
-    }
-
-    private static string GetFullName (Type genericTypeDefinition, Type[] typeArguments)
-    {
-      var typeArgumentString = SeparatedStringBuilder.Build (",", typeArguments, t => "[" + t.AssemblyQualifiedName + "]");
-      return string.Format ("{0}[{1}]", genericTypeDefinition.FullName, typeArgumentString);
+      var typeArgumentString = SeparatedStringBuilder.Build (",", info.TypeArguments, t => "[" + t.AssemblyQualifiedName + "]");
+      return string.Format ("{0}[{1}]", info.GenericTypeDefinition.FullName, typeArgumentString);
     }
 
     private static Type SubstituteGenericParameters (
-        Type type,
-        Dictionary<Type, Type> parametersToArguments,
-        Dictionary<InstantiationInfo, TypeInstantiation> instantiations,
-        IMemberSelector memberSelector,
-        IUnderlyingTypeFactory underlyingTypeFactory)
+        Type type, Dictionary<Type, Type> parametersToArguments, Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
     {
       var typeArgument = parametersToArguments.GetValueOrDefault (type);
       if (typeArgument != null)
@@ -78,33 +54,21 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return type;
 
       var oldTypeArguments = type.GetGenericArguments();
-      var newTypeArguments = oldTypeArguments
-          .Select (a => SubstituteGenericParameters (a, parametersToArguments, instantiations, memberSelector, underlyingTypeFactory)).ToArray();
+      var newTypeArguments = oldTypeArguments.Select (a => SubstituteGenericParameters (a, parametersToArguments, instantiations)).ToArray();
 
       // No substitution necessary (this is an optimization only).
       if (oldTypeArguments.SequenceEqual (newTypeArguments))
         return type;
 
       var genericTypeDefinition = type.GetGenericTypeDefinition();
-      Assertion.IsNotNull (genericTypeDefinition);
-
       var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
-      var typeInstantiation = instantiations.GetValueOrDefault (instantiationInfo);
-      if (typeInstantiation != null)
-        return typeInstantiation;
 
-      // Make RuntimeType if all type arguments are RuntimeTypes.
-      if (newTypeArguments.All (typeArg => typeArg.IsRuntimeType()))
-        return genericTypeDefinition.MakeGenericType (newTypeArguments);
-      else
-        return Create (instantiationInfo, instantiations, memberSelector, underlyingTypeFactory);
+      return instantiationInfo.MakeGenericType (instantiations);
     }
 
-    private readonly IMemberSelector _memberSelector;
-    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
     private readonly Type _genericTypeDefinition;
-    private readonly Dictionary<Type, Type> _parametersToArguments;
     private readonly Dictionary<InstantiationInfo, TypeInstantiation> _instantiations;
+    private readonly Dictionary<Type, Type> _parametersToArguments;
 
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<FieldInfo> _fields;
@@ -113,32 +77,31 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<PropertyInfo> _properties;
     private readonly ReadOnlyCollection<EventInfo> _events;
 
-    private TypeInstantiation (
+    public TypeInstantiation (
         IMemberSelector memberSelector,
         IUnderlyingTypeFactory underlyingTypeFactory,
         InstantiationInfo instantiationInfo,
-        Dictionary<Type, Type> parametersToArguments,
-        Dictionary<InstantiationInfo, TypeInstantiation> instantiations,
-        string fullName)
+        Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
         : base (
             memberSelector,
             underlyingTypeFactory,
             null,
             instantiationInfo.GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
-            fullName,
+            GetFullName (instantiationInfo),
             instantiationInfo.GenericTypeDefinition.Attributes,
             isGenericType: true,
             isGenericTypeDefinition: false,
             typeArguments: instantiationInfo.TypeArguments)
     {
-      _memberSelector = memberSelector;
-      _underlyingTypeFactory = underlyingTypeFactory;
       _genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
-      _parametersToArguments = parametersToArguments;
       _instantiations = instantiations;
 
-      _instantiations.Add (instantiationInfo, this);
+      _parametersToArguments = _genericTypeDefinition
+          .GetGenericArguments().Zip (instantiationInfo.TypeArguments).ToDictionary (t => t.Item1, t => t.Item2);
+
+      // Add own instantation to context before substituting any generic parameters. 
+      instantiations.Add (instantiationInfo, this); 
 
       if (_genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
@@ -173,7 +136,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return SubstituteGenericParameters (type, _parametersToArguments, _instantiations, _memberSelector, _underlyingTypeFactory);
+      return SubstituteGenericParameters (type, _parametersToArguments, _instantiations);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

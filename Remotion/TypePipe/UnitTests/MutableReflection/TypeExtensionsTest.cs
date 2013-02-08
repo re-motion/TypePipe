@@ -85,5 +85,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (runtimeType.GetTypeCodeFast(), Is.EqualTo (Type.GetTypeCode (runtimeType)));
       Assert.That (customType.GetTypeCodeFast(), Is.EqualTo (TypeCode.Object));
     }
+
+    [Test]
+    public void MakeTypePipeGenericType_ ()
+    {
+      
+    }
   }
 }

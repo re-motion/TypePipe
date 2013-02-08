@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
 
-      return TypeInstantiation.Create (instantiationInfo, instantiationContext, memberSelector, underlyingTypeFactory);
+      return new TypeInstantiation (memberSelector, underlyingTypeFactory, instantiationInfo, instantiationContext);
     }
 
     private class MyGenericType<T> { }

@@ -67,8 +67,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var info1 = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
       var info2 = new InstantiationInfo (_genericTypeDefinition, _typeArgumentsWithRuntimeType);
 
-      _instantiation = TypeInstantiation.Create (info1, _instantiationContext1, _memberSelector, _underlyingTypeFactory);
-      _instantiationWithRuntimeType = TypeInstantiation.Create (info2, _instantiationContext2, _memberSelector, _underlyingTypeFactory);
+      _instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info1, _instantiationContext1);
+      _instantiationWithRuntimeType = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info2, _instantiationContext2);
     }
 
     [Test]
@@ -207,7 +207,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = typeof (RecursiveGenericType<>);
       var typeArguments = new Type[] { _customType };
       var info = new InstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiation = TypeInstantiation.Create (info, _instantiationContext1, _memberSelector, _underlyingTypeFactory);
+      var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info, _instantiationContext1);
 
       Assertion.IsNotNull (instantiation.BaseType);
       Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));
