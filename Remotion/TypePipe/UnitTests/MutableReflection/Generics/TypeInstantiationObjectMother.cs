@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +42,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       return new TypeInstantiation (memberSelector, underlyingTypeFactory, instantiationInfo, instantiationContext);
     }
 
-    private class MyGenericType<T> { }
+    private class MyGenericType<T> {}
   }
 }

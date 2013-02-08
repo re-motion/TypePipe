@@ -160,6 +160,7 @@
     <Compile Include="MutableReflection\Generics\ITypeAdjuster.cs" />
     <Compile Include="MutableReflection\Generics\MemberParameterOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\PropertyOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiation.cs" />
     <Compile Include="MutableReflection\Implementation\CustomConstructorInfo.cs" />
     <Compile Include="MutableReflection\Implementation\CustomEventInfo.cs" />
