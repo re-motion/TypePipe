@@ -40,6 +40,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private Type _runtimeType;
     private Type[] _typeArgumentsWithRuntimeType;
 
+    private Dictionary<InstantiationInfo, TypeInstantiation> _instantiationContext1;
+    private Dictionary<InstantiationInfo, TypeInstantiation> _instantiationContext2;
+
     private TypeInstantiation _instantiation;
     private TypeInstantiation _instantiationWithRuntimeType;
 
@@ -55,9 +58,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _runtimeType = ReflectionObjectMother.GetSomeType();
       _typeArgumentsWithRuntimeType = new[] { _runtimeType };
 
-      _instantiation = TypeInstantiation.Create (_genericTypeDefinition, _typeArguments, memberSelector, underlyingTypeFactory);
-      _instantiationWithRuntimeType = TypeInstantiation.Create (
-          _genericTypeDefinition, _typeArgumentsWithRuntimeType, memberSelector, underlyingTypeFactory);
+      _instantiationContext1 = new Dictionary<InstantiationInfo, TypeInstantiation>();
+      _instantiationContext2 = new Dictionary<InstantiationInfo, TypeInstantiation>();
+
+      var info1 = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
+      var info2 = new InstantiationInfo (_genericTypeDefinition, _typeArgumentsWithRuntimeType);
+
+      _instantiation = TypeInstantiation.Create (info1, _instantiationContext1, memberSelector, underlyingTypeFactory);
+      _instantiationWithRuntimeType = TypeInstantiation.Create (info2, _instantiationContext2, memberSelector, underlyingTypeFactory);
     }
 
     [Test]
@@ -178,7 +186,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (typeArgument, Is.SameAs (_runtimeType));
     }
 
-    [Ignore]
     [Test]
     public void name ()
     {
@@ -190,11 +197,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
     interface IMyInterface<T> {}
     class BaseType<T> { }
-    //class GenericType<T>
     class GenericType<T> : BaseType<T>, IMyInterface<T>
     {
-      //public List<Func<T>> RecursiveGeneric;
-      //public List<T> RecursiveGeneric;
+      public List<Func<T>> RecursiveGeneric;
 
       public T Field;
       public GenericType (T arg) { }

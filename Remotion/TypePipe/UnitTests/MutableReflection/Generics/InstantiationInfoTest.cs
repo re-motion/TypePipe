@@ -28,7 +28,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private InstantiationInfo _info2;
     private InstantiationInfo _info3;
     private InstantiationInfo _info4;
-    private InstantiationInfo _info5;
 
     [SetUp]
     public void SetUp ()
@@ -42,8 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _info1 = new InstantiationInfo (genericTypeDef1, new[] { typeArg1 });
       _info2 = new InstantiationInfo (genericTypeDef2, new[] { typeArg1 });
       _info3 = new InstantiationInfo (genericTypeDef1, new[] { typeArg2 });
-      _info4 = new InstantiationInfo (genericTypeDef1, new[] { typeArg1, typeArg2 });
-      _info5 = new InstantiationInfo (genericTypeDef1, new[] { typeArg1 });
+      _info4 = new InstantiationInfo (genericTypeDef1, new[] { typeArg1 });
     }
 
     [Test]
@@ -59,14 +57,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_info1.Equals (new object()), Is.False);
       Assert.That (_info1.Equals (_info2), Is.False);
       Assert.That (_info1.Equals (_info3), Is.False);
-      Assert.That (_info1.Equals (_info4), Is.False);
-      Assert.That (_info1.Equals (_info5), Is.True);
+      Assert.That (_info1.Equals (_info4), Is.True);
     }
 
     [Test]
-    public void EqualityComparer_GetHashCode ()
+    public new void GetHashCode ()
     {
-      Assert.That (_info1.GetHashCode(), Is.EqualTo (_info5.GetHashCode()));
+      Assert.That (_info1.GetHashCode(), Is.EqualTo (_info4.GetHashCode()));
     }
   }
 }

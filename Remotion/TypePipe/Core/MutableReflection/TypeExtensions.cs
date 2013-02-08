@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Dynamic.Utils;
@@ -72,12 +74,20 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO 5390: docs
-    public static Type MakeTypePipeGenericType (this Type type, params Type[] typeArguments)
+    // TODO one positive test that needs substitition + argument checks
+    public static Type MakeTypePipeGenericType (this Type genericTypeDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
 
-      return null;
+      // TODO argument checks.
+
+      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
+      var instantiationContext = new Dictionary<InstantiationInfo, TypeInstantiation>();
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var underlyingTypeFactory = new UnderlyingTypeFactory();
+
+      return TypeInstantiation.Create (instantiationInfo, instantiationContext, memberSelector, underlyingTypeFactory);
     }
   }
 }

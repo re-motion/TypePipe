@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
@@ -28,19 +29,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public static TypeInstantiation Create (
         Type genericTypeDefinition = null,
         Type[] typeArguments = null,
+        Dictionary<InstantiationInfo, TypeInstantiation> instantiationContext = null,
         IMemberSelector memberSelector = null,
         IUnderlyingTypeFactory underlyingTypeFactory = null)
     {
       genericTypeDefinition = genericTypeDefinition ?? typeof (MyGenericType<>);
       typeArguments = typeArguments ?? genericTypeDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType()).ToArray();
+      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
+      instantiationContext = instantiationContext ?? new Dictionary<InstantiationInfo, TypeInstantiation>();
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
 
-      return TypeInstantiation.Create (genericTypeDefinition, typeArguments, memberSelector, underlyingTypeFactory);
+      return TypeInstantiation.Create (instantiationInfo, instantiationContext, memberSelector, underlyingTypeFactory);
     }
 
-    private class MyGenericType<T>
-    {
-    }
+    private class MyGenericType<T> { }
   }
 }

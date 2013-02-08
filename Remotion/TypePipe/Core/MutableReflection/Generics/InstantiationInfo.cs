@@ -35,6 +35,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
+      Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
+      Assertion.IsTrue (genericTypeDefinition.GetGenericArguments().Length == typeArguments.Length);
 
       _genericTypeDefinition = genericTypeDefinition;
       _typeArguments = typeArguments;
