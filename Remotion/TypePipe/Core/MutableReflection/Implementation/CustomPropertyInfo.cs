@@ -39,7 +39,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly PropertyAttributes _attributes;
     private readonly CustomMethodInfo _getMethod;
     private readonly CustomMethodInfo _setMethod;
-    private readonly CustomParameterInfo[] _indexParameters;
+
+    protected readonly CustomParameterInfo[] IndexParameters;
 
     protected CustomPropertyInfo (
         CustomType declaringType,
@@ -72,7 +73,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _attributes = attributes;
       _getMethod = getMethod;
       _setMethod = setMethod;
-      _indexParameters = indexParameters;
+      IndexParameters = indexParameters;
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
@@ -99,7 +100,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override ParameterInfo[] GetIndexParameters ()
     {
-      return _indexParameters;
+      return IndexParameters;
     }
 
     public override MethodInfo GetGetMethod (bool nonPublic)

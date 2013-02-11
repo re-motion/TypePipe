@@ -19,7 +19,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
@@ -56,7 +55,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [Ignore]
     public void GetIndexParameters ()
     {
       var originalParameter = _originalProperty.GetIndexParameters().Single();
@@ -65,6 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (parameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
       Assert.That (parameter.Name, Is.EqualTo (originalParameter.Name));
       Assert.That (parameter.Member, Is.SameAs (_property));
+      Assert.That (parameter.ParameterType, Is.EqualTo (originalParameter.ParameterType));
     }
 
     [UsedImplicitly]

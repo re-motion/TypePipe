@@ -31,11 +31,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomParameterInfo : ParameterInfo, ICustomAttributeDataProvider
   {
-    private readonly MemberInfo _member;
     private readonly int _position;
     private readonly string _name;
     private readonly Type _type;
     private readonly ParameterAttributes _attributes;
+
+    private MemberInfo _member;
 
     protected CustomParameterInfo (MemberInfo declaringMember, int position, string name, Type type, ParameterAttributes attributes)
     {
@@ -53,6 +54,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
+
+    internal void SetMember (MemberInfo member)
+    {
+      _member = member;
+    }
 
     public override MemberInfo Member
     {

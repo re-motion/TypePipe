@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -32,8 +33,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         PropertyInfo property,
         MethodOnTypeInstantiation getMethod,
         MethodOnTypeInstantiation setMethod)
-        : base (declaringType, property.Name, typeof (int), 0, getMethod, setMethod)
+        : base (declaringType, property.Name, typeof (int), 0, getMethod, setMethod, AdaptParameters (declaringType, getMethod))
     {
+      foreach (var indexParameter in IndexParameters)
+        indexParameter.SetMember (this);
+    }
+
+    private static CustomParameterInfo[] AdaptParameters (TypeInstantiation declaringType, MethodOnTypeInstantiation getMethod)
+    {
+      return getMethod.GetParameters().Select (p => new MemberParameterOnTypeInstantiation (getMethod, declaringType, p))
+        .Cast<CustomParameterInfo>().ToArray();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
