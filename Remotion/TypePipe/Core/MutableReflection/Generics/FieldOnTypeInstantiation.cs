@@ -30,11 +30,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     private readonly FieldInfo _field;
 
-    public FieldOnTypeInstantiation (TypeInstantiation declaringType, ITypeAdjuster typeAdjuster, FieldInfo field)
+    public FieldOnTypeInstantiation (TypeInstantiation declaringType, FieldInfo field)
         : base (
             declaringType,
             ArgumentUtility.CheckNotNull ("field", field).Name,
-            ArgumentUtility.CheckNotNull ("typeAdjuster", typeAdjuster).SubstituteGenericParameters (field.FieldType),
+            ArgumentUtility.CheckNotNull ("declaringType", declaringType).SubstituteGenericParameters (field.FieldType),
             field.Attributes)
     {
       _field = field;

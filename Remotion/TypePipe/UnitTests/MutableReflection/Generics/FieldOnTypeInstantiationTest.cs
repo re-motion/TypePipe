@@ -15,10 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Rhino.Mocks;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -26,30 +27,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   public class FieldOnTypeInstantiationTest
   {
     private TypeInstantiation _declaringType;
-    private ITypeAdjuster _typeAdjuster;
+    private Type _typeParameter;
+    private Type _typeArgument;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = TypeInstantiationObjectMother.Create();
-      _typeAdjuster = MockRepository.GenerateStrictMock<ITypeAdjuster>();
+      _typeParameter = typeof (GenericType<>).GetGenericArguments().Single();
+      _typeArgument = ReflectionObjectMother.GetSomeType();
+      _declaringType = TypeInstantiationObjectMother.Create (typeof (GenericType<>), new[] { _typeArgument });
     }
 
     [Test]
     public void Initialization ()
     {
-      var field = ReflectionObjectMother.GetSomeField();
-      var fakeType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAdjuster.Expect (mock => mock.SubstituteGenericParameters (field.FieldType)).Return (fakeType);
+      var field = CustomFieldInfoObjectMother.Create (type: _typeParameter);
 
-      var result = new FieldOnTypeInstantiation (_declaringType, _typeAdjuster, field);
+      var result = new FieldOnTypeInstantiation (_declaringType, field);
 
-      _typeAdjuster.VerifyAllExpectations();
       Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (result.Name, Is.EqualTo (field.Name));
       Assert.That (result.Attributes, Is.EqualTo (field.Attributes));
-      Assert.That (result.FieldType, Is.SameAs (fakeType));
+      Assert.That (result.FieldType, Is.SameAs (_typeArgument));
       Assert.That (result.FieldOnGenericType, Is.SameAs (field));
     }
+
+    class GenericType<T> {}
   }
 }

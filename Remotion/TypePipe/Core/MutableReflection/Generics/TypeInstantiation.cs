@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
           .Select (SubstituteGenericParameters).ToList().AsReadOnly();
       _fields = _genericTypeDefinition
           .GetFields (c_allMembers)
-          .Select (f => new FieldOnTypeInstantiation (this, this, f)).Cast<FieldInfo>().ToList().AsReadOnly();
+          .Select (f => new FieldOnTypeInstantiation (this, f)).Cast<FieldInfo>().ToList().AsReadOnly();
       _constructors = _genericTypeDefinition
           .GetConstructors (c_allMembers)
           .Select (c => new ConstructorOnTypeInstantiation (this, this, c)).Cast<ConstructorInfo>().ToList().AsReadOnly();
