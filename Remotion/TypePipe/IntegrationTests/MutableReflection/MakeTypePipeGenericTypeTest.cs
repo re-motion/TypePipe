@@ -21,47 +21,49 @@ using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
-  [Ignore ("TODO 5390")]
   [TestFixture]
   public class MakeTypePipeGenericTypeTest
   {
     private ProxyType _typeArg1;
     private ProxyType _typeArg2;
 
-    private Type _typeInstantiation;
+    private Type _instantiation;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeArg1 = ProxyTypeObjectMother.Create();
-      _typeArg2 = ProxyTypeObjectMother.Create();
+      _typeArg1 = ProxyTypeObjectMother.Create (typeof (object));
+      _typeArg2 = ProxyTypeObjectMother.Create (typeof (MakeTypePipeGenericTypeTest));
 
-      _typeInstantiation = typeof (GenericType<,>).MakeTypePipeGenericType (_typeArg1, _typeArg2);
+      _instantiation = typeof (GenericType<,>).MakeTypePipeGenericType (_typeArg1, _typeArg2);
+    }
+
+    [Test]
+    public void TypeInstantiation ()
+    {
+      Assert.That (_instantiation, Is.TypeOf<TypeInstantiation>());
+      Assert.That (_instantiation.GetGenericTypeDefinition(), Is.SameAs (typeof (GenericType<,>)));
+      Assert.That (_instantiation.GetGenericArguments(), Is.EqualTo (new[] { _typeArg1, _typeArg2 }));
     }
 
     [Test]
     public void Names ()
     {
-      var instantiation = typeof (GenericType<,>).MakeTypePipeGenericType (_typeArg1, _typeArg2);
-
-      Assert.That (instantiation.Name, Is.EqualTo ("GenericType`2"));
-      Assert.That (instantiation.FullName, Is.EqualTo (""));
-      Assert.That (instantiation.ToString(), Is.EqualTo (""));
-
-      // Names are same as in original reflection.
-      var expectedInstantiation = typeof (GenericType<,>).MakeGenericType (_typeArg1, _typeArg2);
-      Assert.That (instantiation.Name, Is.EqualTo (expectedInstantiation.Name));
-      Assert.That (instantiation.FullName, Is.EqualTo (expectedInstantiation.FullName));
-      Assert.That (instantiation.ToString(), Is.EqualTo (expectedInstantiation.ToString()));
+      Assert.That (_instantiation.Name, Is.EqualTo ("GenericType`2"));
+      Assert.That (_instantiation.FullName, Is.EqualTo (
+          "Remotion.TypePipe.IntegrationTests.MutableReflection.MakeTypePipeGenericTypeTest+GenericType`2[[System.Object_Proxy1, TypePipe_GeneratedAssembly],[Remotion.TypePipe.IntegrationTests.MutableReflection.MakeTypePipeGenericTypeTest_Proxy1, TypePipe_GeneratedAssembly]]"));
+      Assert.That (_instantiation.ToString (), Is.EqualTo ("GenericType`2[Object_Proxy1,MakeTypePipeGenericTypeTest_Proxy1]"));
     }
 
     [Test]
     public void BaseType ()
     {
-      var baseType = _typeInstantiation.BaseType;
+      var baseType = _instantiation.BaseType;
+      Assertion.IsNotNull (baseType);
       Assert.That (baseType.Name, Is.EqualTo ("GenericBase`1"));
       Assert.That (baseType.GetGenericArguments(), Is.EqualTo (new[] { _typeArg1 }));
     }
@@ -69,7 +71,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Interfaces ()
     {
-      var ifc = _typeInstantiation.GetInterfaces().Single();
+      var ifc = _instantiation.GetInterfaces().Single();
       Assert.That (ifc.Name, Is.EqualTo ("IMyInterface`1"));
       Assert.That (ifc.GetGenericArguments(), Is.EqualTo (new[] { _typeArg2 }));
     }
@@ -77,15 +79,15 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Fields ()
     {
-      var field = _typeInstantiation.GetFields().Single();
+      var field = _instantiation.GetFields().Single();
       Assert.That (field.Name, Is.EqualTo ("Field"));
-      Assert.That (field.FieldType, Is.SameAs (_typeArg2));
+      Assert.That (field.FieldType, Is.SameAs (_typeArg1));
     }
 
     [Test]
     public void Constructors ()
     {
-      var ctor = _typeInstantiation.GetConstructors().Single();
+      var ctor = _instantiation.GetConstructors().Single();
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
       Assert.That (ctor.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { _typeArg1, _typeArg2 }));
     }
@@ -93,23 +95,25 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Methods ()
     {
-      var method = _typeInstantiation.GetMethods().Single (m => m.Name == "Method");
+      var method = _instantiation.GetMethods().Single (m => m.Name == "Method");
       Assert.That (method.ReturnType, Is.SameAs (_typeArg1));
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (_typeArg2));
     }
 
+    [Ignore ("TODO 5387")]
     [Test]
     public void Properties ()
     {
-      var property = _typeInstantiation.GetProperties().Single();
+      var property = _instantiation.GetProperties().Single();
       Assert.That (property.Name, Is.EqualTo ("Property"));
       Assert.That (property.PropertyType, Is.SameAs (_typeArg1));
     }
 
+    [Ignore("TODO 5387")]
     [Test]
     public void Events ()
     {
-      var evt = _typeInstantiation.GetEvents().Single();
+      var evt = _instantiation.GetEvents().Single();
       Assert.That (evt.Name, Is.EqualTo ("Event"));
       var evtType = evt.EventHandlerType;
       Assert.That (evtType.Name, Is.EqualTo ("Func`1"));
@@ -119,11 +123,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void RecursiveTypeInstantiations_Substitution ()
     {
-      var enumerable = _typeInstantiation.GetMethod ("ReturnTypeMethod_NeedsSubstitute").ReturnType;
+      var enumerable = _instantiation.GetMethod ("ReturnTypeMethod_NeedsSubstitute").ReturnType;
       Assert.That (enumerable, Is.TypeOf<TypeInstantiation>());
       Assert.That (enumerable.Name, Is.EqualTo ("IEnumerable`1"));
       var func = enumerable.GetGenericArguments().Single();
-      Assert.That (func.Name, Is.EqualTo ("Func`1"));
+      Assert.That (func.Name, Is.EqualTo ("Func`2"));
       var typeArgs = func.GetGenericArguments();
       Assert.That (typeArgs, Is.EqualTo (new[] { _typeArg1, _typeArg2 }));
     }
@@ -131,7 +135,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void RecursiveTypeInstantiations_NoSubstitution ()
     {
-      var enumerable = _typeInstantiation.GetMethod ("ReturnTypeMethod_RuntimeType").ReturnType;
+      var enumerable = _instantiation.GetMethod ("ReturnTypeMethod_RuntimeType").ReturnType;
       Assert.That (enumerable.IsRuntimeType(), Is.True);
     }
 
