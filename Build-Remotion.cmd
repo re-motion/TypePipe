@@ -35,7 +35,7 @@ goto build_succeeded
 
 :run_full_build
 mkdir build\BuildOutput\log
-%msbuild% build\Remotion.Local.build /t:FullBuild /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log "/p:Version=0.0.0.0"
+%msbuild% build\Remotion.Local.build /t:FullBuild /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
