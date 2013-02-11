@@ -17,6 +17,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 
 #if CLR2
 namespace Microsoft.Scripting.Ast.Compiler {
@@ -104,8 +105,8 @@ namespace System.Linq.Expressions.Compiler {
                 : base(array.Compiler, variable) {
                 _array = array;
                 _index = index;
-                _boxType = typeof(StrongBox<>).MakeGenericType(variable.Type);
-                _boxValueField = GetStrongBoxValueField(_boxType);
+                _boxType = typeof(StrongBox<>).MakeTypePipeGenericType(variable.Type);
+                _boxValueField = _boxType.GetField("Value");
             }
 
             internal override void EmitLoad() {
@@ -148,8 +149,8 @@ namespace System.Linq.Expressions.Compiler {
 
             internal LocalBoxStorage(LambdaCompiler compiler, ParameterExpression variable)
                 : base(compiler, variable) {
-                _boxType = typeof(StrongBox<>).MakeGenericType(variable.Type);
-                _boxValueField = GetStrongBoxValueField(_boxType);
+                _boxType = typeof(StrongBox<>).MakeTypePipeGenericType(variable.Type);
+                _boxValueField = _boxType.GetField("Value");
                 _boxLocal = compiler.GetNamedLocal(_boxType, variable);
             }
 

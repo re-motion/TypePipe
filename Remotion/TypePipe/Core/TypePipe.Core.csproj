@@ -123,9 +123,6 @@
     <Compile Include="Configuration\ForceStrongNamingConfigurationElement.cs" />
     <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
-    <Compile Include="Dlr\Compiler\CompilerScope.TypePipe.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />
