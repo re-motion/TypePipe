@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// This class is needed because the the original reflection classes do not work in combination with <see cref="CustomType"/> instances.
   /// </summary>
   /// <remarks>Instances of this class are returned by <see cref="TypeExtensions.MakeTypePipeGenericType"/>.</remarks>
-  public class TypeInstantiation : CustomType, ITypeAdjuster
+  public class TypeInstantiation : CustomType
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
 
