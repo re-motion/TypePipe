@@ -16,8 +16,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -33,7 +31,7 @@ namespace Microsoft.Scripting.Ast.Compiler
 
       return constructedBoxType.IsRuntimeType()
                  ? constructedBoxType.GetConstructors().Single()
-                 : new ConstructorOnTypeInstantiation (constructedBoxType, typeof (StrongBox<>).GetConstructors().Single());
+                 : CreateTypeInstantiation (constructedBoxType).GetConstructors().Single();
     }
 
     private static FieldInfo GetStrongBoxValueField (Type constructedBoxType)
@@ -42,7 +40,15 @@ namespace Microsoft.Scripting.Ast.Compiler
 
       return constructedBoxType.IsRuntimeType()
                  ? constructedBoxType.GetField ("Value")
-                 : new FieldOnTypeInstantiation (constructedBoxType, typeof (StrongBox<>).GetField ("Value"));
+                 : CreateTypeInstantiation (constructedBoxType).GetField ("Value");
+    }
+
+    private static Type CreateTypeInstantiation (Type constructedBoxType)
+    {
+      var genericTypeDefinition = constructedBoxType.GetGenericTypeDefinition();
+      var typeArguments = constructedBoxType.GetGenericArguments();
+
+      return genericTypeDefinition.MakeTypePipeGenericType (typeArguments);
     }
   }
 }

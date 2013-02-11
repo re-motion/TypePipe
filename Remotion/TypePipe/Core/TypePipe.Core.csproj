@@ -81,15 +81,12 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorOnTypeInstantiation.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldOnTypeInstantiation.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBaseBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IConstructorBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IFieldBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderAdapter.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodOnTypeInstantiation.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
