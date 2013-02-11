@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -25,16 +26,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   public class TestableCustomPropertyInfo : CustomPropertyInfo
   {
+    private readonly CustomParameterInfo[] _indexParameters;
+
     public TestableCustomPropertyInfo (
         CustomType declaringType,
         string name,
-        Type type,
         PropertyAttributes attributes,
         CustomMethodInfo getMethod,
         CustomMethodInfo setMethod,
-        params CustomParameterInfo[] indexParameters)
-        : base (declaringType, name, type, attributes, getMethod, setMethod, indexParameters)
+        CustomParameterInfo[] indexParameters)
+        : base (declaringType, name, attributes, getMethod, setMethod)
     {
+      _indexParameters = indexParameters;
     }
 
     public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
@@ -42,6 +45,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return CustomAttributeDatas;
+    }
+
+    public override ParameterInfo[] GetIndexParameters ()
+    {
+      return _indexParameters.Cast<ParameterInfo>().ToArray();
     }
   }
 }

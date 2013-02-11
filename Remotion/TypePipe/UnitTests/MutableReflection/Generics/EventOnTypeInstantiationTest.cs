@@ -50,6 +50,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization ()
     {
       Assert.That (_event.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (_event.EventOnGenericType, Is.SameAs (_originalEvent));
+      Assert.That (_event.EventHandlerType, Is.SameAs (_originalEvent.EventHandlerType));
       Assert.That (_event.Name, Is.EqualTo (_originalEvent.Name));
       Assert.That (_event.Attributes, Is.EqualTo (_originalEvent.Attributes));
       Assert.That (_event.GetAddMethod(), Is.SameAs (_addMethod));

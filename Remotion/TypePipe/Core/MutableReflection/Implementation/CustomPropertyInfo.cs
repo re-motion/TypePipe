@@ -35,29 +35,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private readonly CustomType _declaringType;
     private readonly string _name;
-    private readonly Type _type;
     private readonly PropertyAttributes _attributes;
     private readonly CustomMethodInfo _getMethod;
     private readonly CustomMethodInfo _setMethod;
-
-    protected readonly CustomParameterInfo[] IndexParameters;
+    private readonly Type _type;
 
     protected CustomPropertyInfo (
         CustomType declaringType,
         string name,
-        Type type,
         PropertyAttributes attributes,
         CustomMethodInfo getMethod,
-        CustomMethodInfo setMethod,
-        params CustomParameterInfo[] indexParameters)
+        CustomMethodInfo setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
       // Getter may be null.
       // Setter may be null.
-      ArgumentUtility.CheckNotNull ("indexParameters", indexParameters);
-      Assertion.IsTrue (type != typeof (void));
       Assertion.IsTrue (getMethod != null || setMethod != null);
       // TODO xxx: Maybe (if it is easy) add assertions that getMethod and setMethod have the right parameters/return type.
       //var parametersBase = indexParameters.Select (p => p.ParameterType).ToArray();
@@ -69,14 +62,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       _declaringType = declaringType;
       _name = name;
-      _type = type;
       _attributes = attributes;
       _getMethod = getMethod;
       _setMethod = setMethod;
-      IndexParameters = indexParameters;
+      if (getMethod != null)
+        _type = getMethod.ReturnType;
+      else
+        _type = setMethod.GetParameters().Last().ParameterType;
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
+    public abstract override ParameterInfo[] GetIndexParameters ();
 
     public override Type DeclaringType
     {
@@ -96,11 +92,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override PropertyAttributes Attributes
     {
       get { return _attributes; }
-    }
-
-    public override ParameterInfo[] GetIndexParameters ()
-    {
-      return IndexParameters;
     }
 
     public override MethodInfo GetGetMethod (bool nonPublic)

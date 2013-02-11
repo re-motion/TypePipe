@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using System.Linq;
@@ -28,26 +29,34 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class PropertyOnTypeInstantiation : CustomPropertyInfo
   {
+    private readonly ReadOnlyCollection<ParameterInfo> _indexParameters;
+    private readonly PropertyInfo _propertyOnGenericType;
+
     public PropertyOnTypeInstantiation (
-        TypeInstantiation declaringType,
+        TypeInstantiation constructedDeclaringType,
         PropertyInfo property,
         MethodOnTypeInstantiation getMethod,
         MethodOnTypeInstantiation setMethod)
-        : base (declaringType, property.Name, typeof (int), 0, getMethod, setMethod, AdaptParameters (getMethod))
+        : base (constructedDeclaringType, property.Name, property.Attributes, getMethod, setMethod)
     {
-      foreach (var indexParameter in IndexParameters)
-        indexParameter.SetMember (this);
+      _propertyOnGenericType = property;
+      _indexParameters = property.GetIndexParameters().Select (p => new MemberParameterOnTypeInstantiation (this, p))
+          .Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
-    private static CustomParameterInfo[] AdaptParameters (MethodOnTypeInstantiation getMethod)
+    public PropertyInfo PropertyOnGenericType
     {
-      return getMethod.GetParameters().Select (p => new MemberParameterOnTypeInstantiation (getMethod, p))
-        .Cast<CustomParameterInfo>().ToArray();
+      get { return _propertyOnGenericType; }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       throw new NotImplementedException();
+    }
+
+    public override ParameterInfo[] GetIndexParameters ()
+    {
+      return _indexParameters.ToArray();
     }
   }
 }

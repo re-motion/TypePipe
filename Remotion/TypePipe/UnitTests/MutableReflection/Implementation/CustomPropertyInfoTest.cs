@@ -19,6 +19,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -26,40 +27,56 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   [TestFixture]
   public class CustomPropertyInfoTest
   {
+    private CustomType _declaringType;
+    private Type _type;
+    private CustomParameterInfo _parameter;
+    private CustomMethodInfo _getMethod;
+    private CustomMethodInfo _setMethod;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _declaringType = CustomTypeObjectMother.Create ();
+      _type = ReflectionObjectMother.GetSomeType ();
+      _parameter = CustomParameterInfoObjectMother.Create (type: _type);
+      _getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, returnParameter: _parameter);
+      _setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, parameters: new[] { _parameter });
+    }
+
     [Test]
     public void Initialization ()
     {
-      var declaringType = CustomTypeObjectMother.Create();
-      var name = "Property";
-      var type = ReflectionObjectMother.GetSomeType();
-      var attributes = (PropertyAttributes) 7;
-      var getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
-      var setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
-      var indexParameters = new[] { CustomParameterInfoObjectMother.Create(), CustomParameterInfoObjectMother.Create() };
+      var property = new TestableCustomPropertyInfo (_declaringType, "Property", (PropertyAttributes) 7, _getMethod, _setMethod, new[] { _parameter });
 
-      var property = new TestableCustomPropertyInfo (declaringType, name, type, attributes, getMethod, setMethod, indexParameters);
+      Assert.That (property.Attributes, Is.EqualTo ((PropertyAttributes) 7));
+      Assert.That (property.DeclaringType, Is.EqualTo (_declaringType));
+      Assert.That (property.Name, Is.EqualTo ("Property"));
+      Assert.That (property.GetGetMethod(), Is.SameAs (_getMethod));
+      Assert.That (property.GetSetMethod(), Is.SameAs (_setMethod));
+    }
 
-      Assert.That (property.Attributes, Is.EqualTo (attributes));
-      Assert.That (property.DeclaringType, Is.EqualTo (declaringType));
-      Assert.That (property.Name, Is.EqualTo (name));
-      Assert.That (property.GetGetMethod(), Is.SameAs (getMethod));
-      Assert.That (property.GetSetMethod(), Is.SameAs (setMethod));
-      Assert.That (property.GetIndexParameters(), Is.EqualTo (indexParameters));
+    [Test]
+    public void Initialization_Type ()
+    {
+      var property1 = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod);
+      var property2 = CustomPropertyInfoObjectMother.Create (setMethod: _setMethod);
+
+      Assert.That (property1.PropertyType, Is.EqualTo (_type));
+      Assert.That (property2.PropertyType, Is.EqualTo (_type));
     }
 
     [Test]
     public void GetGetMethod ()
     {
-      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes:MethodAttributes.Private);
-      var publicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
+      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, returnParameter: _parameter);
       var property1 = CustomPropertyInfoObjectMother.Create (getMethod: nonPublicMethod);
-      var property2 = CustomPropertyInfoObjectMother.Create (getMethod: publicMethod);
-      var property3 = CustomPropertyInfoObjectMother.Create (getMethod: null, setMethod: publicMethod);
+      var property2 = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod);
+      var property3 = CustomPropertyInfoObjectMother.Create (getMethod: null, setMethod: _setMethod);
 
       Assert.That (property1.GetGetMethod (true), Is.SameAs (nonPublicMethod));
       Assert.That (property1.GetGetMethod (false), Is.Null);
-      Assert.That (property2.GetGetMethod (true), Is.SameAs (publicMethod));
-      Assert.That (property2.GetGetMethod (false), Is.SameAs (publicMethod));
+      Assert.That (property2.GetGetMethod (true), Is.SameAs (_getMethod));
+      Assert.That (property2.GetGetMethod (false), Is.SameAs (_getMethod));
       Assert.That (property3.GetGetMethod (true), Is.Null);
       Assert.That (property3.GetGetMethod (false), Is.Null);
     }
@@ -67,16 +84,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetSetMethod ()
     {
-      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private);
-      var publicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
+      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, parameters: new[] { _parameter });
       var property1 = CustomPropertyInfoObjectMother.Create (setMethod: nonPublicMethod);
-      var property2 = CustomPropertyInfoObjectMother.Create (setMethod: publicMethod);
+      var property2 = CustomPropertyInfoObjectMother.Create (setMethod: _setMethod);
       var property3 = CustomPropertyInfoObjectMother.Create (setMethod: null);
 
       Assert.That (property1.GetSetMethod (true), Is.SameAs (nonPublicMethod));
       Assert.That (property1.GetSetMethod (false), Is.Null);
-      Assert.That (property2.GetSetMethod (true), Is.SameAs (publicMethod));
-      Assert.That (property2.GetSetMethod (false), Is.SameAs (publicMethod));
+      Assert.That (property2.GetSetMethod (true), Is.SameAs (_setMethod));
+      Assert.That (property2.GetSetMethod (false), Is.SameAs (_setMethod));
       Assert.That (property3.GetSetMethod (true), Is.Null);
       Assert.That (property3.GetSetMethod (false), Is.Null);
     }
@@ -84,12 +100,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAccessors ()
     {
-      var setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private);
-      var getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
-      var property = CustomPropertyInfoObjectMother.Create (getMethod: getMethod, setMethod: setMethod);
+      var nonPublicSetMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, parameters: new[] { _parameter });
+      var property = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod, setMethod: nonPublicSetMethod);
 
-      Assert.That (property.GetAccessors (true), Is.EquivalentTo (new[] { getMethod, setMethod }));
-      Assert.That (property.GetAccessors (false), Is.EquivalentTo (new[] { getMethod }));
+      Assert.That (property.GetAccessors (true), Is.EquivalentTo (new[] { _getMethod, nonPublicSetMethod }));
+      Assert.That (property.GetAccessors (false), Is.EquivalentTo (new[] { _getMethod }));
     }
 
     [Test]
@@ -109,8 +124,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public new void ToString ()
     {
       var type = ReflectionObjectMother.GetSomeType();
+      var returnParameter = CustomParameterInfoObjectMother.Create (type: type);
+      var method = CustomMethodInfoObjectMother.Create (returnParameter: returnParameter);
       var name = "MyProperty";
-      var property = CustomPropertyInfoObjectMother.Create (name: name, type: type);
+      var property = CustomPropertyInfoObjectMother.Create (name: name, getMethod: method);
 
       Assert.That (property.ToString(), Is.EqualTo (type.Name + " MyProperty"));
     }
@@ -118,10 +135,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ToDebugString ()
     {
-      var declaringType = CustomTypeObjectMother.Create();
+      var declaringType = CustomTypeObjectMother.Create ();
       var type = ReflectionObjectMother.GetSomeType ();
+      var returnParameter = CustomParameterInfoObjectMother.Create (type: type);
+      var method = CustomMethodInfoObjectMother.Create (returnParameter: returnParameter);
       var name = "MyProperty";
-      var property = CustomPropertyInfoObjectMother.Create (declaringType, name, type);
+      var property = CustomPropertyInfoObjectMother.Create (declaringType, name, getMethod: method);
 
       // Note: ToDebugString is defined in CustomFieldInfo base class.
       Assertion.IsNotNull (property.DeclaringType);
@@ -144,6 +163,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       UnsupportedMemberTestHelper.CheckMethod (() => property.SetValue (null, null, null), "SetValue");
       UnsupportedMemberTestHelper.CheckMethod (() => property.GetValue (null, null), "GetValue");
+    }
+
+    public int this[string index]
+    {
+      get { return 0; }
     }
   }
 }

@@ -25,13 +25,21 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   public class EventOnTypeInstantiation
       : CustomEventInfo
   {
+    private readonly EventInfo _eventOnGenericType;
+
     public EventOnTypeInstantiation (
-        TypeInstantiation declaringType,
+        TypeInstantiation constructedDeclaringType,
         EventInfo event_,
         MethodOnTypeInstantiation addMethod,
         MethodOnTypeInstantiation removeMethod,
         MethodOnTypeInstantiation raiseMethod)
-        : base (declaringType, event_.Name, event_.Attributes, addMethod, removeMethod, raiseMethod) {}
+        : base (constructedDeclaringType, event_.Name, event_.Attributes, addMethod, removeMethod, raiseMethod)
+    {
+      _eventOnGenericType = event_;
+    }
+
+    public EventInfo EventOnGenericType { get { return _eventOnGenericType; }
+    }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
