@@ -33,15 +33,15 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         PropertyInfo property,
         MethodOnTypeInstantiation getMethod,
         MethodOnTypeInstantiation setMethod)
-        : base (declaringType, property.Name, typeof (int), 0, getMethod, setMethod, AdaptParameters (declaringType, getMethod))
+        : base (declaringType, property.Name, typeof (int), 0, getMethod, setMethod, AdaptParameters (getMethod))
     {
       foreach (var indexParameter in IndexParameters)
         indexParameter.SetMember (this);
     }
 
-    private static CustomParameterInfo[] AdaptParameters (TypeInstantiation declaringType, MethodOnTypeInstantiation getMethod)
+    private static CustomParameterInfo[] AdaptParameters (MethodOnTypeInstantiation getMethod)
     {
-      return getMethod.GetParameters().Select (p => new MemberParameterOnTypeInstantiation (getMethod, declaringType, p))
+      return getMethod.GetParameters().Select (p => new MemberParameterOnTypeInstantiation (getMethod, p))
         .Cast<CustomParameterInfo>().ToArray();
     }
 

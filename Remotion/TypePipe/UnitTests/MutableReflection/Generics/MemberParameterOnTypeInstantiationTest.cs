@@ -15,43 +15,59 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Rhino.Mocks;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
   public class MemberParameterOnTypeInstantiationTest
   {
+    private Type _typeParameter;
+    private Type _typeArgument;
+    private TypeInstantiation _declaringType;
     private MemberInfo _declaringMember;
-    private ITypeAdjuster _typeAdjuster;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringMember = ReflectionObjectMother.GetSomeMember();
-      _typeAdjuster = MockRepository.GenerateStrictMock<ITypeAdjuster> ();
+      _typeParameter = typeof (GenericType<>).GetGenericArguments().Single();
+      _typeArgument = ReflectionObjectMother.GetSomeType();
+      _declaringType = TypeInstantiationObjectMother.Create (typeof (GenericType<>), new[] { _typeArgument });
+      _declaringMember = MethodOnTypeInstantiationObjectMother.Create (_declaringType);
     }
 
     [Test]
     public void Initialization ()
     {
-      var parameter = ReflectionObjectMother.GetSomeParameter();
-      var fakeType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAdjuster.Expect (mock => mock.SubstituteGenericParameters (parameter.ParameterType)).Return (fakeType);
+      var parameter = CustomParameterInfoObjectMother.Create (_declaringMember, type: _typeParameter);
 
-      var result = new MemberParameterOnTypeInstantiation (_declaringMember, _typeAdjuster, parameter);
+      var result = new MemberParameterOnTypeInstantiation (_declaringMember, parameter);
 
-      _typeAdjuster.VerifyAllExpectations();
       Assert.That (result.Member, Is.SameAs (_declaringMember));
       Assert.That (result.Position, Is.EqualTo (parameter.Position));
       Assert.That (result.Name, Is.EqualTo (parameter.Name));
       Assert.That (result.Attributes, Is.EqualTo (parameter.Attributes));
-      Assert.That (result.ParameterType, Is.SameAs (fakeType));
+      Assert.That (result.ParameterType, Is.SameAs (_typeArgument));
       Assert.That (result.MemberParameterOnGenericType, Is.SameAs (parameter));
     }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "MemberParameterOnTypeInstantiation can only created with members of TypeInstantiation.\r\nParameter name: declaringMember")]
+    public void Initialization_NonTypeInstantiationMember ()
+    {
+      var member = ReflectionObjectMother.GetSomeMember();
+      var parameter = ReflectionObjectMother.GetSomeParameter();
+
+      Dev.Null = new MemberParameterOnTypeInstantiation (member, parameter);
+    }
+
+    class GenericType<T> { }
   }
 }

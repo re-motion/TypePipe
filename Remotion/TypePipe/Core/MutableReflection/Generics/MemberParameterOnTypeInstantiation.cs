@@ -27,14 +27,27 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class MemberParameterOnTypeInstantiation : CustomParameterInfo
   {
+    private static Type Substitute (MemberInfo declaringMember, Type parameterType)
+    {
+      var declaringType = declaringMember.DeclaringType as TypeInstantiation;
+      if (declaringType == null)
+      {
+        var message = string.Format (
+            "{0} can only created with members of {1}.", typeof (MemberParameterOnTypeInstantiation).Name, typeof (TypeInstantiation).Name);
+        throw new ArgumentException (message, "declaringMember");
+      }
+
+      return declaringType.SubstituteGenericParameters (parameterType);
+    }
+
     private readonly ParameterInfo _parameter;
 
-    public MemberParameterOnTypeInstantiation (MemberInfo declaringMember, ITypeAdjuster typeAdjuster, ParameterInfo parameter)
+    public MemberParameterOnTypeInstantiation (MemberInfo declaringMember, ParameterInfo parameter)
         : base (
             declaringMember,
             ArgumentUtility.CheckNotNull ("parameter", parameter).Position,
             parameter.Name,
-            ArgumentUtility.CheckNotNull ("typeAdjuster", typeAdjuster).SubstituteGenericParameters (parameter.ParameterType),
+            Substitute (ArgumentUtility.CheckNotNull ("declaringMember", declaringMember), parameter.ParameterType),
             parameter.Attributes)
     {
       _parameter = parameter;
