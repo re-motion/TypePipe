@@ -38,6 +38,12 @@ namespace Remotion.TypePipe.MutableReflection
       // ReSharper restore PossibleMistakenCallToGetType.2
     }
 
+    // TODO Review: correct?
+    public static bool IsStruct (this Type type)
+    {
+      return typeof (ValueType).IsAssignableFromFast (type);
+    }
+
     /// <summary>
     /// Determines whether an instance of the current <see cref="Type"/> can be assigned from an instance of the specified type.
     /// Use this as an replacement for <see cref="Type.IsAssignableFrom"/>.
@@ -122,12 +128,16 @@ namespace Remotion.TypePipe.MutableReflection
     private static bool IsValidGenericArgument (Type parameter, Type argument)
     {
       var attr = parameter.GenericParameterAttributes;
+      return
+          (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || GetPublicDefaultCtor (argument) != null || argument.IsStruct())
+          && (!attr.IsSet (GenericParameterAttributes.ReferenceTypeConstraint) || argument.IsClass)
+          && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || argument.IsStruct())
+          && parameter.GetGenericParameterConstraints().All (constraint => constraint.IsAssignableFromFast (argument));
+    }
 
-      if (attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) && argument.GetConstructor (Type.EmptyTypes) == null)
-        return false;
-
-
-      return true;
+    private static ConstructorInfo GetPublicDefaultCtor (Type argument)
+    {
+      return argument.GetConstructor (Type.EmptyTypes);
     }
 
     private static bool IsSet (this GenericParameterAttributes attributes, GenericParameterAttributes flag)

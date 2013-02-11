@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -118,48 +119,54 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       typeof (Dictionary<,>).MakeTypePipeGenericType (typeof (int));
     }
 
-    [Ignore("TODO")]
     [Test]
     public void MakeTypePipeGenericType_GenericParameterConstraints ()
     {
       var staticType = typeof (TypeExtensions);
+      var typeWithPublicDefaultCtor = typeof (object);
       var typeWithoutDefaultCtor = typeof (string);
       var typeWithoutPublicDefaultCtor = typeof (TypeWithNonPublicDefaultCtor);
-      var structType = typeof (int);
       var classType = typeof (string);
+      var structType = typeof (int);
+      var disposableType = typeof (Stream);
 
       Assert.That (() => typeof (GenericType<>).MakeGenericType (staticType), Throws.Nothing, "Assert original reflection behavior.");
       CheckArgumentCheck (
           typeof (NewConstraint<>),
-          typeof (object),
+          typeWithPublicDefaultCtor,
           typeWithoutDefaultCtor,
-          "Generic argument 'String' at position 0 on 'NewConstraint`1 violates a constraint of type parameter 'T'.");
-      //CheckArgumentCheck (
-      //    typeof (NewConstraint<>),
-      //    typeof (object),
-      //    typeWithoutPublicDefaultCtor,
-      //    "Generic argument 'TypeWithNonPublicDefaultCtor' at position 0 on 'NewConstraint`1 violates a constraint of type parameter 'T'.");
-      //CheckArgumentCheck (
-      //    typeof (ClassConstraint<>),
-      //    "Generic argument 'int' at position 0 on 'ClassConstraint`1 violates a constraint of type parameter 'TClass'.",
-      //    structType);
-      //CheckArgumentCheck (
-      //    typeof (StructConstraint<>),
-      //    "Generic argument 'String' at position 0 on 'StructConstraint`1 violates a constraint of type parameter 'TStruct'.",
-      //    classType);
-      //CheckArgumentCheck (
-      //    typeof (BaseTypeConstraint<>),
-      //    "Generic argument 'String' at position 0 on 'BaseTypeConstraint`1 violates a constraint of type parameter 'T'.",
-      //    classType);
-      //CheckArgumentCheck (
-      //    typeof (InterfaceConstraint<>),
-      //    "Generic argument 'String' at position 0 on 'BaseTypeConstraint`1 violates a constraint of type parameter 'T'.",
-      //    classType);
+          "Generic argument 'String' at position 0 on 'NewConstraint`1' violates a constraint of type parameter 'TNew'.");
+      CheckArgumentCheck (
+          typeof (NewConstraint<>),
+          typeWithPublicDefaultCtor,
+          typeWithoutPublicDefaultCtor,
+          "Generic argument 'TypeWithNonPublicDefaultCtor' at position 0 on 'NewConstraint`1' violates a constraint of type parameter 'TNew'.");
+      CheckArgumentCheck (
+          typeof (ClassConstraint<>),
+          classType,
+          structType,
+          "Generic argument 'Int32' at position 0 on 'ClassConstraint`1' violates a constraint of type parameter 'TClass'.");
+      CheckArgumentCheck (
+          typeof (StructConstraint<>),
+          structType,
+          classType,
+          "Generic argument 'String' at position 0 on 'StructConstraint`1' violates a constraint of type parameter 'TStruct'.");
+      CheckArgumentCheck (
+          typeof (BaseTypeConstraint<>),
+          typeof (TypeExtensionsTest),
+          classType,
+          "Generic argument 'String' at position 0 on 'BaseTypeConstraint`1' violates a constraint of type parameter 'T'.");
+      CheckArgumentCheck (
+          typeof (InterfaceConstraint<>),
+          disposableType,
+          classType,
+          "Generic argument 'String' at position 0 on 'InterfaceConstraint`1' violates a constraint of type parameter 'T'.");
 
+      // TODO:
       // dependent parameter constraints.
     }
 
-    private void CheckArgumentCheck (Type genericTypeDefinition, Type invalidTypeArgument, Type validTypeArgument, string message)
+    private void CheckArgumentCheck (Type genericTypeDefinition, Type validTypeArgument, Type invalidTypeArgument, string message)
     {
       Assert.That (() => genericTypeDefinition.MakeTypePipeGenericType (validTypeArgument), Throws.Nothing);
       Assert.That (
@@ -172,7 +179,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       protected internal TypeWithNonPublicDefaultCtor () { }
     }
     class GenericType<T> { }
-    class NewConstraint<T> where T : new () { }
+    class NewConstraint<TNew> where TNew : new () { }
     class ClassConstraint<TClass> where TClass : class { }
     class StructConstraint<TStruct> where TStruct : struct { }
     class BaseTypeConstraint<T> where T : TypeExtensionsTest { }
