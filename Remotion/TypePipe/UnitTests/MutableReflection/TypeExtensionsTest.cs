@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -130,7 +129,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var structType = typeof (int);
       var disposableType = typeof (Stream);
 
-      Assert.That (() => typeof (GenericType<>).MakeGenericType (staticType), Throws.Nothing, "Assert original reflection behavior.");
       CheckArgumentCheck (
           typeof (NewConstraint<>),
           typeWithPublicDefaultCtor,
@@ -162,8 +160,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           classType,
           "Generic argument 'String' at position 0 on 'InterfaceConstraint`1' violates a constraint of type parameter 'T'.");
 
-      // TODO:
-      // dependent parameter constraints.
+      Assert.That (() => typeof (GenericType<>).MakeGenericType (staticType), Throws.Nothing, "Assert original reflection behavior.");
+      Assert.That (
+          () => typeof (DependentConstraint<,>).MakeGenericType (typeof (string), typeof (object)),
+          Throws.ArgumentException,
+          "Assert original reflection behavior.");
+
+      Assert.That (() => typeof (GenericType<>).MakeTypePipeGenericType (staticType), Throws.Nothing);
+      Assert.That (() => typeof (DependentConstraint<,>).MakeTypePipeGenericType (typeof (object), typeof (string)), Throws.Nothing);
+      Assert.That (
+          () => typeof (DependentConstraint<,>).MakeTypePipeGenericType (typeof (string), typeof (object)),
+          Throws.ArgumentException,
+          "Only throws (correct) exception because all participating types are runtime types.");
+      Assert.That (() => typeof (DependentRecursiveConstraint<,>).MakeTypePipeGenericType (typeof (int), typeof (IComparable<int>)), Throws.Nothing);
+      Assert.That (
+          () => typeof (DependentRecursiveConstraint<,>).MakeTypePipeGenericType (typeof (int), typeof (IComparable<string>)),
+          Throws.ArgumentException,
+          "Only throws (correct) exception because all participating types are runtime types.");
     }
 
     private void CheckArgumentCheck (Type genericTypeDefinition, Type validTypeArgument, Type invalidTypeArgument, string message)
@@ -185,5 +198,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     class BaseTypeConstraint<T> where T : TypeExtensionsTest { }
     class InterfaceConstraint<T> where T : IDisposable { }
     class DependentConstraint<T1, T2> where T2 : T1 { }
+    class DependentRecursiveConstraint<T1, T2> where T2 : IComparable<T1> { }
   }
 }

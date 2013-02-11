@@ -16,11 +16,11 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using System.Dynamic.Utils;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -60,10 +60,13 @@ namespace Remotion.TypePipe.MutableReflection
       if (toType is CustomType)
         return toType == fromType;
 
-      // 1) The base type of the CustomType may be assignable to the other type.
-      // 2) The implemented interfaces of the CustomType may be assignable to the other interface.
+      // 1) The base type of the CustomType may be assignable to the type.
+      // 2) An interface of the CustomType may be assignable to the other interface.
+      // 3) The CustomType satisfies all of the generic constraints of the type parameter.
       if (fromType is CustomType)
-        return toType.IsAssignableFrom (fromType.BaseType) || fromType.GetInterfaces().Any (toType.IsAssignableFrom);
+        return toType.IsAssignableFrom (fromType.BaseType)
+               || fromType.GetInterfaces().Any (toType.IsAssignableFrom);
+               //|| toType.IsGenericParameter && toType.GetGenericParameterConstraints().All (c => c.IsAssignableFrom (fromType));
 
       return toType.IsAssignableFrom (fromType);
     }
@@ -132,7 +135,13 @@ namespace Remotion.TypePipe.MutableReflection
           (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || GetPublicDefaultCtor (argument) != null || argument.IsStruct())
           && (!attr.IsSet (GenericParameterAttributes.ReferenceTypeConstraint) || argument.IsClass)
           && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || argument.IsStruct())
-          && parameter.GetGenericParameterConstraints().All (constraint => constraint.IsAssignableFromFast (argument));
+          && parameter.GetGenericParameterConstraints().All (constraint => SkipValidation (constraint) || constraint.IsAssignableFromFast (argument));
+    }
+
+    private static bool SkipValidation (Type constraint)
+    {
+      // Skip validaiton for constraints that are of generic nature themselves (which would be very complex). 
+      return constraint.ContainsGenericParameters;
     }
 
     private static ConstructorInfo GetPublicDefaultCtor (Type argument)
