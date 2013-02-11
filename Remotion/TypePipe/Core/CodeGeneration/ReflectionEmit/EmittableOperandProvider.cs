@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           _mappedFields,
           field,
           f => f is FieldBuilder || f.DeclaringType.IsRuntimeType(),
-          f => GetEmittableMemberOfGenericType<FieldInfo, FieldOnTypeInstantiation> (f, fi => fi.GenericField, TypeBuilder.GetField));
+          f => GetEmittableMemberOfGenericType (f, (FieldOnTypeInstantiation fi) => fi.GenericField, TypeBuilder.GetField));
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
@@ -99,9 +99,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           _mappedConstructors,
           constructor,
           c => c is ConstructorBuilder || c.DeclaringType.IsRuntimeType(),
-          c =>
-          GetEmittableMemberOfGenericType<ConstructorInfo, ConstructorOnTypeInstantiation> (
-              c, ci => ci.GenericConstructor, TypeBuilder.GetConstructor));
+          c => GetEmittableMemberOfGenericType (c, (ConstructorOnTypeInstantiation ci) => ci.GenericConstructor, TypeBuilder.GetConstructor));
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
@@ -112,7 +110,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           _mappedMethods,
           method,
           m => m is MethodBuilder || m.DeclaringType.IsRuntimeType(),
-          m => GetEmittableMemberOfGenericType<MethodInfo, MethodOnTypeInstantiation> (m, mi => mi.GenericMethod, TypeBuilder.GetMethod));
+          m => GetEmittableMemberOfGenericType (m, (MethodOnTypeInstantiation mi) => mi.GenericMethod, TypeBuilder.GetMethod));
     }
 
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
