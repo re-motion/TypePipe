@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       declaringType = declaringType ?? TypeInstantiationObjectMother.Create();
       method = method ?? ReflectionObjectMother.GetSomeMethod();
 
-      return new MethodOnTypeInstantiation (declaringType, declaringType, method);
+      return new MethodOnTypeInstantiation (declaringType, method);
     }
   }
 }

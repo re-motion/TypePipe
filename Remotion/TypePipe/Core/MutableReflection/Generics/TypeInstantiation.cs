@@ -114,10 +114,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
           .Select (f => new FieldOnTypeInstantiation (this, f)).Cast<FieldInfo>().ToList().AsReadOnly();
       _constructors = _genericTypeDefinition
           .GetConstructors (c_allMembers)
-          .Select (c => new ConstructorOnTypeInstantiation (this, this, c)).Cast<ConstructorInfo>().ToList().AsReadOnly();
+          .Select (c => new ConstructorOnTypeInstantiation (this, c)).Cast<ConstructorInfo>().ToList().AsReadOnly();
       _methods = _genericTypeDefinition
           .GetMethods (c_allMembers)
-          .Select (m => new MethodOnTypeInstantiation (this, this, m)).Cast<MethodInfo>().ToList().AsReadOnly();
+          .Select (m => new MethodOnTypeInstantiation (this, m)).Cast<MethodInfo>().ToList().AsReadOnly();
       _properties = null;
       _events = null;
     }

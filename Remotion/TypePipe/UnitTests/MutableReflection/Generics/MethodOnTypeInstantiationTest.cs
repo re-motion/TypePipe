@@ -15,13 +15,11 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Rhino.Mocks;
 using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
@@ -30,32 +28,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   public class MethodOnTypeInstantiationTest
   {
     private TypeInstantiation _declaringType;
-    private ITypeAdjuster _typeAdjusterMock;
 
     [SetUp]
     public void SetUp ()
     {
       _declaringType = TypeInstantiationObjectMother.Create();
-      _typeAdjusterMock = MockRepository.GenerateStrictMock<ITypeAdjuster>();
     }
 
     [Test]
     public void Initialization ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method (7));
+      var parameter = CustomParameterInfoObjectMother.Create();
+      var method = CustomMethodInfoObjectMother.Create (_declaringType, parameters: new[] { parameter });
 
-      var fakeReturnType = ReflectionObjectMother.GetSomeType();
-      var fakeParameterType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAdjusterMock
-          .Expect (mock => mock.SubstituteGenericParameters (method.ReturnType))
-          .Return (fakeReturnType);
-      _typeAdjusterMock
-          .Expect (mock => mock.SubstituteGenericParameters (method.GetParameters().Single().ParameterType))
-          .Return (fakeParameterType);
-      
-      var result = new MethodOnTypeInstantiation (_declaringType, _typeAdjusterMock, method);
+      var result = new MethodOnTypeInstantiation (_declaringType, method);
 
-      _typeAdjusterMock.VerifyAllExpectations();
       Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (result.Name, Is.EqualTo (method.Name));
       Assert.That (result.Attributes, Is.EqualTo (method.Attributes));
@@ -65,14 +52,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assertion.IsNotNull (returnParameter);
       Assert.That (returnParameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
       Assert.That (returnParameter.Member, Is.SameAs (result));
-      Assert.That (returnParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.EqualTo (method.ReturnParameter));
+      Assert.That (returnParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (method.ReturnParameter));
 
-      var parameter = result.GetParameters().Single();
-      Assert.That (parameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
-      Assert.That (parameter.Member, Is.SameAs (result));
-      Assert.That (parameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.EqualTo (method.GetParameters().Single()));
+      var memberParameter = result.GetParameters().Single();
+      Assert.That (memberParameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
+      Assert.That (memberParameter.Member, Is.SameAs (result));
+      Assert.That (memberParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (parameter));
     }
-
-    string Method (int i) { Dev.Null = i; return ""; }
   }
 }
