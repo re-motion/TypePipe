@@ -83,7 +83,13 @@ namespace Remotion.TypePipe.MutableReflection
       return type is CustomType ? TypeCode.Object : Type.GetTypeCode (type);
     }
 
-    // TODO 5390: docs
+    /// <summary>
+    /// Substitutes the type parameters of the generic type definition and returns a <see cref="Type" /> object representing the resulting
+    /// constructed type. Use this as an replacement for <see cref="Type.MakeGenericType" />.
+    /// </summary>
+    /// <param name="genericTypeDefinition">The generic type definition.</param>
+    /// <param name="typeArguments">The type arguments.</param>
+    /// <returns>The constructed type.</returns>
     public static Type MakeTypePipeGenericType (this Type genericTypeDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
