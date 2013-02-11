@@ -155,6 +155,7 @@
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\EventOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\FieldOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\InstantiationInfo.cs" />
     <Compile Include="MutableReflection\Generics\ITypeAdjuster.cs" />
