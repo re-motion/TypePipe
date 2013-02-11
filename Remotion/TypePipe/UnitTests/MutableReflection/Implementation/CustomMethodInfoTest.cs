@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           returnParameter: CustomParameterInfoObjectMother.Create (position: -1, type: typeof (void)),
           parameters: new[] { CustomParameterInfoObjectMother.Create (type: typeof (int)) });
 
-      var expected = "MutableMethod = \"Void Xxx(Int32)\", DeclaringType = \"AbcProxy\"";
+      var expected = "TestableCustomMethod = \"Void Xxx(Int32)\", DeclaringType = \"AbcProxy\"";
       Assert.That (method.ToDebugString(), Is.EqualTo (expected));
     }
 

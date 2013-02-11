@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public string ToDebugString ()
     {
-      return string.Format ("MutableMethod = \"{0}\", DeclaringType = \"{1}\"", ToString (), DeclaringType);
+      return string.Format ("{0} = \"{1}\", DeclaringType = \"{2}\"", GetType().Name.Replace ("Info", ""), ToString(), DeclaringType);
     }
 
     #region Not YET Implemented from MethodInfo interface
