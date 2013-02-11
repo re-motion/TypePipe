@@ -30,9 +30,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string name,
         Type type,
         PropertyAttributes attributes,
-        MethodInfo getMethod,
-        MethodInfo setMethod,
-        params ParameterInfo[] indexParameters)
+        CustomMethodInfo getMethod,
+        CustomMethodInfo setMethod,
+        params CustomParameterInfo[] indexParameters)
         : base (declaringType, name, type, attributes, getMethod, setMethod, indexParameters)
     {
     }

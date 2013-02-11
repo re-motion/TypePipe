@@ -37,18 +37,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _name;
     private readonly Type _type;
     private readonly PropertyAttributes _attributes;
-    private readonly MethodInfo _getMethod;
-    private readonly MethodInfo _setMethod;
-    private readonly ParameterInfo[] _indexParameters;
+    private readonly CustomMethodInfo _getMethod;
+    private readonly CustomMethodInfo _setMethod;
+    private readonly CustomParameterInfo[] _indexParameters;
 
     protected CustomPropertyInfo (
         CustomType declaringType,
         string name,
         Type type,
         PropertyAttributes attributes,
-        MethodInfo getMethod,
-        MethodInfo setMethod,
-        params ParameterInfo[] indexParameters)
+        CustomMethodInfo getMethod,
+        CustomMethodInfo setMethod,
+        params CustomParameterInfo[] indexParameters)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

@@ -32,9 +32,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Type type = null,
         PropertyAttributes attributes = (PropertyAttributes) 7,
         IEnumerable<ICustomAttributeData> customAttributes = null,
-        MethodInfo getMethod = null,
-        MethodInfo setMethod = null,
-        ParameterInfo[] indexParameters = null)
+        CustomMethodInfo getMethod = null,
+        CustomMethodInfo setMethod = null,
+        CustomParameterInfo[] indexParameters = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
       type = type ?? ReflectionObjectMother.GetSomeType();
@@ -42,8 +42,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       // Getter stays null.
       // Setters stays null, but if both are null then create a getter.
       if (getMethod == null && setMethod == null)
-        getMethod = ReflectionObjectMother.GetSomeMethod ();
-      indexParameters = indexParameters ?? new ParameterInfo[0];
+        getMethod = CustomMethodInfoObjectMother.Create();
+      indexParameters = indexParameters ?? new CustomParameterInfo[0];
 
       return new TestableCustomPropertyInfo (declaringType, name, type, attributes, getMethod, setMethod, indexParameters)
              {

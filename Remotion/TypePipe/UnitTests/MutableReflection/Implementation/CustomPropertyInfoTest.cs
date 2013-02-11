@@ -33,9 +33,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "Property";
       var type = ReflectionObjectMother.GetSomeType();
       var attributes = (PropertyAttributes) 7;
-      var getMethod = ReflectionObjectMother.GetSomeMethod();
-      var setMethod = ReflectionObjectMother.GetSomeMethod();
-      var indexParameters = new[] { ReflectionObjectMother.GetSomeParameter(), ReflectionObjectMother.GetSomeParameter() };
+      var getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
+      var setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
+      var indexParameters = new[] { CustomParameterInfoObjectMother.Create(), CustomParameterInfoObjectMother.Create() };
 
       var property = new TestableCustomPropertyInfo (declaringType, name, type, attributes, getMethod, setMethod, indexParameters);
 
@@ -50,8 +50,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetGetMethod ()
     {
-      var nonPublicMethod = ReflectionObjectMother.GetSomeNonPublicMethod();
-      var publicMethod = ReflectionObjectMother.GetSomePublicMethod();
+      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes:MethodAttributes.Private);
+      var publicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
       var property1 = CustomPropertyInfoObjectMother.Create (getMethod: nonPublicMethod);
       var property2 = CustomPropertyInfoObjectMother.Create (getMethod: publicMethod);
       var property3 = CustomPropertyInfoObjectMother.Create (getMethod: null, setMethod: publicMethod);
@@ -67,8 +67,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetSetMethod ()
     {
-      var nonPublicMethod = ReflectionObjectMother.GetSomeNonPublicMethod();
-      var publicMethod = ReflectionObjectMother.GetSomePublicMethod();
+      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private);
+      var publicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
       var property1 = CustomPropertyInfoObjectMother.Create (setMethod: nonPublicMethod);
       var property2 = CustomPropertyInfoObjectMother.Create (setMethod: publicMethod);
       var property3 = CustomPropertyInfoObjectMother.Create (setMethod: null);
@@ -84,8 +84,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAccessors ()
     {
-      var getMethod = ReflectionObjectMother.GetSomePublicMethod();
-      var setMethod = ReflectionObjectMother.GetSomeNonPublicMethod();
+      var setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private);
+      var getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public);
       var property = CustomPropertyInfoObjectMother.Create (getMethod: getMethod, setMethod: setMethod);
 
       Assert.That (property.GetAccessors (true), Is.EquivalentTo (new[] { getMethod, setMethod }));
