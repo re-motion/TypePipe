@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       {
         if (typeof (IDeserializationCallback).IsAssignableFromFast (proxyType))
           OverrideOnDeserialization (proxyType, initializationMethod);
-        else if (proxyType.IsSerializable)
+        else if (proxyType.IsSerializableFast())
           ExplicitlyImplementOnDeserialization (proxyType, initializationMethod);
       }
     }

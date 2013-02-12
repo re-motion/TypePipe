@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.Serialization
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      if (!proxyType.IsSerializable)
+      if (!proxyType.IsSerializableFast())
         return;
 
       if (typeof (ISerializable).IsAssignableFromFast (proxyType))

@@ -29,6 +29,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class UnderlyingTypeFactory : IUnderlyingTypeFactory
   {
+    public UnderlyingTypeFactory ()
+    {
+    }
+
     // Generated lazily, on demand.
     private ModuleBuilder _moduleBuilder;
     private int _counter;

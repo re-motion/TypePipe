@@ -28,7 +28,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -58,13 +57,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _enabler = new ProxySerializationEnabler (_serializableFieldFinderMock);
 
-      // Type.IsSerializable internally accesses the UnderlyingSystemType property.
-      var realUnderlyingTypeFactory = new UnderlyingTypeFactory();
-
-      _someProxy = ProxyTypeObjectMother.Create (typeof (SomeType), underlyingTypeFactory: realUnderlyingTypeFactory);
+      _someProxy = ProxyTypeObjectMother.Create (typeof (SomeType));
       _serializableProxy = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
-      _serializableInterfaceProxy = ProxyTypeObjectMother.Create (
-          typeof (SerializableInterfaceType), copyCtorsFromBase: true, underlyingTypeFactory: realUnderlyingTypeFactory);
+      _serializableInterfaceProxy = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: true);
       _deserializationCallbackProxy = ProxyTypeObjectMother.Create (typeof (DeserializationCallbackType));
       _serializableInterfaceWithDeserializationCallbackProxy =
           ProxyTypeObjectMother.Create (baseType: typeof (SerializableWithDeserializationCallbackType), attributes: TypeAttributes.Serializable);
@@ -233,8 +228,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (
-          typeof (SerializableInterfaceType), copyCtorsFromBase: false, underlyingTypeFactory: new UnderlyingTypeFactory ());
+      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: false);
       StubFilterWithSerializedFields (proxyType);
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);

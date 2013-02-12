@@ -22,7 +22,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -100,7 +99,7 @@ namespace Remotion.TypePipe.IntegrationTests
             Assert.That (proxyType.Initializations, Is.Not.Empty);
           });
 
-      return CreateObjectFactory (new[] { participant }, stackFramesToSkip: 1, underlyingTypeFactory: new UnderlyingTypeFactory());
+      return CreateObjectFactory (new[] { participant }, stackFramesToSkip: 1);
     }
   }
 }

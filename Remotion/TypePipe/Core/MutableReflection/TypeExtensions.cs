@@ -39,9 +39,20 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO Review: correct?
+    // TODO: docs
     public static bool IsStruct (this Type type)
     {
       return typeof (ValueType).IsAssignableFromFast (type);
+    }
+
+    // TODO: docs
+    public static bool IsSerializableFast (this Type type)
+    {
+      var customType = type as CustomType;
+      if (customType != null)
+        return customType.Attributes.IsSet (TypeAttributes.Serializable);
+
+      return type.IsSerializable;
     }
 
     /// <summary>
