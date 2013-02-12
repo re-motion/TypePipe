@@ -38,7 +38,11 @@ namespace Remotion.TypePipe.MutableReflection
       // ReSharper restore PossibleMistakenCallToGetType.2
     }
 
-    // TODO: docs
+    /// <summary>
+    /// Determines whether a given type is serializable.
+    /// Use this as an replacement for <see cref="Type.IsSerializable"/>.
+    /// </summary>
+    /// <returns><c>true</c> if the <see cref="Type"/> is serializable; otherwise, <c>false</c>.</returns>
     public static bool IsSerializableFast (this Type type)
     {
       var customType = type as CustomType;
