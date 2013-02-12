@@ -108,6 +108,7 @@
     <Compile Include="TypeAssembly\ReferenceMutableMembersTest.cs" />
     <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeAssembly\TypeInstantiationInExpressionTrees.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">
