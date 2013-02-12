@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Remotion.Collections;
 using Remotion.ServiceLocation;
@@ -34,19 +35,19 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly IUnderlyingTypeFactory _underlyingTypeFactory = SafeServiceLocator.Current.GetInstance<IUnderlyingTypeFactory>();
 
     private readonly Type _genericTypeDefinition;
-    private readonly Type[] _typeArguments;
+    private readonly ReadOnlyCollection<Type> _typeArguments;
     private readonly object[] _key;
 
-    public InstantiationInfo (Type genericTypeDefinition, Type[] typeArguments)
+    public InstantiationInfo (Type genericTypeDefinition, IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
-      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
-      Assertion.IsTrue (genericTypeDefinition.GetGenericArguments().Length == typeArguments.Length);
 
       _genericTypeDefinition = genericTypeDefinition;
-      _typeArguments = typeArguments;
-      _key = new object[] { genericTypeDefinition }.Concat (typeArguments).ToArray();
+      _typeArguments = typeArguments.ToList().AsReadOnly();
+      Assertion.IsTrue (genericTypeDefinition.GetGenericArguments().Length == _typeArguments.Count);
+      _key = new object[] { genericTypeDefinition }.Concat (_typeArguments.Cast<object>()).ToArray();
     }
 
     public Type GenericTypeDefinition
@@ -54,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       get { return _genericTypeDefinition; }
     }
 
-    public Type[] TypeArguments
+    public ReadOnlyCollection<Type> TypeArguments
     {
       get { return _typeArguments; }
     }
@@ -67,7 +68,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       // Make RuntimeType if all type arguments are RuntimeTypes.
       if (_typeArguments.All (typeArg => typeArg.IsRuntimeType()))
-        return _genericTypeDefinition.MakeGenericType (_typeArguments);
+        return _genericTypeDefinition.MakeGenericType (TypeArguments.ToArray());
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       return new TypeInstantiation (memberSelector, _underlyingTypeFactory, this, instantiations);

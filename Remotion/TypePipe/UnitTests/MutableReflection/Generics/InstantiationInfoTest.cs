@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -45,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _customType = CustomTypeObjectMother.Create();
       _runtimeType = ReflectionObjectMother.GetSomeType();
 
-      _info1 = new InstantiationInfo (genericTypeDef1, new[] { _customType });
+      _info1 = new InstantiationInfo (genericTypeDef1, new[] { _customType }.AsReadOnly());
       _info2 = new InstantiationInfo (genericTypeDef2, new[] { _customType });
       _info3 = new InstantiationInfo (genericTypeDef1, new[] { _runtimeType });
       _info4 = new InstantiationInfo (genericTypeDef1, new[] { _customType });

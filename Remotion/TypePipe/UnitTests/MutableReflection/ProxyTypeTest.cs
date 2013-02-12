@@ -81,6 +81,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           _interfaceMappingComputerMock,
           _mutableMemberFactoryMock);
 
+      Assert.That (proxyType.DeclaringType, Is.Null);
       Assert.That (proxyType.BaseType, Is.SameAs (baseType));
       Assert.That (proxyType.Name, Is.EqualTo (name));
       Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));
@@ -129,12 +130,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // no accessible ctor
       Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
-    }
-
-    [Test]
-    public void DeclaringType ()
-    {
-      Assert.That (_proxyType.DeclaringType, Is.Null);
     }
 
     [Test]

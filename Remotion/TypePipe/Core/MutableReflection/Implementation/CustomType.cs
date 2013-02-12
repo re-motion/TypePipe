@@ -52,6 +52,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly bool _isGenericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
 
+    private Type _declaringType;
     private Type _baseType;
     private Type _underlyingSystemType;
 
@@ -88,8 +89,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       Assertion.IsTrue ((isGenericTypeDefinition && isGenericType) || (!isGenericTypeDefinition));
     }
 
-    public abstract override Type DeclaringType { get; }
-
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
     public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
 
@@ -99,6 +98,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected abstract IEnumerable<MethodInfo> GetAllMethods ();
     protected abstract IEnumerable<PropertyInfo> GetAllProperties ();
     protected abstract IEnumerable<EventInfo> GetAllEvents ();
+
+    protected void SetDeclaringType (Type declaringType)
+    {
+      _declaringType = declaringType;
+    }
 
     protected void SetBaseType (Type baseType)
     {
@@ -114,6 +118,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Module Module
     {
       get { return null; }
+    }
+
+    public override Type DeclaringType
+    {
+      get { return _declaringType; }
     }
 
     public override Type BaseType

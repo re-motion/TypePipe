@@ -50,11 +50,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (typeArgument != null)
         return typeArgument;
 
+      //Assertion.IsFalse (type.IsGenericParameter);
+
       if (!type.IsGenericType)
         return type;
 
       var oldTypeArguments = type.GetGenericArguments();
-      var newTypeArguments = oldTypeArguments.Select (a => SubstituteGenericParameters (a, parametersToArguments, instantiations)).ToArray();
+      var newTypeArguments = oldTypeArguments.Select (a => SubstituteGenericParameters (a, parametersToArguments, instantiations)).ToList();
 
       // No substitution necessary (this is an optimization only).
       if (oldTypeArguments.SequenceEqual (newTypeArguments))
@@ -96,14 +98,22 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
       _instantiations = instantiations;
 
-      _parametersToArguments = _genericTypeDefinition
-          .GetGenericArguments().Zip (instantiationInfo.TypeArguments).ToDictionary (t => t.Item1, t => t.Item2);
+      var declaringType = _genericTypeDefinition.DeclaringType;
+      // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here.
+      var outerMapping = declaringType != null ? declaringType.GetGenericArguments().Zip (instantiationInfo.TypeArguments) : new Tuple<Type, Type>[0];
+      // ReSharper restore ConditionIsAlwaysTrueOrFalse
+      var mapping = _genericTypeDefinition.GetGenericArguments().Zip (instantiationInfo.TypeArguments);
+      _parametersToArguments = outerMapping.Concat (mapping).ToDictionary (t => t.Item1, t => t.Item2);
 
       // Add own instantation to context before substituting any generic parameters. 
       instantiations.Add (instantiationInfo, this);
 
-      if (_genericTypeDefinition.BaseType != null)
-        SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
+      SetDeclaringType (NullSafeSubstituteGenericParameters (declaringType));
+      SetBaseType (NullSafeSubstituteGenericParameters (_genericTypeDefinition.BaseType));
+
+      // TODO Review: Or check if it is better to guard against null.
+      //if (_genericTypeDefinition.BaseType != null)
+      //  SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
 
       var interfaces = _genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
       var fields = _genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
@@ -118,11 +128,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _methods = methods.Cast<MethodInfo>().ToList().AsReadOnly();
       _properties = properties.Cast<PropertyInfo>().ToList().AsReadOnly();
       _events = events.Cast<EventInfo>().ToList().AsReadOnly();
-    }
-
-    public override Type DeclaringType
-    {
-      get { throw new NotSupportedException ("Property DeclaringType is not supported."); }
     }
 
     public override Type GetGenericTypeDefinition ()
@@ -175,6 +180,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
       return _events;
+    }
+
+    private Type NullSafeSubstituteGenericParameters (Type type)
+    {
+      return type == null ? null : SubstituteGenericParameters (type);
     }
 
     private PropertyOnTypeInstantiation CreateProperty (PropertyInfo propertyOnGenericTypeDefiniton, List<MethodOnTypeInstantiation> candidates)

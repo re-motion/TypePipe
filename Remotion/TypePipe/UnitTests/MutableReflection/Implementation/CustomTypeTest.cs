@@ -36,7 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private IMemberSelector _memberSelectorMock;
     private IUnderlyingTypeFactory _underlyingTypeFactoryMock;
 
-    private Type _baseType;
     private string _name;
     private string _namespace;
     private string _fullName;
@@ -50,7 +49,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _underlyingTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory>();
 
-      _baseType = ReflectionObjectMother.GetSomeType();
       _name = "type name";
       _namespace = "namespace";
       _fullName = "MyNameSpace.MyTypeName";
@@ -79,6 +77,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Initialization ()
     {
+      Assert.That (_customType.DeclaringType, Is.Null);
       Assert.That (_customType.BaseType, Is.Null);
       Assert.That (_customType.Name, Is.EqualTo (_name));
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
@@ -97,13 +96,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void SetDeclaringType ()
+    {
+      Assert.That (_customType.DeclaringType, Is.Null);
+      var declaringType = ReflectionObjectMother.GetSomeType();
+
+      _customType.InvokeNonPublicMethod ("SetDeclaringType", declaringType);
+
+      Assert.That (_customType.DeclaringType, Is.SameAs (declaringType));
+    }
+
+    [Test]
     public void SetBaseType ()
     {
       Assert.That (_customType.BaseType, Is.Null);
+      var baseType = ReflectionObjectMother.GetSomeType();
 
-      _customType.InvokeNonPublicMethod ("SetBaseType", _baseType);
+      _customType.InvokeNonPublicMethod ("SetBaseType", baseType);
 
-      Assert.That (_customType.BaseType, Is.SameAs (_baseType));
+      Assert.That (_customType.BaseType, Is.SameAs (baseType));
     }
 
     [Test]
@@ -370,7 +381,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void InvalidateUnderlyingSystemType_CausesRegenerationOfUnderlyingSystemType ()
     {
-      _customType.CallSetBaseType (_baseType);
+      var baseType = ReflectionObjectMother.GetSomeType();
+      _customType.CallSetBaseType (baseType);
       var fakeUnderlyingType1 = ReflectionObjectMother.GetSomeType ();
       var fakeUnderlyingType2 = ReflectionObjectMother.GetSomeOtherType ();
       _underlyingTypeFactoryMock

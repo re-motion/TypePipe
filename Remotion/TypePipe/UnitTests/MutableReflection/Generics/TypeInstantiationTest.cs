@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private ThrowingUnderlyingTypeFactory _underlyingTypeFactory;
 
     private Type _genericTypeDefinition;
+    private CustomType _outerCustomType;
     private CustomType _customType;
     private Type[] _typeArguments;
     private Type _runtimeType;
@@ -54,11 +55,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       _underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
 
-      _genericTypeDefinition = typeof (GenericType<>);
-      _customType = CustomTypeObjectMother.Create (fullName: "MyNs.Blub");
-      _typeArguments = new Type[] { _customType };
+      _genericTypeDefinition = typeof (DeclaringType<>.GenericType<>);
+      _outerCustomType = CustomTypeObjectMother.Create (fullName: "MyNs.OuterTypeArg");
+      _customType = CustomTypeObjectMother.Create (fullName: "MyNs.InnerTypeArg");
+      _typeArguments = new Type[] { _outerCustomType, _customType };
       _runtimeType = ReflectionObjectMother.GetSomeType();
-      _typeArgumentsWithRuntimeType = new[] { _runtimeType };
+      _typeArgumentsWithRuntimeType = new[] { _runtimeType, _runtimeType };
 
       _instantiationContext1 = new Dictionary<InstantiationInfo, TypeInstantiation>();
       _instantiationContext2 = new Dictionary<InstantiationInfo, TypeInstantiation>();
@@ -83,13 +85,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    public void Initialization_DeclaringType ()
+    {
+      var declaringType = _instantiation.DeclaringType;
+
+      Assert.That (declaringType, Is.TypeOf<TypeInstantiation>());
+      Assert.That (declaringType.GetGenericTypeDefinition(), Is.SameAs (typeof (DeclaringType<>)));
+      Assert.That (declaringType.GetGenericArguments(), Is.EqualTo (new[] { _outerCustomType }));
+    }
+
+    [Test]
     public void Initialization_BaseType ()
     {
       var baseType = _instantiation.BaseType;
+
       Assertion.IsNotNull (baseType);
       Assert.That (baseType, Is.TypeOf<TypeInstantiation>());
       Assert.That (baseType.GetGenericTypeDefinition(), Is.SameAs (typeof (BaseType<>)));
-      Assert.That (_instantiation.GetGenericArguments(), Is.EqualTo (new[] { _customType }));
+      Assert.That (baseType.GetGenericArguments(), Is.EqualTo (new[] { _customType }));
     }
 
     [Test]
@@ -99,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (
           _instantiation.FullName,
           Is.EqualTo (
-              "Remotion.TypePipe.UnitTests.MutableReflection.Generics.TypeInstantiationTest+GenericType`1[[MyNs.Blub, TypePipe_GeneratedAssembly]]"));
+              "Remotion.TypePipe.UnitTests.MutableReflection.Generics.TypeInstantiationTest+DeclaringType`1+GenericType`1[[MyNs.OuterTypeArg, TypePipe_GeneratedAssembly],[MyNs.InnerTypeArg, TypePipe_GeneratedAssembly]]"));
     }
 
     [Test]
@@ -109,7 +122,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       Assert.That (iface, Is.TypeOf<TypeInstantiation>());
       Assert.That (iface.GetGenericTypeDefinition(), Is.SameAs (typeof (IMyInterface<>)));
-      Assert.That (_instantiation.GetGenericArguments(), Is.EqualTo (new[] { _customType }));
+      Assert.That (iface.GetGenericArguments(), Is.EqualTo (new[] { _customType }));
     }
 
     [Test]
@@ -164,7 +177,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization_ReadOnlyAndWriteOnlyProperty ()
     {
-      var info1 = new InstantiationInfo (typeof (GenericTypeWithProperties<>), _typeArguments);
+      var info1 = new InstantiationInfo (typeof (GenericTypeWithProperties<>), new Type[] { _customType });
       var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info1, _instantiationContext1);
 
       var property1 = instantiation.GetProperty ("ReadOnlyProperty", c_allMembers);
@@ -188,13 +201,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
           event_.GetAddMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetAddMethod (true)));
       Assert.That (
           event_.GetRemoveMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetRemoveMethod (true)));
-    }
-
-    [Test]
-    [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Property DeclaringType is not supported.")]
-    public void DeclaringType ()
-    {
-      Dev.Null = _instantiation.DeclaringType;
     }
 
     [Test]
@@ -226,7 +232,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericRuntimeType = typeof (RecursiveGenericType<int>);
       var genericBaseRuntimeType = typeof (BaseType<RecursiveGenericType<int>>);
       Assert.That (genericRuntimeType, Is.SameAs (genericBaseRuntimeType.GetGenericArguments().Single()), "Assert original reflection behavior.");
-
+      
       var genericTypeDefinition = typeof (RecursiveGenericType<>);
       var typeArguments = new Type[] { _customType };
       var info = new InstantiationInfo (genericTypeDefinition, typeArguments);
@@ -236,16 +242,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));
     }
 
+    [Test]
+    public void SubstituteGenericParameters_OuterGenericParameters ()
+    {
+      var type1 = _instantiation.DeclaringType.GetField ("OuterField").FieldType;
+      var type2 = _instantiation.GetField ("Field").FieldType;
+      var type3 = _instantiation.GetField ("FieldOfOuterType").FieldType;
+
+      Assert.That (type1, Is.EqualTo (_outerCustomType));
+      Assert.That (type2, Is.EqualTo (_customType));
+      Assert.That (type3, Is.EqualTo (_outerCustomType));
+    }
+
     interface IMyInterface<T> { }
     class BaseType<T> { }
-    class GenericType<T> : BaseType<T>, IMyInterface<T>
+    class DeclaringType<TOuter>
     {
-      public List<Func<T>> RecursiveGeneric;
-      public T Field;
-      public GenericType (T arg) { }
-      public void Method (T arg) { }
-      public T Property { get; internal set; }
-      public event EventHandler Event;
+      public TOuter OuterField;
+      public class GenericType<T> : BaseType<T>, IMyInterface<T>
+      {
+        public List<Func<T>> RecursiveGeneric;
+        public T Field;
+        public GenericType (T arg) { }
+        public void Method (T arg) { }
+        public T Property { get; internal set; }
+        public event EventHandler Event;
+        public TOuter FieldOfOuterType;
+      }
     }
     class GenericTypeWithProperties<T>
     {

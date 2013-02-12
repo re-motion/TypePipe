@@ -77,15 +77,11 @@ namespace Remotion.TypePipe.MutableReflection
             + "a generic parameter, contain generic parameters and must have an accessible constructor.",
             "baseType");
       }
+      SetDeclaringType (null);
       SetBaseType (baseType);
 
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
-    }
-
-    public override Type DeclaringType
-    {
-      get { return null; }
     }
 
     public MutableConstructorInfo MutableTypeInitializer
