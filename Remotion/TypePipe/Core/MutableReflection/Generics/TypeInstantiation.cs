@@ -50,8 +50,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (typeArgument != null)
         return typeArgument;
 
-      //Assertion.IsFalse (type.IsGenericParameter);
-
       if (!type.IsGenericType)
         return type;
 
@@ -110,10 +108,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       SetDeclaringType (NullSafeSubstituteGenericParameters (declaringType));
       SetBaseType (NullSafeSubstituteGenericParameters (_genericTypeDefinition.BaseType));
-
-      // TODO Review: Or check if it is better to guard against null.
-      //if (_genericTypeDefinition.BaseType != null)
-      //  SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
 
       var interfaces = _genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
       var fields = _genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
