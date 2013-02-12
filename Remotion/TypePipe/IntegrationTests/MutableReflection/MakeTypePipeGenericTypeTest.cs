@@ -108,7 +108,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (property.PropertyType, Is.SameAs (_typeArg1));
     }
 
-    [Ignore("TODO 5392")]
     [Test]
     public void Events ()
     {
@@ -146,7 +145,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public GenericType (T1 t1, T2 t2) { }
       public T1 Method (T2 t) { return default (T1); }
       public T1 Property { get; set; }
-      //public event Func<T1> Event;
+      public event Func<T1> Event;
 
       public IEnumerable<Func<T1, T2>> ReturnTypeMethod_NeedsSubstitute () { return null; }
       public IEnumerable<Func<int, string>> ReturnTypeMethod_RuntimeType () { return null; }
