@@ -54,7 +54,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           new TestableCustomType (
               memberSelector,
               underlyingTypeFactory,
-              declaringType,
               name,
               @namespace,
               fullName,

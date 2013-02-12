@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_Initialization ()
+    public void Initialization_Initialization ()
     {
       Assert.That (_instantiation.Name, Is.EqualTo (_genericTypeDefinition.Name));
       Assert.That (_instantiation.Namespace, Is.EqualTo (_genericTypeDefinition.Namespace));
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_BaseType ()
+    public void Initialization_BaseType ()
     {
       var baseType = _instantiation.BaseType;
       Assertion.IsNotNull (baseType);
@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_NameAndFullName ()
+    public void Initialization_NameAndFullName ()
     {
       Assert.That (_instantiation.Name, Is.EqualTo ("GenericType`1"));
       Assert.That (
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_Interfaces ()
+    public void Initialization_Interfaces ()
     {
       var iface = _instantiation.GetInterfaces().Single();
 
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_Fields ()
+    public void Initialization_Fields ()
     {
       var field = _instantiation.GetField ("Field", c_allMembers);
 
@@ -125,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_Constructors ()
+    public void Initialization_Constructors ()
     {
       var constructor = _instantiation.GetConstructors (c_allMembers).Single();
 
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_Methods ()
+    public void Initialization_Methods ()
     {
       var method = _instantiation.GetMethod ("Method", c_allMembers);
 
@@ -147,7 +147,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_Properties ()
+    public void Initialization_Properties ()
     {
       var property = _instantiation.GetProperty ("Property", c_allMembers);
 
@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_ReadOnlyAndWriteOnlyProperty ()
+    public void Initialization_ReadOnlyAndWriteOnlyProperty ()
     {
       var info1 = new InstantiationInfo (typeof (GenericTypeWithProperties<>), _typeArguments);
       var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info1, _instantiationContext1);
@@ -174,7 +174,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Create_Events ()
+    public void Initialization_Events ()
     {
       var event_ = _instantiation.GetEvent ("Event", c_allMembers);
       Assertion.IsNotNull (event_);

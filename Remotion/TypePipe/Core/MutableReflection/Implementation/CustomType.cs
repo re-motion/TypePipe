@@ -44,7 +44,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly IMemberSelector _memberSelector;
     private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
 
-    private readonly Type _declaringType;
     private readonly string _name;
     private readonly string _namespace;
     private readonly string _fullName;
@@ -59,7 +58,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected CustomType (
         IMemberSelector memberSelector,
         IUnderlyingTypeFactory underlyingTypeFactory,
-        Type declaringType,
         string name,
         string @namespace,
         string fullName,
@@ -70,7 +68,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
-      // Declaring type may be null (for non-nested types).
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
@@ -79,7 +76,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       _memberSelector = memberSelector;
       _underlyingTypeFactory = underlyingTypeFactory;
-      _declaringType = declaringType;
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
@@ -91,6 +87,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       Assertion.IsTrue ((isGenericType && _typeArguments.Count > 0) || (!isGenericType && _typeArguments.Count == 0));
       Assertion.IsTrue ((isGenericTypeDefinition && isGenericType) || (!isGenericTypeDefinition));
     }
+
+    public abstract override Type DeclaringType { get; }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
     public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
@@ -116,11 +114,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Module Module
     {
       get { return null; }
-    }
-
-    public override Type DeclaringType
-    {
-      get { return _declaringType; }
     }
 
     public override Type BaseType

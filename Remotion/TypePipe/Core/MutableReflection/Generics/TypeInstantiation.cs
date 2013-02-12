@@ -85,7 +85,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         : base (
             memberSelector,
             underlyingTypeFactory,
-            null,
             instantiationInfo.GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
             GetFullName (instantiationInfo),
@@ -121,7 +120,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _events = events.Cast<EventInfo>().ToList().AsReadOnly();
     }
 
-    // TODO Review: better option.
     public override Type DeclaringType
     {
       get { throw new NotSupportedException ("Property DeclaringType is not supported."); }

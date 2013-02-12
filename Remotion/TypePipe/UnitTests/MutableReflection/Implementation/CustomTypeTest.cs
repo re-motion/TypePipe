@@ -36,7 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private IMemberSelector _memberSelectorMock;
     private IUnderlyingTypeFactory _underlyingTypeFactoryMock;
 
-    private Type _declaringType;
     private Type _baseType;
     private string _name;
     private string _namespace;
@@ -51,7 +50,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _underlyingTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory>();
 
-      _declaringType = ReflectionObjectMother.GetSomeType();
       _baseType = ReflectionObjectMother.GetSomeType();
       _name = "type name";
       _namespace = "namespace";
@@ -61,7 +59,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _customType = new TestableCustomType (
           _memberSelectorMock,
           _underlyingTypeFactoryMock,
-          _declaringType,
           _name,
           _namespace,
           _fullName,
@@ -82,7 +79,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Initialization ()
     {
-      Assert.That (_customType.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_customType.BaseType, Is.Null);
       Assert.That (_customType.Name, Is.EqualTo (_name));
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
@@ -98,15 +94,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (genericCustomType.IsGenericType, Is.True);
       Assert.That (genericCustomType.IsGenericTypeDefinition, Is.True);
       Assert.That (genericCustomType.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
-    }
-
-    [Test]
-    public void Initialization_NullDeclaringType_AndTypeArguments ()
-    {
-      var customType = new TestableCustomType (
-          _memberSelectorMock, _underlyingTypeFactoryMock, null, _name, _namespace, _fullName, _attributes, false, false, Type.EmptyTypes);
-
-      Assert.That (customType.DeclaringType, Is.Null);
     }
 
     [Test]
