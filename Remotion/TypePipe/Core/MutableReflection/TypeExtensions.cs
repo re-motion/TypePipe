@@ -38,13 +38,6 @@ namespace Remotion.TypePipe.MutableReflection
       // ReSharper restore PossibleMistakenCallToGetType.2
     }
 
-    // TODO Review: correct?
-    // TODO: docs
-    public static bool IsStruct (this Type type)
-    {
-      return typeof (ValueType).IsAssignableFromFast (type);
-    }
-
     // TODO: docs
     public static bool IsSerializableFast (this Type type)
     {
@@ -149,9 +142,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var attr = parameter.GenericParameterAttributes;
       return
-          (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || GetPublicDefaultCtor (argument) != null || argument.IsStruct())
+          (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || GetPublicDefaultCtor (argument) != null || argument.IsValueType)
           && (!attr.IsSet (GenericParameterAttributes.ReferenceTypeConstraint) || argument.IsClass)
-          && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || argument.IsStruct())
+          && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || argument.IsValueType)
           && parameter.GetGenericParameterConstraints().All (constraint => SkipValidation (constraint) || constraint.IsAssignableFromFast (argument));
     }
 
