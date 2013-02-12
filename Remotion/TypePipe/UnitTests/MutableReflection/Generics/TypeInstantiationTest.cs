@@ -152,7 +152,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var property = _instantiation.GetProperty ("Property", c_allMembers);
 
       var propertyOnGenericType = _genericTypeDefinition.GetProperty ("Property", c_allMembers);
-      Assert.That (property, Is.TypeOf<PropertyOnTypeInstantiation>());
+      Assert.That (property, Is.TypeOf<PropertyOnTypeInstantiation> ());
       Assert.That (property.DeclaringType, Is.SameAs (_instantiation));
       Assert.That (property.As<PropertyOnTypeInstantiation>().PropertyOnGenericType, Is.EqualTo (propertyOnGenericType));
       Assert.That (
@@ -171,6 +171,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var property2 = instantiation.GetProperty ("WriteOnlyProperty", c_allMembers);
       Assert.That (property1.GetSetMethod (true), Is.Null);
       Assert.That (property2.GetGetMethod (true), Is.Null);
+    }
+
+    [Test]
+    public void Create_Events ()
+    {
+      var event_ = _instantiation.GetEvent ("Event", c_allMembers);
+      Assertion.IsNotNull (event_);
+
+      var eventOnGenericType = _genericTypeDefinition.GetEvent ("Event", c_allMembers);
+      Assertion.IsNotNull (eventOnGenericType);
+      Assert.That (event_, Is.TypeOf<EventOnTypeInstantiation>());
+      Assert.That (event_.DeclaringType, Is.SameAs (_instantiation));
+      Assert.That (event_.As<EventOnTypeInstantiation>().EventOnGenericType, Is.EqualTo (eventOnGenericType));
+      Assert.That (
+          event_.GetAddMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetAddMethod (true)));
+      Assert.That (
+          event_.GetRemoveMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetRemoveMethod (true)));
     }
 
     [Test]
@@ -228,6 +245,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       public GenericType (T arg) { }
       public void Method (T arg) { }
       public T Property { get; internal set; }
+      public event EventHandler Event;
     }
     class GenericTypeWithProperties<T>
     {

@@ -111,14 +111,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var constructors = _genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
       var methods = _genericTypeDefinition.GetMethods (c_allMembers).Select (m => new MethodOnTypeInstantiation (this, m)).ToList();
       var properties = _genericTypeDefinition.GetProperties (c_allMembers).Select (p => CreateProperty (p, methods));
+      var events = _genericTypeDefinition.GetEvents (c_allMembers).Select (e => CreateEvent (e, methods));
 
       _interfaces = interfaces.ToList().AsReadOnly();
       _fields = fields.Cast<FieldInfo>().ToList().AsReadOnly();
       _constructors = constructors.Cast<ConstructorInfo>().ToList().AsReadOnly();
       _methods = methods.Cast<MethodInfo>().ToList().AsReadOnly();
       _properties = properties.Cast<PropertyInfo>().ToList().AsReadOnly();
-
-      _events = null;
+      _events = events.Cast<EventInfo>().ToList().AsReadOnly();
     }
 
     // TODO Review: better option.
@@ -179,15 +179,31 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return _events;
     }
 
-    private PropertyOnTypeInstantiation CreateProperty (
-        PropertyInfo propertyOnGenericTypeDefiniton, List<MethodOnTypeInstantiation> accessorCandidates)
+    private PropertyOnTypeInstantiation CreateProperty (PropertyInfo propertyOnGenericTypeDefiniton, List<MethodOnTypeInstantiation> candidates)
     {
-      var getterOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetGetMethod (true);
-      var setterOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetSetMethod (true);
-      var getter = accessorCandidates.SingleOrDefault (m => m.MethodOnGenericType == getterOnGenericTypeDefinition);
-      var setter = accessorCandidates.SingleOrDefault (m => m.MethodOnGenericType == setterOnGenericTypeDefinition);
+      var getMethodOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetGetMethod (true);
+      var setMethodOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetSetMethod (true);
+      var getMethod = GetWrappedMethod (getMethodOnGenericTypeDefinition, candidates);
+      var setMethod = GetWrappedMethod (setMethodOnGenericTypeDefinition, candidates);
 
-      return new PropertyOnTypeInstantiation (this, propertyOnGenericTypeDefiniton, getter, setter);
+      return new PropertyOnTypeInstantiation (this, propertyOnGenericTypeDefiniton, getMethod, setMethod);
+    }
+
+    private object CreateEvent (EventInfo eventOnGenericTypeDefinition, List<MethodOnTypeInstantiation> candidates)
+    {
+      var addMethodOnGenericTypeDefinition = eventOnGenericTypeDefinition.GetAddMethod (true);
+      var removeMethodOnGenericTypeDefinition = eventOnGenericTypeDefinition.GetRemoveMethod (true);
+      var raiseMethodOnGenericTypeDefinition = eventOnGenericTypeDefinition.GetRaiseMethod (true);
+      var addMethod = GetWrappedMethod (addMethodOnGenericTypeDefinition, candidates);
+      var removeMethod = GetWrappedMethod (removeMethodOnGenericTypeDefinition, candidates);
+      var raiseMethod = GetWrappedMethod (raiseMethodOnGenericTypeDefinition, candidates);
+
+      return new EventOnTypeInstantiation (this, eventOnGenericTypeDefinition, addMethod, removeMethod, raiseMethod);
+    }
+
+    private static MethodOnTypeInstantiation GetWrappedMethod (MethodInfo methodOnGenericType, IEnumerable<MethodOnTypeInstantiation> candidates)
+    {
+      return candidates.SingleOrDefault (m => m.MethodOnGenericType == methodOnGenericType);
     }
   }
 }
