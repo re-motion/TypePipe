@@ -142,21 +142,26 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var attr = parameter.GenericParameterAttributes;
       return
-          (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || GetPublicDefaultCtor (argument) != null || argument.IsValueType)
+          (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || HasPublicDefaultCtor (argument) || argument.IsValueType)
           && (!attr.IsSet (GenericParameterAttributes.ReferenceTypeConstraint) || argument.IsClass)
-          && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || argument.IsValueType)
+          && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || IsNotNullableValueType (argument))
           && parameter.GetGenericParameterConstraints().All (constraint => SkipValidation (constraint) || constraint.IsAssignableFromFast (argument));
+    }
+
+    private static bool HasPublicDefaultCtor (Type argument)
+    {
+      return argument.GetConstructor (Type.EmptyTypes) != null;
+    }
+
+    private static bool IsNotNullableValueType (Type argument)
+    {
+      return argument.IsValueType && Nullable.GetUnderlyingType (argument) == null;
     }
 
     private static bool SkipValidation (Type constraint)
     {
       // Skip validaiton for constraints that are of generic nature themselves (which would be very complex). 
       return constraint.ContainsGenericParameters;
-    }
-
-    private static ConstructorInfo GetPublicDefaultCtor (Type argument)
-    {
-      return argument.GetConstructor (Type.EmptyTypes);
     }
 
     private static bool IsSet (this GenericParameterAttributes attributes, GenericParameterAttributes flag)

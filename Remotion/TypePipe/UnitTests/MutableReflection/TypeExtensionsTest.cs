@@ -126,7 +126,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var typeWithoutDefaultCtor = typeof (string);
       var typeWithoutPublicDefaultCtor = typeof (TypeWithNonPublicDefaultCtor);
       var classType = typeof (string);
-      var structType = typeof (int);
+      var valueType = typeof (int);
+      var nullableValueType = typeof (int?);
       var disposableType = typeof (Stream);
 
       CheckArgumentCheck (
@@ -142,13 +143,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       CheckArgumentCheck (
           typeof (ClassConstraint<>),
           classType,
-          structType,
+          valueType,
           "Generic argument 'Int32' at position 0 on 'ClassConstraint`1' violates a constraint of type parameter 'TClass'.");
       CheckArgumentCheck (
           typeof (StructConstraint<>),
-          structType,
+          valueType,
           classType,
           "Generic argument 'String' at position 0 on 'StructConstraint`1' violates a constraint of type parameter 'TStruct'.");
+      CheckArgumentCheck (
+          typeof (StructConstraint<>),
+          valueType,
+          nullableValueType,
+          "Generic argument 'Nullable`1' at position 0 on 'StructConstraint`1' violates a constraint of type parameter 'TStruct'.");
       CheckArgumentCheck (
           typeof (BaseTypeConstraint<>),
           typeof (TypeExtensionsTest),
