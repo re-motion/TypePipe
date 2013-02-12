@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           p => p.AddConstructor (MethodAttributes.Public, new[] { new ParameterDeclaration (p, "param") }, ctx => Expression.Empty()));
 
       var constructor = type.GetConstructor (new[] { type });
-      Assert.That (constructor, Is.Not.Null);
+      Assertion.IsNotNull (constructor);
       Assert.That (constructor.GetParameters().Single().ParameterType, Is.SameAs (type));
     }
 
@@ -92,32 +92,37 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (type));
     }
 
+    [Ignore ("TODO 4778")]
     [Test]
-    [Ignore ("TODO 5392")]
     public void GenericArgument ()
     {
-      var type = AssembleType<DomainType> (p => p.AddField ("Field", typeof (List<>).MakeTypePipeGenericType (p), FieldAttributes.Public));
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var genericTypeWithProxyTypeArgument = typeof (List<>).MakeTypePipeGenericType (proxyType);
+            proxyType.AddMethod ("Method", ctx => Expression.Default (genericTypeWithProxyTypeArgument), returnType: genericTypeWithProxyTypeArgument);
+          });
 
-      var field = type.GetField ("Field");
+      var method = type.GetMethod ("Method");
       var expectedType = typeof (List<>).MakeGenericType (type);
-      Assert.That (field.FieldType, Is.SameAs (expectedType));
+      Assert.That (method.ReturnType, Is.SameAs (expectedType));
     }
 
+    [Ignore ("TODO 4778")]
     [Test]
-    [Ignore ("TODO 5392")]
     public void GenericArgument_Recursive ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
             var funcType = typeof (Func<>).MakeTypePipeGenericType (proxyType);
-            var enumerableType = funcType.MakeTypePipeGenericType (funcType);
-            proxyType.AddField ("Field", enumerableType, FieldAttributes.Public);
+            var enumerableType = typeof (IEnumerable<>).MakeTypePipeGenericType (funcType);
+            proxyType.AddMethod ("Method", ctx => Expression.Default (enumerableType), returnType: enumerableType);
           });
 
-      var field = type.GetField ("Field");
+      var method = type.GetMethod ("Method");
       var expectedType = typeof (IEnumerable<>).MakeGenericType (typeof (Func<>).MakeGenericType (type));
-      Assert.That (field.FieldType, Is.SameAs (expectedType));
+      Assert.That (method.ReturnType, Is.SameAs (expectedType));
     }
 
     private void CheckCustomAttribute (ICustomAttributeProvider customAttributeProvider, Type expectedType)
