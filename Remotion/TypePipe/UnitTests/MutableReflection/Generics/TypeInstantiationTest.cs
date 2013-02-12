@@ -147,6 +147,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    public void Create_Properties ()
+    {
+      var property = _instantiation.GetProperty ("Property", c_allMembers);
+
+      var propertyOnGenericType = _genericTypeDefinition.GetProperty ("Property", c_allMembers);
+      Assert.That (property, Is.TypeOf<PropertyOnTypeInstantiation>());
+      Assert.That (property.DeclaringType, Is.SameAs (_instantiation));
+      Assert.That (property.As<PropertyOnTypeInstantiation>().PropertyOnGenericType, Is.EqualTo (propertyOnGenericType));
+      Assert.That (
+          property.GetGetMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (propertyOnGenericType.GetGetMethod (true)));
+      Assert.That (
+          property.GetSetMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (propertyOnGenericType.GetSetMethod (true)));
+    }
+
+    [Test]
+    public void Create_ReadOnlyAndWriteOnlyProperty ()
+    {
+      var info1 = new InstantiationInfo (typeof (GenericTypeWithProperties<>), _typeArguments);
+      var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info1, _instantiationContext1);
+
+      var property1 = instantiation.GetProperty ("ReadOnlyProperty", c_allMembers);
+      var property2 = instantiation.GetProperty ("WriteOnlyProperty", c_allMembers);
+      Assert.That (property1.GetSetMethod (true), Is.Null);
+      Assert.That (property2.GetGetMethod (true), Is.Null);
+    }
+
+    [Test]
     [ExpectedException(typeof(NotSupportedException), ExpectedMessage = "Property DeclaringType is not supported.")]
     public void DeclaringType ()
     {
@@ -194,12 +221,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
     interface IMyInterface<T> { }
     class BaseType<T> { }
-    private class GenericType<T> : BaseType<T>, IMyInterface<T>
+    class GenericType<T> : BaseType<T>, IMyInterface<T>
     {
       public List<Func<T>> RecursiveGeneric;
       public T Field;
       public GenericType (T arg) { }
       public void Method (T arg) { }
+      public T Property { get; internal set; }
+    }
+    class GenericTypeWithProperties<T>
+    {
+      public int ReadOnlyProperty { get { return 7; } }
+      public int WriteOnlyProperty { set { Dev.Null = value; } }
     }
     class RecursiveGenericType<T> : BaseType<RecursiveGenericType<T>> { }
   }

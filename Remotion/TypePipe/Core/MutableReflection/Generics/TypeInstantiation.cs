@@ -101,24 +101,23 @@ namespace Remotion.TypePipe.MutableReflection.Generics
           .GetGenericArguments().Zip (instantiationInfo.TypeArguments).ToDictionary (t => t.Item1, t => t.Item2);
 
       // Add own instantation to context before substituting any generic parameters. 
-      instantiations.Add (instantiationInfo, this); 
+      instantiations.Add (instantiationInfo, this);
 
       if (_genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
 
-      _interfaces = _genericTypeDefinition
-          .GetInterfaces()
-          .Select (SubstituteGenericParameters).ToList().AsReadOnly();
-      _fields = _genericTypeDefinition
-          .GetFields (c_allMembers)
-          .Select (f => new FieldOnTypeInstantiation (this, f)).Cast<FieldInfo>().ToList().AsReadOnly();
-      _constructors = _genericTypeDefinition
-          .GetConstructors (c_allMembers)
-          .Select (c => new ConstructorOnTypeInstantiation (this, c)).Cast<ConstructorInfo>().ToList().AsReadOnly();
-      _methods = _genericTypeDefinition
-          .GetMethods (c_allMembers)
-          .Select (m => new MethodOnTypeInstantiation (this, m)).Cast<MethodInfo>().ToList().AsReadOnly();
-      _properties = null;
+      var interfaces = _genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
+      var fields = _genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
+      var constructors = _genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
+      var methods = _genericTypeDefinition.GetMethods (c_allMembers).Select (m => new MethodOnTypeInstantiation (this, m)).ToList();
+      var properties = _genericTypeDefinition.GetProperties (c_allMembers).Select (p => CreateProperty (p, methods));
+
+      _interfaces = interfaces.ToList().AsReadOnly();
+      _fields = fields.Cast<FieldInfo>().ToList().AsReadOnly();
+      _constructors = constructors.Cast<ConstructorInfo>().ToList().AsReadOnly();
+      _methods = methods.Cast<MethodInfo>().ToList().AsReadOnly();
+      _properties = properties.Cast<PropertyInfo>().ToList().AsReadOnly();
+
       _events = null;
     }
 
@@ -178,6 +177,17 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
       return _events;
+    }
+
+    private PropertyOnTypeInstantiation CreateProperty (
+        PropertyInfo propertyOnGenericTypeDefiniton, List<MethodOnTypeInstantiation> accessorCandidates)
+    {
+      var getterOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetGetMethod (true);
+      var setterOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetSetMethod (true);
+      var getter = accessorCandidates.SingleOrDefault (m => m.MethodOnGenericType == getterOnGenericTypeDefinition);
+      var setter = accessorCandidates.SingleOrDefault (m => m.MethodOnGenericType == setterOnGenericTypeDefinition);
+
+      return new PropertyOnTypeInstantiation (this, propertyOnGenericTypeDefiniton, getter, setter);
     }
   }
 }

@@ -38,7 +38,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _eventOnGenericType = event_;
     }
 
-    public EventInfo EventOnGenericType { get { return _eventOnGenericType; }
+    public EventInfo EventOnGenericType
+    {
+      get { return _eventOnGenericType; }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
