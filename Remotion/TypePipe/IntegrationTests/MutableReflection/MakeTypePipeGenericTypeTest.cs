@@ -18,9 +18,11 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
@@ -39,7 +41,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       _typeArg1 = ProxyTypeObjectMother.Create (typeof (object));
       _typeArg2 = ProxyTypeObjectMother.Create (typeof (MakeTypePipeGenericTypeTest));
 
-      _instantiation = typeof (GenericType<,>).MakeTypePipeGenericType (_typeArg1, _typeArg2);
+      using (new ServiceLocatorScope (typeof (IUnderlyingTypeFactory), typeof (ThrowingUnderlyingTypeFactory)))
+        _instantiation = typeof (GenericType<,>).MakeTypePipeGenericType (_typeArg1, _typeArg2);
     }
 
     [Test]

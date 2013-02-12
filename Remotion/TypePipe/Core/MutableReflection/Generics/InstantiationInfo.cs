@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// <remarks>This is used by <see cref="TypeInstantiation"/> as the key in a context dictionary to break cyclic dependencies.</remarks>
   public class InstantiationInfo
   {
-    private static readonly IUnderlyingTypeFactory s_underlyingTypeFactory = SafeServiceLocator.Current.GetInstance<IUnderlyingTypeFactory>();
+    private readonly IUnderlyingTypeFactory _underlyingTypeFactory = SafeServiceLocator.Current.GetInstance<IUnderlyingTypeFactory>();
 
     private readonly Type _genericTypeDefinition;
     private readonly Type[] _typeArguments;
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return _genericTypeDefinition.MakeGenericType (_typeArguments);
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      return new TypeInstantiation (memberSelector, s_underlyingTypeFactory, this, instantiations);
+      return new TypeInstantiation (memberSelector, _underlyingTypeFactory, this, instantiations);
     }
 
     public override bool Equals (object obj)
