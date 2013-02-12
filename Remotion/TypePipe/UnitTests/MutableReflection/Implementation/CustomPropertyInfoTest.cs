@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private CustomType _declaringType;
     private Type _type;
     private CustomParameterInfo _parameter;
+    private CustomParameterInfo _indexParameter;
     private CustomMethodInfo _getMethod;
     private CustomMethodInfo _setMethod;
 
@@ -39,8 +40,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _declaringType = CustomTypeObjectMother.Create ();
       _type = ReflectionObjectMother.GetSomeType ();
       _parameter = CustomParameterInfoObjectMother.Create (type: _type);
+      var indexParameterType = ReflectionObjectMother.GetSomeOtherType();
+      _indexParameter = CustomParameterInfoObjectMother.Create (type: indexParameterType);
       _getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, returnParameter: _parameter);
-      _setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, parameters: new[] { _parameter });
+      _setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, parameters: new[] { _indexParameter, _parameter });
     }
 
     [Test]

@@ -52,23 +52,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Getter may be null.
       // Setter may be null.
       Assertion.IsTrue (getMethod != null || setMethod != null);
-      // TODO xxx: Maybe (if it is easy) add assertions that getMethod and setMethod have the right parameters/return type.
-      //var parametersBase = indexParameters.Select (p => p.ParameterType).ToArray();
-      //Assertion.IsTrue (
-      //    getMethod == null
-      //    || (getMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parametersBase) && getMethod.ReturnType == type));
-      //Assertion.IsTrue (
-      //    setMethod == null || setMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parametersBase.Concat (new[] { _type })));
 
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
       _getMethod = getMethod;
       _setMethod = setMethod;
-      if (getMethod != null)
-        _type = getMethod.ReturnType;
-      else
-        _type = setMethod.GetParameters().Last().ParameterType;
+      _type = getMethod != null ? getMethod.ReturnType : setMethod.GetParameters().Last().ParameterType;
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
