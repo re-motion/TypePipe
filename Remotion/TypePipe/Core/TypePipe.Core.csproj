@@ -169,6 +169,7 @@
     <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\ThrowingUnderlyingTypeFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\TypeAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
