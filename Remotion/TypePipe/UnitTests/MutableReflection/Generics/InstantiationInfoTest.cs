@@ -62,9 +62,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void MakeGenericType_CustomType ()
+    public void Instantiate_CustomTypeArgument ()
     {
-      var result = _info1.MakeGenericType (_instantiations);
+      var result = _info1.Instantiate (_instantiations);
 
       Assert.That (result, Is.TypeOf<TypeInstantiation>());
       Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_info1.GenericTypeDefinition));
@@ -72,9 +72,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void MakeGenericType_RuntimeType ()
+    public void Instantiate_RuntimeTypeArgument ()
     {
-      var result = _info2.MakeGenericType (_instantiations);
+      var result = _info2.Instantiate (_instantiations);
 
       Assert.That (result, Is.TypeOf<TypeInstantiation>());
       Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_info2.GenericTypeDefinition));
@@ -82,14 +82,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void MakeGenericType_AlreadyInContext ()
+    public void Instantiate_AlreadyInContext ()
     {
-      var result1 = _info1.MakeGenericType (_instantiations);
+      var result1 = _info1.Instantiate (_instantiations);
       Assert.That (_instantiations[_info1], Is.SameAs (result1));
       var count = _instantiations.Count;
 
-      var result2 = _info1.MakeGenericType (_instantiations);
-      var result3 = _info1.MakeGenericType (new Dictionary<InstantiationInfo, TypeInstantiation>());
+      var result2 = _info1.Instantiate (_instantiations);
+      var result3 = _info1.Instantiate (new Dictionary<InstantiationInfo, TypeInstantiation>());
 
       Assert.That (_instantiations, Has.Count.EqualTo (count));
       Assert.That (result2, Is.SameAs (result1));

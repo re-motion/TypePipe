@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var genericTypeDefinition = type.GetGenericTypeDefinition();
       var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
 
-      return instantiationInfo.MakeGenericType (_instantiations);
+      return instantiationInfo.Instantiate (_instantiations);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

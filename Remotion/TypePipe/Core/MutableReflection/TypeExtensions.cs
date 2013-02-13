@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.MutableReflection
       var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
       var instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
 
-      return instantiationInfo.MakeGenericType (instantiations);
+      return instantiationInfo.Instantiate (instantiations);
     }
 
     private static bool IsValidGenericArgument (Type parameter, Type argument)
