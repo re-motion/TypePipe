@@ -58,10 +58,9 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitIndex", expression);
     }
 
-    public static Expression CallVisitLambda<T> (ExpressionVisitor expressionVisitor, Expression<T> expression)
+    public static Expression CallVisitLambda (ExpressionVisitor expressionVisitor, LambdaExpression expression)
     {
-      var method = typeof (ExpressionVisitor).GetMethod ("VisitLambda", BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod (typeof (T));
-      return (Expression) method.Invoke (expressionVisitor, new object[] { expression });
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitLambda", expression);
     }
 
     public static Expression CallVisitMember (ExpressionVisitor expressionVisitor, MemberExpression expression)

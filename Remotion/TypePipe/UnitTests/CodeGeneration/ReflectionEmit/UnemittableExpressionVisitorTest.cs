@@ -23,7 +23,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -120,9 +119,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void VisitLambda_InstanceClosureWithBaseCall ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7, ""));
-      var parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (string)) };
+      var delegateType = typeof (Func<int, string, double>);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
-      var expression = Expression.Lambda<Func<int, string, double>> (body, parameters);
+      var parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (string)) };
+      var expression = Expression.Lambda (delegateType, body, parameters);
 
       var fakeBody = Expression.Call (
           ExpressionTreeObjectMother.GetSomeThisExpression (_proxyType), new NonVirtualCallMethodInfoAdapter (method), parameters);
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           Expression.Block (
               new[] { thisClosure },
               Expression.Assign (thisClosure, new ThisExpression (_proxyType)),
-              Expression.Lambda<Func<int, string, double>> (Expression.Call (thisClosure, fakeTrampolineMethod, parameters), parameters));
+              Expression.Lambda (delegateType, Expression.Call (thisClosure, fakeTrampolineMethod, parameters), parameters));
       var fakeResultExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _visitorPartialMock
           .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))
