@@ -214,45 +214,13 @@ namespace System.Linq.Expressions {
             }
             return Expression.Lambda<TDelegate>(body, Name, TailCall, parameters);
         }
-
-        internal static LambdaExpression Create(Expression body, string name, bool tailCall, ReadOnlyCollection<ParameterExpression> parameters) {
-            return new Expression<TDelegate>(body, name, tailCall, parameters);
-        }
     }
 
 
     public partial class Expression {
 
-        /// <summary>
-        /// Creates an Expression{T} given the delegate type. Caches the
-        /// factory method to speed up repeated creations for the same T.
-        /// </summary>
         internal static LambdaExpression CreateLambda(Type delegateType, Expression body, string name, bool tailCall, ReadOnlyCollection<ParameterExpression> parameters) {
-            // Get or create a delegate to the public Expression.Lambda<T>
-            // method and call that will be used for creating instances of this
-            // delegate type
-            LambdaFactory fastPath;
-            if (_LambdaFactories == null) {
-                // NOTE: this must be Interlocked assigment since we use _LambdaFactories for locking.
-                Interlocked.CompareExchange(ref _LambdaFactories, new CacheDict<Type, LambdaFactory>(50), null);
-            }
-
-            MethodInfo create = null;
-            lock (_LambdaFactories) {
-                if (!_LambdaFactories.TryGetValue(delegateType, out fastPath)) {
-                    create = typeof(Expression<>).MakeTypePipeGenericType(delegateType).GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic);
-                    if (TypeUtils.CanCache(delegateType)) {
-                        _LambdaFactories[delegateType] = fastPath = (LambdaFactory)Delegate.CreateDelegate(typeof(LambdaFactory), create);
-                    }
-                }
-            }
-
-            if (fastPath != null) {
-                return fastPath(body, name, tailCall, parameters);
-            }
-            
-            Debug.Assert(create != null);
-            return (LambdaExpression)create.Invoke(null, new object[] { body, name, tailCall, parameters });
+            return new LambdaExpression (delegateType, name, body, tailCall, parameters);
         }
 
         /// <summary>
@@ -495,7 +463,7 @@ namespace System.Linq.Expressions {
 
         public static void ValidateLambdaArgs(Type delegateType, ref Expression body, ReadOnlyCollection<ParameterExpression> parameters) {
             ContractUtils.RequiresNotNull(delegateType, "delegateType");
-            //RequiresCanRead(body, "body");
+            RequiresCanRead(body, "body");
 
             if (!typeof(MulticastDelegate).IsAssignableFromFast(delegateType) || delegateType == typeof(MulticastDelegate)) {
                 throw Error.LambdaTypeMustBeDerivedFromSystemDelegate();

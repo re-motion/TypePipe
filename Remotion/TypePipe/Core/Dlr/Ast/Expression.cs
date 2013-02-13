@@ -38,10 +38,8 @@ namespace System.Linq.Expressions {
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     public abstract partial class Expression {
-        private delegate LambdaExpression LambdaFactory(Expression body, string name, bool tailCall, ReadOnlyCollection<ParameterExpression> parameters);
 
         private static readonly CacheDict<Type, MethodInfo> _LambdaDelegateCache = new CacheDict<Type, MethodInfo>(40);
-        private static CacheDict<Type, LambdaFactory> _LambdaFactories;
 
         // LINQ protected ctor from 3.5
 
