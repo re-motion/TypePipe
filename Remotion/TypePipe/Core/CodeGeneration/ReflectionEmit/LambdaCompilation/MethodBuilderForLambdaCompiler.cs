@@ -55,14 +55,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       // If method builder was created by the TypePipe, ignore because return type should have been correctly set prior to this call.
       if (!_ignoreSignatureModifications)
         _methodBuilder.SetReturnType (returnType);
-      else
-        Assertion.IsTrue (_methodBuilder.ReturnType.IsAssignableFromFast (returnType));
     }
 
     public void SetParameters (Type[] parameterTypes)
     {
       // If method builder was created by the TypePipe, ignore because parameters should have been correctly set prior to this call.
-      // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
       if (!_ignoreSignatureModifications)
         _methodBuilder.SetParameters (parameterTypes);
     }
@@ -71,7 +68,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       // If method builder was created by the TypePipe, ignore because parameters should have been correctly set prior to this call.
       // (Prevent duplicate ParamTokens)
-      // We cannot assert correctness because _constructorBuilder.GetParameters() throws.
       if (!_ignoreSignatureModifications)
         _methodBuilder.DefineParameter (position, attributes, strParamName);
     }
