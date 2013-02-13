@@ -27,27 +27,26 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Implements <see cref="IUnderlyingTypeFactory"/> by creating new runtime types from <see cref="TypeBuilder"/> objects.
   /// </summary>
+  /// <remarks>This is used to return dummy representations from <see cref="ProxyType.UnderlyingSystemType"/>.</remarks>
   public class UnderlyingTypeFactory : IUnderlyingTypeFactory
   {
     // Generated lazily, on demand.
     private ModuleBuilder _moduleBuilder;
     private int _counter;
 
-    public Type CreateUnderlyingSystemType (Type baseTypeOrNull, IEnumerable<Type> newInterfaces)
+    public Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces)
     {
-      // Base type may be null (for interfaces).
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
       ArgumentUtility.CheckNotNull ("newInterfaces", newInterfaces);
 
       _moduleBuilder = _moduleBuilder ?? CreateModuleBuilder();
       _counter++;
 
-      var isClass = baseTypeOrNull != null;
       var name = "UnderlyingSystemType" + _counter;
-      var attributes = (isClass ? TypeAttributes.Class : TypeAttributes.Interface) | TypeAttributes.Abstract;
+      var attributes = TypeAttributes.Class | TypeAttributes.Abstract;
 
-      var typeBuilder = _moduleBuilder.DefineType (name, attributes, baseTypeOrNull, newInterfaces.ToArray());
-      if (isClass)
-        AddDummyConstructor (typeBuilder);
+      var typeBuilder = _moduleBuilder.DefineType (name, attributes, baseType, newInterfaces.ToArray());
+      AddDummyConstructor (typeBuilder);
 
       return typeBuilder.CreateType();
     }

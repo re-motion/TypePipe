@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Remotion.Collections;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -32,8 +31,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// <remarks>This is used by <see cref="TypeInstantiation"/> as the key in a context dictionary to break cyclic dependencies.</remarks>
   public class InstantiationInfo
   {
-    private readonly IUnderlyingTypeFactory _underlyingTypeFactory = SafeServiceLocator.Current.GetInstance<IUnderlyingTypeFactory>();
-
     private readonly Type _genericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
     private readonly object[] _key;

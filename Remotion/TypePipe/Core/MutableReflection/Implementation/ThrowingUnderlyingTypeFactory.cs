@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class ThrowingUnderlyingTypeFactory : IUnderlyingTypeFactory
   {
-    public Type CreateUnderlyingSystemType (Type baseTypeOrNull, IEnumerable<Type> newInterfaces)
+    public Type CreateUnderlyingSystemType (Type baseType, IEnumerable<Type> newInterfaces)
     {
       throw new NotSupportedException ("ThrowingUnderlyingTypeFactory.CreateUnderlyingSystemType was invoked.");
     }

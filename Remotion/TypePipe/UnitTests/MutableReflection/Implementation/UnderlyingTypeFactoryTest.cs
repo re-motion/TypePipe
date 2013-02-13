@@ -71,23 +71,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (ctor, Is.Not.Null);
     }
 
-    [Test]
-    public void GetUnderlyingSystemType_BaseTypeIsNullForInterfaces ()
-    {
-      Assert.That (typeof (IDisposable).BaseType, Is.Null, "Assert original reflection behavior.");
-      var baseInterfaces = new[] { typeof (IDisposable), typeof (IComparable) };
-
-      var result = _factory.CreateUnderlyingSystemType (null, baseInterfaces);
-
-      Assert.That (result.IsClass, Is.False);
-      Assert.That (result.IsInterface, Is.True);
-      Assert.That (result.BaseType, Is.Null);
-
-      Assert.That (typeof (object).IsAssignableFrom (result), Is.True);
-      Assert.That (typeof (IDisposable).IsAssignableFrom (result), Is.True);
-      Assert.That (typeof (IComparable).IsAssignableFrom (result), Is.True);
-    }
-
     public class TypeWithoutDefaultCtor
     {
       public TypeWithoutDefaultCtor (int i) { Dev.Null = i; }
