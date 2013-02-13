@@ -25,7 +25,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  public class TypeInstantiationInExpressionTrees : TypeAssemblerIntegrationTestBase
+  public class TypeInstantiationInExpressionTreesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void ProxyTypeAsTypeArgument ()

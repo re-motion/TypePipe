@@ -60,9 +60,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [Ignore ("TODO 4778")]
     public void LocalVariable ()
     {
+      var type = AssembleType<DomainType> (
+          p => p.AddMethod (
+              "Method",
+              ctx =>
+              {
+                var localVariable = Expression.Parameter (p);
+                return Expression.Block (new[] { localVariable }, Expression.Empty());
+              }));
+
+      var methodBody = type.GetMethod ("Method").GetMethodBody();
+      Assertion.IsNotNull (methodBody);
+      var localVariableType = methodBody.LocalVariables.Single().LocalType;
+
+      Assert.That (localVariableType, Is.SameAs (type));
     }
 
     [Test]

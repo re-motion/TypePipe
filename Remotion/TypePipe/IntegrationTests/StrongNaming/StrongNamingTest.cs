@@ -227,24 +227,9 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     }
 
     [Test]
-    public void ForceStrongName_Signature_ProxyType ()
+    public void ForceStrongName_SignatureAndExpression_ProxyType ()
     {
-      Action<ProxyType> action = p => p.AddField ("Field", p);
-
-      CheckStrongNaming (action, forceStrongNaming: true);
-    }
-
-    [Test]
-    public void ForceStrongName_Expression_ProxyType ()
-    {
-      Action<ProxyType> action =
-          proxyType =>
-          {
-            var expression = Expression.New (proxyType);
-            // TODO 4778
-            var usableExpression = Expression.Convert (expression, typeof (DomainType));
-            proxyType.AddMethod ("Method", 0, typeof (DomainType), ParameterDeclaration.EmptyParameters, ctx => usableExpression);
-          };
+      Action<ProxyType> action = p => p.AddMethod ("Method", 0, p, new[] { new ParameterDeclaration (p, "p1") }, ctx => Expression.New (p));
 
       CheckStrongNaming (action, forceStrongNaming: true);
     }
