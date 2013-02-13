@@ -84,6 +84,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _attributes; }
     }
 
+    public override bool CanRead
+    {
+      get { return _getMethod != null; }
+    }
+
+    public override bool CanWrite
+    {
+      get { return _setMethod != null; }
+    }
+
     public override MethodInfo GetGetMethod (bool nonPublic)
     {
       return GetAccessorOrNull (_getMethod, nonPublic);
@@ -143,16 +153,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type ReflectedType
     {
       get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
-    }
-
-    public override bool CanRead
-    {
-      get { throw new NotSupportedException ("Property CanRead is not supported."); }
-    }
-
-    public override bool CanWrite
-    {
-      get { throw new NotSupportedException ("Property CanWrite is not supported."); }
     }
 
     public override void SetValue (object obj, object value, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)

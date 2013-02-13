@@ -34,6 +34,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private CustomMethodInfo _getMethod;
     private CustomMethodInfo _setMethod;
 
+    private CustomPropertyInfo _readOnlyProperty;
+    private CustomPropertyInfo _writeOnlyProperty;
+
     [SetUp]
     public void SetUp ()
     {
@@ -44,6 +47,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _indexParameter = CustomParameterInfoObjectMother.Create (type: indexParameterType);
       _getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, returnParameter: _parameter);
       _setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, parameters: new[] { _indexParameter, _parameter });
+
+      _readOnlyProperty = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod);
+      _writeOnlyProperty = CustomPropertyInfoObjectMother.Create (setMethod: _setMethod);
     }
 
     [Test]
@@ -61,11 +67,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Initialization_Type ()
     {
-      var property1 = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod);
-      var property2 = CustomPropertyInfoObjectMother.Create (setMethod: _setMethod);
+      Assert.That (_readOnlyProperty.PropertyType, Is.EqualTo (_type));
+      Assert.That (_writeOnlyProperty.PropertyType, Is.EqualTo (_type));
+    }
 
-      Assert.That (property1.PropertyType, Is.EqualTo (_type));
-      Assert.That (property2.PropertyType, Is.EqualTo (_type));
+    [Test]
+    public void CanRead ()
+    {
+      Assert.That (_readOnlyProperty.CanRead, Is.True);
+      Assert.That (_writeOnlyProperty.CanRead, Is.False);
+    }
+
+    [Test]
+    public void CanWrite ()
+    {
+      Assert.That (_readOnlyProperty.CanWrite, Is.False);
+      Assert.That (_writeOnlyProperty.CanWrite, Is.True);
     }
 
     [Test]
@@ -161,8 +178,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var property = CustomPropertyInfoObjectMother.Create();
 
       UnsupportedMemberTestHelper.CheckProperty (() => property.ReflectedType, "ReflectedType");
-      UnsupportedMemberTestHelper.CheckProperty (() => property.CanRead, "CanRead");
-      UnsupportedMemberTestHelper.CheckProperty (() => property.CanWrite, "CanWrite");
 
       UnsupportedMemberTestHelper.CheckMethod (() => property.SetValue (null, null, null), "SetValue");
       UnsupportedMemberTestHelper.CheckMethod (() => property.GetValue (null, null), "GetValue");
