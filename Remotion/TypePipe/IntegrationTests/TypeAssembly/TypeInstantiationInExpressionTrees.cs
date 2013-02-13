@@ -34,12 +34,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       {
         var listType = typeof (List<>).MakeTypePipeGenericType (proxyType);
         var field = proxyType.AddField ("_list", listType);
-        var ctor = proxyType.AddedConstructors.Single();
 
+        var ctor = proxyType.AddedConstructors.Single();
         ctor.SetBody (
             ctx => Expression.Block (
-                ctx.PreviousBody,
-                Expression.Assign (Expression.Field (ctx.This, field), Expression.New (listType))));
+                Expression.Assign (Expression.Field (ctx.This, field), Expression.New (listType)),
+                ctx.PreviousBody));
 
         proxyType.AddMethod (
             "Method",
