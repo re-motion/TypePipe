@@ -104,20 +104,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_provider.GetEmittableConstructor (ctor), Is.SameAs (ctor));
       Assert.That (_provider.GetEmittableMethod (method), Is.SameAs (method));
     }
-
-    [Test]
-    public void GetEmittableXXX_Builders ()
-    {
-      var type = ReflectionEmitObjectMother.GetSomeTypeBuilder ();
-      var field = ReflectionEmitObjectMother.GetSomeFieldBuilder ();
-      var ctor = ReflectionEmitObjectMother.GetSomeConstructorBuilder ();
-      var method = ReflectionEmitObjectMother.GetSomeMethodBuilder ();
-
-      Assert.That (_provider.GetEmittableType (type), Is.SameAs (type));
-      Assert.That (_provider.GetEmittableField (field), Is.SameAs (field));
-      Assert.That (_provider.GetEmittableConstructor (ctor), Is.SameAs (ctor));
-      Assert.That (_provider.GetEmittableMethod (method), Is.SameAs (method));
-    }
     
     [Test]
     public void GetEmittableXXX_NoMapping ()
@@ -134,7 +120,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var proxyType = ProxyTypeObjectMother.Create();
       _provider.AddMapping (proxyType, ReflectionObjectMother.GetSomeType());
 
-      var constructedType = typeof (List<>).MakeGenericType (proxyType);
+      var constructedType = typeof (List<>).MakeTypePipeGenericType (proxyType);
       Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
 
       _provider.GetEmittableType (constructedType);
@@ -149,7 +135,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _provider.AddMapping (_proxyType, emittableType);
 
       // Test recursion: List<Func<pt xxx>> as TypeBuilderInstantiation
-      var constructedType = typeof (List<>).MakeGenericType (typeof (Func<>).MakeGenericType (_proxyType));
+      var constructedType = typeof (List<>).MakeTypePipeGenericType (typeof (Func<>).MakeTypePipeGenericType (_proxyType));
       Assert.That (constructedType.IsRuntimeType(), Is.False);
 
       var result = _provider.GetEmittableType (constructedType);

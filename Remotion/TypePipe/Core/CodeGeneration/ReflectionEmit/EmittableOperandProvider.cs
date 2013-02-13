@@ -16,11 +16,13 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -77,40 +79,40 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetEmittableOperand (_mappedTypes, type, t => t is TypeBuilder || t.IsRuntimeType(), GetEmittableGenericType);
+      return GetEmittableOperand<Type, ProxyType, TypeInstantiation> (_mappedTypes, type, IsEmittable, GetEmittableTypeInstantiation);
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      return GetEmittableOperand (
+      return GetEmittableOperand<FieldInfo, MutableFieldInfo, FieldOnTypeInstantiation> (
           _mappedFields,
           field,
-          f => f is FieldBuilder || f.DeclaringType.IsRuntimeType(),
-          f => GetEmittableMemberOfGenericType (f, (FieldOnTypeInstantiation fi) => fi.FieldOnGenericType, TypeBuilder.GetField));
+          IsEmittable,
+          f => GetEmittableMemberInstantiation (f, fi => fi.FieldOnGenericType, TypeBuilder.GetField));
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return GetEmittableOperand (
+      return GetEmittableOperand<ConstructorInfo, MutableConstructorInfo, ConstructorOnTypeInstantiation> (
           _mappedConstructors,
           constructor,
-          c => c is ConstructorBuilder || c.DeclaringType.IsRuntimeType(),
-          c => GetEmittableMemberOfGenericType (c, (ConstructorOnTypeInstantiation ci) => ci.ConstructorOnGenericType, TypeBuilder.GetConstructor));
+          IsEmittable,
+          c => GetEmittableMemberInstantiation (c, ci => ci.ConstructorOnGenericType, TypeBuilder.GetConstructor));
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      return GetEmittableOperand (
+      return GetEmittableOperand<MethodInfo, MutableMethodInfo, MethodOnTypeInstantiation> (
           _mappedMethods,
           method,
-          m => m is MethodBuilder || m.DeclaringType.IsRuntimeType(),
-          m => GetEmittableMemberOfGenericType (m, (MethodOnTypeInstantiation mi) => mi.MethodOnGenericType, TypeBuilder.GetMethod));
+          IsEmittable,
+          m => GetEmittableMemberInstantiation (m, mi => mi.MethodOnGenericType, TypeBuilder.GetMethod));
     }
 
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
@@ -128,53 +130,59 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mapping.Add (key, value);
     }
 
-    private static T GetEmittableOperand<T, TMutable, TBuilder> (
-        Dictionary<TMutable, TBuilder> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<T, T> genericEmittableOperandProvider)
-        where TMutable : T
-        where TBuilder : T
-        where T : MemberInfo
+    private bool IsEmittable (Type type)
+    {
+      Debug.Assert (type is CustomType || type is TypeBuilder || type.IsRuntimeType());
+
+      return !(type is CustomType);
+    }
+
+    private bool IsEmittable (MemberInfo member)
+    {
+      return IsEmittable (member.DeclaringType);
+    }
+
+    private static T GetEmittableOperand<T, TMutable, TInstantiation> (
+        Dictionary<TMutable, T> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<TInstantiation, T> emittableInstantiationProvider)
+        where TMutable : class, T
+        where TInstantiation : T
     {
       if (isAlreadyEmittable (operand))
         return operand;
 
       var mutableOperand = operand as TMutable;
       if (mutableOperand == null)
-        return genericEmittableOperandProvider (operand);
+        return emittableInstantiationProvider ((TInstantiation) operand);
 
-      TBuilder emittableOperand;
-      if (mapping.TryGetValue (mutableOperand, out emittableOperand))
-        return emittableOperand;
+      T emittableOperand;
+      if (!mapping.TryGetValue (mutableOperand, out emittableOperand))
+      {
+        var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operand, operand.GetType().Name);
+        throw new InvalidOperationException (message);
+      }
 
-      var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operand, operand.GetType().Name);
-      throw new InvalidOperationException (message);
+      return emittableOperand;
     }
 
-    private Type GetEmittableGenericType (Type constructedType)
+    private Type GetEmittableTypeInstantiation (TypeInstantiation typeInstantiation)
     {
-      Assertion.IsTrue (constructedType.IsGenericType);
-
-      var typeArguments = constructedType.GetGenericArguments().Select (GetEmittableType).ToArray();
-      var genericTypeDefinition = constructedType.GetGenericTypeDefinition();
+      var typeArguments = typeInstantiation.GetGenericArguments().Select (GetEmittableType).ToArray();
+      var genericTypeDefinition = typeInstantiation.GetGenericTypeDefinition();
       Assertion.IsNotNull (genericTypeDefinition);
 
       // Should *not* be MakeTypePipeGenericType.
       return genericTypeDefinition.MakeGenericType (typeArguments);
     }
 
-    private T GetEmittableMemberOfGenericType<T, TMemberInstantiation> (
-        T member, 
-        Func<TMemberInstantiation, T> genericMemberAccessor, 
-        Func<Type, T, T> typeBuilderMemberProvider)
-        where TMemberInstantiation : T
+    private T GetEmittableMemberInstantiation<T, TInstantiation> (
+        TInstantiation memberInstantiation, Func<TInstantiation, T> genericMemberAccessor, Func<Type, T, T> emittableMemberProvider)
         where T : MemberInfo
+        where TInstantiation : T
     {
-      Assertion.IsTrue (member is TMemberInstantiation);
+      var emittableDeclaringType = GetEmittableTypeInstantiation ((TypeInstantiation) memberInstantiation.DeclaringType);
+      var genericMember = genericMemberAccessor (memberInstantiation);
 
-      var memberOnTypeInstantiation = (TMemberInstantiation) member;
-      var emittableDeclaringType = GetEmittableGenericType (memberOnTypeInstantiation.DeclaringType);
-      var genericMember = genericMemberAccessor (memberOnTypeInstantiation);
-
-      return typeBuilderMemberProvider (emittableDeclaringType, genericMember);
+      return emittableMemberProvider (emittableDeclaringType, genericMember);
     }
   }
 }
