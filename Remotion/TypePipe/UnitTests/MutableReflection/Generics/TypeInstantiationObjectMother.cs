@@ -29,17 +29,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         Type genericTypeDefinition = null,
         Type[] typeArguments = null,
         Dictionary<InstantiationInfo, TypeInstantiation> instantiationContext = null,
-        IMemberSelector memberSelector = null,
-        IUnderlyingTypeFactory underlyingTypeFactory = null)
+        IMemberSelector memberSelector = null)
     {
       genericTypeDefinition = genericTypeDefinition ?? typeof (MyGenericType<>);
       typeArguments = typeArguments ?? genericTypeDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType()).ToArray();
       var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
       instantiationContext = instantiationContext ?? new Dictionary<InstantiationInfo, TypeInstantiation>();
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
-      underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
 
-      return new TypeInstantiation (memberSelector, underlyingTypeFactory, instantiationInfo, instantiationContext);
+      return new TypeInstantiation (memberSelector, instantiationInfo, instantiationContext);
     }
 
     private class MyGenericType<T> {}

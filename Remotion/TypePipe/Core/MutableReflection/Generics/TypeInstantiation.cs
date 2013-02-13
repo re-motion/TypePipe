@@ -43,29 +43,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return string.Format ("{0}[{1}]", info.GenericTypeDefinition.FullName, typeArgumentString);
     }
 
-    private static Type SubstituteGenericParameters (
-        Type type, Dictionary<Type, Type> parametersToArguments, Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
-    {
-      var typeArgument = parametersToArguments.GetValueOrDefault (type);
-      if (typeArgument != null)
-        return typeArgument;
-
-      if (!type.IsGenericType)
-        return type;
-
-      var oldTypeArguments = type.GetGenericArguments();
-      var newTypeArguments = oldTypeArguments.Select (a => SubstituteGenericParameters (a, parametersToArguments, instantiations)).ToList();
-
-      // No substitution necessary (this is an optimization only).
-      if (oldTypeArguments.SequenceEqual (newTypeArguments))
-        return type;
-
-      var genericTypeDefinition = type.GetGenericTypeDefinition();
-      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
-
-      return instantiationInfo.MakeGenericType (instantiations);
-    }
-
     private readonly Type _genericTypeDefinition;
     private readonly Dictionary<InstantiationInfo, TypeInstantiation> _instantiations;
     private readonly Dictionary<Type, Type> _parametersToArguments;
@@ -79,12 +56,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public TypeInstantiation (
         IMemberSelector memberSelector,
-        IUnderlyingTypeFactory underlyingTypeFactory,
         InstantiationInfo instantiationInfo,
         Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
         : base (
             memberSelector,
-            underlyingTypeFactory,
             instantiationInfo.GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
             GetFullName (instantiationInfo),
@@ -124,6 +99,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _events = events.Cast<EventInfo>().ToList().AsReadOnly();
     }
 
+    public override Type UnderlyingSystemType
+    {
+      get { throw new NotSupportedException ("Property UnderlyingSystemType is not supported."); }
+    }
+
     public override Type GetGenericTypeDefinition ()
     {
       return _genericTypeDefinition;
@@ -133,7 +113,24 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return SubstituteGenericParameters (type, _parametersToArguments, _instantiations);
+      var typeArgument = _parametersToArguments.GetValueOrDefault (type);
+      if (typeArgument != null)
+        return typeArgument;
+
+      if (!type.IsGenericType)
+        return type;
+
+      var oldTypeArguments = type.GetGenericArguments();
+      var newTypeArguments = oldTypeArguments.Select (SubstituteGenericParameters).ToList();
+
+      // No substitution necessary (this is an optimization only).
+      if (oldTypeArguments.SequenceEqual (newTypeArguments))
+        return type;
+
+      var genericTypeDefinition = type.GetGenericTypeDefinition();
+      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
+
+      return instantiationInfo.MakeGenericType (_instantiations);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

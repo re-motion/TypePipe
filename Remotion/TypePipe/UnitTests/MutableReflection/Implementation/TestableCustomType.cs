@@ -27,7 +27,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     public TestableCustomType (
         IMemberSelector memberSelector,
-        IUnderlyingTypeFactory underlyingTypeFactory,
         string name,
         string @namespace,
         string fullName,
@@ -37,7 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<Type> typeArguments)
         : base (
             memberSelector,
-            underlyingTypeFactory,
             name,
             @namespace,
             fullName,
@@ -59,6 +57,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CallSetBaseType (Type baseType)
     {
       SetBaseType (baseType);
+    }
+
+    public override Type UnderlyingSystemType
+    {
+      get { throw new NotImplementedException(); }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

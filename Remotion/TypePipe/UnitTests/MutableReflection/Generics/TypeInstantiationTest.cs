@@ -34,7 +34,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
 
     private MemberSelector _memberSelector;
-    private ThrowingUnderlyingTypeFactory _underlyingTypeFactory;
 
     private Type _genericTypeDefinition;
     private CustomType _outerCustomType;
@@ -53,7 +52,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SetUp ()
     {
       _memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      _underlyingTypeFactory = new ThrowingUnderlyingTypeFactory();
 
       _genericTypeDefinition = typeof (DeclaringType<>.GenericType<>);
       _outerCustomType = CustomTypeObjectMother.Create (fullName: "MyNs.OuterTypeArg");
@@ -68,8 +66,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var info1 = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
       var info2 = new InstantiationInfo (_genericTypeDefinition, _typeArgumentsWithRuntimeType);
 
-      _instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info1, _instantiationContext1);
-      _instantiationWithRuntimeType = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info2, _instantiationContext2);
+      _instantiation = new TypeInstantiation (_memberSelector, info1, _instantiationContext1);
+      _instantiationWithRuntimeType = new TypeInstantiation (_memberSelector, info2, _instantiationContext2);
     }
 
     [Test]
@@ -178,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_ReadOnlyAndWriteOnlyProperty ()
     {
       var info1 = new InstantiationInfo (typeof (GenericTypeWithProperties<>), new Type[] { _customType });
-      var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info1, _instantiationContext1);
+      var instantiation = new TypeInstantiation (_memberSelector, info1, _instantiationContext1);
 
       var property1 = instantiation.GetProperty ("ReadOnlyProperty", c_allMembers);
       var property2 = instantiation.GetProperty ("WriteOnlyProperty", c_allMembers);
@@ -201,6 +199,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
           event_.GetAddMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetAddMethod (true)));
       Assert.That (
           event_.GetRemoveMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetRemoveMethod (true)));
+    }
+
+    [Test]
+    public void UnderlyingSystemType ()
+    {
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _instantiation.UnderlyingSystemType, "UnderlyingSystemType");
     }
 
     [Test]
@@ -236,7 +240,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = typeof (RecursiveGenericType<>);
       var typeArguments = new Type[] { _customType };
       var info = new InstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiation = new TypeInstantiation (_memberSelector, _underlyingTypeFactory, info, _instantiationContext1);
+      var instantiation = new TypeInstantiation (_memberSelector, info, _instantiationContext1);
 
       Assertion.IsNotNull (instantiation.BaseType);
       Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));

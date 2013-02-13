@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return _genericTypeDefinition.MakeGenericType (TypeArguments.ToArray());
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      return new TypeInstantiation (memberSelector, _underlyingTypeFactory, this, instantiations);
+      return new TypeInstantiation (memberSelector, this, instantiations);
     }
 
     public override bool Equals (object obj)

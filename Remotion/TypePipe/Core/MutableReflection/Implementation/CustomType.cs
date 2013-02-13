@@ -42,7 +42,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
     private readonly IMemberSelector _memberSelector;
-    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
 
     private readonly string _name;
     private readonly string _namespace;
@@ -54,11 +53,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private Type _declaringType;
     private Type _baseType;
-    private Type _underlyingSystemType;
 
     protected CustomType (
         IMemberSelector memberSelector,
-        IUnderlyingTypeFactory underlyingTypeFactory,
         string name,
         string @namespace,
         string fullName,
@@ -68,7 +65,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
       ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
@@ -76,7 +72,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
 
       _memberSelector = memberSelector;
-      _underlyingTypeFactory = underlyingTypeFactory;
       _name = name;
       _namespace = @namespace;
       _fullName = fullName;
@@ -88,6 +83,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       Assertion.IsTrue ((isGenericType && _typeArguments.Count > 0) || (!isGenericType && _typeArguments.Count == 0));
       Assertion.IsTrue ((isGenericTypeDefinition && isGenericType) || (!isGenericTypeDefinition));
     }
+
+    public abstract override Type UnderlyingSystemType { get; }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
     public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
@@ -158,28 +155,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override bool IsGenericTypeDefinition
     {
       get { return _isGenericTypeDefinition; }
-    }
-
-    /// <summary>
-    /// Returns a dummy representation of the underlying system type. Do not use the returned type for any kind of analysis. Accessing this property
-    /// may cause significant overhead. It is only implemented as internal parts of <see cref="System.Reflection"/> depend on it.
-    /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
-    /// </summary>
-    /// <returns> A dummy representation of the underlying system type for the <see cref="CustomType"/>.</returns>
-    [DebuggerBrowsable (DebuggerBrowsableState.Never)]
-    public override Type UnderlyingSystemType
-    {
-      get
-      {
-        if (_underlyingSystemType == null)
-        {
-          var baseInterfaces = _baseType != null ? _baseType.GetInterfaces() : Type.EmptyTypes;
-          var newInterfaces = GetAllInterfaces().Except (baseInterfaces);
-          _underlyingSystemType = _underlyingTypeFactory.CreateUnderlyingSystemType (_baseType, newInterfaces);
-        }
-
-        return _underlyingSystemType;
-      }
     }
 
     /// <summary>
@@ -299,11 +274,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _memberSelector.SelectSingleEvent (GetAllEvents(), bindingAttr, name, this);
     }
 
-    protected void InvalidateUnderlyingSystemType ()
-    {
-      _underlyingSystemType = null;
-    }
-
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
       return _attributes;
@@ -362,6 +332,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     protected override bool IsCOMObjectImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsContextfulImpl ()
+    {
+      return false;
+    }
+
+    protected override bool IsMarshalByRefImpl ()
     {
       return false;
     }

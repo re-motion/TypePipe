@@ -27,8 +27,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     public static CustomType Create (
         IMemberSelector memberSelector = null,
-        IUnderlyingTypeFactory underlyingTypeFactory = null,
-        Type declaringType = null,
         Type baseType = null,
         string name = "CustomType",
         string @namespace = "My",
@@ -45,7 +43,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<Type> typeArguments = null)
     {
       memberSelector = memberSelector ?? MockRepository.GenerateStub<IMemberSelector>();
-      underlyingTypeFactory = underlyingTypeFactory ?? MockRepository.GenerateStub<IUnderlyingTypeFactory>();
       // Declaring type stays null.
       baseType = baseType ?? typeof (UnspecifiedType);
       typeArguments = typeArguments ?? Type.EmptyTypes;
@@ -53,7 +50,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var customType =
           new TestableCustomType (
               memberSelector,
-              underlyingTypeFactory,
               name,
               @namespace,
               fullName,

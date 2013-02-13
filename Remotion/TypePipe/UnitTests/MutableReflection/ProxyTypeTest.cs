@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private IMemberSelector _memberSelectorMock;
+    private IUnderlyingTypeFactory _underlyingTypeFactoryMock;
     private IInterfaceMappingComputer _interfaceMappingComputerMock;
     private IMutableMemberFactory _mutableMemberFactoryMock;
 
@@ -49,12 +50,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _underlyingTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory> ();
       _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
       _proxyType = ProxyTypeObjectMother.Create (
           baseType: typeof (DomainType),
           memberSelector: _memberSelectorMock,
+          underlyingTypeFactory: _underlyingTypeFactoryMock,
           interfaceMappingComputer: _interfaceMappingComputerMock,
           mutableMemberFactory: _mutableMemberFactoryMock);
 
@@ -130,6 +133,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // no accessible ctor
       Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
+    }
+
+    [Test]
+    public void UnderlyingSystemType_GeneratedByFactoryOnDemand ()
+    {
+      var baseType = typeof (TypeWithMyInterface);
+      var newInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      var proxyType = ProxyTypeObjectMother.Create (underlyingTypeFactory: _underlyingTypeFactoryMock, baseType: baseType);
+      proxyType.AddInterface (newInterface);
+      Assert.That (proxyType.GetInterfaces(), Is.EqualTo (new[] { newInterface, typeof (IMyInterface) }));
+
+      var fakeUnderlyingType = ReflectionObjectMother.GetSomeType();
+      _underlyingTypeFactoryMock
+          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (baseType), Arg<IEnumerable<Type>>.List.Equivalent (newInterface)))
+          .Return (fakeUnderlyingType);
+
+      var result = proxyType.UnderlyingSystemType;
+
+      _underlyingTypeFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeUnderlyingType));
+    }
+
+    [Test]
+    public void UnderlyingSystemType_IsCached ()
+    {
+      var fakeUnderlyingType = ReflectionObjectMother.GetSomeType ();
+      _underlyingTypeFactoryMock
+          .Stub (mock => mock.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
+          .Return (fakeUnderlyingType);
+
+      var result = _proxyType.UnderlyingSystemType;
+
+      Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (result), "Should be cached.");
+      _underlyingTypeFactoryMock.AssertWasCalled (
+          mock => mock.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything), o => o.Repeat.Once ());
     }
 
     [Test]
@@ -586,5 +624,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       internal TypeWithoutAccessibleConstructor () { }
     }
+
+    class TypeWithMyInterface : IMyInterface { }
+    interface IMyInterface { }
   }
 }
