@@ -60,6 +60,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    [Ignore ("TODO 4778")]
+    public void LocalVariable ()
+    {
+    }
+
+    [Test]
     public void Field ()
     {
       var type = AssembleType<DomainType> (p => p.AddField ("Field", p, FieldAttributes.Public));
