@@ -154,7 +154,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       Assertion.IsTrue (constructedType.IsGenericType);
 
       var typeArguments = constructedType.GetGenericArguments().Select (GetEmittableType).ToArray();
-      return constructedType.GetGenericTypeDefinition().MakeGenericType (typeArguments);
+      var genericTypeDefinition = constructedType.GetGenericTypeDefinition();
+      Assertion.IsNotNull (genericTypeDefinition);
+
+      // Should *not* be MakeTypePipeGenericType.
+      return genericTypeDefinition.MakeGenericType (typeArguments);
     }
 
     private T GetEmittableMemberOfGenericType<T, TMemberInstantiation> (
