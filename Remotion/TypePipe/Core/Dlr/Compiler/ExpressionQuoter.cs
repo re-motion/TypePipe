@@ -74,14 +74,12 @@ namespace System.Runtime.CompilerServices {
                 _locals = locals;
             }
 
-            protected internal override Expression VisitLambda<T>(Expression<T> node) {
+            protected internal override Expression VisitLambda(LambdaExpression node) {
                 _shadowedVars.Push(new Set<ParameterExpression>(node.Parameters));
                 Expression b = Visit(node.Body);
                 _shadowedVars.Pop();
-                if (b == node.Body) {
-                    return node;
-                }
-                return Expression.Lambda<T>(b, node.Name, node.TailCall, node.Parameters);
+
+                return node.Update (b, node.Parameters);
             }
 
             protected internal override Expression VisitBlock(BlockExpression node) {

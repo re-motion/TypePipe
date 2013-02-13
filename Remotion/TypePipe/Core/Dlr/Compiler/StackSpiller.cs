@@ -104,7 +104,7 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         // called by Expression<T>.Accept
-        internal Expression<T> Rewrite<T>(Expression<T> lambda) {
+        internal LambdaExpression Rewrite(LambdaExpression lambda) {
             VerifyTemps();
 
             // Lambda starts with an empty stack
@@ -122,7 +122,7 @@ namespace System.Linq.Expressions.Compiler {
                 }
 
                 // Clone the lambda, replacing the body & variables
-                return new Expression<T>(newBody, lambda.Name, lambda.TailCall, lambda.Parameters);
+                return lambda.Update (newBody, lambda.Parameters);
             }
 
             return lambda;

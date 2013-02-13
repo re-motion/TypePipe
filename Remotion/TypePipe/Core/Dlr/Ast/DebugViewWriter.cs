@@ -427,7 +427,7 @@ namespace System.Linq.Expressions {
             return node;
         }
 
-        protected internal override Expression VisitLambda<T>(Expression<T> node) {
+        protected internal override Expression VisitLambda(LambdaExpression node) {
             Out(
                 String.Format(CultureInfo.CurrentCulture,
                     "{0} {1}<{2}>",

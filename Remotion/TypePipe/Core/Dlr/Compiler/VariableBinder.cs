@@ -74,7 +74,7 @@ namespace System.Linq.Expressions.Compiler {
             return node;
         }
 
-        protected internal override Expression VisitLambda<T>(Expression<T> node) {
+        protected internal override Expression VisitLambda(LambdaExpression node) {
             _scopes.Push(_tree.Scopes[node] = new CompilerScope(node, true));
             _constants.Push(_tree.Constants[node] = new BoundConstants());
             Visit(MergeScopes(node));

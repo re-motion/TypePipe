@@ -123,6 +123,7 @@
     <Compile Include="Configuration\ForceStrongNamingConfigurationElement.cs" />
     <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
+    <Compile Include="Dlr\Ast\LambdaExpression.TypePipe.cs" />
     <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />

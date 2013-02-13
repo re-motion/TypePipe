@@ -360,11 +360,10 @@ namespace System.Linq.Expressions {
         /// <summary>
         /// Visits the children of the <see cref="Expression&lt;T&gt;" />.
         /// </summary>
-        /// <typeparam name="T">The type of the delegate.</typeparam>
         /// <param name="node">The expression to visit.</param>
         /// <returns>The modified expression, if it or any subexpression was modified;
         /// otherwise, returns the original expression.</returns>
-        protected internal virtual Expression VisitLambda<T>(Expression<T> node) {
+        protected internal virtual Expression VisitLambda(LambdaExpression node) {
             return node.Update(Visit(node.Body), VisitAndConvert(node.Parameters, "VisitLambda"));
         }
 

@@ -344,7 +344,7 @@ namespace System.Linq.Expressions {
             return node;
         }
 
-        protected internal override Expression VisitLambda<T>(Expression<T> node) {
+        protected internal override Expression VisitLambda(LambdaExpression node) {
             if (node.Parameters.Count == 1) {
                 // p => body
                 Visit(node.Parameters[0]);

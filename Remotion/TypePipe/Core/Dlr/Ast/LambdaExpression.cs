@@ -46,7 +46,7 @@ namespace System.Linq.Expressions {
 #if !SILVERLIGHT
     [DebuggerTypeProxy(typeof(Expression.LambdaExpressionProxy))]
 #endif
-    public abstract class LambdaExpression : Expression {
+    public partial class LambdaExpression : Expression {
         private readonly string _name;
         private readonly Expression _body;
         private readonly ReadOnlyCollection<ParameterExpression> _parameters;
@@ -167,8 +167,6 @@ namespace System.Linq.Expressions {
 
             LambdaCompiler.Compile(this, new MethodBuilderForLambdaCompiler(method, new OffsetTrackingILGeneratorFactory(), false), debugInfoGenerator);
         }
-
-        internal abstract LambdaExpression Accept(StackSpiller spiller);
     }
 
     /// <summary>
@@ -210,22 +208,11 @@ namespace System.Linq.Expressions {
         /// <param name="body">The <see cref="LambdaExpression.Body">Body</see> property of the result.</param>
         /// <param name="parameters">The <see cref="LambdaExpression.Parameters">Parameters</see> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-        public Expression<TDelegate> Update(Expression body, IEnumerable<ParameterExpression> parameters) {
+        public new Expression<TDelegate> Update(Expression body, IEnumerable<ParameterExpression> parameters) {
             if (body == Body && parameters == Parameters) {
                 return this;
             }
             return Expression.Lambda<TDelegate>(body, Name, TailCall, parameters);
-        }
-
-        /// <summary>
-        /// Dispatches to the specific visit method for this node type.
-        /// </summary>
-        protected internal override Expression Accept(ExpressionVisitor visitor) {
-            return visitor.VisitLambda(this);
-        }
-
-        internal override LambdaExpression Accept(StackSpiller spiller) {
-            return spiller.Rewrite(this);
         }
 
         internal static LambdaExpression Create(Expression body, string name, bool tailCall, ReadOnlyCollection<ParameterExpression> parameters) {

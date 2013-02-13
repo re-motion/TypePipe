@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return base.VisitConstant (node);
     }
 
-    protected internal override Expression VisitLambda<T> (Expression<T> node)
+    protected internal override Expression VisitLambda (LambdaExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
