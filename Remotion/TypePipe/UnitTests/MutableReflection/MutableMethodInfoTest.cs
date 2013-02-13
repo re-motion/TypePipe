@@ -25,6 +25,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -62,13 +63,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo(attributes));
 
-      MutableParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.None);
+      CustomParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.None);
       Assert.That (method.MutableReturnParameter, Is.SameAs (method.ReturnParameter));
 
       var actualParameters = method.GetParameters();
       Assert.That (actualParameters, Has.Length.EqualTo (2));
-      MutableParameterInfoTest.CheckParameter (actualParameters[0], method, 0, parameters[0].Name, parameters[0].Type, parameters[0].Attributes);
-      MutableParameterInfoTest.CheckParameter (actualParameters[1], method, 1, parameters[1].Name, parameters[1].Type, parameters[1].Attributes);
+      CustomParameterInfoTest.CheckParameter (actualParameters[0], method, 0, parameters[0].Name, parameters[0].Type, parameters[0].Attributes);
+      CustomParameterInfoTest.CheckParameter (actualParameters[1], method, 1, parameters[1].Name, parameters[1].Type, parameters[1].Attributes);
       Assert.That (method.MutableParameters, Is.EqualTo (actualParameters));
 
       var paramExpressions = method.ParameterExpressions;

@@ -20,27 +20,13 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class MutableParameterInfoTest
   {
-    public static void CheckParameter (
-        ParameterInfo parameter,
-        MemberInfo expectedMember,
-        int expectedPosition,
-        string expectedName,
-        Type expectedType,
-        ParameterAttributes expectedAttributes)
-    {
-      Assert.That (parameter.Member, Is.SameAs (expectedMember));
-      Assert.That (parameter.Position, Is.EqualTo (expectedPosition));
-      Assert.That (parameter.Name, Is.EqualTo (expectedName));
-      Assert.That (parameter.ParameterType, Is.SameAs (expectedType));
-      Assert.That (parameter.Attributes, Is.EqualTo (expectedAttributes));
-    }
-
     private MutableParameterInfo _parameter;
 
     [SetUp]
@@ -60,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var parameter = new MutableParameterInfo (member, position, name, type, attributes);
 
-      CheckParameter (parameter, member, position, name, type, attributes);
+      CustomParameterInfoTest.CheckParameter (parameter, member, position, name, type, attributes);
     }
 
     [Test]

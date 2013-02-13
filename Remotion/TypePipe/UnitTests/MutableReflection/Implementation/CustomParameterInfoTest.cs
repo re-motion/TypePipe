@@ -25,6 +25,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   [TestFixture]
   public class CustomParameterInfoTest
   {
+    public static void CheckParameter (
+        ParameterInfo parameter,
+        MemberInfo expectedMember,
+        int expectedPosition,
+        string expectedName,
+        Type expectedType,
+        ParameterAttributes expectedAttributes)
+    {
+      Assert.That (parameter.Member, Is.SameAs (expectedMember));
+      Assert.That (parameter.Position, Is.EqualTo (expectedPosition));
+      Assert.That (parameter.Name, Is.EqualTo (expectedName));
+      Assert.That (parameter.ParameterType, Is.SameAs (expectedType));
+      Assert.That (parameter.Attributes, Is.EqualTo (expectedAttributes));
+    }
+
     private MemberInfo _member;
     private int _position;
     private string _name;
