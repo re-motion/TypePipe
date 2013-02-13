@@ -109,6 +109,30 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (type));
     }
 
+    [Ignore ("TODO 5417")]
+    [Test]
+    public void Method_RefAndOutParameters ()
+    {
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var byRefType = proxyType.MakeByRefType();
+            proxyType.AddMethod (
+                "Method",
+                ctx => Expression.Empty(),
+                parameters:
+                    new[] { new ParameterDeclaration (byRefType, "ref"), new ParameterDeclaration (byRefType, "out", ParameterAttributes.Out) });
+          });
+
+      var parameters = type.GetMethod ("Method").GetParameters();
+      var referenceType = type.MakeByRefType();
+
+      Assert.That (parameters[0].ParameterType, Is.SameAs (referenceType));
+      Assert.That (parameters[0].Attributes, Is.EqualTo (ParameterAttributes.None));
+      Assert.That (parameters[1].ParameterType, Is.SameAs (referenceType));
+      Assert.That (parameters[1].Attributes, Is.EqualTo (ParameterAttributes.Out));
+    }
+
     [Test]
     public void GenericArgument ()
     {
