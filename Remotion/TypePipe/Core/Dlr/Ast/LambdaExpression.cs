@@ -253,7 +253,7 @@ namespace System.Linq.Expressions {
             MethodInfo create = null;
             lock (_LambdaFactories) {
                 if (!_LambdaFactories.TryGetValue(delegateType, out fastPath)) {
-                    create = typeof(Expression<>).MakeGenericType(delegateType).GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic);
+                    create = typeof(Expression<>).MakeTypePipeGenericType(delegateType).GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic);
                     if (TypeUtils.CanCache(delegateType)) {
                         _LambdaFactories[delegateType] = fastPath = (LambdaFactory)Delegate.CreateDelegate(typeof(LambdaFactory), create);
                     }

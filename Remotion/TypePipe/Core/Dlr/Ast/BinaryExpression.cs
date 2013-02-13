@@ -2105,7 +2105,7 @@ namespace System.Linq.Expressions {
         private static Type GetResultTypeOfShift(Type left, Type right) {
             if (!left.IsNullableType() && right.IsNullableType()) {
                 // lift the result type to Nullable<T>
-                return typeof(Nullable<>).MakeGenericType(left);
+                return typeof(Nullable<>).MakeTypePipeGenericType(left);
             }
             return left;
         }

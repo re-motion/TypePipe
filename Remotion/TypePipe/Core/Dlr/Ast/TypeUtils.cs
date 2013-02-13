@@ -42,7 +42,7 @@ namespace System.Dynamic.Utils {
         internal static Type GetNullableType(Type type) {
             Debug.Assert(type != null, "type cannot be null");
             if (type.IsValueType && !IsNullableType(type)) {
-                return typeof(Nullable<>).MakeGenericType(type);
+                return typeof(Nullable<>).MakeTypePipeGenericType(type);
             }
             return type;
         }

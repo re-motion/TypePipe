@@ -32,6 +32,7 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.Dynamic.Utils;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 
 namespace System.Runtime.CompilerServices {
 
@@ -111,7 +112,7 @@ namespace System.Runtime.CompilerServices {
             var ctors = _SiteCtors;
             lock (ctors) {
                 if (!ctors.TryGetValue(delegateType, out ctor)) {
-                    method = typeof(CallSite<>).MakeGenericType(delegateType).GetMethod("Create");
+                    method = typeof(CallSite<>).MakeTypePipeGenericType(delegateType).GetMethod("Create");
 
                     if (TypeUtils.CanCache(delegateType)) {
                         ctor = (Func<CallSiteBinder, CallSite>)Delegate.CreateDelegate(typeof(Func<CallSiteBinder, CallSite>), method);
