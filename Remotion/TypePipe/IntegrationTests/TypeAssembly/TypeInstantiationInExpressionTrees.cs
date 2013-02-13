@@ -27,7 +27,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class TypeInstantiationInExpressionTrees : TypeAssemblerIntegrationTestBase
   {
-    [Ignore("TODO 5392")]
     [Test]
     public void ProxyTypeAsTypeArgument ()
     {
