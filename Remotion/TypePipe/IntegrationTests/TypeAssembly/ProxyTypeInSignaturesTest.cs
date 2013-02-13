@@ -75,11 +75,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [Ignore ("TODO 4778")]
     public void Constructor ()
     {
       var type = AssembleType<DomainType> (
-          p => p.AddConstructor (MethodAttributes.Public, new[] { new ParameterDeclaration (p, "param") }, ctx => Expression.Empty()));
+          p => p.AddConstructor (MethodAttributes.Public, new[] { new ParameterDeclaration (p, "param") }, ctx => ctx.CallBaseConstructor()));
 
       var constructor = type.GetConstructor (new[] { type });
       Assertion.IsNotNull (constructor);
@@ -87,7 +86,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [Ignore ("TODO 4778")]
     public void Method ()
     {
       var type = AssembleType<DomainType> (
@@ -98,7 +96,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (type));
     }
 
-    [Ignore ("TODO 4778")]
     [Test]
     public void GenericArgument ()
     {
@@ -114,7 +111,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.ReturnType, Is.SameAs (expectedType));
     }
 
-    [Ignore ("TODO 4778")]
     [Test]
     public void GenericArgument_Recursive ()
     {
