@@ -538,7 +538,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseFields = typeof (DomainType).GetFields (c_all);
       Assert.That (baseFields, Is.Not.Empty);
-      var addedField = _proxyTypeWithoutMocks.AddField ("field", typeof (int));
+      var addedField = _proxyTypeWithoutMocks.AddField();
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllFields");
 
@@ -580,7 +580,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetMethods_FiltersOverriddenMethods ()
+    public void GetAllMethods_FiltersOverriddenMethods ()
     {
       var baseMethod = typeof (DomainType).GetMethod ("ToString");
       var fakeOverride = MutableMethodInfoObjectMother.Create (
@@ -600,6 +600,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (result, Has.Member (fakeOverride));
       Assert.That (result, Has.No.Member (baseMethod));
+    }
+
+    [Ignore("TODO 5421")]
+    [Test]
+    public void GetAllProperties ()
+    {
+      var baseProperties = typeof (DomainType).GetProperties (c_all);
+      Assert.That (baseProperties, Is.Not.Empty);
+      var addedProperty = _proxyTypeWithoutMocks.AddProperty();
+
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllProperties");
+
+      Assert.That (result, Is.EqualTo (new[] { addedProperty }.Concat (baseProperties)));
     }
 
     [Test]
@@ -625,8 +638,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public int Field;
 
-      public virtual string VirtualMethod () { return ""; }
+      public int Property { get; set; }
 
+      public virtual string VirtualMethod () { return ""; }
       public void NonVirtualMethod () { }
     }
 

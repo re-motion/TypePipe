@@ -411,7 +411,6 @@ namespace Remotion.TypePipe.MutableReflection
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
       Assertion.IsNotNull (BaseType);
-
       var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
       var filteredBaseMethods = BaseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
 

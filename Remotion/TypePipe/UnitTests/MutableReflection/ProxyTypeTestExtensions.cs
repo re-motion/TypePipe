@@ -67,5 +67,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       return proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
     }
+
+    public static MutablePropertyInfo AddProperty (
+        this ProxyType proxyType,
+        string name = null,
+        Type type = null,
+        IEnumerable<ParameterDeclaration> indexParameters = null,
+        Func<MethodBodyCreationContext, Expression> getBodyProvider = null,
+        Func<MethodBodyCreationContext, Expression> setBodyProvider = null)
+    {
+      name = name ?? "Property_" + ++s_counter;
+      type = type ?? typeof (int);
+      if (getBodyProvider == null && setBodyProvider == null)
+        getBodyProvider = ctx => Expression.Default (ctx.ReturnType);
+
+      return proxyType.AddProperty (name, type, indexParameters, getBodyProvider, setBodyProvider);
+    }
   }
 }
