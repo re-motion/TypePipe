@@ -106,6 +106,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       context.PostDeclarationsActionManager.AddAction (explicitOverrideAction);
     }
 
+    public void AddProperty (CodeGenerationContext context, MutablePropertyInfo property)
+    {
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("property", property);
+
+    }
+
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
     {
       foreach (var declaration in mutableInfo.AddedCustomAttributes)

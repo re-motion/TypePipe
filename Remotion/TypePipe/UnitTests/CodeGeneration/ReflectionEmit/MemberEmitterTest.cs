@@ -215,6 +215,27 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       actions[0].Invoke();
     }
 
+    [Ignore("TODO 5422")]
+    [Test]
+    public void AddProperty ()
+    {
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var getMethod = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: parameters);
+      var setMethod = MutableMethodInfoObjectMother.Create();
+      var property = MutablePropertyInfoObjectMother.Create (
+          null /*ProxyTypeObjectMother.Create (baseType: typeof (DomainType))*/,
+          "Property",
+          getMethod,
+          setMethod);
+
+      _typeBuilderMock.Expect (mock => mock.DefineProperty ("Property", property.Attributes, returnType, parameters.Select (p => p.Type).ToArray()));
+
+      _emitter.AddProperty (_context, property);
+
+      _typeBuilderMock.VerifyAllExpectations();
+    }
+
     private void SetupDefineCustomAttribute (ICustomAttributeTargetBuilder customAttributeTargetBuilderMock, IMutableInfo mutableInfo)
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create();
