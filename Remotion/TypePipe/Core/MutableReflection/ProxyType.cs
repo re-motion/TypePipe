@@ -278,15 +278,19 @@ namespace Remotion.TypePipe.MutableReflection
       return overrideMethod;
     }
 
-    // TODO update docs.
     /// <summary>
     /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="baseMethod"/>.
     /// </summary>
+    /// <param name="baseMethod">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
+    /// <returns>
+    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="baseMethod"/>, an override for a base method or an implementation for 
+    /// an interface method.
+    /// </returns>
     /// <remarks>
     /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="baseMethod"/> this method returns the following.
     /// <list type="number">
     ///   <item>
-    ///     Modified type
+    ///     Proxy type
     ///     <list type="bullet">
     ///       <item>The corresponding <see cref="MutableMethodInfo"/> from the <see cref="AddedMethods"/> collection.</item>
     ///     </list>
@@ -295,7 +299,7 @@ namespace Remotion.TypePipe.MutableReflection
     ///     Base type
     ///     <list type="bullet">
     ///       <item>An existing mutable override for the base method, or</item>
-    ///       <item>a newly created override (implicit or explicit if necessary).</item>
+    ///       <item>a newly created override (implicit; or explicit if necessary).</item>
     ///     </list>
     ///   </item>
     ///   <item>
@@ -304,16 +308,11 @@ namespace Remotion.TypePipe.MutableReflection
     ///       <item>An existing mutable implementation, or</item>
     ///       <item>a newly created implementation, or</item>
     ///       <item>an existing mutable override for a base implementation, or</item>
-    ///       <item>a newly created override for a base implementation (implicit or explicit if necessary).</item>
+    ///       <item>a newly created override for a base implementation (implicit; or explicit if necessary).</item>
     ///     </list>
     ///   </item>
     /// </list>
     /// </remarks>
-    /// <param name="baseMethod">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
-    /// <returns>
-    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="baseMethod"/>, an override for a base method or an implementation for 
-    /// an interface method.
-    /// </returns>
     public MutableMethodInfo GetOrAddOverride (MethodInfo baseMethod)
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
