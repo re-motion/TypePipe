@@ -715,6 +715,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (setterParams.Select (p => p.Name), Is.EqualTo (setterParameters.Select (p => p.Name)));
     }
 
+    [Test]
+    public void CreateProperty_NullIndexParameters ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
+      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+
+      var result = _mutableMemberFactory.CreateProperty (
+          _proxyType, "Property", type, indexParameters: null, getBodyProvider: getBodyProvider, setBodyProvider: setBodyProvider);
+
+      Assert.That (result.MutableGetMethod.GetParameters(), Is.Empty);
+      var valueParameter = result.MutableSetMethod.GetParameters().Single();
+      Assert.That (valueParameter.Name, Is.EqualTo ("value"));
+      Assert.That (valueParameter.ParameterType, Is.SameAs (type));
+    }
+
+    [Test]
+    public void CreateProperty_ReadOnly ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
+
+      var result = _mutableMemberFactory.CreateProperty (
+          _proxyType, "Property", type, indexParameters: null, getBodyProvider: getBodyProvider, setBodyProvider: null);
+
+      Assert.That (result.MutableSetMethod, Is.Null);
+    }
+
+    [Test]
+    public void CreateProperty_WriteOnly ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+
+      var result = _mutableMemberFactory.CreateProperty (
+          _proxyType, "Property", type, indexParameters: null, getBodyProvider: null, setBodyProvider: setBodyProvider);
+
+      Assert.That (result.MutableGetMethod, Is.Null);
+    }
+
+
     private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
     {
       Assert.That (ctx.This.Type, Is.SameAs (_proxyType));

@@ -231,12 +231,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get body provider may be null.
       // Set body provider may be null.
 
-      var indexParas = indexParameters.ConvertToCollection();
+      var indexParams = indexParameters != null ? indexParameters.ConvertToCollection() : ParameterDeclaration.EmptyParameters;
       var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
-      var getMethod = CreateMethod (declaringType, "get_" + name, attributes, type, indexParas, getBodyProvider);
-      var valueParameter = new ParameterDeclaration (type, "value");
-      var setMethod = CreateMethod (declaringType, "set_" + name, attributes, typeof (void), indexParas.Concat (valueParameter), setBodyProvider);
-
+      MutableMethodInfo getMethod = null, setMethod = null;
+      if (getBodyProvider != null)
+        getMethod = CreateMethod (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
+      if (setBodyProvider != null)
+      {
+        var setterParams = indexParams.Concat (new ParameterDeclaration (type, "value"));
+        setMethod = CreateMethod (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
+      }
+      
       return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
     }
 
