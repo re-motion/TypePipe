@@ -669,7 +669,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
     }
 
-    [Ignore("TODO")]
     [Test]
     public void CreateProperty ()
     {
@@ -690,7 +689,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeSetBody;
       };
 
-      var result = _mutableMemberFactory.CreateProperty (_proxyType, name, type, indexParameters, getBodyProvider, setBodyProvider);
+      var result = _mutableMemberFactory.CreateProperty (_proxyType, name, type, indexParameters.AsOneTime(), getBodyProvider, setBodyProvider);
 
       Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (result.Name, Is.EqualTo (name));
@@ -706,7 +705,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (getterParams.Select (p => p.ParameterType), Is.EqualTo (indexParameters.Select (p => p.Type)));
       Assert.That (getterParams.Select (p => p.Name), Is.EqualTo (indexParameters.Select (p => p.Name)));
 
-      var setter = result.MutableGetMethod;
+      var setter = result.MutableSetMethod;
       Assert.That (setter.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (setter.Name, Is.EqualTo ("set_Property"));
       Assert.That (setter.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName));

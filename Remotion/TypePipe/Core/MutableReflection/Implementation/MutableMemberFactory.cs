@@ -231,12 +231,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get body provider may be null.
       // Set body provider may be null.
 
-      //var getter = Create
+      var indexParas = indexParameters.ConvertToCollection();
+      var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+      var getMethod = CreateMethod (declaringType, "get_" + name, attributes, type, indexParas, getBodyProvider);
+      var valueParameter = new ParameterDeclaration (type, "value");
+      var setMethod = CreateMethod (declaringType, "set_" + name, attributes, typeof (void), indexParas.Concat (valueParameter), setBodyProvider);
 
-      //return new MutablePropertyInfo(declaringType, name, )
-
-
-      throw new NotImplementedException();
+      return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
