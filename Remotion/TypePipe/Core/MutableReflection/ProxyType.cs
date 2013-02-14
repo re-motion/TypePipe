@@ -416,6 +416,7 @@ namespace Remotion.TypePipe.MutableReflection
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
       Assertion.IsNotNull (BaseType);
+
       var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
       var filteredBaseMethods = BaseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
 
@@ -424,9 +425,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      // TODO; implement correctly
-      var all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      return BaseType.GetProperties (all);
+      Assertion.IsNotNull (BaseType);
+
+      return _addedProperties.Cast<PropertyInfo>().Concat (BaseType.GetProperties (c_allMembers));
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()

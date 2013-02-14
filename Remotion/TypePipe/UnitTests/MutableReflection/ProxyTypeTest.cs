@@ -633,7 +633,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Has.No.Member (baseMethod));
     }
 
-    [Ignore("TODO 5421")]
     [Test]
     public void GetAllProperties ()
     {
