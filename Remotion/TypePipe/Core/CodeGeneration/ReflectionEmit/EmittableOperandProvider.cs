@@ -39,9 +39,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class EmittableOperandProvider : IEmittableOperandProvider
   {
     private readonly Dictionary<ProxyType, Type> _mappedTypes = new Dictionary<ProxyType, Type>();
-    private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFields = new Dictionary<MutableFieldInfo, FieldInfo> ();
-    private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<MutableConstructorInfo, ConstructorInfo> ();
-    private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethods = new Dictionary<MutableMethodInfo, MethodInfo> ();
+    private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFields = new Dictionary<MutableFieldInfo, FieldInfo>();
+    private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<MutableConstructorInfo, ConstructorInfo>();
+    private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethods = new Dictionary<MutableMethodInfo, MethodInfo>();
+    private readonly Dictionary<MutablePropertyInfo, PropertyInfo> _mappedProperties = new Dictionary<MutablePropertyInfo, PropertyInfo>();
 
     public void AddMapping (ProxyType mappedType, Type emittableType)
     {
@@ -121,6 +122,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           method,
           IsEmittable,
           m => GetEmittableMemberInstantiation (m, mi => mi.MethodOnGenericType, TypeBuilder.GetMethod));
+    }
+
+    public PropertyInfo GetEmittableProperty (PropertyInfo property)
+    {
+      ArgumentUtility.CheckNotNull ("property", property);
+
+      return null;
     }
 
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
