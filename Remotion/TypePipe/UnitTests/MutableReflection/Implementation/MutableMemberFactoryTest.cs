@@ -34,6 +34,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -668,10 +669,60 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
     }
 
+    [Ignore("TODO")]
     [Test]
     public void CreateProperty ()
     {
-      
+      var name = "Property";
+      var type = ReflectionObjectMother.GetSomeType();
+      var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2).ToList();
+      var setterParameters = indexParameters.Concat (ParameterDeclarationObjectMother.Create (type, "value")).ToList();
+      var fakeGetBody = ExpressionTreeObjectMother.GetSomeExpression (type);
+      var fakeSetBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx =>
+      {
+        CheckAccessorContext (ctx, type, indexParameters);
+        return fakeGetBody;
+      };
+      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx =>
+      {
+        CheckAccessorContext (ctx, typeof (void), setterParameters);
+        return fakeSetBody;
+      };
+
+      var result = _mutableMemberFactory.CreateProperty (_proxyType, name, type, indexParameters, getBodyProvider, setBodyProvider);
+
+      Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (result.Name, Is.EqualTo (name));
+      Assert.That (result.Attributes, Is.EqualTo (PropertyAttributes.None));
+      Assert.That (result.PropertyType, Is.SameAs (type));
+
+      var getter = result.MutableGetMethod;
+      Assert.That (getter.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (getter.Name, Is.EqualTo ("get_Property"));
+      Assert.That (getter.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (getter.ReturnType, Is.SameAs (type));
+      var getterParams = getter.GetParameters();
+      Assert.That (getterParams.Select (p => p.ParameterType), Is.EqualTo (indexParameters.Select (p => p.Type)));
+      Assert.That (getterParams.Select (p => p.Name), Is.EqualTo (indexParameters.Select (p => p.Name)));
+
+      var setter = result.MutableGetMethod;
+      Assert.That (setter.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (setter.Name, Is.EqualTo ("set_Property"));
+      Assert.That (setter.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (setter.ReturnType, Is.SameAs (typeof (void)));
+      var setterParams = setter.GetParameters();
+      Assert.That (setterParams.Select (p => p.ParameterType), Is.EqualTo (setterParameters.Select (p => p.Type)));
+      Assert.That (setterParams.Select (p => p.Name), Is.EqualTo (setterParameters.Select (p => p.Name)));
+    }
+
+    private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
+    {
+      Assert.That (ctx.This.Type, Is.SameAs (_proxyType));
+      Assert.That (ctx.Parameters.Select (p => p.Type), Is.EqualTo (parameters.Select (p => p.Type)));
+      Assert.That (ctx.Parameters.Select (p => p.Name), Is.EqualTo (parameters.Select (p => p.Name)));
+      Assert.That (ctx.IsStatic, Is.False);
+      Assert.That (ctx.ReturnType, Is.SameAs (type));
     }
 
     private void CallAndCheckGetOrAddOverride (
