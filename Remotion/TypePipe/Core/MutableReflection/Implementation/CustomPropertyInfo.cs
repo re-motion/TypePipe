@@ -59,6 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _getMethod = getMethod;
       _setMethod = setMethod;
       _type = getMethod != null ? getMethod.ReturnType : setMethod.GetParameters().Last().ParameterType;
+      Assertion.IsTrue (_type != typeof (void));
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();

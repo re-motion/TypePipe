@@ -14,10 +14,43 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Reflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
+
 namespace Remotion.TypePipe.MutableReflection
 {
-  public class MutablePropertyInfo
+  /// <summary>
+  /// Represents a <see cref="PropertyInfo"/> that can be modified.
+  /// </summary>
+  public class MutablePropertyInfo : CustomPropertyInfo, IMutableInfo
   {
-     
+    public MutablePropertyInfo (ProxyType declaringType, string name, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
+        : base (declaringType, name, PropertyAttributes.None, getMethod, setMethod)
+    {
+      // TODO: test initialization
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    {
+      get { throw new System.NotImplementedException(); }
+    }
+
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public override ParameterInfo[] GetIndexParameters ()
+    {
+      throw new System.NotImplementedException();
+    }
   }
 }

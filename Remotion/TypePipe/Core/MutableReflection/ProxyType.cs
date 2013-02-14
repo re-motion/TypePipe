@@ -51,6 +51,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
     private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo>();
+    private readonly List<MutablePropertyInfo> _addedProperties = new List<MutablePropertyInfo>();
 
     private Type _underlyingSystemType;
     private MutableConstructorInfo _typeInitializer;
@@ -134,6 +135,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
       get { return _addedMethods.AsReadOnly(); }
+    }
+
+    public ReadOnlyCollection<MutablePropertyInfo> AddedProperties
+    {
+      get { return _addedProperties.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -319,6 +325,25 @@ namespace Remotion.TypePipe.MutableReflection
         _addedMethods.Add (method);
 
       return method;
+    }
+
+    public MutablePropertyInfo AddProperty (
+        string name,
+        Type type,
+        IEnumerable<ParameterDeclaration> indexParameters = null,
+        Func<MethodBodyCreationContext, Expression> getBodyProvider = null,
+        Func<MethodBodyCreationContext, Expression> setBodyProvider = null)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
+      // Index parameters may be null.
+      // Get body provider may be null.
+      // Set body provider may be null.
+
+      var property = _mutableMemberFactory.CreateProperty (this, name, type, indexParameters, getBodyProvider, setBodyProvider);
+      _addedProperties.Add (property);
+
+      return property;
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)

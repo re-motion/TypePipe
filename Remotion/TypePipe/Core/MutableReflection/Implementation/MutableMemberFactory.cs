@@ -220,6 +220,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return CreateMethod (proxyType, overrideBaseMethod.Name, attributes, overrideBaseMethod.ReturnType, parameters, bodyProviderOrNull);
     }
 
+    public MutablePropertyInfo CreateProperty (
+        ProxyType proxyType, string name, Type type, IEnumerable<ParameterDeclaration> indexParameters, Func<MethodBodyCreationContext, Expression> getBodyProvider, Func<MethodBodyCreationContext, Expression> setBodyProvider)
+    {
+      throw new NotImplementedException();
+    }
+
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
         ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
     {

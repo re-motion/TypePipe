@@ -330,7 +330,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
-      var fakeMethod = MutableMethodInfoObjectMother.Create(_proxyType);
+      var fakeMethod = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock
           .Expect (mock => mock.CreateMethod (_proxyType, name, attributes, returnType, parameters, bodyProvider))
           .Return (fakeMethod);
@@ -350,7 +350,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
       var expectedAttributes = MethodAttributes.Public | MethodAttributes.Abstract | MethodAttributes.Virtual;
-      var fakeMethod = MutableMethodInfoObjectMother.Create (_proxyType);
+      var fakeMethod = MutableMethodInfoObjectMother.Create ();
       _mutableMemberFactoryMock
           .Expect (mock => mock.CreateMethod (_proxyType, name, expectedAttributes, returnType, parameterDeclarations, null))
           .Return (fakeMethod);
@@ -366,7 +366,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var method = ReflectionObjectMother.GetSomeMethod();
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
-      var fakeMethod = MutableMethodInfoObjectMother.Create (_proxyType);
+      var fakeMethod = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock.Expect (mock => mock.CreateExplicitOverride (_proxyType, method, bodyProvider)).Return (fakeMethod);
 
       var result = _proxyType.AddExplicitOverride (method, bodyProvider);
@@ -376,10 +376,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddMutableMethod_CreatesNewOverride ()
+    public void GetOrAddOverride_CreatesNewOverride ()
     {
       var baseMethod = typeof (DomainType).GetMethod ("ToString");
-      var fakeOverride = MutableMethodInfoObjectMother.Create (_proxyType);
+      var fakeOverride = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock
           .Expect (
               mock => mock.GetOrCreateOverride (
@@ -395,10 +395,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddMutableMethod_RetrievesExistingOverride ()
+    public void GetOrAddOverride_RetrievesExistingOverride ()
     {
       var baseMethod = typeof (DomainType).GetMethod ("ToString");
-      var fakeOverride = MutableMethodInfoObjectMother.Create (_proxyType);
+      var fakeOverride = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock
           .Expect (
               mock => mock.GetOrCreateOverride (
@@ -411,6 +411,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (result, Is.SameAs (fakeOverride));
       Assert.That (_proxyType.AddedMethods, Has.No.Member (result));
+    }
+
+    [Test]
+    public void AddProperty ()
+    {
+      var name = "Property";
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => null;
+      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => null;
+      var fakeProperty = MutablePropertyInfoObjectMother.Create (_proxyType);
+      _mutableMemberFactoryMock
+          .Expect (mock => mock.CreateProperty (_proxyType, name, returnType, indexParameters, getBodyProvider, setBodyProvider))
+          .Return (fakeProperty);
+
+      var result = _proxyType.AddProperty (name, returnType, indexParameters, getBodyProvider, setBodyProvider);
+
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeProperty));
+      Assert.That (_proxyType.AddedProperties, Is.EqualTo (new[] { result }));
     }
 
     [Test]

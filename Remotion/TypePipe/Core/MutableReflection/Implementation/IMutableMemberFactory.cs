@@ -53,5 +53,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo GetOrCreateOverride (ProxyType proxyType, MethodInfo baseMethod, out bool isNewlyCreated);
+
+    MutablePropertyInfo CreateProperty (
+        ProxyType proxyType,
+        string name,
+        Type type,
+        IEnumerable<ParameterDeclaration> indexParameters,
+        Func<MethodBodyCreationContext, Expression> getBodyProvider,
+        Func<MethodBodyCreationContext, Expression> setBodyProvider);
   }
 }

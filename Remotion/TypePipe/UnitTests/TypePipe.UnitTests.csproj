@@ -162,6 +162,7 @@
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
+    <Compile Include="MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\ProxyTypeTestExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\SubclassFilterUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
