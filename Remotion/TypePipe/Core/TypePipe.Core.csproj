@@ -64,11 +64,14 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ICustomAttributeTargetBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IParameterBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IPropertyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ParameterBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ParameterBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderAdapter.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
@@ -172,6 +175,7 @@
     <Compile Include="MutableReflection\Implementation\ThrowingUnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\TypeAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
+    <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />

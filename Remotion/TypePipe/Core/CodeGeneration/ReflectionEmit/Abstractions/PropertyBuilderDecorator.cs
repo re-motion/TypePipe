@@ -23,26 +23,26 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="IConstructorBuilder"/> to allow <see cref="CustomType"/>s to be used in signatures and 
+  /// Decorates an instance of <see cref="IPropertyBuilder"/> to allow <see cref="CustomType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
-  public class ConstructorBuilderDecorator : MethodBaseBuilderDecoratorBase, IConstructorBuilder
+  public class PropertyBuilderDecorator : BuilderDecoratorBase, IPropertyBuilder
   {
-    private readonly IConstructorBuilder _constructorBuilder;
+    private readonly IPropertyBuilder _propertyBuilder;
 
-    [CLSCompliant (false)]
-    public ConstructorBuilderDecorator (IConstructorBuilder constructorBuilder, IEmittableOperandProvider emittableOperandProvider)
-        : base (constructorBuilder, emittableOperandProvider)
+    public PropertyBuilderDecorator (IPropertyBuilder propertyBuilder, IEmittableOperandProvider emittableOperandProvider)
+        : base (propertyBuilder, emittableOperandProvider)
     {
-      _constructorBuilder = constructorBuilder;
+      _propertyBuilder = propertyBuilder;
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableConstructorInfo constructor)
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutablePropertyInfo property)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull ("property", property);
 
-      _constructorBuilder.RegisterWith (emittableOperandProvider, constructor);
+      throw new NotImplementedException();
+      //_propertyBuilder.RegisterWith (emittableOperandProvider, property);
     }
   }
 }

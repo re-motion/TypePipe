@@ -15,20 +15,16 @@
 // under the License.
 // 
 
+using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="IParameterBuilder"/> to allow <see cref="CustomType"/>s to be used in signatures and 
-  /// for checking strong-name compatibility.
+  /// Defines an interface for <see cref="PropertyBuilder"/>.
   /// </summary>
-  public class ParameterBuilderDecorator : BuilderDecoratorBase, IParameterBuilder
+  public interface IPropertyBuilder : ICustomAttributeTargetBuilder
   {
-    public ParameterBuilderDecorator (IParameterBuilder parameterBuilder, IEmittableOperandProvider emittableOperandProvider)
-        : base (parameterBuilder, emittableOperandProvider)
-    {
-    }
+    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutablePropertyInfo property);
   }
 }

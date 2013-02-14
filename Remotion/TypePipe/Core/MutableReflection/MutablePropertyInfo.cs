@@ -14,21 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
-
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
+namespace Remotion.TypePipe.MutableReflection
 {
-  /// <summary>
-  /// Decorates an instance of <see cref="IParameterBuilder"/> to allow <see cref="CustomType"/>s to be used in signatures and 
-  /// for checking strong-name compatibility.
-  /// </summary>
-  public class ParameterBuilderDecorator : BuilderDecoratorBase, IParameterBuilder
+  public class MutablePropertyInfo
   {
-    public ParameterBuilderDecorator (IParameterBuilder parameterBuilder, IEmittableOperandProvider emittableOperandProvider)
-        : base (parameterBuilder, emittableOperandProvider)
-    {
-    }
+     
   }
 }

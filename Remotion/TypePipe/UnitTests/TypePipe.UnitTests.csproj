@@ -64,6 +64,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />

@@ -117,10 +117,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mappedField = MutableFieldInfoObjectMother.Create();
       var mappedConstructor = MutableConstructorInfoObjectMother.Create();
       var mappedMethod = MutableMethodInfoObjectMother.Create();
+      //var mappedProperty = MutaP
 
       var emittableField = ReflectionObjectMother.GetSomeField();
       var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
       var emittableMethod = ReflectionObjectMother.GetSomeMethod();
+      //var emittableProperty = ReflectionObjectMother.GetSomeProperty();
 
       var helper = new DecoratorTestHelper<IEmittableOperandProvider> (_decorator, _innerMock);
 
@@ -128,6 +130,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       helper.CheckDelegation (d => d.AddMapping (mappedField, emittableField));
       helper.CheckDelegation (d => d.AddMapping (mappedConstructor, emittableConstructor));
       helper.CheckDelegation (d => d.AddMapping (mappedMethod, emittableMethod));
+      //helper.CheckDelegation (d => d.AddMapping (mappedProperty, emittableProperty));
     }
 
     private void CheckGetEmittable<T> (Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc, T operand, T emittableOperand, Type checkedType)

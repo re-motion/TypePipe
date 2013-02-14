@@ -18,13 +18,14 @@
 using System;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="ITypeBuilder"/> to allow <see cref="ProxyType"/>s to be used in signatures and 
+  /// Decorates an instance of <see cref="ITypeBuilder"/> to allow <see cref="CustomType"/>s to be used in signatures and 
   /// for checking strong-name compatibility.
   /// </summary>
   public class TypeBuilderDecorator : BuilderDecoratorBase, ITypeBuilder

@@ -16,33 +16,31 @@
 // 
 
 using System;
+using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="IConstructorBuilder"/> to allow <see cref="CustomType"/>s to be used in signatures and 
-  /// for checking strong-name compatibility.
+  /// Adapts <see cref="PropertyBuilder"/> with the <see cref="IPropertyBuilder"/> interface.
   /// </summary>
-  public class ConstructorBuilderDecorator : MethodBaseBuilderDecoratorBase, IConstructorBuilder
+  public class PropertyBuilderAdapter : BuilderAdapterBase, IPropertyBuilder
   {
-    private readonly IConstructorBuilder _constructorBuilder;
+    private readonly PropertyBuilder _propertyBuilder;
 
-    [CLSCompliant (false)]
-    public ConstructorBuilderDecorator (IConstructorBuilder constructorBuilder, IEmittableOperandProvider emittableOperandProvider)
-        : base (constructorBuilder, emittableOperandProvider)
+    public PropertyBuilderAdapter (PropertyBuilder propertyBuilder)
+        : base (ArgumentUtility.CheckNotNull ("propertyBuilder", propertyBuilder).SetCustomAttribute)
     {
-      _constructorBuilder = constructorBuilder;
+      _propertyBuilder = propertyBuilder;
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableConstructorInfo constructor)
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutablePropertyInfo property)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull ("property", property);
 
-      _constructorBuilder.RegisterWith (emittableOperandProvider, constructor);
+      emittableOperandProvider.AddMapping (property, _propertyBuilder);
     }
   }
 }
