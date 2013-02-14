@@ -103,6 +103,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _typeBuilder.DefineMethodOverride (emittableMethodInfoBody, emittableMethodInfoDeclaration);
     }
 
+    public IPropertyBuilder DefineProperty (string name, PropertyAttributes attributes, Type returnType, Type[] parameterTypes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      throw new NotImplementedException();
+    }
+
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();

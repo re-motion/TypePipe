@@ -28,6 +28,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.Utilities;
 using Rhino.Mocks;
 using Remotion.Development.RhinoMocks.UnitTesting;
 
@@ -538,6 +539,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       proxyType.AddMethod (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
 
       Assert.That (proxyType.IsAbstract, Is.False);
+      Assertion.IsNotNull (proxyType.BaseType);
       Assert.That (proxyType.BaseType.IsAbstract, Is.True);
       Assert.That (proxyType.Attributes & TypeAttributes.Abstract, Is.Not.EqualTo (TypeAttributes.Abstract));
     }
