@@ -31,18 +31,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </remarks>
   public interface IMutableMemberFactory
   {
-    Expression CreateInitialization (ProxyType proxyType, Func<InitializationBodyContext, Expression> initializationProvider);
+    Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider);
 
-    MutableFieldInfo CreateField (ProxyType proxyType, string name, Type type, FieldAttributes attributes);
+    MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes);
 
     MutableConstructorInfo CreateConstructor (
-        ProxyType proxyType,
+        ProxyType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateMethod (
-        ProxyType proxyType,
+        ProxyType declaringType,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -50,12 +50,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateExplicitOverride (
-        ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
+        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo GetOrCreateOverride (ProxyType proxyType, MethodInfo baseMethod, out bool isNewlyCreated);
+    MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo baseMethod, out bool isNewlyCreated);
 
     MutablePropertyInfo CreateProperty (
-        ProxyType proxyType,
+        ProxyType declaringType,
         string name,
         Type type,
         IEnumerable<ParameterDeclaration> indexParameters,

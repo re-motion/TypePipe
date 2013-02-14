@@ -15,6 +15,8 @@
 // under the License.
 // 
 
+using System;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -27,6 +29,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       if (getMethod == null && setMethod == null)
         getMethod = MutableMethodInfoObjectMother.Create (declaringType, "Getter", returnType: typeof (int));
+
+      return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
+    }
+
+    public static MutablePropertyInfo CreateReadWrite (ProxyType declaringType = null, string name = "UnspecifiedProperty", Type type = null)
+    {
+      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      type = type ?? ReflectionObjectMother.GetSomeType();
+
+      var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);
+      var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
 
       return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
     }

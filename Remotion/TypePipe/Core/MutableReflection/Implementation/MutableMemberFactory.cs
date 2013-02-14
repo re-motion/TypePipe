@@ -43,18 +43,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _relatedMethodFinder = relatedMethodFinder;
     }
 
-    public Expression CreateInitialization (ProxyType proxyType, Func<InitializationBodyContext, Expression> initializationProvider)
+    public Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var context = new InitializationBodyContext (proxyType, _memberSelector);
+      var context = new InitializationBodyContext (declaringType, _memberSelector);
       return BodyProviderUtility.GetNonNullBody (initializationProvider, context);
     }
 
-    public MutableFieldInfo CreateField (ProxyType proxyType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
@@ -62,19 +62,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("Field cannot be of type void.", "type");
 
       var signature = new FieldSignature (type);
-      if (proxyType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
+      if (declaringType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new InvalidOperationException ("Field with equal name and signature already exists.");
 
-      return new MutableFieldInfo (proxyType, name, type, attributes);
+      return new MutableFieldInfo (declaringType, name, type, attributes);
     }
 
     public MutableConstructorInfo CreateConstructor (
-        ProxyType proxyType,
+        ProxyType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
@@ -92,27 +92,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameters");
 
       var signature = new MethodSignature (typeof (void), paras.Select (p => p.Type), 0);
-      if (proxyType.AddedConstructors.Any (ctor => ctor.IsStatic == isStatic && MethodSignature.Create (ctor).Equals (signature)))
+      if (declaringType.AddedConstructors.Any (ctor => ctor.IsStatic == isStatic && MethodSignature.Create (ctor).Equals (signature)))
         throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = paras.Select (p => p.Expression);
-      var context = new ConstructorBodyCreationContext (proxyType, isStatic, parameterExpressions, _memberSelector);
+      var context = new ConstructorBodyCreationContext (declaringType, isStatic, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
-      var constructor = new MutableConstructorInfo (proxyType, attributes, paras, body);
-
-      return constructor;
+      return new MutableConstructorInfo (declaringType, attributes, paras, body);
     }
 
     public MutableMethodInfo CreateMethod (
-        ProxyType proxyType,
+        ProxyType declaringType,
         string name,
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
@@ -139,41 +137,39 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var paras = parameters.ConvertToCollection();
       var signature = new MethodSignature (returnType, paras.Select (pd => pd.Type), genericParameterCount: 0);
-      if (proxyType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
+      if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
-      var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, proxyType.BaseType) : null;
+      var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
       var parameterExpressions = paras.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var context = new MethodBodyCreationContext (proxyType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
+      var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      var method = new MutableMethodInfo (proxyType, name, attributes, returnType, paras, baseMethod, body);
-
-      return method;
+      return new MutableMethodInfo (declaringType, name, attributes, returnType, paras, baseMethod, body);
     }
 
     public MutableMethodInfo CreateExplicitOverride (
-        ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
+        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      return PrivateCreateExplicitOverrideAllowAbstract (proxyType, overriddenMethodBaseDefinition, bodyProvider);
+      return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateOverride (ProxyType proxyType, MethodInfo baseMethod, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo baseMethod, out bool isNewlyCreated)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       Assertion.IsNotNull (baseMethod.DeclaringType);
 
       // ReSharper disable PossibleUnintendedReferenceComparison
-      if (!baseMethod.DeclaringType.IsAssignableFromFast (proxyType) || proxyType == baseMethod.DeclaringType)
+      if (!baseMethod.DeclaringType.IsAssignableFromFast (declaringType) || declaringType == baseMethod.DeclaringType)
       // ReSharper restore PossibleUnintendedReferenceComparison
       {
         var message = string.Format (
@@ -186,7 +182,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       if (baseMethod.DeclaringType.IsInterface)
       {
-        baseMethod = GetOrCreateImplementationMethod (proxyType, baseMethod, out isNewlyCreated);
+        baseMethod = GetOrCreateImplementationMethod (declaringType, baseMethod, out isNewlyCreated);
         if (baseMethod is MutableMethodInfo)
           return (MutableMethodInfo) baseMethod;
 
@@ -194,7 +190,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
 
       var baseDefinition = baseMethod.GetBaseDefinition();
-      var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, proxyType.AddedMethods);
+      var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AddedMethods);
       if (existingMutableOverride != null)
       {
         isNewlyCreated = false;
@@ -202,27 +198,44 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
       isNewlyCreated = true;
 
-      var overrideBaseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, proxyType.BaseType);
+      var overrideBaseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
       CheckNotFinalForOverride (overrideBaseMethod);
       var bodyProviderOrNull =
           overrideBaseMethod.IsAbstract
               ? null
               : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.CallBase (overrideBaseMethod, ctx.Parameters.Cast<Expression>()));
 
-      var methods = proxyType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
       if (needsExplicitOverride)
-        return PrivateCreateExplicitOverrideAllowAbstract (proxyType, baseDefinition, bodyProviderOrNull);
+        return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProviderOrNull);
 
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (overrideBaseMethod);
       var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseDefinition);
 
-      return CreateMethod (proxyType, overrideBaseMethod.Name, attributes, overrideBaseMethod.ReturnType, parameters, bodyProviderOrNull);
+      return CreateMethod (declaringType, overrideBaseMethod.Name, attributes, overrideBaseMethod.ReturnType, parameters, bodyProviderOrNull);
     }
 
     public MutablePropertyInfo CreateProperty (
-        ProxyType proxyType, string name, Type type, IEnumerable<ParameterDeclaration> indexParameters, Func<MethodBodyCreationContext, Expression> getBodyProvider, Func<MethodBodyCreationContext, Expression> setBodyProvider)
+        ProxyType declaringType,
+        string name,
+        Type type,
+        IEnumerable<ParameterDeclaration> indexParameters,
+        Func<MethodBodyCreationContext, Expression> getBodyProvider,
+        Func<MethodBodyCreationContext, Expression> setBodyProvider)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("type", type);
+      // Index parameters may be null.
+      // Get body provider may be null.
+      // Set body provider may be null.
+
+      //var getter = Create
+
+      //return new MutablePropertyInfo(declaringType, name, )
+
+
       throw new NotImplementedException();
     }
 

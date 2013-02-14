@@ -33,6 +33,18 @@ namespace Remotion.TypePipe.MutableReflection
       // TODO: test initialization
     }
 
+    // tODO test
+    public MutableMethodInfo MutableGetMethod
+    {
+      get { return (MutableMethodInfo) GetGetMethod (true); }
+    }
+
+    // tODO test
+    public MutableMethodInfo MutableSetMethod
+    {
+      get { return (MutableMethodInfo) GetSetMethod (true); }
+    }
+
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { throw new System.NotImplementedException(); }

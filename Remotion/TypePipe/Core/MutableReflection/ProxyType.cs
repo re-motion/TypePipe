@@ -342,6 +342,11 @@ namespace Remotion.TypePipe.MutableReflection
       var property = _mutableMemberFactory.CreateProperty (this, name, type, indexParameters, getBodyProvider, setBodyProvider);
       _addedProperties.Add (property);
 
+      if (property.MutableGetMethod != null)
+        _addedMethods.Add (property.MutableGetMethod);
+      if (property.MutableSetMethod != null)
+        _addedMethods.Add (property.MutableSetMethod);
+
       return property;
     }
 

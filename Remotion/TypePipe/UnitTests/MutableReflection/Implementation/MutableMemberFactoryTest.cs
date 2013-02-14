@@ -177,11 +177,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       const string message = "The following MethodAttributes are not supported for constructors: " +
                              "Abstract, PinvokeImpl, RequireSecObject, UnmanagedExport, Virtual.\r\nParameter name: attributes";
-      Assert.That (() => AddConstructor (_proxyType, MethodAttributes.Abstract), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddConstructor (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddConstructor (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddConstructor (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => AddConstructor (_proxyType, MethodAttributes.Virtual), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.Abstract), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.Virtual), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -668,6 +668,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableMemberFactory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
     }
 
+    [Test]
+    public void CreateProperty ()
+    {
+      
+    }
+
     private void CallAndCheckGetOrAddOverride (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
@@ -746,7 +752,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       }
     }
     
-    private MutableConstructorInfo AddConstructor (ProxyType proxyType, MethodAttributes attributes)
+    private MutableConstructorInfo CreateConstructor (ProxyType proxyType, MethodAttributes attributes)
     {
       return _mutableMemberFactory.CreateConstructor (
           proxyType, attributes, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
