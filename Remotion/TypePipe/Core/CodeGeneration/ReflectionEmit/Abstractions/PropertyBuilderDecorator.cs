@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   {
     private readonly IPropertyBuilder _propertyBuilder;
 
+    [CLSCompliant (false)]
     public PropertyBuilderDecorator (IPropertyBuilder propertyBuilder, IEmittableOperandProvider emittableOperandProvider)
         : base (propertyBuilder, emittableOperandProvider)
     {
@@ -43,6 +44,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       throw new NotImplementedException();
       //_propertyBuilder.RegisterWith (emittableOperandProvider, property);
+    }
+
+    [CLSCompliant (false)]
+    public void SetSetMethod (IMethodBuilder setMethodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("setMethodBuilder", setMethodBuilder);
+
+      throw new NotImplementedException();
+    }
+
+    [CLSCompliant (false)]
+    public void SetGetMethod (IMethodBuilder getMethodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("getMethodBuilder", getMethodBuilder);
+
+      throw new NotImplementedException();
     }
   }
 }

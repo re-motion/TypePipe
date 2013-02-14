@@ -14,7 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
+using System;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
 
@@ -23,8 +23,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Defines an interface for <see cref="PropertyBuilder"/>.
   /// </summary>
+  [CLSCompliant (false)]
   public interface IPropertyBuilder : ICustomAttributeTargetBuilder
   {
     void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutablePropertyInfo property);
+
+    void SetSetMethod (IMethodBuilder setMethodBuilder);
+    void SetGetMethod (IMethodBuilder getMethodBuilder);
   }
 }

@@ -42,5 +42,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       emittableOperandProvider.AddMapping (property, _propertyBuilder);
     }
+
+    [CLSCompliant (false)]
+    public void SetGetMethod (IMethodBuilder getMethodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("getMethodBuilder", getMethodBuilder);
+
+      //_propertyBuilder.SetGetMethod (getMethodBuilder);
+    }
+
+    [CLSCompliant (false)]
+    public void SetSetMethod (IMethodBuilder setMethodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("setMethodBuilder", setMethodBuilder);
+
+      //_propertyBuilder.SetSetMethod (setMethodBuilder);
+    }
   }
 }

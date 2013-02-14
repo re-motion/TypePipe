@@ -103,6 +103,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _typeBuilder.DefineMethodOverride (emittableMethodInfoBody, emittableMethodInfoDeclaration);
     }
 
+    [CLSCompliant (false)]
     public IPropertyBuilder DefineProperty (string name, PropertyAttributes attributes, Type returnType, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
