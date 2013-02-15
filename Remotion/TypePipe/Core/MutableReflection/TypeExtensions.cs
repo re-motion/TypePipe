@@ -29,7 +29,12 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class TypeExtensions
   {
-    // TODO Review: Document.
+    /// <summary>
+    /// Determines whether the current <see cref="Type"/> instance itself is of type <see cref="System.RuntimeType"/>, i.e., the type is a standard
+    /// reflection type.
+    /// </summary>
+    /// <param name="type">The type instance.</param>
+    /// <returns><c>true</c> if the given type is an instance of <see cref="System.RuntimeType"/>; otherwise, <c>false</c>.</returns>
     public static bool IsRuntimeType (this Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
@@ -109,10 +114,10 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (!genericTypeDefinition.IsGenericTypeDefinition)
       {
-        // TODO Review: Message
         var message = string.Format (
-            "'{0}' is not a generic type definition. MakeGenericType may only be called on a type for which Type.IsGenericTypeDefinition is true.",
-            genericTypeDefinition.Name);
+            "'{0}' is not a generic type definition. {1} may only be called on a type for which Type.IsGenericTypeDefinition is true.",
+            genericTypeDefinition.Name,
+            MethodInfo.GetCurrentMethod().Name);
         throw new InvalidOperationException (message);
       }
 

@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "'Int32' is not a generic type definition. MakeGenericType may only be called on a type for which Type.IsGenericTypeDefinition is true.")]
+        "'Int32' is not a generic type definition. MakeTypePipeGenericType may only be called on a type for which Type.IsGenericTypeDefinition is true.")]
     public void MakeTypePipeGenericType_NoGenericTypeDefinition ()
     {
       typeof (int).MakeTypePipeGenericType (typeof (int));
