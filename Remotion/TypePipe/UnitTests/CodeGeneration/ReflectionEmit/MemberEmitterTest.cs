@@ -155,12 +155,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
       method.AddExplicitBaseDefinition (overriddenMethod);
 
-      var expectedAttributes = MethodAttributes.HideBySig;
       var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType() };
-
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineMethod ("Method", expectedAttributes, typeof (string), expectedParameterTypes))
+          .Expect (mock => mock.DefineMethod ("Method", MethodAttributes.Virtual, typeof (string), expectedParameterTypes))
           .Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
@@ -173,7 +171,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
-      _emitter.AddMethod (_context, method, expectedAttributes);
+      _emitter.AddMethod (_context, method);
 
       _typeBuilderMock.VerifyAllExpectations ();
       methodBuilderMock.VerifyAllExpectations ();
@@ -203,7 +201,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
       SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: ParameterAttributes.None);
 
-      _emitter.AddMethod (_context, method, MethodAttributes.Abstract);
+      _emitter.AddMethod (_context, method);
 
       _typeBuilderMock.VerifyAllExpectations();
       methodBuilderMock.VerifyAllExpectations();

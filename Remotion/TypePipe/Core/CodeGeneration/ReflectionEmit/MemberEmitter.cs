@@ -83,13 +83,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
     }
 
-    public void AddMethod (CodeGenerationContext context, MutableMethodInfo method, MethodAttributes attributes)
+    public void AddMethod (CodeGenerationContext context, MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
 
       var parameterTypes = GetParameterTypes (method);
-      var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, attributes, method.ReturnType, parameterTypes);
+      var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, method.Attributes, method.ReturnType, parameterTypes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
 
       DefineCustomAttributes (methodBuilder, method);

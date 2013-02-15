@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         _memberEmitterMock
             .Expect (mock => mock.AddConstructor (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (constructor)));
         _memberEmitterMock
-            .Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (method), Arg.Is (method.Attributes)));
+            .Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (method)));
         SetupExpectationsForAccessors (_memberEmitterMock, proxyType.AddedMethods.Except (new[] { method }));
         _memberEmitterMock
             .Expect (mock => mock.AddProperty (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (property)))
@@ -193,7 +193,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       foreach (var method in methods)
       {
         var m = method;
-        memberEmitterMock.Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Is.Anything, Arg.Is (m), Arg.Is (m.Attributes)));
+        memberEmitterMock.Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Is.Anything, Arg.Is (m)));
       }
     }
   }

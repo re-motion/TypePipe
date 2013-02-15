@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       foreach (var ctor in proxyType.AddedConstructors)
         WireAndAddConstructor (memberEmitter, context, ctor, initializationMembers);
       foreach (var method in proxyType.AddedMethods)
-        memberEmitter.AddMethod (context, method, method.Attributes);
+        memberEmitter.AddMethod (context, method);
       foreach (var property in proxyType.AddedProperties)
         memberEmitter.AddProperty (context, property);
 

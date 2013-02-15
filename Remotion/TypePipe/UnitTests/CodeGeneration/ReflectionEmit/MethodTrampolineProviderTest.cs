@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Abc (out i, 0.7));
       MutableMethodInfo mutableMethod = null;
       _memberEmitterMock
-          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything, Arg.Is (MethodAttributes.Private)))
+          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything))
           .WhenCalled (mi => mutableMethod = (MutableMethodInfo) mi.Arguments[1]);
 
       var result = _provider.GetNonVirtualCallTrampoline (_context, method);
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var method2 = typeof (DomainType).GetMethod ("ToString");
       Assert.That (method1, Is.Not.SameAs (method2));
-      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, 0)).IgnoreArguments().Repeat.Once();
+      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null)).IgnoreArguments().Repeat.Once();
 
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
       var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);
@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Def());
       var method2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Def (7));
 
-      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null, 0)).IgnoreArguments().Repeat.Twice();
+      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null)).IgnoreArguments().Repeat.Twice();
 
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
       var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);

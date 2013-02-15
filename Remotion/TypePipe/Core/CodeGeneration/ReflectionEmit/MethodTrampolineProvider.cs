@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           parameters,
           ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));
 
-      _memberEmitter.AddMethod (context, trampoline, trampoline.Attributes);
+      _memberEmitter.AddMethod (context, trampoline);
 
       return trampoline;
     }
