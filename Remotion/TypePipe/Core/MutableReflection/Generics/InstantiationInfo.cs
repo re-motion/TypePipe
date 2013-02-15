@@ -38,14 +38,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
-      // TODO Review: Argument check
-      Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
+
+      if (!genericTypeDefinition.IsGenericTypeDefinition)
+        throw new ArgumentException ("Specified type must be a generic type definition.", "genericTypeDefinition");
 
       _genericTypeDefinition = genericTypeDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
 
-      // TODO Review: Argument check
-      Assertion.IsTrue (genericTypeDefinition.GetGenericArguments().Length == _typeArguments.Count);
+      if (genericTypeDefinition.GetGenericArguments().Length != _typeArguments.Count)
+        throw new ArgumentException (
+            "Generic parameter count of the generic type definition does not match the number of supplied type arguments.", "typeArguments");
     }
 
     public Type GenericTypeDefinition

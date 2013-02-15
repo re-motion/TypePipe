@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
@@ -59,6 +60,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       Assert.That (_info1.GenericTypeDefinition, Is.SameAs (typeof (List<>)));
       Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { _customType }));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Specified type must be a generic type definition.\r\nParameter name: genericTypeDefinition")]
+    public void Initialization_NoType ()
+    {
+      Dev.Null = new InstantiationInfo (typeof (List<int>), Type.EmptyTypes);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Generic parameter count of the generic type definition does not match the number of supplied type arguments.\r\nParameter name: typeArguments")]
+    public void Initialization_NonMatchingGenericArgumentCount ()
+    {
+      Dev.Null = new InstantiationInfo (typeof (List<>), Type.EmptyTypes);
     }
 
     [Test]
