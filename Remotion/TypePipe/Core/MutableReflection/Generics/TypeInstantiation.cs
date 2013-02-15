@@ -91,7 +91,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (declaringType != null)
         SetDeclaringType (SubstituteGenericParameters (declaringType));
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
-
       if (_genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
 
@@ -100,8 +99,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var fields = _genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
       var constructors = _genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
       var methods = _genericTypeDefinition.GetMethods (c_allMembers).Select (m => new MethodOnTypeInstantiation (this, m)).ToList();
-      var properties = _genericTypeDefinition.GetProperties (c_allMembers).Select (p => CreateProperty (p, methods));
-      var events = _genericTypeDefinition.GetEvents (c_allMembers).Select (e => CreateEvent (e, methods));
+      var methodMapping = methods.ToDictionary (m => m.MethodOnGenericType);
+      var properties = _genericTypeDefinition.GetProperties (c_allMembers).Select (p => CreateProperty (p, methodMapping));
+      var events = _genericTypeDefinition.GetEvents (c_allMembers).Select (e => CreateEvent (e, methodMapping));
 
       _interfaces = interfaces.ToList().AsReadOnly();
       _fields = fields.Cast<FieldInfo>().ToList().AsReadOnly();
@@ -188,32 +188,21 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return _events;
     }
 
-    private PropertyOnTypeInstantiation CreateProperty (PropertyInfo propertyOnGenericTypeDefiniton, List<MethodOnTypeInstantiation> candidates)
+    private PropertyOnTypeInstantiation CreateProperty (PropertyInfo genericProperty, Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping)
     {
-      // TODO Review: Use dictionary (created outside) for mapping property/event accessors.
-      var getMethodOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetGetMethod (true);
-      var setMethodOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetSetMethod (true);
-      var getMethod = GetWrappedMethod (getMethodOnGenericTypeDefinition, candidates);
-      var setMethod = GetWrappedMethod (setMethodOnGenericTypeDefinition, candidates);
+      var getMethod = methodMapping.GetValueOrDefault (genericProperty.GetGetMethod (true));
+      var setMethod = methodMapping.GetValueOrDefault (genericProperty.GetSetMethod (true));
 
-      return new PropertyOnTypeInstantiation (this, propertyOnGenericTypeDefiniton, getMethod, setMethod);
+      return new PropertyOnTypeInstantiation (this, genericProperty, getMethod, setMethod);
     }
 
-    private object CreateEvent (EventInfo eventOnGenericTypeDefinition, List<MethodOnTypeInstantiation> candidates)
+    private object CreateEvent (EventInfo genericEvent, Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping)
     {
-      var addMethodOnGenericTypeDefinition = eventOnGenericTypeDefinition.GetAddMethod (true);
-      var removeMethodOnGenericTypeDefinition = eventOnGenericTypeDefinition.GetRemoveMethod (true);
-      var raiseMethodOnGenericTypeDefinition = eventOnGenericTypeDefinition.GetRaiseMethod (true);
-      var addMethod = GetWrappedMethod (addMethodOnGenericTypeDefinition, candidates);
-      var removeMethod = GetWrappedMethod (removeMethodOnGenericTypeDefinition, candidates);
-      var raiseMethod = GetWrappedMethod (raiseMethodOnGenericTypeDefinition, candidates);
+      var addMethod = methodMapping.GetValueOrDefault (genericEvent.GetAddMethod (true));
+      var removeMethod = methodMapping.GetValueOrDefault (genericEvent.GetRemoveMethod (true));
+      var raiseMethod = methodMapping.GetValueOrDefault (genericEvent.GetRaiseMethod (true));
 
-      return new EventOnTypeInstantiation (this, eventOnGenericTypeDefinition, addMethod, removeMethod, raiseMethod);
-    }
-
-    private static MethodOnTypeInstantiation GetWrappedMethod (MethodInfo methodOnGenericType, IEnumerable<MethodOnTypeInstantiation> candidates)
-    {
-      return candidates.SingleOrDefault (m => m.MethodOnGenericType == methodOnGenericType);
+      return new EventOnTypeInstantiation (this, genericEvent, addMethod, removeMethod, raiseMethod);
     }
   }
 }
