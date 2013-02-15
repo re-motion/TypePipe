@@ -15,10 +15,12 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -27,17 +29,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// </summary>
   public class TypeBuilderAdapter : BuilderAdapterBase, ITypeBuilder
   {
+    private readonly Dictionary<IMethodBuilder, MethodBuilder> _methodMapping = new Dictionary<IMethodBuilder, MethodBuilder>();
     private readonly TypeBuilder _typeBuilder;
 
     public TypeBuilderAdapter (TypeBuilder typeBuilder)
         : base (ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder).SetCustomAttribute)
     {
       _typeBuilder = typeBuilder;
-    }
-
-    public TypeBuilder TypeBuilder
-    {
-      get { return _typeBuilder; }
     }
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ProxyType type)
@@ -81,7 +79,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, returnType, parameterTypes);
-      return new MethodBuilderAdapter (methodBuilder);
+      var adapter = new MethodBuilderAdapter (methodBuilder);
+      _methodMapping.Add (adapter, methodBuilder);
+
+      return adapter;
     }
 
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
@@ -100,7 +101,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
       var propertyBuilder = _typeBuilder.DefineProperty (name, attributes, returnType, parameterTypes);
-      return new PropertyBuilderAdapter (propertyBuilder);
+      return new PropertyBuilderAdapter (propertyBuilder, _methodMapping.AsReadOnly());
     }
 
     public Type CreateType ()

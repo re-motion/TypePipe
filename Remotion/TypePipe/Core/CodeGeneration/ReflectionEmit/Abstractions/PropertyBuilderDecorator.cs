@@ -16,7 +16,6 @@
 // 
 
 using System;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -37,29 +36,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _propertyBuilder = propertyBuilder;
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutablePropertyInfo property)
+    [CLSCompliant (false)]
+    public void SetGetMethod (IMethodBuilder getMethodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("property", property);
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("getMethodBuilder", getMethodBuilder);
 
-      throw new NotImplementedException();
-      //_propertyBuilder.RegisterWith (emittableOperandProvider, property);
+      _propertyBuilder.SetGetMethod (decorator.DecoratedMethodBuilder);
     }
 
     [CLSCompliant (false)]
     public void SetSetMethod (IMethodBuilder setMethodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("setMethodBuilder", setMethodBuilder);
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("setMethodBuilder", setMethodBuilder);
 
-      throw new NotImplementedException();
-    }
-
-    [CLSCompliant (false)]
-    public void SetGetMethod (IMethodBuilder getMethodBuilder)
-    {
-      ArgumentUtility.CheckNotNull ("getMethodBuilder", getMethodBuilder);
-
-      throw new NotImplementedException();
+      _propertyBuilder.SetSetMethod (decorator.DecoratedMethodBuilder);
     }
   }
 }

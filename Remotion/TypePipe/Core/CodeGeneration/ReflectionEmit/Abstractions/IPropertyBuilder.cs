@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   [CLSCompliant (false)]
   public interface IPropertyBuilder : ICustomAttributeTargetBuilder
   {
-    void SetSetMethod (IMethodBuilder setMethodBuilder);
     void SetGetMethod (IMethodBuilder getMethodBuilder);
+    void SetSetMethod (IMethodBuilder setMethodBuilder);
   }
 }

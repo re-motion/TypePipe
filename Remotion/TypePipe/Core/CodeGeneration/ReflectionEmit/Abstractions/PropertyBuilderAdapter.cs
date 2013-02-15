@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection.Emit;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -27,11 +28,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public class PropertyBuilderAdapter : BuilderAdapterBase, IPropertyBuilder
   {
     private readonly PropertyBuilder _propertyBuilder;
+    private readonly ReadOnlyDictionary<IMethodBuilder, MethodBuilder> _methodMapping;
 
-    public PropertyBuilderAdapter (PropertyBuilder propertyBuilder)
+    [CLSCompliant (false)]
+    public PropertyBuilderAdapter (PropertyBuilder propertyBuilder, ReadOnlyDictionary<IMethodBuilder, MethodBuilder> methodMapping)
         : base (ArgumentUtility.CheckNotNull ("propertyBuilder", propertyBuilder).SetCustomAttribute)
     {
+      ArgumentUtility.CheckNotNull ("methodMapping", methodMapping);
+
       _propertyBuilder = propertyBuilder;
+      _methodMapping = methodMapping;
     }
 
     [CLSCompliant (false)]
@@ -39,7 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("getMethodBuilder", getMethodBuilder);
 
-      //_propertyBuilder.SetGetMethod (getMethodBuilder);
+      _propertyBuilder.SetGetMethod (_methodMapping[getMethodBuilder]);
     }
 
     [CLSCompliant (false)]
@@ -47,7 +53,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("setMethodBuilder", setMethodBuilder);
 
-      //_propertyBuilder.SetSetMethod (setMethodBuilder);
+      _propertyBuilder.SetSetMethod (_methodMapping[setMethodBuilder]);
     }
   }
 }

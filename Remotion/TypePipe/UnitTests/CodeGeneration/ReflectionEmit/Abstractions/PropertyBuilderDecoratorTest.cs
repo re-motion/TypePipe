@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
   public class PropertyBuilderDecoratorTest
   {
     private IPropertyBuilder _innerMock;
-    private IEmittableOperandProvider _operandProvider;
+    private IEmittableOperandProvider _operandProviderMock;
 
     private PropertyBuilderDecorator _decorator;
 
@@ -34,20 +34,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void SetUp ()
     {
       _innerMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
-      _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _operandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _decorator = new PropertyBuilderDecorator (_innerMock, _operandProvider);
+      _decorator = new PropertyBuilderDecorator (_innerMock, _operandProviderMock);
     }
 
     [Test]
-    public void DelegatingMembers ()
+    public void SetGetMethod ()
     {
-      //var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider> ();
-      //var mutableField = MutableFieldInfoObjectMother.Create ();
+      var methodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var methodBuilderDecorator = new MethodBuilderDecorator (methodBuilder, _operandProviderMock);
+      _innerMock.Expect (mock => mock.SetGetMethod (methodBuilder));
 
-      //var helper = new DecoratorTestHelper<IFieldBuilder> (_decorator, _innerMock);
+      _decorator.SetGetMethod (methodBuilderDecorator);
 
-      //helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableField));
+      _innerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void SetSetMethod ()
+    {
+      var methodBuilder = MockRepository.GenerateStub<IMethodBuilder> ();
+      var methodBuilderDecorator = new MethodBuilderDecorator (methodBuilder, _operandProviderMock);
+      _innerMock.Expect (mock => mock.SetSetMethod (methodBuilder));
+
+      _decorator.SetSetMethod (methodBuilderDecorator);
+
+      _innerMock.VerifyAllExpectations ();
     }
   }
 }

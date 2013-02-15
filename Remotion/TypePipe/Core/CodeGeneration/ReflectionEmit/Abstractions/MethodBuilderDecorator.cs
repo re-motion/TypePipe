@@ -37,6 +37,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _methodBuilder = methodBuilder;
     }
 
+    [CLSCompliant (false)]
+    public IMethodBuilder DecoratedMethodBuilder
+    {
+      get { return _methodBuilder; }
+    }
+
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
