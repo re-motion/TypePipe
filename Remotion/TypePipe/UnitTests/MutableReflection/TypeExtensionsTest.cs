@@ -72,6 +72,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsAssignableFromFast_CustomType_OnRightSide_CustomBaseTypeAndInterfaces ()
+    {
+      var customBaseType = CustomTypeObjectMother.Create();
+      var customInterfaceType = CustomTypeObjectMother.Create();
+      var customType = CustomTypeObjectMother.Create (baseType: customBaseType, interfaces: new[] { customInterfaceType });
+
+      Assert.That (customType.IsAssignableFromFast (customType), Is.True);
+      Assert.That (customBaseType.IsAssignableFromFast (customType), Is.True);
+      Assert.That (customInterfaceType.IsAssignableFromFast (customType), Is.True);
+    }
+
+    [Test]
     public void IsAssignableFromFast_NullFromType ()
     {
       Assert.That (typeof (object).IsAssignableFromFast (null), Is.False);

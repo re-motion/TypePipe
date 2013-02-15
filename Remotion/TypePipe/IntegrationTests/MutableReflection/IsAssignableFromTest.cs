@@ -16,8 +16,10 @@
 // 
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
@@ -81,6 +83,20 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
+    public void IsAssignableFromFast_TypeInstantiations ()
+    {
+      var instantiation = typeof (GenericType<>).MakeTypePipeGenericType (_proxyType);
+      var baseInstantiation = instantiation.BaseType;
+      var ifcInstantiation = instantiation.GetInterfaces().Single();
+      Assert.That (baseInstantiation, Is.TypeOf<TypeInstantiation>());
+      Assert.That (ifcInstantiation, Is.TypeOf<TypeInstantiation> ());
+
+      Assert.That (instantiation.IsAssignableFromFast (instantiation), Is.True);
+      Assert.That (baseInstantiation.IsAssignableFromFast (instantiation), Is.True);
+      Assert.That (ifcInstantiation.IsAssignableFromFast (instantiation), Is.True);
+    }
+
+    [Test]
     public void IsSubclassOf ()
     {
       Assert.That (_proxyType.IsSubclassOf (typeof (object)), Is.True);
@@ -132,5 +148,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public interface IDomainInterface { }
     public interface IAddedInterface { }
     public class UnrelatedType { }
+
+    public interface IMyInterface<T> { }
+    public class BaseType<T> { }
+    public class GenericType<T> : BaseType<T>, IMyInterface<T> { }
   }
 }

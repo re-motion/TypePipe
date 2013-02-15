@@ -70,20 +70,18 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("toType", toType);
       // fromType may be null.
 
-      // CustomTypes are only assignable from themselves.
-      if (toType is CustomType)
-        return toType == fromType;
+      if (fromType == null)
+        return false;
+
+      // Necessary for CustomTypes (reference equality only); an optimization for RuntimeTypes.
+      if (ReferenceEquals (toType, fromType))
+        return true;
 
       // 1) The base type of the CustomType may be assignable to the type.
       // 2) An interface of the CustomType may be assignable to the other interface.
-      // 3) The CustomType satisfies all of the generic constraints of the type parameter.
-      if (fromType is CustomType)
-      {
-        // TODO Review: Use IsAssignableFromFast for base type and interfaces - write an integration test using TypeInstantiations.
-        return toType.IsAssignableFrom (fromType.BaseType)
-               || fromType.GetInterfaces().Any (toType.IsAssignableFrom);
-             //|| toType.IsGenericParameter && toType.GetGenericParameterConstraints().All (c => c.IsAssignableFrom (fromType));
-      }
+      // 3) The CustomType satisfies all of the generic constraints of the type parameter (already sufficiently expressed with 1) and 2)).
+      if (toType is CustomType || fromType is CustomType)
+        return toType.IsAssignableFromFast (fromType.BaseType) || fromType.GetInterfaces().Any (toType.IsAssignableFromFast);
 
       return toType.IsAssignableFrom (fromType);
     }
