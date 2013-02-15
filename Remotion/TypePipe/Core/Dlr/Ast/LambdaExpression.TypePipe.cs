@@ -31,9 +31,8 @@ namespace Microsoft.Scripting.Ast
     /// <param name="body">The <see cref="LambdaExpression.Body">Body</see> property of the result.</param>
     /// <param name="parameters">The <see cref="LambdaExpression.Parameters">Parameters</see> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public LambdaExpression Update (Expression body, IEnumerable<ParameterExpression> parameters)
+    public virtual LambdaExpression Update (Expression body, IEnumerable<ParameterExpression> parameters)
     {
-      // TODO Review: Make this method virtual, override in subclass to create Expression<T>
       if (body == Body && parameters == Parameters)
         return this;
 
