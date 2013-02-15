@@ -190,19 +190,24 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     private PropertyOnTypeInstantiation CreateProperty (PropertyInfo genericProperty, Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping)
     {
-      var getMethod = methodMapping.GetValueOrDefault (genericProperty.GetGetMethod (true));
-      var setMethod = methodMapping.GetValueOrDefault (genericProperty.GetSetMethod (true));
+      var getMethod = GetMethodOrNull (methodMapping, genericProperty.GetGetMethod (true));
+      var setMethod = GetMethodOrNull (methodMapping, genericProperty.GetSetMethod (true));
 
       return new PropertyOnTypeInstantiation (this, genericProperty, getMethod, setMethod);
     }
 
-    private object CreateEvent (EventInfo genericEvent, Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping)
+    private EventOnTypeInstantiation CreateEvent (EventInfo genericEvent, Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping)
     {
-      var addMethod = methodMapping.GetValueOrDefault (genericEvent.GetAddMethod (true));
-      var removeMethod = methodMapping.GetValueOrDefault (genericEvent.GetRemoveMethod (true));
-      var raiseMethod = methodMapping.GetValueOrDefault (genericEvent.GetRaiseMethod (true));
+      var addMethod = GetMethodOrNull (methodMapping, genericEvent.GetAddMethod (true));
+      var removeMethod = GetMethodOrNull (methodMapping, genericEvent.GetRemoveMethod (true));
+      var raiseMethod = GetMethodOrNull (methodMapping, genericEvent.GetRaiseMethod (true));
 
       return new EventOnTypeInstantiation (this, genericEvent, addMethod, removeMethod, raiseMethod);
+    }
+
+    private static MethodOnTypeInstantiation GetMethodOrNull (Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping, MethodInfo genericMethod)
+    {
+      return genericMethod != null ? methodMapping[genericMethod] : null;
     }
   }
 }
