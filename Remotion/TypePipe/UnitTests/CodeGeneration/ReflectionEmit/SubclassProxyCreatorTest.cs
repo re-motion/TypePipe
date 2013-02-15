@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
@@ -23,9 +24,12 @@ using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using Rhino.Mocks.Interfaces;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -101,6 +105,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var field = proxyType.AddField();
       var constructor = proxyType.AddConstructor();
       var method = proxyType.AddMethod();
+      var property = proxyType.AddProperty();
 
       var fakeType = ReflectionObjectMother.GetSomeType();
 
@@ -133,12 +138,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
         _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
 
-        _memberEmitterMock.Expect (mock => mock.AddField (Arg<CodeGenerationContext>.Matches(c => c == context), Arg.Is(field)));
-        _initializationBuilderMock.Expect (
-            mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (constructor)));
         _memberEmitterMock
-            .Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (method), Arg.Is (method.Attributes)))
+            .Expect (mock => mock.AddField (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (field)));
+        _initializationBuilderMock
+            .Expect (mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));
+        _memberEmitterMock
+            .Expect (mock => mock.AddConstructor (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (constructor)));
+        _memberEmitterMock
+            .Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (method), Arg.Is (method.Attributes)));
+        SetupExpectationsForAccessors (_memberEmitterMock, proxyType.AddedMethods.Except (new[] { method }));
+        _memberEmitterMock
+            .Expect (mock => mock.AddProperty (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (property)))
             .WhenCalled (mi => Assert.That (buildActionCalled, Is.False));
 
         // PostDeclarationsActionManager.ExecuteAllActions() cannot setup expectations.
@@ -176,6 +186,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _creator.CreateProxy (proxyType);
 
       _mockRepository.VerifyAll();
+    }
+
+    private void SetupExpectationsForAccessors (IMemberEmitter memberEmitterMock, IEnumerable<MutableMethodInfo> methods)
+    {
+      foreach (var method in methods)
+      {
+        var m = method;
+        memberEmitterMock.Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Is.Anything, Arg.Is (m), Arg.Is (m.Attributes)));
+      }
     }
   }
 }

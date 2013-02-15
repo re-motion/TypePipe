@@ -27,6 +27,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     void AddField (CodeGenerationContext context, MutableFieldInfo field);
     void AddConstructor (CodeGenerationContext context, MutableConstructorInfo constructor);
+    // TODO: remove attributes
     void AddMethod (CodeGenerationContext context, MutableMethodInfo method, MethodAttributes attributes);
+    void AddProperty (CodeGenerationContext context, MutablePropertyInfo property);
   }
 }

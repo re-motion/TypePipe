@@ -90,6 +90,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         WireAndAddConstructor (memberEmitter, context, ctor, initializationMembers);
       foreach (var method in proxyType.AddedMethods)
         memberEmitter.AddMethod (context, method, method.Attributes);
+      foreach (var property in proxyType.AddedProperties)
+        memberEmitter.AddProperty (context, property);
 
       context.PostDeclarationsActionManager.ExecuteAllActions();
 
