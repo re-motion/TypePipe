@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection.Emit;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -33,14 +32,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
         : base (ArgumentUtility.CheckNotNull ("propertyBuilder", propertyBuilder).SetCustomAttribute)
     {
       _propertyBuilder = propertyBuilder;
-    }
-
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutablePropertyInfo property)
-    {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("property", property);
-
-      emittableOperandProvider.AddMapping (property, _propertyBuilder);
     }
 
     [CLSCompliant (false)]
