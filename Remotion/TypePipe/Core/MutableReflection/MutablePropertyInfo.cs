@@ -63,7 +63,11 @@ namespace Remotion.TypePipe.MutableReflection
     public override ParameterInfo[] GetIndexParameters ()
     {
       // TODO: test and implement correctly
-      return GetGetMethod(true).GetParameters();
+
+      if (MutableGetMethod == null)
+        return new ParameterInfo[0];
+
+      return MutableGetMethod.GetParameters();
     }
   }
 }

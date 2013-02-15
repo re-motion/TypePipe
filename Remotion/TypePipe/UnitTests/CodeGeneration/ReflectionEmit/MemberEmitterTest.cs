@@ -246,6 +246,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       propertyBuilderMock.VerifyAllExpectations();
     }
 
+    [Test]
+    public void AddProperty_ReadOnly_WriteOnly ()
+    {
+      var readOnlyProperty = MutablePropertyInfoObjectMother.Create (getMethod: MutableMethodInfoObjectMother.Create (returnType: typeof (int)));
+      var writeOnlyProperty = MutablePropertyInfoObjectMother.Create (
+          setMethod: MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) }));
+      Assert.That (readOnlyProperty.MutableSetMethod, Is.Null);
+      Assert.That (writeOnlyProperty.MutableGetMethod, Is.Null);
+
+      var methodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var methodMapping = GetMethodMapping (_emitter);
+      methodMapping.Add (readOnlyProperty.MutableGetMethod, methodBuilder);
+      methodMapping.Add (writeOnlyProperty.MutableSetMethod, methodBuilder);
+
+      var propertyBuilderMock1 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
+      var propertyBuilderMock2 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
+      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, null, null)).IgnoreArguments().Return (propertyBuilderMock1).Repeat.Once();
+      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, null, null)).IgnoreArguments().Return (propertyBuilderMock2).Repeat.Once();
+      propertyBuilderMock1.Expect (mock => mock.SetGetMethod (methodBuilder));
+      propertyBuilderMock2.Expect (mock => mock.SetSetMethod (methodBuilder));
+
+      _emitter.AddProperty (_context, readOnlyProperty);
+      _emitter.AddProperty (_context, writeOnlyProperty);
+
+      propertyBuilderMock1.VerifyAllExpectations();
+      propertyBuilderMock2.VerifyAllExpectations();
+    }
+
     private void SetupDefineCustomAttribute (ICustomAttributeTargetBuilder customAttributeTargetBuilderMock, IMutableInfo mutableInfo)
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create();

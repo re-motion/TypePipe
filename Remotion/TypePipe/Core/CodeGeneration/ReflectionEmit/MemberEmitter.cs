@@ -174,8 +174,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private void SetAccessor (Action<IMethodBuilder> setAccessorMethod, MutableMethodInfo accessorOrNull)
     {
-      //if (accessorOrNull == null)
-      //  return;
+      if (accessorOrNull == null)
+        return;
 
       var accessorBuilder = _methodMapping[accessorOrNull];
       setAccessorMethod (accessorBuilder);
