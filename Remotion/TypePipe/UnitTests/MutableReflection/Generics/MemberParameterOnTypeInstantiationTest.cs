@@ -68,6 +68,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Dev.Null = new MemberParameterOnTypeInstantiation (member, parameter);
     }
 
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      var member = MethodOnTypeInstantiationObjectMother.Create();
+      var parameter = CustomParameterInfoObjectMother.Create (member, customAttributes: customAttributes);
+
+      var parameterInstantiation = new MemberParameterOnTypeInstantiation (member, parameter);
+
+      Assert.That (parameterInstantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
+    }
+
     class GenericType<T> { }
   }
 }

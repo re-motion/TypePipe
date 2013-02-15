@@ -16,8 +16,10 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -25,12 +27,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   public static class CustomParameterInfoObjectMother
   {
     public static CustomParameterInfo Create (
-        MemberInfo member = null, int position = 7, string name = "param", Type type = null, ParameterAttributes attributes = (ParameterAttributes) 7)
+        MemberInfo member = null,
+        int position = 7,
+        string name = "param",
+        Type type = null,
+        ParameterAttributes attributes = (ParameterAttributes) 7,
+        IEnumerable<ICustomAttributeData> customAttributes = null)
     {
       member = member ?? NormalizingMemberInfoFromExpressionUtility.GetMethod (() => UnspecifiedMember());
       type = type ?? ReflectionObjectMother.GetSomeType();
+      customAttributes = customAttributes ?? new ICustomAttributeData[0];
 
-      return new TestableCustomParameterInfo (member, position, name, type, attributes);
+      return new TestableCustomParameterInfo (member, position, name, type, attributes) { CustomAttributeDatas = customAttributes };
     }
 
     private static void UnspecifiedMember () { }

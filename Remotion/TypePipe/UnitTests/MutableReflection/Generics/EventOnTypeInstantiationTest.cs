@@ -17,9 +17,9 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -59,7 +59,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_event.GetRaiseMethod(), Is.SameAs (_raiseMethod));
     }
 
-    [UsedImplicitly]
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      var evt = CustomEventInfoObjectMother.Create (customAttributes: customAttributes);
+      var evtInstantiation = new EventOnTypeInstantiation (_declaringType, evt, _addMethod, _removeMethod, _raiseMethod);
+
+      Assert.That (evtInstantiation.GetCustomAttributeData (), Is.EqualTo (customAttributes));
+    }
+
     public event EventHandler Event;
 
     public void RaiseMethod (object sender, EventArgs args) { }

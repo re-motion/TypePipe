@@ -18,7 +18,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection.Generics;
@@ -77,13 +76,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (parameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (originalParameter));
     }
 
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      var property = CustomPropertyInfoObjectMother.Create (customAttributes: customAttributes);
+      var propertyInstantiation = new PropertyOnTypeInstantiation (_declaringType, property, _getMethod, _setMethod);
+
+      Assert.That (propertyInstantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
+    }
+
     public class GenericType<T>
     {
-      [UsedImplicitly]
       public T this [int index]
       {
         get { return default (T); }
-        set { }
+        set { Dev.Null = value; }
       }
     }
   }

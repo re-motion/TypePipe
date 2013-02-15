@@ -148,8 +148,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      // TODO Review: Return TypePipeCustomAttributeData.Get... (_genericTypeDefinition, false)
-      throw new NotImplementedException();
+      return TypePipeCustomAttributeData.GetCustomAttributes (_genericTypeDefinition);
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)

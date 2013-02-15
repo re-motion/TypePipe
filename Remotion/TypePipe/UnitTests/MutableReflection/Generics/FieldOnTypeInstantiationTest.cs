@@ -52,6 +52,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result.FieldOnGenericType, Is.SameAs (field));
     }
 
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      var field = CustomFieldInfoObjectMother.Create (customAttributes: customAttributes);
+      var fieldInstantiation = new FieldOnTypeInstantiation (_declaringType, field);
+
+      Assert.That (fieldInstantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
+    }
+
     class GenericType<T> {}
   }
 }

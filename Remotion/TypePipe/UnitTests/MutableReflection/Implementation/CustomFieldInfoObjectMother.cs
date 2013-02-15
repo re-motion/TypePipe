@@ -16,8 +16,10 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -25,12 +27,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   public static class CustomFieldInfoObjectMother
   {
     public static CustomFieldInfo Create (
-        CustomType declaringType = null, string name = "CustomField", Type type = null, FieldAttributes attributes = (FieldAttributes) 7)
+        CustomType declaringType = null,
+        string name = "CustomField",
+        Type type = null,
+        FieldAttributes attributes = (FieldAttributes) 7,
+        IEnumerable<ICustomAttributeData> customAttributes = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
       type = type ?? ReflectionObjectMother.GetSomeType();
+      customAttributes = customAttributes ?? new ICustomAttributeData[0];
 
-      return new TestableCustomFieldInfo (declaringType, name, type, attributes);
+      return new TestableCustomFieldInfo (declaringType, name, type, attributes) { CustomAttributeDatas = customAttributes };
     }
   }
 }

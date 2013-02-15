@@ -30,28 +30,28 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   public class PropertyOnTypeInstantiation : CustomPropertyInfo
   {
     private readonly ReadOnlyCollection<ParameterInfo> _indexParameters;
-    private readonly PropertyInfo _propertyOnGenericType;
+    private readonly PropertyInfo _property;
 
     public PropertyOnTypeInstantiation (
-        TypeInstantiation constructedDeclaringType,
+        TypeInstantiation declaringType,
         PropertyInfo property,
         MethodOnTypeInstantiation getMethod,
         MethodOnTypeInstantiation setMethod)
-        : base (constructedDeclaringType, property.Name, property.Attributes, getMethod, setMethod)
+        : base (declaringType, property.Name, property.Attributes, getMethod, setMethod)
     {
-      _propertyOnGenericType = property;
+      _property = property;
       _indexParameters = property.GetIndexParameters().Select (p => new MemberParameterOnTypeInstantiation (this, p))
           .Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
     public PropertyInfo PropertyOnGenericType
     {
-      get { return _propertyOnGenericType; }
+      get { return _property; }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      throw new NotImplementedException();
+      return TypePipeCustomAttributeData.GetCustomAttributes (_property);
     }
 
     public override ParameterInfo[] GetIndexParameters ()

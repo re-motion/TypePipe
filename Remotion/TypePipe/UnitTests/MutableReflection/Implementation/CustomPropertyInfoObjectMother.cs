@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 

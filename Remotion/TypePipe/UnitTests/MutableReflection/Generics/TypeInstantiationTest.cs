@@ -254,6 +254,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    public void GetCustomAttributeData ()
+    {
+      var result = _instantiation.GetCustomAttributeData().Single();
+      Assert.That (result.Type, Is.SameAs (typeof (AbcAttribute)));
+      Assert.That (result.ConstructorArguments, Is.EqualTo (new[] { "generic type def" }));
+    }
+
+    [Test]
     public void IntegrationOfInitializationAndSubstitution_RecursiveGenericInBaseType ()
     {
       var genericRuntimeType = typeof (RecursiveGenericType<int>);
@@ -291,6 +299,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     class DeclaringType<TOuter>
     {
       public TOuter OuterField;
+
+      [Abc ("generic type def")]
       public class GenericType<T> : BaseType<T>, IMyInterface<T>
       {
         public List<Func<T>> RecursiveGeneric;
@@ -308,5 +318,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       public int WriteOnlyProperty { set { Dev.Null = value; } }
     }
     class RecursiveGenericType<T> : BaseType<RecursiveGenericType<T>> { }
+    class AbcAttribute : Attribute { public AbcAttribute (string s) { } }
   }
 }

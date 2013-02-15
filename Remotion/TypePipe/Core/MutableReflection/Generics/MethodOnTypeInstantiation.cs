@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      throw new NotImplementedException();
+      return TypePipeCustomAttributeData.GetCustomAttributes (_method);
     }
 
     public override ParameterInfo[] GetParameters ()

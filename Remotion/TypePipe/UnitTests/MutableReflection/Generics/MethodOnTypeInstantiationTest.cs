@@ -59,5 +59,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (memberParameter.Member, Is.SameAs (result));
       Assert.That (memberParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (parameter));
     }
+
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      var method = CustomMethodInfoObjectMother.Create (customAttributes: customAttributes);
+      var methodInstantiation = new MethodOnTypeInstantiation (_declaringType, method);
+
+      Assert.That (methodInstantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
+    }
   }
 }
