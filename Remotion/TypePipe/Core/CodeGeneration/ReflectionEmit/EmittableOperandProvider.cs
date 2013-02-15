@@ -124,14 +124,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           m => GetEmittableMemberInstantiation (m, mi => mi.MethodOnGenericType, TypeBuilder.GetMethod));
     }
 
-    // TODO Review: Remove
-    public PropertyInfo GetEmittableProperty (PropertyInfo property)
-    {
-      ArgumentUtility.CheckNotNull ("property", property);
-
-      return null;
-    }
-
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
         where TMutable : T
         where T : MemberInfo
