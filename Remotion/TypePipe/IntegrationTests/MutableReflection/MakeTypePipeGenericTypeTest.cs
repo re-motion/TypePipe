@@ -22,7 +22,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
@@ -30,6 +29,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   [TestFixture]
   public class MakeTypePipeGenericTypeTest
   {
+    private Type _genericType;
     private ProxyType _typeArg1;
     private ProxyType _typeArg2;
 
@@ -38,18 +38,18 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
+      _genericType = typeof (GenericType<,>);
       _typeArg1 = ProxyTypeObjectMother.Create (typeof (object));
       _typeArg2 = ProxyTypeObjectMother.Create (typeof (MakeTypePipeGenericTypeTest));
 
-      using (new ServiceLocatorScope (typeof (IUnderlyingTypeFactory), typeof (ThrowingUnderlyingTypeFactory)))
-        _instantiation = typeof (GenericType<,>).MakeTypePipeGenericType (_typeArg1, _typeArg2);
+      _instantiation = _genericType.MakeTypePipeGenericType (_typeArg1, _typeArg2);
     }
 
     [Test]
     public void TypeInstantiation ()
     {
       Assert.That (_instantiation, Is.TypeOf<TypeInstantiation>());
-      Assert.That (_instantiation.GetGenericTypeDefinition(), Is.SameAs (typeof (GenericType<,>)));
+      Assert.That (_instantiation.GetGenericTypeDefinition(), Is.SameAs (_genericType));
       Assert.That (_instantiation.GetGenericArguments(), Is.EqualTo (new[] { _typeArg1, _typeArg2 }));
     }
 
@@ -65,40 +65,58 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void BaseType ()
     {
+      var genericBaseType = typeof (GenericBase<>);
       var baseType = _instantiation.BaseType;
+
       Assertion.IsNotNull (baseType);
       Assert.That (baseType.Name, Is.EqualTo ("GenericBase`1"));
+      Assert.That (baseType, Is.TypeOf<TypeInstantiation>());
+      Assert.That (baseType.GetGenericTypeDefinition(), Is.SameAs (genericBaseType));
       Assert.That (baseType.GetGenericArguments(), Is.EqualTo (new[] { _typeArg1 }));
     }
 
     [Test]
     public void Interfaces ()
     {
+      var genericIfc = typeof (IMyInterface<>);
       var ifc = _instantiation.GetInterfaces().Single();
+
       Assert.That (ifc.Name, Is.EqualTo ("IMyInterface`1"));
+      Assert.That (ifc, Is.TypeOf<TypeInstantiation>());
+      Assert.That (ifc.GetGenericTypeDefinition(), Is.SameAs (genericIfc));
       Assert.That (ifc.GetGenericArguments(), Is.EqualTo (new[] { _typeArg2 }));
     }
 
     [Test]
     public void Fields ()
     {
-      var field = _instantiation.GetFields().Single();
-      Assert.That (field.Name, Is.EqualTo ("Field"));
+      var genericField = _genericType.GetField ("Field");
+      var field = _instantiation.GetField ("Field");
+
+      Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation>());
+      Assert.That (field.As<FieldOnTypeInstantiation>().FieldOnGenericType, Is.EqualTo (genericField));
       Assert.That (field.FieldType, Is.SameAs (_typeArg1));
     }
 
     [Test]
     public void Constructors ()
     {
+      var genericCtor = _genericType.GetConstructors().Single();
       var ctor = _instantiation.GetConstructors().Single();
-      Assert.That (ctor.Name, Is.EqualTo (".ctor"));
+
+      Assert.That (ctor, Is.TypeOf<ConstructorOnTypeInstantiation>());
+      Assert.That (ctor.As<ConstructorOnTypeInstantiation>().ConstructorOnGenericType, Is.EqualTo (genericCtor));
       Assert.That (ctor.GetParameters().Select (p => p.ParameterType), Is.EqualTo (new[] { _typeArg1, _typeArg2 }));
     }
 
     [Test]
     public void Methods ()
     {
-      var method = _instantiation.GetMethods().Single (m => m.Name == "Method");
+      var genericMethod = _genericType.GetMethod ("Method");
+      var method = _instantiation.GetMethod ("Method");
+
+      Assert.That (method, Is.TypeOf<MethodOnTypeInstantiation>());
+      Assert.That (method.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (genericMethod));
       Assert.That (method.ReturnType, Is.SameAs (_typeArg1));
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (_typeArg2));
     }
@@ -106,29 +124,50 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Properties ()
     {
+      var genericProperty = _genericType.GetProperties().Single();
+      var genericGetter = genericProperty.GetGetMethod (true);
+      var genericSetter = genericProperty.GetSetMethod (true);
       var property = _instantiation.GetProperties().Single();
-      Assert.That (property.Name, Is.EqualTo ("Property"));
+      var getter = property.GetGetMethod (true);
+      var setter = property.GetSetMethod (true);
+
+      Assert.That (property, Is.TypeOf<PropertyOnTypeInstantiation>());
+      Assert.That (property.As<PropertyOnTypeInstantiation>().PropertyOnGenericType, Is.EqualTo (genericProperty));
       Assert.That (property.PropertyType, Is.SameAs (_typeArg1));
 
-      // TODO Review: Check accessors
+      Assert.That (getter, Is.TypeOf<MethodOnTypeInstantiation>());
+      Assert.That (getter.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (genericGetter));
+      Assert.That (setter, Is.TypeOf<MethodOnTypeInstantiation>());
+      Assert.That (setter.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (genericSetter));
     }
 
     [Test]
     public void Events ()
     {
+      var genericEvt = _genericType.GetEvents().Single();
+      var genericAdder = genericEvt.GetAddMethod (true);
+      var genericRemover = genericEvt.GetRemoveMethod (true);
+      Assert.That (genericEvt.GetRaiseMethod (true), Is.Null);
       var evt = _instantiation.GetEvents().Single();
-      Assert.That (evt.Name, Is.EqualTo ("Event"));
+      var adder = evt.GetAddMethod (true);
+      var remover = evt.GetRemoveMethod (true);
+
+      Assert.That (evt, Is.TypeOf<EventOnTypeInstantiation>());
+      Assert.That (evt.As<EventOnTypeInstantiation>().EventOnGenericType, Is.EqualTo (genericEvt));
       var evtType = evt.EventHandlerType;
-      Assert.That (evtType.Name, Is.EqualTo ("Func`1"));
+      Assert.That (evtType.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
       Assert.That (evtType.GetGenericArguments(), Is.EqualTo (new[] { _typeArg1 }));
 
-      // TODO Review: Check accessors
+      Assert.That (adder, Is.TypeOf<MethodOnTypeInstantiation>());
+      Assert.That (adder.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (genericAdder));
+      Assert.That (remover, Is.TypeOf<MethodOnTypeInstantiation>());
+      Assert.That (remover.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (genericRemover));
     }
 
     [Test]
-    public void RecursiveTypeInstantiations_Substitution ()
+    public void NestedGenericType_TypeInstantiation ()
     {
-      var enumerable = _instantiation.GetMethod ("ReturnTypeMethod_NeedsSubstitute").ReturnType;
+      var enumerable = _instantiation.GetField ("SubstituteTypeInstantiation").FieldType;
       Assert.That (enumerable, Is.TypeOf<TypeInstantiation>());
       Assert.That (enumerable.Name, Is.EqualTo ("IEnumerable`1"));
       var func = enumerable.GetGenericArguments().Single();
@@ -138,27 +177,38 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
-    public void RecursiveTypeInstantiations_NoSubstitution ()
+    public void NestedGenericType_RuntimeType ()
     {
-      var enumerable = _instantiation.GetMethod ("ReturnTypeMethod_RuntimeType").ReturnType;
+      var enumerable = _instantiation.GetField ("SubstituteRuntimeType").FieldType;
       Assert.That (enumerable.IsRuntimeType(), Is.True);
+      Assert.That (enumerable.Name, Is.EqualTo ("IEnumerable`1"));
+      var func = enumerable.GetGenericArguments().Single();
+      Assert.That (func.Name, Is.EqualTo ("Func`2"));
+      var typeArgs = func.GetGenericArguments();
+      Assert.That (typeArgs, Is.EqualTo (new[] { typeof (int), typeof (string) }));
+    }
+
+    [Test]
+    public void RecursiveTypeInstantiation ()
+    {
+      // This would cause a stack overflow if we wouldn't use an instantiation context.
+      var result = _instantiation.GetField ("RecursiveGenericType").FieldType;
+      Assert.That (result, Is.SameAs (_instantiation));
     }
 
     interface IMyInterface<T> { }
     class GenericBase<T> { }
     class GenericType<T1, T2> : GenericBase<T1>, IMyInterface<T2>
     {
-      // TODO Review: Add field of type GenericType<T1, T2>
-      // public GenericType<T1, T2> _field;
-
       public T1 Field = default(T1);
       public GenericType (T1 t1, T2 t2) { }
       public T1 Method (T2 t) { return default (T1); }
       public T1 Property { get; set; }
       public event Func<T1> Event;
 
-      public IEnumerable<Func<T1, T2>> ReturnTypeMethod_NeedsSubstitute () { return null; }
-      public IEnumerable<Func<int, string>> ReturnTypeMethod_RuntimeType () { return null; }
+      public IEnumerable<Func<T1, T2>> SubstituteTypeInstantiation;
+      public IEnumerable<Func<int, string>> SubstituteRuntimeType;
+      public GenericType<T1, T2> RecursiveGenericType;
     }
   }
 }
