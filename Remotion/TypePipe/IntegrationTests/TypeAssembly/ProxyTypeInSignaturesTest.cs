@@ -59,7 +59,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckCustomAttribute (type.GetMethod ("Method"), type);
     }
 
-    // TODO Review: Copy this to TypeInstantiationInExpressionTreesTest, change to use an instantiation.
     [Test]
     public void LocalVariable ()
     {
