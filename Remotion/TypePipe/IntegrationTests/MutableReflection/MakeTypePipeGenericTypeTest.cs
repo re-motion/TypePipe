@@ -109,6 +109,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var property = _instantiation.GetProperties().Single();
       Assert.That (property.Name, Is.EqualTo ("Property"));
       Assert.That (property.PropertyType, Is.SameAs (_typeArg1));
+
+      // TODO Review: Check accessors
     }
 
     [Test]
@@ -119,6 +121,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var evtType = evt.EventHandlerType;
       Assert.That (evtType.Name, Is.EqualTo ("Func`1"));
       Assert.That (evtType.GetGenericArguments(), Is.EqualTo (new[] { _typeArg1 }));
+
+      // TODO Review: Check accessors
     }
 
     [Test]
@@ -144,6 +148,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     class GenericBase<T> { }
     class GenericType<T1, T2> : GenericBase<T1>, IMyInterface<T2>
     {
+      // TODO Review: Add field of type GenericType<T1, T2>
+      // public GenericType<T1, T2> _field;
+
       public T1 Field = default(T1);
       public GenericType (T1 t1, T2 t2) { }
       public T1 Method (T2 t) { return default (T1); }

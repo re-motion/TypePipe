@@ -231,7 +231,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void SubstituteGenericParameters_RecursiveGenericInBaseType ()
+    public void IntegrationOfInitializationAndSubstitution_RecursiveGenericInBaseType ()
     {
       var genericRuntimeType = typeof (RecursiveGenericType<int>);
       var genericBaseRuntimeType = typeof (BaseType<RecursiveGenericType<int>>);
@@ -247,7 +247,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void SubstituteGenericParameters_OuterGenericParameters ()
+    public void IntegrationOfInitializationAndSubstitution_OuterGenericParameters ()
     {
       var type1 = _instantiation.DeclaringType.GetField ("OuterField").FieldType;
       var type2 = _instantiation.GetField ("Field").FieldType;

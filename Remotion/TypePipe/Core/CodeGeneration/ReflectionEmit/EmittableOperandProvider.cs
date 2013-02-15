@@ -124,6 +124,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           m => GetEmittableMemberInstantiation (m, mi => mi.MethodOnGenericType, TypeBuilder.GetMethod));
     }
 
+    // TODO Review: Remove
     public PropertyInfo GetEmittableProperty (PropertyInfo property)
     {
       ArgumentUtility.CheckNotNull ("property", property);

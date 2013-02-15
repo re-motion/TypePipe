@@ -29,6 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class TypeExtensions
   {
+    // TODO Review: Document.
     public static bool IsRuntimeType (this Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
@@ -72,9 +73,12 @@ namespace Remotion.TypePipe.MutableReflection
       // 2) An interface of the CustomType may be assignable to the other interface.
       // 3) The CustomType satisfies all of the generic constraints of the type parameter.
       if (fromType is CustomType)
+      {
+        // TODO Review: Use IsAssignableFromFast for base type and interfaces - write an integration test using TypeInstantiations.
         return toType.IsAssignableFrom (fromType.BaseType)
                || fromType.GetInterfaces().Any (toType.IsAssignableFrom);
-               //|| toType.IsGenericParameter && toType.GetGenericParameterConstraints().All (c => c.IsAssignableFrom (fromType));
+             //|| toType.IsGenericParameter && toType.GetGenericParameterConstraints().All (c => c.IsAssignableFrom (fromType));
+      }
 
       return toType.IsAssignableFrom (fromType);
     }
@@ -93,7 +97,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     /// <summary>
     /// Substitutes the type parameters of the generic type definition and returns a <see cref="Type" /> object representing the resulting
-    /// constructed type. Use this as an replacement for <see cref="Type.MakeGenericType" />.
+    /// constructed type. Use this as a replacement for <see cref="Type.MakeGenericType" />.
     /// </summary>
     /// <param name="genericTypeDefinition">The generic type definition.</param>
     /// <param name="typeArguments">The type arguments.</param>
@@ -101,10 +105,11 @@ namespace Remotion.TypePipe.MutableReflection
     public static Type MakeTypePipeGenericType (this Type genericTypeDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
-      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
 
       if (!genericTypeDefinition.IsGenericTypeDefinition)
       {
+        // TODO Review: Message
         var message = string.Format (
             "'{0}' is not a generic type definition. MakeGenericType may only be called on a type for which Type.IsGenericTypeDefinition is true.",
             genericTypeDefinition.Name);
@@ -165,6 +170,7 @@ namespace Remotion.TypePipe.MutableReflection
     private static bool SkipValidation (Type constraint)
     {
       // Skip validaiton for constraints that are of generic nature themselves (which would be very complex). 
+      // Users will get a TypeLoadException at code generation time violating such a constraint.
       return constraint.ContainsGenericParameters;
     }
 

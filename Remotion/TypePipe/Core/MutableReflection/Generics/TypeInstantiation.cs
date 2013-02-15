@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
         : base (
             memberSelector,
-            instantiationInfo.GenericTypeDefinition.Name,
+            ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
             GetFullName (instantiationInfo),
             instantiationInfo.GenericTypeDefinition.Attributes,
@@ -68,11 +68,17 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             isGenericTypeDefinition: false,
             typeArguments: instantiationInfo.TypeArguments)
     {
+      ArgumentUtility.CheckNotNull ("instantiations", instantiations);
+
       _genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
       _instantiations = instantiations;
 
+      // Even though the _genericTypeDefinition includes the type parameters of the enclosing type(s) (if any), declaringType.GetGenericArguments() 
+      // will return objects not equal to this type's generic parameters. Since the call to SetDeclaringType below needs to replace the those type 
+      // parameters with type arguments, add a mapping for the declaring type's generic parameters in addition to this type's generic parameters.
+
       var declaringType = _genericTypeDefinition.DeclaringType;
-      // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here.
+      // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here, declaringType can be null.
       var outerMapping = declaringType != null ? declaringType.GetGenericArguments().Zip (instantiationInfo.TypeArguments) : new Tuple<Type, Type>[0];
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
       var mapping = _genericTypeDefinition.GetGenericArguments().Zip (instantiationInfo.TypeArguments);
@@ -81,9 +87,15 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       // Add own instantation to context before substituting any generic parameters. 
       instantiations.Add (instantiationInfo, this);
 
-      SetDeclaringType (NullSafeSubstituteGenericParameters (declaringType));
-      SetBaseType (NullSafeSubstituteGenericParameters (_genericTypeDefinition.BaseType));
+      // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here, declaringType can be null.
+      if (declaringType != null)
+        SetDeclaringType (SubstituteGenericParameters (declaringType));
+      // ReSharper restore ConditionIsAlwaysTrueOrFalse
 
+      if (_genericTypeDefinition.BaseType != null)
+        SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
+
+      // TODO Review: Write one test using a mock for member selector, check that binding flags are correct.
       var interfaces = _genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
       var fields = _genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
       var constructors = _genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
@@ -137,6 +149,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
+      // TODO Review: Return TypePipeCustomAttributeData.Get... (_genericTypeDefinition, false)
       throw new NotImplementedException();
     }
 
@@ -175,13 +188,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return _events;
     }
 
-    private Type NullSafeSubstituteGenericParameters (Type type)
-    {
-      return type == null ? null : SubstituteGenericParameters (type);
-    }
-
     private PropertyOnTypeInstantiation CreateProperty (PropertyInfo propertyOnGenericTypeDefiniton, List<MethodOnTypeInstantiation> candidates)
     {
+      // TODO Review: Use dictionary (created outside) for mapping property/event accessors.
       var getMethodOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetGetMethod (true);
       var setMethodOnGenericTypeDefinition = propertyOnGenericTypeDefiniton.GetSetMethod (true);
       var getMethod = GetWrappedMethod (getMethodOnGenericTypeDefinition, candidates);

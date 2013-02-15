@@ -33,6 +33,7 @@ namespace Microsoft.Scripting.Ast
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public LambdaExpression Update (Expression body, IEnumerable<ParameterExpression> parameters)
     {
+      // TODO Review: Make this method virtual, override in subclass to create Expression<T>
       if (body == Body && parameters == Parameters)
         return this;
 

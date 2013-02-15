@@ -33,18 +33,19 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     private readonly Type _genericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
-    private readonly object[] _key;
 
     public InstantiationInfo (Type genericTypeDefinition, IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      // TODO Review: Argument check
       Assertion.IsTrue (genericTypeDefinition.IsGenericTypeDefinition);
 
       _genericTypeDefinition = genericTypeDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
+
+      // TODO Review: Argument check
       Assertion.IsTrue (genericTypeDefinition.GetGenericArguments().Length == _typeArguments.Count);
-      _key = new object[] { genericTypeDefinition }.Concat (_typeArguments.Cast<object>()).ToArray();
     }
 
     public Type GenericTypeDefinition
@@ -65,7 +66,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       // Make RuntimeType if all type arguments are RuntimeTypes.
       if (_typeArguments.All (typeArg => typeArg.IsRuntimeType()))
-        return _genericTypeDefinition.MakeGenericType (TypeArguments.ToArray());
+        return _genericTypeDefinition.MakeGenericType (_typeArguments.ToArray());
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       return new TypeInstantiation (memberSelector, this, instantiations);
@@ -77,12 +78,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (other == null)
         return false;
 
-      return _key.SequenceEqual (other._key);
+// ReSharper disable CheckForReferenceEqualityInstead.2
+      return Equals (_genericTypeDefinition, other.GenericTypeDefinition) && _typeArguments.SequenceEqual (other._typeArguments);
+// ReSharper restore CheckForReferenceEqualityInstead.2
     }
 
     public override int GetHashCode ()
     {
-      return EqualityUtility.GetRotatedHashCode (_key);
+      return _genericTypeDefinition.GetHashCode() ^ EqualityUtility.GetRotatedHashCode (_typeArguments);
     }
   }
 }

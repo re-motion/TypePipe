@@ -59,6 +59,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckCustomAttribute (type.GetMethod ("Method"), type);
     }
 
+    // TODO Review: Copy this to TypeInstantiationInExpressionTreesTest, change to use an instantiation.
     [Test]
     public void LocalVariable ()
     {
@@ -109,7 +110,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (type));
     }
 
-    [Ignore ("TODO 5417")]
+    [Ignore ("TODO 5424")]
     [Test]
     public void Method_RefAndOutParameters ()
     {
@@ -134,7 +135,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void GenericArgument ()
+    public void Signature_WithProxyTypeAsGenericArgument ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
@@ -149,7 +150,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void GenericArgument_Recursive ()
+    public void Signature_WithProxyTypeAsNestedGenericArgument ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
