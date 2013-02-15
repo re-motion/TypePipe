@@ -59,6 +59,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       SetBaseType (baseType);
     }
 
+    public void CallSetDeclaringType (Type declaringType)
+    {
+      SetDeclaringType (declaringType);
+    }
+
     public override Type UnderlyingSystemType
     {
       get { throw new NotImplementedException(); }

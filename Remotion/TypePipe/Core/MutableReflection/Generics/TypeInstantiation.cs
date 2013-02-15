@@ -94,7 +94,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (_genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
 
-      // TODO Review: Write one test using a mock for member selector, check that binding flags are correct.
       var interfaces = _genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
       var fields = _genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
       var constructors = _genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));

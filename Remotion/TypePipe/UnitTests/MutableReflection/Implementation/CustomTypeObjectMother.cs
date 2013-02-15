@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
@@ -28,6 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public static CustomType Create (
         IMemberSelector memberSelector = null,
         Type baseType = null,
+        Type declaringType = null,
         string name = "CustomType",
         string @namespace = "My",
         string fullName = "My.CustomType",
@@ -43,9 +45,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<Type> typeArguments = null)
     {
       memberSelector = memberSelector ?? MockRepository.GenerateStub<IMemberSelector>();
-      // Declaring type stays null.
       baseType = baseType ?? typeof (UnspecifiedType);
-      typeArguments = typeArguments ?? Type.EmptyTypes;
+      // Declaring type stays null.
+      isGenericType = isGenericType || isGenericTypeDefinition; // Generic type definitions are also generic types.
+      typeArguments = typeArguments ?? (isGenericType ? new[] { typeof (UnspecifiedType) } : Type.EmptyTypes);
 
       var customType =
           new TestableCustomType (
@@ -66,6 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               Events = events ?? new EventInfo[0]
           };
       customType.CallSetBaseType (baseType);
+      customType.CallSetDeclaringType (declaringType);
 
       return customType;
     }

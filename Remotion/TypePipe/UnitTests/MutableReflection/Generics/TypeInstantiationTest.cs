@@ -25,6 +25,7 @@ using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 using Remotion.Development.UnitTesting;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -42,9 +43,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private Type _runtimeType;
     private Type[] _typeArgumentsWithRuntimeType;
 
-    private Dictionary<InstantiationInfo, TypeInstantiation> _instantiationContext1;
-    private Dictionary<InstantiationInfo, TypeInstantiation> _instantiationContext2;
-
     private TypeInstantiation _instantiation;
     private TypeInstantiation _instantiationWithRuntimeType;
 
@@ -60,14 +58,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _runtimeType = ReflectionObjectMother.GetSomeType();
       _typeArgumentsWithRuntimeType = new[] { _runtimeType, _runtimeType };
 
-      _instantiationContext1 = new Dictionary<InstantiationInfo, TypeInstantiation>();
-      _instantiationContext2 = new Dictionary<InstantiationInfo, TypeInstantiation>();
-
       var info1 = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
       var info2 = new InstantiationInfo (_genericTypeDefinition, _typeArgumentsWithRuntimeType);
 
-      _instantiation = new TypeInstantiation (_memberSelector, info1, _instantiationContext1);
-      _instantiationWithRuntimeType = new TypeInstantiation (_memberSelector, info2, _instantiationContext2);
+      _instantiation = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
+      _instantiationWithRuntimeType = new TypeInstantiation (_memberSelector, info2, CreateInstantiationContext());
     }
 
     [Test]
@@ -176,7 +171,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_ReadOnlyAndWriteOnlyProperty ()
     {
       var info1 = new InstantiationInfo (typeof (GenericTypeWithProperties<>), new Type[] { _customType });
-      var instantiation = new TypeInstantiation (_memberSelector, info1, _instantiationContext1);
+      var instantiation = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
 
       var property1 = instantiation.GetProperty ("ReadOnlyProperty", c_allMembers);
       var property2 = instantiation.GetProperty ("WriteOnlyProperty", c_allMembers);
@@ -199,6 +194,34 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
           event_.GetAddMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetAddMethod (true)));
       Assert.That (
           event_.GetRemoveMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetRemoveMethod (true)));
+    }
+
+    [Test]
+    public void Initialization_UsesAllBindingFlagsToRetrieveMembers ()
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      var fields = _genericTypeDefinition.GetFields (bindingFlags);
+      var ctors = _genericTypeDefinition.GetConstructors (bindingFlags);
+      var methods = _genericTypeDefinition.GetMethods (bindingFlags);
+      var properties = _genericTypeDefinition.GetProperties (bindingFlags);
+      var events = _genericTypeDefinition.GetEvents (bindingFlags);
+
+      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var genericTypeDef = CustomTypeObjectMother.Create (
+        memberSelectorMock, isGenericTypeDefinition: true, fields: fields, constructors: ctors, methods:methods, properties: properties, events: events);
+
+      memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDef)).Return (fields);
+      memberSelectorMock.Expect (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDef)).Return (ctors);
+      memberSelectorMock.Expect (mock => mock.SelectMethods (methods, bindingFlags, genericTypeDef)).Return (methods);
+      memberSelectorMock.Expect (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDef)).Return (properties);
+      memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDef)).Return (events);
+      
+      var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
+      var info = new InstantiationInfo (genericTypeDef, typeArguments);
+
+      Dev.Null = new TypeInstantiation (memberSelectorMock, info, CreateInstantiationContext());
+
+      memberSelectorMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -240,7 +263,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = typeof (RecursiveGenericType<>);
       var typeArguments = new Type[] { _customType };
       var info = new InstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiation = new TypeInstantiation (_memberSelector, info, _instantiationContext1);
+      var instantiation = new TypeInstantiation (_memberSelector, info, CreateInstantiationContext());
 
       Assertion.IsNotNull (instantiation.BaseType);
       Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));
@@ -256,6 +279,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (type1, Is.EqualTo (_outerCustomType));
       Assert.That (type2, Is.EqualTo (_customType));
       Assert.That (type3, Is.EqualTo (_outerCustomType));
+    }
+
+    private Dictionary<InstantiationInfo, TypeInstantiation> CreateInstantiationContext ()
+    {
+      return new Dictionary<InstantiationInfo, TypeInstantiation> ();
     }
 
     interface IMyInterface<T> { }
