@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -177,6 +178,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.VerifyAllExpectations ();
       parameterBuilderMock.VerifyAllExpectations();
 
+      var methodMapping = GetMethodMapping (_emitter);
+      Assert.That (methodMapping.ContainsKey (method), Is.True);
+
       var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (2));
 
@@ -213,25 +217,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       actions[0].Invoke();
     }
 
-    [Ignore("TODO 5422")]
     [Test]
     public void AddProperty ()
     {
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var indexParameterTypes = parameters.Select (p => p.Type).ToArray();
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: parameters);
       var setMethod = MutableMethodInfoObjectMother.Create();
-      var property = MutablePropertyInfoObjectMother.Create (
-          null /*ProxyTypeObjectMother.Create (baseType: typeof (DomainType))*/,
-          "Property",
-          getMethod,
-          setMethod);
+      var property = MutablePropertyInfoObjectMother.Create (name: "Property", getMethod: getMethod, setMethod: setMethod);
 
-      _typeBuilderMock.Expect (mock => mock.DefineProperty ("Property", property.Attributes, returnType, parameters.Select (p => p.Type).ToArray()));
+      var getMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var setMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var methodMapping = GetMethodMapping (_emitter);
+      methodMapping.Add (getMethod, getMethodBuilder);
+      methodMapping.Add (setMethod, setMethodBuilder);
+
+      var propertyBuilderMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, returnType, indexParameterTypes))
+          .Return (propertyBuilderMock);
+      propertyBuilderMock.Expect (mock => mock.SetGetMethod (getMethodBuilder));
+      propertyBuilderMock.Expect (mock => mock.SetSetMethod (setMethodBuilder));
 
       _emitter.AddProperty (_context, property);
 
       _typeBuilderMock.VerifyAllExpectations();
+      propertyBuilderMock.VerifyAllExpectations();
     }
 
     private void SetupDefineCustomAttribute (ICustomAttributeTargetBuilder customAttributeTargetBuilderMock, IMutableInfo mutableInfo)
@@ -289,6 +301,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emittableOperandProviderMock.VerifyAllExpectations ();
       _typeBuilderMock.VerifyAllExpectations ();
+    }
+
+    private Dictionary<MutableMethodInfo, IMethodBuilder> GetMethodMapping (MemberEmitter emitter)
+    {
+      return PrivateInvoke.GetNonPublicField (emitter, "_methodMapping").As<Dictionary<MutableMethodInfo, IMethodBuilder>>();
     }
 
     public class DomainType

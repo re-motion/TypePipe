@@ -27,10 +27,11 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Emits members for mutable reflection objects.
+  /// Emits members for mutable reflection objects. Note that accessor methods must be added before their associated properties and events.
   /// </summary>
   public class MemberEmitter : IMemberEmitter
   {
+    private readonly Dictionary<MutableMethodInfo, IMethodBuilder> _methodMapping = new Dictionary<MutableMethodInfo, IMethodBuilder>();
     private readonly IExpressionPreparer _expressionPreparer;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
 
@@ -91,6 +92,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var parameterTypes = GetParameterTypes (method);
       var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, method.Attributes, method.ReturnType, parameterTypes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
+      _methodMapping.Add (method, methodBuilder);
 
       DefineCustomAttributes (methodBuilder, method);
       DefineParameter (methodBuilder, method.MutableReturnParameter);
@@ -111,6 +113,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("property", property);
 
+      var indexParameterTypes = property.GetIndexParameters().Select (p => p.ParameterType).ToArray();
+      var propertyBuilder = context.TypeBuilder.DefineProperty (property.Name, property.Attributes, property.PropertyType, indexParameterTypes);
+
+      SetAccessor (propertyBuilder.SetGetMethod, property.MutableGetMethod);
+      SetAccessor (propertyBuilder.SetSetMethod, property.MutableSetMethod);
     }
 
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
@@ -163,6 +170,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           context.TypeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
         }
       };
+    }
+
+    private void SetAccessor (Action<IMethodBuilder> setAccessorMethod, MutableMethodInfo accessorOrNull)
+    {
+      //if (accessorOrNull == null)
+      //  return;
+
+      var accessorBuilder = _methodMapping[accessorOrNull];
+      setAccessorMethod (accessorBuilder);
     }
   }
 }
