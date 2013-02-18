@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.FunctionalProgramming;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -34,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private ParameterDeclaration[] _indexParameters;
     private MutableMethodInfo _getMethod;
     private MutableMethodInfo _setMethod;
-
 
     private MutablePropertyInfo _property;
 
@@ -109,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_property.ToDebugString (), Is.EqualTo (expected));
     }
 
-    public static void CheckParameter (
+    private static void CheckParameter (
         ParameterInfo parameter,
         MemberInfo expectedMember,
         int expectedPosition,
@@ -117,6 +117,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type expectedType,
         ParameterAttributes expectedAttributes)
     {
+      Assert.That (parameter, Is.TypeOf<PropertyParameterInfoWrapper>());
       Assert.That (parameter.Member, Is.SameAs (expectedMember));
       Assert.That (parameter.Position, Is.EqualTo (expectedPosition));
       Assert.That (parameter.Name, Is.EqualTo (expectedName));
