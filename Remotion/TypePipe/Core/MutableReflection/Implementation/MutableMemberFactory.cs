@@ -260,10 +260,26 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get method may be null.
       // Set method may be null.
 
-      // TODO 5421: argument checks (not bothl null)
+      if (getMethod == null && setMethod == null)
+        throw new ArgumentException ("Property must have at least one accessor.", "getMethod");
+
+      var readWriteProperty = getMethod != null && setMethod != null;
+      if (readWriteProperty && getMethod.IsStatic != setMethod.IsStatic)
+        throw new ArgumentException ("Accessor methods must be both either static or non-static.", "getMethod");
+
+      if (getMethod != null && !ReferenceEquals (getMethod.DeclaringType, declaringType))
+        throw new ArgumentException ("Accessor method must be declared on the current type.", "getMethod");
+      if (setMethod != null && !ReferenceEquals (setMethod.DeclaringType, declaringType))
+        throw new ArgumentException ("Accessor method must be declared on the current type.", "setMethod");
+
+      if (getMethod != null && getMethod.ReturnType == typeof (void))
+        throw new ArgumentException ("Get accessor must be a non-void method.", "getMethod");
+      if (setMethod != null && setMethod.ReturnType != typeof (void))
+        throw new ArgumentException ("Set accessor must have return type void.", "setMethod");
+
+      // TODO: index parameters: need to match if "full property"
+
       // TODO 5421: argument checks (no property with same name and signature)
-      // TODO 5421: argument check, get and set method must both be static or non-static
-      // TODO 5421: declaringType must match accessors.DeclaringType.
 
       return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
     }

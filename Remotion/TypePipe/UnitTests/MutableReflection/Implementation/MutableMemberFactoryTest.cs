@@ -794,8 +794,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "Property";
       var attributes = (PropertyAttributes) 7;
       var type = ReflectionObjectMother.GetSomeType();
-      var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);
-      var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
+      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: type);
+      var setMethod = MutableMethodInfoObjectMother.Create (
+          declaringType: _proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
 
       var result = _factory.CreateProperty (_proxyType, name, attributes, getMethod, setMethod);
 
@@ -806,13 +807,52 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.MutableSetMethod, Is.SameAs (setMethod));
     }
 
-    [Ignore]
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Property must have at least one accessor.\r\nParameter name: getMethod")]
     public void CreateProperty_Simple_NoAccessorProviders ()
     {
-      // TODO
-      _factory.CreateProperty (_proxyType, "Property", typeof (int), indexParameters: null, getBodyProvider: null, setBodyProvider: null);
+      _factory.CreateProperty (_proxyType, "Property", 0, getMethod: null, setMethod: null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Accessor methods must be both either static or non-static.\r\nParameter name: getMethod")]
+    public void CreateProperty_Simple_ThrowsForDifferentStaticness ()
+    {
+      var getMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      var setMethod = MutableMethodInfoObjectMother.Create (attributes: 0 /*instance*/);
+
+      _factory.CreateProperty (_proxyType, "Property", 0, getMethod, setMethod);
+    }
+
+    [Test]
+    public void CreateProperty_Simple_ThrowsForDifferentDeclaringType ()
+    {
+      var getMethod = MutableMethodInfoObjectMother.Create();
+      var setMethod = MutableMethodInfoObjectMother.Create();
+
+      var message = "Accessor method must be declared on the current type.\r\nParameter name: {0}";
+      Assert.That (
+          () => _factory.CreateProperty (_proxyType, "Property", 0, getMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "getMethod")));
+      Assert.That (
+          () => _factory.CreateProperty (_proxyType, "Property", 0, null, setMethod),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "setMethod")));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Get accessor must be a non-void method.\r\nParameter name: getMethod")]
+    public void CreateProperty_Simple_ThrowsForVoidGetMethod ()
+    {
+      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (void));
+      _factory.CreateProperty (_proxyType, "Property", 0, getMethod, null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Set accessor must have return type void.\r\nParameter name: setMethod")]
+    public void CreateProperty_Simple_ThrowsForNonVoidSetMethod ()
+    {
+      var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (int));
+      _factory.CreateProperty (_proxyType, "Property", 0, null, setMethod);
     }
 
     private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
