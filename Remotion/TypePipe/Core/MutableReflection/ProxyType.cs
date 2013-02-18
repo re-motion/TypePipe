@@ -350,7 +350,6 @@ namespace Remotion.TypePipe.MutableReflection
       return property;
     }
 
-    // TODO 5421: Add parameters for CallingConvention, PropertyAttributes
     public MutablePropertyInfo AddProperty (
         string name,
         PropertyAttributes attributes = PropertyAttributes.None,
@@ -363,7 +362,10 @@ namespace Remotion.TypePipe.MutableReflection
       // Setter may be null.
       // Custom attributes may be null.
 
-      return null;
+      var property = _mutableMemberFactory.CreateProperty (this, name, attributes, callingConvention, getMethod, setMethod);
+      _addedProperties.Add (property);
+
+      return property;
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)

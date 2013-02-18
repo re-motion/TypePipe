@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<ICustomAttributeData> customAttributes = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
-      returnParameter = returnParameter ?? CustomParameterInfoObjectMother.Create();
+      returnParameter = returnParameter ?? CustomParameterInfoObjectMother.Create (position: -1, type: typeof (void));
       parameters = parameters ?? new ParameterInfo[0];
       // Base definition stays null.
       customAttributes = customAttributes ?? new ICustomAttributeData[0];

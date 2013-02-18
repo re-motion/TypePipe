@@ -29,6 +29,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -222,9 +223,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var setMethodParameters = parameters.Concat (ParameterDeclarationObjectMother.Create (returnType));
       var indexParameterTypes = parameters.Select (p => p.Type).ToArray();
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: parameters);
-      var setMethod = MutableMethodInfoObjectMother.Create();
+      var setMethod = MutableMethodInfoObjectMother.Create (parameters: setMethodParameters);
       var property = MutablePropertyInfoObjectMother.Create (name: "Property", getMethod: getMethod, setMethod: setMethod);
 
       var getMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();

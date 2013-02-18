@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       // Getter stays null.
       // Setters stays null, but if both are null then create a getter.
       if (getMethod == null && setMethod == null)
-        getMethod = CustomMethodInfoObjectMother.Create();
+        getMethod = CustomMethodInfoObjectMother.Create (returnParameter: CustomParameterInfoObjectMother.Create (position: -1, type: typeof (int)));
       indexParameters = indexParameters ?? new CustomParameterInfo[0];
 
       return new TestableCustomPropertyInfo (declaringType, name, attributes, getMethod, setMethod, indexParameters)

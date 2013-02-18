@@ -52,14 +52,21 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Getter may be null.
       // Setter may be null.
       Assertion.IsTrue (getMethod != null || setMethod != null);
+      Assertion.IsTrue (setMethod == null || setMethod.ReturnType == typeof (void));
 
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
       _getMethod = getMethod;
       _setMethod = setMethod;
-      _type = getMethod != null ? getMethod.ReturnType : setMethod.GetParameters().Last().ParameterType;
+
+      var getParameters = getMethod != null ? getMethod.GetParameters().Select(p => p.ParameterType).ToList() : null;
+      var setParameters = setMethod != null ? setMethod.GetParameters().Select(p => p.ParameterType).ToList() : null;
+
+      _type = getMethod != null ? getMethod.ReturnType : setParameters.Last();
       Assertion.IsTrue (_type != typeof (void));
+      Assertion.IsTrue (setParameters == null || setParameters.Count > 0);
+      Assertion.IsTrue (getMethod == null || setMethod == null || getParameters.SequenceEqual (setParameters.Take (getParameters.Count)));
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();

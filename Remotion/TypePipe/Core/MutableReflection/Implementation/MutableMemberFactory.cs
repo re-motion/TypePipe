@@ -232,6 +232,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Set body provider may be null.
 
       // TODO 5421: argument checks (not null)
+      // TODO 5421: argument checks (no property with same name and signature)
 
       var indexParams = indexParameters != null ? indexParameters.ConvertToCollection() : ParameterDeclaration.EmptyParameters;
       var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
@@ -243,8 +244,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         var setterParams = indexParams.Concat (new ParameterDeclaration (type, "value"));
         setMethod = CreateMethod (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
       }
-      
+
       return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
+    }
+
+    public MutablePropertyInfo CreateProperty (
+        ProxyType declaringType,
+        string name,
+        PropertyAttributes attributes,
+        CallingConventions callingConvention,
+        MutableMethodInfo getMethod,
+        MutableMethodInfo setMethod)
+    {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Get method may be null.
+      // Set method may be null.
+
+      return null;
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
