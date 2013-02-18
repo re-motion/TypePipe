@@ -16,16 +16,17 @@
 // 
 
 using System;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  [Ignore ("TODO 5423")]
   [TestFixture]
   public class AddPropertyTest : TypeAssemblerIntegrationTestBase
   {
@@ -109,14 +110,49 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void RedeclareExisting ()
+    [Ignore ("5423")]
+    public void RedeclareExisting_AddCustomAttribute ()
     {
-      
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var existingProperty = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.ExistingProperty);
+            var getMethod = existingProperty.GetGetMethod();
+            var setMethod = existingProperty.GetSetMethod();
+            var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
+            var customAttributes = new[] { new CustomAttributeDeclaration (attributeCtor, new object[] { "derived" }) };
+            proxyType.AddProperty ("ExistingProperty", getMethod, setMethod, customAttributes);
+          });
+
+      var property = type.GetProperty ("ExistingProperty");
+      var instance = (DomainType) Activator.CreateInstance (type);
+
+      Assert.That (instance.ExistingProperty, Is.Null);
+      Assert.That (property.GetValue (instance, null), Is.Null);
+      property.SetValue (instance, "Test", null);
+      Assert.That (instance.ExistingProperty, Is.EqualTo ("Test"));
+      Assert.That (property.GetValue (instance, null), Is.EqualTo ("Test"));
+
+      var attributeArgs = property.GetCustomAttributes (true).Cast<AbcAttribute>().Select (a => a.Arg);
+      Assert.That (attributeArgs, Is.EquivalentTo (new[] { "base", "derived" }));
     }
 
     public class DomainType
     {
       [UsedImplicitly] public string IndexedSetterField;
+
+      [AbcAttribute ("base")]
+      public string ExistingProperty { get; set; }
+    }
+
+    public class AbcAttribute : Attribute
+    {
+      public AbcAttribute (string arg)
+      {
+        Arg = arg;
+      }
+
+      public string Arg { get; set; }
     }
   }
 }
