@@ -239,6 +239,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock
           .Expect (mock => mock.DefineProperty ("Property", property.Attributes, returnType, indexParameterTypes))
           .Return (propertyBuilderMock);
+      SetupDefineCustomAttribute (propertyBuilderMock, property);
       propertyBuilderMock.Expect (mock => mock.SetGetMethod (getMethodBuilder));
       propertyBuilderMock.Expect (mock => mock.SetSetMethod (setMethodBuilder));
 

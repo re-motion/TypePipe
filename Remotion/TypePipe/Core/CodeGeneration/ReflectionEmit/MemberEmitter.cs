@@ -116,6 +116,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var indexParameterTypes = property.GetIndexParameters().Select (p => p.ParameterType).ToArray();
       var propertyBuilder = context.TypeBuilder.DefineProperty (property.Name, property.Attributes, property.PropertyType, indexParameterTypes);
 
+      DefineCustomAttributes (propertyBuilder, property);
+
       SetAccessor (propertyBuilder.SetGetMethod, property.MutableGetMethod);
       SetAccessor (propertyBuilder.SetSetMethod, property.MutableSetMethod);
     }
