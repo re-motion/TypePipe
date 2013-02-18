@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void ReadOnly_Attributes_CallingConventions ()
+    public void ReadOnly_Static ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
