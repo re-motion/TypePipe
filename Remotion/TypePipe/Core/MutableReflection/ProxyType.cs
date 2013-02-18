@@ -351,18 +351,14 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public MutablePropertyInfo AddProperty (
-        string name,
-        PropertyAttributes attributes = PropertyAttributes.None,
-        CallingConventions callingConvention = CallingConventions.HasThis,
-        MutableMethodInfo getMethod = null,
-        MutableMethodInfo setMethod = null)
+        string name, PropertyAttributes attributes = PropertyAttributes.None, MutableMethodInfo getMethod = null, MutableMethodInfo setMethod = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Getter may be null.
       // Setter may be null.
       // Custom attributes may be null.
 
-      var property = _mutableMemberFactory.CreateProperty (this, name, attributes, callingConvention, getMethod, setMethod);
+      var property = _mutableMemberFactory.CreateProperty (this, name, attributes, getMethod, setMethod);
       _addedProperties.Add (property);
 
       return property;

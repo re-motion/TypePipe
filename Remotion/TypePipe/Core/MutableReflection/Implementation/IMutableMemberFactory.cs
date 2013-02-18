@@ -62,6 +62,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Func<MethodBodyCreationContext, Expression> getBodyProvider,
         Func<MethodBodyCreationContext, Expression> setBodyProvider);
 
-    MutablePropertyInfo CreateProperty (ProxyType declaringType, string name, PropertyAttributes attributes, CallingConventions callingConvention, MutableMethodInfo getMethod, MutableMethodInfo setMethod);
+    MutablePropertyInfo CreateProperty (ProxyType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod);
   }
 }

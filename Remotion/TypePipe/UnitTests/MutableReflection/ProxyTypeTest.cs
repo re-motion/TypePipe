@@ -468,15 +468,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var name = "Property";
       var attributes = (PropertyAttributes) 7;
-      var callingConvention = (CallingConventions) 8;
       var getMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
       var setMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
       var fakeProperty = MutablePropertyInfoObjectMother.Create();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateProperty (_proxyType, name, attributes, callingConvention, getMethod, setMethod))
+          .Expect (mock => mock.CreateProperty (_proxyType, name, attributes, getMethod, setMethod))
           .Return (fakeProperty);
 
-      var result = _proxyType.AddProperty (name, attributes, callingConvention, getMethod, setMethod);
+      var result = _proxyType.AddProperty (name, attributes, getMethod, setMethod);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeProperty));

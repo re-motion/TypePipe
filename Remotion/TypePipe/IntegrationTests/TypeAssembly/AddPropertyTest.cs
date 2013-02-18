@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var getMethod = proxyType.AddMethod (
                 "StaticGetMethod", MethodAttributes.Static, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7));
-            proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, CallingConventions.Standard, getMethod);
+            proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, getMethod);
           });
 
       var nonExistingInstanceProperty= type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Instance);

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -248,13 +249,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
     }
 
-    public MutablePropertyInfo CreateProperty (
-        ProxyType declaringType,
-        string name,
-        PropertyAttributes attributes,
-        CallingConventions callingConvention,
-        MutableMethodInfo getMethod,
-        MutableMethodInfo setMethod)
+    public MutablePropertyInfo CreateProperty (ProxyType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
