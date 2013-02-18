@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { throw new System.NotImplementedException(); }
     }
 
-    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
       throw new System.NotImplementedException();
     }

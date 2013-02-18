@@ -27,6 +27,6 @@ namespace Remotion.TypePipe.MutableReflection
   {
     ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes { get; }
 
-    void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration);
+    void AddCustomAttribute (CustomAttributeDeclaration customAttribute);
   }
 }

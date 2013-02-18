@@ -147,11 +147,11 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _customAttributes.AddedCustomAttributes; }
     }
 
-    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
 
-      _customAttributes.AddCustomAttribute (customAttributeDeclaration);
+      _customAttributes.AddCustomAttribute (customAttribute);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -348,6 +348,20 @@ namespace Remotion.TypePipe.MutableReflection
         _addedMethods.Add (property.MutableSetMethod);
 
       return property;
+    }
+
+    public PropertyInfo AddProperty (
+        string name,
+        MethodInfo getter = null,
+        MethodInfo setter = null,
+        IEnumerable<CustomAttributeDeclaration> customAttributes = null)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Getter may be null.
+      // Setter may be null.
+      // Custom attributes may be null.
+
+      return null;
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)

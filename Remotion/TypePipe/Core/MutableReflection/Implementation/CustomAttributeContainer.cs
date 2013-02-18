@@ -36,17 +36,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _addedCustomAttributes.AsReadOnly(); }
     }
 
-    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
 
-      if (_addedCustomAttributes.Any (a => a.Type == customAttributeDeclaration.Type && !AttributeUtility.IsAttributeAllowMultiple (a.Type)))
+      if (_addedCustomAttributes.Any (a => a.Type == customAttribute.Type && !AttributeUtility.IsAttributeAllowMultiple (a.Type)))
       {
-        var message = string.Format ("Attribute of type '{0}' (with AllowMultiple = false) is already present.", customAttributeDeclaration.Type.Name);
+        var message = string.Format ("Attribute of type '{0}' (with AllowMultiple = false) is already present.", customAttribute.Type.Name);
         throw new InvalidOperationException (message);
       }
 
-      _addedCustomAttributes.Add (customAttributeDeclaration);
+      _addedCustomAttributes.Add (customAttribute);
     }
   }
 }

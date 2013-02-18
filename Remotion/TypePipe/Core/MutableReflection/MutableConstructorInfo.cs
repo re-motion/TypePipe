@@ -88,11 +88,11 @@ namespace Remotion.TypePipe.MutableReflection
       return _parameters.Cast<ParameterInfo>().ToArray();
     }
 
-    public void AddCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
 
-      _customAttributeContainer.AddCustomAttribute (customAttributeDeclaration);
+      _customAttributeContainer.AddCustomAttribute (customAttribute);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
