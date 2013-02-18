@@ -17,8 +17,10 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -27,19 +29,30 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutablePropertyInfo : CustomPropertyInfo, IMutableInfo
   {
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
+
+    private readonly ReadOnlyCollection<PropertyParameterInfoWrapper> _indexParameters;
+
     public MutablePropertyInfo (ProxyType declaringType, string name, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
         : base (declaringType, name, PropertyAttributes.None, getMethod, setMethod)
     {
-      // TODO: test initialization
+      IEnumerable<ParameterInfo> indexParameters;
+      if (getMethod != null)
+        indexParameters = getMethod.GetParameters();
+      else
+      {
+        var setMethodParameters = setMethod.GetParameters();
+        indexParameters = setMethodParameters.Take (setMethodParameters.Length - 1);
+      }
+
+      _indexParameters = indexParameters.Select (p => new PropertyParameterInfoWrapper (this, p)).ToList().AsReadOnly();
     }
 
-    // tODO test
     public MutableMethodInfo MutableGetMethod
     {
       get { return (MutableMethodInfo) GetGetMethod (true); }
     }
 
-    // tODO test
     public MutableMethodInfo MutableSetMethod
     {
       get { return (MutableMethodInfo) GetSetMethod (true); }
@@ -47,27 +60,24 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
-      get { throw new System.NotImplementedException(); }
+      get { return _customAttributeContainer.AddedCustomAttributes; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      throw new System.NotImplementedException();
+      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+
+      _customAttributeContainer.AddCustomAttribute (customAttribute);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      throw new System.NotImplementedException();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData> ();
     }
 
     public override ParameterInfo[] GetIndexParameters ()
     {
-      // TODO: test and implement correctly
-
-      if (MutableGetMethod == null)
-        return new ParameterInfo[0];
-
-      return MutableGetMethod.GetParameters();
+      return _indexParameters.Cast<ParameterInfo>().ToArray();
     }
   }
 }

@@ -170,6 +170,7 @@
     <Compile Include="MutableReflection\Implementation\CustomPropertyInfo.cs" />
     <Compile Include="MutableReflection\Implementation\IProxyTypeModelFactory.cs" />
     <Compile Include="MutableReflection\Implementation\IUnderlyingTypeFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapper.cs" />
     <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\ThrowingUnderlyingTypeFactory.cs" />
