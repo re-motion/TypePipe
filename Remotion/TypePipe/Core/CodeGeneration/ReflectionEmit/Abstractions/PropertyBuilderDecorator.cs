@@ -37,6 +37,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
+    public IPropertyBuilder DecoratedPropertyBuilder
+    {
+      get { return _propertyBuilder; }
+    }
+
+    [CLSCompliant (false)]
     public void SetGetMethod (IMethodBuilder getMethodBuilder)
     {
       var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("getMethodBuilder", getMethodBuilder);

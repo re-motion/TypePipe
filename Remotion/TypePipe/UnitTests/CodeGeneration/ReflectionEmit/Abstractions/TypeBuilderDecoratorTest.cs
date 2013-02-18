@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<FieldBuilderDecorator>());
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_fieldBuilder"), Is.SameAs (fakeFieldBuilder));
+      Assert.That (result.As<FieldBuilderDecorator>().DecoratedFieldBuilder, Is.SameAs (fakeFieldBuilder));
     }
 
     [Test]
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<ConstructorBuilderDecorator>());
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_constructorBuilder"), Is.SameAs (fakeConstructorBuilder));
+      Assert.That (result.As<ConstructorBuilderDecorator>().DecoratedConstructorBuilder, Is.SameAs (fakeConstructorBuilder));
     }
 
     [Test]
@@ -118,8 +118,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 
       _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
-      Assert.That (result, Is.TypeOf<MethodBuilderDecorator> ());
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_methodBuilder"), Is.SameAs (fakeMethodBuilder));
+      Assert.That (result, Is.TypeOf<MethodBuilderDecorator>());
+      Assert.That (result.As<MethodBuilderDecorator>().DecoratedMethodBuilder, Is.SameAs (fakeMethodBuilder));
     }
 
     [Test]
@@ -136,6 +136,30 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 
       _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void DefineProperty ()
+    {
+      var name = "property";
+      var attributes = (PropertyAttributes) 7;
+      var returnType = typeof (int);
+      var parameterType = typeof (string);
+
+      var emittableReturnType = typeof (bool);
+      var emittableParameterType = typeof (double);
+      var fakePropertyBuilder = MockRepository.GenerateStub<IPropertyBuilder>();
+      _operandProvider.Expect (mock => mock.GetEmittableType (returnType)).Return (emittableReturnType);
+      _operandProvider.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
+      _innerMock.Expect (mock => mock.DefineProperty (name, attributes, emittableReturnType, new[] { emittableParameterType }))
+                .Return (fakePropertyBuilder);
+
+      var result = _decorator.DefineProperty (name, attributes, returnType, new[] { parameterType });
+
+      _operandProvider.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
+      Assert.That (result, Is.TypeOf<PropertyBuilderDecorator>());
+      Assert.That (result.As<PropertyBuilderDecorator>().DecoratedPropertyBuilder, Is.SameAs (fakePropertyBuilder));
     }
 
     [Test]

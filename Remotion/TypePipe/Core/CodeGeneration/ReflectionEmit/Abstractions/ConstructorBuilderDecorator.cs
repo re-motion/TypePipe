@@ -37,6 +37,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _constructorBuilder = constructorBuilder;
     }
 
+    [CLSCompliant (false)]
+    public IConstructorBuilder DecoratedConstructorBuilder
+    {
+      get { return _constructorBuilder; }
+    }
+
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);

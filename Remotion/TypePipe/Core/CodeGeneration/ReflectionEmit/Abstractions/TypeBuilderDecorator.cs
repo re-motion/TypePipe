@@ -41,6 +41,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _emittableOperandProvider = emittableOperandProvider;
     }
 
+    [CLSCompliant (false)]
+    public ITypeBuilder DecoratedTypeBuilder
+    {
+      get { return _typeBuilder; }
+    }
+
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ProxyType type)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
@@ -87,7 +93,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
       var emittableReturnType = _emittableOperandProvider.GetEmittableType (returnType);
-      var emittableParameterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray ();
+      var emittableParameterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray();
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, emittableReturnType, emittableParameterTypes);
 
       return new MethodBuilderDecorator (methodBuilder, _emittableOperandProvider);
@@ -110,7 +116,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      throw new NotImplementedException();
+      var emittableReturnType = _emittableOperandProvider.GetEmittableType (returnType);
+      var emittableParmeterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray();
+      var propertyBuilder = _typeBuilder.DefineProperty (name, attributes, emittableReturnType, emittableParmeterTypes);
+
+      return new PropertyBuilderDecorator (propertyBuilder, _emittableOperandProvider);
     }
 
     public Type CreateType ()
