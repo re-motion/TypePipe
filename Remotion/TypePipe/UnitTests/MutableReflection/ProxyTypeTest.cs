@@ -420,19 +420,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var name = "Property";
       var type = ReflectionObjectMother.GetSomeType();
       var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var accessorAttributes = (MethodAttributes) 7;
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => null;
       var fakeProperty = MutablePropertyInfoObjectMother.CreateReadWrite();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateProperty (_proxyType, name, type, indexParameters, getBodyProvider, setBodyProvider))
+          .Expect (mock => mock.CreateProperty (_proxyType, name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider))
           .Return (fakeProperty);
 
-      var result = _proxyType.AddProperty (name, type, indexParameters, getBodyProvider, setBodyProvider);
+      var result = _proxyType.AddProperty (name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeProperty));
       Assert.That (_proxyType.AddedProperties, Is.EqualTo (new[] { result }));
       Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result.MutableGetMethod, result.MutableSetMethod }));
+      Assert.That (result.MutableGetMethod.Attributes, Is.EqualTo ((MethodAttributes) 7));
+      Assert.That (result.MutableSetMethod.Attributes, Is.EqualTo ((MethodAttributes) 7));
     }
 
     [Test]
@@ -442,7 +445,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);
       var fakeProperty = MutablePropertyInfoObjectMother.Create (getMethod: getMethod);
       Assert.That (fakeProperty.MutableSetMethod, Is.Null);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, null, null)).Return (fakeProperty);
+      _mutableMemberFactoryMock.Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, 0, null, null))
+                               .IgnoreArguments()
+                               .Return (fakeProperty);
 
       _proxyType.AddProperty ("Property", type, null, null, null);
 
@@ -456,7 +461,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
       var fakeProperty = MutablePropertyInfoObjectMother.Create (setMethod: setMethod);
       Assert.That (fakeProperty.MutableGetMethod, Is.Null);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, null, null)).Return (fakeProperty);
+      _mutableMemberFactoryMock.Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, 0, null, null))
+                               .IgnoreArguments()
+                               .Return (fakeProperty);
 
       _proxyType.AddProperty ("Property", type, null, null, null);
 

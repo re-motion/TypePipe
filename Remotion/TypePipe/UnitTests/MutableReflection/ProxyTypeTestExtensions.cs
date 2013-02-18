@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (getBodyProvider == null && setBodyProvider == null)
         getBodyProvider = ctx => Expression.Default (ctx.ReturnType);
 
-      return proxyType.AddProperty (name, type, indexParameters, getBodyProvider, setBodyProvider);
+      return proxyType.AddProperty (name, type, indexParameters, MethodAttributes.Public, getBodyProvider, setBodyProvider);
     }
   }
 }

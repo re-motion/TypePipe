@@ -24,6 +24,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -57,7 +58,28 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void ReadOnly_WirteOnly ()
+    public void AccessorAttributes ()
+    {
+      AssembleType<DomainType> (
+          proxyType =>
+          {
+            var accessorAttributes = MethodAttributes.Public | MethodAttributes.Virtual;
+            var property = proxyType.AddProperty (
+                "Property",
+                typeof (int),
+                accessorAttributes: accessorAttributes,
+                getBodyProvider: ctx => Expression.Constant (7),
+                setBodyProvider: ctx => Expression.Empty());
+
+            Assert.That (
+                property.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig));
+            Assert.That (
+                property.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig));
+          });
+    }
+
+    [Test]
+    public void ReadOnly_WriteOnly ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
@@ -86,13 +108,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "Property",
                 typeof (string),
                 new[] { new ParameterDeclaration (typeof (string), "index0"), new ParameterDeclaration (typeof (string), "index1") },
-                ctx =>
+                getBodyProvider: ctx =>
                 {
                   Assert.That (ctx.ReturnType, Is.SameAs (typeof (string)));
                   Assert.That (ctx.Parameters.Count, Is.EqualTo (2));
                   return ExpressionHelper.StringConcat (ctx.Parameters[0], ctx.Parameters[1]);
                 },
-                ctx =>
+                setBodyProvider: ctx =>
                 {
                   Assert.That (ctx.ReturnType, Is.SameAs (typeof (void)));
                   Assert.That (ctx.Parameters.Count, Is.EqualTo (3));

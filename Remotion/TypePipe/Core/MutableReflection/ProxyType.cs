@@ -330,6 +330,7 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         Type type,
         IEnumerable<ParameterDeclaration> indexParameters = null,
+        MethodAttributes accessorAttributes = MethodAttributes.Public,
         Func<MethodBodyCreationContext, Expression> getBodyProvider = null,
         Func<MethodBodyCreationContext, Expression> setBodyProvider = null)
     {
@@ -339,7 +340,7 @@ namespace Remotion.TypePipe.MutableReflection
       // Get body provider may be null.
       // Set body provider may be null.
 
-      var property = _mutableMemberFactory.CreateProperty (this, name, type, indexParameters, getBodyProvider, setBodyProvider);
+      var property = _mutableMemberFactory.CreateProperty (this, name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
       _addedProperties.Add (property);
 
       if (property.MutableGetMethod != null)

@@ -675,6 +675,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "Property";
       var type = ReflectionObjectMother.GetSomeType();
       var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2).ToList();
+      var accessorAttributes = (MethodAttributes) 7;
       var setterParameters = indexParameters.Concat (ParameterDeclarationObjectMother.Create (type, "value")).ToList();
       var fakeGetBody = ExpressionTreeObjectMother.GetSomeExpression (type);
       var fakeSetBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
@@ -689,7 +690,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeSetBody;
       };
 
-      var result = _factory.CreateProperty (_proxyType, name, type, indexParameters.AsOneTime(), getBodyProvider, setBodyProvider);
+      var result = _factory.CreateProperty (_proxyType, name, type, indexParameters.AsOneTime(), accessorAttributes, getBodyProvider, setBodyProvider);
 
       Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (result.Name, Is.EqualTo (name));
@@ -699,7 +700,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var getter = result.MutableGetMethod;
       Assert.That (getter.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (getter.Name, Is.EqualTo ("get_Property"));
-      Assert.That (getter.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (getter.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
       Assert.That (getter.ReturnType, Is.SameAs (type));
       var getterParams = getter.GetParameters();
       Assert.That (getterParams.Select (p => p.ParameterType), Is.EqualTo (indexParameters.Select (p => p.Type)));
@@ -708,7 +709,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var setter = result.MutableSetMethod;
       Assert.That (setter.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (setter.Name, Is.EqualTo ("set_Property"));
-      Assert.That (setter.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (setter.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
       Assert.That (setter.ReturnType, Is.SameAs (typeof (void)));
       var setterParams = setter.GetParameters();
       Assert.That (setterParams.Select (p => p.ParameterType), Is.EqualTo (setterParameters.Select (p => p.Type)));
@@ -723,7 +724,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, indexParameters: null, getBodyProvider: getBodyProvider, setBodyProvider: setBodyProvider);
+          _proxyType, "Property", type, indexParameters: null, accessorAttributes: 0, getBodyProvider: getBodyProvider, setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod.GetParameters(), Is.Empty);
       var valueParameter = result.MutableSetMethod.GetParameters().Single();
@@ -738,7 +739,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, indexParameters: null, getBodyProvider: getBodyProvider, setBodyProvider: null);
+          _proxyType, "Property", type, indexParameters: null, accessorAttributes: 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
 
       Assert.That (result.MutableSetMethod, Is.Null);
     }
@@ -750,7 +751,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, indexParameters: null, getBodyProvider: null, setBodyProvider: setBodyProvider);
+          _proxyType, "Property", type, indexParameters: null, accessorAttributes: 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod, Is.Null);
     }
@@ -760,7 +761,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         "At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider")]
     public void CreateProperty_Providers_NoAccessorProviders ()
     {
-      _factory.CreateProperty (_proxyType, "Property", typeof (int), indexParameters: null, getBodyProvider: null, setBodyProvider: null);
+      _factory.CreateProperty (_proxyType, "Property", typeof (int), indexParameters: null, accessorAttributes: 0, getBodyProvider: null, setBodyProvider: null);
     }
 
     [Test]
@@ -771,20 +772,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var property = _proxyType.AddProperty ("Property", typeof (int), indexParameters, null, setBodyProvider);
 
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, "OtherName", property.PropertyType, indexParameters, null, setBodyProvider),
+          () => _factory.CreateProperty (_proxyType, "OtherName", property.PropertyType, indexParameters, 0, null, setBodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, property.Name, typeof (string), indexParameters, null, setBodyProvider),
+          () => _factory.CreateProperty (_proxyType, property.Name, typeof (string), indexParameters, 0, null, setBodyProvider),
           Throws.Nothing);
 
       Assert.That (
           () => _factory.CreateProperty (
-              _proxyType, property.Name, property.PropertyType, ParameterDeclarationObjectMother.CreateMultiple (3), null, setBodyProvider),
+              _proxyType, property.Name, property.PropertyType, ParameterDeclarationObjectMother.CreateMultiple (3), 0, null, setBodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, property.Name, property.PropertyType, indexParameters, null, setBodyProvider),
+          () => _factory.CreateProperty (_proxyType, property.Name, property.PropertyType, indexParameters, 0, null, setBodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Property with equal name and signature already exists."));
     }
 

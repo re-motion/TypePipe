@@ -216,13 +216,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return CreateMethod (declaringType, overrideBaseMethod.Name, attributes, overrideBaseMethod.ReturnType, parameters, bodyProviderOrNull);
     }
 
-    public MutablePropertyInfo CreateProperty (
-        ProxyType declaringType,
-        string name,
-        Type type,
-        IEnumerable<ParameterDeclaration> indexParameters,
-        Func<MethodBodyCreationContext, Expression> getBodyProvider,
-        Func<MethodBodyCreationContext, Expression> setBodyProvider)
+    public MutablePropertyInfo CreateProperty (ProxyType declaringType, string name, Type type, IEnumerable<ParameterDeclaration> indexParameters, MethodAttributes accessorAttributes, Func<MethodBodyCreationContext, Expression> getBodyProvider, Func<MethodBodyCreationContext, Expression> setBodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -239,14 +233,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
         throw new InvalidOperationException ("Property with equal name and signature already exists.");
 
-      var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+      accessorAttributes |= MethodAttributes.SpecialName | MethodAttributes.HideBySig;
       MutableMethodInfo getMethod = null, setMethod = null;
       if (getBodyProvider != null)
-        getMethod = CreateMethod (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
+        getMethod = CreateMethod (declaringType, "get_" + name, accessorAttributes, type, indexParams, getBodyProvider);
       if (setBodyProvider != null)
       {
         var setterParams = indexParams.Concat (new ParameterDeclaration (type, "value"));
-        setMethod = CreateMethod (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
+        setMethod = CreateMethod (declaringType, "set_" + name, accessorAttributes, typeof (void), setterParams, setBodyProvider);
       }
 
       return new MutablePropertyInfo (declaringType, name, PropertyAttributes.None, getMethod, setMethod);
