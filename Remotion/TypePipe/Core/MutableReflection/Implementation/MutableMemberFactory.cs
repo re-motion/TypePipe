@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -232,10 +231,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get body provider may be null.
       // Set body provider may be null.
 
-      // TODO 5421: argument checks (not null)
-      // TODO 5421: argument checks (no property with same name and signature)
+      if (getBodyProvider == null && setBodyProvider == null)
+        throw new ArgumentException ("At least one accessor body provider must be specified.", "getBodyProvider");
 
       var indexParams = indexParameters != null ? indexParameters.ConvertToCollection() : ParameterDeclaration.EmptyParameters;
+      var signature = new PropertySignature (type, indexParams.Select (pd => pd.Type));
+      if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
+        throw new InvalidOperationException ("Property with equal name and signature already exists.");
+
       var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
       MutableMethodInfo getMethod = null, setMethod = null;
       if (getBodyProvider != null)
@@ -257,9 +260,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get method may be null.
       // Set method may be null.
 
-      // TODO 5421: argument checks (not null)
+      // TODO 5421: argument checks (not bothl null)
       // TODO 5421: argument checks (no property with same name and signature)
       // TODO 5421: argument check, get and set method must both be static or non-static
+      // TODO 5421: declaringType must match accessors.DeclaringType.
 
       return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
     }

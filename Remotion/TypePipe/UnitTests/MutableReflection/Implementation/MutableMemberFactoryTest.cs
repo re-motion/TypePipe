@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   [TestFixture]
   public class MutableMemberFactoryTest
   {
-    private MutableMemberFactory _mutableMemberFactory;
+    private MutableMemberFactory _factory;
 
     private IRelatedMethodFinder _relatedMethodFinderMock;
 
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder>();
 
-      _mutableMemberFactory = new MutableMemberFactory (memberSelectorMock, _relatedMethodFinderMock);
+      _factory = new MutableMemberFactory (memberSelectorMock, _relatedMethodFinderMock);
 
       _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
     }
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
 
-      var result = _mutableMemberFactory.CreateInitialization (
+      var result = _factory.CreateInitialization (
           _proxyType,
           ctx =>
           {
@@ -81,13 +81,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
     public void CreateInitialization_NullBody ()
     {
-      _mutableMemberFactory.CreateInitialization (_proxyType, ctx => null);
+      _factory.CreateInitialization (_proxyType, ctx => null);
     }
 
     [Test]
     public void CreateField ()
     {
-      var field = _mutableMemberFactory.CreateField (_proxyType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
+      var field = _factory.CreateField (_proxyType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
 
       Assert.That (field.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (field.Name, Is.EqualTo ("_newField"));
@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Field cannot be of type void.\r\nParameter name: type")]
     public void CreateField_VoidType ()
     {
-      _mutableMemberFactory.CreateField (_proxyType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
+      _factory.CreateField (_proxyType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
     }
 
     [Test]
@@ -108,15 +108,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var field = _proxyType.AddField ("Field", typeof (int));
 
       Assert.That (
-          () => _mutableMemberFactory.CreateField (_proxyType, "OtherName", field.FieldType, 0),
+          () => _factory.CreateField (_proxyType, "OtherName", field.FieldType, 0),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateField (_proxyType, field.Name, typeof (string), 0),
+          () => _factory.CreateField (_proxyType, field.Name, typeof (string), 0),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateField (_proxyType, field.Name, field.FieldType, 0),
+          () => _factory.CreateField (_proxyType, field.Name, field.FieldType, 0),
           Throws.InvalidOperationException.With.Message.EqualTo ("Field with equal name and signature already exists."));
     }
 
@@ -141,7 +141,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeBody;
       };
 
-      var ctor = _mutableMemberFactory.CreateConstructor (_proxyType, attributes, parameters.AsOneTime(), bodyProvider);
+      var ctor = _factory.CreateConstructor (_proxyType, attributes, parameters.AsOneTime(), bodyProvider);
 
       Assert.That (ctor.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
@@ -168,7 +168,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return Expression.Empty();
       };
 
-      var ctor = _mutableMemberFactory.CreateConstructor (_proxyType, attributes, ParameterDeclaration.EmptyParameters, bodyProvider);
+      var ctor = _factory.CreateConstructor (_proxyType, attributes, ParameterDeclaration.EmptyParameters, bodyProvider);
 
       Assert.That (ctor.IsStatic, Is.True);
     }
@@ -190,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         "A type initializer (static constructor) cannot have parameters.\r\nParameter name: parameters")]
     public void CreateConstructor_ThrowsIfStaticAndNonEmptyParameters ()
     {
-      _mutableMemberFactory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null);
+      _factory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null);
     }
 
     [Test]
@@ -200,16 +200,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
       Assert.That (
-          () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
+          () => _factory.CreateConstructor (_proxyType, 0, ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
           () =>
-          _mutableMemberFactory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider),
+          _factory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateConstructor (_proxyType, 0, ParameterDeclaration.EmptyParameters, bodyProvider),
+          () => _factory.CreateConstructor (_proxyType, 0, ParameterDeclaration.EmptyParameters, bodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Constructor with equal signature already exists."));
     }
 
@@ -238,7 +238,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeBody;
       };
 
-      var method = _mutableMemberFactory.CreateMethod (
+      var method = _factory.CreateMethod (
           _proxyType, name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_proxyType));
@@ -283,7 +283,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
         return ExpressionTreeObjectMother.GetSomeExpression (returnType);
       };
-      var method = _mutableMemberFactory.CreateMethod (_proxyType, name, attributes, returnType, parameterDeclarations, bodyProvider);
+      var method = _factory.CreateMethod (_proxyType, name, attributes, returnType, parameterDeclarations, bodyProvider);
 
       Assert.That (method.IsStatic, Is.True);
     }
@@ -301,7 +301,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Assert.That (ctx.HasBaseMethod, Is.False);
         return Expression.Constant ("string");
       };
-      var method = _mutableMemberFactory.CreateMethod (
+      var method = _factory.CreateMethod (
           _proxyType,
           "ToString",
           nonVirtualAttributes,
@@ -327,7 +327,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Assert.That (ctx.HasBaseMethod, Is.False);
         return Expression.Constant ("string");
       };
-      var method = _mutableMemberFactory.CreateMethod (
+      var method = _factory.CreateMethod (
           _proxyType,
           "ToString",
           nonVirtualAttributes,
@@ -355,7 +355,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
         return Expression.Default (typeof (int));
       };
-      var method = _mutableMemberFactory.CreateMethod (
+      var method = _factory.CreateMethod (
           _proxyType,
           "Method",
           MethodAttributes.Public | MethodAttributes.Virtual,
@@ -372,14 +372,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Non-abstract methods must have a body.\r\nParameter name: bodyProvider")]
     public void CreateMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
     {
-      _mutableMemberFactory.CreateMethod (_proxyType, "NotImportant", 0, typeof (void), ParameterDeclaration.EmptyParameters, null);
+      _factory.CreateMethod (_proxyType, "NotImportant", 0, typeof (void), ParameterDeclaration.EmptyParameters, null);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods cannot have a body.\r\nParameter name: bodyProvider")]
     public void CreateMethod_ThrowsIfAbstractAndBodyProvider ()
     {
-      _mutableMemberFactory.CreateMethod (
+      _factory.CreateMethod (
           _proxyType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, ctx => null);
     }
 
@@ -397,7 +397,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods must also be virtual.\r\nParameter name: attributes")]
     public void CreateMethod_ThrowsIfAbstractAndNotVirtual ()
     {
-      _mutableMemberFactory.CreateMethod (
+      _factory.CreateMethod (
           _proxyType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, null);
     }
 
@@ -405,7 +405,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
     public void CreateMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
-      _mutableMemberFactory.CreateMethod (
+      _factory.CreateMethod (
           _proxyType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
     }
 
@@ -416,22 +416,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var method = _proxyType.AddMethod ("Method", 0, typeof (void), ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMethod (
+          () => _factory.CreateMethod (
               _proxyType, "OtherName", 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMethod (
+          () => _factory.CreateMethod (
               _proxyType, method.Name, 0, typeof (int), ParameterDeclaration.CreateForEquivalentSignature (method), ctx => Expression.Constant (7)),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMethod (
+          () => _factory.CreateMethod (
               _proxyType, method.Name, 0, method.ReturnType, ParameterDeclarationObjectMother.CreateMultiple (3), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _mutableMemberFactory.CreateMethod (
+          () => _factory.CreateMethod (
               _proxyType, method.Name, 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
     }
@@ -446,7 +446,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _proxyType.BaseType))
           .Return (fakeBaseMethod);
 
-      _mutableMemberFactory.CreateMethod (
+      _factory.CreateMethod (
           _proxyType,
           "MethodName",
           MethodAttributes.Public | MethodAttributes.Virtual,
@@ -462,7 +462,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => body;
 
-      var result = _mutableMemberFactory.CreateExplicitOverride (_proxyType, method, bodyProvider);
+      var result = _factory.CreateExplicitOverride (_proxyType, method, bodyProvider);
 
       Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (result.Name, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MutableMemberFactoryTest.A.OverrideHierarchy"));
@@ -489,7 +489,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_proxyType.AddedMethods)))
           .Return (fakeExistingOverride);
 
-      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
@@ -547,7 +547,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           baseType: typeof (DerivedAbstractTypeLeavesAbstractBaseMethod));
       SetupExpectationsForGetOrAddMethod (baseMethod, baseMethod, false, baseMethod, proxyType);
 
-      var result = _mutableMemberFactory.GetOrCreateOverride (proxyType, baseMethod, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (proxyType, baseMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (result.BaseMethod, Is.SameAs (baseMethod));
@@ -582,7 +582,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedInterfaceMethod (7));
       _proxyType.AddInterface (typeof (IAddedInterface));
 
-      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
 
       Assert.That (_isNewlyCreated, Is.True);
       CheckMethodData (
@@ -626,7 +626,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _proxyType.AddInterface (typeof (IAddedInterface));
       _proxyType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate());
-      _mutableMemberFactory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
     }
 
     [Test]
@@ -635,7 +635,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim());
-      _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -644,7 +644,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
       var method = _proxyType.AddMethod ("method", ctx => Expression.Empty());
-      _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -652,7 +652,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateOverride_NonVirtualMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualBaseMethod());
-      _mutableMemberFactory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -666,7 +666,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
-      _mutableMemberFactory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
     }
 
     [Test]
@@ -689,7 +689,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return fakeSetBody;
       };
 
-      var result = _mutableMemberFactory.CreateProperty (_proxyType, name, type, indexParameters.AsOneTime(), getBodyProvider, setBodyProvider);
+      var result = _factory.CreateProperty (_proxyType, name, type, indexParameters.AsOneTime(), getBodyProvider, setBodyProvider);
 
       Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (result.Name, Is.EqualTo (name));
@@ -722,7 +722,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var result = _mutableMemberFactory.CreateProperty (
+      var result = _factory.CreateProperty (
           _proxyType, "Property", type, indexParameters: null, getBodyProvider: getBodyProvider, setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod.GetParameters(), Is.Empty);
@@ -737,7 +737,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var type = ReflectionObjectMother.GetSomeType();
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
 
-      var result = _mutableMemberFactory.CreateProperty (
+      var result = _factory.CreateProperty (
           _proxyType, "Property", type, indexParameters: null, getBodyProvider: getBodyProvider, setBodyProvider: null);
 
       Assert.That (result.MutableSetMethod, Is.Null);
@@ -749,10 +749,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var type = ReflectionObjectMother.GetSomeType();
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
-      var result = _mutableMemberFactory.CreateProperty (
+      var result = _factory.CreateProperty (
           _proxyType, "Property", type, indexParameters: null, getBodyProvider: null, setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider")]
+    public void CreateProperty_Providers_NoAccessorProviders ()
+    {
+      _factory.CreateProperty (_proxyType, "Property", typeof (int), indexParameters: null, getBodyProvider: null, setBodyProvider: null);
+    }
+
+    [Test]
+    public void CreateProperty_Providers_ThrowsIfAlreadyExists ()
+    {
+      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => Expression.Empty();
+      var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
+      var property = _proxyType.AddProperty ("Property", typeof (int), indexParameters, null, setBodyProvider);
+
+      Assert.That (
+          () => _factory.CreateProperty (_proxyType, "OtherName", property.PropertyType, indexParameters, null, setBodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _factory.CreateProperty (_proxyType, property.Name, typeof (string), indexParameters, null, setBodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _factory.CreateProperty (
+              _proxyType, property.Name, property.PropertyType, ParameterDeclarationObjectMother.CreateMultiple (3), null, setBodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _factory.CreateProperty (_proxyType, property.Name, property.PropertyType, indexParameters, null, setBodyProvider),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Property with equal name and signature already exists."));
     }
 
     [Test]
@@ -764,13 +797,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);
       var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
 
-      var result = _mutableMemberFactory.CreateProperty (_proxyType, name, attributes, getMethod, setMethod);
+      var result = _factory.CreateProperty (_proxyType, name, attributes, getMethod, setMethod);
 
       Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.MutableGetMethod, Is.SameAs (getMethod));
       Assert.That (result.MutableSetMethod, Is.SameAs (setMethod));
+    }
+
+    [Ignore]
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Property must have at least one accessor.\r\nParameter name: getMethod")]
+    public void CreateProperty_Simple_NoAccessorProviders ()
+    {
+      // TODO
+      _factory.CreateProperty (_proxyType, "Property", typeof (int), indexParameters: null, getBodyProvider: null, setBodyProvider: null);
     }
 
     private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
@@ -796,7 +838,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, expectedBaseMethod);
 
-      var result = _mutableMemberFactory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       Assert.That (_isNewlyCreated, Is.True);
@@ -862,13 +904,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     
     private MutableConstructorInfo CreateConstructor (ProxyType proxyType, MethodAttributes attributes)
     {
-      return _mutableMemberFactory.CreateConstructor (
+      return _factory.CreateConstructor (
           proxyType, attributes, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
     }
 
     private MethodInfo CreateMethod (ProxyType proxyType, MethodAttributes attributes)
     {
-      return _mutableMemberFactory.CreateMethod (
+      return _factory.CreateMethod (
           proxyType,
           "dummy",
           attributes,
