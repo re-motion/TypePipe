@@ -113,28 +113,50 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Ignore ("5423")]
     public void RedeclareExisting_AddCustomAttribute ()
     {
-      //var type = AssembleType<DomainType> (
-      //    proxyType =>
-      //    {
-      //      var existingProperty = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.ExistingProperty);
-      //      var getMethod = existingProperty.GetGetMethod();
-      //      var setMethod = existingProperty.GetSetMethod();
-      //      var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
-      //      var customAttributes = new[] { new CustomAttributeDeclaration (attributeCtor, new object[] { "derived" }) };
-      //      proxyType.AddProperty ("ExistingProperty", getMethod, setMethod, customAttributes);
-      //    });
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var existingProperty = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.ExistingProperty);
+            var getMethod = proxyType.GetOrAddOverride (existingProperty.GetGetMethod ());
+            var setMethod = proxyType.GetOrAddOverride (existingProperty.GetSetMethod ());
+            var property = proxyType.AddProperty ("ExistingProperty", getMethod: getMethod, setMethod: setMethod);
 
-      //var property = type.GetProperty ("ExistingProperty");
-      //var instance = (DomainType) Activator.CreateInstance (type);
+            var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
+            var customAttributes = new CustomAttributeDeclaration (attributeCtor, new object[] { "derived" });
+            property.AddCustomAttribute (customAttributes);
+          });
 
-      //Assert.That (instance.ExistingProperty, Is.Null);
-      //Assert.That (property.GetValue (instance, null), Is.Null);
-      //property.SetValue (instance, "Test", null);
-      //Assert.That (instance.ExistingProperty, Is.EqualTo ("Test"));
-      //Assert.That (property.GetValue (instance, null), Is.EqualTo ("Test"));
+      var newProperty = type.GetProperty ("ExistingProperty");
+      var instance = (DomainType) Activator.CreateInstance (type);
 
-      //var attributeArgs = property.GetCustomAttributes (true).Cast<AbcAttribute>().Select (a => a.Arg);
-      //Assert.That (attributeArgs, Is.EquivalentTo (new[] { "base", "derived" }));
+      Assert.That (instance.ExistingProperty, Is.Null);
+      Assert.That (newProperty.GetValue (instance, null), Is.Null);
+      newProperty.SetValue (instance, "Test", null);
+      Assert.That (instance.ExistingProperty, Is.EqualTo ("Test"));
+      Assert.That (newProperty.GetValue (instance, null), Is.EqualTo ("Test"));
+
+      var attributeArgs = newProperty.GetCustomAttributes (true).Cast<AbcAttribute> ().Select (a => a.Arg);
+      Assert.That (attributeArgs, Is.EquivalentTo (new[] { "base", "derived" }));
+    }
+
+    [Test]
+    [Ignore ("5423")]
+    public void ReadOnly_Attributes_CallingConventions ()
+    {
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var getMethod = proxyType.AddMethod (
+                "StaticGetMethod", MethodAttributes.Static, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7));
+            proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, CallingConventions.Standard, getMethod);
+          });
+
+      var nonExistingInstanceProperty= type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Instance);
+      Assert.That (nonExistingInstanceProperty, Is.Null);
+
+      var property = type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Static);
+      Assert.That (property.Attributes, Is.EqualTo (PropertyAttributes.SpecialName));
+      Assert.That (property.GetValue (null, null), Is.EqualTo (7));
     }
 
     public class DomainType
@@ -142,7 +164,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       [UsedImplicitly] public string IndexedSetterField;
 
       [AbcAttribute ("base")]
-      public string ExistingProperty { get; set; }
+      public virtual string ExistingProperty { get; set; }
     }
 
     public class AbcAttribute : Attribute

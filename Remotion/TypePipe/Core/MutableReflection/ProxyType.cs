@@ -351,7 +351,12 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // TODO 5421: Add parameters for CallingConvention, PropertyAttributes
-    public MutablePropertyInfo AddProperty (string name, MutableMethodInfo getMethod = null, MutableMethodInfo setMethod = null)
+    public MutablePropertyInfo AddProperty (
+        string name,
+        PropertyAttributes attributes = PropertyAttributes.None,
+        CallingConventions callingConvention = CallingConventions.HasThis,
+        MutableMethodInfo getMethod = null,
+        MutableMethodInfo setMethod = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Getter may be null.
