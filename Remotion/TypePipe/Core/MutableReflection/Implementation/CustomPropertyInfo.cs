@@ -22,6 +22,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -64,11 +65,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var getParameters = getMethod != null ? getMethod.GetParameters().Select(p => p.ParameterType).ToList() : null;
       var setParameters = setMethod != null ? setMethod.GetParameters().Select(p => p.ParameterType).ToList() : null;
+      if (getMethod != null && setMethod != null)
+        Assertion.IsTrue (getParameters.Concat (getMethod.ReturnType).SequenceEqual (setParameters));
 
       _type = getMethod != null ? getMethod.ReturnType : setParameters.Last();
-      Assertion.IsTrue (_type != typeof (void));
-      Assertion.IsTrue (setParameters == null || setParameters.Count > 0);
-      Assertion.IsTrue (getMethod == null || setMethod == null || getParameters.SequenceEqual (setParameters.Take (getParameters.Count)));
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();

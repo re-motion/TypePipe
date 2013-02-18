@@ -855,6 +855,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _factory.CreateProperty (_proxyType, "Property", 0, null, setMethod);
     }
 
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "Get and set accessor methods must have a matching signature.\r\nParameter name: setMethod")]
+    public void CreateProperty_Simple_ThrowsForDifferentIndexParameters ()
+    {
+      var indexParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (int)) };
+      var valueParameter = ParameterDeclarationObjectMother.Create (typeof (string));
+      var nonMatchingSetParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (long)) }.Concat (valueParameter);
+      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: valueParameter.Type, parameters: indexParameters);
+      var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, parameters: nonMatchingSetParameters);
+
+      _factory.CreateProperty (_proxyType, "Property", 0, getMethod, setMethod);
+    }
+
     private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
     {
       Assert.That (ctx.This.Type, Is.SameAs (_proxyType));

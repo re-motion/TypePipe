@@ -277,7 +277,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (setMethod != null && setMethod.ReturnType != typeof (void))
         throw new ArgumentException ("Set accessor must have return type void.", "setMethod");
 
-      // TODO: index parameters: need to match if "full property"
+      if (readWriteProperty)
+      {
+        var getParameters = getMethod.GetParameters().Select (p => p.ParameterType).Concat (getMethod.ReturnType);
+        var setParameters = setMethod.GetParameters().Select (p => p.ParameterType);
+
+        if (!getParameters.SequenceEqual (setParameters))
+          throw new ArgumentException ("Get and set accessor methods must have a matching signature.", "setMethod");
+      }
 
       // TODO 5421: argument checks (no property with same name and signature)
 

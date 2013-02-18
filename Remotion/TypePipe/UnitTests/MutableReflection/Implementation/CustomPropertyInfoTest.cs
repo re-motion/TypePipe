@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     private CustomType _declaringType;
     private Type _type;
-    private CustomParameterInfo _parameter;
+    private CustomParameterInfo _valueParameter;
     private CustomParameterInfo _indexParameter;
     private CustomMethodInfo _getMethod;
     private CustomMethodInfo _setMethod;
@@ -42,11 +42,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _declaringType = CustomTypeObjectMother.Create ();
       _type = ReflectionObjectMother.GetSomeType ();
-      _parameter = CustomParameterInfoObjectMother.Create (type: _type);
+      _valueParameter = CustomParameterInfoObjectMother.Create (type: _type);
       var indexParameterType = ReflectionObjectMother.GetSomeOtherType();
       _indexParameter = CustomParameterInfoObjectMother.Create (type: indexParameterType);
-      _getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, returnParameter: _parameter);
-      _setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, parameters: new[] { _indexParameter, _parameter });
+      _getMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, parameters: new[] { _indexParameter }, returnParameter: _valueParameter);
+      _setMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Public, parameters: new[] { _indexParameter, _valueParameter });
 
       _readOnlyProperty = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod);
       _writeOnlyProperty = CustomPropertyInfoObjectMother.Create (setMethod: _setMethod);
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Initialization ()
     {
-      var property = new TestableCustomPropertyInfo (_declaringType, "Property", (PropertyAttributes) 7, _getMethod, _setMethod, new[] { _parameter });
+      var property = new TestableCustomPropertyInfo (_declaringType, "Property", (PropertyAttributes) 7, _getMethod, _setMethod);
 
       Assert.That (property.Attributes, Is.EqualTo ((PropertyAttributes) 7));
       Assert.That (property.DeclaringType, Is.EqualTo (_declaringType));
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetGetMethod ()
     {
-      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, returnParameter: _parameter);
+      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, returnParameter: _valueParameter);
       var property1 = CustomPropertyInfoObjectMother.Create (getMethod: nonPublicMethod);
       var property2 = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod);
       var property3 = CustomPropertyInfoObjectMother.Create (getMethod: null, setMethod: _setMethod);
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetSetMethod ()
     {
-      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, parameters: new[] { _parameter });
+      var nonPublicMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, parameters: new[] { _valueParameter });
       var property1 = CustomPropertyInfoObjectMother.Create (setMethod: nonPublicMethod);
       var property2 = CustomPropertyInfoObjectMother.Create (setMethod: _setMethod);
       var property3 = CustomPropertyInfoObjectMother.Create (setMethod: null);
@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAccessors ()
     {
-      var nonPublicSetMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, parameters: new[] { _parameter });
+      var nonPublicSetMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Private, parameters: new[] { _indexParameter, _valueParameter });
       var property = CustomPropertyInfoObjectMother.Create (getMethod: _getMethod, setMethod: nonPublicSetMethod);
 
       Assert.That (property.GetAccessors (true), Is.EquivalentTo (new[] { _getMethod, nonPublicSetMethod }));
