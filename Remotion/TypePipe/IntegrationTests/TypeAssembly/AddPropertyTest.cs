@@ -135,12 +135,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.ExistingProperty, Is.EqualTo ("Test"));
       Assert.That (newProperty.GetValue (instance, null), Is.EqualTo ("Test"));
 
-      var attributeArgs = newProperty.GetCustomAttributes (true).Cast<AbcAttribute> ().Select (a => a.Arg);
+      var attributeArgs = newProperty.GetCustomAttributes (true).Cast<AbcAttribute>().Select (a => a.Arg);
       Assert.That (attributeArgs, Is.EquivalentTo (new[] { "base", "derived" }));
     }
 
     [Test]
-    [Ignore ("5423")]
     public void ReadOnly_Attributes_CallingConventions ()
     {
       var type = AssembleType<DomainType> (
@@ -151,7 +150,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, getMethod);
           });
 
-      var nonExistingInstanceProperty= type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Instance);
+      var nonExistingInstanceProperty = type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Instance);
       Assert.That (nonExistingInstanceProperty, Is.Null);
 
       var property = type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Static);
