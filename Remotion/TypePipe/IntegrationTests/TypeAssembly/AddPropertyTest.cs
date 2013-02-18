@@ -110,15 +110,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [Ignore ("5423")]
     public void RedeclareExisting_AddCustomAttribute ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
             var existingProperty = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.ExistingProperty);
-            var getMethod = proxyType.GetOrAddOverride (existingProperty.GetGetMethod ());
-            var setMethod = proxyType.GetOrAddOverride (existingProperty.GetSetMethod ());
+            var getMethod = proxyType.GetOrAddOverride (existingProperty.GetGetMethod());
+            var setMethod = proxyType.GetOrAddOverride (existingProperty.GetSetMethod());
             var property = proxyType.AddProperty ("ExistingProperty", getMethod: getMethod, setMethod: setMethod);
 
             var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
@@ -135,7 +134,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.ExistingProperty, Is.EqualTo ("Test"));
       Assert.That (newProperty.GetValue (instance, null), Is.EqualTo ("Test"));
 
-      var attributeArgs = newProperty.GetCustomAttributes (true).Cast<AbcAttribute>().Select (a => a.Arg);
+      var attributeArgs = Attribute.GetCustomAttributes (newProperty, inherit: true).Cast<AbcAttribute>().Select (a => a.Arg);
       Assert.That (attributeArgs, Is.EquivalentTo (new[] { "base", "derived" }));
     }
 
@@ -166,13 +165,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public virtual string ExistingProperty { get; set; }
     }
 
+    [AttributeUsage (AttributeTargets.Property, Inherited = true, AllowMultiple = true)]
     public class AbcAttribute : Attribute
     {
-      public AbcAttribute (string arg)
-      {
-        Arg = arg;
-      }
-
+      public AbcAttribute (string arg) { Arg = arg; }
       public string Arg { get; set; }
     }
   }
