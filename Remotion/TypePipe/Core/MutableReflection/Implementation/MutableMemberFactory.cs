@@ -277,16 +277,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (setMethod != null && setMethod.ReturnType != typeof (void))
         throw new ArgumentException ("Set accessor must have return type void.", "setMethod");
 
-      if (readWriteProperty)
-      {
-        var getParameters = getMethod.GetParameters().Select (p => p.ParameterType).Concat (getMethod.ReturnType);
-        var setParameters = setMethod.GetParameters().Select (p => p.ParameterType);
+      var getSignature = getMethod != null ? new PropertySignature (getMethod.ReturnType, getMethod.GetParameters().Select (p => p.ParameterType)) : null;
+      var setParameters = setMethod != null ? setMethod.GetParameters().Select (p => p.ParameterType).ToList() : null;
+      var setSignature = setMethod != null ? new PropertySignature (setParameters.Last(), setParameters.Take (setParameters.Count - 1)) : null;
 
-        if (!getParameters.SequenceEqual (setParameters))
-          throw new ArgumentException ("Get and set accessor methods must have a matching signature.", "setMethod");
-      }
+      if (readWriteProperty && !getSignature.Equals (setSignature))
+        throw new ArgumentException ("Get and set accessor methods must have a matching signature.", "setMethod");
 
-      // TODO 5421: argument checks (no property with same name and signature)
+      var signature = getSignature ?? setSignature;
+      if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
+        throw new InvalidOperationException ("Property with equal name and signature already exists.");
 
       return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
     }
