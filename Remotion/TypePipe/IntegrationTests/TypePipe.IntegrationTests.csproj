@@ -81,6 +81,7 @@
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
     <Compile Include="TypeAssembly\AddExplicitOverrideTest.cs" />
+    <Compile Include="TypeAssembly\AddPropertyTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
     <Compile Include="TypeAssembly\ProxyTypeInSignaturesTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
