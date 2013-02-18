@@ -246,17 +246,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         setMethod = CreateMethod (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
       }
 
-      return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
+      return new MutablePropertyInfo (declaringType, name, PropertyAttributes.None, getMethod, setMethod);
     }
 
-    public MutablePropertyInfo CreateProperty (ProxyType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
+    public MutablePropertyInfo CreateProperty (
+        ProxyType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Get method may be null.
       // Set method may be null.
 
-      return null;
+      // TODO 5421: argument checks (not null)
+      // TODO 5421: argument checks (no property with same name and signature)
+      // TODO 5421: argument check, get and set method must both be static or non-static
+
+      return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (

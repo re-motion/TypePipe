@@ -33,8 +33,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly ReadOnlyCollection<PropertyParameterInfoWrapper> _indexParameters;
 
-    public MutablePropertyInfo (ProxyType declaringType, string name, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
-        : base (declaringType, name, PropertyAttributes.None, getMethod, setMethod)
+    public MutablePropertyInfo (
+        ProxyType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
+        : base (declaringType, name, attributes, getMethod, setMethod)
     {
       IEnumerable<ParameterInfo> indexParameters;
       if (getMethod != null)

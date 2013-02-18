@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -24,16 +25,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutablePropertyInfoObjectMother
   {
     public static MutablePropertyInfo Create (
-        ProxyType declaringType = null, string name = "UnspecifiedProperty", MutableMethodInfo getMethod = null, MutableMethodInfo setMethod = null)
+        ProxyType declaringType = null,
+        string name = "UnspecifiedProperty",
+        PropertyAttributes attributes = PropertyAttributes.None,
+        MutableMethodInfo getMethod = null,
+        MutableMethodInfo setMethod = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       if (getMethod == null && setMethod == null)
         getMethod = MutableMethodInfoObjectMother.Create (declaringType, "Getter", returnType: typeof (int));
 
-      return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
+      return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
     }
 
-    public static MutablePropertyInfo CreateReadWrite (ProxyType declaringType = null, string name = "UnspecifiedProperty", Type type = null)
+    public static MutablePropertyInfo CreateReadWrite (
+        ProxyType declaringType = null, string name = "UnspecifiedProperty", PropertyAttributes attributes = PropertyAttributes.None, Type type = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       type = type ?? ReflectionObjectMother.GetSomeType();
@@ -41,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);
       var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
 
-      return new MutablePropertyInfo (declaringType, name, getMethod, setMethod);
+      return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
     }
   }
 }

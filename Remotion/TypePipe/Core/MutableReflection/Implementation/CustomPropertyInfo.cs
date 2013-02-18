@@ -53,6 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Setter may be null.
       Assertion.IsTrue (getMethod != null || setMethod != null);
       Assertion.IsTrue (setMethod == null || setMethod.ReturnType == typeof (void));
+      Assertion.IsTrue (getMethod == null || setMethod == null || getMethod.IsStatic == setMethod.IsStatic);
 
       _declaringType = declaringType;
       _name = name;

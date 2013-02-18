@@ -670,7 +670,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProperty ()
+    public void CreateProperty_Providers ()
     {
       var name = "Property";
       var type = ReflectionObjectMother.GetSomeType();
@@ -716,7 +716,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProperty_NullIndexParameters ()
+    public void CreateProperty_Providers_NullIndexParameters ()
     {
       var type = ReflectionObjectMother.GetSomeType();
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
@@ -732,7 +732,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProperty_ReadOnly ()
+    public void CreateProperty_Providers_ReadOnly ()
     {
       var type = ReflectionObjectMother.GetSomeType();
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
@@ -744,7 +744,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProperty_WriteOnly ()
+    public void CreateProperty_Providers_WriteOnly ()
     {
       var type = ReflectionObjectMother.GetSomeType();
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
@@ -755,6 +755,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.MutableGetMethod, Is.Null);
     }
 
+    [Test]
+    public void CreateProperty_Accessors ()
+    {
+      var name = "Property";
+      var attributes = (PropertyAttributes) 7;
+      var type = ReflectionObjectMother.GetSomeType();
+      var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);
+      var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
+
+      var result = _mutableMemberFactory.CreateProperty (_proxyType, name, attributes, getMethod, setMethod);
+
+      Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (result.Name, Is.EqualTo (name));
+      Assert.That (result.Attributes, Is.EqualTo (attributes));
+      Assert.That (result.MutableGetMethod, Is.SameAs (getMethod));
+      Assert.That (result.MutableSetMethod, Is.SameAs (setMethod));
+    }
 
     private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
     {

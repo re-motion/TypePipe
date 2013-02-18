@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private ProxyType _declaringType;
     private string _name;
+    private PropertyAttributes _attributes;
     private Type _type;
     private ParameterDeclaration[] _indexParameters;
     private MutableMethodInfo _getMethod;
@@ -43,12 +44,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       _declaringType = ProxyTypeObjectMother.Create();
       _name = "Property";
+      _attributes = (PropertyAttributes) 7;
       _type = ReflectionObjectMother.GetSomeType();
       _indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       _getMethod = MutableMethodInfoObjectMother.Create (returnType: _type, parameters: _indexParameters);
       _setMethod = MutableMethodInfoObjectMother.Create (parameters: _indexParameters.Concat (ParameterDeclarationObjectMother.Create (_type)));
 
-      _property = new MutablePropertyInfo (_declaringType, _name, _getMethod, _setMethod);
+      _property = new MutablePropertyInfo (_declaringType, _name, _attributes, _getMethod, _setMethod);
     }
 
     [Test]
@@ -56,6 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_property.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_property.Name, Is.EqualTo (_name));
+      Assert.That (_property.Attributes, Is.EqualTo (_attributes));
       Assert.That (_property.PropertyType, Is.SameAs (_type));
       Assert.That (_property.MutableGetMethod, Is.SameAs (_getMethod));
       Assert.That (_property.MutableSetMethod, Is.SameAs (_setMethod));
@@ -69,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_ReadOnly ()
     {
-      var property = new MutablePropertyInfo (_declaringType, _name, _getMethod, setMethod: null);
+      var property = new MutablePropertyInfo (_declaringType, _name, _attributes, getMethod: _getMethod, setMethod: null);
 
       Assert.That (property.MutableSetMethod, Is.Null);
     }
@@ -77,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_WriteOnly ()
     {
-      var property = new MutablePropertyInfo (_declaringType, _name, getMethod: null, setMethod: _setMethod);
+      var property = new MutablePropertyInfo (_declaringType, _name, _attributes, getMethod: null, setMethod: _setMethod);
 
       Assert.That (property.MutableGetMethod, Is.Null);
       var actualIndexParameters = property.GetIndexParameters();
