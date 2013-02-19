@@ -177,6 +177,7 @@
     <Compile Include="MutableReflection\Implementation\TypeAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
+    <Compile Include="MutableReflection\MutableEventInfo.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />

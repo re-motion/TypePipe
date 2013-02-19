@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
@@ -365,6 +366,27 @@ namespace Remotion.TypePipe.MutableReflection
       _addedProperties.Add (property);
 
       return property;
+    }
+
+    public MutableEventInfo AddEvent (
+        string name,
+        Type handlerType,
+        MethodAttributes accessorAttributes = MethodAttributes.Public,
+        Func<MethodBodyCreationContext, Expression> addBodyProvider = null,
+        Func<MethodBodyCreationContext, Expression> removeBodyProvider = null,
+        Func<MethodBodyCreationContext, Expression> raiseBodyProvider = null)
+    {
+      return null;
+    }
+
+    public MutableEventInfo AddEvent (
+        string name,
+        EventAttributes attributes = EventAttributes.None,
+        MutableMethodInfo addMethod = null,
+        MutableMethodInfo removeMethod = null,
+        MutableMethodInfo raiseMethod = null)
+    {
+      return null;
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
