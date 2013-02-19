@@ -15,10 +15,13 @@
 // under the License.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -27,6 +30,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableEventInfo : CustomEventInfo, IMutableMember
   {
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
+
     public MutableEventInfo (
         ProxyType declaringType,
         string name,
@@ -40,22 +45,39 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ProxyType MutableDeclaringType
     {
-      get { throw new System.NotImplementedException(); }
+      get { return (ProxyType) DeclaringType; }
     }
 
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    public MutableMethodInfo MutableAddMethod
     {
-      throw new System.NotImplementedException();
+      get { return (MutableMethodInfo) GetAddMethod (true); }
+    }
+
+    public MutableMethodInfo MutableRemoveMethod
+    {
+      get { return (MutableMethodInfo) GetRemoveMethod (true); }
+    }
+
+    public MutableMethodInfo MutableRaiseMethod
+    {
+      get { return GetRaiseMethod (true) as MutableMethodInfo; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
-      get { throw new System.NotImplementedException(); }
+      get { return _customAttributeContainer.AddedCustomAttributes; }
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      throw new System.NotImplementedException();
+      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+
+      _customAttributeContainer.AddCustomAttribute (customAttribute);
+    }
+
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
   }
 }

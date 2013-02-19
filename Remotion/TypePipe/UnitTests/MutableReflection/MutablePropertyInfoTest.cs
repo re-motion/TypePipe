@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void ToDebugString ()
     {
-      // Note: ToDebugString is defined in CustomFieldInfo base class.
+      // Note: ToDebugString is defined in CustomPropertyInfo base class.
       Assertion.IsNotNull (_property.DeclaringType);
       var declaringTypeName = _property.DeclaringType.Name;
       var propertyTypeName = _property.PropertyType.Name;
