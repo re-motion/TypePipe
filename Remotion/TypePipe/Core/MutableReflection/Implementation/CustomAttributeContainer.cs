@@ -24,7 +24,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A helper class that is used to implement custom <see cref="Attribute"/>-related members of <see cref="IMutableInfo"/> on mutable reflection
+  /// A helper class that is used to implement custom <see cref="Attribute"/>-related members of <see cref="IMutableMember"/> on mutable reflection
   /// objects.
   /// </summary>
   public class CustomAttributeContainer

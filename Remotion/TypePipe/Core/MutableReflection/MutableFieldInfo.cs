@@ -28,13 +28,18 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a <see cref="FieldInfo"/> that can be modified.
   /// </summary>
-  public class MutableFieldInfo : CustomFieldInfo, IMutableInfo
+  public class MutableFieldInfo : CustomFieldInfo, IMutableMember
   {
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     public MutableFieldInfo (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
         : base (declaringType, name, type, attributes)
     {
+    }
+
+    public ProxyType MutableDeclaringType
+    {
+      get { return (ProxyType) DeclaringType; }
     }
 
     public override FieldAttributes Attributes

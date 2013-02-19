@@ -45,6 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var field = new MutableFieldInfo (declaringType, name, type, attributes);
 
       Assert.That (field.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (field.MutableDeclaringType, Is.SameAs (declaringType));
       Assert.That (field.Name, Is.EqualTo (name));
       Assert.That (field.FieldType, Is.SameAs (type));
       Assert.That (field.Attributes, Is.EqualTo (attributes));

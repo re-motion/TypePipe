@@ -14,19 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using System.Collections.ObjectModel;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines a common interface for mutable members (e.g. <see cref="MutableFieldInfo"/>, <see cref="MutableMethodInfo"/>, etc.) and
-  /// mutable parameters (<see cref="MutableParameterInfo"/>).
+  /// Defines a common interface for mutable members (e.g. <see cref="MutableFieldInfo"/>, <see cref="MutableMethodInfo"/>, etc.).
   /// </summary>
-  public interface IMutableInfo : ICustomAttributeDataProvider
+  public interface IMutableMember : IMutableInfo
   {
-    ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes { get; }
-
-    void AddCustomAttribute (CustomAttributeDeclaration customAttribute);
+    ProxyType MutableDeclaringType { get; }
   }
 }

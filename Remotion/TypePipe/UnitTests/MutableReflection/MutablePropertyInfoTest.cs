@@ -57,6 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       Assert.That (_property.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (_property.MutableDeclaringType, Is.SameAs (_declaringType));
       Assert.That (_property.Name, Is.EqualTo (_name));
       Assert.That (_property.Attributes, Is.EqualTo (_attributes));
       Assert.That (_property.PropertyType, Is.SameAs (_type));

@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents a <see cref="PropertyInfo"/> that can be modified.
   /// </summary>
-  public class MutablePropertyInfo : CustomPropertyInfo, IMutableInfo
+  public class MutablePropertyInfo : CustomPropertyInfo, IMutableMember
   {
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
@@ -47,6 +47,11 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       _indexParameters = indexParameters.Select (p => new PropertyParameterInfoWrapper (this, p)).ToList().AsReadOnly();
+    }
+
+    public ProxyType MutableDeclaringType
+    {
+      get { return (ProxyType) DeclaringType; }
     }
 
     public MutableMethodInfo MutableGetMethod

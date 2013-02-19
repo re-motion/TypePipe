@@ -60,6 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = new MutableMethodInfo (declaringType, name, attributes, returnType, parameters.AsOneTime(), baseMethod, body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (method.MutableDeclaringType, Is.SameAs (declaringType));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo(attributes));
 

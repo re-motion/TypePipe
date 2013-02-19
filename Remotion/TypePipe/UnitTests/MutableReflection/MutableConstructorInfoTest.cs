@@ -49,6 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var ctor = new MutableConstructorInfo (declaringType, attributes, parameters.AsOneTime(), body);
 
       Assert.That (ctor.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (ctor.MutableDeclaringType, Is.SameAs (declaringType));
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
 
       var actualParameters = ctor.GetParameters();

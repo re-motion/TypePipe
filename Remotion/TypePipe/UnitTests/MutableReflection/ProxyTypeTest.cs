@@ -86,6 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           _mutableMemberFactoryMock);
 
       Assert.That (proxyType.DeclaringType, Is.Null);
+      Assert.That (proxyType.MutableDeclaringType, Is.Null);
       Assert.That (proxyType.BaseType, Is.SameAs (baseType));
       Assert.That (proxyType.Name, Is.EqualTo (name));
       Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));

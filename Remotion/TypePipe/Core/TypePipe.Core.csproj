@@ -176,6 +176,7 @@
     <Compile Include="MutableReflection\Implementation\ThrowingUnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\TypeAttributesExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
+    <Compile Include="MutableReflection\IMutableInfo.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
@@ -216,7 +217,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContext.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclaration.cs" />
     <Compile Include="MutableReflection\IMutableMethodBase.cs" />
-    <Compile Include="MutableReflection\IMutableInfo.cs" />
+    <Compile Include="MutableReflection\IMutableMember.cs" />
     <Compile Include="MutableReflection\Implementation\BindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\Implementation\IBindingFlagsEvaluator.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyCreationContext.cs" />

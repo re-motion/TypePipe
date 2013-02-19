@@ -193,7 +193,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       return new CustomAttributeDeclaration (ctor, ctorArgs, namedArguments);
     }
 
-    private IMutableInfo CreateMutableInfo (params CustomAttributeDeclaration[] customAttributes)
+    private IMutableMember CreateMutableInfo (params CustomAttributeDeclaration[] customAttributes)
     {
       var member = new MutableFieldInfo (ProxyTypeObjectMother.Create (GetType()), "member", typeof (int), FieldAttributes.Private);
       foreach (var customAttriubte in customAttributes)
@@ -214,7 +214,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (actualInheritableAttributes, Is.EqualTo (expectedInheritableAttributes).Using (typeComparer));
     }
 
-    private void CheckAttributeInheritanceAllowMultiple (IMutableInfo mutableInfo)
+    private void CheckAttributeInheritanceAllowMultiple (IMutableMember mutableInfo)
     {
       mutableInfo.AddCustomAttribute (CreateAttribute<InheritableAllowMultipleAttribute> (new object[] { "derived1" }));
       mutableInfo.AddCustomAttribute (CreateAttribute<NonInheritableAllowMultipleAttribute> (new object[] { "derived2" }));

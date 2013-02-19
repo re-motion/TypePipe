@@ -69,6 +69,11 @@ namespace Remotion.TypePipe.MutableReflection
       _body = body;
     }
 
+    public ProxyType MutableDeclaringType
+    {
+      get { return (ProxyType) DeclaringType; }
+    }
+
     public override Type ReturnType
     {
       get { return _returnParameter.ParameterType; }

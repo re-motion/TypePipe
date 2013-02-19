@@ -54,6 +54,11 @@ namespace Remotion.TypePipe.MutableReflection
       _body = body;
     }
 
+    public ProxyType MutableDeclaringType
+    {
+      get { return (ProxyType) DeclaringType; }
+    }
+
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }

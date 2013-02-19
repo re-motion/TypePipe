@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Avoid using the members <see cref="CustomType.UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/> in combination with
   /// <see cref="ProxyType"/> instances. Use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
   /// </remarks>
-  public class ProxyType : CustomType, IMutableInfo
+  public class ProxyType : CustomType, IMutableMember
   {
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
@@ -87,6 +87,11 @@ namespace Remotion.TypePipe.MutableReflection
       _underlyingTypeFactory = underlyingTypeFactory;
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
+    }
+
+    public ProxyType MutableDeclaringType
+    {
+      get { return (ProxyType) DeclaringType; }
     }
 
     /// <summary>
