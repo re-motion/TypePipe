@@ -434,8 +434,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result, Is.SameAs (fakeProperty));
       Assert.That (_proxyType.AddedProperties, Is.EqualTo (new[] { result }));
       Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result.MutableGetMethod, result.MutableSetMethod }));
-      Assert.That (result.MutableGetMethod.Attributes, Is.EqualTo ((MethodAttributes) 7));
-      Assert.That (result.MutableSetMethod.Attributes, Is.EqualTo ((MethodAttributes) 7));
+      Assert.That (result.MutableGetMethod.Attributes, Is.EqualTo (accessorAttributes));
+      Assert.That (result.MutableSetMethod.Attributes, Is.EqualTo (accessorAttributes));
     }
 
     [Test]
@@ -445,11 +445,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);
       var fakeProperty = MutablePropertyInfoObjectMother.Create (getMethod: getMethod);
       Assert.That (fakeProperty.MutableSetMethod, Is.Null);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, 0, null, null))
-                               .IgnoreArguments()
-                               .Return (fakeProperty);
+      _mutableMemberFactoryMock
+          .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, MethodAttributes.Public, null, null))
+          .Return (fakeProperty);
 
-      _proxyType.AddProperty ("Property", type, null, null, null);
+      _proxyType.AddProperty ("Property", type);
 
       Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { getMethod }));
     }
@@ -461,11 +461,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
       var fakeProperty = MutablePropertyInfoObjectMother.Create (setMethod: setMethod);
       Assert.That (fakeProperty.MutableGetMethod, Is.Null);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, 0, null, null))
-                               .IgnoreArguments()
-                               .Return (fakeProperty);
+      _mutableMemberFactoryMock
+        .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, MethodAttributes.Public, null, null))
+        .Return (fakeProperty);
 
-      _proxyType.AddProperty ("Property", type, null, null, null);
+      _proxyType.AddProperty ("Property", type);
 
       Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { setMethod }));
     }

@@ -73,6 +73,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string name = null,
         Type type = null,
         IEnumerable<ParameterDeclaration> indexParameters = null,
+        MethodAttributes accessorAttributes = MethodAttributes.Public,
         Func<MethodBodyCreationContext, Expression> getBodyProvider = null,
         Func<MethodBodyCreationContext, Expression> setBodyProvider = null)
     {
@@ -81,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (getBodyProvider == null && setBodyProvider == null)
         getBodyProvider = ctx => Expression.Default (ctx.ReturnType);
 
-      return proxyType.AddProperty (name, type, indexParameters, MethodAttributes.Public, getBodyProvider, setBodyProvider);
+      return proxyType.AddProperty (name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
     }
   }
 }

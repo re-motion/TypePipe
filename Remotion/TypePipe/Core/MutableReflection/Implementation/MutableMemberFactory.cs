@@ -216,7 +216,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return CreateMethod (declaringType, overrideBaseMethod.Name, attributes, overrideBaseMethod.ReturnType, parameters, bodyProviderOrNull);
     }
 
-    public MutablePropertyInfo CreateProperty (ProxyType declaringType, string name, Type type, IEnumerable<ParameterDeclaration> indexParameters, MethodAttributes accessorAttributes, Func<MethodBodyCreationContext, Expression> getBodyProvider, Func<MethodBodyCreationContext, Expression> setBodyProvider)
+    public MutablePropertyInfo CreateProperty (
+        ProxyType declaringType,
+        string name,
+        Type type,
+        IEnumerable<ParameterDeclaration> indexParameters,
+        MethodAttributes accessorAttributes,
+        Func<MethodBodyCreationContext, Expression> getBodyProvider,
+        Func<MethodBodyCreationContext, Expression> setBodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

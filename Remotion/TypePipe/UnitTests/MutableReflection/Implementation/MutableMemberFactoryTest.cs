@@ -769,7 +769,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => Expression.Empty();
       var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var property = _proxyType.AddProperty ("Property", typeof (int), indexParameters, null, setBodyProvider);
+      var property = _proxyType.AddProperty ("Property", typeof (int), indexParameters, setBodyProvider: setBodyProvider);
 
       Assert.That (
           () => _factory.CreateProperty (_proxyType, "OtherName", property.PropertyType, indexParameters, 0, null, setBodyProvider),
