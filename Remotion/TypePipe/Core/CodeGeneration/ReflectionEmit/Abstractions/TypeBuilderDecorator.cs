@@ -110,6 +110,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
+    public IPropertyBuilder DefineProperty (
+        string name, PropertyAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      var emittableReturnType = _emittableOperandProvider.GetEmittableType (returnType);
+      var emittableParmeterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray();
+      var propertyBuilder = _typeBuilder.DefineProperty (name, attributes, emittableReturnType, emittableParmeterTypes);
+
+      return new PropertyBuilderDecorator (propertyBuilder, _emittableOperandProvider);
+    }
+
+    [CLSCompliant (false)]
     public IPropertyBuilder DefineProperty (string name, PropertyAttributes attributes, Type returnType, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

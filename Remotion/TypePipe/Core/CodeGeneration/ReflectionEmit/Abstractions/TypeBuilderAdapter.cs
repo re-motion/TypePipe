@@ -104,6 +104,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new PropertyBuilderAdapter (propertyBuilder, _methodMapping.AsReadOnly());
     }
 
+    [CLSCompliant (false)]
+    public IPropertyBuilder DefineProperty (
+        string name, PropertyAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      var propertyBuilder = _typeBuilder.DefineProperty (
+          name,
+          attributes,
+          callingConvention,
+          returnType,
+          returnTypeRequiredCustomModifiers: null,
+          returnTypeOptionalCustomModifiers: null,
+          parameterTypes: parameterTypes,
+          parameterTypeRequiredCustomModifiers: null,
+          parameterTypeOptionalCustomModifiers: null);
+
+      return new PropertyBuilderAdapter (propertyBuilder, _methodMapping.AsReadOnly());
+    }
+
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();
