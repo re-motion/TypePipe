@@ -212,8 +212,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private static void CheckSignature (PropertyInfo property, CallingConventions expectedCallingConvention)
     {
       // Unfortunately there is no other way to observe that we indeed correctly generate an 'instance property', i.e., a property with a
-      // signature that in turn has the CallingConventions.HasThis.
-      // This test forces us to use the correct (more complex) overload of TypeBuilder.DefineProperty during code generation.
+      // signature that in turn has the CallingConventions.HasThis. This forces us to use the correct (more complex) overload of
+      // TypeBuilder.DefineProperty during code generation (TypeBuilderAdapter.DefineProperty).
 
       var signature = PrivateInvoke.GetNonPublicProperty (property, "Signature");
       var callingConvention = (CallingConventions) PrivateInvoke.GetNonPublicProperty (signature, "CallingConvention");
