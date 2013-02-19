@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var instanceMethod = CustomMethodInfoObjectMother.Create (attributes: 0);
       var staticMethod = CustomMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
-      Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+      Assert.That (instanceMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard | CallingConventions.HasThis));
       Assert.That (staticMethod.CallingConvention, Is.EqualTo (CallingConventions.Standard));
     }
 

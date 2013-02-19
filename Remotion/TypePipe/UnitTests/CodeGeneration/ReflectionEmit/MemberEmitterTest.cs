@@ -219,7 +219,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddProperty ()
+    public void AddProperty_CallingConventionFromInstanceGetMethod ()
     {
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
@@ -235,9 +235,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodMapping.Add (getMethod, getMethodBuilder);
       methodMapping.Add (setMethod, setMethodBuilder);
 
+      var callingConventions = CallingConventions.Standard | CallingConventions.HasThis;
       var propertyBuilderMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, CallingConventions.HasThis, returnType, indexParameterTypes))
+          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, callingConventions, returnType, indexParameterTypes))
           .Return (propertyBuilderMock);
       SetupDefineCustomAttribute (propertyBuilderMock, property);
       propertyBuilderMock.Expect (mock => mock.SetGetMethod (getMethodBuilder));
@@ -250,27 +251,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddProperty_GetMethod_StaticCallingConventions ()
-    {
-      var staticGetMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static, returnType: typeof (int));
-      var property = MutablePropertyInfoObjectMother.Create (name: "Property", getMethod: staticGetMethod);
-
-      var getMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var methodMapping = GetMethodMapping (_emitter);
-      methodMapping.Add (staticGetMethod, getMethodBuilder);
-
-      var propertyBuilderStub = MockRepository.GenerateStub<IPropertyBuilder>();
-      _typeBuilderMock
-          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, CallingConventions.Standard, property.PropertyType, Type.EmptyTypes))
-          .Return (propertyBuilderStub);
-
-      _emitter.AddProperty (_context, property);
-
-      _typeBuilderMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void AddProperty_SetMethod_StaticCallingConventions ()
+    public void AddProperty_CallingConventionFromStaticSetMethod ()
     {
       var staticSetMethod = MutableMethodInfoObjectMother.Create (
           attributes: MethodAttributes.Static, parameters: new[] { ParameterDeclarationObjectMother.Create() });
