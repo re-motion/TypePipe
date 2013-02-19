@@ -27,8 +27,14 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableEventInfo : CustomEventInfo, IMutableMember
   {
-    public MutableEventInfo (CustomType declaringType, string name, EventAttributes attributes, MethodInfo addMethod, MethodInfo removeMethod, MethodInfo raiseMethod)
-        : base(declaringType, name, attributes, addMethod, removeMethod, raiseMethod)
+    public MutableEventInfo (
+        ProxyType declaringType,
+        string name,
+        EventAttributes attributes,
+        MutableMethodInfo addMethod,
+        MutableMethodInfo removeMethod,
+        MutableMethodInfo raiseMethod)
+        : base (declaringType, name, attributes, addMethod, removeMethod, raiseMethod)
     {
     }
 
