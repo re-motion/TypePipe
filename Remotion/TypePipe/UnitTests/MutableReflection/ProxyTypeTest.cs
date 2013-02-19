@@ -474,7 +474,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeProperty = MutablePropertyInfoObjectMother.Create (getMethod: getMethod);
       Assert.That (fakeProperty.MutableSetMethod, Is.Null);
       _mutableMemberFactoryMock
-          .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, MethodAttributes.Public, null, null))
+          .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, ParameterDeclaration.EmptyParameters, MethodAttributes.Public, null, null))
           .Return (fakeProperty);
 
       _proxyType.AddProperty ("Property", type);
@@ -490,7 +490,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeProperty = MutablePropertyInfoObjectMother.Create (setMethod: setMethod);
       Assert.That (fakeProperty.MutableGetMethod, Is.Null);
       _mutableMemberFactoryMock
-        .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, null, MethodAttributes.Public, null, null))
+        .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, ParameterDeclaration.EmptyParameters, MethodAttributes.Public, null, null))
         .Return (fakeProperty);
 
       _proxyType.AddProperty ("Property", type);

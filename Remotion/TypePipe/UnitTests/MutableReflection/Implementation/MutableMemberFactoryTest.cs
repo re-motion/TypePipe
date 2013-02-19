@@ -717,29 +717,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProperty_Providers_NullIndexParameters ()
-    {
-      var type = ReflectionObjectMother.GetSomeType();
-      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
-      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-
-      var result = _factory.CreateProperty (
-          _proxyType, "Property", type, indexParameters: null, accessorAttributes: 0, getBodyProvider: getBodyProvider, setBodyProvider: setBodyProvider);
-
-      Assert.That (result.MutableGetMethod.GetParameters(), Is.Empty);
-      var valueParameter = result.MutableSetMethod.GetParameters().Single();
-      Assert.That (valueParameter.Name, Is.EqualTo ("value"));
-      Assert.That (valueParameter.ParameterType, Is.SameAs (type));
-    }
-
-    [Test]
     public void CreateProperty_Providers_ReadOnly ()
     {
       var type = ReflectionObjectMother.GetSomeType();
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, indexParameters: null, accessorAttributes: 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
+          _proxyType, "Property", type, ParameterDeclaration.EmptyParameters, 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
 
       Assert.That (result.MutableSetMethod, Is.Null);
     }
@@ -751,7 +735,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, indexParameters: null, accessorAttributes: 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
+          _proxyType, "Property", type, ParameterDeclaration.EmptyParameters, 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod, Is.Null);
     }
@@ -761,7 +745,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         "At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider")]
     public void CreateProperty_Providers_NoAccessorProviders ()
     {
-      _factory.CreateProperty (_proxyType, "Property", typeof (int), indexParameters: null, accessorAttributes: 0, getBodyProvider: null, setBodyProvider: null);
+      _factory.CreateProperty (
+          _proxyType, "Property", typeof (int), ParameterDeclaration.EmptyParameters, 0, getBodyProvider: null, setBodyProvider: null);
     }
 
     [Test]

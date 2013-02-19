@@ -338,8 +338,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
       // Index parameters may be null.
-      // Get body provider may be null.
-      // Set body provider may be null.
+      // Get body provider may be null (for write-only properties).
+      // Set body provider may be null (for read-only properties).
+      indexParameters = indexParameters ?? ParameterDeclaration.EmptyParameters;
 
       var property = _mutableMemberFactory.CreateProperty (this, name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
       _addedProperties.Add (property);

@@ -228,7 +228,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
-      // Index parameters may be null.
+      ArgumentUtility.CheckNotNull ("indexParameters", indexParameters);
       // Get body provider may be null.
       // Set body provider may be null.
 
@@ -238,7 +238,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (getBodyProvider == null && setBodyProvider == null)
         throw new ArgumentException ("At least one accessor body provider must be specified.", "getBodyProvider");
 
-      var indexParams = indexParameters != null ? indexParameters.ConvertToCollection() : ParameterDeclaration.EmptyParameters;
+      var indexParams = indexParameters.ConvertToCollection();
       var signature = new PropertySignature (type, indexParams.Select (pd => pd.Type));
       if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
         throw new InvalidOperationException ("Property with equal name and signature already exists.");
