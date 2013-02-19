@@ -518,6 +518,72 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddEvent_Simple ()
+    {
+      var name = "Event";
+      var handlerType = ReflectionObjectMother.GetSomeType();
+      var accessorAttributes = (MethodAttributes) 7;
+      Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => null;
+      Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
+      Func<MethodBodyCreationContext, Expression> raiseBodyProvider = ctx => null;
+
+      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int, string>), "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
+      var raiseMethod = MutableMethodInfoObjectMother.Create (
+          returnType: typeof (string), parameters: new[] { new ParameterDeclaration (typeof (int), "arg") });
+      var fakeEvent = MutableEventInfoObjectMother.Create (addMethod: addMethod, removeMethod: removeMethod, raiseMethod: raiseMethod);
+      _mutableMemberFactoryMock
+          .Expect (
+              mock => mock.CreateEvent (_proxyType, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider))
+          .Return (fakeEvent);
+
+      var result = _proxyType.AddEvent (name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
+
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeEvent));
+      Assert.That (_proxyType.AddedEvents, Is.EqualTo (new[] { result }));
+      Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result.MutableAddMethod, result.MutableRemoveMethod, result.MutableRaiseMethod }));
+    }
+
+    [Test]
+    public void AddEvent_Simple_NoRaiseBodyProvider ()
+    {
+      var handlerType = ReflectionObjectMother.GetSomeType();
+      Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => null;
+      Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
+      var fakeEvent = MutableEventInfoObjectMother.Create();
+      Assert.That (fakeEvent.MutableRaiseMethod, Is.Null);
+      _mutableMemberFactoryMock
+        .Stub (stub => stub.CreateEvent (null, null, null, 0, null, null, null))
+        .IgnoreArguments()
+        .Return (fakeEvent);
+
+      var result = _proxyType.AddEvent ("Event", handlerType, addBodyProvider: addBodyProvider, removeBodyProvider: removeBodyProvider);
+
+      Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result.MutableAddMethod, result.MutableRemoveMethod }));
+    }
+
+    [Test]
+    public void AddEvent_Complex ()
+    {
+      var eventAttributes = EventAttributes.SpecialName;
+      var addMethod = MutableMethodInfoObjectMother.Create();
+      var removeMethod = MutableMethodInfoObjectMother.Create();
+      var raiseMethod = MutableMethodInfoObjectMother.Create();
+      var fakeEvent = MutableEventInfoObjectMother.Create();
+      _mutableMemberFactoryMock
+          .Expect (mock => mock.CreateEvent (_proxyType, "Event", eventAttributes, addMethod, removeMethod, raiseMethod))
+          .Return (fakeEvent);
+
+      var result = _proxyType.AddEvent ("Event", eventAttributes, addMethod, removeMethod, raiseMethod);
+
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeEvent));
+      Assert.That (_proxyType.AddedEvents, Is.EqualTo (new[] { result }));
+    }
+
+    [Test]
     public void GetInterfaceMap ()
     {
       var interfaceType = typeof (IDomainInterface);
@@ -700,6 +766,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    [Ignore ("TODO 5429")]
+    public void GetAllEvents ()
+    {
+      var baseEvents = typeof (DomainType).GetEvents (c_all);
+      Assert.That (baseEvents, Is.Not.Empty);
+      var addedEvent = _proxyTypeWithoutMocks.AddEvent2();
+
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllEvents");
+
+      Assert.That (result, Is.EqualTo (new[] { addedEvent }.Concat (baseEvents)));
+    }
+
+    [Test]
     public void ToDebugString ()
     {
       // Note: ToDebugString() is implemented in CustomType base class.
@@ -723,6 +802,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public int Field;
 
       public int Property { get; set; }
+
+      public event EventHandler Event;
 
       public virtual string VirtualMethod () { return ""; }
       public void NonVirtualMethod () { }

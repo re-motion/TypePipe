@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
@@ -69,6 +70,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         getBodyProvider = ctx => Expression.Default (ctx.ReturnType);
 
       return proxyType.AddProperty (name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
+    }
+
+    public static MutableEventInfo AddEvent2 (
+        this ProxyType proxyType,
+        string name = null,
+        Type handlerType = null,
+        MethodAttributes accessorAttributes = MethodAttributes.Public,
+        Func<MethodBodyCreationContext, Expression> addBodyProvider = null,
+        Func<MethodBodyCreationContext, Expression> removeBodyProvider = null,
+        Func<MethodBodyCreationContext, Expression> raiseBodyProvider = null)
+    {
+      name = name ?? "Event_" + ++s_counter;
+      handlerType = handlerType ?? typeof (Func<string, int>);
+      
+      if (addBodyProvider == null)
+        addBodyProvider = ctx => Expression.Empty();
+      if (removeBodyProvider == null)
+        removeBodyProvider = ctx => Expression.Empty ();
+      if (raiseBodyProvider == null)
+        raiseBodyProvider = ctx => Expression.Default (handlerType.GetGenericArguments().Last());
+
+      return proxyType.AddEvent (name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
     }
   }
 }

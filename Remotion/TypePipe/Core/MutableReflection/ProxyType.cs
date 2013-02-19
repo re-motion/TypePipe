@@ -52,6 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
     private readonly List<MutableMethodInfo> _addedMethods = new List<MutableMethodInfo>();
     private readonly List<MutablePropertyInfo> _addedProperties = new List<MutablePropertyInfo>();
+    private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
     private Type _underlyingSystemType;
     private MutableConstructorInfo _typeInitializer;
@@ -145,6 +146,11 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollection<MutablePropertyInfo> AddedProperties
     {
       get { return _addedProperties.AsReadOnly(); }
+    }
+
+    public ReadOnlyCollection<MutableEventInfo> AddedEvents
+    {
+      get { return _addedEvents.AsReadOnly(); }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -375,7 +381,22 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> removeBodyProvider = null,
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider = null)
     {
-      return null;
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("handlerType", handlerType);
+      ArgumentUtility.CheckNotNull ("addBodyProvider", addBodyProvider);
+      ArgumentUtility.CheckNotNull ("removeBodyProvider", removeBodyProvider);
+      // Raise body provider may be null.
+
+      var event_ = _mutableMemberFactory.CreateEvent (
+          this, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
+      _addedEvents.Add (event_);
+
+      _addedMethods.Add (event_.MutableAddMethod);
+      _addedMethods.Add (event_.MutableRemoveMethod);
+      if (event_.MutableRaiseMethod != null)
+        _addedMethods.Add (event_.MutableRaiseMethod);
+
+      return event_;
     }
 
     public MutableEventInfo AddEvent (
@@ -385,7 +406,12 @@ namespace Remotion.TypePipe.MutableReflection
         MutableMethodInfo removeMethod = null,
         MutableMethodInfo raiseMethod = null)
     {
-      return null;
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var event_ = _mutableMemberFactory.CreateEvent (this, name, attributes, addMethod, removeMethod, raiseMethod);
+      _addedEvents.Add (event_);
+
+      return event_;
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
@@ -470,9 +496,10 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
-      // TODO; implement correctly
-      var all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-      return BaseType.GetEvents (all);
+      return null;
+      //Assertion.IsNotNull (BaseType);
+
+      //return _addedEvents.Cast<EventInfo>().Concat (BaseType.GetEvents (c_allMembers));
     }
 
     private static bool CanNotBeSubclassed (Type type)

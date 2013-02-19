@@ -23,6 +23,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           handlerType == null || (addMethod == null && removeMethod == null && raiseMethod == null),
           "Can only declare handlerType XOR addMethod, removeMethod, raiseMethod.");
       Assertion.IsTrue (handlerType == null || handlerType.GetGenericArguments().Length == 2, "Can only handle generic types with two arguments.");
+      if (handlerType == null && addMethod != null)
+        handlerType = addMethod.GetParameters().Single().ParameterType;
 
       var argumentType = handlerType != null ? handlerType.GetGenericArguments()[0] : ReflectionObjectMother.GetSomeType();
       var returnType = handlerType != null ? handlerType.GetGenericArguments()[1] : ReflectionObjectMother.GetSomeOtherType();
@@ -34,12 +36,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       removeMethod = removeMethod
                      ?? MutableMethodInfoObjectMother.Create (
                          declaringType, "RemoveMethod", returnType: typeof (void), parameters: addRemoveParameters);
-      raiseMethod = raiseMethod
-                    ?? MutableMethodInfoObjectMother.Create (
-                        declaringType, "RaiseMethod", returnType: returnType, parameters: new[] { new ParameterDeclaration (argumentType, "arg") });
+
       Assertion.IsTrue (handlerType == addMethod.GetParameters().Single().ParameterType);
       Assertion.IsTrue (handlerType == removeMethod.GetParameters().Single().ParameterType);
-      Assertion.IsTrue (argumentType == raiseMethod.GetParameters().Single().ParameterType && returnType == raiseMethod.ReturnType);
+      Assertion.IsTrue (
+          raiseMethod == null || (argumentType == raiseMethod.GetParameters().Single().ParameterType && returnType == raiseMethod.ReturnType));
 
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
