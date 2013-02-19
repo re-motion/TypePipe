@@ -319,6 +319,29 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
     }
 
+    public MutableEventInfo CreateEvent (
+        ProxyType declaringType,
+        string name,
+        Type handlerType,
+        MethodAttributes accessorAttributes,
+        Func<MethodBodyCreationContext, Expression> addBodyProvider,
+        Func<MethodBodyCreationContext, Expression> removeBodyProvider,
+        Func<MethodBodyCreationContext, Expression> raiseBodyProvider)
+    {
+      throw new NotImplementedException();
+    }
+
+    public MutableEventInfo CreateEvent (
+        ProxyType declaringType,
+        string name,
+        EventAttributes attributes,
+        MutableMethodInfo addMethod,
+        MutableMethodInfo removeMethod,
+        MutableMethodInfo raiseMethod)
+    {
+      throw new NotImplementedException();
+    }
+
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
         ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
     {
