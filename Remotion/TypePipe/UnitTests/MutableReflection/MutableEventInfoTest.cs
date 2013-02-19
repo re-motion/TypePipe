@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _declaringType = ProxyTypeObjectMother.Create();
-      _name = "Property";
+      _name = "Event";
       _attributes = (EventAttributes) 7;
       _argumentType = ReflectionObjectMother.GetSomeType();
       _returnType = ReflectionObjectMother.GetSomeOtherType();

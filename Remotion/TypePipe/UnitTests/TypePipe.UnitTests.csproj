@@ -160,6 +160,7 @@
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\TypeAttributesExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactoryTest.cs" />
+    <Compile Include="MutableReflection\MutableEventInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableEventInfoTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
