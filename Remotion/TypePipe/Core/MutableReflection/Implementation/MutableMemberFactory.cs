@@ -232,6 +232,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get body provider may be null.
       // Set body provider may be null.
 
+      // TODO 5421: accessorAttributes
+      // CheckForInvalidAttributes ("method", invalidAttributes, attributes);
+
       if (getBodyProvider == null && setBodyProvider == null)
         throw new ArgumentException ("At least one accessor body provider must be specified.", "getBodyProvider");
 
@@ -240,14 +243,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
         throw new InvalidOperationException ("Property with equal name and signature already exists.");
 
-      accessorAttributes |= MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+      var attributes = accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
       MutableMethodInfo getMethod = null, setMethod = null;
       if (getBodyProvider != null)
-        getMethod = CreateMethod (declaringType, "get_" + name, accessorAttributes, type, indexParams, getBodyProvider);
+        getMethod = CreateMethod (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
       if (setBodyProvider != null)
       {
         var setterParams = indexParams.Concat (new ParameterDeclaration (type, "value"));
-        setMethod = CreateMethod (declaringType, "set_" + name, accessorAttributes, typeof (void), setterParams, setBodyProvider);
+        setMethod = CreateMethod (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
       }
 
       return new MutablePropertyInfo (declaringType, name, PropertyAttributes.None, getMethod, setMethod);
@@ -260,6 +263,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Get method may be null.
       // Set method may be null.
+
+      // TODO 5421: attributes
+      // CheckForInvalidAttributes ("method", invalidAttributes, attributes);
 
       if (getMethod == null && setMethod == null)
         throw new ArgumentException ("Property must have at least one accessor.", "getMethod");
