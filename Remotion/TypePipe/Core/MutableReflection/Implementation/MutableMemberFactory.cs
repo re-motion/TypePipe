@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
@@ -31,6 +32,33 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class MutableMemberFactory : IMutableMemberFactory
   {
+    private static readonly FieldAttributes[] s_invalidFieldAttributes =
+        new[]
+        {
+            FieldAttributes.InitOnly, FieldAttributes.Literal, FieldAttributes.PinvokeImpl, FieldAttributes.RTSpecialName,
+            FieldAttributes.HasFieldMarshal, FieldAttributes.HasDefault, FieldAttributes.HasFieldRVA
+        };
+
+    private static readonly MethodAttributes[] s_invalidConstructorAttributes =
+        new[]
+        {
+            MethodAttributes.Final, MethodAttributes.Virtual, MethodAttributes.CheckAccessOnOverride, MethodAttributes.Abstract,
+            MethodAttributes.PinvokeImpl, MethodAttributes.UnmanagedExport, MethodAttributes.RequireSecObject
+        };
+
+    private static readonly MethodAttributes[] s_invalidMethodAttributes =
+        new[]
+        {
+            MethodAttributes.PinvokeImpl, MethodAttributes.UnmanagedExport, MethodAttributes.RTSpecialName, MethodAttributes.RequireSecObject
+        };
+
+    private static readonly PropertyAttributes[] s_invalidPropertyAttributes =
+        new[]
+        {
+            PropertyAttributes.RTSpecialName, PropertyAttributes.HasDefault, PropertyAttributes.Reserved2, PropertyAttributes.Reserved3,
+            PropertyAttributes.Reserved4
+        };
+
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 
@@ -61,6 +89,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (type == typeof (void))
         throw new ArgumentException ("Field cannot be of type void.", "type");
 
+      CheckForInvalidAttributes ("fields", s_invalidFieldAttributes, attributes, "attributes");
+
       var signature = new FieldSignature (type);
       if (declaringType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
         throw new InvalidOperationException ("Field with equal name and signature already exists.");
@@ -78,13 +108,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var invalidAttributes =
-          new[]
-          {
-              MethodAttributes.Abstract, MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject,
-              MethodAttributes.UnmanagedExport, MethodAttributes.Virtual
-          };
-      CheckForInvalidAttributes ("constructor", invalidAttributes, attributes);
+      CheckForInvalidAttributes ("constructors", s_invalidConstructorAttributes, attributes, "attributes");
 
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var paras = parameters.ConvertToCollection();
@@ -125,8 +149,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (isAbstract && bodyProvider != null)
         throw new ArgumentException ("Abstract methods cannot have a body.", "bodyProvider");
 
-      var invalidAttributes = new[] { MethodAttributes.PinvokeImpl, MethodAttributes.RequireSecObject, MethodAttributes.UnmanagedExport };
-      CheckForInvalidAttributes ("method", invalidAttributes, attributes);
+      CheckForInvalidAttributes ("methods", s_invalidMethodAttributes, attributes, "attributes");
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
@@ -232,8 +255,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get body provider may be null.
       // Set body provider may be null.
 
-      // TODO 5421: accessorAttributes
-      // CheckForInvalidAttributes ("method", invalidAttributes, attributes);
+      CheckForInvalidAttributes ("property accessor methods", s_invalidMethodAttributes, accessorAttributes, "accessorAttributes");
 
       if (getBodyProvider == null && setBodyProvider == null)
         throw new ArgumentException ("At least one accessor body provider must be specified.", "getBodyProvider");
@@ -264,8 +286,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Get method may be null.
       // Set method may be null.
 
-      // TODO 5421: attributes
-      // CheckForInvalidAttributes ("method", invalidAttributes, attributes);
+      CheckForInvalidAttributes ("properties", s_invalidPropertyAttributes, attributes, "attributes");
 
       if (getMethod == null && setMethod == null)
         throw new ArgumentException ("Property must have at least one accessor.", "getMethod");
@@ -357,15 +378,23 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
     }
 
-    private void CheckForInvalidAttributes (string memberKind, MethodAttributes[] invalidAttributes, MethodAttributes attributes)
+    private void CheckForInvalidAttributes<T> (string memberKind, T[] invalidAttributes, T attributes, string parameterName)
     {
-      var hasInvalidAttributes = invalidAttributes.Any (x => attributes.IsSet (x));
+      var hasInvalidAttributes = invalidAttributes.Any (a => IsSet (attributes, a));
       if (hasInvalidAttributes)
       {
-        var invalidAttributeList = string.Join (", ", invalidAttributes.Select (x => Enum.GetName (typeof (MethodAttributes), x)).ToArray());
-        var message = string.Format ("The following MethodAttributes are not supported for {0}s: {1}.", memberKind, invalidAttributeList);
-        throw new ArgumentException (message, "attributes");
+        var invalidAttributeList = SeparatedStringBuilder.Build (", ", invalidAttributes.Select (x => Enum.GetName (typeof (T), x)));
+        var message = string.Format ("The following {0} are not supported for {1}: {2}.", typeof(T).Name, memberKind, invalidAttributeList);
+        throw new ArgumentException (message, parameterName);
       }
+    }
+
+    public bool IsSet<T> (T actual, T expected)
+    {
+      var f1 = (int) (object) actual;
+      var f2 = (int) (object) expected;
+
+      return (f1 & f2) == f2;
     }
   }
 }

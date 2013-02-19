@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("_privateInstanceField", typeof (string), FieldAttributes.Private));
+      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("_privateInstanceField", typeof (string)));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_privateInstanceField" }));
 
@@ -43,11 +43,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void PublicStaticInitOnly ()
+    public void PublicStatic_FieldAttributes ()
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.InitOnly;
+      var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.NotSerialized;
       var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("PublicStaticField", typeof (int), fieldAttributes));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "PublicStaticField" }));
@@ -56,6 +56,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (fieldInfo, Is.Not.Null);
       Assert.That (fieldInfo.FieldType, Is.EqualTo (typeof (int)));
       Assert.That (fieldInfo.Attributes, Is.EqualTo (fieldAttributes));
+      Assert.That (fieldInfo.IsNotSerialized, Is.True);
     }
 
     [Test]

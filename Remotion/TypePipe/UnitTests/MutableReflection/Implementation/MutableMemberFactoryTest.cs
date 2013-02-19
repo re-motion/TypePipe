@@ -96,6 +96,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateField_ThrowsForInvalidFieldAttributes ()
+    {
+      const string message = "The following FieldAttributes are not supported for fields: " +
+                             "InitOnly, Literal, PinvokeImpl, RTSpecialName, HasFieldMarshal, HasDefault, HasFieldRVA.\r\nParameter name: attributes";
+      Assert.That (() => CreateField (_proxyType, FieldAttributes.InitOnly), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_proxyType, FieldAttributes.Literal), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_proxyType, FieldAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_proxyType, FieldAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_proxyType, FieldAttributes.HasFieldMarshal), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_proxyType, FieldAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_proxyType, FieldAttributes.HasFieldRVA), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Field cannot be of type void.\r\nParameter name: type")]
     public void CreateField_VoidType ()
     {
@@ -176,13 +190,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateConstructor_ThrowsForInvalidMethodAttributes ()
     {
-      const string message = "The following MethodAttributes are not supported for constructors: " +
-                             "Abstract, PinvokeImpl, RequireSecObject, UnmanagedExport, Virtual.\r\nParameter name: attributes";
+      const string message =
+          "The following MethodAttributes are not supported for constructors: " +
+          "Final, Virtual, CheckAccessOnOverride, Abstract, PinvokeImpl, UnmanagedExport, RequireSecObject.\r\nParameter name: attributes";
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.Final), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.Virtual), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.CheckAccessOnOverride), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.Abstract), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.Virtual), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateConstructor (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -387,10 +404,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateMethod_ThrowsForInvalidMethodAttributes ()
     {
       const string message = "The following MethodAttributes are not supported for methods: " +
-                             "PinvokeImpl, RequireSecObject, UnmanagedExport.\r\nParameter name: attributes";
+                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: attributes";
       Assert.That (() => CreateMethod (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateMethod (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -741,6 +759,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateProperty_Providers_ThrowsForInvalidAccessorAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for property accessor methods: " +
+                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: accessorAttributes";
+      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider")]
     public void CreateProperty_Providers_NoAccessorProviders ()
@@ -791,6 +820,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.MutableGetMethod, Is.SameAs (getMethod));
       Assert.That (result.MutableSetMethod, Is.SameAs (setMethod));
+    }
+
+    [Test]
+    public void CreateProperty_Accessors_ThrowsForInvalidPropertyAttributes ()
+    {
+      const string message = "The following PropertyAttributes are not supported for properties: " +
+                             "RTSpecialName, HasDefault, Reserved2, Reserved3, Reserved4.\r\nParameter name: attributes";
+      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved4), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -963,14 +1004,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
             .Return (fakeBaseMethod);
       }
     }
-    
-    private MutableConstructorInfo CreateConstructor (ProxyType proxyType, MethodAttributes attributes)
+
+    private MutableFieldInfo CreateField (ProxyType proxyType, FieldAttributes attributes)
     {
-      return _factory.CreateConstructor (
-          proxyType, attributes, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty ());
+      return _factory.CreateField (proxyType, "dummy", typeof (int), attributes);
     }
 
-    private MethodInfo CreateMethod (ProxyType proxyType, MethodAttributes attributes)
+    private MutableConstructorInfo CreateConstructor (ProxyType proxyType, MethodAttributes attributes)
+    {
+      return _factory.CreateConstructor (proxyType, attributes, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+    }
+
+    private MutableMethodInfo CreateMethod (ProxyType proxyType, MethodAttributes attributes)
     {
       return _factory.CreateMethod (
           proxyType,
@@ -979,6 +1024,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           typeof (void),
           ParameterDeclaration.EmptyParameters,
           ctx => Expression.Empty());
+    }
+
+    private MutablePropertyInfo CreateProperty (ProxyType proxyType, MethodAttributes accessorAttributes)
+    {
+      return _factory.CreateProperty (
+          proxyType, "dummy", typeof (int), ParameterDeclaration.EmptyParameters, accessorAttributes, ctx => Expression.Constant (7), null);
+    }
+
+    private MutablePropertyInfo CreateProperty (ProxyType proxyType, PropertyAttributes attributes)
+    {
+      var getMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (int));
+      return _factory.CreateProperty (proxyType, "dummy", attributes, getMethod, null);
     }
 
     private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
