@@ -143,6 +143,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     {
       var name = "property";
       var attributes = (PropertyAttributes) 7;
+      var callingConventions = (CallingConventions) 8;
       var returnType = typeof (int);
       var parameterType = typeof (string);
 
@@ -151,10 +152,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var fakePropertyBuilder = MockRepository.GenerateStub<IPropertyBuilder>();
       _operandProvider.Expect (mock => mock.GetEmittableType (returnType)).Return (emittableReturnType);
       _operandProvider.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
-      _innerMock.Expect (mock => mock.DefineProperty (name, attributes, emittableReturnType, new[] { emittableParameterType }))
+      _innerMock.Expect (mock => mock.DefineProperty (name, attributes, callingConventions, emittableReturnType, new[] { emittableParameterType }))
                 .Return (fakePropertyBuilder);
 
-      var result = _decorator.DefineProperty (name, attributes, returnType, new[] { parameterType });
+      var result = _decorator.DefineProperty (name, attributes, callingConventions, returnType, new[] { parameterType });
 
       _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
