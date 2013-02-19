@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var existingProperty = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.ExistingProperty);
             var getMethod = proxyType.GetOrAddOverride (existingProperty.GetGetMethod());
             var setMethod = proxyType.GetOrAddOverride (existingProperty.GetSetMethod());
-            var property = proxyType.AddProperty ("ExistingProperty", getMethod: getMethod, setMethod: setMethod);
+            var property = proxyType.AddProperty (existingProperty.Name, getMethod: getMethod, setMethod: setMethod);
 
             var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
             var customAttributes = new CustomAttributeDeclaration (attributeCtor, new object[] { "derived" });
