@@ -21,10 +21,10 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var indexedSetterField = proxyType.GetField ("IndexedSetterField");
+            var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType o) => o.PublicField);
             proxyType.AddProperty (
                 "Property",
                 typeof (string),
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.ReturnType, Is.SameAs (typeof (void)));
                   Assert.That (ctx.Parameters.Count, Is.EqualTo (3));
                   var value = ExpressionHelper.StringConcat (ExpressionHelper.StringConcat (ctx.Parameters[0], ctx.Parameters[1]), ctx.Parameters[2]);
-                  return Expression.Assign (Expression.Field (ctx.This, indexedSetterField), value);
+                  return Expression.Assign (Expression.Field (ctx.This, field), value);
                 });
           });
 
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       Assert.That (property.GetValue (instance, new object[] { "a ", "b" }), Is.EqualTo ("a b"));
       property.SetValue (instance, "value", new object[] { "a ", "b " });
-      Assert.That (instance.IndexedSetterField, Is.EqualTo ("a b value"));
+      Assert.That (instance.PublicField, Is.EqualTo ("a b value"));
     }
 
     [Test]
@@ -161,13 +161,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void ReadOnly_Static ()
+    public void ReadOnly_NonPublic_Static ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
+            var attributes = MethodAttributes.Private | MethodAttributes.Static;
             var getMethod = proxyType.AddMethod (
-                "StaticGetMethod", MethodAttributes.Static, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7));
+                "StaticGetMethod", attributes, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7));
             proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, getMethod);
           });
 
@@ -175,13 +176,54 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (nonExistingInstanceProperty, Is.Null);
 
       var property = type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Static);
+      CheckSignature (property, CallingConventions.Standard);
+
       Assert.That (property.Attributes, Is.EqualTo (PropertyAttributes.SpecialName));
       Assert.That (property.GetValue (null, null), Is.EqualTo (7));
     }
 
+    [Ignore("todo 5423")]
+    [Test]
+    public void WriteOnly_Public_Instance ()
+    {
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType o) => o.PublicField);
+            var setMethod = proxyType.AddMethod (
+                "InstanceSetMethod",
+                MethodAttributes.Public,
+                typeof (void),
+                new[] { new ParameterDeclaration (typeof (string), "value") },
+                ctx => Expression.Assign (Expression.Field (ctx.This, field), ctx.Parameters[0]));
+            proxyType.AddProperty ("InstanceProperty", setMethod: setMethod);
+          });
+
+      var nonExistingStaticProperty = type.GetProperty ("InstanceProperty", BindingFlags.Public | BindingFlags.Static);
+      Assert.That (nonExistingStaticProperty, Is.Null);
+
+      var property = type.GetProperty ("InstanceProperty", BindingFlags.Public | BindingFlags.Instance);
+      CheckSignature (property, CallingConventions.HasThis);
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      property.SetValue (instance, "test", null);
+      Assert.That (instance.PublicField, Is.EqualTo ("test"));
+    }
+
+    private static void CheckSignature (PropertyInfo property, CallingConventions expectedCallingConvention)
+    {
+      // Unfortunately there is no other way to observe that we indeed correctly generate an 'instance property', i.e., a property with a
+      // signature that in turn has the CallingConventions.HasThis.
+      // This test forces us to use the correct (more complex) overload of TypeBuilder.DefineProperty during code generation.
+
+      var signature = PrivateInvoke.GetNonPublicProperty (property, "Signature");
+      var callingConvention = (CallingConventions) PrivateInvoke.GetNonPublicProperty (signature, "CallingConvention");
+      Assert.That (callingConvention, Is.EqualTo (expectedCallingConvention));
+    }
+
     public class DomainType
     {
-      [UsedImplicitly] public string IndexedSetterField;
+      [UsedImplicitly] public string PublicField;
 
       [AbcAttribute ("base")]
       public virtual string ExistingProperty { get; set; }
