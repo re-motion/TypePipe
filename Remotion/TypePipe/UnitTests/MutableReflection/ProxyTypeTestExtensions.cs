@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private static int s_counter;
 
-    public static MutableFieldInfo AddField (
+    public static MutableFieldInfo AddField2 (
         this ProxyType proxyType, string name = null, Type type = null, FieldAttributes attributes = FieldAttributes.Private)
     {
       name = name ?? "Field_" + ++s_counter;
@@ -38,19 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return proxyType.AddField (name, type, attributes);
     }
 
-    public static MutableConstructorInfo AddConstructor (
-        this ProxyType proxyType,
-        MethodAttributes attributes = MethodAttributes.Public,
-        IEnumerable<ParameterDeclaration> parameters = null,
-        Func<ConstructorBodyCreationContext, Expression> bodyProvider = null)
-    {
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
-      bodyProvider = bodyProvider ?? (ctx => Expression.Empty());
-
-      return proxyType.AddConstructor (attributes, parameters, bodyProvider);
-    }
-
-    public static MutableMethodInfo AddMethod (
+    public static MutableMethodInfo AddMethod2 (
         this ProxyType proxyType,
         string name = null,
         MethodAttributes attributes = MethodAttributes.Public,
@@ -59,16 +47,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
       name = name ?? "Method_" + ++s_counter;
-      returnType = returnType ?? typeof (void);
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
       bodyProvider = bodyProvider == null && !attributes.IsSet (MethodAttributes.Abstract)
-                         ? (ctx => Expression.Default (returnType))
+                         ? (ctx => Expression.Default (ctx.ReturnType))
                          : (Func<MethodBodyCreationContext, Expression>) null;
 
       return proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
     }
 
-    public static MutablePropertyInfo AddProperty (
+    public static MutablePropertyInfo AddProperty2 (
         this ProxyType proxyType,
         string name = null,
         Type type = null,

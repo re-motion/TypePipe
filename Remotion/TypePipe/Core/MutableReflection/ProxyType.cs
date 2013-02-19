@@ -222,10 +222,14 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public MutableConstructorInfo AddConstructor (
-        MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Func<ConstructorBodyCreationContext, Expression> bodyProvider)
+        MethodAttributes attributes = MethodAttributes.Public,
+        IEnumerable<ParameterDeclaration> parameters = null,
+        Func<ConstructorBodyCreationContext, Expression> bodyProvider = null)
     {
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      // Parameters may be null.
+      // Body provider may be null.
+      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      bodyProvider = bodyProvider ?? (ctx => Expression.Empty());
 
       var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameters, bodyProvider);
       if (constructor.IsStatic)
@@ -241,30 +245,22 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableMethodInfo AddMethod (
         string name,
-        MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameters,
-        Func<MethodBodyCreationContext, Expression> bodyProvider)
+        MethodAttributes attributes = MethodAttributes.Public,
+        Type returnType = null,
+        IEnumerable<ParameterDeclaration> parameters = null,
+        Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      // bodyProvider is null for abstract methods.
+      // Return type may be null.
+      // Parameters may be null.
+      // Body provider is null (stays null) for abstract methods.
+      returnType = returnType ?? typeof (void);
+      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
 
       var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameters, bodyProvider);
       _addedMethods.Add (method);
 
       return method;
-    }
-
-    public MutableMethodInfo AddAbstractMethod (string name, MethodAttributes attributes, Type returnType, IEnumerable<ParameterDeclaration> parameters)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-
-      attributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
-      return AddMethod (name, attributes, returnType, parameters, bodyProvider: null);
     }
 
     public MutableMethodInfo AddExplicitOverride (MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)

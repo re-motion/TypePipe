@@ -282,7 +282,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpressionException (Expression methodBody)
     {
-      CheckStrongNamingException (p => p.AddMethod ("m", ctx => methodBody));
+      CheckStrongNamingException (p => p.AddMethod ("m", bodyProvider: ctx => methodBody));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]

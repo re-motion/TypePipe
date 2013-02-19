@@ -18,8 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -29,35 +28,20 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class ProxyTypeExtensions
   {
-    /// <summary>
-    /// Adds the method by delegating to <see cref="ProxyType.AddMethod" /> and providing default values.
-    /// The default is to create an public instance method with return type void and no parameters.
-    /// </summary>
-    /// <param name="proxyType">The proxy type instance to call the <see cref="ProxyType.AddMethod"/> on.</param>
-    /// <param name="name">The name of the method.</param>
-    /// <param name="bodyProvider">The body provider.</param>
-    /// <param name="attributes">Method attributes (default: public).</param>
-    /// <param name="returnType">Return type (default: void).</param>
-    /// <param name="parameters">Parameter declarations (default: no parameters).</param>
-    /// <returns></returns>
-    public static MutableMethodInfo AddMethod (
+    public static MutableMethodInfo AddAbstractMethod (
         this ProxyType proxyType,
         string name,
-        Func<MethodBodyCreationContext, Expression> bodyProvider,
         MethodAttributes attributes = MethodAttributes.Public,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
-      // return type may be null.
-      // parameters may be null.
+      // Return type may be null.
+      // Parameters may be null.
 
-      returnType = returnType ?? typeof (void);
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
-
-      return proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
+      var abstractAttributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
+      return proxyType.AddMethod (name, abstractAttributes, returnType, parameters, bodyProvider: null);
     }
   }
 }

@@ -292,6 +292,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddField_Defaults ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateField (_proxyType, "_newField", type, FieldAttributes.Private)).Return (null);
+
+      _proxyType.AddField ("_newField", type);
+
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void AddConstructor ()
     {
       var attributes = (MethodAttributes) 7;
@@ -324,6 +335,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddConstructor_Defaults ()
+    {
+      Func<ConstructorBodyCreationContext, Expression> bodyProvider = null;
+      var fakeConstructor = MutableConstructorInfoObjectMother.Create();
+      _mutableMemberFactoryMock
+          .Expect (
+              mock =>
+              mock.CreateConstructor (
+                  Arg.Is (_proxyType),
+                  Arg.Is (MethodAttributes.Public),
+                  Arg.Is (ParameterDeclaration.EmptyParameters),
+                  Arg<Func<ConstructorBodyCreationContext, Expression>>.Is.Anything))
+          .Return (fakeConstructor)
+          .WhenCalled (mi => bodyProvider = mi.Arguments[3].As<Func<ConstructorBodyCreationContext, Expression>>());
+
+      _proxyType.AddConstructor();
+
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      var defaultBody = bodyProvider (null);
+      Assert.That (defaultBody, Is.TypeOf<DefaultExpression>().And.Property ("Type").SameAs (typeof (void)));
+    }
+
+    [Test]
     public void AddMethod ()
     {
       var name = "Method";
@@ -344,22 +378,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddAbstractMethod ()
+    public void AddMethod_Defaults ()
     {
-      var name = "AbstractMethod";
-      var attributes = MethodAttributes.Public;
-      var returnType = ReflectionObjectMother.GetSomeType();
-      var parameterDeclarations = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var expectedAttributes = MethodAttributes.Public | MethodAttributes.Abstract | MethodAttributes.Virtual;
-      var fakeMethod = MutableMethodInfoObjectMother.Create ();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (_proxyType, name, expectedAttributes, returnType, parameterDeclarations, null))
-          .Return (fakeMethod);
+          .Expect (mock => mock.CreateMethod (_proxyType, "Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.EmptyParameters, null))
+          .Return (null);
 
-      var result = _proxyType.AddAbstractMethod (name, attributes, returnType, parameterDeclarations);
+      _proxyType.AddMethod ("Method");
 
-      Assert.That (result, Is.SameAs (fakeMethod));
-      Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result }));
+      _mutableMemberFactoryMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -560,7 +587,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (abstractMethod1.GetBaseDefinition(), Is.EqualTo (abstractMethodBaseDefinition));
 
       proxyType.AddExplicitOverride (abstractMethodBaseDefinition, ctx => Expression.Empty());
-      proxyType.AddMethod (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
+      proxyType.AddMethod2 (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
 
       Assert.That (proxyType.IsAbstract, Is.False);
       Assertion.IsNotNull (proxyType.BaseType);
@@ -595,7 +622,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseFields = typeof (DomainType).GetFields (c_all);
       Assert.That (baseFields, Is.Not.Empty);
-      var addedField = _proxyTypeWithoutMocks.AddField();
+      var addedField = _proxyTypeWithoutMocks.AddField2();
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllFields");
 
@@ -629,7 +656,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetAllMethods ()
     {
       var baseMethods = typeof (DomainType).GetMethods (c_all);
-      var addedMethod = _proxyTypeWithoutMocks.AddMethod();
+      var addedMethod = _proxyTypeWithoutMocks.AddMethod2();
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllMethods");
 
@@ -664,7 +691,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseProperties = typeof (DomainType).GetProperties (c_all);
       Assert.That (baseProperties, Is.Not.Empty);
-      var addedProperty = _proxyTypeWithoutMocks.AddProperty();
+      var addedProperty = _proxyTypeWithoutMocks.AddProperty2();
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllProperties");
 

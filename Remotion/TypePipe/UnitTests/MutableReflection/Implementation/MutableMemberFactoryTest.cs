@@ -624,7 +624,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateOverride_InterfaceMethod_InvalidCandidate ()
     {
       _proxyType.AddInterface (typeof (IAddedInterface));
-      _proxyType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
+      _proxyType.AddMethod2 ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate());
       _factory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
     }
@@ -643,7 +643,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         "Method is declared by a type outside of the proxy base class hierarchy: 'Proxy'.\r\nParameter name: baseMethod")]
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
-      var method = _proxyType.AddMethod ("method", ctx => Expression.Empty());
+      var method = _proxyType.AddMethod ("method", bodyProvider: ctx => Expression.Empty());
       _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 

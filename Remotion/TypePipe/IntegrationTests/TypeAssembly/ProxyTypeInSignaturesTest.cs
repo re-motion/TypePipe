@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           p => p.AddMethod (
               "Method",
-              ctx =>
+              bodyProvider: ctx =>
               {
                 var localVariable = Expression.Parameter (p);
                 return Expression.Block (new[] { localVariable }, Expression.Empty());
@@ -119,9 +119,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var byRefType = proxyType.MakeByRefType();
             proxyType.AddMethod (
                 "Method",
-                ctx => Expression.Empty(),
-                parameters:
-                    new[] { new ParameterDeclaration (byRefType, "ref"), new ParameterDeclaration (byRefType, "out", ParameterAttributes.Out) });
+                bodyProvider: ctx => Expression.Empty(),
+                parameters: new[] { new ParameterDeclaration (byRefType, "ref"), new ParameterDeclaration (byRefType, "out", ParameterAttributes.Out) });
           });
 
       var parameters = type.GetMethod ("Method").GetParameters();
@@ -139,8 +138,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var genericTypeWithProxyTypeArgument = typeof (List<>).MakeTypePipeGenericType (proxyType);
-            proxyType.AddMethod ("Method", ctx => Expression.Default (genericTypeWithProxyTypeArgument), returnType: genericTypeWithProxyTypeArgument);
+            var instantiation = typeof (List<>).MakeTypePipeGenericType (proxyType);
+            proxyType.AddMethod ("Method", returnType: instantiation, bodyProvider: ctx => Expression.Default (instantiation));
           });
 
       var method = type.GetMethod ("Method");
@@ -156,7 +155,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var funcType = typeof (Func<>).MakeTypePipeGenericType (proxyType);
             var enumerableType = typeof (IEnumerable<>).MakeTypePipeGenericType (funcType);
-            proxyType.AddMethod ("Method", ctx => Expression.Default (enumerableType), returnType: enumerableType);
+            proxyType.AddMethod ("Method", returnType: enumerableType, bodyProvider: ctx => Expression.Default (enumerableType));
           });
 
       var method = type.GetMethod ("Method");
