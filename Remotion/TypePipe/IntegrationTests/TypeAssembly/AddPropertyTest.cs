@@ -182,7 +182,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (property.GetValue (null, null), Is.EqualTo (7));
     }
 
-    [Ignore("todo 5423")]
     [Test]
     public void WriteOnly_Public_Instance ()
     {
@@ -203,7 +202,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (nonExistingStaticProperty, Is.Null);
 
       var property = type.GetProperty ("InstanceProperty", BindingFlags.Public | BindingFlags.Instance);
-      CheckSignature (property, CallingConventions.HasThis);
+      CheckSignature (property, CallingConventions.HasThis | CallingConventions.Standard);
 
       var instance = (DomainType) Activator.CreateInstance (type);
       property.SetValue (instance, "test", null);
