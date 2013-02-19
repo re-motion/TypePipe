@@ -237,7 +237,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var propertyBuilderMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, returnType, indexParameterTypes))
+          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, CallingConventions.HasThis, returnType, indexParameterTypes))
           .Return (propertyBuilderMock);
       SetupDefineCustomAttribute (propertyBuilderMock, property);
       propertyBuilderMock.Expect (mock => mock.SetGetMethod (getMethodBuilder));
@@ -247,6 +247,47 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _typeBuilderMock.VerifyAllExpectations();
       propertyBuilderMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void AddProperty_GetMethod_StaticCallingConventions ()
+    {
+      var staticGetMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static, returnType: typeof (int));
+      var property = MutablePropertyInfoObjectMother.Create (name: "Property", getMethod: staticGetMethod);
+
+      var getMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var methodMapping = GetMethodMapping (_emitter);
+      methodMapping.Add (staticGetMethod, getMethodBuilder);
+
+      var propertyBuilderStub = MockRepository.GenerateStub<IPropertyBuilder>();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, CallingConventions.Standard, property.PropertyType, Type.EmptyTypes))
+          .Return (propertyBuilderStub);
+
+      _emitter.AddProperty (_context, property);
+
+      _typeBuilderMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void AddProperty_SetMethod_StaticCallingConventions ()
+    {
+      var staticSetMethod = MutableMethodInfoObjectMother.Create (
+          attributes: MethodAttributes.Static, parameters: new[] { ParameterDeclarationObjectMother.Create() });
+      var property = MutablePropertyInfoObjectMother.Create (name: "Property", setMethod: staticSetMethod);
+
+      var setMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var methodMapping = GetMethodMapping (_emitter);
+      methodMapping.Add (staticSetMethod, setMethodBuilder);
+
+      var propertyBuilderStub = MockRepository.GenerateStub<IPropertyBuilder>();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, CallingConventions.Standard, property.PropertyType, Type.EmptyTypes))
+          .Return (propertyBuilderStub);
+
+      _emitter.AddProperty (_context, property);
+
+      _typeBuilderMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -265,8 +306,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var propertyBuilderMock1 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
       var propertyBuilderMock2 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
-      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, null, null)).IgnoreArguments().Return (propertyBuilderMock1).Repeat.Once();
-      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, null, null)).IgnoreArguments().Return (propertyBuilderMock2).Repeat.Once();
+      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, 0, null, null)).IgnoreArguments().Return (propertyBuilderMock1).Repeat.Once();
+      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, 0, null, null)).IgnoreArguments().Return (propertyBuilderMock2).Repeat.Once();
       propertyBuilderMock1.Expect (mock => mock.SetGetMethod (methodBuilder));
       propertyBuilderMock2.Expect (mock => mock.SetSetMethod (methodBuilder));
 

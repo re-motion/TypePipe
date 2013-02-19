@@ -113,13 +113,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("property", property);
 
+      var getMethod = property.MutableGetMethod;
+      var setMethod = property.MutableSetMethod;
+      Assertion.IsTrue (getMethod == null || setMethod == null || getMethod.CallingConvention == setMethod.CallingConvention);
+
+      var callingConvention = (getMethod ?? setMethod).CallingConvention;
       var indexParameterTypes = property.GetIndexParameters().Select (p => p.ParameterType).ToArray();
-      var propertyBuilder = context.TypeBuilder.DefineProperty (property.Name, property.Attributes, property.PropertyType, indexParameterTypes);
+      var propertyBuilder = context.TypeBuilder.DefineProperty (
+          property.Name, property.Attributes, callingConvention, property.PropertyType, indexParameterTypes);
 
       DefineCustomAttributes (propertyBuilder, property);
 
-      SetAccessor (propertyBuilder.SetGetMethod, property.MutableGetMethod);
-      SetAccessor (propertyBuilder.SetSetMethod, property.MutableSetMethod);
+      SetAccessor (propertyBuilder.SetGetMethod, getMethod);
+      SetAccessor (propertyBuilder.SetSetMethod, setMethod);
     }
 
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
