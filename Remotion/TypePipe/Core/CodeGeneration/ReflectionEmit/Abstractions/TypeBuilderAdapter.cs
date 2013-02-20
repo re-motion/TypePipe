@@ -101,6 +101,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
+      // We need to use the complex overload which takes a CallingConventions parameter here to correctly emit 'instance properties'.
       var propertyBuilder = _typeBuilder.DefineProperty (
           name,
           attributes,
@@ -113,6 +114,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
           parameterTypeOptionalCustomModifiers: null);
 
       return new PropertyBuilderAdapter (propertyBuilder, _methodMapping.AsReadOnly());
+    }
+
+    public IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("eventtype", eventtype);
+
+      var eventBuilder = _typeBuilder.DefineEvent (name, attributes, eventtype);
+      return new EventBuilderAdapter (eventBuilder);
     }
 
     public Type CreateType ()

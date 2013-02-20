@@ -164,6 +164,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [Test]
+    public void DefineEvent ()
+    {
+      var name = "event";
+      var attributes = (EventAttributes) 7;
+      var eventType = typeof (Action<string, int>);
+
+      var emittableEventType = ReflectionObjectMother.GetSomeType();
+      var fakeEventBuilder = MockRepository.GenerateStub<IEventBuilder>();
+      _operandProvider.Expect (mock => mock.GetEmittableType (eventType)).Return (emittableEventType);
+      _innerMock.Expect (mock => mock.DefineEvent (name, attributes, emittableEventType)).Return (fakeEventBuilder);
+
+      var result = _decorator.DefineEvent (name, attributes, eventType);
+
+      _operandProvider.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
+      Assert.That (result, Is.TypeOf<EventBuilderDecorator>());
+      Assert.That (result.As<EventBuilderDecorator>().DecoratedEventBuilder, Is.SameAs (fakeEventBuilder));
+    }
+
+    [Test]
     public void DelegatingMembers ()
     {
       var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();

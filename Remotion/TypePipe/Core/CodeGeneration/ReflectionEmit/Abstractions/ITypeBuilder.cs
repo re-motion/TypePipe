@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes);
     void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration);
     IPropertyBuilder DefineProperty (string name, PropertyAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes);
+    IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype);
 
     Type CreateType ();
   }

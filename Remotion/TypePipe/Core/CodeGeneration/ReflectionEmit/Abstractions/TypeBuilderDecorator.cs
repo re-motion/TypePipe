@@ -124,6 +124,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new PropertyBuilderDecorator (propertyBuilder, _emittableOperandProvider);
     }
 
+    public IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("eventtype", eventtype);
+
+      var emittableEventType = _emittableOperandProvider.GetEmittableType (eventtype);
+      var eventBuilder = _typeBuilder.DefineEvent (name, attributes, emittableEventType);
+
+      return new EventBuilderDecorator (eventBuilder, _emittableOperandProvider);
+    }
+
     public Type CreateType ()
     {
       return _typeBuilder.CreateType();
