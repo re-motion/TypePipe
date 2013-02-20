@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection.Emit;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -28,32 +27,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public class PropertyBuilderAdapter : BuilderAdapterBase, IPropertyBuilder
   {
     private readonly PropertyBuilder _propertyBuilder;
-    private readonly ReadOnlyDictionary<IMethodBuilder, MethodBuilder> _methodMapping;
 
     [CLSCompliant (false)]
-    public PropertyBuilderAdapter (PropertyBuilder propertyBuilder, ReadOnlyDictionary<IMethodBuilder, MethodBuilder> methodMapping)
+    public PropertyBuilderAdapter (PropertyBuilder propertyBuilder)
         : base (ArgumentUtility.CheckNotNull ("propertyBuilder", propertyBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("methodMapping", methodMapping);
-
       _propertyBuilder = propertyBuilder;
-      _methodMapping = methodMapping;
     }
 
     [CLSCompliant (false)]
     public void SetGetMethod (IMethodBuilder getMethodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("getMethodBuilder", getMethodBuilder);
+      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> ("getMethodBuilder", getMethodBuilder);
 
-      _propertyBuilder.SetGetMethod (_methodMapping[getMethodBuilder]);
+      _propertyBuilder.SetGetMethod (adapter.AdaptedMethodBuilder);
     }
 
     [CLSCompliant (false)]
     public void SetSetMethod (IMethodBuilder setMethodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("setMethodBuilder", setMethodBuilder);
+      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> ("setMethodBuilder", setMethodBuilder);
 
-      _propertyBuilder.SetSetMethod (_methodMapping[setMethodBuilder]);
+      _propertyBuilder.SetSetMethod (adapter.AdaptedMethodBuilder);
     }
   }
 }

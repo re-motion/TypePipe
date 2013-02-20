@@ -15,12 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -29,7 +27,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// </summary>
   public class TypeBuilderAdapter : BuilderAdapterBase, ITypeBuilder
   {
-    private readonly Dictionary<IMethodBuilder, MethodBuilder> _methodMapping = new Dictionary<IMethodBuilder, MethodBuilder>();
     private readonly TypeBuilder _typeBuilder;
 
     public TypeBuilderAdapter (TypeBuilder typeBuilder)
@@ -79,10 +76,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, returnType, parameterTypes);
-      var adapter = new MethodBuilderAdapter (methodBuilder);
-      _methodMapping.Add (adapter, methodBuilder);
-
-      return adapter;
+      return new MethodBuilderAdapter (methodBuilder);
     }
 
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
@@ -113,7 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
           parameterTypeRequiredCustomModifiers: null,
           parameterTypeOptionalCustomModifiers: null);
 
-      return new PropertyBuilderAdapter (propertyBuilder, _methodMapping.AsReadOnly());
+      return new PropertyBuilderAdapter (propertyBuilder);
     }
 
     [CLSCompliant (false)]
@@ -123,7 +117,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("eventtype", eventtype);
 
       var eventBuilder = _typeBuilder.DefineEvent (name, attributes, eventtype);
-      return new EventBuilderAdapter (eventBuilder, _methodMapping.AsReadOnly());
+      return new EventBuilderAdapter (eventBuilder);
     }
 
     public Type CreateType ()

@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection.Emit;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -28,40 +27,36 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public class EventBuilderAdapter : BuilderAdapterBase, IEventBuilder
   {
     private readonly EventBuilder _eventBuilder;
-    private readonly ReadOnlyDictionary<IMethodBuilder, MethodBuilder> _methodMapping;
 
     [CLSCompliant (false)]
-    public EventBuilderAdapter (EventBuilder eventBuilder, ReadOnlyDictionary<IMethodBuilder, MethodBuilder> methodMapping)
+    public EventBuilderAdapter (EventBuilder eventBuilder)
         : base (ArgumentUtility.CheckNotNull ("eventBuilder", eventBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("methodMapping", methodMapping);
-
       _eventBuilder = eventBuilder;
-      _methodMapping = methodMapping;
     }
 
     [CLSCompliant (false)]
     public void SetAddOnMethod (IMethodBuilder addMethodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("addMethodBuilder", addMethodBuilder);
+      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> ("addMethodBuilder", addMethodBuilder);
 
-      _eventBuilder.SetAddOnMethod (_methodMapping[addMethodBuilder]);
+      _eventBuilder.SetAddOnMethod (adapter.AdaptedMethodBuilder);
     }
 
     [CLSCompliant (false)]
     public void SetRemoveOnMethod (IMethodBuilder removeMethodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("removeMethodBuilder", removeMethodBuilder);
+      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> ("removeMethodBuilder", removeMethodBuilder);
 
-      _eventBuilder.SetRemoveOnMethod (_methodMapping[removeMethodBuilder]);
+      _eventBuilder.SetRemoveOnMethod (adapter.AdaptedMethodBuilder);
     }
 
     [CLSCompliant (false)]
     public void SetRaiseMethod (IMethodBuilder raiseMethodBuilder)
     {
-      ArgumentUtility.CheckNotNull ("raiseMethodBuilder", raiseMethodBuilder);
+      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> ("raiseMethodBuilder", raiseMethodBuilder);
 
-      _eventBuilder.SetRaiseMethod (_methodMapping[raiseMethodBuilder]);
+      _eventBuilder.SetRaiseMethod (adapter.AdaptedMethodBuilder);
     }
   }
 }

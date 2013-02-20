@@ -15,7 +15,6 @@
 // under the License.
 // 
 
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
