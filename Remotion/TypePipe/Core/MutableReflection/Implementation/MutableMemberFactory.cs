@@ -388,6 +388,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (raiseMethod != null && !ReferenceEquals (raiseMethod.DeclaringType, declaringType))
         throw new ArgumentException ("Raise method is not declared on the current type.", "raiseMethod");
 
+      if (addMethod.ReturnType != typeof (void))
+        throw new ArgumentException ("Add method must have return type void.", "addMethod");
+      if (removeMethod.ReturnType != typeof (void))
+        throw new ArgumentException ("Remove method must have return type void.", "removeMethod");
+
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
 

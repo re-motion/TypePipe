@@ -1088,28 +1088,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Raise", "raiseMethod")));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Add accessor must have return type void.\r\nParameter name: addMethod")]
-    public void CreateEvent_Accessors_ThrowsForNonVoidAddMethod ()
+    public void CreateEvent_Accessors_ThrowsForNonVoidAddMethodOrRemoveMethod ()
     {
-      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int>), "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (int), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var nonVoidMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (int));
+      var voidMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType);
 
-      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
-    }
-
-    [Ignore ("TODO 5429")]
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Remove accessor must have return type void.\r\nParameter name: removeMethod")]
-    public void CreateEvent_Accessors_ThrowsForNonVoidRemoveMethod ()
-    {
-      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int>), "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (void), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (int), parameters: addRemoveParameters);
-
-      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
+      var message = "{0} method must have return type void.\r\nParameter name: {1}";
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, nonVoidMethod, voidMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, voidMethod, nonVoidMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
     }
 
     [Ignore ("TODO 5429")]
