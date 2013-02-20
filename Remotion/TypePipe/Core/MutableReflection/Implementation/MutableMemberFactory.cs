@@ -336,7 +336,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Raise body provider may be null.
 
       CheckForInvalidAttributes ("event accessor methods", s_invalidMethodAttributes, accessorAttributes, "accessorAttributes");
-      
+
+      var signature = new EventSignature (handlerType);
+      if (declaringType.AddedEvents.Any (e => e.Name == name && EventSignature.Create (e).Equals (signature)))
+        throw new InvalidOperationException ("Event with equal name and signature already exists.");
+
       var attributes = accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
       var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
 

@@ -1001,10 +1001,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.TypeOf<ArgumentNullException>().With.Message.EqualTo (string.Format (message, "removeBodyProvider")));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Providers_ThrowsIfAlreadyExists ()
     {
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
+      var event_ = _proxyType.AddEvent ("Event", typeof (Action), addBodyProvider: bodyProvider, removeBodyProvider: bodyProvider);
+
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "OtherName", event_.EventHandlerType, 0, bodyProvider, bodyProvider, null),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, event_.Name, typeof (Action<int>), 0, bodyProvider, bodyProvider, null),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, event_.Name, event_.EventHandlerType, 0, bodyProvider, bodyProvider, null),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Event with equal name and signature already exists."));
     }
 
     [Ignore ("TODO 5429")]
