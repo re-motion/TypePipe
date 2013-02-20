@@ -499,10 +499,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
-      return null;
-      //Assertion.IsNotNull (BaseType);
+      Assertion.IsNotNull (BaseType);
 
-      //return _addedEvents.Cast<EventInfo>().Concat (BaseType.GetEvents (c_allMembers));
+      return _addedEvents.Cast<EventInfo>().Concat (BaseType.GetEvents (c_allMembers));
     }
 
     private static bool CanNotBeSubclassed (Type type)

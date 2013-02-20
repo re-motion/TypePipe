@@ -673,7 +673,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyType, "GetAllInterfaces");
 
-      Assert.That (result, Is.EqualTo (new[] { addedInterface }.Concat (baseInterfaces)));
+      Assert.That (result, Is.EquivalentTo (new[] { addedInterface }.Concat (baseInterfaces)));
     }
 
     [Test]
@@ -694,7 +694,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllFields");
 
-      Assert.That (result, Is.EqualTo (new[] { addedField }.Concat (baseFields)));
+      Assert.That (result, Is.EquivalentTo (new[] { addedField }.Concat (baseFields)));
     }
 
     [Test]
@@ -728,7 +728,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllMethods");
 
-      Assert.That (result, Is.EqualTo (new[] { addedMethod }.Concat (baseMethods)));
+      Assert.That (result, Is.EquivalentTo (new[] { addedMethod }.Concat (baseMethods)));
     }
 
     [Test]
@@ -763,11 +763,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllProperties");
 
-      Assert.That (result, Is.EqualTo (new[] { addedProperty }.Concat (baseProperties)));
+      Assert.That (result, Is.EquivalentTo (new[] { addedProperty }.Concat (baseProperties)));
     }
 
     [Test]
-    [Ignore ("TODO 5429")]
     public void GetAllEvents ()
     {
       var baseEvents = typeof (DomainType).GetEvents (c_all);
@@ -776,7 +775,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllEvents");
 
-      Assert.That (result, Is.EqualTo (new[] { addedEvent }.Concat (baseEvents)));
+      Assert.That (result, Is.EquivalentTo (new[] { addedEvent }.Concat (baseEvents)));
     }
 
     [Test]
