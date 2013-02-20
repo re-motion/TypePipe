@@ -219,7 +219,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddProperty_CallingConventionFromInstanceGetMethod ()
+    public void AddProperty ()
     {
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
@@ -251,32 +251,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void AddProperty_CallingConventionFromStaticSetMethod ()
-    {
-      var staticSetMethod = MutableMethodInfoObjectMother.Create (
-          attributes: MethodAttributes.Static, parameters: new[] { ParameterDeclarationObjectMother.Create() });
-      var property = MutablePropertyInfoObjectMother.Create (name: "Property", setMethod: staticSetMethod);
-
-      var setMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var methodMapping = GetMethodMapping (_emitter);
-      methodMapping.Add (staticSetMethod, setMethodBuilder);
-
-      var propertyBuilderStub = MockRepository.GenerateStub<IPropertyBuilder>();
-      _typeBuilderMock
-          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, CallingConventions.Standard, property.PropertyType, Type.EmptyTypes))
-          .Return (propertyBuilderStub);
-
-      _emitter.AddProperty (_context, property);
-
-      _typeBuilderMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void AddProperty_ReadOnly_WriteOnly ()
     {
-      var readOnlyProperty = MutablePropertyInfoObjectMother.Create (getMethod: MutableMethodInfoObjectMother.Create (returnType: typeof (int)));
-      var writeOnlyProperty = MutablePropertyInfoObjectMother.Create (
-          setMethod: MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) }));
+      var staticGetMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static, returnType: typeof (int));
+      var setMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (long)) });
+      var readOnlyProperty = MutablePropertyInfoObjectMother.Create (getMethod: staticGetMethod);
+      var writeOnlyProperty = MutablePropertyInfoObjectMother.Create (setMethod: setMethod);
       Assert.That (readOnlyProperty.MutableSetMethod, Is.Null);
       Assert.That (writeOnlyProperty.MutableGetMethod, Is.Null);
 
@@ -287,8 +267,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var propertyBuilderMock1 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
       var propertyBuilderMock2 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
-      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, 0, null, null)).IgnoreArguments().Return (propertyBuilderMock1).Repeat.Once();
-      _typeBuilderMock.Stub (stub => stub.DefineProperty ("", 0, 0, null, null)).IgnoreArguments().Return (propertyBuilderMock2).Repeat.Once();
+      _typeBuilderMock
+          .Expect (mock => mock.DefineProperty (readOnlyProperty.Name, readOnlyProperty.Attributes, staticGetMethod.CallingConvention, typeof (int), Type.EmptyTypes))
+          .Return (propertyBuilderMock1);
+      _typeBuilderMock
+          .Expect (mock => mock.DefineProperty (writeOnlyProperty.Name, writeOnlyProperty.Attributes, setMethod.CallingConvention, typeof (long), Type.EmptyTypes))
+          .Return (propertyBuilderMock2);
       propertyBuilderMock1.Expect (mock => mock.SetGetMethod (methodBuilder));
       propertyBuilderMock2.Expect (mock => mock.SetSetMethod (methodBuilder));
 
