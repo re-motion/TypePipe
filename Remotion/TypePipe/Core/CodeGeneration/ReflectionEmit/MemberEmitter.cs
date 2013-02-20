@@ -124,8 +124,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineCustomAttributes (propertyBuilder, property);
 
-      SetAccessor (propertyBuilder.SetGetMethod, getMethod);
-      SetAccessor (propertyBuilder.SetSetMethod, setMethod);
+      if (getMethod != null)
+        propertyBuilder.SetGetMethod (_methodMapping[getMethod]);
+      if (setMethod != null)
+        propertyBuilder.SetSetMethod (_methodMapping[setMethod]);
     }
 
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
@@ -178,15 +180,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           context.TypeBuilder.DefineMethodOverride (emittableOverridingMethod, emittableOverriddenMethod);
         }
       };
-    }
-
-    private void SetAccessor (Action<IMethodBuilder> setAccessorMethod, MutableMethodInfo accessorOrNull)
-    {
-      if (accessorOrNull == null)
-        return;
-
-      var accessorBuilder = _methodMapping[accessorOrNull];
-      setAccessorMethod (accessorBuilder);
     }
   }
 }
