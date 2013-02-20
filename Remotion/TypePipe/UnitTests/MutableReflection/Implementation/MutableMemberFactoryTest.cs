@@ -918,8 +918,84 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.InvalidOperationException.With.Message.EqualTo ("Property with equal name and signature already exists."));
     }
 
-    [Test]
     [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Accessors_ThrowsForDifferentDeclaringType ()
+    {
+      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Action), "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+
+      var nonMatchingAddMethod = MutableMethodInfoObjectMother.Create();
+      var nonMatchingRemoveMethod = MutableMethodInfoObjectMother.Create();
+      var nonMatchingRaiseMethod = MutableMethodInfoObjectMother.Create();
+
+      var message = "Accessor method must be declared on the current type.\r\nParameter name: {0}";
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, nonMatchingAddMethod, removeMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "addMethod")));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, nonMatchingRemoveMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "removeMethod")));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "raiseMethod")));
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Add accessor must have return type void.\r\nParameter name: addMethod")]
+    public void CreateEvent_Accessors_ThrowsForNonVoidAddMethod ()
+    {
+      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int>), "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (int), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+
+      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Remove accessor must have return type void.\r\nParameter name: removeMethod")]
+    public void CreateEvent_Accessors_ThrowsForNonVoidRemoveMethod ()
+    {
+      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int>), "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (int), parameters: addRemoveParameters);
+
+      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "Add accessor must have a single parameter with delegate type.\r\nParameter name: addMethod")]
+    public void CreateEvent_Accessors_ThrowsForAddMethodWithNonDelegateParameter ()
+    {
+      var addMethod = MutableMethodInfoObjectMother.Create (
+          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (int), "handler") });
+      var removeMethod = MutableMethodInfoObjectMother.Create (
+          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (Func<int>), "handler") });
+
+      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "Add accessor must have a single parameter with delegate type.\r\nParameter name: addMethod")]
+    public void CreateEvent_Accessors_ThrowsForRemoveMethodWithNonDelegateParameter ()
+    {
+      var addMethod = MutableMethodInfoObjectMother.Create (
+          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (Func<int>), "handler") });
+      var removeMethod = MutableMethodInfoObjectMother.Create (
+          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (int), "handler") });
+
+      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
     public void CreateEvent_Accessors_ThrowsForDifferentTypes ()
     {
       var argumentType = ReflectionObjectMother.GetSomeType();
@@ -927,19 +1003,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var handlerType = typeof (Func<,>).MakeGenericType (argumentType, returnType);
 
       var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
+      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
       var raiseParameters = new[] { new ParameterDeclaration (argumentType, "arg") };
-      var raiseMethod = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: raiseParameters);
+      var raiseMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: returnType, parameters: raiseParameters);
 
       var nonMatchingHandlerType = typeof (Func<,>).MakeGenericType (returnType, argumentType);
       var nonMatchingAddRemoveParameters = new[] { new ParameterDeclaration (nonMatchingHandlerType, "handler") };
-      var nonMatchingAddMethod1 = MutableMethodInfoObjectMother.Create (returnType: typeof (int), parameters: addRemoveParameters);
-      var nonMatchingAddMethod2 = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
-      var nonMatchingRemoveMethod1 = MutableMethodInfoObjectMother.Create (returnType: typeof (int), parameters: addRemoveParameters);
-      var nonMatchingRemoveMethod2 = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
-      var nonMatchingRaiseMethod1 = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: ParameterDeclaration.EmptyParameters);
-      var nonMatchingRaiseMethod2 = MutableMethodInfoObjectMother.Create (returnType: argumentType, parameters: raiseParameters);
+      var nonMatchingAddMethod1 = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (int), parameters: addRemoveParameters);
+      var nonMatchingAddMethod2 = MutableMethodInfoObjectMother.Create (
+          _proxyType, returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
+      var nonMatchingRemoveMethod1 = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (int), parameters: addRemoveParameters);
+      var nonMatchingRemoveMethod2 = MutableMethodInfoObjectMother.Create (
+          _proxyType, returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
+      var nonMatchingRaiseMethod1 = MutableMethodInfoObjectMother.Create (
+          _proxyType, returnType: returnType, parameters: ParameterDeclaration.EmptyParameters);
+      var nonMatchingRaiseMethod2 = MutableMethodInfoObjectMother.Create (_proxyType, returnType: argumentType, parameters: raiseParameters);
 
       var message = "";
       Assert.That (
@@ -961,6 +1040,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod2),
           Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, raiseMethod), Throws.Nothing);
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Accessors_ThrowsIfAlreadyExists ()
+    {
+      
     }
 
     private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
