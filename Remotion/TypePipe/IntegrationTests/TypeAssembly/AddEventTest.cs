@@ -27,7 +27,6 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  [Ignore ("TODO 5431")]
   [TestFixture]
   public class AddEventTest : TypeAssemblerIntegrationTestBase
   {
@@ -102,13 +101,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void Redeclare_UsingAccesssors ()
     {
-      var dummyRaiseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.DummyRaiseMethod (null));
+      var dummyRaiseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.DummyRaiseMethod (7));
       var type = AssembleType<DomainType> (
           proxyType =>
           {
             var existingEvent = proxyType.GetEvent ("ExistingEvent");
-            var addMethod = proxyType.GetOrAddOverride (existingEvent.GetAddMethod (true));
-            var removeMethod = proxyType.GetOrAddOverride (existingEvent.GetRemoveMethod (true));
+            var addMethod = proxyType.GetOrAddOverride (existingEvent.GetAddMethod());
+            var removeMethod = proxyType.GetOrAddOverride (existingEvent.GetRemoveMethod());
             Assert.That (existingEvent.GetRaiseMethod (true), Is.Null);
             var raiseMethod = proxyType.GetOrAddOverride (dummyRaiseMethod);
 
@@ -150,7 +149,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assertion.IsNotNull (newEvent);
 
       var attributesArgs = Attribute.GetCustomAttributes (newEvent, inherit: true).Cast<AbcAttribute>().Select (a => a.Arg);
-      Assert.That (attributesArgs, Is.EquivalentTo (new[] { "base", "dervied" }));
+      Assert.That (attributesArgs, Is.EquivalentTo (new[] { "base", "derived" }));
     }
 
     [Test]
@@ -176,7 +175,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       Assert.That (DomainType.StaticDelegateField, Is.Null);
       var handler = new Action (() => { });
-      event_.AddEventHandler (null, handler);
+      // event_.AddEventHandler(null, handler) // Does not work because add method is private.
+      event_.GetAddMethod (true).Invoke (null, new object[] { handler });
       Assert.That (DomainType.StaticDelegateField, Is.SameAs (handler));
     }
 
@@ -188,12 +188,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public bool RemoveCalled;
 
       [Abc ("base")]
-      public virtual event Action ExistingEvent
+      public virtual event Func<int, string> ExistingEvent
       {
         add { Dev.Null = value; AddCalled = true; }
         remove { Dev.Null = value; RemoveCalled = true; }
       }
-      public virtual void DummyRaiseMethod (Action handler) { Dev.Null = handler; }
+      public virtual string DummyRaiseMethod (int arg) { Dev.Null = arg; return ""; }
     }
 
     [AttributeUsage (AttributeTargets.Event, Inherited = true, AllowMultiple = true)]
