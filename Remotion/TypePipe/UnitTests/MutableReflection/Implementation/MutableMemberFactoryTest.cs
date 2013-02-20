@@ -1103,32 +1103,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Add accessor must have a single parameter with delegate type.\r\nParameter name: addMethod")]
     public void CreateEvent_Accessors_ThrowsForAddMethodWithNonDelegateParameter ()
     {
-      var addMethod = MutableMethodInfoObjectMother.Create (
-          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (int), "handler") });
-      var removeMethod = MutableMethodInfoObjectMother.Create (
-          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (Func<int>), "handler") });
+      var nonParameterMethod = MutableMethodInfoObjectMother.Create (_proxyType);
+      var nonDelegateMethod = MutableMethodInfoObjectMother.Create (_proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create() });
+      var method = MutableMethodInfoObjectMother.Create (_proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
 
-      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
-    }
-
-    [Ignore ("TODO 5429")]
-    [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Add accessor must have a single parameter with delegate type.\r\nParameter name: addMethod")]
-    public void CreateEvent_Accessors_ThrowsForRemoveMethodWithNonDelegateParameter ()
-    {
-      var addMethod = MutableMethodInfoObjectMother.Create (
-          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (Func<int>), "handler") });
-      var removeMethod = MutableMethodInfoObjectMother.Create (
-          declaringType: _proxyType, returnType: typeof (void), parameters: new[] { new ParameterDeclaration (typeof (int), "handler") });
-
-      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
+      var message = "{0} method must have a single parameter that is assignable to 'System.Delegate'.\r\nParameter name: {1}";
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, nonParameterMethod, method, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, method, nonParameterMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, nonDelegateMethod, method, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, method, nonDelegateMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
     }
 
     [Ignore ("TODO 5429")]
