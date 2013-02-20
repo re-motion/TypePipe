@@ -918,6 +918,51 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.InvalidOperationException.With.Message.EqualTo ("Property with equal name and signature already exists."));
     }
 
+    [Test]
+    [Ignore ("TODO 5429")]
+    public void CreateEvent_Accessors_ThrowsForDifferentTypes ()
+    {
+      var argumentType = ReflectionObjectMother.GetSomeType();
+      var returnType = ReflectionObjectMother.GetSomeOtherType();
+      var handlerType = typeof (Func<,>).MakeGenericType (argumentType, returnType);
+
+      var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
+      var raiseParameters = new[] { new ParameterDeclaration (argumentType, "arg") };
+      var raiseMethod = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: raiseParameters);
+
+      var nonMatchingHandlerType = typeof (Func<,>).MakeGenericType (returnType, argumentType);
+      var nonMatchingAddRemoveParameters = new[] { new ParameterDeclaration (nonMatchingHandlerType, "handler") };
+      var nonMatchingAddMethod1 = MutableMethodInfoObjectMother.Create (returnType: typeof (int), parameters: addRemoveParameters);
+      var nonMatchingAddMethod2 = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
+      var nonMatchingRemoveMethod1 = MutableMethodInfoObjectMother.Create (returnType: typeof (int), parameters: addRemoveParameters);
+      var nonMatchingRemoveMethod2 = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
+      var nonMatchingRaiseMethod1 = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: ParameterDeclaration.EmptyParameters);
+      var nonMatchingRaiseMethod2 = MutableMethodInfoObjectMother.Create (returnType: argumentType, parameters: raiseParameters);
+
+      var message = "";
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, nonMatchingAddMethod1, removeMethod, raiseMethod),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, nonMatchingAddMethod2, removeMethod, raiseMethod),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, nonMatchingRemoveMethod1, raiseMethod),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, nonMatchingRemoveMethod2, raiseMethod),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod1),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod2),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, raiseMethod), Throws.Nothing);
+    }
+
     private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
     {
       Assert.That (ctx.This.Type, Is.SameAs (_proxyType));
@@ -1036,6 +1081,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (int));
       return _factory.CreateProperty (proxyType, "dummy", attributes, getMethod, null);
+    }
+
+    private MutableEventInfo CreateEvent (ProxyType proxyType, MethodAttributes accessorAttributes)
+    {
+      var argumentType = ReflectionObjectMother.GetSomeType();
+      var returnType = ReflectionObjectMother.GetSomeOtherType();
+      var handlerType = typeof (Func<,>).MakeGenericType (argumentType, returnType);
+
+      return _factory.CreateEvent (
+          proxyType,
+          "dummy",
+          handlerType,
+          accessorAttributes,
+          ctx => Expression.Empty(),
+          ctx => Expression.Empty(),
+          ctx => Expression.Default (returnType));
+    }
+
+    private MutableEventInfo CreateEvent (ProxyType proxyType, EventAttributes attributes)
+    {
+      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Action), "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (parameters: addRemoveParameters);
+
+      return _factory.CreateEvent (proxyType, "dummy", attributes, addMethod, removeMethod, null);
     }
 
     private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
