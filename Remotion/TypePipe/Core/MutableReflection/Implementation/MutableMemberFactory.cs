@@ -337,6 +337,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("removeBodyProvider", removeBodyProvider);
       // Raise body provider may be null.
 
+      // TODO check that handler type is a delegate type
+
       CheckForInvalidAttributes ("event accessor methods", s_invalidMethodAttributes, accessorAttributes, "accessorAttributes");
 
       var signature = new EventSignature (handlerType);
@@ -352,9 +354,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       MutableMethodInfo raiseMethod = null;
       if (raiseBodyProvider != null)
       {
-        var invokeMethod = handlerType.GetMethod ("Invoke", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        // TODO 5429: Add test for parameter attributes.
-        var raiseParameters = invokeMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name));
+        var invokeMethod = GetInvokeMethod (handlerType);
+        var raiseParameters = invokeMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
         raiseMethod = CreateMethod (declaringType, "raise_" + name, attributes, invokeMethod.ReturnType, raiseParameters, raiseBodyProvider);
       }
       

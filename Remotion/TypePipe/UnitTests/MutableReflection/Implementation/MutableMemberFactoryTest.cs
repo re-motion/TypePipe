@@ -918,7 +918,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "Event";
       var accessorAttributes = (MethodAttributes) 7;
       var handlerType = typeof (SomeDelegate);
-      var argumentType = typeof (object);
       var returnType = typeof (string);
       var fakeAddBody = Expression.Empty();
       var fakeRemoveBody = Expression.Empty();
@@ -940,8 +939,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (addMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
       Assert.That (addMethod.ReturnType, Is.SameAs (typeof (void)));
       var addParameter = addMethod.GetParameters().Single();
-      Assert.That (addParameter.ParameterType, Is.SameAs (handlerType));
       Assert.That (addParameter.Name, Is.EqualTo ("handler"));
+      Assert.That (addParameter.ParameterType, Is.SameAs (handlerType));
       Assert.That (addMethod.Body, Is.SameAs (fakeAddBody));
 
       var removeMethod = result.MutableRemoveMethod;
@@ -950,8 +949,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (removeMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
       Assert.That (removeMethod.ReturnType, Is.SameAs (typeof (void)));
       var removeParameter = removeMethod.GetParameters().Single();
-      Assert.That (removeParameter.ParameterType, Is.SameAs (handlerType));
       Assert.That (removeParameter.Name, Is.EqualTo ("handler"));
+      Assert.That (removeParameter.ParameterType, Is.SameAs (handlerType));
       Assert.That (removeMethod.Body, Is.SameAs (fakeRemoveBody));
 
       var raiseMethod = result.MutableRaiseMethod;
@@ -959,9 +958,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (raiseMethod.Name, Is.EqualTo ("raise_Event"));
       Assert.That (raiseMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
       Assert.That (raiseMethod.ReturnType, Is.SameAs (returnType));
-      var raiseParameter = raiseMethod.GetParameters().Single();
-      Assert.That (raiseParameter.ParameterType, Is.SameAs (argumentType));
-      Assert.That (raiseParameter.Name, Is.EqualTo ("sender"));
+      var raiseParameters = raiseMethod.GetParameters();
+      CustomParameterInfoTest.CheckParameter (raiseParameters[0], raiseMethod, 0, "sender", typeof (object), ParameterAttributes.None);
+      CustomParameterInfoTest.CheckParameter (raiseParameters[1], raiseMethod, 1, "outParam", typeof (int).MakeByRefType(), ParameterAttributes.Out);
       Assert.That (raiseMethod.Body, Is.SameAs (fakeRaiseBody));
     }
 
@@ -1358,6 +1357,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
     public abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
 
-    public delegate string SomeDelegate (object sender);
+    public delegate string SomeDelegate (object sender, out int outParam);
   }
 }
