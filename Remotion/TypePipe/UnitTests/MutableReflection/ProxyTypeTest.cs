@@ -529,7 +529,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> raiseBodyProvider = ctx => null;
 
-      var fakeEvent = MutableEventInfoObjectMother.Create();
+      var fakeEvent = MutableEventInfoObjectMother.CreateWithAccessors (createRaiseMethod: true);
       _mutableMemberFactoryMock
           .Expect (
               mock => mock.CreateEvent (_proxyType, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider))
@@ -553,7 +553,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int, string>), "handler") };
       var addMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
       var removeMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
-      var fakeEvent = MutableEventInfoObjectMother.CreateWithAccessors (addMethod: addMethod, removeMethod: removeMethod);
+      var fakeEvent = MutableEventInfoObjectMother.Create (addMethod: addMethod, removeMethod: removeMethod);
       Assert.That (fakeEvent.MutableRaiseMethod, Is.Null);
       _mutableMemberFactoryMock
         .Stub (stub => stub.CreateEvent (null, null, null, 0, null, null, null))
@@ -572,7 +572,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addMethod = MutableMethodInfoObjectMother.Create();
       var removeMethod = MutableMethodInfoObjectMother.Create();
       var raiseMethod = MutableMethodInfoObjectMother.Create();
-      var fakeEvent = MutableEventInfoObjectMother.Create();
+      var fakeEvent = MutableEventInfoObjectMother.CreateWithAccessors();
       _mutableMemberFactoryMock
           .Expect (mock => mock.CreateEvent (_proxyType, "Event", eventAttributes, addMethod, removeMethod, raiseMethod))
           .Return (fakeEvent);

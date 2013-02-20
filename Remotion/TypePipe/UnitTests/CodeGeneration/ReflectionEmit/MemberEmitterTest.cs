@@ -296,7 +296,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var removeMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType) });
       var raiseMethod = MutableMethodInfoObjectMother.Create (
           returnType: typeof (string), parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
-      var event_ = MutableEventInfoObjectMother.CreateWithAccessors (
+      var event_ = MutableEventInfoObjectMother.Create (
           name: name, attributes: attributes, addMethod: addMethod, removeMethod: removeMethod, raiseMethod: raiseMethod);
 
       var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
@@ -324,7 +324,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddEvent_NoRaiseMethod ()
     {
-      var event_ = MutableEventInfoObjectMother.Create();
+      var event_ = MutableEventInfoObjectMother.CreateWithAccessors();
       Assert.That (event_.MutableRaiseMethod, Is.Null);
 
       var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();

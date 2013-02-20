@@ -1,4 +1,22 @@
-﻿using System;
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
+// 
+
+using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
@@ -9,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableEventInfoObjectMother
   {
-    public static MutableEventInfo CreateWithAccessors (
+    public static MutableEventInfo Create (
         ProxyType declaringType = null,
         string name = "UnspecifiedEvent",
         EventAttributes attributes = EventAttributes.None,
@@ -23,27 +41,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
 
-    public static MutableEventInfo Create (
-      ProxyType declaringType = null,
-      string name = "UnspecifiedEvent",
+    public static MutableEventInfo CreateWithAccessors (
+        ProxyType declaringType = null,
+        string name = "UnspecifiedEvent",
         EventAttributes attributes = EventAttributes.None,
-      Type handlerType = null)
+        Type handlerType = null,
+        bool createRaiseMethod = false)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       handlerType = handlerType ?? typeof (Func<,>).MakeGenericType (ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeOtherType());
       Assertion.IsTrue (handlerType.IsSubclassOf (typeof (Delegate)));
 
-      var invokeMethod = handlerType.GetMethod ("Invoke");
-      var argumentTypes = invokeMethod.GetParameters().Select (p => p.ParameterType);
-      var returnType = invokeMethod.ReturnType;
+      var invokeMethod = handlerType.GetMethod ("Invoke", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+      var raiseParameterTypes = invokeMethod.GetParameters().Select (p => p.ParameterType).ToArray();
+      var addRemoveParameterTypes = new[] { handlerType };
 
-      var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (declaringType, returnType: typeof (void), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (declaringType, returnType: typeof (void), parameters: addRemoveParameters);
-      var raiseParameters = argumentTypes.Select ((t, i) => new ParameterDeclaration (t, i.ToString()));
-      var raiseMethod = MutableMethodInfoObjectMother.Create (declaringType, returnType: returnType, parameters: raiseParameters);
+      var addMethod = CreateMethod (declaringType, "Adder", addRemoveParameterTypes);
+      var removeMethod = CreateMethod (declaringType, "Remover", addRemoveParameterTypes);
+      var raiseMethod = createRaiseMethod ? CreateMethod (declaringType, "Raiser", raiseParameterTypes, invokeMethod.ReturnType) : null;
 
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
+    }
+
+    private static MutableMethodInfo CreateMethod (ProxyType declaringType, string name, Type[] parameterTypes, Type returnType = null)
+    {
+      var parameters = parameterTypes.Select ((t, i) => ParameterDeclarationObjectMother.Create (t, i.ToString (CultureInfo.InvariantCulture)));
+      return MutableMethodInfoObjectMother.Create (declaringType, name, returnType: returnType, parameters: parameters);
     }
   }
 }
