@@ -332,12 +332,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("handlerType", handlerType);
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("handlerType", handlerType, typeof (Delegate));
       ArgumentUtility.CheckNotNull ("addBodyProvider", addBodyProvider);
       ArgumentUtility.CheckNotNull ("removeBodyProvider", removeBodyProvider);
       // Raise body provider may be null.
-
-      // TODO check that handler type is a delegate type
 
       CheckForInvalidAttributes ("event accessor methods", s_invalidMethodAttributes, accessorAttributes, "accessorAttributes");
 

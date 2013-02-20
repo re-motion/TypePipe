@@ -976,18 +976,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateEvent_Providers_ThrowsForInvalidAccessorAttributes ()
+    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
+        "Argument handlerType is a System.Int32, which cannot be assigned to type System.Delegate.\r\nParameter name: handlerType")]
+    public void CreateEvent_Providers_ThrowsForNonDelegateHandlerType ()
     {
-      const string message = "The following MethodAttributes are not supported for event accessor methods: " +
-                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: accessorAttributes";
-      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      _factory.CreateEvent (_proxyType, "Event", typeof (int), 0, null, null, null);
     }
 
     [Test]
-    public void CreateEvent_Providers_NoAccessorProviders ()
+    public void CreateEvent_Providers_ThrowsForNoAccessorProviders ()
     {
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Default (typeof (void));
 
@@ -998,6 +995,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, bodyProvider, null, null),
           Throws.TypeOf<ArgumentNullException>().With.Message.EqualTo (string.Format (message, "removeBodyProvider")));
+    }
+
+    [Test]
+    public void CreateEvent_Providers_ThrowsForInvalidAccessorAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for event accessor methods: " +
+                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: accessorAttributes";
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
