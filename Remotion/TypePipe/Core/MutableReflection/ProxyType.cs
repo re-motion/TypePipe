@@ -407,6 +407,9 @@ namespace Remotion.TypePipe.MutableReflection
         MutableMethodInfo raiseMethod = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("addMethod", addMethod);
+      ArgumentUtility.CheckNotNull ("removeMethod", removeMethod);
+      // Raise method may be null.
 
       var event_ = _mutableMemberFactory.CreateEvent (this, name, attributes, addMethod, removeMethod, raiseMethod);
       _addedEvents.Add (event_);

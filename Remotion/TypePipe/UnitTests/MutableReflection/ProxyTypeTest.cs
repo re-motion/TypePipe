@@ -103,6 +103,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.AddedFields, Is.Empty);
       Assert.That (proxyType.AddedConstructors, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
+      Assert.That (proxyType.AddedProperties, Is.Empty);
+      Assert.That (proxyType.AddedEvents, Is.Empty);
     }
 
     [Test]
