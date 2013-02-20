@@ -697,16 +697,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var setterParameters = indexParameters.Concat (ParameterDeclarationObjectMother.Create (type, "value")).ToList();
       var fakeGetBody = ExpressionTreeObjectMother.GetSomeExpression (type);
       var fakeSetBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx =>
-      {
-        CheckAccessorContext (ctx, type, indexParameters);
-        return fakeGetBody;
-      };
-      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx =>
-      {
-        CheckAccessorContext (ctx, typeof (void), setterParameters);
-        return fakeSetBody;
-      };
+      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => fakeGetBody;
+      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => fakeSetBody;
 
       var result = _factory.CreateProperty (_proxyType, name, type, indexParameters.AsOneTime(), accessorAttributes, getBodyProvider, setBodyProvider);
 
@@ -723,6 +715,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var getterParams = getter.GetParameters();
       Assert.That (getterParams.Select (p => p.ParameterType), Is.EqualTo (indexParameters.Select (p => p.Type)));
       Assert.That (getterParams.Select (p => p.Name), Is.EqualTo (indexParameters.Select (p => p.Name)));
+      Assert.That (getter.Body, Is.SameAs (fakeGetBody));
 
       var setter = result.MutableSetMethod;
       Assert.That (setter.DeclaringType, Is.SameAs (_proxyType));
@@ -732,6 +725,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var setterParams = setter.GetParameters();
       Assert.That (setterParams.Select (p => p.ParameterType), Is.EqualTo (setterParameters.Select (p => p.Type)));
       Assert.That (setterParams.Select (p => p.Name), Is.EqualTo (setterParameters.Select (p => p.Name)));
+      Assert.That (setter.Body, Is.SameAs (fakeSetBody));
     }
 
     [Test]
@@ -918,49 +912,59 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.InvalidOperationException.With.Message.EqualTo ("Property with equal name and signature already exists."));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Providers ()
     {
       var name = "Event";
       var accessorAttributes = (MethodAttributes) 7;
-      var argumentType = ReflectionObjectMother.GetSomeType();
-      var returnType = ReflectionObjectMother.GetSomeOtherType();
-      var handlerType = typeof (Func<,>).MakeGenericType (argumentType, returnType);
-      Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => Expression.Default (typeof (void));
-      Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => Expression.Default (typeof (void));
-      Func<MethodBodyCreationContext, Expression> raiseBodyProvider = ctx => Expression.Default (handlerType);
+      var handlerType = typeof (SomeDelegate);
+      var argumentType = typeof (object);
+      var returnType = typeof (string);
+      var fakeAddBody = Expression.Empty();
+      var fakeRemoveBody = Expression.Empty();
+      var fakeRaiseBody = Expression.Default (returnType);
+      Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => fakeAddBody;
+      Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => fakeRemoveBody;
+      Func<MethodBodyCreationContext, Expression> raiseBodyProvider = ctx => fakeRaiseBody;
 
       var result = _factory.CreateEvent (_proxyType, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
 
       Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (result.Name, Is.EqualTo (name));
-      Assert.That (result.Attributes, Is.EqualTo (PropertyAttributes.None));
+      Assert.That (result.Attributes, Is.EqualTo (EventAttributes.None));
       Assert.That (result.EventHandlerType, Is.SameAs (handlerType));
 
       var addMethod = result.MutableAddMethod;
       Assert.That (addMethod.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (addMethod.Name, Is.EqualTo ("add_Event"));
       Assert.That (addMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
-      Assert.That (addMethod.GetParameters().Single().ParameterType, Is.SameAs (handlerType));
       Assert.That (addMethod.ReturnType, Is.SameAs (typeof (void)));
+      var addParameter = addMethod.GetParameters().Single();
+      Assert.That (addParameter.ParameterType, Is.SameAs (handlerType));
+      Assert.That (addParameter.Name, Is.EqualTo ("handler"));
+      Assert.That (addMethod.Body, Is.SameAs (fakeAddBody));
 
       var removeMethod = result.MutableRemoveMethod;
       Assert.That (removeMethod.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (removeMethod.Name, Is.EqualTo ("remove_Event"));
       Assert.That (removeMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
-      Assert.That (removeMethod.GetParameters().Single().ParameterType, Is.SameAs (handlerType));
       Assert.That (removeMethod.ReturnType, Is.SameAs (typeof (void)));
+      var removeParameter = removeMethod.GetParameters().Single();
+      Assert.That (removeParameter.ParameterType, Is.SameAs (handlerType));
+      Assert.That (removeParameter.Name, Is.EqualTo ("handler"));
+      Assert.That (removeMethod.Body, Is.SameAs (fakeRemoveBody));
 
       var raiseMethod = result.MutableRaiseMethod;
       Assert.That (raiseMethod.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (raiseMethod.Name, Is.EqualTo ("raise_Event"));
       Assert.That (raiseMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
-      Assert.That (raiseMethod.GetParameters().Single().ParameterType, Is.SameAs (argumentType));
       Assert.That (raiseMethod.ReturnType, Is.SameAs (returnType));
+      var raiseParameter = raiseMethod.GetParameters().Single();
+      Assert.That (raiseParameter.ParameterType, Is.SameAs (argumentType));
+      Assert.That (raiseParameter.Name, Is.EqualTo ("sender"));
+      Assert.That (raiseMethod.Body, Is.SameAs (fakeRaiseBody));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Providers_WithoutRaiseAccessor ()
     {
@@ -1190,15 +1194,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       
     }
 
-    private void CheckAccessorContext (MethodBodyCreationContext ctx, Type type, List<ParameterDeclaration> parameters)
-    {
-      Assert.That (ctx.This.Type, Is.SameAs (_proxyType));
-      Assert.That (ctx.Parameters.Select (p => p.Type), Is.EqualTo (parameters.Select (p => p.Type)));
-      Assert.That (ctx.Parameters.Select (p => p.Name), Is.EqualTo (parameters.Select (p => p.Name)));
-      Assert.That (ctx.IsStatic, Is.False);
-      Assert.That (ctx.ReturnType, Is.SameAs (type));
-    }
-
     private void CallAndCheckGetOrAddOverride (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
@@ -1385,5 +1380,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
     public abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
 
+    public delegate string SomeDelegate (object sender);
   }
 }

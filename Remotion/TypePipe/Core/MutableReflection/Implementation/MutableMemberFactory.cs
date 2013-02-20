@@ -328,7 +328,30 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Func<MethodBodyCreationContext, Expression> removeBodyProvider,
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("handlerType", handlerType);
+      ArgumentUtility.CheckNotNull ("addBodyProvider", addBodyProvider);
+      ArgumentUtility.CheckNotNull ("removeBodyProvider", removeBodyProvider);
+      // Raise body provider may be null.
+
+      var attributes = accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
+      var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
+
+      var addMethod = CreateMethod (declaringType, "add_" + name, attributes, typeof (void), addRemoveParameters, addBodyProvider);
+      var removeMethod = CreateMethod (declaringType, "remove_" + name, attributes, typeof (void), addRemoveParameters, removeBodyProvider);
+
+      MutableMethodInfo raiseMethod = null;
+      if (raiseBodyProvider != null)
+      {
+        Assertion.IsTrue (handlerType.IsSubclassOf (typeof (Delegate)));
+        var invokeMethod = handlerType.GetMethod ("Invoke", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        // TODO 5429: Add test for parameter attributes.
+        var raiseParameters = invokeMethod.GetParameters ().Select (p => new ParameterDeclaration (p.ParameterType, p.Name));
+        raiseMethod = CreateMethod (declaringType, "raise_" + name, attributes, invokeMethod.ReturnType, raiseParameters, raiseBodyProvider);
+      }
+      
+      return new MutableEventInfo (declaringType, name, EventAttributes.None, addMethod, removeMethod, raiseMethod);
     }
 
     public MutableEventInfo CreateEvent (
