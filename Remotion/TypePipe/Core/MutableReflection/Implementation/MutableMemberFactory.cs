@@ -335,6 +335,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("removeBodyProvider", removeBodyProvider);
       // Raise body provider may be null.
 
+      CheckForInvalidAttributes ("event accessor methods", s_invalidMethodAttributes, accessorAttributes, "accessorAttributes");
+      
       var attributes = accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
       var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
 

@@ -976,11 +976,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.MutableRaiseMethod, Is.Null);
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Providers_ThrowsForInvalidAccessorAttributes ()
     {
-      const string message = "The following MethodAttributes are not supported for property accessor methods: " +
+      const string message = "The following MethodAttributes are not supported for event accessor methods: " +
                              "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: accessorAttributes";
       Assert.That (() => CreateEvent (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateEvent (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
@@ -988,19 +987,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Providers_NoAccessorProviders ()
     {
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Default (typeof (void));
 
-      var message = "A body provider for {0} must be specified.\r\nParameter name: {0}Method";
+      var message = "Value cannot be null.\r\nParameter name: {0}";
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, null, null, null),
+          Throws.TypeOf<ArgumentNullException>().With.Message.EqualTo (string.Format (message, "addBodyProvider")));
       Assert.That (
           () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, bodyProvider, null, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "add")));
-      Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, null, bodyProvider, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "remove")));
+          Throws.TypeOf<ArgumentNullException>().With.Message.EqualTo (string.Format (message, "removeBodyProvider")));
     }
 
     [Ignore ("TODO 5429")]
