@@ -221,13 +221,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddProperty ()
     {
+      var name = "Property";
+      var attributes = (PropertyAttributes) 7;
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var setMethodParameters = parameters.Concat (ParameterDeclarationObjectMother.Create (returnType));
       var indexParameterTypes = parameters.Select (p => p.Type).ToArray();
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: parameters);
       var setMethod = MutableMethodInfoObjectMother.Create (parameters: setMethodParameters);
-      var property = MutablePropertyInfoObjectMother.Create (name: "Property", getMethod: getMethod, setMethod: setMethod);
+      var property = MutablePropertyInfoObjectMother.Create (name: name, attributes: attributes, getMethod: getMethod, setMethod: setMethod);
 
       var getMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
       var setMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
@@ -238,7 +240,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var callingConventions = CallingConventions.Standard | CallingConventions.HasThis;
       var propertyBuilderMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineProperty ("Property", property.Attributes, callingConventions, returnType, indexParameterTypes))
+          .Expect (mock => mock.DefineProperty (name, attributes, callingConventions, returnType, indexParameterTypes))
           .Return (propertyBuilderMock);
       SetupDefineCustomAttribute (propertyBuilderMock, property);
       propertyBuilderMock.Expect (mock => mock.SetGetMethod (getMethodBuilder));
@@ -279,8 +281,68 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _emitter.AddProperty (_context, readOnlyProperty);
       _emitter.AddProperty (_context, writeOnlyProperty);
 
+      _typeBuilderMock.VerifyAllExpectations();
       propertyBuilderMock1.VerifyAllExpectations();
       propertyBuilderMock2.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void AddEvent ()
+    {
+      var name = "Event";
+      var attributes = (EventAttributes) 7;
+      var handlerType = typeof (Func<int, string>);
+      var addMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType) });
+      var removeMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType) });
+      var raiseMethod = MutableMethodInfoObjectMother.Create (
+          returnType: typeof (string), parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
+      var event_ = MutableEventInfoObjectMother.CreateWithAccessors (
+          name: name, attributes: attributes, addMethod: addMethod, removeMethod: removeMethod, raiseMethod: raiseMethod);
+
+      var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var removeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var raiseMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var methodMapping = GetMethodMapping (_emitter);
+      methodMapping.Add (addMethod, addMethodBuilder);
+      methodMapping.Add (removeMethod, removeMethodBuilder);
+      methodMapping.Add (raiseMethod, raiseMethodBuilder);
+
+      var eventBuilderMock = MockRepository.GenerateStrictMock<IEventBuilder>();
+      _typeBuilderMock.Expect (mock => mock.DefineEvent (name, attributes, handlerType)).Return (eventBuilderMock);
+      SetupDefineCustomAttribute (eventBuilderMock, event_);
+      eventBuilderMock.Expect (mock => mock.SetAddOnMethod (addMethodBuilder));
+      eventBuilderMock.Expect (mock => mock.SetRemoveOnMethod (removeMethodBuilder));
+      eventBuilderMock.Expect (mock => mock.SetRaiseMethod (raiseMethodBuilder));
+
+      _emitter.AddEvent (_context, event_);
+
+      _typeBuilderMock.VerifyAllExpectations();
+      eventBuilderMock.VerifyAllExpectations();
+    }
+
+    [Ignore ("TODO 5430")]
+    [Test]
+    public void AddEvent_NoRaiseMethod ()
+    {
+      var event_ = MutableEventInfoObjectMother.Create();
+      Assert.That (event_.MutableRaiseMethod, Is.Null);
+
+      var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var removeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
+      var methodMapping = GetMethodMapping (_emitter);
+      methodMapping.Add (event_.MutableAddMethod, addMethodBuilder);
+      methodMapping.Add (event_.MutableRemoveMethod, removeMethodBuilder);
+
+      var eventBuilderMock = MockRepository.GenerateStrictMock<IEventBuilder>();
+      _typeBuilderMock.Stub (stub => stub.DefineEvent (event_.Name, event_.Attributes, event_.EventHandlerType)).Return (eventBuilderMock);
+      SetupDefineCustomAttribute (eventBuilderMock, event_);
+      eventBuilderMock.Expect (mock => mock.SetAddOnMethod (addMethodBuilder));
+      eventBuilderMock.Expect (mock => mock.SetRemoveOnMethod (removeMethodBuilder));
+
+      _emitter.AddEvent (_context, event_);
+
+      eventBuilderMock.VerifyAllExpectations();
+      eventBuilderMock.AssertWasNotCalled (mock => mock.SetRaiseMethod (Arg<IMethodBuilder>.Is.Anything));
     }
 
     private void SetupDefineCustomAttribute (ICustomAttributeTargetBuilder customAttributeTargetBuilderMock, IMutableInfo mutableInfo)

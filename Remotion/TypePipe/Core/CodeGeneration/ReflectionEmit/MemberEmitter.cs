@@ -135,7 +135,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("event_", event_);
 
-      // TODO 5430
+      var addMethod = event_.MutableAddMethod;
+      var removeMethod = event_.MutableRemoveMethod;
+      var raiseMethod = event_.MutableRaiseMethod;
+
+      var eventBuilder = context.TypeBuilder.DefineEvent (event_.Name, event_.Attributes, event_.EventHandlerType);
+
+      DefineCustomAttributes (eventBuilder, event_);
+
+      eventBuilder.SetAddOnMethod (_methodMapping[addMethod]);
+      eventBuilder.SetRemoveOnMethod (_methodMapping[removeMethod]);
+      eventBuilder.SetRaiseMethod (_methodMapping[raiseMethod]);
     }
 
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
