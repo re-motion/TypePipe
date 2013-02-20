@@ -920,6 +920,93 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Ignore ("TODO 5429")]
     [Test]
+    public void CreateEvent_Providers ()
+    {
+      var name = "Event";
+      var accessorAttributes = (MethodAttributes) 7;
+      var argumentType = ReflectionObjectMother.GetSomeType();
+      var returnType = ReflectionObjectMother.GetSomeOtherType();
+      var handlerType = typeof (Func<,>).MakeGenericType (argumentType, returnType);
+      Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => Expression.Default (typeof (void));
+      Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => Expression.Default (typeof (void));
+      Func<MethodBodyCreationContext, Expression> raiseBodyProvider = ctx => Expression.Default (handlerType);
+
+      var result = _factory.CreateEvent (_proxyType, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
+
+      Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (result.Name, Is.EqualTo (name));
+      Assert.That (result.Attributes, Is.EqualTo (PropertyAttributes.None));
+      Assert.That (result.EventHandlerType, Is.SameAs (handlerType));
+
+      var addMethod = result.MutableAddMethod;
+      Assert.That (addMethod.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (addMethod.Name, Is.EqualTo ("add_Event"));
+      Assert.That (addMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (addMethod.GetParameters().Single().ParameterType, Is.SameAs (handlerType));
+      Assert.That (addMethod.ReturnType, Is.SameAs (typeof (void)));
+
+      var removeMethod = result.MutableRemoveMethod;
+      Assert.That (removeMethod.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (removeMethod.Name, Is.EqualTo ("remove_Event"));
+      Assert.That (removeMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (removeMethod.GetParameters().Single().ParameterType, Is.SameAs (handlerType));
+      Assert.That (removeMethod.ReturnType, Is.SameAs (typeof (void)));
+
+      var raiseMethod = result.MutableRaiseMethod;
+      Assert.That (raiseMethod.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (raiseMethod.Name, Is.EqualTo ("raise_Event"));
+      Assert.That (raiseMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (raiseMethod.GetParameters().Single().ParameterType, Is.SameAs (argumentType));
+      Assert.That (raiseMethod.ReturnType, Is.SameAs (returnType));
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Providers_WithoutRaiseAccessor ()
+    {
+      Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => Expression.Default (typeof (void));
+      Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => Expression.Default (typeof (void));
+
+      var result = _factory.CreateEvent (_proxyType, "Event", typeof(Action), 0, addBodyProvider, removeBodyProvider, null);
+
+      Assert.That (result.MutableRaiseMethod, Is.Null);
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Providers_ThrowsForInvalidAccessorAttributes ()
+    {
+      const string message = "The following MethodAttributes are not supported for property accessor methods: " +
+                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: accessorAttributes";
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Providers_NoAccessorProviders ()
+    {
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Default (typeof (void));
+
+      var message = "A body provider for {0} must be specified.\r\nParameter name: {0}Method";
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, bodyProvider, null, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "add")));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, null, bodyProvider, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "remove")));
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Providers_ThrowsIfAlreadyExists ()
+    {
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
     public void CreateEvent_Accessors ()
     {
       var name = "Event";
