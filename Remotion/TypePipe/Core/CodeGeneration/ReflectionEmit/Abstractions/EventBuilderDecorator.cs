@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -27,15 +28,35 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   {
     private readonly IEventBuilder _eventBuilder;
 
+    [CLSCompliant (false)]
     public EventBuilderDecorator (IEventBuilder eventBuilder, IEmittableOperandProvider emittableOperandProvider)
         : base(eventBuilder, emittableOperandProvider)
     {
       _eventBuilder = eventBuilder;
     }
 
+    [CLSCompliant (false)]
     public IEventBuilder DecoratedEventBuilder
     {
       get { return _eventBuilder; }
+    }
+
+    [CLSCompliant (false)]
+    public void SetAddOnMethod (IMethodBuilder addMethodBuilder)
+    {
+      throw new System.NotImplementedException();
+    }
+
+    [CLSCompliant (false)]
+    public void SetRemoveOnMethod (IMethodBuilder removeMethodBuilder)
+    {
+      throw new System.NotImplementedException();
+    }
+
+    [CLSCompliant (false)]
+    public void SetRaiseMethod (IMethodBuilder raiseMethodBuilder)
+    {
+      throw new System.NotImplementedException();
     }
   }
 }

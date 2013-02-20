@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection.Emit;
+using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -26,9 +27,41 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// </summary>
   public class EventBuilderAdapter : BuilderAdapterBase, IEventBuilder
   {
-    public EventBuilderAdapter (EventBuilder eventBuilder)
+    private readonly EventBuilder _eventBuilder;
+    private readonly ReadOnlyDictionary<IMethodBuilder, MethodBuilder> _methodMapping;
+
+    [CLSCompliant (false)]
+    public EventBuilderAdapter (EventBuilder eventBuilder, ReadOnlyDictionary<IMethodBuilder, MethodBuilder> methodMapping)
         : base (ArgumentUtility.CheckNotNull ("eventBuilder", eventBuilder).SetCustomAttribute)
     {
+      ArgumentUtility.CheckNotNull ("methodMapping", methodMapping);
+
+      _eventBuilder = eventBuilder;
+      _methodMapping = methodMapping;
+    }
+
+    [CLSCompliant (false)]
+    public void SetAddOnMethod (IMethodBuilder addMethodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("addMethodBuilder", addMethodBuilder);
+
+      _eventBuilder.SetAddOnMethod (_methodMapping[addMethodBuilder]);
+    }
+
+    [CLSCompliant (false)]
+    public void SetRemoveOnMethod (IMethodBuilder removeMethodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("removeMethodBuilder", removeMethodBuilder);
+
+      _eventBuilder.SetRemoveOnMethod (_methodMapping[removeMethodBuilder]);
+    }
+
+    [CLSCompliant (false)]
+    public void SetRaiseMethod (IMethodBuilder raiseMethodBuilder)
+    {
+      ArgumentUtility.CheckNotNull ("raiseMethodBuilder", raiseMethodBuilder);
+
+      _eventBuilder.SetRaiseMethod (_methodMapping[raiseMethodBuilder]);
     }
   }
 }

@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System;
 using System.Reflection.Emit;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -22,7 +23,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Defines an interface for <see cref="EventBuilder"/>.
   /// </summary>
+  [CLSCompliant (false)]  
   public interface IEventBuilder : ICustomAttributeTargetBuilder
   {
+    void SetAddOnMethod (IMethodBuilder addMethodBuilder);
+    void SetRemoveOnMethod (IMethodBuilder removeMethodBuilder);
+    void SetRaiseMethod (IMethodBuilder raiseMethodBuilder);
   }
 }

@@ -124,6 +124,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new PropertyBuilderDecorator (propertyBuilder, _emittableOperandProvider);
     }
 
+    [CLSCompliant (false)]
     public IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

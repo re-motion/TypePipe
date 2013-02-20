@@ -116,13 +116,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new PropertyBuilderAdapter (propertyBuilder, _methodMapping.AsReadOnly());
     }
 
+    [CLSCompliant (false)]
     public IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("eventtype", eventtype);
 
       var eventBuilder = _typeBuilder.DefineEvent (name, attributes, eventtype);
-      return new EventBuilderAdapter (eventBuilder);
+      return new EventBuilderAdapter (eventBuilder, _methodMapping.AsReadOnly());
     }
 
     public Type CreateType ()
