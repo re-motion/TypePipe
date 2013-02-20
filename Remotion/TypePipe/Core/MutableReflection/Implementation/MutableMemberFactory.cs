@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         new[]
         {
             PropertyAttributes.RTSpecialName, PropertyAttributes.HasDefault, PropertyAttributes.Reserved2, PropertyAttributes.Reserved3,
-            PropertyAttributes.Reserved4, 
+            PropertyAttributes.Reserved4
         };
 
     private static readonly EventAttributes[] s_invalidEventAttributes = new[] { EventAttributes.RTSpecialName };
@@ -395,10 +395,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var addMethodParameterTypes = addMethod.GetParameters().Select (p => p.ParameterType).ToList();
       var removeMethodParameterTypes = removeMethod.GetParameters().Select (p => p.ParameterType).ToList();
+
       if (addMethodParameterTypes.Count != 1 || !addMethodParameterTypes[0].IsSubclassOf (typeof (Delegate)))
         throw new ArgumentException ("Add method must have a single parameter that is assignable to 'System.Delegate'.", "addMethod");
       if (removeMethodParameterTypes.Count != 1 || !removeMethodParameterTypes[0].IsSubclassOf (typeof (Delegate)))
         throw new ArgumentException ("Remove method must have a single parameter that is assignable to 'System.Delegate'.", "removeMethod");
+
+      var signature = new EventSignature (addMethodParameterTypes.Single());
+      if (declaringType.AddedEvents.Any (e => e.Name == name && EventSignature.Create (e).Equals (signature)))
+        throw new InvalidOperationException ("Event with equal name and signature already exists.");
 
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }

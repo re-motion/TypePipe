@@ -1172,11 +1172,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Accessors_ThrowsIfAlreadyExists ()
     {
-      
+      var addRemoveMethod = MutableMethodInfoObjectMother.Create (
+          _proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
+      var differentHandlerAddRemoveMethod = MutableMethodInfoObjectMother.Create (
+          _proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Func<int>)) });
+      var event_ = _proxyType.AddEvent ("Event", addMethod: addRemoveMethod, removeMethod: addRemoveMethod);
+
+      Assert.That (() => _factory.CreateEvent (_proxyType, "OtherName", 0, addRemoveMethod, addRemoveMethod, null), Throws.Nothing);
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, event_.Name, 0, differentHandlerAddRemoveMethod, differentHandlerAddRemoveMethod, null),
+          Throws.Nothing);
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, event_.Name, 0, addRemoveMethod, addRemoveMethod, null),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Event with equal name and signature already exists."));
     }
 
     private void CallAndCheckGetOrAddOverride (
