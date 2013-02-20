@@ -93,8 +93,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // Note that accessor methods must be added before their associated properties and events.
       foreach (var property in proxyType.AddedProperties)
         memberEmitter.AddProperty (context, property);
-      //foreach (var evt in proxyType.AddedEvents)
-      //  memberEmitter.AddEvent (context, evt);
+      foreach (var evt in proxyType.AddedEvents)
+        memberEmitter.AddEvent (context, evt);
 
       context.PostDeclarationsActionManager.ExecuteAllActions();
 

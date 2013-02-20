@@ -83,7 +83,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_creator.CodeGenerator, Is.SameAs (_codeGeneratorMock));
     }
 
-    [Ignore("TODO 5430")]
     [Test]
     public void CreateProxy ()
     {
