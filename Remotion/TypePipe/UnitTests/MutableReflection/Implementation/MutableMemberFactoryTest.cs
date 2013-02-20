@@ -1125,50 +1125,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
-    public void CreateEvent_Accessors_ThrowsForDifferentTypes ()
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "The type of the handler parameter is different for the add and remove method.\r\nParameter name: removeMethod")]
+    public void CreateEvent_Accessors_ThrowsForNonMatchingAddRemoveHandlerParameter ()
     {
-      var argumentType = ReflectionObjectMother.GetSomeType();
-      var returnType = ReflectionObjectMother.GetSomeOtherType();
-      var handlerType = typeof (Func<,>).MakeGenericType (argumentType, returnType);
+      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
+      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Func<int>)) });
 
-      var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
-      var raiseParameters = new[] { new ParameterDeclaration (argumentType, "arg") };
-      var raiseMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: returnType, parameters: raiseParameters);
+      _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, null);
+    }
 
-      var nonMatchingHandlerType = typeof (Func<,>).MakeGenericType (returnType, argumentType);
-      var nonMatchingAddRemoveParameters = new[] { new ParameterDeclaration (nonMatchingHandlerType, "handler") };
-      var nonMatchingAddMethod1 = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (int), parameters: addRemoveParameters);
-      var nonMatchingAddMethod2 = MutableMethodInfoObjectMother.Create (
-          _proxyType, returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
-      var nonMatchingRemoveMethod1 = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (int), parameters: addRemoveParameters);
-      var nonMatchingRemoveMethod2 = MutableMethodInfoObjectMother.Create (
-          _proxyType, returnType: typeof (void), parameters: nonMatchingAddRemoveParameters);
-      var nonMatchingRaiseMethod1 = MutableMethodInfoObjectMother.Create (
-          _proxyType, returnType: returnType, parameters: ParameterDeclaration.EmptyParameters);
-      var nonMatchingRaiseMethod2 = MutableMethodInfoObjectMother.Create (_proxyType, returnType: argumentType, parameters: raiseParameters);
+    [Test]
+    public void CreateEvent_Accessors_ThrowsForNonMatchingRaiseMethodSignature ()
+    {
+      var handlerType1 = typeof (Action<long>);
+      var handlerType2 = typeof (Func<int, string>);
+      var addOrRemoveMethod1 = MutableMethodInfoObjectMother.Create (_proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType1) });
+      var addOrRemoveMethod2 = MutableMethodInfoObjectMother.Create (_proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType2) });
+      var raiseMethod = MutableMethodInfoObjectMother.Create (_proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
 
-      var message = "";
+      var message = "The signature of the raise method does not match the handler type.\r\nParameter name: raiseMethod";
       Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, nonMatchingAddMethod1, removeMethod, raiseMethod),
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addOrRemoveMethod1, addOrRemoveMethod1, raiseMethod),
           Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, nonMatchingAddMethod2, removeMethod, raiseMethod),
-          Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, nonMatchingRemoveMethod1, raiseMethod),
-          Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, nonMatchingRemoveMethod2, raiseMethod),
-          Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod1),
-          Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod2),
+          () => _factory.CreateEvent (_proxyType, "Event", 0, addOrRemoveMethod2, addOrRemoveMethod2, raiseMethod),
           Throws.ArgumentException.With.Message.EqualTo (message));
     }
 

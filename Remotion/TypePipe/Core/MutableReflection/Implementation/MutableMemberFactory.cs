@@ -352,10 +352,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       MutableMethodInfo raiseMethod = null;
       if (raiseBodyProvider != null)
       {
-        Assertion.IsTrue (handlerType.IsSubclassOf (typeof (Delegate)));
         var invokeMethod = handlerType.GetMethod ("Invoke", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         // TODO 5429: Add test for parameter attributes.
-        var raiseParameters = invokeMethod.GetParameters ().Select (p => new ParameterDeclaration (p.ParameterType, p.Name));
+        var raiseParameters = invokeMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name));
         raiseMethod = CreateMethod (declaringType, "raise_" + name, attributes, invokeMethod.ReturnType, raiseParameters, raiseBodyProvider);
       }
       
@@ -401,7 +400,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (removeMethodParameterTypes.Count != 1 || !removeMethodParameterTypes[0].IsSubclassOf (typeof (Delegate)))
         throw new ArgumentException ("Remove method must have a single parameter that is assignable to 'System.Delegate'.", "removeMethod");
 
-      var signature = new EventSignature (addMethodParameterTypes.Single());
+      if (addMethodParameterTypes.Single() != removeMethodParameterTypes.Single())
+        throw new ArgumentException ("The type of the handler parameter is different for the add and remove method.", "removeMethod");
+
+      var handlerType = addMethodParameterTypes.Single();
+      var invokeMethod = GetInvokeMethod (handlerType);
+      if (raiseMethod != null && !MethodSignature.AreEqual (raiseMethod, invokeMethod))
+        throw new ArgumentException ("The signature of the raise method does not match the handler type.", "raiseMethod");
+
+      var signature = new EventSignature (handlerType);
       if (declaringType.AddedEvents.Any (e => e.Name == name && EventSignature.Create (e).Equals (signature)))
         throw new InvalidOperationException ("Event with equal name and signature already exists.");
 
@@ -465,6 +472,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
         throw new NotSupportedException (message);
       }
+    }
+
+    private MethodInfo GetInvokeMethod (Type delegateType)
+    {
+      Assertion.IsTrue (delegateType.IsSubclassOf (typeof (Delegate)));
+      return delegateType.GetMethod ("Invoke", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
     }
 
     private void CheckForInvalidAttributes<T> (string memberKind, T[] invalidAttributes, T attributes, string parameterName)
