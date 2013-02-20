@@ -56,8 +56,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         new[]
         {
             PropertyAttributes.RTSpecialName, PropertyAttributes.HasDefault, PropertyAttributes.Reserved2, PropertyAttributes.Reserved3,
-            PropertyAttributes.Reserved4
+            PropertyAttributes.Reserved4, 
         };
+
+    private static readonly EventAttributes[] s_invalidEventAttributes = new[] { EventAttributes.RTSpecialName };
 
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
@@ -296,9 +298,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new ArgumentException ("Accessor methods must be both either static or non-static.", "getMethod");
 
       if (getMethod != null && !ReferenceEquals (getMethod.DeclaringType, declaringType))
-        throw new ArgumentException ("Accessor method must be declared on the current type.", "getMethod");
+        throw new ArgumentException ("Get method is not declared on the current type.", "getMethod");
       if (setMethod != null && !ReferenceEquals (setMethod.DeclaringType, declaringType))
-        throw new ArgumentException ("Accessor method must be declared on the current type.", "setMethod");
+        throw new ArgumentException ("Set method is not declared on the current type.", "setMethod");
 
       if (getMethod != null && getMethod.ReturnType == typeof (void))
         throw new ArgumentException ("Get accessor must be a non-void method.", "getMethod");
@@ -368,7 +370,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         MutableMethodInfo removeMethod,
         MutableMethodInfo raiseMethod)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("addMethod", addMethod);
+      ArgumentUtility.CheckNotNull ("removeMethod", removeMethod);
+      // Raise method may be null.
+
+      CheckForInvalidAttributes ("events", s_invalidEventAttributes, attributes, "attributes");
+
+      if (addMethod.IsStatic != removeMethod.IsStatic || (raiseMethod != null && raiseMethod.IsStatic != addMethod.IsStatic))
+        throw new ArgumentException ("Accessor methods must be all either static or non-static.", "addMethod");
+
+      if (!ReferenceEquals (addMethod.DeclaringType, declaringType))
+        throw new ArgumentException ("Add method is not declared on the current type.", "addMethod");
+      if (!ReferenceEquals (removeMethod.DeclaringType, declaringType))
+        throw new ArgumentException ("Remove method is not declared on the current type.", "removeMethod");
+      if (raiseMethod != null && !ReferenceEquals (raiseMethod.DeclaringType, declaringType))
+        throw new ArgumentException ("Raise method is not declared on the current type.", "raiseMethod");
+
+      return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (

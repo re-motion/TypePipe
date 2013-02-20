@@ -836,7 +836,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Accessor methods must be both either static or non-static.\r\nParameter name: getMethod")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Accessor methods must be both either static or non-static.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_ThrowsForDifferentStaticness ()
     {
       var getMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
@@ -848,16 +849,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProperty_Accessors_ThrowsForDifferentDeclaringType ()
     {
-      var getMethod = MutableMethodInfoObjectMother.Create();
-      var setMethod = MutableMethodInfoObjectMother.Create();
+      var nonMatchingMethod = MutableMethodInfoObjectMother.Create();
 
-      var message = "Accessor method must be declared on the current type.\r\nParameter name: {0}";
+      var message = "{0} method is not declared on the current type.\r\nParameter name: {1}";
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, "Property", 0, getMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "getMethod")));
+          () => _factory.CreateProperty (_proxyType, "Property", 0, nonMatchingMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Get", "getMethod")));
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, "Property", 0, null, setMethod),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "setMethod")));
+          () => _factory.CreateProperty (_proxyType, "Property", 0, null, nonMatchingMethod),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Set", "setMethod")));
     }
 
     [Test]
@@ -1020,7 +1020,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.InvalidOperationException.With.Message.EqualTo ("Event with equal name and signature already exists."));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Accessors ()
     {
@@ -1029,8 +1028,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var argumentType = ReflectionObjectMother.GetSomeType();
       var returnType = ReflectionObjectMother.GetSomeOtherType();
       var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<,>).MakeGenericType (argumentType, returnType), "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, parameters: addRemoveParameters);
       var raiseMethod = MutableMethodInfoObjectMother.Create (
           _proxyType, returnType: returnType, parameters: new[] { new ParameterDeclaration (argumentType, "arg") });
 
@@ -1044,16 +1043,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.MutableRaiseMethod, Is.SameAs (raiseMethod));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Accessors_ThrowsForInvalidPropertyAttributes ()
     {
-      const string message = "The following EventAttributes are not supported for events: " +
-                             "RTSpecialName.\r\nParameter name: attributes";
+      // TODO Review
+      // TODO 5432: Review event attribute has two names.
+      const string message = "The following EventAttributes are not supported for events: ReservedMask.\r\nParameter name: attributes";
       Assert.That (() => CreateEvent (_proxyType, EventAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Accessors_ThrowsForDifferentStaticness ()
     {
@@ -1068,35 +1066,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           () => _factory.CreateEvent (_proxyType, "Event", 0, instanceMethod, staticMethod, null),
           Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, staticMethod, staticMethod, instanceMethod),
-          Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (
           () => _factory.CreateEvent (_proxyType, "Event", 0, instanceMethod, instanceMethod, staticMethod),
           Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
-    [Ignore ("TODO 5429")]
     [Test]
     public void CreateEvent_Accessors_ThrowsForDifferentDeclaringType ()
     {
-      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Action), "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var method = MutableMethodInfoObjectMother.Create (_proxyType);
+      var nonMatchingMethod = MutableMethodInfoObjectMother.Create();
 
-      var nonMatchingAddMethod = MutableMethodInfoObjectMother.Create();
-      var nonMatchingRemoveMethod = MutableMethodInfoObjectMother.Create();
-      var nonMatchingRaiseMethod = MutableMethodInfoObjectMother.Create();
-
-      var message = "Accessor method must be declared on the current type.\r\nParameter name: {0}";
+      var message = "{0} method is not declared on the current type.\r\nParameter name: {1}";
       Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, nonMatchingAddMethod, removeMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "addMethod")));
+          () => _factory.CreateEvent (_proxyType, "Event", 0, nonMatchingMethod, method, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
       Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, nonMatchingRemoveMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "removeMethod")));
+          () => _factory.CreateEvent (_proxyType, "Event", 0, method, nonMatchingMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
       Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "raiseMethod")));
+          () => _factory.CreateEvent (_proxyType, "Event", 0, method, method, nonMatchingMethod),
+          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Raise", "raiseMethod")));
     }
 
     [Ignore ("TODO 5429")]
