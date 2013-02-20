@@ -529,12 +529,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> raiseBodyProvider = ctx => null;
 
-      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int, string>), "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
-      var raiseMethod = MutableMethodInfoObjectMother.Create (
-          returnType: typeof (string), parameters: new[] { new ParameterDeclaration (typeof (int), "arg") });
-      var fakeEvent = MutableEventInfoObjectMother.Create (addMethod: addMethod, removeMethod: removeMethod, raiseMethod: raiseMethod);
+      var fakeEvent = MutableEventInfoObjectMother.Create();
       _mutableMemberFactoryMock
           .Expect (
               mock => mock.CreateEvent (_proxyType, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider))
@@ -554,7 +549,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var handlerType = ReflectionObjectMother.GetSomeType();
       Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
-      var fakeEvent = MutableEventInfoObjectMother.Create();
+
+      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<int, string>), "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (void), parameters: addRemoveParameters);
+      var fakeEvent = MutableEventInfoObjectMother.CreateWithAccessors (addMethod: addMethod, removeMethod: removeMethod);
       Assert.That (fakeEvent.MutableRaiseMethod, Is.Null);
       _mutableMemberFactoryMock
         .Stub (stub => stub.CreateEvent (null, null, null, 0, null, null, null))

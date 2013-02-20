@@ -9,38 +9,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class MutableEventInfoObjectMother
   {
-    public static MutableEventInfo Create (
+    public static MutableEventInfo CreateWithAccessors (
         ProxyType declaringType = null,
         string name = "UnspecifiedEvent",
-        Type handlerType = null,
         EventAttributes attributes = EventAttributes.None,
         MutableMethodInfo addMethod = null,
         MutableMethodInfo removeMethod = null,
         MutableMethodInfo raiseMethod = null)
     {
+      Assertion.IsTrue (addMethod != null && removeMethod != null);
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
-      Assertion.IsTrue (
-          handlerType == null || (addMethod == null && removeMethod == null && raiseMethod == null),
-          "Can only declare handlerType XOR addMethod, removeMethod, raiseMethod.");
-      Assertion.IsTrue (handlerType == null || handlerType.GetGenericArguments().Length == 2, "Can only handle generic types with two arguments.");
-      if (handlerType == null && addMethod != null)
-        handlerType = addMethod.GetParameters().Single().ParameterType;
 
-      var argumentType = handlerType != null ? handlerType.GetGenericArguments()[0] : ReflectionObjectMother.GetSomeType();
-      var returnType = handlerType != null ? handlerType.GetGenericArguments()[1] : ReflectionObjectMother.GetSomeOtherType();
-      handlerType = handlerType ?? typeof (Func<,>).MakeGenericType (argumentType, returnType);
+      return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
+    }
+
+    public static MutableEventInfo Create (
+      ProxyType declaringType = null,
+      string name = "UnspecifiedEvent",
+        EventAttributes attributes = EventAttributes.None,
+      Type handlerType = null)
+    {
+      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      handlerType = handlerType ?? typeof (Func<,>).MakeGenericType (ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeOtherType());
+      Assertion.IsTrue (handlerType.IsSubclassOf (typeof (Delegate)));
+
+      var invokeMethod = handlerType.GetMethod ("Invoke");
+      var argumentTypes = invokeMethod.GetParameters().Select (p => p.ParameterType);
+      var returnType = invokeMethod.ReturnType;
 
       var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
-      addMethod = addMethod
-                  ?? MutableMethodInfoObjectMother.Create (declaringType, "AddMethod", returnType: typeof (void), parameters: addRemoveParameters);
-      removeMethod = removeMethod
-                     ?? MutableMethodInfoObjectMother.Create (
-                         declaringType, "RemoveMethod", returnType: typeof (void), parameters: addRemoveParameters);
-
-      Assertion.IsTrue (handlerType == addMethod.GetParameters().Single().ParameterType);
-      Assertion.IsTrue (handlerType == removeMethod.GetParameters().Single().ParameterType);
-      Assertion.IsTrue (
-          raiseMethod == null || (argumentType == raiseMethod.GetParameters().Single().ParameterType && returnType == raiseMethod.ReturnType));
+      var addMethod = MutableMethodInfoObjectMother.Create (declaringType, returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (declaringType, returnType: typeof (void), parameters: addRemoveParameters);
+      var raiseParameters = argumentTypes.Select ((t, i) => new ParameterDeclaration (t, i.ToString()));
+      var raiseMethod = MutableMethodInfoObjectMother.Create (declaringType, returnType: returnType, parameters: raiseParameters);
 
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
