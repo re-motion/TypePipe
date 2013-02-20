@@ -83,6 +83,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_creator.CodeGenerator, Is.SameAs (_codeGeneratorMock));
     }
 
+    [Ignore("TODO 5430")]
     [Test]
     public void CreateProxy ()
     {
@@ -106,6 +107,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constructor = proxyType.AddConstructor();
       var method = proxyType.AddMethod2();
       var property = proxyType.AddProperty2();
+      var event_ = proxyType.AddEvent2();
 
       var fakeType = ReflectionObjectMother.GetSomeType();
 
@@ -148,8 +150,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
             .Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (method)));
         SetupExpectationsForAccessors (_memberEmitterMock, proxyType.AddedMethods.Except (new[] { method }));
         _memberEmitterMock
-            .Expect (mock => mock.AddProperty (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (property)))
-            .WhenCalled (mi => Assert.That (buildActionCalled, Is.False));
+            .Expect (mock => mock.AddProperty (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (property)));
+        _memberEmitterMock
+            .Expect (mock => mock.AddEvent (Arg<CodeGenerationContext>.Matches (c => c == context), Arg.Is (event_)))
+            .WhenCalled (mi => Assert.That (buildActionCalled, Is.False));    
 
         // PostDeclarationsActionManager.ExecuteAllActions() cannot setup expectations.
 

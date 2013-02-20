@@ -130,6 +130,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         propertyBuilder.SetSetMethod (_methodMapping[setMethod]);
     }
 
+    public void AddEvent (CodeGenerationContext context, MutableEventInfo event_)
+    {
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("event_", event_);
+
+      // TODO 5430
+    }
+
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
     {
       foreach (var declaration in mutableInfo.AddedCustomAttributes)
