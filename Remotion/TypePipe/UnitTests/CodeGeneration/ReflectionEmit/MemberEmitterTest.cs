@@ -320,7 +320,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       eventBuilderMock.VerifyAllExpectations();
     }
 
-    [Ignore ("TODO 5430")]
     [Test]
     public void AddEvent_NoRaiseMethod ()
     {
@@ -335,14 +334,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var eventBuilderMock = MockRepository.GenerateStrictMock<IEventBuilder>();
       _typeBuilderMock.Stub (stub => stub.DefineEvent (event_.Name, event_.Attributes, event_.EventHandlerType)).Return (eventBuilderMock);
-      SetupDefineCustomAttribute (eventBuilderMock, event_);
       eventBuilderMock.Expect (mock => mock.SetAddOnMethod (addMethodBuilder));
       eventBuilderMock.Expect (mock => mock.SetRemoveOnMethod (removeMethodBuilder));
 
       _emitter.AddEvent (_context, event_);
 
-      eventBuilderMock.VerifyAllExpectations();
       eventBuilderMock.AssertWasNotCalled (mock => mock.SetRaiseMethod (Arg<IMethodBuilder>.Is.Anything));
+      eventBuilderMock.VerifyAllExpectations();
     }
 
     private void SetupDefineCustomAttribute (ICustomAttributeTargetBuilder customAttributeTargetBuilderMock, IMutableInfo mutableInfo)

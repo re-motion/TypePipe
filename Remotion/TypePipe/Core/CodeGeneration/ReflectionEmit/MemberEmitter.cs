@@ -145,7 +145,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       eventBuilder.SetAddOnMethod (_methodMapping[addMethod]);
       eventBuilder.SetRemoveOnMethod (_methodMapping[removeMethod]);
-      eventBuilder.SetRaiseMethod (_methodMapping[raiseMethod]);
+      if (raiseMethod != null)
+        eventBuilder.SetRaiseMethod (_methodMapping[raiseMethod]);
     }
 
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)
