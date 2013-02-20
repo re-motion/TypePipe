@@ -60,6 +60,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EventBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecoratorTest.cs" />

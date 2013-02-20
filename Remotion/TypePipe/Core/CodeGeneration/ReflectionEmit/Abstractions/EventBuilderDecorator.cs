@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -44,19 +45,25 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetAddOnMethod (IMethodBuilder addMethodBuilder)
     {
-      throw new System.NotImplementedException();
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("addMethodBuilder", addMethodBuilder);
+
+      _eventBuilder.SetAddOnMethod (decorator.DecoratedMethodBuilder);
     }
 
     [CLSCompliant (false)]
     public void SetRemoveOnMethod (IMethodBuilder removeMethodBuilder)
     {
-      throw new System.NotImplementedException();
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("removeMethodBuilder", removeMethodBuilder);
+
+      _eventBuilder.SetRemoveOnMethod (decorator.DecoratedMethodBuilder);
     }
 
     [CLSCompliant (false)]
     public void SetRaiseMethod (IMethodBuilder raiseMethodBuilder)
     {
-      throw new System.NotImplementedException();
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("raiseMethodBuilder", raiseMethodBuilder);
+
+      _eventBuilder.SetRaiseMethod (decorator.DecoratedMethodBuilder);
     }
   }
 }
