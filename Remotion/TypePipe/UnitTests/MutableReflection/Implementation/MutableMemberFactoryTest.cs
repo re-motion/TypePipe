@@ -920,6 +920,61 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Ignore ("TODO 5429")]
     [Test]
+    public void CreateEvent_Accessors ()
+    {
+      var name = "Event";
+      var attributes = (EventAttributes) 7;
+      var argumentType = ReflectionObjectMother.GetSomeType();
+      var returnType = ReflectionObjectMother.GetSomeOtherType();
+      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Func<,>).MakeGenericType (argumentType, returnType), "handler") };
+      var addMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var removeMethod = MutableMethodInfoObjectMother.Create (_proxyType, returnType: typeof (void), parameters: addRemoveParameters);
+      var raiseMethod = MutableMethodInfoObjectMother.Create (
+          _proxyType, returnType: returnType, parameters: new[] { new ParameterDeclaration (argumentType, "arg") });
+
+      var result = _factory.CreateEvent (_proxyType, name, attributes, addMethod, removeMethod, raiseMethod);
+
+      Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (result.Name, Is.EqualTo (name));
+      Assert.That (result.Attributes, Is.EqualTo (attributes));
+      Assert.That (result.MutableAddMethod, Is.SameAs (addMethod));
+      Assert.That (result.MutableRemoveMethod, Is.SameAs (removeMethod));
+      Assert.That (result.MutableRaiseMethod, Is.SameAs (raiseMethod));
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Accessors_ThrowsForInvalidPropertyAttributes ()
+    {
+      const string message = "The following EventAttributes are not supported for events: " +
+                             "RTSpecialName.\r\nParameter name: attributes";
+      Assert.That (() => CreateEvent (_proxyType, EventAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
+    public void CreateEvent_Accessors_ThrowsForDifferentStaticness ()
+    {
+      var staticMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
+      var instanceMethod = MutableMethodInfoObjectMother.Create (attributes: 0 /*instance*/);
+
+      var message = "Accessor methods must be all either static or non-static.\r\nParameter name: addMethod";
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, staticMethod, instanceMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, instanceMethod, staticMethod, null),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, staticMethod, staticMethod, instanceMethod),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _factory.CreateEvent (_proxyType, "Event", 0, instanceMethod, instanceMethod, staticMethod),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
+    [Ignore ("TODO 5429")]
+    [Test]
     public void CreateEvent_Accessors_ThrowsForDifferentDeclaringType ()
     {
       var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Action), "handler") };
@@ -1039,7 +1094,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, nonMatchingRaiseMethod2),
           Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => _factory.CreateEvent (_proxyType, "Event", 0, addMethod, removeMethod, raiseMethod), Throws.Nothing);
     }
 
     [Ignore ("TODO 5429")]
