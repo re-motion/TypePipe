@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return CreateParticipant (
           proxyType =>
           {
-            proxyType.AddField ("AddedIntField", typeof (int), FieldAttributes.Public);
-            proxyType.AddField ("AddedSkippedIntField", typeof (int), FieldAttributes.Public)
+            proxyType.AddField ("AddedIntField", FieldAttributes.Public, typeof (int));
+            proxyType.AddField ("AddedSkippedIntField", FieldAttributes.Public, typeof (int))
                        .AddCustomAttribute (new CustomAttributeDeclaration (attributeConstructor, new object[0]));
           });
     }

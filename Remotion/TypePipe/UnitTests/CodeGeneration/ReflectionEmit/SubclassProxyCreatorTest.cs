@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var @interface = typeof (IDisposable);
       proxyType.AddInterface (@interface);
 
-      var field = proxyType.AddField2();
+      var field = proxyType.AddField();
       var constructor = proxyType.AddConstructor();
       var method = proxyType.AddMethod2();
       var property = proxyType.AddProperty2();

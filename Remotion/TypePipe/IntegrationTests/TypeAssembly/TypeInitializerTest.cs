@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var field = proxyType.AddField ("s_field", typeof (string), FieldAttributes.Public | FieldAttributes.Static);
+            var field = proxyType.AddField ("s_field", FieldAttributes.Public | FieldAttributes.Static, typeof (string));
             var initializationExpression = Expression.Assign (Expression.Field (null, field), Expression.Constant ("abc"));
             proxyType.AddTypeInitializer (ctx => initializationExpression);
           });

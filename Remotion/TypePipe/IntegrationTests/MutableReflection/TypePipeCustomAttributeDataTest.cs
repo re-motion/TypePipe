@@ -144,7 +144,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
       var typeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
-      var field = proxyType.AddField ("_field", typeof (int));
+      var field = proxyType.AddField ("_field", FieldAttributes.Private, typeof (int));
       var ctor = proxyType.AddedConstructors.Single();
       var method = proxyType.AddMethod (
           "Method", MethodAttributes.Public, typeof (int), new[] { new ParameterDeclaration (typeof (int), "i") }, ctx => Expression.Constant (7));

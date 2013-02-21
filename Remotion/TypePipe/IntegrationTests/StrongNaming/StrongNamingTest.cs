@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     public void NoStrongName_Default ()
     {
       // Could be strong-named, but isn't - the default is to output assemblies without strong name.
-      Action<ProxyType> action = p => p.AddField ("f", _signedType);
+      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void NoStrongName_UnsignedType ()
     {
-      Action<ProxyType> action = p => p.AddField ("f", _unsignedType);
+      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _unsignedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName ()
     {
-      Action<ProxyType> action = p => p.AddField ("f", _signedType);
+      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
     }
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_CustomKey ()
     {
-      Action<ProxyType> action = p => p.AddField ("f", _signedType);
+      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
 
       var keyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"StrongNaming\OtherKey.snk");
       var customKey = new StrongNameKeyPair (File.ReadAllBytes (keyPath));
@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     {
       // Base type is DomainType which is signed.
       CheckStrongNaming (p => p.AddInterface (_signedInterfaceType));
-      CheckStrongNaming (p => p.AddField ("f", _signedType));
+      CheckStrongNaming (p => p.AddField ("f", FieldAttributes.Private, _signedType));
       CheckStrongNaming (p => p.AddConstructor (0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor()));
       CheckStrongNaming (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType)));
       // Properties and Events: event type, property type, property index parameter
@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
       // Attributes
       CheckStrongNaming (p => p.AddCustomAttribute (_signedAttribute));
-      CheckStrongNaming (p => p.AddField ("f", _signedType).AddCustomAttribute (_signedAttribute));
+      CheckStrongNaming (p => p.AddField ("f", FieldAttributes.Private, _signedType).AddCustomAttribute (_signedAttribute));
       CheckStrongNaming (p => p.AddConstructor (
               0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor ()).AddCustomAttribute (_signedAttribute));
       CheckStrongNaming (
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
       CheckStrongNamingException (p => { }, requestedType: _unsignedType); // Requested type will be parent.
       CheckStrongNamingException (p => p.AddInterface (_unsignedInterfaceType));
-      CheckStrongNamingException (p => p.AddField ("f", _unsignedType));
+      CheckStrongNamingException (p => p.AddField ("f", FieldAttributes.Private, _unsignedType));
       CheckStrongNamingException (p => p.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.CallThisConstructor()));
       CheckStrongNamingException (p => p.AddMethod ("m", 0, _unsignedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_unsignedType)));
       CheckStrongNamingException (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => Expression.Default (_signedType)));
@@ -160,7 +160,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
       // Attributes
       CheckStrongNamingException (p => p.AddCustomAttribute (_unsignedAttribute));
-      CheckStrongNamingException (p => p.AddField ("f", _signedType).AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (p => p.AddField ("f", FieldAttributes.Private, _signedType).AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (p => p.AddConstructor (
               0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor ()).AddCustomAttribute (_unsignedAttribute));
       CheckStrongNamingException (

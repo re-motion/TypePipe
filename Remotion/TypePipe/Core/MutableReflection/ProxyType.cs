@@ -221,7 +221,7 @@ namespace Remotion.TypePipe.MutableReflection
       _underlyingSystemType = null;
     }
 
-    public MutableFieldInfo AddField (string name, Type type, FieldAttributes attributes = FieldAttributes.Private)
+    public MutableFieldInfo AddField (string name, FieldAttributes attributes, Type type)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);

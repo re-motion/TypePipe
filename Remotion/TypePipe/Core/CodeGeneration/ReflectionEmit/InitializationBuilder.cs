@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       proxyType.AddInterface (typeof (IInitializableObject));
 
-      var counter = proxyType.AddField ("<tp>_ctorRunCounter", typeof (int), FieldAttributes.Private);
+      var counter = proxyType.AddField ("<tp>_ctorRunCounter", FieldAttributes.Private, typeof (int));
       var nonSerializedCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
       counter.AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedCtor, new object[0]));
 

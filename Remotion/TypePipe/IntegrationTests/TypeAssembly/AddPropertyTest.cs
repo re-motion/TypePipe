@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var field = proxyType.AddField ("_field", typeof (string));
+            var field = proxyType.AddField ("_field", FieldAttributes.Private, typeof (string));
             proxyType.AddProperty (
                 "Property",
                 typeof (string),
@@ -57,7 +57,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (property.GetValue (instance, null), Is.EqualTo ("Test"));
     }
 
-    // TODO Review: Remove default parameters everywhere
     [Test]
     public void AccessorAttributes ()
     {

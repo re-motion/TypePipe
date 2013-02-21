@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType =>
           {
             proxyType.AddCustomAttribute (CreateAttribute (proxyType));
-            proxyType.AddField ("Field", typeof (int), FieldAttributes.Public).AddCustomAttribute (CreateAttribute (proxyType));
+            proxyType.AddField ("Field", FieldAttributes.Public, typeof (int)).AddCustomAttribute (CreateAttribute (proxyType));
             var ctor = proxyType.AddConstructor (
                 MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "p") }, ctx => ctx.CallThisConstructor());
             ctor.AddCustomAttribute (CreateAttribute (proxyType));
@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void Field ()
     {
-      var type = AssembleType<DomainType> (p => p.AddField ("Field", p, FieldAttributes.Public));
+      var type = AssembleType<DomainType> (p => p.AddField ("Field", FieldAttributes.Public, p));
 
       var field = type.GetField ("Field");
       Assert.That (field.FieldType, Is.SameAs (type));

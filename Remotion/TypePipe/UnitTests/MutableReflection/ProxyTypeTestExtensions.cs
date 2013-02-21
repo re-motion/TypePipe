@@ -30,13 +30,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private static int s_counter;
 
-    public static MutableFieldInfo AddField2 (
-        this ProxyType proxyType, string name = null, Type type = null, FieldAttributes attributes = FieldAttributes.Private)
+    public static MutableFieldInfo AddField (
+        this ProxyType proxyType, string name = null, FieldAttributes attributes = FieldAttributes.Private, Type type = null)
     {
       name = name ?? "Field_" + ++s_counter;
       type = type ?? typeof (int);
 
-      return proxyType.AddField (name, type, attributes);
+      return proxyType.AddField (name, attributes, type);
     }
 
     public static MutableMethodInfo AddMethod2 (

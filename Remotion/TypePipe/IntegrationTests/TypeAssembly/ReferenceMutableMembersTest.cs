@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var addedField = proxyType.AddField ("_newField", typeof (string));
+            var addedField = proxyType.AddField ("_newField", FieldAttributes.Private, typeof (string));
             var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
             var addedMethod = proxyType.GetOrAddOverride (baseMethod);
 

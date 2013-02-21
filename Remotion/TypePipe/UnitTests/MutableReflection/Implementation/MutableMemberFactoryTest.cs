@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateField_ThrowsIfAlreadyExist ()
     {
-      var field = _proxyType.AddField ("Field", typeof (int));
+      var field = _proxyType.AddField ("Field", FieldAttributes.Private, typeof (int));
 
       Assert.That (
           () => _factory.CreateField (_proxyType, "OtherName", field.FieldType, 0),

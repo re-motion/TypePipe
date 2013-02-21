@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_SerializableInterfaceType_SerializedFields ()
     {
-      var dummyField = _serializableInterfaceProxy.AddField ("input field", typeof (int));
+      var dummyField = _serializableInterfaceProxy.AddField ("input field", FieldAttributes.Private, typeof (int));
       var fakeFieldType = ReflectionObjectMother.GetSomeType();
       FieldInfo fakeField = MutableFieldInfoObjectMother.Create (_serializableInterfaceProxy, type: fakeFieldType);
       var fakeMapping = new[] { Tuple.Create ("fake key", fakeField) };

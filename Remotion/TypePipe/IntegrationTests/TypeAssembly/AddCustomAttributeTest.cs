@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var field = proxyType.AddField ("Field", typeof (int), FieldAttributes.Public);
+            var field = proxyType.AddField ("Field", FieldAttributes.Public, typeof (int));
             var constructor = proxyType.AddedConstructors.Single();
             var parameters = new[] { new ParameterDeclaration (typeof (int), "p") };
             var method = proxyType.AddMethod ("Method", MethodAttributes.Public, typeof (int), parameters, ctx => Expression.Constant (7));

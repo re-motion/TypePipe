@@ -287,7 +287,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeField = MutableFieldInfoObjectMother.Create (_proxyType);
       _mutableMemberFactoryMock.Expect (mock => mock.CreateField (_proxyType, name, type, attributes)).Return (fakeField);
 
-      var result = _proxyType.AddField (name, type, attributes);
+      var result = _proxyType.AddField (name, attributes, type);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeField));
@@ -300,7 +300,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var type = ReflectionObjectMother.GetSomeType();
       _mutableMemberFactoryMock.Expect (mock => mock.CreateField (_proxyType, "_newField", type, FieldAttributes.Private)).Return (null);
 
-      _proxyType.AddField ("_newField", type);
+      _proxyType.AddField ("_newField", FieldAttributes.Private, type);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
     }
@@ -690,7 +690,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseFields = typeof (DomainType).GetFields (c_all);
       Assert.That (baseFields, Is.Not.Empty);
-      var addedField = _proxyTypeWithoutMocks.AddField2();
+      var addedField = _proxyTypeWithoutMocks.AddField();
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllFields");
 

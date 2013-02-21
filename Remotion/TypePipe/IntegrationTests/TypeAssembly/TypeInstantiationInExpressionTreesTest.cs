@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
@@ -56,7 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (proxyType =>
       {
         var listType = typeof (List<>).MakeTypePipeGenericType (proxyType);
-        var field = proxyType.AddField ("_list", listType);
+        var field = proxyType.AddField ("_list", FieldAttributes.Private, listType);
 
         var ctor = proxyType.AddedConstructors.Single();
         ctor.SetBody (

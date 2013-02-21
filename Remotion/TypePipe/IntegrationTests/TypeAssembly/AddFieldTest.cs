@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("_privateInstanceField", typeof (string)));
+      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("_privateInstanceField", FieldAttributes.Private, typeof (string)));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "_privateInstanceField" }));
 
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
       var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.NotSerialized;
-      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("PublicStaticField", typeof (int), fieldAttributes));
+      var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("PublicStaticField", fieldAttributes, typeof (int)));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "PublicStaticField" }));
 
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var type = AssembleType<DerivedType> (proxyType => 
       { 
-        var addedField = proxyType.AddField (existingField.Name, existingField.FieldType, FieldAttributes.Family);
+        var addedField = proxyType.AddField (existingField.Name, FieldAttributes.Family, existingField.FieldType);
 
         Assert.That (
             proxyType.GetFields (nonPublicInstanceFlags),
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<OriginalType> (
           proxyType =>
           {
-            var mutableFieldInfo = proxyType.AddField ("_fieldWithCustomAttributes", typeof (int));
+            var mutableFieldInfo = proxyType.AddField ("_fieldWithCustomAttributes", FieldAttributes.Private, typeof (int));
 
             var attributeCtor = typeof (AddedAttribute).GetConstructor (new[] { typeof (string) });
             var namedProperty = typeof (AddedAttribute).GetProperty ("NamedPropertyArg");
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<OriginalType> (
           proxyType =>
           {
-            var fieldInfo = proxyType.AddField ("_privateInstanceField", typeof (string));
+            var fieldInfo = proxyType.AddField ("_privateInstanceField", FieldAttributes.Private, typeof (string));
             proxyType.AddConstructor (
                 MethodAttributes.Public,
                 new[] { new ParameterDeclaration (typeof (string), "arg") },
