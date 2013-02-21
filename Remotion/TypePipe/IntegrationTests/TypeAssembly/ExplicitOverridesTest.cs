@@ -225,6 +225,43 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AbstractShadowedMethod(), Is.EqualTo ("override"));
     }
 
+    [Ignore ("TODO 4774")]
+    [Test]
+    public void OverrideGenericMethodExplicitly ()
+    {
+      var overriddenMethod = GetDeclaredMethod (typeof (A), "OverridableGenericMethod");
+      var type = AssembleType<B> (
+          proxyType =>
+          {
+            var mutableMethod = proxyType.AddGenericMethod (
+                "DifferentName",
+                MethodAttributes.Private | MethodAttributes.Virtual,
+                new[] { new GenericParameterDeclaration ("T") },
+                ctx => typeof (string),
+                ctx => ParameterDeclaration.None,
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  return ExpressionHelper.StringConcat (ctx.CallBase (overriddenMethod), Expression.Constant (" explicitly overridden"));
+                });
+            mutableMethod.AddExplicitBaseDefinition (overriddenMethod);
+            Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { overriddenMethod }));
+            Assert.That (mutableMethod.BaseMethod, Is.Null);
+            Assert.That (mutableMethod.GetBaseDefinition(), Is.EqualTo (mutableMethod));
+
+            var allMethods = proxyType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.That (allMethods, Has.Member (typeof (B).GetMethod ("OverridableMethod")));
+            Assert.That (allMethods, Has.Member (mutableMethod));
+          });
+
+      A instance = (B) Activator.CreateInstance (type);
+      var method = GetDeclaredMethod (type, "DifferentName").MakeGenericMethod (typeof (string));
+
+      var result = method.Invoke (instance, null);
+      Assert.That (result, Is.EqualTo ("A String explicitly overridden"));
+      Assert.That (instance.OverridableGenericMethod<int>(), Is.EqualTo ("A Int32 explicitly overridden"));
+    }
+
 // ReSharper disable VirtualMemberNeverOverriden.Global
     public class A
     {
@@ -241,6 +278,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public virtual string MethodShadowedByB ()
       {
         return "A";
+      }
+
+      public virtual string OverridableGenericMethod<T> ()
+      {
+        return "A" + typeof (T).Name;
       }
     }
 
