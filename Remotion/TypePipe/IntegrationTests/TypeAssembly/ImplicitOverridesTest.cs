@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void OverrideMethod ()
     {
       var overriddenMethod = GetDeclaredMethod (typeof (BaseType), "OverridableMethod");
-      var type = AssembleType<DerivedTpe> (
+      var type = AssembleType<DerivedType> (
           proxyType =>
           {
             var mutableMethod = proxyType.AddMethod (
@@ -51,10 +51,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             var methods = proxyType.GetMethods();
             Assert.That (methods.Where (mi => mi.Name == "OverridableMethod"), Is.EqualTo (new[] { mutableMethod }));
-            Assert.That (methods, Has.No.Member (typeof (DerivedTpe).GetMethod ("OverridableMethod")));
+            Assert.That (methods, Has.No.Member (typeof (DerivedType).GetMethod ("OverridableMethod")));
           });
 
-      var instance = (DerivedTpe) Activator.CreateInstance (type);
+      var instance = (DerivedType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "OverridableMethod");
 
       Assert.That (method.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void OverrideMethod_WithParameters ()
     {
       var overriddenMethod = GetDeclaredMethod (typeof (BaseType), "OverridableMethodWithParameters");
-      var type = AssembleType<DerivedTpe> (
+      var type = AssembleType<DerivedType> (
           proxyType =>
           {
             var mutableMethod = proxyType.AddMethod (
@@ -88,10 +88,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             var methods = proxyType.GetMethods();
             Assert.That (methods.Where (mi => mi.Name == "OverridableMethodWithParameters"), Is.EqualTo (new[] { mutableMethod }));
-            Assert.That (methods, Has.No.Member (typeof (DerivedTpe).GetMethod ("OverridableMethodWithParameters")));
+            Assert.That (methods, Has.No.Member (typeof (DerivedType).GetMethod ("OverridableMethodWithParameters")));
           });
 
-      var instance = (DerivedTpe) Activator.CreateInstance (type);
+      var instance = (DerivedType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "OverridableMethodWithParameters");
 
       Assert.That (method.GetBaseDefinition (), Is.EqualTo (overriddenMethod));
@@ -105,9 +105,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void OverrideOverride ()
     {
       var overriddenMethodInBase = GetDeclaredMethod (typeof (BaseType), "MethodOverriddenInDerived");
-      var overriddenMethodInDerived = GetDeclaredMethod (typeof (DerivedTpe), "MethodOverriddenInDerived");
+      var overriddenMethodInDerived = GetDeclaredMethod (typeof (DerivedType), "MethodOverriddenInDerived");
 
-      var type = AssembleType<DerivedTpe> (
+      var type = AssembleType<DerivedType> (
           proxyType =>
           {
             var mutableMethod = proxyType.AddMethod (
@@ -125,14 +125,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableMethod.GetBaseDefinition (), Is.EqualTo (overriddenMethodInBase));
           });
 
-      var instance = (DerivedTpe) Activator.CreateInstance (type);
+      var instance = (DerivedType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "MethodOverriddenInDerived");
 
       Assert.That (method.GetBaseDefinition(), Is.EqualTo (overriddenMethodInBase));
 
       var result = method.Invoke (instance, null);
-      Assert.That (result, Is.EqualTo ("DerivedTpe overridden"));
-      Assert.That (instance.MethodOverriddenInDerived(), Is.EqualTo ("DerivedTpe overridden"));
+      Assert.That (result, Is.EqualTo ("DerivedType overridden"));
+      Assert.That (instance.MethodOverriddenInDerived(), Is.EqualTo ("DerivedType overridden"));
     }
 
     [Test]
@@ -140,9 +140,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var overriddenMethod = GetDeclaredMethod (typeof (BaseType), "MethodWithOutAndRefParameters");
 
-      var type = AssembleType<DerivedTpe> (p => p.GetOrAddOverride (overriddenMethod));
+      var type = AssembleType<DerivedType> (p => p.GetOrAddOverride (overriddenMethod));
 
-      var instance = (DerivedTpe) Activator.CreateInstance (type);
+      var instance = (DerivedType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "MethodWithOutAndRefParameters");
 
       Assert.That (method.GetBaseDefinition(), Is.EqualTo (overriddenMethod));
@@ -152,6 +152,49 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       Assert.That (result, Is.Null);
       Assert.That (arguments, Is.EqualTo (new object[] { 7, "hello blub" }));
+    }
+
+    [Ignore ("TODO 4774")]
+    [Test]
+    public void OverrideGenericMethod ()
+    {
+      MethodInfo overriddenMethod = null;
+          //NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((BaseType o) => o.OverridableGenericMethod (Dev<Dev.T>.Dummy));
+      var type = AssembleType<DerivedType> (
+          proxyType =>
+          {
+            var mutableMethod = proxyType.AddGenericMethod (
+                "OverridableGenericMethod",
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                new[] { new GenericParameterDeclaration ("T") },
+                ctx => typeof (string),
+                ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "arg") },
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (ctx.BaseMethod), Expression.Constant (" overridden"));
+                });
+            Assert.That (mutableMethod.BaseMethod, Is.EqualTo (overriddenMethod));
+            Assert.That (mutableMethod.GetBaseDefinition(), Is.EqualTo (overriddenMethod));
+            Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.Empty);
+
+            var methods = proxyType.GetMethods();
+            Assert.That (methods.Where (mi => mi.Name == "OverridableGenericMethod"), Is.EqualTo (new[] { mutableMethod }));
+            Assert.That (methods, Has.No.Member (typeof (DerivedType).GetMethod ("OverridableGenericMethod")));
+          });
+
+      var genericMethod = GetDeclaredMethod (type, "OverridableGenericMethod");
+      var genericParameter = genericMethod.GetGenericArguments().Single();
+      Assert.That (genericMethod.GetBaseDefinition(), Is.EqualTo (overriddenMethod));
+      Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.ReferenceTypeConstraint));
+
+      var method = genericMethod.MakeGenericMethod (typeof (string));
+      var instance = (DerivedType) Activator.CreateInstance (type);
+      var result = method.Invoke (instance, new object[] { " arg" });
+
+      Assert.That (result, Is.EqualTo ("BaseType arg overridden"));
+      //Assert.That (instance.OverridableGenericMethod (" test"), Is.EqualTo ("BaseType test overridden"));
     }
 
     public class BaseType
@@ -176,13 +219,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         i = 7;
         s += " blub";
       }
+
+      //public virtual string OverridableGenericMethod<T> (T arg) where T : class
+      //{
+      //  return "BaseType " + arg;
+      //}
     }
 
-    public class DerivedTpe : BaseType
+    public class DerivedType : BaseType
     {
       public override string MethodOverriddenInDerived ()
       {
-        return "DerivedTpe";
+        return "DerivedType";
       }
     }
   }
