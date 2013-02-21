@@ -710,7 +710,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var getter = result.MutableGetMethod;
       Assert.That (getter.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (getter.Name, Is.EqualTo ("get_Property"));
-      Assert.That (getter.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (getter.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
       Assert.That (getter.ReturnType, Is.SameAs (type));
       var getterParams = getter.GetParameters();
       Assert.That (getterParams.Select (p => p.ParameterType), Is.EqualTo (indexParameters.Select (p => p.Type)));
@@ -720,7 +720,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var setter = result.MutableSetMethod;
       Assert.That (setter.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (setter.Name, Is.EqualTo ("set_Property"));
-      Assert.That (setter.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (setter.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
       Assert.That (setter.ReturnType, Is.SameAs (typeof (void)));
       var setterParams = setter.GetParameters();
       Assert.That (setterParams.Select (p => p.ParameterType), Is.EqualTo (setterParameters.Select (p => p.Type)));
@@ -936,7 +936,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var addMethod = result.MutableAddMethod;
       Assert.That (addMethod.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (addMethod.Name, Is.EqualTo ("add_Event"));
-      Assert.That (addMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (addMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
       Assert.That (addMethod.ReturnType, Is.SameAs (typeof (void)));
       var addParameter = addMethod.GetParameters().Single();
       Assert.That (addParameter.Name, Is.EqualTo ("handler"));
@@ -946,7 +946,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var removeMethod = result.MutableRemoveMethod;
       Assert.That (removeMethod.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (removeMethod.Name, Is.EqualTo ("remove_Event"));
-      Assert.That (removeMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (removeMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
       Assert.That (removeMethod.ReturnType, Is.SameAs (typeof (void)));
       var removeParameter = removeMethod.GetParameters().Single();
       Assert.That (removeParameter.Name, Is.EqualTo ("handler"));
@@ -956,7 +956,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var raiseMethod = result.MutableRaiseMethod;
       Assert.That (raiseMethod.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (raiseMethod.Name, Is.EqualTo ("raise_Event"));
-      Assert.That (raiseMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName));
+      Assert.That (raiseMethod.Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
       Assert.That (raiseMethod.ReturnType, Is.SameAs (returnType));
       var raiseParameters = raiseMethod.GetParameters();
       CustomParameterInfoTest.CheckParameter (raiseParameters[0], raiseMethod, 0, "sender", typeof (object), ParameterAttributes.None);
@@ -1053,9 +1053,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateEvent_Accessors_ThrowsForInvalidPropertyAttributes ()
     {
-      // TODO Review
-      // TODO 5432: Review event attribute has two names.
-      const string message = "The following EventAttributes are not supported for events: ReservedMask.\r\nParameter name: attributes";
+      var message = "The following EventAttributes are not supported for events: ReservedMask.\r\nParameter name: attributes";
       Assert.That (() => CreateEvent (_proxyType, EventAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 

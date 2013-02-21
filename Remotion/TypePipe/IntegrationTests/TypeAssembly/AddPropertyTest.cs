@@ -57,11 +57,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (property.GetValue (instance, null), Is.EqualTo ("Test"));
     }
 
+    // TODO Review: Remove default parameters everywhere
     [Test]
     public void AccessorAttributes ()
     {
       var accessorAttributes = MethodAttributes.Public | MethodAttributes.Virtual;
-      var additionalAccessorAttributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
       var type = AssembleType<DomainType> (
           proxyType =>
           {
@@ -72,13 +72,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 getBodyProvider: ctx => Expression.Constant (7),
                 setBodyProvider: ctx => Expression.Empty());
 
-            Assert.That (prop.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
-            Assert.That (prop.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+            Assert.That (prop.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
+            Assert.That (prop.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
           });
 
       var property = type.GetProperty ("Property");
-      Assert.That (property.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
-      Assert.That (property.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+      Assert.That (property.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
+      Assert.That (property.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
     }
 
     [Test]

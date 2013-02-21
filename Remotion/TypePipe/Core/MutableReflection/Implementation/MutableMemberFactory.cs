@@ -267,7 +267,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
         throw new InvalidOperationException ("Property with equal name and signature already exists.");
 
-      var attributes = accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+      var attributes = accessorAttributes | MethodAttributes.SpecialName;
       MutableMethodInfo getMethod = null, setMethod = null;
       if (getBodyProvider != null)
         getMethod = CreateMethod (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
@@ -343,7 +343,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (declaringType.AddedEvents.Any (e => e.Name == name && EventSignature.Create (e).Equals (signature)))
         throw new InvalidOperationException ("Event with equal name and signature already exists.");
 
-      var attributes = accessorAttributes | MethodAttributes.HideBySig | MethodAttributes.SpecialName;
+      var attributes = accessorAttributes | MethodAttributes.SpecialName;
       var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
 
       var addMethod = CreateMethod (declaringType, "add_" + name, attributes, typeof (void), addRemoveParameters, addBodyProvider);

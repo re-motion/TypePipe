@@ -81,7 +81,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void AccessorAttributes ()
     {
       var accessorAttributes = MethodAttributes.Public | MethodAttributes.Virtual;
-      var additionalAccessorAttributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
       var type = AssembleType<DomainType> (
           proxyType =>
           {
@@ -92,13 +91,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 addBodyProvider: ctx => Expression.Empty(),
                 removeBodyProvider: ctx => Expression.Empty());
 
-            Assert.That (evt.GetAddMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
-            Assert.That (evt.GetRemoveMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+            Assert.That (evt.GetAddMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
+            Assert.That (evt.GetRemoveMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
           });
 
       var event_ = type.GetEvent ("Event");
-      Assert.That (event_.GetAddMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
-      Assert.That (event_.GetRemoveMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+      Assert.That (event_.GetAddMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
+      Assert.That (event_.GetRemoveMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName));
     }
 
     [Test]
