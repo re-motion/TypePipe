@@ -23,8 +23,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   public class TestableCustomMethodInfo : CustomMethodInfo
   {
-    public TestableCustomMethodInfo (CustomType declaringType, string name, MethodAttributes attributes)
-        : base (declaringType, name, attributes)
+    public TestableCustomMethodInfo (
+        CustomType declaringType,
+        string name,
+        MethodAttributes attributes,
+        MethodInfo genericMethodDefinition,
+        IEnumerable<Type> genericArguments)
+        : base (declaringType, name, attributes, genericMethodDefinition, genericArguments)
     {
     }
 

@@ -17,8 +17,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -35,15 +37,27 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly CustomType _declaringType;
     private readonly string _name;
     private readonly MethodAttributes _attributes;
+    private readonly MethodInfo _genericMethodDefinition;
+    private readonly ReadOnlyCollection<Type> _genericArguments;
 
-    protected CustomMethodInfo (CustomType declaringType, string name, MethodAttributes attributes)
+    protected CustomMethodInfo (
+        CustomType declaringType,
+        string name,
+        MethodAttributes attributes,
+        MethodInfo genericMethodDefinition,
+        IEnumerable<Type> genericArguments)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // TODO xxx
+      //ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);
+      //ArgumentUtility.CheckNotNull ("genericArguments", genericArguments);
 
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
+      _genericMethodDefinition = genericMethodDefinition;
+      _genericArguments = (genericArguments ?? new Type[0]).ToList().AsReadOnly();
     }
 
     public abstract override ParameterInfo ReturnParameter { get; }

@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -31,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private string _name;
     private MethodAttributes _attributes;
     private TestableCustomMethodInfo _method;
-
+    
     [SetUp]
     public void SetUp ()
     {
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _name = "abc";
       _attributes = (MethodAttributes) 7;
 
-      _method = new TestableCustomMethodInfo (_declaringType, _name, _attributes);
+      _method = new TestableCustomMethodInfo (_declaringType, _name, _attributes, null, new Type[0]);
     }
 
     [Test]
@@ -48,6 +49,48 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_method.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_method.Name, Is.EqualTo (_name));
       Assert.That (_method.Attributes, Is.EqualTo (_attributes));
+      Assert.That (_method.IsGenericMethod, Is.False);
+      Assert.That (_method.IsGenericMethodDefinition, Is.False);
+      Assert.That (_method.ContainsGenericParameters, Is.False);
+      //Assert.That (_method.GetGenericArguments(), Is.Empty);
+    }
+
+    [Ignore("TODO xxx")]
+    [Test]
+    public void Initialization_GenericMethodDefinition ()
+    {
+      var genericArgument = CustomTypeObjectMother.Create (/*isGenericParameter / genericParameterPosition*/);
+      var method = new TestableCustomMethodInfo (_declaringType, _name, _attributes, null, new[] { genericArgument });
+
+      Assert.That (method.IsGenericMethod, Is.True);
+      Assert.That (method.IsGenericMethodDefinition, Is.True);
+      Assert.That (method.GetGenericMethodDefinition(), Is.SameAs (method));
+      Assert.That (method.GetGenericArguments(), Is.EqualTo (new[] { genericArgument }));
+      Assert.That (method.ContainsGenericParameters, Is.True);
+    }
+
+    [Ignore ("TODO xxx")]
+    [Test]
+    public void Initialization_MethodInstantiation ()
+    {
+      var genericArgument = CustomTypeObjectMother.Create();
+      var genericMethodDefinition = CustomMethodInfoObjectMother.Create();
+      var method = new TestableCustomMethodInfo (_declaringType, _name, _attributes, genericMethodDefinition, new[] { genericArgument });
+
+      Assert.That (method.IsGenericMethod, Is.True);
+      Assert.That (method.IsGenericMethodDefinition, Is.False);
+      Assert.That (method.GetGenericMethodDefinition(), Is.SameAs (genericMethodDefinition));
+      Assert.That (method.GetGenericArguments(), Is.EqualTo (new[] { genericArgument }));
+      Assert.That (method.ContainsGenericParameters, Is.False);
+    }
+
+    [Ignore ("TODO xxx")]
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException))]
+    public void GetGenericMethodDefinition_ThrowsIfNonGeneric ()
+    {
+      Assertion.IsFalse (_method.IsGenericMethod);
+      _method.GetGenericMethodDefinition();
     }
 
     [Test]

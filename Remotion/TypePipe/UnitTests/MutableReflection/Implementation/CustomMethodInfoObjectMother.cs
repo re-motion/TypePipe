@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -32,7 +33,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         ParameterInfo returnParameter = null,
         IEnumerable<ParameterInfo> parameters = null,
         MethodInfo baseDefinition = null,
-        IEnumerable<ICustomAttributeData> customAttributes = null)
+        IEnumerable<ICustomAttributeData> customAttributes = null,
+        MethodInfo genericDefinition = null,
+        IEnumerable<Type> genericArguments = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
       returnParameter = returnParameter ?? CustomParameterInfoObjectMother.Create (position: -1, type: typeof (void));
@@ -40,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       // Base definition stays null.
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
 
-      return new TestableCustomMethodInfo (declaringType, name, attributes)
+      return new TestableCustomMethodInfo (declaringType, name, attributes, genericDefinition, genericArguments)
              {
                  ReturnParameter_ = returnParameter,
                  Parameters = parameters.ToArray(),
