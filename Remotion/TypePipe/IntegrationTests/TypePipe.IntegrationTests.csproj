@@ -79,6 +79,7 @@
     <Compile Include="TypeAssembly\AddCustomAttributeTest.cs" />
     <Compile Include="TypeAssembly\AddEventTest.cs" />
     <Compile Include="TypeAssembly\AddFieldTest.cs" />
+    <Compile Include="TypeAssembly\AddGenericMethodTest.cs" />
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
     <Compile Include="TypeAssembly\AddExplicitOverrideTest.cs" />

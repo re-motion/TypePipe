@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -45,6 +46,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
       _returnType = returnType;
       _baseMethod = baseMethod;
+    }
+
+    public ReadOnlyCollection<Type> GenericParameters
+    {
+      get { throw new NotImplementedException(); }
     }
 
     public Type ReturnType

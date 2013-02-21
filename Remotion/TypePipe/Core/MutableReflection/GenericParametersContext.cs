@@ -14,14 +14,30 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
 namespace Remotion.TypePipe.MutableReflection.SignatureBuilding
 {
   /// <summary>
-  /// Provides access to the generic parameters of a generic method for building its parameters.
+  /// Provides access to the generic parameters of a generic method for building its parameters and return type.
   /// </summary>
   /// <seealso cref="ProxyType.AddGenericMethod"/>
-  public class ParameterDeclarationContext
+  public class GenericParametersContext
   {
-     
+    private readonly ReadOnlyCollection<Type> _genericParameters;
+
+    public GenericParametersContext (IEnumerable<Type> genericParameters)
+    {
+      _genericParameters = genericParameters.ToList().AsReadOnly();
+    }
+
+    public ReadOnlyCollection<Type> GenericParameters
+    {
+      get { return _genericParameters; }
+    }
   }
 }

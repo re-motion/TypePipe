@@ -33,18 +33,18 @@ namespace Remotion.TypePipe.MutableReflection
     public GenericParameterDeclaration (
         string name,
         GenericParameterAttributes attributes = GenericParameterAttributes.None,
-        Func<ParameterDeclarationContext, Type> baseConstraintProvider = null,
-        Func<ParameterDeclarationContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
+        Func<GenericParametersContext, Type> baseConstraintProvider = null,
+        Func<GenericParametersContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
     {
     }
 
-    public GenericParameterDeclaration (
-        string name,
-        GenericParameterAttributes attributes = GenericParameterAttributes.None,
-        Type baseConstraint = null,
-        IEnumerable<Type> interfaceConstraints = null)
-        : this (name, attributes, ctx => baseConstraint, ctx => interfaceConstraints)
-    {
-    }
+    //public GenericParameterDeclaration (
+    //    string name,
+    //    GenericParameterAttributes attributes = GenericParameterAttributes.None,
+    //    Type baseConstraint = null,
+    //    IEnumerable<Type> interfaceConstraints = null)
+    //    : this (name, attributes, ctx => baseConstraint, ctx => interfaceConstraints)
+    //{
+    //}
   }
 }

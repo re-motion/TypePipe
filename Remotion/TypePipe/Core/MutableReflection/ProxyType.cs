@@ -273,8 +273,8 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
-        Func<ReturnTypeContext, Type> returnTypeProvider,
-        Func<ParameterDeclarationContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Func<GenericParametersContext, Type> returnTypeProvider,
+        Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       return null;
