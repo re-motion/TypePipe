@@ -330,17 +330,16 @@ namespace Remotion.TypePipe.MutableReflection
     public MutablePropertyInfo AddProperty (
         string name,
         Type type,
-        IEnumerable<ParameterDeclaration> indexParameters = null,
-        MethodAttributes accessorAttributes = MethodAttributes.Public,
-        Func<MethodBodyCreationContext, Expression> getBodyProvider = null,
-        Func<MethodBodyCreationContext, Expression> setBodyProvider = null)
+        IEnumerable<ParameterDeclaration> indexParameters,
+        MethodAttributes accessorAttributes,
+        Func<MethodBodyCreationContext, Expression> getBodyProvider,
+        Func<MethodBodyCreationContext, Expression> setBodyProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
-      // Index parameters may be null.
+      ArgumentUtility.CheckNotNull ("indexParameters", indexParameters);
       // Get body provider may be null (for write-only properties).
       // Set body provider may be null (for read-only properties).
-      indexParameters = indexParameters ?? ParameterDeclaration.None;
 
       var property = _mutableMemberFactory.CreateProperty (this, name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
       _addedProperties.Add (property);
@@ -353,13 +352,11 @@ namespace Remotion.TypePipe.MutableReflection
       return property;
     }
 
-    public MutablePropertyInfo AddProperty (
-        string name, PropertyAttributes attributes = PropertyAttributes.None, MutableMethodInfo getMethod = null, MutableMethodInfo setMethod = null)
+    public MutablePropertyInfo AddProperty (string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Getter may be null.
-      // Setter may be null.
-      // Custom attributes may be null.
+      // Set method may be null (for write-only properties).
+      // Get method may be null (for read-only properties).
 
       var property = _mutableMemberFactory.CreateProperty (this, name, attributes, getMethod, setMethod);
       _addedProperties.Add (property);
@@ -370,9 +367,9 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableEventInfo AddEvent (
         string name,
         Type handlerType,
-        MethodAttributes accessorAttributes = MethodAttributes.Public,
-        Func<MethodBodyCreationContext, Expression> addBodyProvider = null,
-        Func<MethodBodyCreationContext, Expression> removeBodyProvider = null,
+        MethodAttributes accessorAttributes,
+        Func<MethodBodyCreationContext, Expression> addBodyProvider,
+        Func<MethodBodyCreationContext, Expression> removeBodyProvider,
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -394,11 +391,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public MutableEventInfo AddEvent (
-        string name,
-        EventAttributes attributes = EventAttributes.None,
-        MutableMethodInfo addMethod = null,
-        MutableMethodInfo removeMethod = null,
-        MutableMethodInfo raiseMethod = null)
+        string name, EventAttributes attributes, MutableMethodInfo addMethod, MutableMethodInfo removeMethod, MutableMethodInfo raiseMethod = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("addMethod", addMethod);

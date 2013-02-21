@@ -48,6 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             proxyType.AddEvent (
                 "Event",
                 typeof (Func<int, string, long>),
+                MethodAttributes.Public,
                 addBodyProvider: ctx =>
                 {
                   Assert.That (ctx.Parameters.Single().Type, Is.SameAs (typeof (Func<int, string, long>)));
@@ -113,7 +114,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (existingEvent.GetRaiseMethod (true), Is.Null);
             var raiseMethod = proxyType.GetOrAddOverride (dummyRaiseMethod);
 
-            proxyType.AddEvent (existingEvent.Name, addMethod: addMethod, removeMethod: removeMethod, raiseMethod: raiseMethod);
+            proxyType.AddEvent (existingEvent.Name, EventAttributes.None, addMethod, removeMethod, raiseMethod);
           });
 
       var newEvent = type.GetEvent ("ExistingEvent", BindingFlags.Public | BindingFlags.Instance);
@@ -140,7 +141,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var existingEvent = proxyType.GetEvent ("ExistingEvent");
             var addMethod = proxyType.GetOrAddOverride (existingEvent.GetAddMethod (true));
             var removeMethod = proxyType.GetOrAddOverride (existingEvent.GetRemoveMethod (true));
-            var event_ = proxyType.AddEvent (existingEvent.Name, addMethod: addMethod, removeMethod: removeMethod);
+            var event_ = proxyType.AddEvent (existingEvent.Name, EventAttributes.None, addMethod, removeMethod);
 
             var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
             var customAttributes = new CustomAttributeDeclaration (attributeCtor, new object[] { "derived" });

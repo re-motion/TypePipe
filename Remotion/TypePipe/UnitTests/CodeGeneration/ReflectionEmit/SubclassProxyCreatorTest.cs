@@ -28,7 +28,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
-using Rhino.Mocks.Interfaces;
 using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -105,8 +104,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var field = proxyType.AddField();
       var constructor = proxyType.AddConstructor();
       var method = proxyType.AddMethod();
-      var property = proxyType.AddProperty2();
-      var event_ = proxyType.AddEvent2();
+      var property = proxyType.AddProperty();
+      var event_ = proxyType.AddEvent();
 
       var fakeType = ReflectionObjectMother.GetSomeType();
 

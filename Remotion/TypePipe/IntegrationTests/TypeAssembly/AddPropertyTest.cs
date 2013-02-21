@@ -41,6 +41,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             proxyType.AddProperty (
                 "Property",
                 typeof (string),
+                ParameterDeclaration.None,
+                MethodAttributes.Public, 
                 getBodyProvider: ctx => Expression.Field (ctx.This, field),
                 setBodyProvider: ctx => Expression.Assign (Expression.Field (ctx.This, field), ctx.Parameters[0]));
           });
@@ -67,6 +69,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var prop = proxyType.AddProperty (
                 "Property",
                 typeof (int),
+                ParameterDeclaration.None,
                 accessorAttributes: accessorAttributes,
                 getBodyProvider: ctx => Expression.Constant (7),
                 setBodyProvider: ctx => Expression.Empty());
@@ -86,8 +89,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            proxyType.AddProperty ("ReadOnly", typeof (int), getBodyProvider: ctx => Expression.Default (typeof (int)));
-            proxyType.AddProperty ("WriteOnly", typeof (int), setBodyProvider: ctx => Expression.Empty());
+            proxyType.AddProperty (
+                "ReadOnly", typeof (int), ParameterDeclaration.None, MethodAttributes.Public, ctx => Expression.Default (typeof (int)), null);
+            proxyType.AddProperty ("WriteOnly", typeof (int), ParameterDeclaration.None, MethodAttributes.Public, null, ctx => Expression.Empty());
           });
 
       var readOnlyProperty = type.GetProperty ("ReadOnly");
@@ -110,6 +114,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "Property",
                 typeof (string),
                 new[] { new ParameterDeclaration (typeof (string), "index0"), new ParameterDeclaration (typeof (string), "index1") },
+                MethodAttributes.Public,
                 getBodyProvider: ctx =>
                 {
                   Assert.That (ctx.ReturnType, Is.SameAs (typeof (string)));
@@ -142,7 +147,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var existingProperty = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.ExistingProperty);
             var getMethod = proxyType.GetOrAddOverride (existingProperty.GetGetMethod());
             var setMethod = proxyType.GetOrAddOverride (existingProperty.GetSetMethod());
-            var property = proxyType.AddProperty (existingProperty.Name, getMethod: getMethod, setMethod: setMethod);
+            var property = proxyType.AddProperty (existingProperty.Name, PropertyAttributes.None, getMethod, setMethod);
 
             var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (""));
             var customAttributes = new CustomAttributeDeclaration (attributeCtor, new object[] { "derived" });
@@ -171,7 +176,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var attributes = MethodAttributes.Private | MethodAttributes.Static;
             var getMethod = proxyType.AddMethod (
                 "StaticGetMethod", attributes, typeof (int), ParameterDeclaration.None, ctx => Expression.Constant (7));
-            proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, getMethod);
+            proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, getMethod, null);
           });
 
       var nonExistingInstanceProperty = type.GetProperty ("StaticProperty", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -197,7 +202,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 typeof (void),
                 new[] { new ParameterDeclaration (typeof (string), "value") },
                 ctx => Expression.Assign (Expression.Field (ctx.This, field), ctx.Parameters[0]));
-            proxyType.AddProperty ("InstanceProperty", setMethod: setMethod);
+            proxyType.AddProperty ("InstanceProperty", PropertyAttributes.None, getMethod: null, setMethod: setMethod);
           });
 
       var nonExistingStaticProperty = type.GetProperty ("InstanceProperty", BindingFlags.Public | BindingFlags.Static);

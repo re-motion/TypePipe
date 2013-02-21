@@ -895,7 +895,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var returnType = ReflectionObjectMother.GetSomeType();
       var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: returnType);
-      var property = _proxyType.AddProperty ("Property", getMethod: getMethod);
+      var property = _proxyType.AddProperty2 ("Property", getMethod: getMethod);
 
       Assert.That (() => _factory.CreateProperty (_proxyType, "OtherName", 0, getMethod, null), Throws.Nothing);
 
@@ -981,20 +981,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateEvent_Providers_ThrowsForNonDelegateHandlerType ()
     {
       _factory.CreateEvent (_proxyType, "Event", typeof (int), 0, null, null, null);
-    }
-
-    [Test]
-    public void CreateEvent_Providers_ThrowsForNoAccessorProviders ()
-    {
-      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Default (typeof (void));
-
-      var message = "Value cannot be null.\r\nParameter name: {0}";
-      Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, null, null, null),
-          Throws.TypeOf<ArgumentNullException>().With.Message.EqualTo (string.Format (message, "addBodyProvider")));
-      Assert.That (
-          () => _factory.CreateEvent (_proxyType, "Event", typeof (Action), 0, bodyProvider, null, null),
-          Throws.TypeOf<ArgumentNullException>().With.Message.EqualTo (string.Format (message, "removeBodyProvider")));
     }
 
     [Test]
@@ -1166,7 +1152,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
       var differentHandlerAddRemoveMethod = MutableMethodInfoObjectMother.Create (
           _proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Func<int>)) });
-      var event_ = _proxyType.AddEvent ("Event", addMethod: addRemoveMethod, removeMethod: addRemoveMethod);
+      var event_ = _proxyType.AddEvent2 ("Event", addMethod: addRemoveMethod, removeMethod: addRemoveMethod);
 
       Assert.That (() => _factory.CreateEvent (_proxyType, "OtherName", 0, addRemoveMethod, addRemoveMethod, null), Throws.Nothing);
       Assert.That (

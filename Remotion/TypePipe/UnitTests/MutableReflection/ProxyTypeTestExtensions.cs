@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
     }
 
-    public static MutablePropertyInfo AddProperty2 (
+    public static MutablePropertyInfo AddProperty (
         this ProxyType proxyType,
         string name = null,
         Type type = null,
@@ -80,13 +80,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       name = name ?? "Property_" + ++s_counter;
       type = type ?? typeof (int);
+      indexParameters = indexParameters ?? ParameterDeclaration.None;
       if (getBodyProvider == null && setBodyProvider == null)
         getBodyProvider = ctx => Expression.Default (ctx.ReturnType);
 
       return proxyType.AddProperty (name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
     }
 
-    public static MutableEventInfo AddEvent2 (
+    public static MutablePropertyInfo AddProperty2 (
+        this ProxyType proxyType,
+        string name = null,
+        PropertyAttributes attributes = PropertyAttributes.None,
+        MutableMethodInfo getMethod = null,
+        MutableMethodInfo setMethod = null)
+    {
+      name = name ?? "Property_" + ++s_counter;
+      if (getMethod == null && setMethod == null)
+        getMethod = MutableMethodInfoObjectMother.Create (proxyType, "Getter", returnType: typeof (int));
+
+      return proxyType.AddProperty (name, attributes, getMethod, setMethod);
+    }
+
+    public static MutableEventInfo AddEvent (
         this ProxyType proxyType,
         string name = null,
         Type handlerType = null,
@@ -97,15 +112,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       name = name ?? "Event_" + ++s_counter;
       handlerType = handlerType ?? typeof (Func<string, int>);
-      
+
       if (addBodyProvider == null)
         addBodyProvider = ctx => Expression.Empty();
       if (removeBodyProvider == null)
-        removeBodyProvider = ctx => Expression.Empty ();
-      if (raiseBodyProvider == null)
-        raiseBodyProvider = ctx => Expression.Default (handlerType.GetGenericArguments().Last());
+        removeBodyProvider = ctx => Expression.Empty();
 
       return proxyType.AddEvent (name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
+    }
+
+    public static MutableEventInfo AddEvent2 (
+        this ProxyType proxyType,
+        string name = null,
+        EventAttributes attributes = EventAttributes.None,
+        MutableMethodInfo addMethod = null,
+        MutableMethodInfo removeMethod = null,
+        MutableMethodInfo raiseMethod = null)
+    {
+      name = name ?? "Event_" + ++s_counter;
+      var handlerMethod = addMethod ?? removeMethod;
+      var handlerType = handlerMethod != null ? handlerMethod.GetParameters().Single().ParameterType : typeof (Action);
+      addMethod = addMethod ?? MutableMethodInfoObjectMother.Create (proxyType, "Adder", parameters: new[] { ParameterDeclarationObjectMother.Create(handlerType) });
+      removeMethod = removeMethod ?? MutableMethodInfoObjectMother.Create (proxyType, "Adder", parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType) });
+
+      return proxyType.AddEvent (name, attributes, addMethod, removeMethod, raiseMethod);
     }
   }
 }
