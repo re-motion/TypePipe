@@ -24,6 +24,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -266,6 +267,17 @@ namespace Remotion.TypePipe.MutableReflection
       _addedMethods.Add (method);
 
       return method;
+    }
+
+    public MutableMethodInfo AddGenericMethod (
+        string name,
+        MethodAttributes attributes,
+        IEnumerable<GenericParameterDeclaration> genericParameters,
+        Func<ReturnTypeContext, Type> returnTypeProvider,
+        Func<ParameterDeclarationContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
+    {
+      return null;
     }
 
     public MutableMethodInfo AddExplicitOverride (MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
