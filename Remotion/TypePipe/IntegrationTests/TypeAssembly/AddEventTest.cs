@@ -80,22 +80,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void AccessorAttributes ()
     {
-      AssembleType<DomainType> (
+      var accessorAttributes = MethodAttributes.Public | MethodAttributes.Virtual;
+      var additionalAccessorAttributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+      var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var accessorAttributes = MethodAttributes.Public | MethodAttributes.Virtual;
-            var event_ = proxyType.AddEvent (
+            var evt = proxyType.AddEvent (
                 "Event",
                 typeof (Action),
                 accessorAttributes,
                 addBodyProvider: ctx => Expression.Empty(),
                 removeBodyProvider: ctx => Expression.Empty());
 
-            Assert.That (
-                event_.GetAddMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig));
-            Assert.That (
-                event_.GetRemoveMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig));
+            Assert.That (evt.GetAddMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+            Assert.That (evt.GetRemoveMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
           });
+
+      var event_ = type.GetEvent ("Event");
+      Assert.That (event_.GetAddMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+      Assert.That (event_.GetRemoveMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
     }
 
     [Test]

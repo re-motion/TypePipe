@@ -60,22 +60,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void AccessorAttributes ()
     {
-      AssembleType<DomainType> (
+      var accessorAttributes = MethodAttributes.Public | MethodAttributes.Virtual;
+      var additionalAccessorAttributes = MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+      var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var accessorAttributes = MethodAttributes.Public | MethodAttributes.Virtual;
-            var property = proxyType.AddProperty (
+            var prop = proxyType.AddProperty (
                 "Property",
                 typeof (int),
                 accessorAttributes: accessorAttributes,
                 getBodyProvider: ctx => Expression.Constant (7),
                 setBodyProvider: ctx => Expression.Empty());
 
-            Assert.That (
-                property.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig));
-            Assert.That (
-                property.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | MethodAttributes.SpecialName | MethodAttributes.HideBySig));
+            Assert.That (prop.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+            Assert.That (prop.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
           });
+
+      var property = type.GetProperty ("Property");
+      Assert.That (property.GetGetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
+      Assert.That (property.GetSetMethod().Attributes, Is.EqualTo (accessorAttributes | additionalAccessorAttributes));
     }
 
     [Test]
