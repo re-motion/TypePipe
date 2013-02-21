@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -179,8 +178,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       methodBuilderMock.VerifyAllExpectations ();
       parameterBuilderMock.VerifyAllExpectations();
 
-      var methodMapping = GetMethodMapping (_emitter);
-      Assert.That (methodMapping.ContainsKey (method), Is.True);
+      Assert.That (_context.MethodBuilders, Has.Count.EqualTo(1));
+      Assert.That (_context.MethodBuilders[method], Is.SameAs(methodBuilderMock));
 
       var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (2));
@@ -233,9 +232,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var getMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
       var setMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var methodMapping = GetMethodMapping (_emitter);
-      methodMapping.Add (getMethod, getMethodBuilder);
-      methodMapping.Add (setMethod, setMethodBuilder);
+      _context.MethodBuilders.Add (getMethod, getMethodBuilder);
+      _context.MethodBuilders.Add (setMethod, setMethodBuilder);
 
       var callingConventions = CallingConventions.Standard | CallingConventions.HasThis;
       var propertyBuilderMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
@@ -263,9 +261,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (writeOnlyProperty.MutableGetMethod, Is.Null);
 
       var methodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var methodMapping = GetMethodMapping (_emitter);
-      methodMapping.Add (readOnlyProperty.MutableGetMethod, methodBuilder);
-      methodMapping.Add (writeOnlyProperty.MutableSetMethod, methodBuilder);
+      _context.MethodBuilders.Add (readOnlyProperty.MutableGetMethod, methodBuilder);
+      _context.MethodBuilders.Add (writeOnlyProperty.MutableSetMethod, methodBuilder);
 
       var propertyBuilderMock1 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
       var propertyBuilderMock2 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
@@ -302,10 +299,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
       var removeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
       var raiseMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var methodMapping = GetMethodMapping (_emitter);
-      methodMapping.Add (addMethod, addMethodBuilder);
-      methodMapping.Add (removeMethod, removeMethodBuilder);
-      methodMapping.Add (raiseMethod, raiseMethodBuilder);
+      _context.MethodBuilders.Add (addMethod, addMethodBuilder);
+      _context.MethodBuilders.Add (removeMethod, removeMethodBuilder);
+      _context.MethodBuilders.Add (raiseMethod, raiseMethodBuilder);
 
       var eventBuilderMock = MockRepository.GenerateStrictMock<IEventBuilder>();
       _typeBuilderMock.Expect (mock => mock.DefineEvent (name, attributes, handlerType)).Return (eventBuilderMock);
@@ -328,9 +324,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
       var removeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var methodMapping = GetMethodMapping (_emitter);
-      methodMapping.Add (event_.MutableAddMethod, addMethodBuilder);
-      methodMapping.Add (event_.MutableRemoveMethod, removeMethodBuilder);
+      _context.MethodBuilders.Add (event_.MutableAddMethod, addMethodBuilder);
+      _context.MethodBuilders.Add (event_.MutableRemoveMethod, removeMethodBuilder);
 
       var eventBuilderMock = MockRepository.GenerateStrictMock<IEventBuilder>();
       _typeBuilderMock.Stub (stub => stub.DefineEvent (event_.Name, event_.Attributes, event_.EventHandlerType)).Return (eventBuilderMock);
@@ -398,11 +393,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emittableOperandProviderMock.VerifyAllExpectations ();
       _typeBuilderMock.VerifyAllExpectations ();
-    }
-
-    private Dictionary<MutableMethodInfo, IMethodBuilder> GetMethodMapping (MemberEmitter emitter)
-    {
-      return PrivateInvoke.GetNonPublicField (emitter, "_methodMapping").As<Dictionary<MutableMethodInfo, IMethodBuilder>>();
     }
 
     public class DomainType

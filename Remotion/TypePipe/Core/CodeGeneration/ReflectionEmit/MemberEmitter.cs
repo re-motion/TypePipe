@@ -27,12 +27,10 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Emits members for mutable reflection objects. Note that accessor methods must be added before their associated properties and events.
+  /// Emits members for mutable reflection objects.
   /// </summary>
   public class MemberEmitter : IMemberEmitter
   {
-    // TODO Review: Move to CodeGenerationContext.
-    private readonly Dictionary<MutableMethodInfo, IMethodBuilder> _methodMapping = new Dictionary<MutableMethodInfo, IMethodBuilder>();
     private readonly IExpressionPreparer _expressionPreparer;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
 
@@ -93,7 +91,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var parameterTypes = GetParameterTypes (method);
       var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, method.Attributes, method.ReturnType, parameterTypes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
-      _methodMapping.Add (method, methodBuilder);
+      context.MethodBuilders.Add (method, methodBuilder);
 
       DefineCustomAttributes (methodBuilder, method);
       DefineParameter (methodBuilder, method.MutableReturnParameter);
@@ -126,9 +124,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       DefineCustomAttributes (propertyBuilder, property);
 
       if (getMethod != null)
-        propertyBuilder.SetGetMethod (_methodMapping[getMethod]);
+        propertyBuilder.SetGetMethod (context.MethodBuilders[getMethod]);
       if (setMethod != null)
-        propertyBuilder.SetSetMethod (_methodMapping[setMethod]);
+        propertyBuilder.SetSetMethod (context.MethodBuilders[setMethod]);
     }
 
     public void AddEvent (CodeGenerationContext context, MutableEventInfo event_)
@@ -144,10 +142,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       DefineCustomAttributes (eventBuilder, event_);
 
-      eventBuilder.SetAddOnMethod (_methodMapping[addMethod]);
-      eventBuilder.SetRemoveOnMethod (_methodMapping[removeMethod]);
+      eventBuilder.SetAddOnMethod (context.MethodBuilders[addMethod]);
+      eventBuilder.SetRemoveOnMethod (context.MethodBuilders[removeMethod]);
       if (raiseMethod != null)
-        eventBuilder.SetRaiseMethod (_methodMapping[raiseMethod]);
+        eventBuilder.SetRaiseMethod (context.MethodBuilders[raiseMethod]);
     }
 
     private void DefineCustomAttributes (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IMutableInfo mutableInfo)

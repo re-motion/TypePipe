@@ -35,8 +35,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization ()
     {
-      Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
+      Assert.That (_context.MethodBuilders, Is.Empty);
       Assert.That (_context.TrampolineMethods, Is.Empty);
+      Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
     }
 
     [Test]

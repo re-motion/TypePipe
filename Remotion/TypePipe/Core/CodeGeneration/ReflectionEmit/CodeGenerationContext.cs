@@ -29,14 +29,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class CodeGenerationContext
   {
+    private readonly IDictionary<MutableMethodInfo, IMethodBuilder> _methodBuilders = new Dictionary<MutableMethodInfo, IMethodBuilder> ();
+    private readonly DeferredActionManager _postDeclarationsActionManager = new DeferredActionManager ();
+    private readonly IDictionary<MethodInfo, MethodInfo> _trampolineMethods =
+        new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
+
     private readonly ProxyType _proxyType;
     private readonly ITypeBuilder _typeBuilder;
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
-    private readonly DeferredActionManager _postDeclarationsActionManager = new DeferredActionManager();
-
-    private readonly IDictionary<MethodInfo, MethodInfo> _trampolineMethods =
-        new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
 
     [CLSCompliant (false)]
     public CodeGenerationContext (
@@ -61,6 +62,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public ITypeBuilder TypeBuilder
     {
       get { return _typeBuilder; }
+    }
+
+    public IDictionary<MutableMethodInfo, IMethodBuilder> MethodBuilders
+    {
+      get { return _methodBuilders; }
     }
 
     public DebugInfoGenerator DebugInfoGenerator
