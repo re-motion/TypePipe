@@ -39,6 +39,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return proxyType.AddField (name, attributes, type);
     }
 
+    public static MutableConstructorInfo AddConstructor (
+        this ProxyType proxyType,
+        MethodAttributes attributes = MethodAttributes.Public,
+        IEnumerable<ParameterDeclaration> parameters = null,
+        Func<ConstructorBodyCreationContext, Expression> bodyProvider = null)
+    {
+      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      bodyProvider = bodyProvider ?? (ctx => Expression.Empty());
+
+      return proxyType.AddConstructor (attributes, parameters, bodyProvider);
+    }
+
     public static MutableMethodInfo AddMethod2 (
         this ProxyType proxyType,
         string name = null,

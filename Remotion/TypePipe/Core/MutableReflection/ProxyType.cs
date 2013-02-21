@@ -233,14 +233,10 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     public MutableConstructorInfo AddConstructor (
-        MethodAttributes attributes = MethodAttributes.Public,
-        IEnumerable<ParameterDeclaration> parameters = null,
-        Func<ConstructorBodyCreationContext, Expression> bodyProvider = null)
+        MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      // Parameters may be null.
-      // Body provider may be null.
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
-      bodyProvider = bodyProvider ?? (ctx => Expression.Empty());
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameters, bodyProvider);
       if (constructor.IsStatic)

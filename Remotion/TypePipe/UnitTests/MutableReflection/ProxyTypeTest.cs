@@ -295,17 +295,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddField_Defaults ()
-    {
-      var type = ReflectionObjectMother.GetSomeType();
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateField (_proxyType, "_newField", type, FieldAttributes.Private)).Return (null);
-
-      _proxyType.AddField ("_newField", FieldAttributes.Private, type);
-
-      _mutableMemberFactoryMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void AddConstructor ()
     {
       var attributes = (MethodAttributes) 7;
@@ -338,29 +327,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void AddConstructor_Defaults ()
-    {
-      Func<ConstructorBodyCreationContext, Expression> bodyProvider = null;
-      var fakeConstructor = MutableConstructorInfoObjectMother.Create();
-      _mutableMemberFactoryMock
-          .Expect (
-              mock =>
-              mock.CreateConstructor (
-                  Arg.Is (_proxyType),
-                  Arg.Is (MethodAttributes.Public),
-                  Arg.Is (ParameterDeclaration.EmptyParameters),
-                  Arg<Func<ConstructorBodyCreationContext, Expression>>.Is.Anything))
-          .Return (fakeConstructor)
-          .WhenCalled (mi => bodyProvider = mi.Arguments[3].As<Func<ConstructorBodyCreationContext, Expression>>());
-
-      _proxyType.AddConstructor();
-
-      _mutableMemberFactoryMock.VerifyAllExpectations();
-      var defaultBody = bodyProvider (null);
-      Assert.That (defaultBody, Is.TypeOf<DefaultExpression>().And.Property ("Type").SameAs (typeof (void)));
-    }
-
-    [Test]
     public void AddMethod ()
     {
       var name = "Method";
@@ -378,18 +344,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeMethod));
       Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result }));
-    }
-
-    [Test]
-    public void AddMethod_Defaults ()
-    {
-      _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (_proxyType, "Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.EmptyParameters, null))
-          .Return (null);
-
-      _proxyType.AddMethod ("Method");
-
-      _mutableMemberFactoryMock.VerifyAllExpectations();
     }
 
     [Test]
