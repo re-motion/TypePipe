@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -48,6 +49,32 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var instance = (IAddedInterface) Activator.CreateInstance (type);
 
       Assert.That (instance.AddedMethod(), Is.EqualTo ("implemented"));
+    }
+
+    [Ignore ("TODO 4774")]
+    [Test]
+    public void Implement_Generic ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (
+          (IAddedInterfaceWithGenericMethod obj) => obj.GenericAddedMethod<Dev.T>());
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            proxyType.AddInterface (typeof (IAddedInterfaceWithGenericMethod));
+            var method = proxyType.GetOrAddOverride (interfaceMethod);
+            method.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  Assert.That (ctx.HasPreviousBody, Is.False);
+
+                  return Expression.Constant ("implemented");
+                });
+          });
+
+      var instance = (IAddedInterfaceWithGenericMethod) Activator.CreateInstance (type);
+
+      Assert.That (instance.GenericAddedMethod<Dev.T>(), Is.EqualTo ("implemented"));
     }
 
     [Test]
@@ -91,6 +118,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var instance = (IDomainInterface) Activator.CreateInstance (type);
 
       Assert.That (instance.Method(), Is.EqualTo ("DomainType.Method modified"));
+    }
+
+    [Ignore ("TODO 4774")]
+    [Test]
+    public void Modify_Implicit_Generic ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.GenericMethod<Dev.T>());
+      var type = AssembleType<DomainType> (
+          p => p.GetOrAddOverride (interfaceMethod)
+                .SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"))));
+
+      var instance = (IDomainInterface) Activator.CreateInstance (type);
+
+      Assert.That (instance.GenericMethod<int>(), Is.EqualTo ("DomainType.Method Int32 modified"));
     }
 
     [Test]
@@ -154,6 +195,29 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.BaseMethod(), Is.EqualTo ("DomainTypeBase.BaseMethod implicitly overridden"));
     }
 
+    [Ignore ("TODO 4774")]
+    [Test]
+    public void Override_Implicit_Generic ()
+    {
+      var interfaceMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((IBaseInterface obj) => obj.GenericBaseMethod<Dev.T>());
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var method = proxyType.GetOrAddOverride (interfaceMethod);
+            method.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.True);
+                  return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" implicitly overridden"));
+                });
+          });
+
+      var instance = (IBaseInterface) Activator.CreateInstance (type);
+
+      Assert.That (instance.GenericBaseMethod<int>(), Is.EqualTo ("DomainType.GenericBaseMethod Int32 implicitly overridden"));
+    }
+
     [Test]
     public void Override_Explicit_ShadowedBase ()
     {
@@ -182,6 +246,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         return "DomainTypeBase.BaseMethod";
       }
 
+      public string GenericBaseMethod<T> ()
+      {
+        return "DomainType.GenericBaseMethod " + typeof (T).Name;
+      }
+
       public virtual string ShadowedBaseMethod ()
       {
         return "DomainTypeBase.ShadowedBaseMethod";
@@ -195,6 +264,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public virtual string Method ()
       {
         return "DomainType.Method";
+      }
+
+      public string GenericMethod<T> ()
+      {
+        return "DomainType.GenericMethod " + typeof (T).Name;
       }
 
       void IDomainInterface.ExplicitlyImplemented () { }
@@ -213,17 +287,23 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public interface IBaseInterface
     {
       string BaseMethod ();
+      string GenericBaseMethod<T> ();
       string ShadowedBaseMethod ();
       void ExplicitlyImplemented ();
     }
     public interface IDomainInterface
     {
       string Method ();
+      string GenericMethod<T> ();
       void ExplicitlyImplemented ();
     }
     public interface IAddedInterface
     {
       string AddedMethod ();
+    }
+    public interface IAddedInterfaceWithGenericMethod
+    {
+      string GenericAddedMethod<T> ();
     }
     public interface IInvalidCandidates
     {
