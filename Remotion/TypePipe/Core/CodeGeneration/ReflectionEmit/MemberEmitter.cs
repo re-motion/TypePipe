@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class MemberEmitter : IMemberEmitter
   {
+    // TODO Review: Move to CodeGenerationContext.
     private readonly Dictionary<MutableMethodInfo, IMethodBuilder> _methodMapping = new Dictionary<MutableMethodInfo, IMethodBuilder>();
     private readonly IExpressionPreparer _expressionPreparer;
     private readonly IILGeneratorFactory _ilGeneratorFactory;
