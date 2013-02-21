@@ -59,8 +59,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       AssembleType<DomainType> (
           proxyType =>
           {
-            proxyType.AddMethod ("NonPublicCandidate", MethodAttributes.Assembly | MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
-            proxyType.AddMethod ("NonVirtualCandidate", MethodAttributes.Public, bodyProvider: ctx => Expression.Empty());
+            proxyType.AddMethod (
+                "NonPublicCandidate", MethodAttributes.Assembly | MethodAttributes.Virtual, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
+            proxyType.AddMethod ("NonVirtualCandidate", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
 
             proxyType.AddInterface (typeof (IInvalidCandidates));
 

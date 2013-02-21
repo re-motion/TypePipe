@@ -156,7 +156,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _serializableProxy, returnType: typeof (void), parameters: ParameterDeclaration.EmptyParameters);
+          _serializableProxy, returnType: typeof (void), parameters: ParameterDeclaration.None);
 
       _enabler.MakeSerializable (_serializableProxy, initMethod);
 
@@ -175,7 +175,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _deserializationCallbackProxy, returnType: typeof (void), parameters: ParameterDeclaration.EmptyParameters);
+          _deserializationCallbackProxy, returnType: typeof (void), parameters: ParameterDeclaration.None);
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_deserializationCallbackProxy, initMethod);
@@ -208,7 +208,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       StubFilterWithNoSerializedFields();
       var initMethod = MutableMethodInfoObjectMother.Create (
-          _serializableInterfaceWithDeserializationCallbackProxy, returnType: typeof (void), parameters: ParameterDeclaration.EmptyParameters);
+          _serializableInterfaceWithDeserializationCallbackProxy, returnType: typeof (void), parameters: ParameterDeclaration.None);
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableWithDeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_serializableInterfaceWithDeserializationCallbackProxy, initMethod);

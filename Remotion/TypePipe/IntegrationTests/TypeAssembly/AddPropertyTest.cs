@@ -170,7 +170,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var attributes = MethodAttributes.Private | MethodAttributes.Static;
             var getMethod = proxyType.AddMethod (
-                "StaticGetMethod", attributes, typeof (int), ParameterDeclaration.EmptyParameters, ctx => Expression.Constant (7));
+                "StaticGetMethod", attributes, typeof (int), ParameterDeclaration.None, ctx => Expression.Constant (7));
             proxyType.AddProperty ("StaticProperty", PropertyAttributes.SpecialName, getMethod);
           });
 

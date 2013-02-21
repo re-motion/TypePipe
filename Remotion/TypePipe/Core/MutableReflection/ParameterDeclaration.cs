@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class ParameterDeclaration
   {
-    public static readonly ParameterDeclaration[] EmptyParameters = new ParameterDeclaration[0];
+    public static readonly ParameterDeclaration[] None = new ParameterDeclaration[0];
 
     public static ParameterDeclaration CreateEquivalent (ParameterInfo parameterInfo)
     {

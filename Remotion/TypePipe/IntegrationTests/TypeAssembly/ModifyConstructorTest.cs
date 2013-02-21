@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => ctx.CallThisConstructor (Expression.Constant ("added"))),
           proxyType =>
           {
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => ctx.CallThisConstructor (Expression.Constant ("added"))),
           proxyType =>
           {
@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType => proxyType.AddConstructor (
               MethodAttributes.Public,
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => ctx.CallThisConstructor (Expression.Constant ("added"))),
           proxyType =>
           {

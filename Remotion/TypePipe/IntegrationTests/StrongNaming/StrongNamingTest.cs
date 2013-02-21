@@ -262,7 +262,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpression (Expression methodBody)
     {
-      CheckStrongNaming (p => p.AddMethod ("m", 0, typeof (void), ParameterDeclaration.EmptyParameters, ctx => methodBody), forceStrongNaming: true);
+      CheckStrongNaming (p => p.AddMethod ("m", 0, typeof (void), ParameterDeclaration.None, ctx => methodBody), forceStrongNaming: true);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
@@ -282,7 +282,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpressionException (Expression methodBody)
     {
-      CheckStrongNamingException (p => p.AddMethod ("m", bodyProvider: ctx => methodBody));
+      CheckStrongNamingException (p => p.AddMethod ("m", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => methodBody));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]

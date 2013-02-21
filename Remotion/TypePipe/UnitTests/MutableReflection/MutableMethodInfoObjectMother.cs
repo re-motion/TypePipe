@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (baseMethod != null)
         attributes = attributes.Set (MethodAttributes.Virtual);
       returnType = returnType ?? typeof (void);
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      parameters = parameters ?? ParameterDeclaration.None;
       // baseMethod stays null.
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
 

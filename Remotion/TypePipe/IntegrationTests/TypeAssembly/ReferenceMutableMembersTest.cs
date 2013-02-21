@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               "NewMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (Type),
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => Expression.Constant (proxyType, typeof (Type))));
 
       var result = type.InvokeMember ("NewMethod", BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static, null, null, null);
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "NewMethod",
                 MethodAttributes.Public,
                 typeof (void),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 // Without reflection method calls it would like this.
                 // ctx => Expression.Assign (Expression.Field (ctx.This, newMutableField), Expression.Call (ctx.This, existingMutableMethod))
                 ctx =>

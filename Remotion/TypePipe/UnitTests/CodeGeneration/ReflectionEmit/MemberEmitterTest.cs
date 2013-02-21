@@ -197,7 +197,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           "AbstractMethod",
           MethodAttributes.Abstract,
           typeof (int),
-          ParameterDeclaration.EmptyParameters);
+          ParameterDeclaration.None);
 
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
       _typeBuilderMock

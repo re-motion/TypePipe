@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             ctor.AddCustomAttribute (CreateAttribute (proxyType));
             ctor.MutableParameters.Single().AddCustomAttribute (CreateAttribute (proxyType));
             proxyType
-                .AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty())
+                .AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty())
                 .AddCustomAttribute (CreateAttribute (proxyType));
             // TODO 4675: Add attribute to property
             // TODO 4676: Add attribute to event
@@ -65,7 +65,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           p => p.AddMethod (
               "Method",
-              bodyProvider: ctx =>
+              MethodAttributes.Public,
+              typeof (void),
+              ParameterDeclaration.None,
+              ctx =>
               {
                 var localVariable = Expression.Parameter (p);
                 return Expression.Block (new[] { localVariable }, Expression.Empty());
@@ -119,8 +122,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var byRefType = proxyType.MakeByRefType();
             proxyType.AddMethod (
                 "Method",
-                bodyProvider: ctx => Expression.Empty(),
-                parameters: new[] { new ParameterDeclaration (byRefType, "ref"), new ParameterDeclaration (byRefType, "out", ParameterAttributes.Out) });
+                MethodAttributes.Public,
+                typeof (void),
+                new[] { new ParameterDeclaration (byRefType, "ref"), new ParameterDeclaration (byRefType, "out", ParameterAttributes.Out) },
+                ctx => Expression.Empty());
           });
 
       var parameters = type.GetMethod ("Method").GetParameters();
@@ -139,7 +144,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType =>
           {
             var instantiation = typeof (List<>).MakeTypePipeGenericType (proxyType);
-            proxyType.AddMethod ("Method", returnType: instantiation, bodyProvider: ctx => Expression.Default (instantiation));
+            proxyType.AddMethod (
+                "Method", MethodAttributes.Public, instantiation, ParameterDeclaration.None, ctx => Expression.Default (instantiation));
           });
 
       var method = type.GetMethod ("Method");
@@ -155,7 +161,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var funcType = typeof (Func<>).MakeTypePipeGenericType (proxyType);
             var enumerableType = typeof (IEnumerable<>).MakeTypePipeGenericType (funcType);
-            proxyType.AddMethod ("Method", returnType: enumerableType, bodyProvider: ctx => Expression.Default (enumerableType));
+            proxyType.AddMethod (
+                "Method", MethodAttributes.Public, enumerableType, ParameterDeclaration.None, ctx => Expression.Default (enumerableType));
           });
 
       var method = type.GetMethod ("Method");

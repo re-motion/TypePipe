@@ -126,7 +126,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               "MethodUsingField",
               MethodAttributes.Public,
               typeof (string),
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => Expression.Field (ctx.This, proxyType.GetField ("_privateInstanceField", BindingFlags.Instance | BindingFlags.NonPublic))));
 
       var instance = Activator.CreateInstance (type, "test value");

@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               "AnotherMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (int),
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => Expression.Constant (7)));
 
       var result = type.GetMethod ("AnotherMethod").Invoke (null, null);

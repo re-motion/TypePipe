@@ -202,7 +202,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private MutableMethodInfo AddMethod (ProxyType proxyType, string name, MethodAttributes attributes)
     {
-      return proxyType.AddMethod (name, attributes, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+      return proxyType.AddMethod (name, attributes, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
     }
 
     private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)

@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             Assert.That (proxyType.IsAbstract, Is.False);
 
-            var method = proxyType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.EmptyParameters);
+            var method = proxyType.AddAbstractMethod ("Dummy", MethodAttributes.Public, typeof (int), ParameterDeclaration.None);
             Assert.That (method.IsAbstract, Is.True);
 
             Assert.That (proxyType.IsAbstract, Is.True);

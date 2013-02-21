@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => ExpressionHelper.StringConcat (ctx.CallBase (overriddenMethod), Expression.Constant (" explicitly overridden")));
 
             mutableMethodInfo.AddExplicitBaseDefinition (overriddenMethod);
@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
@@ -161,7 +161,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "MethodShadowedByB",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
@@ -172,7 +172,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
@@ -199,7 +199,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "AbstractShadowedMethod",
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);

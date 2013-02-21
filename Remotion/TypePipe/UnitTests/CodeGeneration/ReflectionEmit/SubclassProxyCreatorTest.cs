@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var field = proxyType.AddField();
       var constructor = proxyType.AddConstructor();
-      var method = proxyType.AddMethod2();
+      var method = proxyType.AddMethod();
       var property = proxyType.AddProperty2();
       var event_ = proxyType.AddEvent2();
 

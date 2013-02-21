@@ -193,7 +193,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableMemberFactoryMock
           .Expect (
               mock => mock.CreateConstructor (
-                  _proxyType, MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider))
+                  _proxyType, MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.None, bodyProvider))
           .Return (typeInitializerFake);
 
       var result = _proxyType.AddTypeInitializer (bodyProvider);
@@ -319,7 +319,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var typeInitializerFake = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
       _mutableMemberFactoryMock.Stub (stub => stub.CreateConstructor (null, 0, null, null)).IgnoreArguments().Return (typeInitializerFake);
 
-      var result = _proxyType.AddConstructor (0, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+      var result = _proxyType.AddConstructor (0, ParameterDeclaration.None, ctx => Expression.Empty());
 
       Assert.That (result, Is.SameAs (typeInitializerFake));
       Assert.That (_proxyType.AddedConstructors, Is.Empty);
@@ -430,7 +430,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeProperty = MutablePropertyInfoObjectMother.Create (getMethod: getMethod);
       Assert.That (fakeProperty.MutableSetMethod, Is.Null);
       _mutableMemberFactoryMock
-          .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, ParameterDeclaration.EmptyParameters, MethodAttributes.Public, null, null))
+          .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, ParameterDeclaration.None, MethodAttributes.Public, null, null))
           .Return (fakeProperty);
 
       _proxyType.AddProperty ("Property", type);
@@ -446,7 +446,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeProperty = MutablePropertyInfoObjectMother.Create (setMethod: setMethod);
       Assert.That (fakeProperty.MutableGetMethod, Is.Null);
       _mutableMemberFactoryMock
-        .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, ParameterDeclaration.EmptyParameters, MethodAttributes.Public, null, null))
+        .Stub (stub => stub.CreateProperty (_proxyType, "Property", type, ParameterDeclaration.None, MethodAttributes.Public, null, null))
         .Return (fakeProperty);
 
       _proxyType.AddProperty ("Property", type);
@@ -609,7 +609,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (abstractMethod1.GetBaseDefinition(), Is.EqualTo (abstractMethodBaseDefinition));
 
       proxyType.AddExplicitOverride (abstractMethodBaseDefinition, ctx => Expression.Empty());
-      proxyType.AddMethod2 (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
+      proxyType.AddMethod (attributes: MethodAttributes.Virtual).AddExplicitBaseDefinition (abstractMethod2);
 
       Assert.That (proxyType.IsAbstract, Is.False);
       Assertion.IsNotNull (proxyType.BaseType);
@@ -678,7 +678,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void GetAllMethods ()
     {
       var baseMethods = typeof (DomainType).GetMethods (c_all);
-      var addedMethod = _proxyTypeWithoutMocks.AddMethod2();
+      var addedMethod = _proxyTypeWithoutMocks.AddMethod();
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyTypeWithoutMocks, "GetAllMethods");
 
@@ -693,13 +693,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           declaringType: _proxyType,
           name: baseMethod.Name,
           attributes: baseMethod.Attributes,
-          parameters: ParameterDeclaration.EmptyParameters,
+          parameters: ParameterDeclaration.None,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock
           .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null))
           .IgnoreArguments()
           .Return (fakeOverride);
-      _proxyType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.EmptyParameters, ctx => null);
+      _proxyType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.None, ctx => null);
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxyType, "GetAllMethods");
 

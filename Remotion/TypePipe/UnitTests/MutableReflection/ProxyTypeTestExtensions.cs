@@ -45,13 +45,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IEnumerable<ParameterDeclaration> parameters = null,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider = null)
     {
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      parameters = parameters ?? ParameterDeclaration.None;
       bodyProvider = bodyProvider ?? (ctx => Expression.Empty());
 
       return proxyType.AddConstructor (attributes, parameters, bodyProvider);
     }
 
-    public static MutableMethodInfo AddMethod2 (
+    public static MutableMethodInfo AddMethod (
         this ProxyType proxyType,
         string name = null,
         MethodAttributes attributes = MethodAttributes.Public,
@@ -60,9 +60,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
       name = name ?? "Method_" + ++s_counter;
+      returnType = returnType ?? typeof (void);
+      parameters = parameters ?? ParameterDeclaration.None;
       bodyProvider = bodyProvider == null && !attributes.IsSet (MethodAttributes.Abstract)
                          ? (ctx => Expression.Default (ctx.ReturnType))
-                         : (Func<MethodBodyCreationContext, Expression>) null;
+                         : bodyProvider;
 
       return proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
     }

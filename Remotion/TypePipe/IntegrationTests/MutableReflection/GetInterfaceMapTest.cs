@@ -78,7 +78,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void ExistingInterface_ExistingMethod_ExplicitReplacesImplicit ()
     {
       CheckGetInterfaceMap (_proxyType, _existingInterfaceMethod, _proxyType.GetMethod ("MethodOnExistingInterface"));
-      var implementation = _proxyType.AddMethod ("UnrelatedMethod", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
+      var implementation = _proxyType.AddMethod (
+          "UnrelatedMethod", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
       implementation.AddExplicitBaseDefinition (_existingInterfaceMethod);
 
       CheckGetInterfaceMap (_proxyType, _existingInterfaceMethod, implementation);

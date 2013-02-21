@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);

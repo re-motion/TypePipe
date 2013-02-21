@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               "AddedMethod",
               MethodAttributes.Public | MethodAttributes.Virtual,
               typeof (int),
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => Expression.Constant (7)),
           proxyType =>
           {
@@ -124,7 +124,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               "AddedMethod",
               MethodAttributes.Public,
               typeof (int),
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx => Expression.Constant (7)),
           proxyType =>
           {
@@ -219,7 +219,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "AddedMethod",
                 MethodAttributes.Public,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => Expression.Call (ctx.This, originalMethod, Expression.Constant(7)));
 
             var modifiedMethod = proxyType.GetOrAddOverride (originalMethod);

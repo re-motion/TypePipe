@@ -182,7 +182,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         return Expression.Empty();
       };
 
-      var ctor = _factory.CreateConstructor (_proxyType, attributes, ParameterDeclaration.EmptyParameters, bodyProvider);
+      var ctor = _factory.CreateConstructor (_proxyType, attributes, ParameterDeclaration.None, bodyProvider);
 
       Assert.That (ctor.IsStatic, Is.True);
     }
@@ -213,7 +213,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateConstructor_ThrowsIfAlreadyExists ()
     {
-      _proxyType.AddConstructor (parameters: ParameterDeclaration.EmptyParameters);
+      _proxyType.AddConstructor (parameters: ParameterDeclaration.None);
 
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
       Assert.That (
@@ -222,11 +222,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (
           () =>
-          _factory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider),
+          _factory.CreateConstructor (_proxyType, MethodAttributes.Static, ParameterDeclaration.None, bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => _factory.CreateConstructor (_proxyType, 0, ParameterDeclaration.EmptyParameters, bodyProvider),
+          () => _factory.CreateConstructor (_proxyType, 0, ParameterDeclaration.None, bodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Constructor with equal signature already exists."));
     }
 
@@ -323,7 +323,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "ToString",
           nonVirtualAttributes,
           typeof (string),
-          ParameterDeclaration.EmptyParameters,
+          ParameterDeclaration.None,
           bodyProvider);
 
       Assert.That (method, Is.Not.Null.And.Not.EqualTo (shadowedMethod));
@@ -349,7 +349,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "ToString",
           nonVirtualAttributes,
           typeof (string),
-          ParameterDeclaration.EmptyParameters,
+          ParameterDeclaration.None,
           bodyProvider);
 
       Assert.That (method, Is.Not.Null.And.Not.EqualTo (shadowedMethod));
@@ -377,7 +377,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "Method",
           MethodAttributes.Public | MethodAttributes.Virtual,
           typeof (int),
-          ParameterDeclaration.EmptyParameters,
+          ParameterDeclaration.None,
           bodyProvider);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
@@ -389,7 +389,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Non-abstract methods must have a body.\r\nParameter name: bodyProvider")]
     public void CreateMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
     {
-      _factory.CreateMethod (_proxyType, "NotImportant", 0, typeof (void), ParameterDeclaration.EmptyParameters, null);
+      _factory.CreateMethod (_proxyType, "NotImportant", 0, typeof (void), ParameterDeclaration.None, null);
     }
 
     [Test]
@@ -397,7 +397,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateMethod_ThrowsIfAbstractAndBodyProvider ()
     {
       _factory.CreateMethod (
-          _proxyType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, ctx => null);
+          _proxyType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, ctx => null);
     }
 
     [Test]
@@ -416,7 +416,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateMethod_ThrowsIfAbstractAndNotVirtual ()
     {
       _factory.CreateMethod (
-          _proxyType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.EmptyParameters, null);
+          _proxyType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, null);
     }
 
     [Test]
@@ -424,7 +424,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
       _factory.CreateMethod (
-          _proxyType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+          _proxyType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
     }
 
     [Test]
@@ -469,7 +469,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "MethodName",
           MethodAttributes.Public | MethodAttributes.Virtual,
           typeof (void),
-          ParameterDeclaration.EmptyParameters,
+          ParameterDeclaration.None,
           ctx => Expression.Empty ());
     }
 
@@ -642,7 +642,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetOrCreateOverride_InterfaceMethod_InvalidCandidate ()
     {
       _proxyType.AddInterface (typeof (IAddedInterface));
-      _proxyType.AddMethod2 ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
+      _proxyType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate());
       _factory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
     }
@@ -735,7 +735,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, ParameterDeclaration.EmptyParameters, 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
+          _proxyType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
 
       Assert.That (result.MutableSetMethod, Is.Null);
     }
@@ -747,7 +747,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, ParameterDeclaration.EmptyParameters, 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
+          _proxyType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod, Is.Null);
     }
@@ -769,7 +769,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void CreateProperty_Providers_NoAccessorProviders ()
     {
       _factory.CreateProperty (
-          _proxyType, "Property", typeof (int), ParameterDeclaration.EmptyParameters, 0, getBodyProvider: null, setBodyProvider: null);
+          _proxyType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null);
     }
 
     [Test]
@@ -1262,7 +1262,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private MutableConstructorInfo CreateConstructor (ProxyType proxyType, MethodAttributes attributes)
     {
-      return _factory.CreateConstructor (proxyType, attributes, ParameterDeclaration.EmptyParameters, ctx => Expression.Empty());
+      return _factory.CreateConstructor (proxyType, attributes, ParameterDeclaration.None, ctx => Expression.Empty());
     }
 
     private MutableMethodInfo CreateMethod (ProxyType proxyType, MethodAttributes attributes)
@@ -1272,14 +1272,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "dummy",
           attributes,
           typeof (void),
-          ParameterDeclaration.EmptyParameters,
+          ParameterDeclaration.None,
           ctx => Expression.Empty());
     }
 
     private MutablePropertyInfo CreateProperty (ProxyType proxyType, MethodAttributes accessorAttributes)
     {
       return _factory.CreateProperty (
-          proxyType, "dummy", typeof (int), ParameterDeclaration.EmptyParameters, accessorAttributes, ctx => Expression.Constant (7), null);
+          proxyType, "dummy", typeof (int), ParameterDeclaration.None, accessorAttributes, ctx => Expression.Constant (7), null);
     }
 
     private MutablePropertyInfo CreateProperty (ProxyType proxyType, PropertyAttributes attributes)

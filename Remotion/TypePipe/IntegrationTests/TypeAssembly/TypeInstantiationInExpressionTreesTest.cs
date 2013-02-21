@@ -35,7 +35,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           p => p.AddMethod (
               "Method",
-              bodyProvider: ctx =>
+              MethodAttributes.Public,
+              typeof(void),
+              ParameterDeclaration.None,
+              ctx =>
               {
                 var instantiation = typeof (Func<>).MakeTypePipeGenericType (p);
                 var localVariable = Expression.Parameter (instantiation);
@@ -67,7 +70,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
         proxyType.AddMethod (
             "Method",
-            bodyProvider: ctx =>
+            MethodAttributes.Public,
+            typeof (int),
+            ParameterDeclaration.None,
+            ctx =>
             {
               var list = Expression.Field (ctx.This, field);
               var addMethod = listType.GetMethod ("Add");
@@ -76,8 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Expression.Call (list, addMethod, Expression.New (proxyType)),
                   Expression.Call (list, addMethod, Expression.New (proxyType)),
                   Expression.Property (list, countProperty));
-            },
-            returnType: typeof (int));
+            });
       });
 
       var method = type.GetMethod ("Method");

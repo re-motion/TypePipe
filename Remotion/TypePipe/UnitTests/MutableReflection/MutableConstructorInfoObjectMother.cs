@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Expression body = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      parameters = parameters ?? ParameterDeclaration.None;
       body = body ?? Expression.Empty();
 
       return new MutableConstructorInfo (declaringType, attributes, parameters, body);

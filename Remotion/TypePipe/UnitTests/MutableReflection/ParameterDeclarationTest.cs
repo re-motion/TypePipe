@@ -28,9 +28,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class ParameterDeclarationTest
   {
     [Test]
-    public void EmptyParameters ()
+    public void None ()
     {
-      Assert.That (ParameterDeclaration.EmptyParameters, Is.Empty);
+      Assert.That (ParameterDeclaration.None, Is.Empty);
     }
 
     [Test]

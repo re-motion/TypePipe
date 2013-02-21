@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "OverridableMethod",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "MethodOverriddenInDerived",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);

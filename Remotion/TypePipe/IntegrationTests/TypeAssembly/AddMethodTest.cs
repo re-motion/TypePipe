@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               "StaticMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               typeof (void),
-              ParameterDeclaration.EmptyParameters,
+              ParameterDeclaration.None,
               ctx =>
               {
                 Assert.That (() => ctx.This, Throws.InvalidOperationException.With.Message.EqualTo ("Static methods cannot use 'This'."));
@@ -119,21 +119,21 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "MethodWithExactResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => Expression.Constant ("return value"));
 
             proxyType.AddMethod (
                 "MethodWithBoxingConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => Expression.Constant (7));
 
             proxyType.AddMethod (
                 "MethodWithReferenceConvertibleResultType",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (object),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => Expression.Constant ("string"));
           });
 
@@ -190,14 +190,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "Method1",
                 MethodAttributes.Private | MethodAttributes.Static,
                 typeof (int),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => Expression.Constant (7));
 
             proxyType.AddMethod (
                 "Method2",
                 MethodAttributes.Public | MethodAttributes.Static,
                 typeof (int),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => Expression.Increment (Expression.Call (method1)));
           });
 
@@ -218,7 +218,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "AddedMethod",
                 MethodAttributes.Public,
                 typeof (string),
-                ParameterDeclaration.EmptyParameters,
+                ParameterDeclaration.None,
                 ctx => Expression.Block (
                     Expression.Assign (Expression.Field (ctx.This, baseField), Expression.Constant ("blah")),
                     Expression.Call (ctx.This, baseMethod)));
@@ -300,7 +300,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private void CheckAddMethodThrows (ProxyType proxyType, string name, Type returnType, Expression body, string exceptionMessage)
     {
       Assert.That (
-          () => proxyType.AddMethod (name, MethodAttributes.Public, returnType, ParameterDeclaration.EmptyParameters, ctx => body),
+          () => proxyType.AddMethod (name, MethodAttributes.Public, returnType, ParameterDeclaration.None, ctx => body),
           Throws.InvalidOperationException.With.Message.EqualTo (exceptionMessage));
     }
 

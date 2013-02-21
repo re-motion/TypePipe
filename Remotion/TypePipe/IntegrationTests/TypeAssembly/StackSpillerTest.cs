@@ -17,10 +17,12 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -38,12 +40,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var abcdefghi = methodWithManyArguments.GetParameters().Select ((p, i) => "" + (char) ('a' + i)).Select (Expression.Constant);
             proxyType.AddMethod (
                 "Method",
-                returnType: typeof (string),
-                bodyProvider: ctx => Expression.Call (ctx.This, methodWithManyArguments, abcdefghi.Cast<Expression>()));
+                MethodAttributes.Public,
+                typeof (string),
+                ParameterDeclaration.None,
+                ctx => Expression.Call (ctx.This, methodWithManyArguments, abcdefghi.Cast<Expression>()));
           });
 
       var method = type.GetMethod ("Method");
       var modifiedMethodBody = method.GetMethodBody();
+      Assertion.IsNotNull (modifiedMethodBody);
       Assert.That (modifiedMethodBody.MaxStackSize, Is.EqualTo (10));
       // This reference + 9 arguments = 10.
 

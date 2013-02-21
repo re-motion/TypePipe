@@ -174,7 +174,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      return AddConstructor (MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.EmptyParameters, bodyProvider);
+      return AddConstructor (MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.None, bodyProvider);
     }
 
     /// <summary>
@@ -252,17 +252,15 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableMethodInfo AddMethod (
         string name,
-        MethodAttributes attributes = MethodAttributes.Public,
-        Type returnType = null,
-        IEnumerable<ParameterDeclaration> parameters = null,
-        Func<MethodBodyCreationContext, Expression> bodyProvider = null)
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Return type may be null.
-      // Parameters may be null.
-      // Body provider is null (stays null) for abstract methods.
-      returnType = returnType ?? typeof (void);
-      parameters = parameters ?? ParameterDeclaration.EmptyParameters;
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      // Body provider is null for abstract methods.
 
       var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameters, bodyProvider);
       _addedMethods.Add (method);
@@ -342,7 +340,7 @@ namespace Remotion.TypePipe.MutableReflection
       // Index parameters may be null.
       // Get body provider may be null (for write-only properties).
       // Set body provider may be null (for read-only properties).
-      indexParameters = indexParameters ?? ParameterDeclaration.EmptyParameters;
+      indexParameters = indexParameters ?? ParameterDeclaration.None;
 
       var property = _mutableMemberFactory.CreateProperty (this, name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
       _addedProperties.Add (property);
