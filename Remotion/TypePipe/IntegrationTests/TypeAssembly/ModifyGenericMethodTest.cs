@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 
@@ -27,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   public class ModifyGenericMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore ("TODO 4789")]
+    [Ignore ("TODO 4774")]
     public void ExistingMethodWithGenericParameters ()
     {
       var baseMethod = typeof (DomainType).GetMethod ("GenericMethod");
@@ -39,9 +40,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (genericMethodOverride.IsGenericMethod, Is.True);
             Assert.That (genericMethodOverride.IsGenericMethodDefinition, Is.True);
             var genericParameters = genericMethodOverride.GetGenericArguments();
-            var genericParameterNames = genericParameters.Select (t => t.Name);
-            Assert.That (genericParameterNames, Is.EqualTo (new[] { "TKey", "TValue" }));
-            // TODO : Check parameter constraints.
+            Assert.That (genericParameters.Select (t => t.Name), Is.EqualTo (new[] { "TKey", "TValue" }));
+            var keyParameter = genericParameters[0];
+            var valueParameter = genericParameters[1];
+            var keyParameterConstraint = keyParameter.GetGenericParameterConstraints().Single();
+            Assert.That (keyParameterConstraint.GetGenericTypeDefinition(), Is.SameAs (typeof (IComparable)));
+            Assert.That (keyParameterConstraint.GetGenericArguments().Single(), Is.SameAs (keyParameter));
+            Assert.That (valueParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.ReferenceTypeConstraint));
 
             genericMethodOverride.SetBody (
                 ctx =>
@@ -63,7 +68,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var result2 = method.Invoke (instance, new object[] { dict, 8 });
 
       Assert.That (result1, Is.EqualTo ("seven"));
-      Assert.That (result2, Is.EqualTo (null));
+      Assert.That (result2, Is.Null);
     }
 
     public class DomainType
