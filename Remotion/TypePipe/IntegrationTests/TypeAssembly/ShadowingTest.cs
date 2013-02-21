@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -29,10 +30,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ShadowMethod_NonVirtual ()
     {
-      var type = AssembleType<ModifiedType> (
+      var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var shadowedMethod = typeof (ModifiedType).GetMethod ("OverridableMethod");
+            var shadowedMethod = typeof (DomainType).GetMethod ("OverridableMethod");
             var mutableMethodInfo = AddEquivalentMethod (
                 proxyType, 
                 shadowedMethod,
@@ -52,10 +53,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             Assert.That (
                 proxyType.GetMethods ().Where (mi => mi.Name == "OverridableMethod"),
-                Is.EquivalentTo (new[] { mutableMethodInfo, typeof (ModifiedType).GetMethod ("OverridableMethod") }));
+                Is.EquivalentTo (new[] { mutableMethodInfo, typeof (DomainType).GetMethod ("OverridableMethod") }));
           });
 
-      var instance = (ModifiedType) Activator.CreateInstance (type);
+      var instance = (DomainType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "OverridableMethod");
 
       Assert.That (method.GetBaseDefinition(), Is.SameAs (method));
@@ -68,10 +69,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ShadowMethod_VirtualAndNewSlot ()
     {
-      var type = AssembleType<ModifiedType> (
+      var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var shadowedMethod = typeof (ModifiedType).GetMethod ("OverridableMethod");
+            var shadowedMethod = typeof (DomainType).GetMethod ("OverridableMethod");
             var mutableMethodInfo = AddEquivalentMethod (
                 proxyType,
                 shadowedMethod,
@@ -88,10 +89,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             Assert.That (
                 proxyType.GetMethods().Where (mi => mi.Name == "OverridableMethod"),
-                Is.EquivalentTo (new[] { mutableMethodInfo, typeof (ModifiedType).GetMethod ("OverridableMethod") }));
+                Is.EquivalentTo (new[] { mutableMethodInfo, typeof (DomainType).GetMethod ("OverridableMethod") }));
           });
 
-      var instance = (ModifiedType) Activator.CreateInstance (type);
+      var instance = (DomainType) Activator.CreateInstance (type);
       var method = GetDeclaredMethod (type, "OverridableMethod");
 
       Assert.That (method.GetBaseDefinition(), Is.SameAs (method));
@@ -101,16 +102,56 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.OverridableMethod (), Is.EqualTo ("DomainType"));
     }
 
+    [Ignore ("TODO 4774")]
+    [Test]
+    public void ShadowGenericMethod_VirtualAndNewSlot ()
+    {
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var mutableMethod = proxyType.AddGenericMethod (
+                "OverridableGenericMethod", 
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                new[]{new GenericParameterDeclaration("T")},
+                ctx => typeof(string),
+                ctx => ParameterDeclaration.None,
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+
+                  return ExpressionHelper.StringConcat (
+                      ctx.CallBase ("OverridableGenericMethod", ctx.Parameters.Cast<Expression> ()), Expression.Constant (" shadowed"));
+                });
+            Assert.That (mutableMethod.BaseMethod, Is.Null);
+            Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (mutableMethod));
+
+            Assert.That (
+                proxyType.GetMethods().Where (mi => mi.Name == "OverridableGenericMethod"),
+                Is.EquivalentTo (new[] { mutableMethod, typeof (DomainType).GetMethod ("OverridableGenericMethod") }));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      var genericMethod = GetDeclaredMethod (type, "OverridableGenericMethod");
+
+      Assert.That (genericMethod.GetBaseDefinition(), Is.SameAs (genericMethod));
+
+      var method = genericMethod.MakeGenericMethod (typeof (string));
+      var result = method.Invoke (instance, null);
+      Assert.That (result, Is.EqualTo ("DomainType String shadowed"));
+      Assert.That (instance.OverridableMethod(), Is.EqualTo ("DomainType"));
+    }
+
     public class DomainType
     {
       public virtual string OverridableMethod ()
       {
         return "DomainType";
       }
-    }
 
-    public class ModifiedType : DomainType
-    {
+      public virtual string OverridableGenericMethod<T> ()
+      {
+        return "DomainType " + typeof (T).Name;
+      }
     }
   }
 }
