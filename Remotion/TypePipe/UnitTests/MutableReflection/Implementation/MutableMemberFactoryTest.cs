@@ -98,12 +98,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateField_ThrowsForInvalidFieldAttributes ()
     {
-      const string message = "The following FieldAttributes are not supported for fields: " +
-                             "InitOnly, Literal, PinvokeImpl, RTSpecialName, HasFieldMarshal, HasDefault, HasFieldRVA.\r\nParameter name: attributes";
-      Assert.That (() => CreateField (_proxyType, FieldAttributes.InitOnly), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following FieldAttributes are not supported for fields: " +
+                    "Literal, HasFieldMarshal, HasDefault, HasFieldRVA.\r\nParameter name: attributes";
       Assert.That (() => CreateField (_proxyType, FieldAttributes.Literal), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_proxyType, FieldAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_proxyType, FieldAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateField (_proxyType, FieldAttributes.HasFieldMarshal), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateField (_proxyType, FieldAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateField (_proxyType, FieldAttributes.HasFieldRVA), Throws.ArgumentException.With.Message.EqualTo (message));
@@ -403,11 +400,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateMethod_ThrowsForInvalidMethodAttributes ()
     {
-      const string message = "The following MethodAttributes are not supported for methods: " +
-                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: attributes";
-      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateMethod (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following MethodAttributes are not supported for methods: RequireSecObject.\r\nParameter name: attributes";
       Assert.That (() => CreateMethod (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
@@ -755,11 +748,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProperty_Providers_ThrowsForInvalidAccessorAttributes ()
     {
-      const string message = "The following MethodAttributes are not supported for property accessor methods: " +
-                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: accessorAttributes";
-      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following MethodAttributes are not supported for property accessor methods: " +
+                    "RequireSecObject.\r\nParameter name: accessorAttributes";
       Assert.That (() => CreateProperty (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
@@ -819,9 +809,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProperty_Accessors_ThrowsForInvalidPropertyAttributes ()
     {
-      const string message = "The following PropertyAttributes are not supported for properties: " +
-                             "RTSpecialName, HasDefault, Reserved2, Reserved3, Reserved4.\r\nParameter name: attributes";
-      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following PropertyAttributes are not supported for properties: " +
+                    "HasDefault, Reserved2, Reserved3, Reserved4.\r\nParameter name: attributes";
       Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.Message.EqualTo (message));
       Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.Message.EqualTo (message));
@@ -986,11 +975,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateEvent_Providers_ThrowsForInvalidAccessorAttributes ()
     {
-      const string message = "The following MethodAttributes are not supported for event accessor methods: " +
-                             "PinvokeImpl, UnmanagedExport, RTSpecialName, RequireSecObject.\r\nParameter name: accessorAttributes";
-      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following MethodAttributes are not supported for event accessor methods: "
+                    + "RequireSecObject.\r\nParameter name: accessorAttributes";
       Assert.That (() => CreateEvent (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
@@ -1039,8 +1025,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateEvent_Accessors_ThrowsForInvalidPropertyAttributes ()
     {
-      var message = "The following EventAttributes are not supported for events: ReservedMask.\r\nParameter name: attributes";
-      Assert.That (() => CreateEvent (_proxyType, EventAttributes.RTSpecialName), Throws.ArgumentException.With.Message.EqualTo (message));
+      // No invalid EventAttributes.
     }
 
     [Test]

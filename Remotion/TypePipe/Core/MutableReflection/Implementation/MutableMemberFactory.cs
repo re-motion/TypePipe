@@ -35,8 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private static readonly FieldAttributes[] s_invalidFieldAttributes =
         new[]
         {
-            FieldAttributes.InitOnly, FieldAttributes.Literal, FieldAttributes.PinvokeImpl, FieldAttributes.RTSpecialName,
-            FieldAttributes.HasFieldMarshal, FieldAttributes.HasDefault, FieldAttributes.HasFieldRVA
+            FieldAttributes.Literal, FieldAttributes.HasFieldMarshal, FieldAttributes.HasDefault, FieldAttributes.HasFieldRVA
         };
 
     private static readonly MethodAttributes[] s_invalidConstructorAttributes =
@@ -46,20 +45,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             MethodAttributes.PinvokeImpl, MethodAttributes.UnmanagedExport, MethodAttributes.RequireSecObject
         };
 
-    private static readonly MethodAttributes[] s_invalidMethodAttributes =
-        new[]
-        {
-            MethodAttributes.PinvokeImpl, MethodAttributes.UnmanagedExport, MethodAttributes.RTSpecialName, MethodAttributes.RequireSecObject
-        };
+    private static readonly MethodAttributes[] s_invalidMethodAttributes = new[] { MethodAttributes.RequireSecObject };
 
     private static readonly PropertyAttributes[] s_invalidPropertyAttributes =
         new[]
         {
-            PropertyAttributes.RTSpecialName, PropertyAttributes.HasDefault, PropertyAttributes.Reserved2, PropertyAttributes.Reserved3,
-            PropertyAttributes.Reserved4
+            PropertyAttributes.HasDefault, PropertyAttributes.Reserved2, PropertyAttributes.Reserved3, PropertyAttributes.Reserved4
         };
 
-    private static readonly EventAttributes[] s_invalidEventAttributes = new[] { EventAttributes.RTSpecialName };
+    private static readonly EventAttributes[] s_invalidEventAttributes = new EventAttributes[0];
 
     private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
@@ -111,6 +105,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       CheckForInvalidAttributes ("constructors", s_invalidConstructorAttributes, attributes, "attributes");
+
+      // TODO Review: Always add specialname and rtspecialname flags.
 
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var paras = parameters.ConvertToCollection();
