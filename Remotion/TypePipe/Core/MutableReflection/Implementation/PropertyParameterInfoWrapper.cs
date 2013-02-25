@@ -20,6 +20,10 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
+  /// <summary>
+  /// Wraps a <see cref="ParameterInfo"/> of a property's accessor method so that the result represents an index parameter
+  /// of the <see cref="PropertyInfo"/> (with the right <see cref="ParameterInfo.Member"/>).
+  /// </summary>
   public class PropertyParameterInfoWrapper : CustomParameterInfo
   {
     private readonly ParameterInfo _parameter;

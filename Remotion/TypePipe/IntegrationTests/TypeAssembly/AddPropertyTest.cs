@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void RedeclareExisting_AddCustomAttribute ()
+    public void OverrideExisting_AddCustomAttribute ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>

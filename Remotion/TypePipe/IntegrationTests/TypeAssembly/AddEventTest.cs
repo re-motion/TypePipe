@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void Redeclare_UsingAccesssors ()
+    public void Override_UsingAccesssors ()
     {
       var dummyRaiseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.DummyRaiseMethod (7));
       var type = AssembleType<DomainType> (
@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void Redeclare_AddCustomAttribute ()
+    public void Override_AddCustomAttribute ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
