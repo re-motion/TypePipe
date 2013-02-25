@@ -34,16 +34,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<ParameterInfo> parameters = null,
         MethodInfo baseDefinition = null,
         IEnumerable<ICustomAttributeData> customAttributes = null,
-        MethodInfo genericDefinition = null,
-        IEnumerable<Type> genericArguments = null)
+        IEnumerable<Type> typeArguments = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
       returnParameter = returnParameter ?? CustomParameterInfoObjectMother.Create (position: -1, type: typeof (void));
       parameters = parameters ?? new ParameterInfo[0];
       // Base definition stays null.
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
+      typeArguments = typeArguments ?? Type.EmptyTypes;
 
-      return new TestableCustomMethodInfo (declaringType, name, attributes, genericDefinition, genericArguments)
+      return new TestableCustomMethodInfo (declaringType, name, attributes, typeArguments)
              {
                  ReturnParameter_ = returnParameter,
                  Parameters = parameters.ToArray(),

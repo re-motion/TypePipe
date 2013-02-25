@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
         Expression body)
-        : base (declaringType, name, attributes, null, null)
+        : base (declaringType, name, attributes, Type.EmptyTypes)
     {
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);

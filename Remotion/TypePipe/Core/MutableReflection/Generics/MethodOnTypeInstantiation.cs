@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
     public MethodOnTypeInstantiation (TypeInstantiation declaringType, MethodInfo method)
-        : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes, null, null)
+        : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes, Type.EmptyTypes)
     {
       _method = method;
       _returnParameter = new MemberParameterOnTypeInstantiation (this, method.ReturnParameter);
