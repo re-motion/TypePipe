@@ -162,7 +162,7 @@
     <Compile Include="MutableReflection\Implementation\CustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
-    <Compile Include="MutableReflection\Implementation\TypeAttributesExtensionsTest.cs" />
+    <Compile Include="MutableReflection\Implementation\EnumExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactoryTest.cs" />
     <Compile Include="MutableReflection\MutableEventInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableEventInfoTest.cs" />

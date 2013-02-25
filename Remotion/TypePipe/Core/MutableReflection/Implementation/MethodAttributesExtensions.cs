@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static MethodAttributes AdjustVisibilityForAssemblyBoundaries (this MethodAttributes originalAttributes)
     {
-      return IsSet (originalAttributes, MethodAttributes.FamORAssem)
+      return originalAttributes.IsSet (MethodAttributes.FamORAssem)
                  ? ChangeVisibility (originalAttributes, MethodAttributes.Family)
                  : originalAttributes;
     }
@@ -36,23 +36,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public static MethodAttributes ChangeVisibility (this MethodAttributes originalAttributes, MethodAttributes newVisibility)
     {
       return (originalAttributes & ~MethodAttributes.MemberAccessMask) | newVisibility;
-    }
-
-    public static bool IsSet (this MethodAttributes attributes, MethodAttributes flags)
-    {
-      Assertion.IsTrue (flags != 0);
-
-      return (attributes & flags) == flags;
-    }
-
-    public static MethodAttributes Set (this MethodAttributes attributes, MethodAttributes flags)
-    {
-      return attributes | flags;
-    }
-
-    public static MethodAttributes Unset (this MethodAttributes attributes, MethodAttributes flags)
-    {
-      return attributes & ~flags;
     }
   }
 }

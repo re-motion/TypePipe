@@ -22,7 +22,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
-  public class TypeAttributesExtensionsTest
+  public class EnumExtensionsTest
   {
     [Test]
     public void IsSet ()
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var attributes = (TypeAttributes) 2;
 
       Assert.That (attributes.Set ((TypeAttributes) 6), Is.EqualTo ((TypeAttributes) 6));
-      Assert.That (attributes.Set (0), Is.EqualTo ((TypeAttributes) 2));
+      Assert.That (attributes.Set ((TypeAttributes) 0), Is.EqualTo ((TypeAttributes) 2));
     }
 
     [Test]
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var attributes = (TypeAttributes) 3;
 
       Assert.That (attributes.Unset ((TypeAttributes) 2), Is.EqualTo ((TypeAttributes) 1));
-      Assert.That (attributes.Unset (0), Is.EqualTo ((TypeAttributes) 3));
+      Assert.That (attributes.Unset ((TypeAttributes) 0), Is.EqualTo ((TypeAttributes) 3));
     }
   }
 }
