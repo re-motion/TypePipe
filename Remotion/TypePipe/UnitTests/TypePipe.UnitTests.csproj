@@ -119,6 +119,7 @@
     <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\EventOnTypeInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\FieldOnTypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\GenericParameterTest.cs" />
     <Compile Include="MutableReflection\Generics\InstantiationInfoTest.cs" />
     <Compile Include="MutableReflection\Generics\MemberParameterOnTypeInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiationObjectMother.cs" />
