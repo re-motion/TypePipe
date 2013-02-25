@@ -25,10 +25,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public static class EnumFlagsExtensions
   {
-    public static bool IsSet<T> (this Enum attributes, T flags)
+    public static bool IsSet (this Enum attributes, Enum flags)
     {
-      Assertion.IsTrue (attributes.GetType() == typeof (T));
-      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+      ArgumentUtility.CheckNotNull ("attributes", attributes);
+      ArgumentUtility.CheckNotNull ("flags", flags);
+
+      Assertion.IsTrue (attributes.GetType() == flags.GetType());
+      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (attributes.GetType(), false));
 
       var attributesAsInt = (int) (object) attributes;
       var flagsAsInt = (int) (object) flags;
@@ -37,13 +40,36 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return (attributesAsInt & flagsAsInt) == flagsAsInt;
     }
 
-    public static bool IsUnset<T> (this Enum attributes, T flags)
+    public static bool IsSet<T> (this Enum attributes, T mask, T flags)
     {
+      ArgumentUtility.CheckNotNull ("attributes", attributes);
+      ArgumentUtility.CheckNotNull ("mask", mask);
+      ArgumentUtility.CheckNotNull ("flags", flags);
+
+      Assertion.IsTrue (attributes.GetType() == typeof (T));
+      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+
+      var attributesAsInt = (int) (object) attributes;
+      var maskAsInt = (int) (object) mask;
+      var flagsAsInt = (int) (object) flags;
+      Assertion.IsTrue (maskAsInt != 0);
+
+      return (attributesAsInt & maskAsInt) == flagsAsInt;
+    }
+
+    public static bool IsUnset (this Enum attributes, Enum flags)
+    {
+      ArgumentUtility.CheckNotNull ("attributes", attributes);
+      ArgumentUtility.CheckNotNull ("flags", flags);
+
       return !IsSet (attributes, flags);
     }
 
     public static T Set<T> (this Enum attributes, T flags)
     {
+      ArgumentUtility.CheckNotNull ("attributes", attributes);
+      ArgumentUtility.CheckNotNull ("flags", flags);
+
       Assertion.IsTrue (attributes.GetType() == typeof (T));
       Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
 
@@ -52,6 +78,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public static T Unset<T> (this Enum attributes, T flags)
     {
+      ArgumentUtility.CheckNotNull ("attributes", attributes);
+      ArgumentUtility.CheckNotNull ("flags", flags);
+
       Assertion.IsTrue (attributes.GetType() == typeof (T));
       Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
 
