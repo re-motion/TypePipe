@@ -29,11 +29,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var attributes = (TypeAttributes) 3;
 
-      // Assert.That (TypeAttributes.IsSet (attributes, (MethodAttributes) 0), Is.False); // wrong usage
+      // Assert.That (TypeAttributes.IsSet (attributes, (TypeAttributes) 0), Is.False); // wrong usage
       Assert.That (attributes.IsSet ((TypeAttributes) 1), Is.True);
       Assert.That (attributes.IsSet ((TypeAttributes) 2), Is.True);
       Assert.That (attributes.IsSet ((TypeAttributes) 3), Is.True);
       Assert.That (attributes.IsSet ((TypeAttributes) 4), Is.False);
+    }
+
+    [Test]
+    public void IsUnset ()
+    {
+      var attributes = (TypeAttributes) 3;
+
+      // Assert.That (TypeAttributes.IsUnset (attributes, (TypeAttributes) 0), Is.False); // wrong usage
+      Assert.That (attributes.IsUnset ((TypeAttributes) 1), Is.False);
+      Assert.That (attributes.IsUnset ((TypeAttributes) 2), Is.False);
+      Assert.That (attributes.IsUnset ((TypeAttributes) 3), Is.False);
+      Assert.That (attributes.IsUnset ((TypeAttributes) 4), Is.True);
     }
 
     [Test]

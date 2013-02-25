@@ -25,9 +25,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public static class EnumFlagsExtensions
   {
-    public static bool IsSet<T> (this T attributes, T flags)
+    public static bool IsSet<T> (this Enum attributes, T flags)
     {
-      Assertion.IsTrue (typeof (T).IsEnum);
+      Assertion.IsTrue (attributes.GetType() == typeof (T));
       Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
 
       var attributesAsInt = (int) (object) attributes;
@@ -37,17 +37,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return (attributesAsInt & flagsAsInt) == flagsAsInt;
     }
 
-    public static T Set<T> (this T attributes, T flags)
+    public static bool IsUnset<T> (this Enum attributes, T flags)
     {
-      Assertion.IsTrue (typeof (T).IsEnum);
+      return !IsSet (attributes, flags);
+    }
+
+    public static T Set<T> (this Enum attributes, T flags)
+    {
+      Assertion.IsTrue (attributes.GetType() == typeof (T));
       Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
 
       return (T) (object) ((int) (object) attributes | (int) (object) flags);
     }
 
-    public static T Unset<T> (this T attributes, T flags)
+    public static T Unset<T> (this Enum attributes, T flags)
     {
-      Assertion.IsTrue (typeof (T).IsEnum);
+      Assertion.IsTrue (attributes.GetType() == typeof (T));
       Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
 
       return (T) (object) ((int) (object) attributes & ~(int) (object) flags);
