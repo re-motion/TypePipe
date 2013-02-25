@@ -62,11 +62,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       SetBaseType (_baseTypeConstraint);
     }
 
-    public override Type UnderlyingSystemType
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     public override bool IsGenericParameter
     {
       get { return true; }

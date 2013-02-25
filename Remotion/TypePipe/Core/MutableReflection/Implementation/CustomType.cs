@@ -84,8 +84,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       Assertion.IsTrue ((isGenericTypeDefinition && isGenericType) || (!isGenericTypeDefinition));
     }
 
-    public abstract override Type UnderlyingSystemType { get; }
-
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
     public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
 
@@ -381,6 +379,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     #endregion
 
     #region Unsupported Members
+
+    public override Type UnderlyingSystemType
+    {
+      get { throw new NotSupportedException ("Property UnderlyingSystemType is not supported."); }
+    }
 
     public override int MetadataToken
     {

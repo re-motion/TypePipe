@@ -64,11 +64,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       SetDeclaringType (declaringType);
     }
 
-    public override Type UnderlyingSystemType
-    {
-      get { throw new NotImplementedException(); }
-    }
-
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return CustomAttributeDatas;

@@ -225,12 +225,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void UnderlyingSystemType ()
-    {
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _instantiation.UnderlyingSystemType, "UnderlyingSystemType");
-    }
-
-    [Test]
     public void SubstituteGenericParameters_RecursiveGenericType ()
     {
       var recursiveGeneric = _genericTypeDefinition.GetField ("RecursiveGeneric").FieldType;

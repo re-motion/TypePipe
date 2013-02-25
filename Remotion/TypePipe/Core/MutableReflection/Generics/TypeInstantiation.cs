@@ -110,11 +110,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _events = events.Cast<EventInfo>().ToList().AsReadOnly();
     }
 
-    public override Type UnderlyingSystemType
-    {
-      get { throw new NotSupportedException ("Property UnderlyingSystemType is not supported."); }
-    }
-
     public override Type GetGenericTypeDefinition ()
     {
       return _genericTypeDefinition;

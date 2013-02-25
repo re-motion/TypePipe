@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -169,7 +168,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       baseMemberSelectorMock.Expect (mock => mock.SelectEvents (events, c_allMembers, baseTypeConstraint)).Return (events);
 
       var parameter = new GenericParameter (
-          _memberSelectorMock, _name, _namespace, _genericParameterAttributes, baseTypeConstraint, new[] { _interfaceConstraint }.AsOneTime());
+          _memberSelectorMock, _name, _namespace, _genericParameterAttributes, baseTypeConstraint, new[] { _interfaceConstraint });
 
       parameter.InvokeNonPublicMethod ("GetAllFields");
       parameter.InvokeNonPublicMethod ("GetAllConstructors");
