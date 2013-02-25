@@ -156,7 +156,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (ctor.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (ctor.Name, Is.EqualTo (".ctor"));
-      Assert.That (ctor.Attributes, Is.EqualTo (attributes));
+      Assert.That (ctor.Attributes, Is.EqualTo (attributes | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
       var expectedParameterInfos =
           new[]
           {

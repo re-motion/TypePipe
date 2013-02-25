@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void SetUp ()
     {
       _declaringType = CustomTypeObjectMother.Create();
-      _attributes = (MethodAttributes) 7;
+      _attributes = (MethodAttributes) 7 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
 
       _constructor = new TestableCustomConstructorInfo (_declaringType, _attributes);
     }

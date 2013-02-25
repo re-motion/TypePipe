@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var declaringType = ProxyTypeObjectMother.Create();
-      var attributes = (MethodAttributes) 7;
+      var attributes = (MethodAttributes) 7 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
 

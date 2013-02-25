@@ -106,8 +106,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       CheckForInvalidAttributes ("constructors", s_invalidConstructorAttributes, attributes, "attributes");
 
-      // TODO Review: Always add specialname and rtspecialname flags.
-
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var paras = parameters.ConvertToCollection();
       if (isStatic && paras.Count != 0)
@@ -121,7 +119,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var context = new ConstructorBodyCreationContext (declaringType, isStatic, parameterExpressions, _memberSelector);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
-      return new MutableConstructorInfo (declaringType, attributes, paras, body);
+      var attr = attributes.Set (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
+      return new MutableConstructorInfo (declaringType, attr, paras, body);
     }
 
     public MutableMethodInfo CreateMethod (

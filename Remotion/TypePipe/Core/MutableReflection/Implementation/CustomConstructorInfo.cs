@@ -38,6 +38,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected CustomConstructorInfo (CustomType declaringType, MethodAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      Assertion.IsTrue (attributes.IsSet (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
 
       _declaringType = declaringType;
       _attributes = attributes;

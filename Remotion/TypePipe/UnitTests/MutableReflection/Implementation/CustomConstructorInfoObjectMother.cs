@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<ICustomAttributeData> customAttributes = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
+      attributes |= MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
       parameters = parameters ?? new ParameterInfo[0];
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
 

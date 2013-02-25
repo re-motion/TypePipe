@@ -32,6 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Expression body = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      attributes |= MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
       parameters = parameters ?? ParameterDeclaration.None;
       body = body ?? Expression.Empty();
 
