@@ -176,11 +176,5 @@ namespace Remotion.TypePipe.MutableReflection
       // Users will get a TypeLoadException at code generation time violating such a constraint.
       return constraint.ContainsGenericParameters;
     }
-
-    private static bool IsSet (this GenericParameterAttributes attributes, GenericParameterAttributes flag)
-    {
-      Assertion.IsTrue (flag != 0);
-      return (attributes & flag) == flag;
-    }
   }
 }

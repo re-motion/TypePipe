@@ -16,29 +16,41 @@
 // 
 
 using System;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Provides extensions methods for working with <see cref="Enum"/> attributed with the <see cref="FlagsAttribute"/>.
   /// </summary>
-  public static class EnumExtensions
+  public static class EnumFlagsExtensions
   {
-    public static bool IsSet<T> (this Enum actual, T expected)
+    public static bool IsSet<T> (this T attributes, T flags)
     {
-      var f1 = (int) (object) actual;
-      var f2 = (int) (object) expected;
-      return (f1 & f2) == f2;
+      Assertion.IsTrue (typeof (T).IsEnum);
+      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+
+      var attributesAsInt = (int) (object) attributes;
+      var flagsAsInt = (int) (object) flags;
+      Assertion.IsTrue (flagsAsInt != 0);
+
+      return (attributesAsInt & flagsAsInt) == flagsAsInt;
     }
 
-    public static T Set<T> (this Enum flags1, T flags2)
+    public static T Set<T> (this T attributes, T flags)
     {
-      return (T) (object) ((int) (object) flags1 | (int) (object) flags2);
+      Assertion.IsTrue (typeof (T).IsEnum);
+      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+
+      return (T) (object) ((int) (object) attributes | (int) (object) flags);
     }
 
-    public static T Unset<T> (this Enum flags1, T flags2)
+    public static T Unset<T> (this T attributes, T flags)
     {
-      return (T) (object) ((int) (object) flags1 & ~(int) (object) flags2);
+      Assertion.IsTrue (typeof (T).IsEnum);
+      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+
+      return (T) (object) ((int) (object) attributes & ~(int) (object) flags);
     }
   }
 }

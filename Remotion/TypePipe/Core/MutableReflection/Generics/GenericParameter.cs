@@ -103,8 +103,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      if ((_genericParameterAttributes & GenericParameterAttributes.DefaultConstructorConstraint)
-          == GenericParameterAttributes.DefaultConstructorConstraint)
+      if (_genericParameterAttributes.IsSet (GenericParameterAttributes.DefaultConstructorConstraint))
         yield return new GenericParameterDefaultConstructor (this);
     }
 

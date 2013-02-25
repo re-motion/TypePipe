@@ -22,7 +22,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
-  public class EnumExtensionsTest
+  public class EnumFlagsExtensionsTest
   {
     [Test]
     public void IsSet ()

@@ -180,7 +180,7 @@
     <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\ThrowingUnderlyingTypeFactory.cs" />
-    <Compile Include="MutableReflection\Implementation\EnumExtensions.cs" />
+    <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
