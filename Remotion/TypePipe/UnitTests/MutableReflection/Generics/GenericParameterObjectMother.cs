@@ -37,7 +37,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       interfaceConstraints = interfaceConstraints ?? Type.EmptyTypes;
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
-      return new GenericParameter (memberSelector, name, @namespace, genericParameterAttributes, baseTypeConstraint, interfaceConstraints);
+      var genericParameter = new GenericParameter (memberSelector, name, @namespace, genericParameterAttributes);
+      genericParameter.SetBaseTypeConstraint (baseTypeConstraint);
+      genericParameter.SetInterfaceConstraints (interfaceConstraints);
+
+      return genericParameter;
     }
   }
 }

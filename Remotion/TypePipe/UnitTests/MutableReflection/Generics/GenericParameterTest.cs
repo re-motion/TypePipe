@@ -25,8 +25,8 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
-using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -40,22 +40,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private GenericParameterAttributes _genericParameterAttributes;
     private Type _baseTypeConstraint;
     private Type _interfaceConstraint;
-    private IMemberSelector _memberSelectorMock;
 
     private GenericParameter _parameter;
+    private GenericParameter _constrainedParameter;
 
     [SetUp]
     public void SetUp ()
     {
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _name = "parameter";
+      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _name = "_parameter";
       _namespace = "namespace";
       _genericParameterAttributes = (GenericParameterAttributes) 7;
+
+      _parameter = new GenericParameter (memberSelectorMock, _name, _namespace, _genericParameterAttributes);
+
       _baseTypeConstraint = typeof (DomainType);
       _interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();
 
-      _parameter = new GenericParameter (
-          _memberSelectorMock, _name, _namespace, _genericParameterAttributes, _baseTypeConstraint, new[] { _interfaceConstraint }.AsOneTime ());
+      _constrainedParameter = GenericParameterObjectMother.Create (
+          baseTypeConstraint: _baseTypeConstraint, interfaceConstraints: new[] { _interfaceConstraint }.AsOneTime());
     }
 
     [Test]
@@ -64,10 +67,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_parameter.Name, Is.EqualTo (_name));
       Assert.That (_parameter.Namespace, Is.EqualTo (_namespace));
       Assert.That (_parameter.FullName, Is.Null);
-      Assert.That (
-          _parameter.Attributes, Is.EqualTo (TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.Class | TypeAttributes.Public));
+      Assert.That (_parameter.Attributes, Is.EqualTo (TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.Class | TypeAttributes.Public));
       Assert.That (_parameter.GenericParameterAttributes, Is.EqualTo (_genericParameterAttributes));
-      Assert.That (_parameter.BaseType, Is.SameAs (_baseTypeConstraint));
+      Assert.That (_parameter.BaseType, Is.SameAs (typeof (object)));
+      Assert.That (_parameter.GetInterfaces(), Is.Empty);
     }
 
     [Test]
@@ -77,9 +80,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    public void SetBaseTypeConstraint ()
+    {
+      Assert.That (_parameter.BaseType, Is.SameAs (typeof(object)));
+      _parameter.SetBaseTypeConstraint (_baseTypeConstraint);
+
+      Assert.That (_parameter.BaseType, Is.SameAs (_baseTypeConstraint));
+    }
+
+    [Test]
+    public void SetInterfaceConstraints ()
+    {
+      Assert.That (_parameter.GetInterfaces(), Is.Empty);
+      _parameter.SetInterfaceConstraints (new[] { _interfaceConstraint }.AsOneTime());
+
+      Assert.That (_parameter.GetInterfaces(), Is.EqualTo (new[] { _interfaceConstraint }));
+    }
+
+    [Test]
     public void GetGenericParameterConstraints ()
     {
-      var result = _parameter.GetGenericParameterConstraints();
+      var result = _constrainedParameter.GetGenericParameterConstraints();
 
       Assert.That (result, Is.EqualTo (new[] { _baseTypeConstraint, _interfaceConstraint }));
     }
@@ -87,9 +108,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetGenericParameterConstraints_NoBaseTypeConstraint ()
     {
-      var parameter = GenericParameterObjectMother.Create (baseTypeConstraint: typeof (object), interfaceConstraints: new[] { _interfaceConstraint });
+      _parameter.SetInterfaceConstraints (new[] { _interfaceConstraint });
 
-      var result = parameter.GetGenericParameterConstraints();
+      var result = _parameter.GetGenericParameterConstraints();
 
       Assert.That (result, Is.EqualTo (new[] { _interfaceConstraint }));
     }
@@ -97,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllInterfaces ()
     {
-      var result = _parameter.InvokeNonPublicMethod ("GetAllInterfaces");
+      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllInterfaces");
 
       Assert.That (result, Is.EqualTo (new[] { typeof (IDomainInterface), _interfaceConstraint }));
     }
@@ -105,7 +126,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllFields ()
     {
-      var result = _parameter.InvokeNonPublicMethod ("GetAllFields");
+      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllFields");
 
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
       Assert.That (result, Has.Member (field));
@@ -116,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void GetAllConstructors ()
     {
       Assert.That (typeof (DomainType).GetConstructors(), Is.Not.Empty);
-      var result = _parameter.InvokeNonPublicMethod ("GetAllConstructors");
+      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllConstructors");
 
       Assert.That (result, Is.Empty);
     }
@@ -135,7 +156,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllMethods ()
     {
-      var result = _parameter.InvokeNonPublicMethod ("GetAllMethods");
+      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllMethods");
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
       Assert.That (result, Has.Member (method));
@@ -145,7 +166,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllProperties ()
     {
-      var result = _parameter.InvokeNonPublicMethod<IEnumerable<PropertyInfo>> ("GetAllProperties");
+      var result = _constrainedParameter.InvokeNonPublicMethod<IEnumerable<PropertyInfo>> ("GetAllProperties");
 
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
       Assert.That (result, Is.EqualTo (new[] { property }));
@@ -154,7 +175,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllEvents ()
     {
-      var result = _parameter.InvokeNonPublicMethod<IEnumerable<EventInfo>> ("GetAllEvents");
+      var result = _constrainedParameter.InvokeNonPublicMethod<IEnumerable<EventInfo>> ("GetAllEvents");
 
       var event_ = typeof (DomainType).GetEvent ("Event");
       Assert.That (result, Is.EqualTo (new[] { event_ }));
@@ -177,8 +198,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       baseMemberSelectorMock.Expect (mock => mock.SelectProperties (properties, c_allMembers, baseTypeConstraint)).Return (properties);
       baseMemberSelectorMock.Expect (mock => mock.SelectEvents (events, c_allMembers, baseTypeConstraint)).Return (events);
 
-      var parameter = new GenericParameter (
-          _memberSelectorMock, _name, _namespace, _genericParameterAttributes, baseTypeConstraint, new[] { _interfaceConstraint });
+      var parameter = GenericParameterObjectMother.Create (baseTypeConstraint: baseTypeConstraint, interfaceConstraints: new[] { _interfaceConstraint });
 
       parameter.InvokeNonPublicMethod ("GetAllFields");
       parameter.InvokeNonPublicMethod ("GetAllConstructors");

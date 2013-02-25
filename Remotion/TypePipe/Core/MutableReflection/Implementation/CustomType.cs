@@ -101,7 +101,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected void SetBaseType (Type baseType)
     {
-      Assertion.IsTrue (baseType != null || (_attributes & TypeAttributes.Interface) == TypeAttributes.Interface);
+      Assertion.IsTrue (baseType != null || _attributes.IsSet (TypeAttributes.Interface));
+      Assertion.IsTrue (baseType == null || _attributes.IsSet (TypeAttributes.ClassSemanticsMask, TypeAttributes.Class) || baseType.IsClass);
+
       _baseType = baseType;
     }
 

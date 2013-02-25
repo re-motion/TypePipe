@@ -32,16 +32,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private readonly GenericParameterAttributes _genericParameterAttributes;
-    private readonly Type _baseTypeConstraint;
-    private readonly ReadOnlyCollection<Type> _interfaceConstraints;
 
-    public GenericParameter (
-        IMemberSelector memberSelector,
-        string name,
-        string @namespace,
-        GenericParameterAttributes genericParameterAttributes,
-        Type baseTypeConstraint,
-        IEnumerable<Type> interfaceConstraints)
+    private ReadOnlyCollection<Type> _interfaceConstraints = EmptyTypes.ToList().AsReadOnly();
+
+    public GenericParameter (IMemberSelector memberSelector, string name, string @namespace, GenericParameterAttributes genericParameterAttributes)
         : base (
             memberSelector,
             name,
@@ -55,14 +49,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
-      ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
-      ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
 
       _genericParameterAttributes = genericParameterAttributes;
-      _baseTypeConstraint = baseTypeConstraint;
-      _interfaceConstraints = interfaceConstraints.ToList().AsReadOnly();
 
-      SetBaseType (_baseTypeConstraint);
+      SetBaseType (typeof (object));
     }
 
     public override bool IsGenericParameter
@@ -75,10 +65,23 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       get { return _genericParameterAttributes; }
     }
 
+    public void SetBaseTypeConstraint (Type baseTypeConstraint)
+    {
+      ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
+
+      SetBaseType (baseTypeConstraint);
+    }
+
+    public void SetInterfaceConstraints (IEnumerable<Type> interfaceConstraints)
+    {
+      ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
+
+      _interfaceConstraints = interfaceConstraints.ToList().AsReadOnly();
+    }
+
     public override Type[] GetGenericParameterConstraints ()
     {
-      return new[] { _baseTypeConstraint }.Where (c => c != typeof (object))
-                                          .Concat (_interfaceConstraints).ToArray();
+      return new[] { BaseType }.Where (c => c != typeof (object)).Concat (_interfaceConstraints).ToArray();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -93,12 +96,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      return _baseTypeConstraint.GetInterfaces().Concat (_interfaceConstraints);
+      Assertion.IsNotNull (BaseType);
+
+      return BaseType.GetInterfaces().Concat (_interfaceConstraints);
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      return _baseTypeConstraint.GetFields(c_allMembers);
+      Assertion.IsNotNull (BaseType);
+
+      return BaseType.GetFields (c_allMembers);
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
@@ -109,17 +116,23 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      return _baseTypeConstraint.GetMethods (c_allMembers);
+      Assertion.IsNotNull (BaseType);
+
+      return BaseType.GetMethods (c_allMembers);
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      return _baseTypeConstraint.GetProperties (c_allMembers);
+      Assertion.IsNotNull (BaseType);
+
+      return BaseType.GetProperties (c_allMembers);
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
-      return _baseTypeConstraint.GetEvents (c_allMembers);
+      Assertion.IsNotNull (BaseType);
+
+      return BaseType.GetEvents (c_allMembers);
     }
   }
 }
