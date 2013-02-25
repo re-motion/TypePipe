@@ -39,12 +39,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void IsSet_Mask ()
     {
-      var attributes = (TypeAttributes) 1;
+      var attributes = (TypeAttributes) 3;
 
-      Assert.That (attributes.IsSet ((TypeAttributes) 2, (TypeAttributes) 0), Is.True);
       Assert.That (attributes.IsSet ((TypeAttributes) 1, (TypeAttributes) 0), Is.False);
+      Assert.That (attributes.IsSet ((TypeAttributes) 2, (TypeAttributes) 0), Is.False);
+      Assert.That (attributes.IsSet ((TypeAttributes) 3, (TypeAttributes) 0), Is.False);
+      Assert.That (attributes.IsSet ((TypeAttributes) 4, (TypeAttributes) 0), Is.True);
+
       Assert.That (attributes.IsSet ((TypeAttributes) 1, (TypeAttributes) 1), Is.True);
       Assert.That (attributes.IsSet ((TypeAttributes) 2, (TypeAttributes) 1), Is.False);
+      Assert.That (attributes.IsSet ((TypeAttributes) 3, (TypeAttributes) 1), Is.False);
+      Assert.That (attributes.IsSet ((TypeAttributes) 4, (TypeAttributes) 1), Is.False);
     }
 
     [Test]
