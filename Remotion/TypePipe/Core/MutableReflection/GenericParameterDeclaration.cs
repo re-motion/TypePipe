@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.SignatureBuilding;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -30,21 +31,45 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class GenericParameterDeclaration
   {
+    private readonly string _name;
+    private readonly GenericParameterAttributes _attributes;
+    private readonly Func<GenericParametersContext, Type> _baseConstraintProvider;
+    private readonly Func<GenericParametersContext, IEnumerable<Type>> _interfaceConstraintsProvider;
+
     public GenericParameterDeclaration (
         string name,
         GenericParameterAttributes attributes = GenericParameterAttributes.None,
         Func<GenericParametersContext, Type> baseConstraintProvider = null,
         Func<GenericParametersContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Base constraint provider may be null.
+      // Interface constraint provider may be null.
+
+      _name = name;
+      _attributes = attributes;
+      _baseConstraintProvider = baseConstraintProvider ?? (ctx => typeof (object));
+      _interfaceConstraintsProvider = interfaceConstraintsProvider ?? (ctx => Type.EmptyTypes);
     }
 
-    //public GenericParameterDeclaration (
-    //    string name,
-    //    GenericParameterAttributes attributes = GenericParameterAttributes.None,
-    //    Type baseConstraint = null,
-    //    IEnumerable<Type> interfaceConstraints = null)
-    //    : this (name, attributes, ctx => baseConstraint, ctx => interfaceConstraints)
-    //{
-    //}
+    public GenericParameterAttributes Attributes
+    {
+      get { return _attributes; }
+    }
+
+    public string Name
+    {
+      get { return _name; }
+    }
+
+    public Func<GenericParametersContext, Type> BaseConstraintProvider
+    {
+      get { return _baseConstraintProvider; }
+    }
+
+    public Func<GenericParametersContext, IEnumerable<Type>> InterfaceConstraintsProvider
+    {
+      get { return _interfaceConstraintsProvider; }
+    }
   }
 }
