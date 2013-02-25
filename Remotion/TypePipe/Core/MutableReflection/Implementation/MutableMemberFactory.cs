@@ -169,7 +169,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      return new MutableMethodInfo (declaringType, name, attributes, returnType, paras, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, Type.EmptyTypes, returnType, paras, baseMethod, body);
     }
 
     public MutableMethodInfo CreateExplicitOverride (

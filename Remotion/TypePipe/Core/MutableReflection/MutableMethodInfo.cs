@@ -48,11 +48,12 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
+        IEnumerable<Type> genericParameters,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
         Expression body)
-        : base (declaringType, name, attributes, Type.EmptyTypes)
+        : base (declaringType, name, attributes, genericParameters)
     {
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);

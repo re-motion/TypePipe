@@ -52,17 +52,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
       var attributes = (MethodAttributes) 7 | MethodAttributes.Virtual;
+      var genericParameters = new[] { ReflectionObjectMother.GetSomeType() };
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
-      var method = new MutableMethodInfo (declaringType, name, attributes, returnType, parameters.AsOneTime(), baseMethod, body);
+      var method = new MutableMethodInfo (
+          declaringType, name, attributes, genericParameters.AsOneTime(), returnType, parameters.AsOneTime(), baseMethod, body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.MutableDeclaringType, Is.SameAs (declaringType));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo(attributes));
+      Assert.That (method.GetGenericArguments(), Is.EqualTo (genericParameters));
 
       CustomParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.None);
       Assert.That (method.MutableReturnParameter, Is.SameAs (method.ReturnParameter));

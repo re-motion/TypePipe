@@ -34,7 +34,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null,
         MethodInfo baseMethod = null,
-        Expression body = null)
+        Expression body = null,
+        IEnumerable<Type> genericParameters = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       if (baseMethod != null)
@@ -43,8 +44,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       parameters = parameters ?? ParameterDeclaration.None;
       // baseMethod stays null.
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
+      genericParameters = genericParameters ?? Type.EmptyTypes;
 
-      return new MutableMethodInfo (declaringType, name, attributes, returnType, parameters, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, genericParameters, returnType, parameters, baseMethod, body);
     }
   }
 }
