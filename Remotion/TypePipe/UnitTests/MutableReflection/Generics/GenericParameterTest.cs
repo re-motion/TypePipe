@@ -16,7 +16,9 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
@@ -66,7 +68,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
           _parameter.Attributes, Is.EqualTo (TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.Class | TypeAttributes.Public));
       Assert.That (_parameter.GenericParameterAttributes, Is.EqualTo (_genericParameterAttributes));
       Assert.That (_parameter.BaseType, Is.SameAs (_baseTypeConstraint));
-
     }
 
     [Test]
@@ -86,9 +87,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetGenericParameterConstraints_NoBaseTypeConstraint ()
     {
-      var baseTypeConstraint = typeof (object);
-      var parameter = new GenericParameter (
-          _memberSelectorMock, _name, _namespace, _genericParameterAttributes, baseTypeConstraint, new[] { _interfaceConstraint });
+      var parameter = GenericParameterObjectMother.Create (baseTypeConstraint: typeof (object), interfaceConstraints: new[] { _interfaceConstraint });
 
       var result = parameter.GetGenericParameterConstraints();
 
@@ -120,6 +119,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var result = _parameter.InvokeNonPublicMethod ("GetAllConstructors");
 
       Assert.That (result, Is.Empty);
+    }
+
+    [Test]
+    public void GetAllConstructors_NewConstraint ()
+    {
+      var parameter = GenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.DefaultConstructorConstraint);
+
+      var result = parameter.GetConstructors (c_allMembers).Single();
+
+      Assert.That (result, Is.TypeOf<GenericParameterDefaultConstructor>());
+      Assert.That (result.DeclaringType, Is.SameAs(parameter));
     }
 
     [Test]
@@ -185,10 +195,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       public int Field;
       public void Method () { }
-      public int Property { get; set; }
-      public event EventHandler Event;
+      [UsedImplicitly] public int Property { get; set; }
+      [UsedImplicitly] public event EventHandler Event;
     }
-
     interface IDomainInterface { }
   }
 }
