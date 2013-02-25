@@ -14,18 +14,20 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   public class GenericParameter : CustomType
   {
+    private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
     private readonly GenericParameterAttributes _genericParameterAttributes;
     private readonly Type _baseTypeConstraint;
     private readonly ReadOnlyCollection<Type> _interfaceConstraints;
@@ -37,8 +39,22 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         GenericParameterAttributes genericParameterAttributes,
         Type baseTypeConstraint,
         IEnumerable<Type> interfaceConstraints)
-        : base (memberSelector, name, @namespace, null, TypeAttributes.Public, false, false, EmptyTypes)
+        : base (
+            memberSelector,
+            name,
+            @namespace,
+            fullName: null,
+            attributes: TypeAttributes.Public,
+            isGenericType: false,
+            isGenericTypeDefinition: false,
+            typeArguments: EmptyTypes)
     {
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Namespace may be null.
+      ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
+      ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
+
       _genericParameterAttributes = genericParameterAttributes;
       _baseTypeConstraint = baseTypeConstraint;
       _interfaceConstraints = interfaceConstraints.ToList().AsReadOnly();
@@ -79,32 +95,32 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      return _interfaceConstraints;
+      return _baseTypeConstraint.GetInterfaces().Concat (_interfaceConstraints);
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      throw new NotImplementedException();
+      return _baseTypeConstraint.GetFields(c_allMembers);
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      throw new NotImplementedException();
+      return new ConstructorInfo[0];
     }
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      throw new NotImplementedException();
+      return _baseTypeConstraint.GetMethods (c_allMembers);
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      throw new NotImplementedException();
+      return _baseTypeConstraint.GetProperties (c_allMembers);
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
-      throw new NotImplementedException();
+      return _baseTypeConstraint.GetEvents (c_allMembers);
     }
   }
 }
