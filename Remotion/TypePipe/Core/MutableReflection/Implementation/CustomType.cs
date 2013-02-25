@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
-      ArgumentUtility.CheckNotNullOrEmpty ("fullName", fullName);
+      // Fullname may be null (for generic parameters).
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
 

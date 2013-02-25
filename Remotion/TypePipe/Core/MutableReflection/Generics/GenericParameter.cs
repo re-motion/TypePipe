@@ -33,10 +33,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public GenericParameter (
         IMemberSelector memberSelector,
         string name,
+        string @namespace,
         GenericParameterAttributes genericParameterAttributes,
         Type baseTypeConstraint,
         IEnumerable<Type> interfaceConstraints)
-        : base (memberSelector, name, "namespace", "fullname", TypeAttributes.ReservedMask, false, false, EmptyTypes)
+        : base (memberSelector, name, @namespace, null, TypeAttributes.Public, false, false, EmptyTypes)
     {
       _genericParameterAttributes = genericParameterAttributes;
       _baseTypeConstraint = baseTypeConstraint;

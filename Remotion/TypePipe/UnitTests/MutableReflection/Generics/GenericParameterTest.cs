@@ -28,34 +28,41 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   [TestFixture]
   public class GenericParameterTest
   {
-    private GenericParameter _parameter;
-
     private string _name;
+    private string _namespace;
     private GenericParameterAttributes _genericParameterAttributes;
     private Type _baseTypeConstraint;
     private Type _interfaceConstraint;
     private IMemberSelector _memberSelectorMock;
+
+    private GenericParameter _parameter;
 
     [SetUp]
     public void SetUp ()
     {
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _name = "parameter";
+      _namespace = "namespace";
       _genericParameterAttributes = (GenericParameterAttributes) 7;
       _baseTypeConstraint = ReflectionObjectMother.GetSomeType();
       _interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();
 
       _parameter = new GenericParameter (
-          _memberSelectorMock, _name, _genericParameterAttributes, _baseTypeConstraint, new[] { _interfaceConstraint }.AsOneTime());
+          _memberSelectorMock, _name, _namespace, _genericParameterAttributes, _baseTypeConstraint, new[] { _interfaceConstraint }.AsOneTime ());
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_parameter.Name, Is.EqualTo (_name));
+      Assert.That (_parameter.Namespace, Is.EqualTo (_namespace));
+      Assert.That (_parameter.FullName, Is.Null);
+      Assert.That (
+          _parameter.Attributes, Is.EqualTo (TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.Class | TypeAttributes.Public));
       Assert.That (_parameter.GenericParameterAttributes, Is.EqualTo (_genericParameterAttributes));
       Assert.That (_parameter.BaseType, Is.SameAs (_baseTypeConstraint));
       Assert.That (_parameter.GetInterfaces(), Is.EqualTo (new[] { _interfaceConstraint }));
+
     }
 
     [Test]
@@ -77,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var baseTypeConstraint = typeof (object);
       var parameter = new GenericParameter (
-          _memberSelectorMock, _name, _genericParameterAttributes, baseTypeConstraint, new[] { _interfaceConstraint });
+          _memberSelectorMock, _name, _namespace, _genericParameterAttributes, baseTypeConstraint, new[] { _interfaceConstraint });
 
       var result = parameter.GetGenericParameterConstraints();
 
