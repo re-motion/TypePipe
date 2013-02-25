@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly IEnumerable<GenericParameterDeclaration> _genericParameters;
     private readonly MethodInfo _baseMethod;
 
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
@@ -48,12 +49,12 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        IEnumerable<Type> genericParameters,
+        IEnumerable<GenericParameterDeclaration> genericParameters,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
         Expression body)
-        : base (declaringType, name, attributes, genericParameters)
+        : base (declaringType, name, attributes)
     {
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
@@ -66,6 +67,7 @@ namespace Remotion.TypePipe.MutableReflection
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
+      _genericParameters = genericParameters;
       _baseMethod = baseMethod;
       _body = body;
     }
@@ -143,6 +145,12 @@ namespace Remotion.TypePipe.MutableReflection
     public override MethodInfo GetBaseDefinition ()
     {
       return BaseMethod != null ? BaseMethod.GetBaseDefinition() : this;
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      // TODO XXX;
+      return Type.EmptyTypes;
     }
 
     public override ParameterInfo[] GetParameters ()

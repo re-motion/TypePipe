@@ -22,7 +22,6 @@ using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -136,7 +135,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
-      // bodyProvider is null for abstract methods
+      // Body provider may be null (for abstract methods).
 
       // TODO : virtual and static is an invalid combination
       // TODO : if it is an implicit baseMethod override, it needs the same visibility (or more public visibility?)!
@@ -171,7 +170,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       // TODO 5440: Adapt.
-      return new MutableMethodInfo (declaringType, name, attributes, Type.EmptyTypes, returnType, paras, baseMethod, body);
+      var x = GenericParameterDeclaration.None;
+      return new MutableMethodInfo (declaringType, name, attributes, x, returnType, paras, baseMethod, body);
     }
 
     public MutableMethodInfo CreateMethod (
@@ -183,6 +183,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
+      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
+      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
+      // Body provider may be null (for abstract methods).
+
       throw new NotImplementedException();
     }
 

@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {

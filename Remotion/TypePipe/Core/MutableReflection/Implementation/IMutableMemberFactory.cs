@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {

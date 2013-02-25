@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -31,6 +30,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class GenericParameterDeclaration
   {
+    public static readonly GenericParameterDeclaration[] None = new GenericParameterDeclaration[0];
+
     private readonly string _name;
     private readonly GenericParameterAttributes _attributes;
     private readonly Func<GenericParametersContext, Type> _baseConstraintProvider;

@@ -19,13 +19,18 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class GenericParameterDeclarationTest
   {
+    [Test]
+    public void None ()
+    {
+      Assert.That (GenericParameterDeclaration.None, Is.Empty);
+    }
+
     [Test]
     public void Initialization ()
     {

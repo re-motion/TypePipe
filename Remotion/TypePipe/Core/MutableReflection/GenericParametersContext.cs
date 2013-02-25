@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Remotion.TypePipe.MutableReflection.SignatureBuilding
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Provides access to the generic parameters of a generic method for building its parameters and return type.

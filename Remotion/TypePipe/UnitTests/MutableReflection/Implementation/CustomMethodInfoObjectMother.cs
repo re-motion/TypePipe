@@ -43,12 +43,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
       typeArguments = typeArguments ?? Type.EmptyTypes;
 
-      return new TestableCustomMethodInfo (declaringType, name, attributes, typeArguments)
+      return new TestableCustomMethodInfo (declaringType, name, attributes)
              {
                  ReturnParameter_ = returnParameter,
                  Parameters = parameters.ToArray(),
                  BaseDefinition = baseDefinition,
-                 CustomAttributeDatas = customAttributes.ToArray()
+                 CustomAttributeDatas = customAttributes.ToArray(),
+                 TypeArguments = typeArguments.ToArray()
              };
     }
   }

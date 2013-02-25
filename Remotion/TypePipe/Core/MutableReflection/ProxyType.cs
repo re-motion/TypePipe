@@ -24,7 +24,6 @@ using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -261,8 +260,9 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
-      // Body provider is null for abstract methods.
+      // Body provider may be null (for abstract methods).
 
+      // TODO 5440: Delegate to AddGenericMethod and remove this overload in IMutableMemberFactory.
       var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameters, bodyProvider);
       _addedMethods.Add (method);
 

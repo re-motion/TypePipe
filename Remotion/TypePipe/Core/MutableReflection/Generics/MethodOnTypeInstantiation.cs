@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
     public MethodOnTypeInstantiation (TypeInstantiation declaringType, MethodInfo method)
-        : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes, Type.EmptyTypes)
+        : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes)
     {
       _method = method;
       _returnParameter = new MemberParameterOnTypeInstantiation (this, method.ReturnParameter);
@@ -57,6 +57,12 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return TypePipeCustomAttributeData.GetCustomAttributes (_method);
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      // TODO 5440:
+      return Type.EmptyTypes;
     }
 
     public override ParameterInfo[] GetParameters ()

@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _name = "abc";
       _attributes = (MethodAttributes) 7;
 
-      _method = new TestableCustomMethodInfo (_declaringType, _name, _attributes, Type.EmptyTypes);
+      _method = new TestableCustomMethodInfo (_declaringType, _name, _attributes) { TypeArguments = Type.EmptyTypes };
 
       _typeArgument = ReflectionObjectMother.GetSomeType();
       _genericDefinition = CustomMethodInfoObjectMother.Create (typeArguments: new[] { _typeArgument });
@@ -57,7 +57,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_method.IsGenericMethod, Is.False);
       Assert.That (_method.IsGenericMethodDefinition, Is.False);
       Assert.That (_method.ContainsGenericParameters, Is.False);
-      Assert.That (_method.GetGenericArguments(), Is.Empty);
     }
 
     [Test]
@@ -65,7 +64,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Assert.That (_genericDefinition.IsGenericMethod, Is.True);
       Assert.That (_genericDefinition.IsGenericMethodDefinition, Is.True);
-      Assert.That (_genericDefinition.GetGenericArguments(), Is.EqualTo (new[] { _typeArgument }));
       Assert.That (_genericDefinition.ContainsGenericParameters, Is.True);
     }
 

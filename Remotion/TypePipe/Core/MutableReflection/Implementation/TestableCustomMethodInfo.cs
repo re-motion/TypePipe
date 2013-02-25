@@ -23,12 +23,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   public class TestableCustomMethodInfo : CustomMethodInfo
   {
-    public TestableCustomMethodInfo (CustomType declaringType, string name, MethodAttributes attributes, IEnumerable<Type> typeArguments)
-        : base (declaringType, name, attributes, typeArguments)
+    public TestableCustomMethodInfo (CustomType declaringType, string name, MethodAttributes attributes)
+        : base (declaringType, name, attributes)
     {
     }
 
     public ParameterInfo ReturnParameter_;
+    public Type[] TypeArguments;
     public ParameterInfo[] Parameters;
     public MethodInfo BaseDefinition;
     public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
@@ -41,6 +42,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return CustomAttributeDatas;
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      return TypeArguments;
     }
 
     public override ParameterInfo[] GetParameters ()
