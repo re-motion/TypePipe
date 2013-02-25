@@ -169,6 +169,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
+      // TODO 5440: Adapt.
       return new MutableMethodInfo (declaringType, name, attributes, Type.EmptyTypes, returnType, paras, baseMethod, body);
     }
 
