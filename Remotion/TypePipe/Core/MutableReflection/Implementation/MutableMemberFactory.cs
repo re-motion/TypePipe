@@ -22,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -171,6 +172,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       // TODO 5440: Adapt.
       return new MutableMethodInfo (declaringType, name, attributes, Type.EmptyTypes, returnType, paras, baseMethod, body);
+    }
+
+    public MutableMethodInfo CreateMethod (
+        ProxyType declaringType,
+        string name,
+        MethodAttributes attributes,
+        IEnumerable<GenericParameterDeclaration> genericParameters,
+        Func<GenericParametersContext, Type> returnTypeProvider,
+        Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
+    {
+      throw new NotImplementedException();
     }
 
     public MutableMethodInfo CreateExplicitOverride (

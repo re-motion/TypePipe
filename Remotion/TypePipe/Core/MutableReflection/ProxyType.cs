@@ -277,7 +277,16 @@ namespace Remotion.TypePipe.MutableReflection
         Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      return null;
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
+      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
+      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
+      // Body provider may be null (for abstract methods).
+
+      var method = _mutableMemberFactory.CreateMethod (this, name, attributes, genericParameters, returnTypeProvider, parameterProvider, bodyProvider);
+      _addedMethods.Add (method);
+
+      return method;
     }
 
     public MutableMethodInfo AddExplicitOverride (MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)

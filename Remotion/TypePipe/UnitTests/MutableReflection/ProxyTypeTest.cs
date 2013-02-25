@@ -27,6 +27,7 @@ using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -340,6 +341,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (fakeMethod);
 
       var result = _proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
+
+      _mutableMemberFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeMethod));
+      Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result }));
+    }
+
+    [Test]
+    public void AddGenericMethod ()
+    {
+      var name = "GenericMethod";
+      var attributes = (MethodAttributes) 7;
+      var genericParameterDeclarations = new[] { GenericParameterDeclarationObjectMother.Create() };
+      Func<GenericParametersContext, Type> returnTypeProvider = ctx => null;
+      Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider = ctx => null;
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
+      var fakeMethod = MutableMethodInfoObjectMother.Create();
+      _mutableMemberFactoryMock
+          .Expect (
+              mock =>
+              mock.CreateMethod (_proxyType, name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider))
+          .Return (fakeMethod);
+
+      var result = _proxyType.AddGenericMethod (name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeMethod));

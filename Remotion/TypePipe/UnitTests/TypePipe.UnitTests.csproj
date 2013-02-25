@@ -116,6 +116,7 @@
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\GenericParameterDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclarationTest.cs" />
     <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\EventOnTypeInstantiationTest.cs" />

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -47,6 +48,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         MethodAttributes attributes,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
+        Func<MethodBodyCreationContext, Expression> bodyProvider);
+
+    MutableMethodInfo CreateMethod (
+        ProxyType declaringType,
+        string name,
+        MethodAttributes attributes,
+        IEnumerable<GenericParameterDeclaration> genericParameters,
+        Func<GenericParametersContext, Type> returnTypeProvider,
+        Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateExplicitOverride (

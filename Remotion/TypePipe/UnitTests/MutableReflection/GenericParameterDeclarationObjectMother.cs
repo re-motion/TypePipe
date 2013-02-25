@@ -16,26 +16,22 @@
 // 
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.SignatureBuilding;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class ParameterDeclarationObjectMother
+  public static class GenericParameterDeclarationObjectMother
   {
-    private class UnspecifiedType { }
-
-    public static ParameterDeclaration Create (Type type = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
+    public static GenericParameterDeclaration Create (
+        string name = "parameter",
+        GenericParameterAttributes attributes = GenericParameterAttributes.None,
+        Func<GenericParametersContext, Type> baseConstraintProvider = null,
+        Func<GenericParametersContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
     {
-      type = type ?? typeof (UnspecifiedType);
-
-      return new ParameterDeclaration (type, name, attributes);
-    }
-
-    public static ParameterDeclaration[] CreateMultiple (int count)
-    {
-      return Enumerable.Range (1, count).Select (i => Create (name: "p" + i)).ToArray();
+      return new GenericParameterDeclaration (name, attributes, baseConstraintProvider, interfaceConstraintsProvider);
     }
   }
 }
