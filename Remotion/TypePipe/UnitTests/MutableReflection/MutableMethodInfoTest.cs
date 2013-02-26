@@ -23,10 +23,12 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -53,6 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
       var attributes = (MethodAttributes) 7 | MethodAttributes.Virtual;
+      var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
       var genericParameters =
           new[]
           {
@@ -62,11 +65,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           };
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
+      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var bodyCreationContext = new MethodBodyCreationContext (
+          declaringType, false, parameters.Select (p => p.Expression), returnType, baseMethod, memberSelectorMock);
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       var method = new MutableMethodInfo (
-          declaringType, name, attributes, baseMethod, genericParameters.AsOneTime(), ctx => returnType, ctx => parameters.AsOneTime(), ctx => body);
+          declaringType,
+          name,
+          attributes,
+          baseMethod,
+          genericParameters.AsOneTime(),
+          ctx => returnType,
+          ctx => parameters.AsOneTime(),
+          () => bodyCreationContext,
+          ctx => body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.MutableDeclaringType, Is.SameAs (declaringType));

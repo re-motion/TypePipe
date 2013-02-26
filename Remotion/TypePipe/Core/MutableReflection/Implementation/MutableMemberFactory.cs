@@ -164,14 +164,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
+      // TODO test: body provider == null, then ctx => null as body provider
+
       var parameterExpressions = paras.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
-      var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
+      var newBodyProvider = bodyProvider == null
+                                ? (Func<MethodBodyCreationContext, Expression>) (ctx => null)
+                                : ctx => BodyProviderUtility.GetTypedBody (ctx.ReturnType, bodyProvider, ctx);
 
       // TODO 5440: Adapt.
       var x = GenericParameterDeclaration.None;
-      return new MutableMethodInfo (declaringType, name, attributes, baseMethod, x, ctx => returnType, ctx => paras, ctx => body);
+      return new MutableMethodInfo (declaringType, name, attributes, baseMethod, x, ctx => returnType, ctx => paras, () => context, newBodyProvider);
     }
 
     public MutableMethodInfo CreateMethod (

@@ -54,6 +54,7 @@ namespace Remotion.TypePipe.MutableReflection
         IEnumerable<GenericParameterDeclaration> genericParameters,
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Func<MethodBodyCreationContext> bodyCreationContextProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
         : base (declaringType, name, attributes)
     {
@@ -96,7 +97,7 @@ namespace Remotion.TypePipe.MutableReflection
       _parameterExpressions = parameters.Select (p => p.Expression).ToList().AsReadOnly();
 
       // Create body.
-      _body = bodyProvider(null);
+      _body = bodyProvider (bodyCreationContextProvider());
     }
 
     public ProxyType MutableDeclaringType

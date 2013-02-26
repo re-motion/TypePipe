@@ -23,6 +23,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -43,10 +44,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       // Base method stays null.
       var genericParameters = GenericParameterDeclaration.None;
       returnType = returnType ?? typeof (void);
-      parameters = parameters ?? ParameterDeclaration.None;
+      var paras = (parameters ?? ParameterDeclaration.None).ToList();
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
+      var context = new MethodBodyCreationContext (
+          declaringType, false, paras.Select (p => Expression.Parameter (p.Type)), returnType, baseMethod, memberSelector);
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
 
-      return new MutableMethodInfo (declaringType, name, attributes, baseMethod, genericParameters, ctx => returnType, ctx => parameters, ctx => body);
+      return new MutableMethodInfo (
+          declaringType, name, attributes, baseMethod, genericParameters, ctx => returnType, ctx => paras, () => context, ctx => body);
     }
 
     public static MutableMethodInfo CreateGeneric (
@@ -67,10 +72,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       returnTypeProvider = returnTypeProvider ?? (ctx => typeof (void));
       parameterProvider = parameterProvider ?? (ctx => ParameterDeclaration.None);
       // baseMethod stays null.
+      // TODO: body context
       bodyProvider = bodyProvider ?? CreateBodyProvider (attributes.IsSet (MethodAttributes.Abstract));
       
       return new MutableMethodInfo (
-          declaringType, name, attributes, baseMethod, genericParameters, returnTypeProvider, parameterProvider, bodyProvider);
+          declaringType, name, attributes, baseMethod, genericParameters, returnTypeProvider, parameterProvider, null, bodyProvider);
     }
 
     private static Func<MethodBodyCreationContext, Expression> CreateBodyProvider (bool isAbstract)
