@@ -66,10 +66,11 @@ namespace Remotion.TypePipe.MutableReflection
       var genericParas = genericParameters.ConvertToCollection();
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       _genericParameters = genericParas
-          .Select ((g, i) => new GenericParameter (memberSelector, this, i, g.Name, declaringType.Namespace, g.Attributes)).ToList().AsReadOnly();
+          .Select ((g, i) => new GenericParameter (memberSelector, i, g.Name, declaringType.Namespace, g.Attributes)).ToList().AsReadOnly();
       var genericContext = new GenericParameterContext (_genericParameters.Cast<Type>());
       foreach (var paraAndDecl in _genericParameters.Zip (genericParas))
       {
+        paraAndDecl.Item1.InitializeDeclaringMember (this);
         paraAndDecl.Item1.SetBaseTypeConstraint (paraAndDecl.Item2.BaseConstraintProvider (genericContext));
         paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericContext));
       }
