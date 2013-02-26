@@ -186,7 +186,7 @@
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
-    <Compile Include="MutableReflection\GenericParametersContext.cs" />
+    <Compile Include="MutableReflection\GenericParameterContext.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />

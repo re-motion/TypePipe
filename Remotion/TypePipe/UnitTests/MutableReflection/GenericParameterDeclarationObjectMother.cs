@@ -27,8 +27,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static GenericParameterDeclaration Create (
         string name = "parameter",
         GenericParameterAttributes attributes = GenericParameterAttributes.None,
-        Func<GenericParametersContext, Type> baseConstraintProvider = null,
-        Func<GenericParametersContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
+        Func<GenericParameterContext, Type> baseConstraintProvider = null,
+        Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
     {
       return new GenericParameterDeclaration (name, attributes, baseConstraintProvider, interfaceConstraintsProvider);
     }

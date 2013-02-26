@@ -36,8 +36,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var name = "parameter";
       var attributes = (GenericParameterAttributes) 7;
-      Func<GenericParametersContext, Type> baseConstraintProvider = ctx => null;
-      Func<GenericParametersContext, IEnumerable<Type>> interfaceConstraintsProvider = ctx => null;
+      Func<GenericParameterContext, Type> baseConstraintProvider = ctx => null;
+      Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintsProvider = ctx => null;
 
       var declaration = new GenericParameterDeclaration (name, attributes, baseConstraintProvider, interfaceConstraintsProvider);
 

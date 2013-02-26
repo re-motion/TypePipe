@@ -26,11 +26,11 @@ namespace Remotion.TypePipe.MutableReflection
   /// Provides access to the generic parameters of a generic method for building its parameters and return type.
   /// </summary>
   /// <seealso cref="ProxyType.AddGenericMethod"/>
-  public class GenericParametersContext
+  public class GenericParameterContext
   {
     private readonly ReadOnlyCollection<Type> _genericParameters;
 
-    public GenericParametersContext (IEnumerable<Type> genericParameters)
+    public GenericParameterContext (IEnumerable<Type> genericParameters)
     {
       _genericParameters = genericParameters.ToList().AsReadOnly();
     }

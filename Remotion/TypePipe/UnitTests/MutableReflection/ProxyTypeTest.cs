@@ -352,8 +352,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var name = "GenericMethod";
       var attributes = (MethodAttributes) 7;
       var genericParameterDeclarations = new[] { GenericParameterDeclarationObjectMother.Create() };
-      Func<GenericParametersContext, Type> returnTypeProvider = ctx => null;
-      Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider = ctx => null;
+      Func<GenericParameterContext, Type> returnTypeProvider = ctx => null;
+      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
       var fakeMethod = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock

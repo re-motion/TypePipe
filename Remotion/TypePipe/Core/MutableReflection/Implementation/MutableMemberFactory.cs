@@ -179,8 +179,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
-        Func<GenericParametersContext, Type> returnTypeProvider,
-        Func<GenericParametersContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Func<GenericParameterContext, Type> returnTypeProvider,
+        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);

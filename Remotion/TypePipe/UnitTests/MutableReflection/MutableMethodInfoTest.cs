@@ -26,6 +26,7 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -68,12 +69,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo(attributes));
 
-      //var genPara = method.GetGenericArguments().Single();
-      //Assert.That (genPara.Name, Is.EqualTo (genPara.Name));
-      //Assertion.IsNotNull (method.DeclaringType);
-      //Assert.That (genPara.Namespace, Is.EqualTo (method.DeclaringType.Namespace));
-      //Assert.That (genPara.GenericParameterAttributes, Is.EqualTo (genPara.Attributes));
-      //Assert.That (genPara.GetGenericParameterConstraints(), Is.EquivalentTo (new[] { typeof (DomainType), typeof (IDisposable) }));
+      var genPara = method.GetGenericArguments().Single();
+      Assert.That (genPara.Name, Is.EqualTo (genPara.Name));
+      Assertion.IsNotNull (method.DeclaringType);
+      Assert.That (genPara.Namespace, Is.EqualTo (method.DeclaringType.Namespace));
+      Assert.That (genPara.GenericParameterAttributes, Is.EqualTo (genPara.GenericParameterAttributes));
+      Assert.That (genPara.GetGenericParameterConstraints(), Is.EquivalentTo (new[] { typeof (DomainType), typeof (IDisposable) }));
 
       CustomParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.None);
       Assert.That (method.MutableReturnParameter, Is.SameAs (method.ReturnParameter));

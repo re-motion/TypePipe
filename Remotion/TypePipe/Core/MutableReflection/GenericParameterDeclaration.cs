@@ -34,14 +34,14 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly string _name;
     private readonly GenericParameterAttributes _attributes;
-    private readonly Func<GenericParametersContext, Type> _baseConstraintProvider;
-    private readonly Func<GenericParametersContext, IEnumerable<Type>> _interfaceConstraintsProvider;
+    private readonly Func<GenericParameterContext, Type> _baseConstraintProvider;
+    private readonly Func<GenericParameterContext, IEnumerable<Type>> _interfaceConstraintsProvider;
 
     public GenericParameterDeclaration (
         string name,
         GenericParameterAttributes attributes = GenericParameterAttributes.None,
-        Func<GenericParametersContext, Type> baseConstraintProvider = null,
-        Func<GenericParametersContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
+        Func<GenericParameterContext, Type> baseConstraintProvider = null,
+        Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Base constraint provider may be null.
@@ -63,12 +63,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _name; }
     }
 
-    public Func<GenericParametersContext, Type> BaseConstraintProvider
+    public Func<GenericParameterContext, Type> BaseConstraintProvider
     {
       get { return _baseConstraintProvider; }
     }
 
-    public Func<GenericParametersContext, IEnumerable<Type>> InterfaceConstraintsProvider
+    public Func<GenericParameterContext, IEnumerable<Type>> InterfaceConstraintsProvider
     {
       get { return _interfaceConstraintsProvider; }
     }

@@ -23,6 +23,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.Collections;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
@@ -34,10 +35,10 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableMethodInfo : CustomMethodInfo, IMutableMethodBase
   {
+    private readonly ReadOnlyCollection<GenericParameter> _genericParameters;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
-    private readonly IEnumerable<GenericParameterDeclaration> _genericParameters;
     private readonly MethodInfo _baseMethod;
 
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
@@ -62,12 +63,21 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
       Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
 
-      var paras = parameters.ConvertToCollection();
+      var genericParas = genericParameters.ConvertToCollection();
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      _genericParameters = genericParas
+          .Select ((g, i) => new GenericParameter (memberSelector, i, g.Name, declaringType.Namespace, g.Attributes)).ToList().AsReadOnly();
+      var genericContext = new GenericParameterContext (_genericParameters.Cast<Type>());
+      foreach (var paraAndDecl in _genericParameters.Zip (genericParas))
+      {
+        paraAndDecl.Item1.SetBaseTypeConstraint (paraAndDecl.Item2.BaseConstraintProvider (genericContext));
+        paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericContext));
+      }
 
+      var paras = parameters.ConvertToCollection();
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
-      _genericParameters = genericParameters;
       _baseMethod = baseMethod;
       _body = body;
     }
@@ -142,20 +152,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedExplicitBaseDefinitions.AsReadOnly (); }
     }
 
-    public override MethodInfo GetBaseDefinition ()
-    {
-      return BaseMethod != null ? BaseMethod.GetBaseDefinition() : this;
-    }
-
     public override Type[] GetGenericArguments ()
     {
-      // TODO XXX;
-      return Type.EmptyTypes;
+      return _genericParameters.Cast<Type>().ToArray();
     }
 
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.Cast<ParameterInfo>().ToArray();
+    }
+
+    public override MethodInfo GetBaseDefinition ()
+    {
+      return BaseMethod != null ? BaseMethod.GetBaseDefinition() : this;
     }
 
     /// <summary>
