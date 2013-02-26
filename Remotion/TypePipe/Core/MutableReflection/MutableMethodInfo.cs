@@ -35,11 +35,11 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableMethodInfo : CustomMethodInfo, IMutableMethodBase
   {
+    private readonly MethodInfo _baseMethod;
     private readonly ReadOnlyCollection<GenericParameter> _genericParameters;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
-    private readonly MethodInfo _baseMethod;
 
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
@@ -50,24 +50,27 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
+        MethodInfo baseMethod,
         IEnumerable<GenericParameterDeclaration> genericParameters,
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
-        MethodInfo baseMethod,
-        Expression body)
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
         : base (declaringType, name, attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Base method may be null.
       ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
       ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
       ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
-      // Base method may be null.
-      // Body may be null.
+      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      
       Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
-      Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
-      // TODO: Argument check for the line below.
+      // TODO: Argument check for the lines below.
+      //Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
       //Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
+
+      _baseMethod = baseMethod;
 
       // Create generic parameters.
       var genericParams = genericParameters.ConvertToCollection();
@@ -92,8 +95,8 @@ namespace Remotion.TypePipe.MutableReflection
       _parameters = parameters.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = parameters.Select (p => p.Expression).ToList().AsReadOnly();
 
-      _baseMethod = baseMethod;
-      _body = body;
+      // Create body.
+      _body = bodyProvider(null);
     }
 
     public ProxyType MutableDeclaringType

@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       // TODO 5440: Adapt.
       var x = GenericParameterDeclaration.None;
-      return new MutableMethodInfo (declaringType, name, attributes, x, ctx => returnType, ctx => paras, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, baseMethod, x, ctx => returnType, ctx => paras, ctx => body);
     }
 
     public MutableMethodInfo CreateMethod (

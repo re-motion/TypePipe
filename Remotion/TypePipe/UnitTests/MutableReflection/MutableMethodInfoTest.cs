@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       var method = new MutableMethodInfo (
-          declaringType, name, attributes, genericParameters.AsOneTime(), ctx => returnType, ctx => parameters.AsOneTime(), baseMethod, body);
+          declaringType, name, attributes, baseMethod, genericParameters.AsOneTime(), ctx => returnType, ctx => parameters.AsOneTime(), ctx => body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.MutableDeclaringType, Is.SameAs (declaringType));
@@ -244,7 +244,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = typeof (object);
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod(); // Base method must be virtual.
-      var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, returnType, parameters, baseMethod);
+      var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, baseMethod, returnType, parameters);
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
