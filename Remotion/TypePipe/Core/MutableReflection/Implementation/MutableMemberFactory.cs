@@ -199,6 +199,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      // Body provider may be null (for abstract methods).
+
       return CreateMethod (declaringType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
     }
 

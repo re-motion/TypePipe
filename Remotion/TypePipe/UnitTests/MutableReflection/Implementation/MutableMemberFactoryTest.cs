@@ -232,7 +232,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var name = "Method";
       var attributes = MethodAttributes.Public;
-      var baseConstraint = ReflectionObjectMother.GetSomeType();
+      var baseConstraint = ReflectionObjectMother.GetSomeClassType();
       var interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();
       GenericParameterContext genericParameterContext = null;
       Type firstGenericParameter = null;
