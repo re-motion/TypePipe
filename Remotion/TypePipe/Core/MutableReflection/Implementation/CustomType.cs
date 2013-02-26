@@ -356,6 +356,37 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return string.Format ("{0} = \"{1}\"", GetType ().Name, ToString ());
     }
 
+    #region Members supported only by generic parameters
+
+    private const string c_noGenericParameterMessage = " may only be called on a type for which Type.IsGenericParameter is true.";
+
+    public override bool IsGenericParameter
+    {
+      get { return false; }
+    }
+
+    public override MethodBase DeclaringMethod
+    {
+      get { throw new InvalidOperationException ("Property DeclaringMethod" + c_noGenericParameterMessage); }
+    }
+
+    public override int GenericParameterPosition
+    {
+      get { throw new InvalidOperationException ("Property GenericParameterPosition" + c_noGenericParameterMessage); }
+    }
+
+    public override GenericParameterAttributes GenericParameterAttributes
+    {
+      get { throw new InvalidOperationException ("Property GenericParameterAttributes" + c_noGenericParameterMessage); }
+    }
+
+    public override Type[] GetGenericParameterConstraints ()
+    {
+      throw new InvalidOperationException ("Method GetGenericParameterConstraints" + c_noGenericParameterMessage);
+    }
+
+    #endregion
+
     #region Not YET implemented abstract members of Type class
 
     public override MemberInfo[] GetMembers (BindingFlags bindingAttr)
@@ -402,16 +433,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { throw new NotSupportedException ("Property StructLayoutAttribute is not supported."); }
     }
 
-    public override GenericParameterAttributes GenericParameterAttributes
-    {
-      get { throw new NotSupportedException ("Property GenericParameterAttributes is not supported."); }
-    }
-
-    public override int GenericParameterPosition
-    {
-      get { throw new NotSupportedException ("Property GenericParameterPosition is not supported."); }
-    }
-
     public override RuntimeTypeHandle TypeHandle
     {
       get { throw new NotSupportedException ("Property TypeHandle is not supported."); }
@@ -450,11 +471,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override int GetArrayRank ()
     {
       throw new NotSupportedException ("Method GetArrayRank is not supported.");
-    }
-
-    public override Type[] GetGenericParameterConstraints ()
-    {
-      throw new NotSupportedException ("Method GetGenericParameterConstraints is not supported.");
     }
 
     public override Type MakeGenericType (params Type[] typeArguments)

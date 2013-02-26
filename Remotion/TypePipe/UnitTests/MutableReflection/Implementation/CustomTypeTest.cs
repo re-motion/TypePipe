@@ -462,6 +462,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void GenericParameterMembers ()
+    {
+      Assert.That (_customType.IsGenericParameter, Is.False);
+
+      var message = "{0} may only be called on a type for which Type.IsGenericParameter is true.";
+      Assert.That (
+          () => _customType.DeclaringMethod,
+          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (message, "Property DeclaringMethod")));
+      Assert.That (
+          () => _customType.GenericParameterPosition,
+          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (message, "Property GenericParameterPosition")));
+      Assert.That (
+          () => _customType.GenericParameterAttributes,
+          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (message, "Property GenericParameterAttributes")));
+      Assert.That (
+          () => _customType.GetGenericParameterConstraints(),
+          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (message, "Method GetGenericParameterConstraints")));
+    }
+
+    [Test]
     public void VirtualMethodsImplementedByType ()
     {
       _memberSelectorMock
@@ -482,7 +502,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       // None of these virtual members should throw an exception.
       Dev.Null = _customType.MemberType;
-      Dev.Null = _customType.DeclaringMethod;
       Dev.Null = _customType.ReflectedType;
       Dev.Null = _customType.IsGenericParameter;
       Dev.Null = CustomTypeObjectMother.Create (isGenericType: false).ContainsGenericParameters;
@@ -507,8 +526,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.MetadataToken, "MetadataToken");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GUID, "GUID");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.StructLayoutAttribute, "StructLayoutAttribute");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterAttributes, "GenericParameterAttributes");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GenericParameterPosition, "GenericParameterPosition");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.TypeHandle, "TypeHandle");
 
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetDefaultMembers(), "GetDefaultMembers");
@@ -518,7 +535,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType(), "MakeArrayType");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType (7), "MakeArrayType");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetArrayRank(), "GetArrayRank");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericParameterConstraints(), "GetGenericParameterConstraints");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeGenericType(), "MakeGenericType");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetGenericTypeDefinition(), "GetGenericTypeDefinition");
     }

@@ -23,7 +23,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Holds all values required to declare a generic parameter.
+  /// Holds all information required to declare a generic parameter on a type or method.
   /// </summary>
   /// <remarks>
   /// This is used by <see cref="ProxyType.AddGenericMethod"/> when declaring generic methods.
