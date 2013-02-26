@@ -158,11 +158,23 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      // TODO parameter provider is not allowed to return null.
-      var genericParameterContext = new GenericParameterContext (Type.EmptyTypes);
-      var parameters = parameterProvider (genericParameterContext).ConvertToCollection ();
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var genericParameterDeclarations = genericParameters.ConvertToCollection();
+      var genericParams = genericParameterDeclarations
+        .Select ((p, i) => new GenericParameter (memberSelector, i, p.Name, declaringType.Namespace, p.Attributes)).ToList();
+
+      var genericParameterContext = new GenericParameterContext (genericParams.Cast<Type>());
+      foreach (var paraAndDecl in genericParams.Zip (genericParameterDeclarations))
+      {
+        paraAndDecl.Item1.SetBaseTypeConstraint (paraAndDecl.Item2.BaseConstraintProvider (genericParameterContext));
+        paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericParameterContext));
+      }
+
       // TODO return type provider is not allowed to return null.
       var returnType = returnTypeProvider (genericParameterContext);
+      // TODO parameter provider is not allowed to return null.
+      var parameters = parameterProvider (genericParameterContext).ConvertToCollection ();
+
       var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
       if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
@@ -176,9 +188,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
-      // TODO 5440: Adapt.
-      var x = new GenericParameter[0];
-      return new MutableMethodInfo (declaringType, name, attributes, x, returnType, parameters, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, genericParams, returnType, parameters, baseMethod, body);
     }
 
     public MutableMethodInfo CreateMethod (

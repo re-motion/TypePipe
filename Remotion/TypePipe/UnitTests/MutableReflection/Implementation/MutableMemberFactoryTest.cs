@@ -232,19 +232,54 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var name = "Method";
       var attributes = MethodAttributes.Public;
-      var returnType = typeof (IComparable);
-      var parameterDeclarations =
+      var baseConstraint = ReflectionObjectMother.GetSomeType();
+      var interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();
+      GenericParameterContext genericParameterContext = null;
+      Type firstGenericParameter = null;
+      Func<GenericParameterContext, Type> baseConstraintProvider = ctx =>
+      {
+        genericParameterContext = ctx;
+        Assert.That (ctx.GenericParameters, Has.Count.EqualTo (2));
+        Assert.That (ctx.GenericParameters[1].GenericParameterPosition, Is.EqualTo (1));
+
+        firstGenericParameter = ctx.GenericParameters[0];
+        Assert.That (firstGenericParameter.DeclaringMethod, Is.Null);
+        Assert.That (firstGenericParameter.GenericParameterPosition, Is.EqualTo (0));
+        Assert.That (firstGenericParameter.Name, Is.EqualTo ("T1"));
+        Assert.That (firstGenericParameter.Namespace, Is.EqualTo (_proxyType.Namespace));
+        Assert.That (firstGenericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.Covariant));
+
+        return baseConstraint;
+      };
+      Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintProvider = ctx =>
+      {
+        Assert.That (ctx, Is.Not.Null.And.SameAs (genericParameterContext));
+        return new[] { interfaceConstraint }.AsOneTime();
+      };
+      var genericParameters =
           new[]
           {
-              ParameterDeclarationObjectMother.Create (typeof (double), "hans"),
-              ParameterDeclarationObjectMother.Create (typeof (string), "franz")
+              GenericParameterDeclarationObjectMother.Create (
+                  "T1", GenericParameterAttributes.Covariant, baseConstraintProvider, interfaceConstraintProvider),
+              GenericParameterDeclarationObjectMother.Create()
           };
+      var returnType = typeof (IComparable);
+      Func<GenericParameterContext, Type> returnTypeProvider = ctx =>
+      {
+        Assert.That (ctx, Is.Not.Null.And.SameAs (genericParameterContext));
+        return returnType;
+      };
+      var parameter = ParameterDeclarationObjectMother.Create (name: "paramName");
+      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider = ctx =>
+      {
+        Assert.That (ctx, Is.Not.Null.And.SameAs (genericParameterContext));
+        return new[] { parameter }.AsOneTime();
+      };
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx =>
       {
         Assert.That (ctx.This.Type, Is.SameAs (_proxyType));
-        Assert.That (ctx.Parameters.Select (p => p.Type), Is.EqualTo (new[] { typeof (double), typeof (string) }));
-        Assert.That (ctx.Parameters.Select (p => p.Name), Is.EqualTo (new[] { "hans", "franz" }));
+        Assert.That (ctx.Parameters.Single().Name, Is.EqualTo ("paramName"));
         Assert.That (ctx.IsStatic, Is.False);
         Assert.That (ctx.ReturnType, Is.SameAs (returnType));
         Assert.That (ctx.HasBaseMethod, Is.False);
@@ -253,12 +288,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       };
 
       var method = _factory.CreateMethod (
-          _proxyType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameterDeclarations.AsOneTime(), bodyProvider);
+          _proxyType, name, attributes, genericParameters.AsOneTime(), returnTypeProvider, parameterProvider, bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo (attributes));
       Assert.That (method.ReturnType, Is.SameAs (returnType));
+      Assert.That (method.BaseMethod, Is.Null);
 
       var returnParameter = method.ReturnParameter;
       Assertion.IsNotNull (returnParameter);
@@ -267,18 +303,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (returnParameter.ParameterType, Is.SameAs (returnType));
       Assert.That (returnParameter.Attributes, Is.EqualTo (ParameterAttributes.None));
 
-      Assert.That (method.BaseMethod, Is.Null);
-      Assert.That (method.IsGenericMethod, Is.False);
-      Assert.That (method.IsGenericMethodDefinition, Is.False);
-      Assert.That (method.ContainsGenericParameters, Is.False);
-      var expectedParameterInfos =
-          new[]
-          {
-              new { ParameterType = parameterDeclarations[0].Type },
-              new { ParameterType = parameterDeclarations[1].Type }
-          };
-      var actualParameterInfos = method.GetParameters ().Select (pi => new { pi.ParameterType });
-      Assert.That (actualParameterInfos, Is.EqualTo (expectedParameterInfos));
+      Assert.That (method.GetGenericArguments(), Has.Length.EqualTo (2));
+      var actualFirstGenericParameter = method.GetGenericArguments()[0];
+      Assert.That (actualFirstGenericParameter, Is.SameAs (firstGenericParameter));
+      Assert.That (actualFirstGenericParameter.DeclaringMethod, Is.SameAs (method));
+      Assert.That (actualFirstGenericParameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { baseConstraint, interfaceConstraint }));
+
+      Assert.That (method.GetParameters().Single().Name, Is.EqualTo (parameter.Name));
       var expectedBody = Expression.Convert (fakeBody, returnType);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
