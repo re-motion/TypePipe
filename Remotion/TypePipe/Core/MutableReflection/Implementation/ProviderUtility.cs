@@ -16,27 +16,28 @@
 // 
 
 using System;
-using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection.BodyBuilding
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Provides useful functionality for working with method body provider delegates.
+  /// Contains useful functionality for working with provider delegates.
   /// </summary>
-  public static class BodyProviderUtility
+  public static class ProviderUtility
   {
-    public static Expression GetTypedBody<TContext> (Type expectedType, Func<TContext, Expression> bodyProvider, TContext context)
-        where TContext : BodyContextBase
+    public static TResult GetNonNullValue<TResult, TContext> (Func<TContext, TResult> provider, TContext context, string providerArgumentName)
+        where TResult : class
     {
-      ArgumentUtility.CheckNotNull ("expectedType", expectedType);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull ("provider", provider);
       ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("providerArgumentName", providerArgumentName);
 
-      var body = ProviderUtility.GetNonNullValue (bodyProvider, context, "bodyProvider");
+      var value = provider (context);
 
-      return ExpressionTypeUtility.EnsureCorrectType (body, expectedType);
+      if (value == null)
+        throw new ArgumentException ("Provider must not return null.", providerArgumentName);
+
+      return value;
     }
   }
 }

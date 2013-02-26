@@ -17,7 +17,6 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -38,26 +37,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
       _context = new TestableBodyContextBase (ProxyTypeObjectMother.Create(), false, _memberSelector);
-    }
-
-    [Test]
-    public void GetNonNullBody ()
-    {
-      var body = ExpressionTreeObjectMother.GetSomeExpression();
-      var bodyProvider = CreateBodyProvider (body);
-
-      var result = BodyProviderUtility.GetNonNullBody (bodyProvider, _context);
-
-      Assert.That (result, Is.SameAs (body));
-    }
-
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
-    public void GetNonNullBody_ThrowsForNull ()
-    {
-      var bodyProvider = CreateBodyProvider (returnedBody: null);
-
-      BodyProviderUtility.GetNonNullBody (bodyProvider, _context);
     }
 
     [Test]
@@ -85,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: bodyProvider")]
     public void GetTypedBody_ThrowsForNullBody ()
     {
       var bodyProvider = CreateBodyProvider (returnedBody: null);

@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Body provider must return non-null body.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: initializationProvider")]
     public void CreateInitialization_NullBody ()
     {
       _factory.CreateInitialization (_proxyType, ctx => null);
@@ -449,6 +449,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _factory.CreateMethod (
           _proxyType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
+    }
+
+    [Test]
+    [ExpectedException(typeof(ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: returnTypeProvider")]
+    public void CreateMethod_ThrowsForNullReturningReturnTypeProvider ()
+    {
+      _factory.CreateMethod (
+          _proxyType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => null, ctx => ParameterDeclaration.None, ctx => Expression.Empty());
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: parameterProvider")]
+    public void CreateMethod_ThrowsForNullReturningParameterProvider ()
+    {
+      _factory.CreateMethod (
+          _proxyType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => typeof (int), ctx => null, ctx => Expression.Empty());
     }
 
     [Test]

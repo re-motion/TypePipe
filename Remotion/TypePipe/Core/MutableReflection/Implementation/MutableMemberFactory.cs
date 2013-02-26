@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
       var context = new InitializationBodyContext (declaringType, _memberSelector);
-      return BodyProviderUtility.GetNonNullBody (initializationProvider, context);
+      return ProviderUtility.GetNonNullValue (initializationProvider, context, "initializationProvider");
     }
 
     public MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
@@ -170,10 +170,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericParameterContext));
       }
 
-      // TODO return type provider is not allowed to return null.
-      var returnType = returnTypeProvider (genericParameterContext);
-      // TODO parameter provider is not allowed to return null.
-      var parameters = parameterProvider (genericParameterContext).ConvertToCollection ();
+      var returnType = ProviderUtility.GetNonNullValue (returnTypeProvider, genericParameterContext, "returnTypeProvider");
+      var parameters = ProviderUtility.GetNonNullValue (parameterProvider, genericParameterContext, "parameterProvider").ConvertToCollection();
 
       var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
       if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
