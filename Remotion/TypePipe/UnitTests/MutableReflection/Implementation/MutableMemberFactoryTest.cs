@@ -494,6 +494,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
     }
 
+    [Ignore ("TODO 5440")]
+    [Test]
+    public void CreateMethod_ThrowsIfAlreadyExists_Generic ()
+    {
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
+      Func<GenericParameterContext, Type> returnTypeProvider = ctx => typeof (void);
+      var genericParameterDecls = new[] { new GenericParameterDeclaration ("T1"), new GenericParameterDeclaration ("T2") };
+      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
+          ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t1"), new ParameterDeclaration (ctx.GenericParameters[1], "t2") };
+      var method = _proxyType.AddGenericMethod ("GenericMethod", 0, genericParameterDecls, returnTypeProvider, parameterProvider, bodyProvider);
+
+      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider1 =
+          ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[1], "t1"), new ParameterDeclaration (ctx.GenericParameters[0], "t2") };
+      Assert.That (
+          () =>
+          _factory.CreateMethod (_proxyType, method.Name, 0, genericParameterDecls.Reverse(), returnTypeProvider, parameterProvider1, bodyProvider),
+          Throws.Nothing);
+
+      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider2 =
+          ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t1") };
+      Assert.That (
+          () =>
+          _factory.CreateMethod (_proxyType, method.Name, 0, new[] { genericParameterDecls[0] }, returnTypeProvider, parameterProvider2, bodyProvider),
+          Throws.Nothing);
+
+      Assert.That (
+          () => _factory.CreateMethod (_proxyType, method.Name, 0, genericParameterDecls, returnTypeProvider, parameterProvider, bodyProvider),
+          Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
+    }
+
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
     public void CreateMethod_ThrowsIfOverridingFinalMethod ()
