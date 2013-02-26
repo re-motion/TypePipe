@@ -50,10 +50,10 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        MethodInfo baseMethod,
         IEnumerable<GenericParameterDeclaration> genericParameters,
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Func<MethodInfo> baseMethodProvider,
         Func<MethodBodyCreationContext> bodyCreationContextProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
         : base (declaringType, name, attributes)
@@ -65,13 +65,12 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
       ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
-      
-      Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
+
       // TODO: Argument check for the lines below.
+
+      //Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
       //Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
       //Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
-
-      _baseMethod = baseMethod;
 
       // Create generic parameters.
       var genericParams = genericParameters.ConvertToCollection();
@@ -95,6 +94,9 @@ namespace Remotion.TypePipe.MutableReflection
       var parameters = parameterProvider (context).ConvertToCollection();
       _parameters = parameters.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = parameters.Select (p => p.Expression).ToList().AsReadOnly();
+
+      // Retrieve base method.
+      _baseMethod = baseMethodProvider();
 
       // Create body.
       _body = bodyProvider (bodyCreationContextProvider());

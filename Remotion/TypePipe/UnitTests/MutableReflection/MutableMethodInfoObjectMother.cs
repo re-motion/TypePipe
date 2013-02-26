@@ -33,25 +33,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         ProxyType declaringType = null,
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = (MethodAttributes) 7,
-        MethodInfo baseMethod = null,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null,
+        MethodInfo baseMethod = null,
         Expression body = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       if (baseMethod != null)
         attributes = attributes.Set (MethodAttributes.Virtual);
-      // Base method stays null.
       var genericParameters = GenericParameterDeclaration.None;
       returnType = returnType ?? typeof (void);
       var paras = (parameters ?? ParameterDeclaration.None).ToList();
+      // Base method stays null.
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
       var context = new MethodBodyCreationContext (
           declaringType, false, paras.Select (p => Expression.Parameter (p.Type)), returnType, baseMethod, memberSelector);
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
 
       return new MutableMethodInfo (
-          declaringType, name, attributes, baseMethod, genericParameters, ctx => returnType, ctx => paras, () => context, ctx => body);
+          declaringType, name, attributes, genericParameters, ctx => returnType, ctx => paras, () => baseMethod, () => context, ctx => body);
     }
 
     public static MutableMethodInfo CreateGeneric (
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       bodyProvider = bodyProvider ?? CreateBodyProvider (attributes.IsSet (MethodAttributes.Abstract));
       
       return new MutableMethodInfo (
-          declaringType, name, attributes, baseMethod, genericParameters, returnTypeProvider, parameterProvider, null, bodyProvider);
+          declaringType, name, attributes, genericParameters, returnTypeProvider, parameterProvider, null, null, bodyProvider);
     }
 
     private static Func<MethodBodyCreationContext, Expression> CreateBodyProvider (bool isAbstract)

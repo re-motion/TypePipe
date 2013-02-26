@@ -74,10 +74,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           declaringType,
           name,
           attributes,
-          baseMethod,
           genericParameters.AsOneTime(),
           ctx => returnType,
           ctx => parameters.AsOneTime(),
+          () => baseMethod,
           () => bodyCreationContext,
           ctx => body);
 
@@ -257,7 +257,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = typeof (object);
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod(); // Base method must be virtual.
-      var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, baseMethod, returnType, parameters);
+      var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, returnType, parameters, baseMethod);
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
