@@ -51,22 +51,30 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
-        Type returnType,
+        Func<GenericParameterContext, Type> returnTypeProvider,
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
         Expression body)
         : base (declaringType, name, attributes)
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
+      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
+      // Base method may be null.
+      // Body may be null.
       Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
-      Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
+      //Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
 
+      // Create generic parameters.
       var genericParas = genericParameters.ConvertToCollection();
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       _genericParameters = genericParas
           .Select ((g, i) => new GenericParameter (memberSelector, this, i, g.Name, declaringType.Namespace, g.Attributes)).ToList().AsReadOnly();
+
+      // Set constraints on generic parameters.
       var genericContext = new GenericParameterContext (_genericParameters.Cast<Type>());
       foreach (var paraAndDecl in _genericParameters.Zip (genericParas))
       {
@@ -74,8 +82,11 @@ namespace Remotion.TypePipe.MutableReflection
         paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericContext));
       }
 
-      var paras = parameters.ConvertToCollection();
+      // Create return type.
+      var returnType = returnTypeProvider (genericContext);
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
+
+      var paras = parameters.ConvertToCollection();
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
       _baseMethod = baseMethod;

@@ -46,7 +46,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
       genericParameters = genericParameters ?? GenericParameterDeclaration.None;
 
-      return new MutableMethodInfo (declaringType, name, attributes, genericParameters, returnType, parameters, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, genericParameters, ctx => returnType, parameters, baseMethod, body);
     }
+
+    // TODO: overload with providers!!
   }
 }
