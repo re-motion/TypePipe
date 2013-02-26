@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
+    private int _position;
     private string _name;
     private string _namespace;
     private GenericParameterAttributes _genericParameterAttributes;
@@ -48,11 +49,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SetUp ()
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _position = 7;
       _name = "_parameter";
       _namespace = "namespace";
-      _genericParameterAttributes = (GenericParameterAttributes) 7;
+      _genericParameterAttributes = (GenericParameterAttributes) 8;
 
-      _parameter = new GenericParameter (memberSelectorMock, _name, _namespace, _genericParameterAttributes);
+      _parameter = new GenericParameter (memberSelectorMock, _position, _name, _namespace, _genericParameterAttributes);
 
       _baseTypeConstraint = typeof (DomainType);
       _interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();
@@ -64,6 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization ()
     {
+      Assert.That (_parameter.GenericParameterPosition, Is.EqualTo (_position));
       Assert.That (_parameter.Name, Is.EqualTo (_name));
       Assert.That (_parameter.Namespace, Is.EqualTo (_namespace));
       Assert.That (_parameter.FullName, Is.Null);
