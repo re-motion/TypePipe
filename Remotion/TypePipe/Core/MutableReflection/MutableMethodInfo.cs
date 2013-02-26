@@ -35,11 +35,11 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableMethodInfo : CustomMethodInfo, IMutableMethodBase
   {
-    private readonly MethodInfo _baseMethod;
     private readonly ReadOnlyCollection<GenericParameter> _genericParameters;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly MethodInfo _baseMethod;
 
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
     private readonly HashSet<MethodInfo> _addedExplicitBaseDefinitions = new HashSet<MethodInfo>();
@@ -51,55 +51,35 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
-        Func<GenericParameterContext, Type> returnTypeProvider,
-        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
-        Func<MethodInfo> baseMethodProvider,
-        Func<MethodBodyCreationContext> bodyCreationContextProvider,
-        Func<MethodBodyCreationContext, Expression> bodyProvider)
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
+        MethodInfo baseMethod,
+        Expression body)
         : base (declaringType, name, attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Base method may be null.
-      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
-      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
-      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
+      Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
+      Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
 
-      // TODO: Argument check for the lines below.
-
-      //Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
-      //Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
-      //Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
-
-      // Create generic parameters.
-      var genericParams = genericParameters.ConvertToCollection();
+      var genericParas = genericParameters.ConvertToCollection();
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      _genericParameters = genericParams
+      _genericParameters = genericParas
           .Select ((g, i) => new GenericParameter (memberSelector, this, i, g.Name, declaringType.Namespace, g.Attributes)).ToList().AsReadOnly();
-
-      // Set constraints on generic parameters.
-      var context = new GenericParameterContext (_genericParameters.Cast<Type>());
-      foreach (var paraAndDecl in _genericParameters.Zip (genericParams))
+      var genericContext = new GenericParameterContext (_genericParameters.Cast<Type>());
+      foreach (var paraAndDecl in _genericParameters.Zip (genericParas))
       {
-        paraAndDecl.Item1.SetBaseTypeConstraint (paraAndDecl.Item2.BaseConstraintProvider (context));
-        paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (context));
+        paraAndDecl.Item1.SetBaseTypeConstraint (paraAndDecl.Item2.BaseConstraintProvider (genericContext));
+        paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericContext));
       }
 
-      // Create return type.
-      var returnType = returnTypeProvider (context);
+      var paras = parameters.ConvertToCollection();
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
-
-      // Create parameters.
-      var parameters = parameterProvider (context).ConvertToCollection();
-      _parameters = parameters.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
-      _parameterExpressions = parameters.Select (p => p.Expression).ToList().AsReadOnly();
-
-      // Retrieve base method.
-      _baseMethod = baseMethodProvider();
-
-      // Create body.
-      _body = bodyProvider (bodyCreationContextProvider());
+      _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
+      _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
+      _baseMethod = baseMethod;
+      _body = body;
     }
 
     public ProxyType MutableDeclaringType

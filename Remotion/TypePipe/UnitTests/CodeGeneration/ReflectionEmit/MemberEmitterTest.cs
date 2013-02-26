@@ -144,8 +144,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           ProxyTypeObjectMother.Create (baseType: typeof (DomainType)),
           "Method",
           MethodAttributes.Virtual,
-          returnType: typeof (string),
-          parameters: new[]
+          typeof (string),
+          new[]
           {
               new ParameterDeclaration (typeof (int), "i", ParameterAttributes.Reserved3),
               new ParameterDeclaration (typeof (double).MakeByRefType(), "d", ParameterAttributes.Out)
@@ -190,7 +190,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void AddMethod_Abstract ()
     {
-      var method = MutableMethodInfoObjectMother.Create (null, "AbstractMethod", MethodAttributes.Abstract, returnType: typeof (int));
+      var method = MutableMethodInfoObjectMother.Create (
+          null,
+          "AbstractMethod",
+          MethodAttributes.Abstract,
+          typeof (int),
+          ParameterDeclaration.None);
 
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
       _typeBuilderMock

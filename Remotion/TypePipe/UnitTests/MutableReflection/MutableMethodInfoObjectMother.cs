@@ -20,10 +20,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -36,55 +34,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null,
         MethodInfo baseMethod = null,
-        Expression body = null)
+        Expression body = null,
+        IEnumerable<GenericParameterDeclaration> genericParameters = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       if (baseMethod != null)
         attributes = attributes.Set (MethodAttributes.Virtual);
-      var genericParameters = GenericParameterDeclaration.None;
       returnType = returnType ?? typeof (void);
-      var paras = (parameters ?? ParameterDeclaration.None).ToList();
-      // Base method stays null.
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
-      var context = new MethodBodyCreationContext (
-          declaringType, false, paras.Select (p => Expression.Parameter (p.Type)), returnType, baseMethod, memberSelector);
-      body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
-
-      return new MutableMethodInfo (
-          declaringType, name, attributes, genericParameters, ctx => returnType, ctx => paras, () => baseMethod, () => context, ctx => body);
-    }
-
-    public static MutableMethodInfo CreateGeneric (
-        ProxyType declaringType = null,
-        string name = "UnspecifiedMethod",
-        MethodAttributes attributes = (MethodAttributes) 7,
-        MethodInfo baseMethod = null,
-        IEnumerable<GenericParameterDeclaration> genericParameters = null,
-        Func<GenericParameterContext,Type> returnTypeProvider = null,
-        Func<GenericParameterContext,IEnumerable<ParameterDeclaration>> parameterProvider = null,
-        Func<MethodBodyCreationContext,Expression> bodyProvider = null)
-    {
-      // Base method stays null.
-      declaringType = declaringType ?? ProxyTypeObjectMother.Create ();
-      if (baseMethod != null)
-        attributes = attributes.Set (MethodAttributes.Virtual);
-      genericParameters = genericParameters ?? GenericParameterDeclaration.None;
-      returnTypeProvider = returnTypeProvider ?? (ctx => typeof (void));
-      parameterProvider = parameterProvider ?? (ctx => ParameterDeclaration.None);
+      parameters = parameters ?? ParameterDeclaration.None;
       // baseMethod stays null.
-      // TODO: body context
-      bodyProvider = bodyProvider ?? CreateBodyProvider (attributes.IsSet (MethodAttributes.Abstract));
-      
-      return new MutableMethodInfo (
-          declaringType, name, attributes, genericParameters, returnTypeProvider, parameterProvider, null, null, bodyProvider);
-    }
+      body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
+      genericParameters = genericParameters ?? GenericParameterDeclaration.None;
 
-    private static Func<MethodBodyCreationContext, Expression> CreateBodyProvider (bool isAbstract)
-    {
-      if (isAbstract)
-        return ctx => null;
-      else
-        return ctx => Expression.Default (ctx.ReturnType);
+      return new MutableMethodInfo (declaringType, name, attributes, genericParameters, returnType, parameters, baseMethod, body);
     }
   }
 }
