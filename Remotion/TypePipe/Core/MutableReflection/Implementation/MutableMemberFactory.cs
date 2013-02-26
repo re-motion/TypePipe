@@ -22,6 +22,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -170,7 +171,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       // TODO 5440: Adapt.
-      var x = GenericParameterDeclaration.None;
+      var x = new GenericParameter[0];
       return new MutableMethodInfo (declaringType, name, attributes, x, returnType, paras, baseMethod, body);
     }
 

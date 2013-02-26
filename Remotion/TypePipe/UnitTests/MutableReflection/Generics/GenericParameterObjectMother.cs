@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -26,7 +27,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   public static class GenericParameterObjectMother
   {
     public static GenericParameter Create (
-        MemberInfo declaringMember = null,
         int position = 7,
         string name = "T",
         string @namespace = "MyNs",
@@ -35,17 +35,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         IEnumerable<Type> interfaceConstraints = null,
         IMemberSelector memberSelector = null)
     {
-      declaringMember = declaringMember ?? MutableMethodInfoObjectMother.Create();
       baseTypeConstraint = baseTypeConstraint ?? typeof (object);
       interfaceConstraints = interfaceConstraints ?? Type.EmptyTypes;
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
       var genericParameter = new GenericParameter (memberSelector, position, name, @namespace, genericParameterAttributes);
-      genericParameter.InitializeDeclaringMember (declaringMember);
       genericParameter.SetBaseTypeConstraint (baseTypeConstraint);
       genericParameter.SetInterfaceConstraints (interfaceConstraints);
 
       return genericParameter;
+    }
+
+    public static GenericParameter[] CreateMultiple (int count)
+    {
+      return Enumerable.Range (1, count).Select (i => Create (name: "p" + i)).ToArray ();
     }
   }
 }

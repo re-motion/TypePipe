@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 
@@ -35,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         IEnumerable<ParameterDeclaration> parameters = null,
         MethodInfo baseMethod = null,
         Expression body = null,
-        IEnumerable<GenericParameterDeclaration> genericParameters = null)
+        IEnumerable<GenericParameter> genericParameters = null)
     {
       declaringType = declaringType ?? ProxyTypeObjectMother.Create();
       if (baseMethod != null)
@@ -44,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       parameters = parameters ?? ParameterDeclaration.None;
       // baseMethod stays null.
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
-      genericParameters = genericParameters ?? GenericParameterDeclaration.None;
+      genericParameters = genericParameters ?? new GenericParameter[0];
 
       return new MutableMethodInfo (declaringType, name, attributes, genericParameters, returnType, parameters, baseMethod, body);
     }

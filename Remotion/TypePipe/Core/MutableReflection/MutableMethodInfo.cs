@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        IEnumerable<GenericParameterDeclaration> genericParameters,
+        IEnumerable<GenericParameter> genericParameters,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
@@ -63,19 +63,9 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
       Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
 
-      var genericParas = genericParameters.ConvertToCollection();
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      _genericParameters = genericParas
-          .Select ((g, i) => new GenericParameter (memberSelector, i, g.Name, declaringType.Namespace, g.Attributes)).ToList().AsReadOnly();
-      var genericContext = new GenericParameterContext (_genericParameters.Cast<Type>());
-      foreach (var paraAndDecl in _genericParameters.Zip (genericParas))
-      {
-        paraAndDecl.Item1.InitializeDeclaringMember (this);
-        paraAndDecl.Item1.SetBaseTypeConstraint (paraAndDecl.Item2.BaseConstraintProvider (genericContext));
-        paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericContext));
-      }
-
       var paras = parameters.ConvertToCollection();
+
+      _genericParameters = genericParameters.ApplySideEffect (g => g.InitializeDeclaringMember (this)).ToList().AsReadOnly();
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();

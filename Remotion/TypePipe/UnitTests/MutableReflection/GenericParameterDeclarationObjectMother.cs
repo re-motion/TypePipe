@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -31,6 +32,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
     {
       return new GenericParameterDeclaration (name, attributes, baseConstraintProvider, interfaceConstraintsProvider);
+    }
+
+    public static GenericParameterDeclaration[] CreateMultiple (int count)
+    {
+      return Enumerable.Range (1, count).Select (i => Create (name: "p" + i)).ToArray();
     }
   }
 }

@@ -25,8 +25,8 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -53,13 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
       var attributes = (MethodAttributes) 7 | MethodAttributes.Virtual;
-      var genericParameters =
-          new[]
-          {
-              GenericParameterDeclarationObjectMother.Create (
-                  "TArg", (GenericParameterAttributes) 7, ctx => typeof (DomainType), ctx => new[] { typeof (IDisposable) }),
-              GenericParameterDeclarationObjectMother.Create()
-          };
+      var genericParameters = GenericParameterObjectMother.CreateMultiple (2);
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
@@ -74,17 +68,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (method.Attributes, Is.EqualTo(attributes));
 
       var genParas = method.GetGenericArguments();
-      Assert.That (genParas, Has.Length.EqualTo (2));
-      Assert.That (genParas[1].GenericParameterPosition, Is.EqualTo (1));
-
-      var genPara = genParas[0];
-      Assert.That (genPara.DeclaringMethod, Is.SameAs (method));
-      Assert.That (genPara.GenericParameterPosition, Is.EqualTo (0));
-      Assert.That (genPara.Name, Is.EqualTo (genPara.Name));
-      Assertion.IsNotNull (method.DeclaringType);
-      Assert.That (genPara.Namespace, Is.EqualTo (method.DeclaringType.Namespace));
-      Assert.That (genPara.GenericParameterAttributes, Is.EqualTo (genPara.GenericParameterAttributes));
-      Assert.That (genPara.GetGenericParameterConstraints(), Is.EquivalentTo (new[] { typeof (DomainType), typeof (IDisposable) }));
+      Assert.That (genParas, Is.EqualTo (genericParameters));
+      Assert.That (genParas, Has.All.Matches<Type> (g => g.DeclaringMethod == method));
 
       CustomParameterInfoTest.CheckParameter (method.ReturnParameter, method, -1, null, returnType, ParameterAttributes.None);
       Assert.That (method.MutableReturnParameter, Is.SameAs (method.ReturnParameter));
