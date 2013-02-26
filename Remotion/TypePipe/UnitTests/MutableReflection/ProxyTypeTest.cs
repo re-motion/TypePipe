@@ -336,7 +336,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
       var fakeMethod = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (_proxyType, name, attributes, returnType, parameters, bodyProvider))
+          .Expect (
+              mock =>
+              mock.CreateMethod (
+                  Arg.Is (_proxyType),
+                  Arg.Is (name),
+                  Arg.Is (attributes),
+                  Arg.Is (GenericParameterDeclaration.None),
+                  Arg<Func<GenericParameterContext, Type>>.Matches (p => p (null) == returnType),
+                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Matches (p => p (null) == parameters),
+                  Arg.Is (bodyProvider)))
           .Return (fakeMethod);
 
       var result = _proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
@@ -721,7 +730,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           parameters: ParameterDeclaration.None,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null))
+          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null, null))
           .IgnoreArguments()
           .Return (fakeOverride);
       _proxyType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.None, ctx => null);

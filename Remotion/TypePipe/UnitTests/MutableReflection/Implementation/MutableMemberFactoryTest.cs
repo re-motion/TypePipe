@@ -253,7 +253,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       };
 
       var method = _factory.CreateMethod (
-          _proxyType, name, attributes, returnType, parameterDeclarations.AsOneTime(), bodyProvider);
+          _proxyType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameterDeclarations.AsOneTime(), bodyProvider);
 
       Assert.That (method.DeclaringType, Is.SameAs (_proxyType));
       Assert.That (method.Name, Is.EqualTo (name));

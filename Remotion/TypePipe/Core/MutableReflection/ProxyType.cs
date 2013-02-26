@@ -262,11 +262,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       // Body provider may be null (for abstract methods).
 
-      // TODO 5440: Delegate to AddGenericMethod and remove this overload in IMutableMemberFactory.
-      var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameters, bodyProvider);
-      _addedMethods.Add (method);
-
-      return method;
+      return AddGenericMethod (name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
     }
 
     public MutableMethodInfo AddGenericMethod (

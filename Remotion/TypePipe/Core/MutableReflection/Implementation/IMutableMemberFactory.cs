@@ -45,14 +45,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameters,
-        Func<MethodBodyCreationContext, Expression> bodyProvider);
-
-    MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
-        string name,
-        MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,

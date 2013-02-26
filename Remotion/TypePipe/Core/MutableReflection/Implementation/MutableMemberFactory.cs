@@ -128,14 +128,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameters,
+        IEnumerable<GenericParameterDeclaration> genericParameters,
+        Func<GenericParameterContext, Type> returnTypeProvider,
+        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
+      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
+      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
       // Body provider may be null (for abstract methods).
 
       // TODO : virtual and static is an invalid combination
@@ -156,8 +158,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var paras = parameters.ConvertToCollection();
-      var signature = new MethodSignature (returnType, paras.Select (pd => pd.Type), genericParameterCount: 0);
+      // TODO parameter provider is not allowed to return null.
+      var genericParameterContext = new GenericParameterContext (Type.EmptyTypes);
+      var parameters = parameterProvider (genericParameterContext).ConvertToCollection ();
+      // TODO return type provider is not allowed to return null.
+      var returnType = returnTypeProvider (genericParameterContext);
+      var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
       if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
@@ -165,33 +171,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
 
-      var parameterExpressions = paras.Select (pd => pd.Expression);
+      var parameterExpressions = parameters.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
 
       // TODO 5440: Adapt.
       var x = new GenericParameter[0];
-      return new MutableMethodInfo (declaringType, name, attributes, x, returnType, paras, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, x, returnType, parameters, baseMethod, body);
     }
 
     public MutableMethodInfo CreateMethod (
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        IEnumerable<GenericParameterDeclaration> genericParameters,
-        Func<GenericParameterContext, Type> returnTypeProvider,
-        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
-      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
-      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
-      // Body provider may be null (for abstract methods).
-
-      throw new NotImplementedException();
+      return CreateMethod (declaringType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
     }
 
     public MutableMethodInfo CreateExplicitOverride (
@@ -498,7 +496,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private void CheckForInvalidAttributes<T> (string memberKind, T[] invalidAttributes, T attributes, string parameterName)
     {
-      var hasInvalidAttributes = invalidAttributes.Any (a => IsSet (attributes, a));
+      var hasInvalidAttributes = invalidAttributes.Any (a =>  IsSet (attributes, a));
       if (hasInvalidAttributes)
       {
         var invalidAttributeList = SeparatedStringBuilder.Build (", ", invalidAttributes.Select (x => Enum.GetName (typeof (T), x)));
