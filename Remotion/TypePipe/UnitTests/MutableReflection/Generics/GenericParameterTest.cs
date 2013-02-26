@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
+    private Type _declaringMember;
     private int _position;
     private string _name;
     private string _namespace;
@@ -49,12 +50,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SetUp ()
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _declaringMember = ReflectionObjectMother.GetSomeType();
       _position = 7;
       _name = "_parameter";
       _namespace = "namespace";
       _genericParameterAttributes = (GenericParameterAttributes) 8;
 
-      _parameter = new GenericParameter (memberSelectorMock, _position, _name, _namespace, _genericParameterAttributes);
+      _parameter = new GenericParameter (memberSelectorMock, _declaringMember, _position, _name, _namespace, _genericParameterAttributes);
 
       _baseTypeConstraint = typeof (DomainType);
       _interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();
@@ -66,6 +68,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization ()
     {
+      Assert.That (_parameter.DeclaringType, Is.EqualTo (_declaringMember));
+      Assert.That (_parameter.DeclaringMethod, Is.Null);
       Assert.That (_parameter.GenericParameterPosition, Is.EqualTo (_position));
       Assert.That (_parameter.Name, Is.EqualTo (_name));
       Assert.That (_parameter.Namespace, Is.EqualTo (_namespace));
@@ -74,6 +78,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_parameter.GenericParameterAttributes, Is.EqualTo (_genericParameterAttributes));
       Assert.That (_parameter.BaseType, Is.SameAs (typeof (object)));
       Assert.That (_parameter.GetInterfaces(), Is.Empty);
+    }
+
+    [Test]
+    public void Initialization_DeclaringMethod ()
+    {
+      var declaringMember = ReflectionObjectMother.GetSomeMethod();
+      var parameter = GenericParameterObjectMother.Create (declaringMember);
+
+      Assert.That (parameter.DeclaringMethod, Is.SameAs (declaringMember));
+      Assert.That (parameter.DeclaringType, Is.SameAs (declaringMember.DeclaringType));
     }
 
     [Test]

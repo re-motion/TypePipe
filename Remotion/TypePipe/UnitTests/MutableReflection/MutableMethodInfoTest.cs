@@ -53,23 +53,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaringType = ProxyTypeObjectMother.Create();
       var name = "abc";
       var attributes = (MethodAttributes) 7 | MethodAttributes.Virtual;
-      var genericParameter =
-          GenericParameterDeclarationObjectMother.Create (
-              "TArg", (GenericParameterAttributes) 7, ctx => typeof (DomainType), ctx => new[] { typeof (IDisposable) });
+      var genericParameters =
+          new[]
+          {
+              GenericParameterDeclarationObjectMother.Create (
+                  "TArg", (GenericParameterAttributes) 7, ctx => typeof (DomainType), ctx => new[] { typeof (IDisposable) }),
+              GenericParameterDeclarationObjectMother.Create()
+          };
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod();
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       var method = new MutableMethodInfo (
-          declaringType, name, attributes, new[] { genericParameter }.AsOneTime(), returnType, parameters.AsOneTime(), baseMethod, body);
+          declaringType, name, attributes, genericParameters.AsOneTime(), returnType, parameters.AsOneTime(), baseMethod, body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.MutableDeclaringType, Is.SameAs (declaringType));
       Assert.That (method.Name, Is.EqualTo (name));
       Assert.That (method.Attributes, Is.EqualTo(attributes));
 
-      var genPara = method.GetGenericArguments().Single();
+      var genParas = method.GetGenericArguments();
+      Assert.That (genParas, Has.Length.EqualTo (2));
+      Assert.That (genParas[1].GenericParameterPosition, Is.EqualTo (1));
+
+      var genPara = genParas[0];
+      Assert.That (genPara.DeclaringMethod, Is.SameAs (method));
+      Assert.That (genPara.GenericParameterPosition, Is.EqualTo (0));
       Assert.That (genPara.Name, Is.EqualTo (genPara.Name));
       Assertion.IsNotNull (method.DeclaringType);
       Assert.That (genPara.Namespace, Is.EqualTo (method.DeclaringType.Namespace));

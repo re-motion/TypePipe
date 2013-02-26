@@ -31,13 +31,19 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
+    private readonly MethodBase _declaringMethod;
     private readonly int _position;
     private readonly GenericParameterAttributes _genericParameterAttributes;
 
     private ReadOnlyCollection<Type> _interfaceConstraints = EmptyTypes.ToList().AsReadOnly();
 
     public GenericParameter (
-        IMemberSelector memberSelector, int position, string name, string @namespace, GenericParameterAttributes genericParameterAttributes)
+        IMemberSelector memberSelector,
+        MemberInfo declaringMember,
+        int position,
+        string name,
+        string @namespace,
+        GenericParameterAttributes genericParameterAttributes)
         : base (
             memberSelector,
             name,
@@ -51,12 +57,20 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
+      Assertion.IsTrue (declaringMember is Type || declaringMember is MethodBase);
       Assertion.IsTrue (position >= 0);
 
+      _declaringMethod = declaringMember as MethodBase;
       _position = position;
       _genericParameterAttributes = genericParameterAttributes;
 
+      SetDeclaringType (declaringMember as Type ?? declaringMember.DeclaringType);
       SetBaseType (typeof (object));
+    }
+
+    public override MethodBase DeclaringMethod
+    {
+      get { return _declaringMethod; }
     }
 
     public override bool IsGenericParameter

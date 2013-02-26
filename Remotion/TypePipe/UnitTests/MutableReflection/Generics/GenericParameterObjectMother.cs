@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   public static class GenericParameterObjectMother
   {
     public static GenericParameter Create (
+        MemberInfo declaringMember = null,
         int position = 7,
         string name = "T",
         string @namespace = "MyNs",
@@ -34,11 +35,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         IEnumerable<Type> interfaceConstraints = null,
         IMemberSelector memberSelector = null)
     {
+      declaringMember = declaringMember ?? MutableMethodInfoObjectMother.Create();
       baseTypeConstraint = baseTypeConstraint ?? typeof (object);
       interfaceConstraints = interfaceConstraints ?? Type.EmptyTypes;
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
-      var genericParameter = new GenericParameter (memberSelector, position, name, @namespace, genericParameterAttributes);
+      var genericParameter = new GenericParameter (memberSelector, declaringMember, position, name, @namespace, genericParameterAttributes);
       genericParameter.SetBaseTypeConstraint (baseTypeConstraint);
       genericParameter.SetInterfaceConstraints (interfaceConstraints);
 
