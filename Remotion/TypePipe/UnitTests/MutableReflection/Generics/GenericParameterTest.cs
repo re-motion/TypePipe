@@ -125,12 +125,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "A base type constraint must be a class.\r\nParameter name: baseTypeConstraint")]
+    public void SetBaseTypeConstraint_ThrowsForNonClasses ()
+    {
+      _parameter.SetBaseTypeConstraint (typeof (IDisposable));
+    }
+
+    [Test]
     public void SetInterfaceConstraints ()
     {
       Assert.That (_parameter.GetInterfaces(), Is.Empty);
       _parameter.SetInterfaceConstraints (new[] { _interfaceConstraint }.AsOneTime());
 
       Assert.That (_parameter.GetInterfaces(), Is.EqualTo (new[] { _interfaceConstraint }));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "All interface constraints must be interfaces.\r\nParameter name: interfaceConstraints")]
+    public void SetInterfaceConstraints_ThrowsForNonInterfaces ()
+    {
+      _parameter.SetInterfaceConstraints (new[] { typeof (string) });
     }
 
     [Test]

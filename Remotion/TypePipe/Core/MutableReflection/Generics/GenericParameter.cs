@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -100,14 +101,21 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
 
+      if (!baseTypeConstraint.IsClass)
+        throw new ArgumentException ("A base type constraint must be a class.", "baseTypeConstraint");
+
       SetBaseType (baseTypeConstraint);
     }
 
     public void SetInterfaceConstraints (IEnumerable<Type> interfaceConstraints)
     {
       ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
+      var ifcConstraints = interfaceConstraints.ConvertToCollection();
 
-      _interfaceConstraints = interfaceConstraints.ToList().AsReadOnly();
+      if (!ifcConstraints.All (c => c.IsInterface))
+        throw new ArgumentException ("All interface constraints must be interfaces.", "interfaceConstraints");
+
+      _interfaceConstraints = ifcConstraints.ToList().AsReadOnly();
     }
 
     public override Type[] GetGenericParameterConstraints ()
