@@ -33,6 +33,21 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class MutableMemberFactory : IMutableMemberFactory
   {
+    private struct MethodSignatureItems
+    {
+      public readonly ICollection<GenericParameter> GenericParameters;
+      public readonly Type ReturnType;
+      public readonly ICollection<ParameterDeclaration> ParameterDeclarations;
+
+      public MethodSignatureItems (
+          ICollection<GenericParameter> genericParameters, Type returnType, ICollection<ParameterDeclaration> parameterDeclarations)
+      {
+        ReturnType = returnType;
+        ParameterDeclarations = parameterDeclarations;
+        GenericParameters = genericParameters;
+      }
+    }
+
     private static readonly FieldAttributes[] s_invalidFieldAttributes =
         new[]
         {
@@ -141,7 +156,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Body provider may be null (for abstract methods).
 
       // TODO : virtual and static is an invalid combination
-      // TODO : if it is an implicit baseMethod override, it needs the same visibility (or more public visibility?)!
 
       var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
       if (!isAbstract && bodyProvider == null)
@@ -158,37 +172,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!isVirtual && isNewSlot)
         throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
 
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var genericParameterDeclarations = genericParameters.ConvertToCollection();
-      var genericParams = genericParameterDeclarations
-        .Select ((p, i) => new GenericParameter (memberSelector, i, p.Name, declaringType.Namespace, p.Attributes)).ToList();
+      var methodItems = GetMethodSignatureItems (declaringType, genericParameters, returnTypeProvider, parameterProvider);
 
-      var genericParameterContext = new GenericParameterContext (genericParams.Cast<Type>());
-      foreach (var paraAndDecl in genericParams.Zip (genericParameterDeclarations))
-      {
-        paraAndDecl.Item1.SetBaseTypeConstraint (paraAndDecl.Item2.BaseConstraintProvider (genericParameterContext));
-        paraAndDecl.Item1.SetInterfaceConstraints (paraAndDecl.Item2.InterfaceConstraintsProvider (genericParameterContext));
-      }
-
-      var returnType = ProviderUtility.GetNonNullValue (returnTypeProvider, genericParameterContext, "returnTypeProvider");
-      var parameters = ProviderUtility.GetNonNullValue (parameterProvider, genericParameterContext, "parameterProvider").ConvertToCollection();
-
-      var signature = new MethodSignature (returnType, parameters.Select (pd => pd.Type), genericParameterCount: 0);
+      //var signature = new MethodSignature (MethodSignatureItems.ReturnType, MethodSignatureItems.ParameterDeclarations.Select (pd => pd.Type), genericParams.Count);
+      var signature = new MethodSignature (methodItems.ReturnType, methodItems.ParameterDeclarations.Select (pd => pd.Type), genericParameterCount: 0);
       if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
-      var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
-      if (baseMethod != null)
-        CheckNotFinalForOverride (baseMethod);
+      var baseMethod = GetBaseMethod (declaringType, name, signature, isVirtual, isNewSlot);
+      // TODO : if it is an implicit baseMethod override, it needs more public visibility
 
-      var parameterExpressions = parameters.Select (pd => pd.Expression);
-      var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, returnType, baseMethod, _memberSelector);
-      var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (returnType, bodyProvider, context);
+      var body = GetMethodBody (declaringType, attributes, bodyProvider, methodItems, baseMethod);
 
-      return new MutableMethodInfo (declaringType, name, attributes, genericParams, returnType, parameters, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, methodItems.GenericParameters, methodItems.ReturnType, methodItems.ParameterDeclarations, baseMethod, body);
     }
 
+    // TODO: Make private, move copy to MutableMemberFactoryTest
     public MutableMethodInfo CreateMethod (
         ProxyType declaringType,
         string name,
@@ -519,7 +518,49 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
     }
 
-    public bool IsSet<T> (T actual, T expected)
+    private MethodSignatureItems GetMethodSignatureItems (
+        ProxyType declaringType,
+        IEnumerable<GenericParameterDeclaration> genericParameters,
+        Func<GenericParameterContext, Type> returnTypeProvider,
+        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider)
+    {
+      var genericParameterDeclarations = genericParameters.ConvertToCollection ();
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
+      var genericParams = genericParameterDeclarations
+          .Select ((p, i) => new GenericParameter (memberSelector, i, p.Name, declaringType.Namespace, p.Attributes)).ToList ();
+
+      var genericParameterContext = new GenericParameterContext (genericParams.Cast<Type> ());
+      foreach (var paraAndDecl in genericParams.Zip (genericParameterDeclarations, (p, d) => new { Parameter = p, Declaration = d }))
+      {
+        paraAndDecl.Parameter.SetBaseTypeConstraint (paraAndDecl.Declaration.BaseConstraintProvider (genericParameterContext));
+        paraAndDecl.Parameter.SetInterfaceConstraints (paraAndDecl.Declaration.InterfaceConstraintsProvider (genericParameterContext));
+      }
+
+      var returnType = ProviderUtility.GetNonNullValue (returnTypeProvider, genericParameterContext, "returnTypeProvider");
+      var parameters = ProviderUtility.GetNonNullValue (parameterProvider, genericParameterContext, "parameterProvider").ConvertToCollection ();
+
+      return new MethodSignatureItems (genericParams, returnType, parameters);
+    }
+
+    private MethodInfo GetBaseMethod (ProxyType declaringType, string name, MethodSignature signature, bool isVirtual, bool isNewSlot)
+    {
+      var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
+      if (baseMethod != null)
+        CheckNotFinalForOverride (baseMethod);
+      return baseMethod;
+    }
+
+    private Expression GetMethodBody (
+        ProxyType declaringType, MethodAttributes attributes, Func<MethodBodyCreationContext, Expression> bodyProvider, MethodSignatureItems signatureItems, MethodInfo baseMethod)
+    {
+      var parameterExpressions = signatureItems.ParameterDeclarations.Select (pd => pd.Expression);
+      var isStatic = attributes.IsSet (MethodAttributes.Static);
+      var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, signatureItems.ReturnType, baseMethod, _memberSelector);
+      var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (signatureItems.ReturnType, bodyProvider, context);
+      return body;
+    }
+
+    private bool IsSet<T> (T actual, T expected)
     {
       var f1 = (int) (object) actual;
       var f2 = (int) (object) expected;
