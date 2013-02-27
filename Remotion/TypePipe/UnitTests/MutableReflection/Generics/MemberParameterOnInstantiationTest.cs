@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Initialization_OnTypeInstantation ()
+    public void Initialization_OnTypeInstantiation ()
     {
       var parameter = CustomParameterInfoObjectMother.Create (type: _genericTypeParameter);
 
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void Initialization_OnMethodInstantation ()
+    public void Initialization_OnMethodInstantiation ()
     {
       var parameter = CustomParameterInfoObjectMother.Create (type: _genericMethodParameter);
 
