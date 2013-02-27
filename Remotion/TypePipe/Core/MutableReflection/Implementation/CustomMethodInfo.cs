@@ -160,22 +160,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { throw new NotImplementedException (); }
     }
 
-    public override Type ReflectedType
-    {
-      get { throw new NotImplementedException (); }
-    }
-
-    public override RuntimeMethodHandle MethodHandle
-    {
-      get { throw new NotImplementedException (); }
-    }
-
     public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
-    {
-      throw new NotImplementedException ();
-    }
-
-    public override MethodBody GetMethodBody ()
     {
       throw new NotImplementedException ();
     }
@@ -183,6 +168,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     #endregion
 
     #region Unsupported Members
+
+    public override Type ReflectedType
+    {
+      get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
+    }
 
     public override int MetadataToken
     {
@@ -192,6 +182,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Module Module
     {
       get { throw new NotSupportedException ("Property Module is not supported."); }
+    }
+
+    public override RuntimeMethodHandle MethodHandle
+    {
+      get { throw new NotSupportedException ("Property MethodHandle is not supported."); }
+    }
+
+    public override MethodBody GetMethodBody ()
+    {
+      throw new NotSupportedException ("Method GetMethodBody is not supported.");
     }
 
     public override object Invoke (object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture)

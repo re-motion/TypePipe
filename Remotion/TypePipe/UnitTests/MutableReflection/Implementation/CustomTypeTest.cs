@@ -502,7 +502,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       // None of these virtual members should throw an exception.
       Dev.Null = _customType.MemberType;
-      Dev.Null = _customType.ReflectedType;
       Dev.Null = _customType.IsGenericParameter;
       Dev.Null = CustomTypeObjectMother.Create (isGenericType: false).ContainsGenericParameters;
       Dev.Null = _customType.IsValueType; // IsValueTypeImpl()
@@ -522,6 +521,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void UnsupportedMembers ()
     {
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.ReflectedType, "ReflectedType");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.UnderlyingSystemType, "UnderlyingSystemType");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.MetadataToken, "MetadataToken");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GUID, "GUID");

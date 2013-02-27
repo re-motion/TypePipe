@@ -413,6 +413,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     #region Unsupported Members
 
+    public override Type ReflectedType
+    {
+      get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
+    }
+
     public override Type UnderlyingSystemType
     {
       get { throw new NotSupportedException ("Property UnderlyingSystemType is not supported."); }
