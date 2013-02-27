@@ -18,9 +18,11 @@ using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -30,7 +32,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization ()
     {
-      var genericMethod = ReflectionObjectMother.GetSomeGenericMethod();
+      var parameter = CustomParameterInfoObjectMother.Create();
+      var genericMethod = CustomMethodInfoObjectMother.Create (parameters: new[] { parameter });
       var typeArgument = ReflectionObjectMother.GetSomeType();
 
       var instantiation = new MethodInstantiation (genericMethod, new[] { typeArgument });
@@ -39,6 +42,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (instantiation.Name, Is.EqualTo (genericMethod.Name));
       Assert.That (instantiation.Attributes, Is.EqualTo (genericMethod.Attributes));
       Assert.That (instantiation.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
+
+      var returnParameter = instantiation.ReturnParameter;
+      Assertion.IsNotNull (returnParameter);
+      Assert.That (returnParameter, Is.TypeOf<MemberParameterOnInstantiation>());
+      Assert.That (returnParameter.Member, Is.SameAs (instantiation));
+      Assert.That (returnParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (genericMethod.ReturnParameter));
+
+      var memberParameter = instantiation.GetParameters().Single();
+      Assert.That (memberParameter, Is.TypeOf<MemberParameterOnInstantiation>());
+      Assert.That (memberParameter.Member, Is.SameAs (instantiation));
+      Assert.That (memberParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (parameter));
     }
 
     [Test]

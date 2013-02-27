@@ -23,7 +23,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// Represents a <see cref="ParameterInfo"/> used in members on type instantiations or in method instantiations.
+  /// Represents a <see cref="ParameterInfo"/> used in members on a constructed type or in constructed method.
   /// </summary>
   public class MemberParameterOnInstantiation : CustomParameterInfo
   {

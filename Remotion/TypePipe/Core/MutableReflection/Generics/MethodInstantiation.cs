@@ -34,6 +34,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     private readonly MethodInfo _genericMethodDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
+    private readonly ParameterInfo _returnParameter;
+    private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
     public MethodInstantiation (MethodInfo genericMethodDefinition, IEnumerable<Type> typeArguments)
         : base (
@@ -46,10 +48,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
 
-      //_returnParameter = new ParameterOnMethodInstantiation (this, _genericMethodDefinition.ReturnParameter);
-      //_parameters = _genericMethodDefinition
-      //    .GetParameters ()
-      //    .Select (p => new ParameterOnMethodInstantiation (this, p)).Cast<ParameterInfo> ().ToList ().AsReadOnly ();
+      _returnParameter = new MemberParameterOnInstantiation (this, _genericMethodDefinition.ReturnParameter);
+      _parameters = _genericMethodDefinition
+          .GetParameters ()
+          .Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo> ().ToList ().AsReadOnly ();
     }
 
     public override MethodInfo GetGenericMethodDefinition ()
@@ -59,12 +61,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public Type SubstituteGenericParameters (Type type)
     {
-      throw new NotImplementedException();
+      // TODO 5443
+      return type;
     }
 
     public override ParameterInfo ReturnParameter
     {
-      get { throw new NotImplementedException(); }
+      get { return _returnParameter; }
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -84,7 +87,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override ParameterInfo[] GetParameters ()
     {
-      throw new NotImplementedException();
+      return _parameters.ToArray();
     }
   }
 }

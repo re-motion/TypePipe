@@ -41,22 +41,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var parameter = CustomParameterInfoObjectMother.Create();
       var method = CustomMethodInfoObjectMother.Create (_declaringType, parameters: new[] { parameter });
 
-      var result = new MethodOnTypeInstantiation (_declaringType, method);
+      var instantiation = new MethodOnTypeInstantiation (_declaringType, method);
 
-      Assert.That (result.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (result.Name, Is.EqualTo (method.Name));
-      Assert.That (result.Attributes, Is.EqualTo (method.Attributes));
-      Assert.That (result.MethodOnGenericType, Is.SameAs (method));
+      Assert.That (instantiation.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (instantiation.Name, Is.EqualTo (method.Name));
+      Assert.That (instantiation.Attributes, Is.EqualTo (method.Attributes));
+      Assert.That (instantiation.MethodOnGenericType, Is.SameAs (method));
 
-      var returnParameter = result.ReturnParameter;
+      var returnParameter = instantiation.ReturnParameter;
       Assertion.IsNotNull (returnParameter);
       Assert.That (returnParameter, Is.TypeOf<MemberParameterOnInstantiation>());
-      Assert.That (returnParameter.Member, Is.SameAs (result));
+      Assert.That (returnParameter.Member, Is.SameAs (instantiation));
       Assert.That (returnParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (method.ReturnParameter));
 
-      var memberParameter = result.GetParameters().Single();
+      var memberParameter = instantiation.GetParameters().Single();
       Assert.That (memberParameter, Is.TypeOf<MemberParameterOnInstantiation>());
-      Assert.That (memberParameter.Member, Is.SameAs (result));
+      Assert.That (memberParameter.Member, Is.SameAs (instantiation));
       Assert.That (memberParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (parameter));
     }
 
