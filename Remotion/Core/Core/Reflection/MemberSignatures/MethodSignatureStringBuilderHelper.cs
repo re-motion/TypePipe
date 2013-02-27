@@ -32,9 +32,9 @@ namespace Remotion.Reflection.MemberSignatures
   /// of signature strings to member signatures is only guaranteed for members that adhere to these assumptions.
   /// </para>
   /// </remarks>
-  public class MethodSignatureStringBuilderHelper
+  public class MethodSignatureStringBuilderHelper : IMethodSignatureStringBuilderHelper
   {
-    public void AppendTypeString (StringBuilder sb, Type type)
+    public virtual void AppendTypeString (StringBuilder sb, Type type)
     {
       ArgumentUtility.CheckNotNull ("sb", sb);
       ArgumentUtility.CheckNotNull ("type", type);
@@ -70,7 +70,7 @@ namespace Remotion.Reflection.MemberSignatures
       }
     }
 
-    public void AppendSeparatedTypeStrings (StringBuilder sb, IEnumerable<Type> types)
+    public virtual void AppendSeparatedTypeStrings (StringBuilder sb, IEnumerable<Type> types)
     {
       ArgumentUtility.CheckNotNull ("sb", sb);
       ArgumentUtility.CheckNotNull ("types", types);

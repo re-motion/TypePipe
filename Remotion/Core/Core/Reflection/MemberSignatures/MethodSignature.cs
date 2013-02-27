@@ -41,7 +41,7 @@ namespace Remotion.Reflection.MemberSignatures
   /// </remarks>
   public class MethodSignature : IMemberSignature, IEquatable<MethodSignature>
   {
-    private static readonly MethodSignatureStringBuilderHelper s_helper = new MethodSignatureStringBuilderHelper();
+    private static readonly IMethodSignatureStringBuilderHelper s_helper = new MethodSignatureStringBuilderHelper();
 
     public static MethodSignature Create (MethodBase methodBase)
     {
