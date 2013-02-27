@@ -21,6 +21,7 @@ using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using System.Linq;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -34,6 +35,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<ParameterInfo> parameters = null,
         MethodInfo baseDefinition = null,
         IEnumerable<ICustomAttributeData> customAttributes = null,
+        bool isGenericMethod = false,
+        MethodInfo genericMethodDefintion = null,
         IEnumerable<Type> typeArguments = null)
     {
       declaringType = declaringType ?? CustomTypeObjectMother.Create();
@@ -41,15 +44,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       parameters = parameters ?? new ParameterInfo[0];
       // Base definition stays null.
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
+      Assertion.IsTrue (typeArguments == null || (typeArguments != null && isGenericMethod));
+      Assertion.IsTrue (genericMethodDefintion == null || (genericMethodDefintion != null && isGenericMethod));
       typeArguments = typeArguments ?? Type.EmptyTypes;
 
-      return new TestableCustomMethodInfo (declaringType, name, attributes)
+      return new TestableCustomMethodInfo (declaringType, name, attributes, isGenericMethod, genericMethodDefintion, typeArguments)
              {
                  ReturnParameter_ = returnParameter,
                  Parameters = parameters.ToArray(),
                  BaseDefinition = baseDefinition,
-                 CustomAttributeDatas = customAttributes.ToArray(),
-                 TypeArguments = typeArguments.ToArray()
+                 CustomAttributeDatas = customAttributes.ToArray()
              };
     }
   }

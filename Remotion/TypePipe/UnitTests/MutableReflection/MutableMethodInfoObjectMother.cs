@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
@@ -45,9 +46,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       parameters = parameters ?? ParameterDeclaration.None;
       // baseMethod stays null.
       body = body == null && !attributes.IsSet (MethodAttributes.Abstract) ? ExpressionTreeObjectMother.GetSomeExpression (returnType) : body;
-      genericParameters = genericParameters ?? new GenericParameter[0];
+      var genericParas = (genericParameters ?? new GenericParameter[0]).ToList();
 
-      return new MutableMethodInfo (declaringType, name, attributes, genericParameters, returnType, parameters, baseMethod, body);
+      return new MutableMethodInfo (declaringType, name, attributes, genericParas, returnType, parameters, baseMethod, body);
     }
   }
 }

@@ -17,10 +17,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -35,22 +37,37 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly Type _declaringType;
     private readonly string _name;
     private readonly MethodAttributes _attributes;
+    private readonly bool _isGenericMethod;
+    private readonly MethodInfo _genericMethodDefinition;
+    private readonly ReadOnlyCollection<Type> _typeArguments;
 
-    protected CustomMethodInfo (Type declaringType, string name, MethodAttributes attributes)
+    protected CustomMethodInfo (
+        Type declaringType,
+        string name,
+        MethodAttributes attributes,
+        bool isGenericMethod,
+        MethodInfo genericMethodDefinition,
+        IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Generic method definition may be null (for non-generic methods and generic method definitions).
+      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      //Assertion.IsTrue (typeArguments == null || (typeArguments != null && genericMethodDefinition != null));
 
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
+      _isGenericMethod = isGenericMethod;
+      _genericMethodDefinition = genericMethodDefinition;
+      _typeArguments = typeArguments.ToList().AsReadOnly();
     }
 
     public abstract override ParameterInfo ReturnParameter { get; }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
-    public abstract override Type[] GetGenericArguments ();
     public abstract override ParameterInfo[] GetParameters ();
+
     public abstract override MethodInfo GetBaseDefinition ();
 
     public override Type DeclaringType
@@ -91,28 +108,30 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override bool IsGenericMethod
     {
-      // TODO 5443: Adapt.
-      get { return IsGenericMethodDefinition; }
+      get { return _isGenericMethod; }
     }
 
     public override bool IsGenericMethodDefinition
     {
-      get { return GetGenericArguments().Length != 0; }
+      get { return _isGenericMethod && _genericMethodDefinition == null; }
     }
 
-    // TODO 5443: Remove or adapt.
     public override bool ContainsGenericParameters
     {
-      get { return GetGenericArguments().Length != 0; }
+      get { return _typeArguments.Any (g => g.IsGenericParameter); }
     }
 
     public override MethodInfo GetGenericMethodDefinition ()
     {
-      // TODO 5443: Adapt.
-      if (IsGenericMethodDefinition)
-        return this;
-      else
+      if (!_isGenericMethod)
         throw new InvalidOperationException ("GetGenericMethodDefinition can only be called on generic methods (IsGenericMethod must be true).");
+
+      return _genericMethodDefinition ?? this;
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      return _typeArguments.ToArray();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

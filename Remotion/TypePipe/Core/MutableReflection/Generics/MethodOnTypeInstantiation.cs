@@ -35,13 +35,17 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
     public MethodOnTypeInstantiation (TypeInstantiation declaringType, MethodInfo method)
-        : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes)
+        : base (
+            declaringType,
+            ArgumentUtility.CheckNotNull ("method", method).Name,
+            method.Attributes,
+            method.IsGenericMethod,
+            method.IsGenericMethod ? method.GetGenericMethodDefinition() : null,
+            method.GetGenericArguments())
     {
       _method = method;
       _returnParameter = new MemberParameterOnInstantiation (this, method.ReturnParameter);
-      _parameters = method
-          .GetParameters()
-          .Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
+      _parameters = method.GetParameters().Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
     public MethodInfo MethodOnGenericType
@@ -58,13 +62,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       return TypePipeCustomAttributeData.GetCustomAttributes (_method);
     }
-
-    public override Type[] GetGenericArguments ()
-    {
-      // TODO 5440:
-      return Type.EmptyTypes;
-    }
-
+    
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();

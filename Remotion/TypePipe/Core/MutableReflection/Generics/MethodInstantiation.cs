@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -32,8 +31,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   // TODO <remarks>Instances of this class are returned by <see cref="MutableMethodInfo.MakeGenericMethod"/>.</remarks>
   public class MethodInstantiation : CustomMethodInfo
   {
-    private readonly MethodInfo _genericMethodDefinition;
-    private readonly ReadOnlyCollection<Type> _typeArguments;
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
 
@@ -41,22 +38,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         : base (
             ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition).DeclaringType,
             genericMethodDefinition.Name,
-            genericMethodDefinition.Attributes)
+            genericMethodDefinition.Attributes,
+            true,
+            genericMethodDefinition,
+            ArgumentUtility.CheckNotNull ("typeArguments", typeArguments))
     {
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      Assertion.IsTrue (genericMethodDefinition.IsGenericMethodDefinition);
 
-      _genericMethodDefinition = genericMethodDefinition;
-      _typeArguments = typeArguments.ToList().AsReadOnly();
-
-      _returnParameter = new MemberParameterOnInstantiation (this, _genericMethodDefinition.ReturnParameter);
-      _parameters = _genericMethodDefinition
-          .GetParameters ()
-          .Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo> ().ToList ().AsReadOnly ();
-    }
-
-    public override MethodInfo GetGenericMethodDefinition ()
-    {
-      throw new NotImplementedException();
+      _returnParameter = new MemberParameterOnInstantiation (this, genericMethodDefinition.ReturnParameter);
+      _parameters = genericMethodDefinition
+          .GetParameters().Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
     public Type SubstituteGenericParameters (Type type)
@@ -72,22 +63,17 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return TypePipeCustomAttributeData.GetCustomAttributes (_genericMethodDefinition);
-    }
-
-    public override MethodInfo GetBaseDefinition ()
-    {
-      throw new NotImplementedException();
-    }
-
-    public override Type[] GetGenericArguments ()
-    {
-      return _typeArguments.ToArray();
+      return TypePipeCustomAttributeData.GetCustomAttributes (GetGenericMethodDefinition());
     }
 
     public override ParameterInfo[] GetParameters ()
     {
       return _parameters.ToArray();
+    }
+
+    public override MethodInfo GetBaseDefinition ()
+    {
+      throw new NotImplementedException();
     }
   }
 }

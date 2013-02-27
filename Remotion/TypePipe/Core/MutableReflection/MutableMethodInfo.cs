@@ -35,7 +35,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableMethodInfo : CustomMethodInfo, IMutableMethodBase
   {
-    private readonly ReadOnlyCollection<GenericParameter> _genericParameters;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
@@ -50,12 +49,18 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        IEnumerable<GenericParameter> genericParameters,
+        ICollection<GenericParameter> genericParameters,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,
         Expression body)
-        : base (declaringType, name, attributes)
+        : base (
+            declaringType,
+            name,
+            attributes,
+            ArgumentUtility.CheckNotNull ("genericParameters", genericParameters).Count > 0,
+            null,
+            genericParameters.Cast<Type>())
     {
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameters", parameters);
@@ -63,9 +68,10 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
       Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
 
-      var paras = parameters.ConvertToCollection();
+      foreach (var genericParameter in genericParameters)
+        genericParameter.InitializeDeclaringMember (this);
 
-      _genericParameters = genericParameters.ApplySideEffect (g => g.InitializeDeclaringMember (this)).ToList().AsReadOnly();
+      var paras = parameters.ConvertToCollection();
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
@@ -141,11 +147,6 @@ namespace Remotion.TypePipe.MutableReflection
     public ReadOnlyCollectionDecorator<MethodInfo> AddedExplicitBaseDefinitions
     {
       get { return _addedExplicitBaseDefinitions.AsReadOnly (); }
-    }
-
-    public override Type[] GetGenericArguments ()
-    {
-      return _genericParameters.Cast<Type>().ToArray();
     }
 
     public override ParameterInfo[] GetParameters ()
