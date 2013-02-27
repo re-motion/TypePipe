@@ -32,11 +32,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomMethodInfo : MethodInfo, ICustomAttributeDataProvider
   {
-    private readonly CustomType _declaringType;
+    private readonly Type _declaringType;
     private readonly string _name;
     private readonly MethodAttributes _attributes;
 
-    protected CustomMethodInfo (CustomType declaringType, string name, MethodAttributes attributes)
+    protected CustomMethodInfo (Type declaringType, string name, MethodAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

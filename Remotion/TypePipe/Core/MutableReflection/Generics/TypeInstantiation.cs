@@ -29,7 +29,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// Represents a constructed generic type, i.e., a generic type definition that was instantiated with type arguments.
+  /// Represents a constructed generic <see cref="Type"/>, i.e., a generic type definition that was instantiated with type arguments.
   /// This class is needed because the the original reflection classes do not work in combination with <see cref="CustomType"/> instances.
   /// </summary>
   /// <remarks>Instances of this class are returned by <see cref="TypeExtensions.MakeTypePipeGenericType"/>.</remarks>

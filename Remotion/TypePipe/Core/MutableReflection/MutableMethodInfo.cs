@@ -155,7 +155,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo GetBaseDefinition ()
     {
-      return BaseMethod != null ? BaseMethod.GetBaseDefinition() : this;
+      return _baseMethod != null ? _baseMethod.GetBaseDefinition() : this;
     }
 
     /// <summary>
