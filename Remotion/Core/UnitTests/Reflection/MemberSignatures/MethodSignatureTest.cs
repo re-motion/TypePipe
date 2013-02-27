@@ -17,10 +17,12 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
+using Rhino.Mocks;
 
 namespace Remotion.UnitTests.Reflection.MemberSignatures
 {
@@ -68,6 +70,21 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     {
       var method = _genericMethod1.MakeGenericMethod (typeof (int), typeof (int));
       MethodSignature.Create (method);
+    }
+
+    [Test]
+    public void Initialization_UsesInjectedSignatureBuilder ()
+    {
+      var returnType = typeof (int);
+      var parameterTypes = new[] { typeof (double) };
+      var signatureBuilderMock = MockRepository.GenerateStrictMock<IMethodSignatureStringBuilderHelper>();
+      signatureBuilderMock.Expect (mock => mock.AppendTypeString (Arg<StringBuilder>.Is.Anything, Arg.Is (returnType)));
+      signatureBuilderMock.Expect (mock => mock.AppendSeparatedTypeStrings (Arg<StringBuilder>.Is.Anything, Arg.Is (parameterTypes)));
+      var signature = new MethodSignature (returnType, parameterTypes, 0, signatureBuilderMock);
+
+      Dev.Null = signature.ToString();
+
+      signatureBuilderMock.VerifyAllExpectations();
     }
 
     [Test]

@@ -79,15 +79,27 @@ namespace Remotion.Reflection.MemberSignatures
     private readonly Type _returnType;
     private readonly IEnumerable<Type> _parameterTypes;
     private readonly int _genericParameterCount;
+    private readonly IMethodSignatureStringBuilderHelper _signatureBuilder;
 
-    public MethodSignature (Type returnType, IEnumerable<Type> parameterTypes, int genericParameterCount)
+    public MethodSignature (
+        Type returnType,
+        IEnumerable<Type> parameterTypes,
+        int genericParameterCount,
+        IMethodSignatureStringBuilderHelper methodSignatureStringBuilderHelper)
     {
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull ("methodSignatureStringBuilderHelper", methodSignatureStringBuilderHelper);
 
       _returnType = returnType;
       _parameterTypes = parameterTypes;
       _genericParameterCount = genericParameterCount;
+      _signatureBuilder = methodSignatureStringBuilderHelper;
+    }
+
+    public MethodSignature (Type returnType, IEnumerable<Type> parameterTypes, int genericParameterCount)
+        : this (returnType, parameterTypes, genericParameterCount, s_helper)
+    {
     }
 
     public Type ReturnType
@@ -109,10 +121,10 @@ namespace Remotion.Reflection.MemberSignatures
     {
       var sb = new StringBuilder ();
 
-      s_helper.AppendTypeString (sb, ReturnType);
+      _signatureBuilder.AppendTypeString (sb, ReturnType);
 
       sb.Append ("(");
-      s_helper.AppendSeparatedTypeStrings (sb, ParameterTypes);
+      _signatureBuilder.AppendSeparatedTypeStrings (sb, ParameterTypes);
       sb.Append (")");
 
       if (GenericParameterCount > 0)
