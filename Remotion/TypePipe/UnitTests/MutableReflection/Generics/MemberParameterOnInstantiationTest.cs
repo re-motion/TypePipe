@@ -68,7 +68,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result.ParameterType, Is.SameAs (_typeArgument));
     }
 
-    [Ignore ("TODO 5443")]
     [Test]
     public void Initialization_OnMethodInstantation ()
     {
