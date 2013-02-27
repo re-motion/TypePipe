@@ -186,11 +186,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
       var baseMethod = GetBaseMethod (declaringType, name, signature, isVirtual, isNewSlot);
-      // TODO : if it is an implicit baseMethod override, it needs more public visibility
+      // TODO : if it is an implicit baseMethod override, it needs at least the same ore more public visibility
 
       var body = GetMethodBody (declaringType, attributes, bodyProvider, methodItems, baseMethod);
 
-      return new MutableMethodInfo (declaringType, name, attributes, methodItems.GenericParameters, methodItems.ReturnType, methodItems.ParameterDeclarations, baseMethod, body);
+      return new MutableMethodInfo (
+          declaringType, name, attributes, methodItems.GenericParameters, methodItems.ReturnType, methodItems.ParameterDeclarations, baseMethod, body);
     }
 
     // TODO: Make private, move copy to MutableMemberFactoryTest
