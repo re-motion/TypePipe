@@ -48,6 +48,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
     }
 
+    private static readonly IMethodSignatureStringBuilderHelper s_methodSignatureStringBuilderHelper =
+        new GenericParameterCompatibleMethodSignatureStringBuilderHelper();
+
     private static readonly FieldAttributes[] s_invalidFieldAttributes =
         new[]
         {
@@ -174,8 +177,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var methodItems = GetMethodSignatureItems (declaringType, genericParameters, returnTypeProvider, parameterProvider);
 
-      //var signature = new MethodSignature (MethodSignatureItems.ReturnType, MethodSignatureItems.ParameterDeclarations.Select (pd => pd.Type), genericParams.Count);
-      var signature = new MethodSignature (methodItems.ReturnType, methodItems.ParameterDeclarations.Select (pd => pd.Type), genericParameterCount: 0);
+      var signature = new MethodSignature (
+          methodItems.ReturnType,
+          methodItems.ParameterDeclarations.Select (pd => pd.Type),
+          methodItems.GenericParameters.Count,
+          s_methodSignatureStringBuilderHelper);
       if (declaringType.AddedMethods.Any (m => m.Name == name && MethodSignature.Create (m).Equals (signature)))
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 

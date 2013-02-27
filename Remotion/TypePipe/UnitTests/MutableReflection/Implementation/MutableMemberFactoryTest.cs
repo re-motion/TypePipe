@@ -494,7 +494,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
     }
 
-    [Ignore ("TODO 5440")]
     [Test]
     public void CreateMethod_ThrowsIfAlreadyExists_Generic ()
     {
