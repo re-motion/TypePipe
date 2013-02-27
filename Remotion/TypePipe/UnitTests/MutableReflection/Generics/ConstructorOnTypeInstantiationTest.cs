@@ -48,9 +48,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result.ConstructorOnGenericType, Is.SameAs (ctor));
 
       var memberParameter = result.GetParameters().Single();
-      Assert.That (memberParameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
+      Assert.That (memberParameter, Is.TypeOf<MemberParameterOnInstantiation>());
       Assert.That (memberParameter.Member, Is.SameAs (result));
-      Assert.That (memberParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (parameter));
+      Assert.That (memberParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (parameter));
     }
 
     [Test]

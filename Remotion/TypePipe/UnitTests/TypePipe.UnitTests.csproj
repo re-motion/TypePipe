@@ -113,6 +113,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBaseBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
+    <Compile Include="MutableReflection\Generics\MethodInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelperTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
@@ -128,7 +129,7 @@
     <Compile Include="MutableReflection\Generics\GenericParameterObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\GenericParameterTest.cs" />
     <Compile Include="MutableReflection\Generics\InstantiationInfoTest.cs" />
-    <Compile Include="MutableReflection\Generics\MemberParameterOnTypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\MemberParameterOnInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\PropertyOnTypeInstantiationTest.cs" />

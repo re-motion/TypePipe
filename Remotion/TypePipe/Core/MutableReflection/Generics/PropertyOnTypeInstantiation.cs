@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         : base (declaringType, property.Name, property.Attributes, getMethod, setMethod)
     {
       _property = property;
-      _indexParameters = property.GetIndexParameters().Select (p => new MemberParameterOnTypeInstantiation (this, p))
+      _indexParameters = property.GetIndexParameters().Select (p => new MemberParameterOnInstantiation (this, p))
           .Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 

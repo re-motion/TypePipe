@@ -50,14 +50,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       var returnParameter = result.ReturnParameter;
       Assertion.IsNotNull (returnParameter);
-      Assert.That (returnParameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
+      Assert.That (returnParameter, Is.TypeOf<MemberParameterOnInstantiation>());
       Assert.That (returnParameter.Member, Is.SameAs (result));
-      Assert.That (returnParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (method.ReturnParameter));
+      Assert.That (returnParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (method.ReturnParameter));
 
       var memberParameter = result.GetParameters().Single();
-      Assert.That (memberParameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
+      Assert.That (memberParameter, Is.TypeOf<MemberParameterOnInstantiation>());
       Assert.That (memberParameter.Member, Is.SameAs (result));
-      Assert.That (memberParameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (parameter));
+      Assert.That (memberParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (parameter));
     }
 
     [Test]

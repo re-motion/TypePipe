@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _constructor = constructor;
       _parameters = constructor
           .GetParameters()
-          .Select (p => new MemberParameterOnTypeInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
+          .Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
     public ConstructorInfo ConstructorOnGenericType

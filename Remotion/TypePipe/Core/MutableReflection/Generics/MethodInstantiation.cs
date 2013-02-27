@@ -45,6 +45,21 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
+
+      //_returnParameter = new ParameterOnMethodInstantiation (this, _genericMethodDefinition.ReturnParameter);
+      //_parameters = _genericMethodDefinition
+      //    .GetParameters ()
+      //    .Select (p => new ParameterOnMethodInstantiation (this, p)).Cast<ParameterInfo> ().ToList ().AsReadOnly ();
+    }
+
+    public override MethodInfo GetGenericMethodDefinition ()
+    {
+      throw new NotImplementedException();
+    }
+
+    public Type SubstituteGenericParameters (Type type)
+    {
+      throw new NotImplementedException();
     }
 
     public override ParameterInfo ReturnParameter

@@ -69,11 +69,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var originalParameter = _originalProperty.GetIndexParameters().Single();
       var parameter = _property.GetIndexParameters().Single();
 
-      Assert.That (parameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
+      Assert.That (parameter, Is.TypeOf<MemberParameterOnInstantiation>());
       Assert.That (parameter.Name, Is.EqualTo (originalParameter.Name));
       Assert.That (parameter.Member, Is.SameAs (_property));
-      Assert.That (parameter, Is.TypeOf<MemberParameterOnTypeInstantiation>());
-      Assert.That (parameter.As<MemberParameterOnTypeInstantiation>().MemberParameterOnGenericType, Is.SameAs (originalParameter));
+      Assert.That (parameter, Is.TypeOf<MemberParameterOnInstantiation>());
+      Assert.That (parameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (originalParameter));
     }
 
     [Test]

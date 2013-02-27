@@ -26,46 +26,70 @@ using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
-  public class MemberParameterOnTypeInstantiationTest
+  public class MemberParameterOnInstantiationTest
   {
-    private Type _typeParameter;
     private Type _typeArgument;
+    
+    private Type _genericTypeParameter;
     private TypeInstantiation _declaringType;
-    private MemberInfo _declaringMember;
+    private MemberInfo _memberOnTypeInstantiation;
+
+    private Type _genericMethodParameter;
+    private MethodInstantiation _methodInstantiation;
+
 
     [SetUp]
     public void SetUp ()
     {
-      _typeParameter = typeof (GenericType<>).GetGenericArguments().Single();
-      _typeArgument = ReflectionObjectMother.GetSomeType();
-      _declaringType = TypeInstantiationObjectMother.Create (typeof (GenericType<>), new[] { _typeArgument });
-      _declaringMember = MethodOnTypeInstantiationObjectMother.Create (_declaringType);
+      _typeArgument = ReflectionObjectMother.GetSomeType ();
+
+      var genericTypeDefinition = typeof (GenericType<>);
+      _genericTypeParameter = genericTypeDefinition.GetGenericArguments().Single();
+      _declaringType = TypeInstantiationObjectMother.Create (genericTypeDefinition, new[] { _typeArgument });
+      _memberOnTypeInstantiation = MethodOnTypeInstantiationObjectMother.Create (_declaringType);
+
+      var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => GenericMethod<Dev.T>());
+      _genericMethodParameter = genericMethodDefinition.GetGenericArguments().Single();
+      _methodInstantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition, typeArguments: new[] { _typeArgument });
     }
 
     [Test]
-    public void Initialization ()
+    public void Initialization_OnTypeInstantation ()
     {
-      var parameter = CustomParameterInfoObjectMother.Create (_declaringMember, type: _typeParameter);
+      var parameter = CustomParameterInfoObjectMother.Create (type: _genericTypeParameter);
 
-      var result = new MemberParameterOnTypeInstantiation (_declaringMember, parameter);
+      var result = new MemberParameterOnInstantiation (_memberOnTypeInstantiation, parameter);
 
-      Assert.That (result.Member, Is.SameAs (_declaringMember));
+      Assert.That (result.Member, Is.SameAs (_memberOnTypeInstantiation));
+      Assert.That (result.MemberParameterOnGenericDefinition, Is.SameAs (parameter));
       Assert.That (result.Position, Is.EqualTo (parameter.Position));
       Assert.That (result.Name, Is.EqualTo (parameter.Name));
       Assert.That (result.Attributes, Is.EqualTo (parameter.Attributes));
       Assert.That (result.ParameterType, Is.SameAs (_typeArgument));
-      Assert.That (result.MemberParameterOnGenericType, Is.SameAs (parameter));
+    }
+
+    [Ignore ("TODO 5443")]
+    [Test]
+    public void Initialization_OnMethodInstantation ()
+    {
+      var parameter = CustomParameterInfoObjectMother.Create (type: _genericMethodParameter);
+
+      var result = new MemberParameterOnInstantiation (_methodInstantiation, parameter);
+
+      Assert.That (result.Member, Is.SameAs (_methodInstantiation));
+      Assert.That (result.MemberParameterOnGenericDefinition, Is.SameAs (parameter));
+      Assert.That (result.ParameterType, Is.SameAs (_typeArgument));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "MemberParameterOnTypeInstantiation can only created with members of TypeInstantiation.\r\nParameter name: declaringMember")]
+        "MemberParameterOnInstantiation can only created with members of TypeInstantiation.\r\nParameter name: declaringMember")]
     public void Initialization_NonTypeInstantiationMember ()
     {
       var member = ReflectionObjectMother.GetSomeMember();
       var parameter = ReflectionObjectMother.GetSomeParameter();
 
-      Dev.Null = new MemberParameterOnTypeInstantiation (member, parameter);
+      Dev.Null = new MemberParameterOnInstantiation (member, parameter);
     }
 
     [Test]
@@ -75,11 +99,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var member = MethodOnTypeInstantiationObjectMother.Create();
       var parameter = CustomParameterInfoObjectMother.Create (member, customAttributes: customAttributes);
 
-      var parameterInstantiation = new MemberParameterOnTypeInstantiation (member, parameter);
+      var parameterInstantiation = new MemberParameterOnInstantiation (member, parameter);
 
       Assert.That (parameterInstantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
     }
 
     class GenericType<T> { }
+    public void GenericMethod<T> () { }
   }
 }

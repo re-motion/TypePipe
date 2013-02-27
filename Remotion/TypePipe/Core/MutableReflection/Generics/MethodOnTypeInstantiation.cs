@@ -38,10 +38,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         : base (declaringType, ArgumentUtility.CheckNotNull ("method", method).Name, method.Attributes)
     {
       _method = method;
-      _returnParameter = new MemberParameterOnTypeInstantiation (this, method.ReturnParameter);
+      _returnParameter = new MemberParameterOnInstantiation (this, method.ReturnParameter);
       _parameters = method
           .GetParameters()
-          .Select (p => new MemberParameterOnTypeInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
+          .Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
     public MethodInfo MethodOnGenericType

@@ -27,12 +27,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   {
     public static TypeInstantiation Create (
         Type genericTypeDefinition = null,
-        Type[] typeArguments = null,
+        IEnumerable<Type> typeArguments = null,
         Dictionary<InstantiationInfo, TypeInstantiation> instantiationContext = null,
         IMemberSelector memberSelector = null)
     {
       genericTypeDefinition = genericTypeDefinition ?? typeof (MyGenericType<>);
-      typeArguments = typeArguments ?? genericTypeDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType()).ToArray();
+      typeArguments = typeArguments ?? genericTypeDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType());
       var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
       instantiationContext = instantiationContext ?? new Dictionary<InstantiationInfo, TypeInstantiation>();
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());

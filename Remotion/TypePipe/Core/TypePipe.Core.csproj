@@ -165,7 +165,7 @@
     <Compile Include="MutableReflection\Generics\GenericParameter.cs" />
     <Compile Include="MutableReflection\Generics\GenericParameterDefaultConstructor.cs" />
     <Compile Include="MutableReflection\Generics\InstantiationInfo.cs" />
-    <Compile Include="MutableReflection\Generics\MemberParameterOnTypeInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\MemberParameterOnInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\PropertyOnTypeInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiation.cs" />

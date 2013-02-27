@@ -23,37 +23,41 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// Represents a parameter used in a member on a constructed type.
+  /// Represents a <see cref="ParameterInfo"/> used in members on type instantiations or in method instantiations.
   /// </summary>
-  public class MemberParameterOnTypeInstantiation : CustomParameterInfo
+  public class MemberParameterOnInstantiation : CustomParameterInfo
   {
     private static Type Substitute (MemberInfo declaringMember, Type parameterType)
     {
-      var declaringType = declaringMember.DeclaringType as TypeInstantiation;
-      if (declaringType == null)
+      var methodInstantiation = declaringMember as MethodInstantiation;
+      var typeInstantation = declaringMember.DeclaringType as TypeInstantiation;
+
+      if (methodInstantiation == null && typeInstantation == null)
       {
         var message = string.Format (
-            "{0} can only created with members of {1}.", typeof (MemberParameterOnTypeInstantiation).Name, typeof (TypeInstantiation).Name);
+            "{0} can only created with members of {1}.", typeof (MemberParameterOnInstantiation).Name, typeof (TypeInstantiation).Name);
         throw new ArgumentException (message, "declaringMember");
       }
 
-      return declaringType.SubstituteGenericParameters (parameterType);
+      return methodInstantiation != null
+                 ? methodInstantiation.SubstituteGenericParameters (parameterType)
+                 : typeInstantation.SubstituteGenericParameters (parameterType);
     }
 
     private readonly ParameterInfo _parameter;
 
-    public MemberParameterOnTypeInstantiation (MemberInfo declaringMember, ParameterInfo parameter)
+    public MemberParameterOnInstantiation (MemberInfo declaringMember, ParameterInfo parameter)
         : base (
-            declaringMember,
+            ArgumentUtility.CheckNotNull ("declaringMember", declaringMember),
             ArgumentUtility.CheckNotNull ("parameter", parameter).Position,
             parameter.Name,
-            Substitute (ArgumentUtility.CheckNotNull ("declaringMember", declaringMember), parameter.ParameterType),
+            Substitute (declaringMember, parameter.ParameterType),
             parameter.Attributes)
     {
       _parameter = parameter;
     }
 
-    public ParameterInfo MemberParameterOnGenericType
+    public ParameterInfo MemberParameterOnGenericDefinition
     {
       get { return _parameter; }
     }
