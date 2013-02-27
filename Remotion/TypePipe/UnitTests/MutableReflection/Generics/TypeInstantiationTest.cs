@@ -40,11 +40,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private CustomType _outerCustomType;
     private CustomType _customType;
     private Type[] _typeArguments;
-    private Type _runtimeType;
-    private Type[] _typeArgumentsWithRuntimeType;
 
     private TypeInstantiation _instantiation;
-    private TypeInstantiation _instantiationWithRuntimeType;
 
     [SetUp]
     public void SetUp ()
@@ -55,14 +52,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _outerCustomType = CustomTypeObjectMother.Create (fullName: "MyNs.OuterTypeArg");
       _customType = CustomTypeObjectMother.Create (fullName: "MyNs.InnerTypeArg");
       _typeArguments = new Type[] { _outerCustomType, _customType };
-      _runtimeType = ReflectionObjectMother.GetSomeType();
-      _typeArgumentsWithRuntimeType = new[] { _runtimeType, _runtimeType };
 
-      var info1 = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
-      var info2 = new InstantiationInfo (_genericTypeDefinition, _typeArgumentsWithRuntimeType);
-
-      _instantiation = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
-      _instantiationWithRuntimeType = new TypeInstantiation (_memberSelector, info2, CreateInstantiationContext());
+      var info = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
+      _instantiation = new TypeInstantiation (_memberSelector, info, CreateInstantiationContext());
     }
 
     [Test]
@@ -242,7 +234,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SubstituteGenericParameters_NonGenericType ()
     {
       var nonGeneric = ReflectionObjectMother.GetSomeNonGenericType();
-      var result = _instantiationWithRuntimeType.SubstituteGenericParameters (nonGeneric);
+      var result = _instantiation.SubstituteGenericParameters (nonGeneric);
 
       Assert.That (result, Is.SameAs (nonGeneric));
     }

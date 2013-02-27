@@ -15,45 +15,61 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
   public class MethodInstantiationTest
   {
+    private Type _typeParameter;
+    private CustomParameterInfo _parameter;
+    private CustomMethodInfo _genericMethodDefinition;
+    private Type _typeArgument;
+
+    private MethodInstantiation _instantiation;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _typeParameter = GenericParameterObjectMother.Create();
+      _parameter = CustomParameterInfoObjectMother.Create ();
+      _genericMethodDefinition = CustomMethodInfoObjectMother.Create (
+          parameters: new[] { _parameter }, isGenericMethod: true, typeArguments: new[] { _typeParameter });
+      _typeArgument = CustomTypeObjectMother.Create();
+
+      _instantiation = new MethodInstantiation (_genericMethodDefinition, new[] { _typeArgument });
+    }
+
     [Test]
     public void Initialization ()
     {
-      var parameter = CustomParameterInfoObjectMother.Create();
-      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (isGenericMethod: true, parameters: new[] { parameter });
-      var typeArgument = ReflectionObjectMother.GetSomeType();
+      Assert.That (_instantiation.DeclaringType, Is.SameAs (_genericMethodDefinition.DeclaringType));
+      Assert.That (_instantiation.Name, Is.EqualTo (_genericMethodDefinition.Name));
+      Assert.That (_instantiation.Attributes, Is.EqualTo (_genericMethodDefinition.Attributes));
+      Assert.That (_instantiation.IsGenericMethod, Is.True);
+      Assert.That (_instantiation.GetGenericMethodDefinition(), Is.SameAs (_genericMethodDefinition));
+      Assert.That (_instantiation.GetGenericArguments(), Is.EqualTo (new[] { _typeArgument }));
 
-      var instantiation = new MethodInstantiation (genericMethodDefinition, new[] { typeArgument });
-
-      Assert.That (instantiation.DeclaringType, Is.SameAs (genericMethodDefinition.DeclaringType));
-      Assert.That (instantiation.Name, Is.EqualTo (genericMethodDefinition.Name));
-      Assert.That (instantiation.Attributes, Is.EqualTo (genericMethodDefinition.Attributes));
-      Assert.That (instantiation.IsGenericMethod, Is.True);
-      Assert.That (instantiation.GetGenericMethodDefinition(), Is.SameAs (genericMethodDefinition));
-      Assert.That (instantiation.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
-
-      var returnParameter = instantiation.ReturnParameter;
+      var returnParameter = _instantiation.ReturnParameter;
       Assertion.IsNotNull (returnParameter);
       Assert.That (returnParameter, Is.TypeOf<MemberParameterOnInstantiation>());
-      Assert.That (returnParameter.Member, Is.SameAs (instantiation));
-      Assert.That (returnParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (genericMethodDefinition.ReturnParameter));
+      Assert.That (returnParameter.Member, Is.SameAs (_instantiation));
+      Assert.That (returnParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (_genericMethodDefinition.ReturnParameter));
 
-      var memberParameter = instantiation.GetParameters().Single();
-      Assert.That (memberParameter, Is.TypeOf<MemberParameterOnInstantiation>());
-      Assert.That (memberParameter.Member, Is.SameAs (instantiation));
-      Assert.That (memberParameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (parameter));
+      var parameter = _instantiation.GetParameters().Single();
+      Assert.That (parameter, Is.TypeOf<MemberParameterOnInstantiation>());
+      Assert.That (parameter.Member, Is.SameAs (_instantiation));
+      Assert.That (parameter.As<MemberParameterOnInstantiation>().MemberParameterOnGenericDefinition, Is.SameAs (_parameter));
     }
 
     [Test]
@@ -65,5 +81,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       Assert.That (methodInstantiation.GetCustomAttributeData (), Is.EqualTo (customAttributes));
     }
+
+    [Test]
+    public void SubstituteGenericParameters_RecursiveGenericType ()
+    {
+      var recursiveGeneric = typeof (List<>).MakeTypePipeGenericType (typeof (Func<>).MakeTypePipeGenericType (_typeParameter));
+      
+      var list = _instantiation.SubstituteGenericParameters (recursiveGeneric);
+
+      Assert.That (list.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
+      var func = list.GetGenericArguments().Single();
+      Assert.That (func.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
+      var typeArgument = func.GetGenericArguments().Single();
+      Assert.That (typeArgument, Is.SameAs (_typeArgument));
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_NonGenericType ()
+    {
+      var nonGeneric = ReflectionObjectMother.GetSomeNonGenericType ();
+      var result = _instantiation.SubstituteGenericParameters (nonGeneric);
+
+      Assert.That (result, Is.SameAs (nonGeneric));
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_RemembersSubstitutedTypes ()
+    {
+      var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => GenericMethod<Dev.T> (null, null));
+      var instantiation = new MethodInstantiation (genericMethodDefinition, new[] { _typeArgument });
+
+      var parameterTypes = instantiation.GetParameters().Select (p => p.ParameterType).ToList();
+      Assert.That (parameterTypes, Has.Count.EqualTo (2));
+      Assert.That (parameterTypes[0].GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
+      Assert.That (parameterTypes[0].GetGenericArguments().Single(), Is.SameAs (_typeArgument));
+      Assert.That (parameterTypes[0], Is.SameAs (parameterTypes[1]));
+    }
+
+    void GenericMethod<T1> (List<T1> p1, List<T1> p2) {}
   }
 }

@@ -21,6 +21,8 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -31,8 +33,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   // TODO <remarks>Instances of this class are returned by <see cref="MutableMethodInfo.MakeGenericMethod"/>.</remarks>
   public class MethodInstantiation : CustomMethodInfo
   {
+    private readonly Dictionary<InstantiationInfo, TypeInstantiation> _instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
+
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
+    private readonly Dictionary<Type, Type> _parametersToArguments;
 
     public MethodInstantiation (MethodInfo genericMethodDefinition, IEnumerable<Type> typeArguments)
         : base (
@@ -45,6 +50,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       Assertion.IsTrue (genericMethodDefinition.IsGenericMethodDefinition);
 
+      _parametersToArguments = genericMethodDefinition.GetGenericArguments ().Zip (typeArguments).ToDictionary (t => t.Item1, t => t.Item2);
+
       _returnParameter = new MemberParameterOnInstantiation (this, genericMethodDefinition.ReturnParameter);
       _parameters = genericMethodDefinition
           .GetParameters().Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
@@ -52,8 +59,28 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public Type SubstituteGenericParameters (Type type)
     {
-      // TODO 5443
-      return type;
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      var typeArgument = _parametersToArguments.GetValueOrDefault (type);
+      if (typeArgument != null)
+        return typeArgument;
+
+      if (!type.IsGenericType)
+        return type;
+
+      Assertion.IsFalse (type.IsArray, "Not yet supported, TODO 5409");
+
+      var oldTypeArguments = type.GetGenericArguments ();
+      var newTypeArguments = oldTypeArguments.Select (SubstituteGenericParameters).ToList ();
+
+      // No substitution necessary (this is an optimization only).
+      if (oldTypeArguments.SequenceEqual (newTypeArguments))
+        return type;
+
+      var genericTypeDefinition = type.GetGenericTypeDefinition ();
+      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
+
+      return instantiationInfo.Instantiate (_instantiations);
     }
 
     public override ParameterInfo ReturnParameter
