@@ -81,11 +81,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type ReturnType
     {
-      get
-      {
-        Assertion.IsNotNull (ReturnParameter);
-        return ReturnParameter.ParameterType;
-      }
+      get { return Assertion.IsNotNull (ReturnParameter).ParameterType; }
+    }
+
+    public override ICustomAttributeProvider ReturnTypeCustomAttributes
+    {
+      get { return Assertion.IsNotNull (ReturnParameter); }
     }
 
     public override bool IsGenericMethod
@@ -155,16 +156,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       throw new NotImplementedException ();
     }
 
-    public override ICustomAttributeProvider ReturnTypeCustomAttributes
-    {
-      get { throw new NotImplementedException (); }
-    }
-
-    public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
-    {
-      throw new NotImplementedException ();
-    }
-
     #endregion
 
     #region Unsupported Members
@@ -187,6 +178,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override RuntimeMethodHandle MethodHandle
     {
       get { throw new NotSupportedException ("Property MethodHandle is not supported."); }
+    }
+
+    public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
+    {
+      throw new NotSupportedException ("Method MakeGenericMethod is not supported.");
     }
 
     public override MethodBody GetMethodBody ()

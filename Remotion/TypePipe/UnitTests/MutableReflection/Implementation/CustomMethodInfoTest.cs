@@ -30,6 +30,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private CustomType _declaringType;
     private string _name;
     private MethodAttributes _attributes;
+    private ParameterInfo _returnParameter;
+
     private TestableCustomMethodInfo _method;
 
     private Type _typeArgument;
@@ -41,8 +43,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _declaringType = CustomTypeObjectMother.Create();
       _name = "abc";
       _attributes = (MethodAttributes) 7;
+      _returnParameter = CustomParameterInfoObjectMother.Create();
 
-      _method = new TestableCustomMethodInfo (_declaringType, _name, _attributes) { TypeArguments = Type.EmptyTypes };
+      _method = new TestableCustomMethodInfo (_declaringType, _name, _attributes)
+                {
+                    TypeArguments = Type.EmptyTypes,
+                    ReturnParameter_ = _returnParameter
+                };
 
       _typeArgument = ReflectionObjectMother.GetSomeType();
       _genericDefinition = CustomMethodInfoObjectMother.Create (typeArguments: new[] { _typeArgument });
@@ -54,6 +61,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_method.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_method.Name, Is.EqualTo (_name));
       Assert.That (_method.Attributes, Is.EqualTo (_attributes));
+      Assert.That (_method.ReturnParameter, Is.SameAs (_returnParameter));
+      Assert.That (_method.ReturnTypeCustomAttributes, Is.SameAs (_returnParameter));
+      Assert.That (_method.ReturnType, Is.SameAs (_returnParameter.ParameterType));
       Assert.That (_method.IsGenericMethod, Is.False);
       Assert.That (_method.IsGenericMethodDefinition, Is.False);
       Assert.That (_method.ContainsGenericParameters, Is.False);
@@ -156,6 +166,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.Module, "Module");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.MethodHandle, "MethodHandle");
 
+      UnsupportedMemberTestHelper.CheckMethod (() => _method.MakeGenericMethod (Type.EmptyTypes), "MakeGenericMethod");
       UnsupportedMemberTestHelper.CheckMethod (() => _method.GetMethodBody(), "GetMethodBody");
       UnsupportedMemberTestHelper.CheckMethod (() => _method.Invoke (null, 0, null, null, null), "Invoke");
     }
