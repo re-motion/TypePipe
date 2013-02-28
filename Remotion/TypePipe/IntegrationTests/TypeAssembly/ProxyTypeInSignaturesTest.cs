@@ -170,6 +170,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.ReturnType, Is.SameAs (expectedType));
     }
 
+    // TODO 5444: ProxyType in GenericMethod instantiation
+
     private void CheckCustomAttribute (ICustomAttributeProvider customAttributeProvider, Type expectedType)
     {
       // Retrieving custom attribute data triggers type loading and assembly resolving.
