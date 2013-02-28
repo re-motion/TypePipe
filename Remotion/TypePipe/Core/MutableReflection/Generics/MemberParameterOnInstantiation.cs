@@ -35,8 +35,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (methodInstantiation == null && typeInstantation == null)
       {
         var message = string.Format (
-          // TODO Adapt 
-            "{0} can only created with members of {1}.", typeof (MemberParameterOnInstantiation).Name, typeof (TypeInstantiation).Name);
+            "{0} can only represent parameters of members on {1} or parameters of {2} instances.",
+            typeof (MemberParameterOnInstantiation).Name,
+            typeof (TypeInstantiation).Name,
+            typeof (MethodInstantiation).Name);
         throw new ArgumentException (message, "declaringMember");
       }
 
