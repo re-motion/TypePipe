@@ -21,7 +21,6 @@ using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using System.Linq;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -44,11 +43,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       parameters = parameters ?? new ParameterInfo[0];
       // Base definition stays null.
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
-      Assertion.IsTrue (typeArguments == null || (typeArguments != null && isGenericMethod));
-      Assertion.IsTrue (genericMethodDefintion == null || (genericMethodDefintion != null && isGenericMethod));
-      typeArguments = typeArguments ?? Type.EmptyTypes;
+      // Generic method definition stays null.
+      var typeArgs = (typeArguments ?? Type.EmptyTypes).ToList ();
+      isGenericMethod = isGenericMethod || genericMethodDefintion != null || typeArgs.Count > 0;
 
-      return new TestableCustomMethodInfo (declaringType, name, attributes, isGenericMethod, genericMethodDefintion, typeArguments)
+      return new TestableCustomMethodInfo (declaringType, name, attributes, isGenericMethod, genericMethodDefintion, typeArgs)
              {
                  ReturnParameter_ = returnParameter,
                  Parameters = parameters.ToArray(),

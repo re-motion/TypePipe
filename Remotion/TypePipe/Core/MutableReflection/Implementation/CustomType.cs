@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _fullName;
     private readonly TypeAttributes _attributes;
     private readonly bool _isGenericType;
-    private readonly bool _isGenericTypeDefinition;
+    private readonly Type _genericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
 
     private Type _declaringType;
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string fullName,
         TypeAttributes attributes,
         bool isGenericType,
-        bool isGenericTypeDefinition,
+        Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
@@ -69,6 +69,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Namespace may be null.
       // Fullname may be null (for generic parameters).
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      // Generic type definition may be null (for non-generic types and generic type definitions).
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
 
       _memberSelector = memberSelector;
@@ -77,11 +78,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _fullName = fullName;
       _attributes = attributes;
       _isGenericType = isGenericType;
-      _isGenericTypeDefinition = isGenericTypeDefinition;
+      _genericTypeDefinition = genericTypeDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
 
       Assertion.IsTrue ((isGenericType && _typeArguments.Count > 0) || (!isGenericType && _typeArguments.Count == 0));
-      Assertion.IsTrue ((isGenericTypeDefinition && isGenericType) || (!isGenericTypeDefinition));
+      Assertion.IsTrue ((genericTypeDefinition != null && isGenericType) || (genericTypeDefinition == null));
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
@@ -154,13 +155,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override bool IsGenericTypeDefinition
     {
-      get { return _isGenericTypeDefinition; }
+      get { return _isGenericType && _genericTypeDefinition == null; }
     }
 
-    // TODO 5443: Implement by throwing two different exceptions.
     public override Type GetGenericTypeDefinition ()
     {
-      throw new NotSupportedException ("Method GetGenericTypeDefinition is not supported.");
+      if (!_isGenericType)
+        throw new InvalidOperationException ("GetGenericTypeDefinition can only be called on generic types (IsGenericType must be true).");
+
+      return _genericTypeDefinition ?? this;
     }
 
     public override Type[] GetGenericArguments ()

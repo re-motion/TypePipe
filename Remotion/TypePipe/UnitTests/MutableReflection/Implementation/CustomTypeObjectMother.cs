@@ -17,8 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
@@ -41,14 +41,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<PropertyInfo> properties = null,
         IEnumerable<EventInfo> events = null,
         bool isGenericType = false,
-        bool isGenericTypeDefinition = false,
+        Type genericTypeDefinition = null,
         IEnumerable<Type> typeArguments = null)
     {
       memberSelector = memberSelector ?? MockRepository.GenerateStub<IMemberSelector>();
       baseType = baseType ?? typeof (UnspecifiedType);
       // Declaring type stays null.
-      isGenericType = isGenericType || isGenericTypeDefinition; // Generic type definitions are also generic types.
-      typeArguments = typeArguments ?? (isGenericType ? new[] { typeof (UnspecifiedType) } : Type.EmptyTypes);
+      // Generic type definition stays null.
+      var typeArgs = (typeArguments ?? Type.EmptyTypes).ToList();
+      isGenericType = isGenericType || genericTypeDefinition != null || typeArgs.Count > 0;
 
       var customType =
           new TestableCustomType (
@@ -58,8 +59,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               fullName,
               attributes,
               isGenericType,
-              isGenericTypeDefinition,
-              typeArguments)
+              genericTypeDefinition,
+              typeArgs)
           {
               Interfaces = interfaces ?? Type.EmptyTypes,
               Fields = fields ?? new FieldInfo[0],

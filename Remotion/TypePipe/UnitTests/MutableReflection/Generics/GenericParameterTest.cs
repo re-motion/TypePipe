@@ -73,6 +73,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_parameter.Namespace, Is.EqualTo (_namespace));
       Assert.That (_parameter.FullName, Is.Null);
       Assert.That (_parameter.Attributes, Is.EqualTo (TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.Class | TypeAttributes.Public));
+      Assert.That (_parameter.IsGenericType, Is.False);
       Assert.That (_parameter.GenericParameterAttributes, Is.EqualTo (_genericParameterAttributes));
       Assert.That (_parameter.BaseType, Is.SameAs (typeof (object)));
       Assert.That (_parameter.GetInterfaces(), Is.Empty);

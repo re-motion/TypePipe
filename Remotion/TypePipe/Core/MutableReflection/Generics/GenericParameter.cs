@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             fullName: null,
             attributes: TypeAttributes.Public,
             isGenericType: false,
-            isGenericTypeDefinition: false,
+            genericTypeDefinition: null,
             typeArguments: EmptyTypes)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);

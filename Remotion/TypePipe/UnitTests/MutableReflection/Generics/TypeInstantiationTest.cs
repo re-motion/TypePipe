@@ -199,17 +199,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var events = _genericTypeDefinition.GetEvents (bindingFlags);
 
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var genericTypeDef = CustomTypeObjectMother.Create (
-        memberSelectorMock, isGenericTypeDefinition: true, fields: fields, constructors: ctors, methods:methods, properties: properties, events: events);
+      var typeParameters = new[] { ReflectionObjectMother.GetSomeType() };
+      var genericTypeDefinition = CustomTypeObjectMother.Create (
+          memberSelectorMock, isGenericType: true, typeArguments: typeParameters,
+          fields: fields, constructors: ctors, methods: methods, properties: properties, events: events);
 
-      memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDef)).Return (fields);
-      memberSelectorMock.Expect (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDef)).Return (ctors);
-      memberSelectorMock.Expect (mock => mock.SelectMethods (methods, bindingFlags, genericTypeDef)).Return (methods);
-      memberSelectorMock.Expect (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDef)).Return (properties);
-      memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDef)).Return (events);
-      
+      memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition)).Return (fields);
+      memberSelectorMock.Expect (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition)).Return (ctors);
+      memberSelectorMock.Expect (mock => mock.SelectMethods (methods, bindingFlags, genericTypeDefinition)).Return (methods);
+      memberSelectorMock.Expect (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition)).Return (properties);
+      memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition)).Return (events);
+
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
-      var info = new TypeInstantiationInfo (genericTypeDef, typeArguments);
+      var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
 
       Dev.Null = new TypeInstantiation (memberSelectorMock, info, CreateInstantiationContext());
 

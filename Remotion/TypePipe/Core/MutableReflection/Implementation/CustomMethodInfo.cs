@@ -53,7 +53,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Generic method definition may be null (for non-generic methods and generic method definitions).
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
-      //Assertion.IsTrue (typeArguments == null || (typeArguments != null && genericMethodDefinition != null));
 
       _declaringType = declaringType;
       _name = name;
@@ -61,6 +60,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _isGenericMethod = isGenericMethod;
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
+
+      // TODO 5443
+      //Assertion.IsTrue ((isGenericMethod && _typeArguments.Count > 0) || (!isGenericMethod && _typeArguments.Count == 0));
+      //Assertion.IsTrue ((genericMethodDefinition != null && isGenericMethod) || (genericMethodDefinition == null));
     }
 
     public abstract override ParameterInfo ReturnParameter { get; }
@@ -199,6 +202,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { throw new NotSupportedException ("Property MethodHandle is not supported."); }
     }
 
+    // TODO think about how to to this?
+    // apply pattern also to CustomType.
     public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
     {
       throw new NotSupportedException ("Method MakeGenericMethod is not supported.");

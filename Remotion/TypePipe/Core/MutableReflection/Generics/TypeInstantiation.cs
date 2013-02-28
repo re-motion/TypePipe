@@ -43,7 +43,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return string.Format ("{0}[{1}]", info.GenericTypeDefinition.FullName, typeArgumentString);
     }
 
-    private readonly Type _genericTypeDefinition;
     private readonly Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
     private readonly Dictionary<Type, Type> _parametersToArguments;
 
@@ -65,23 +64,23 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             GetFullName (instantiationInfo),
             instantiationInfo.GenericTypeDefinition.Attributes,
             isGenericType: true,
-            isGenericTypeDefinition: false,
+            genericTypeDefinition: instantiationInfo.GenericTypeDefinition,
             typeArguments: instantiationInfo.TypeArguments)
     {
       ArgumentUtility.CheckNotNull ("instantiations", instantiations);
 
-      _genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
       _instantiations = instantiations;
 
       // Even though the _genericTypeDefinition includes the type parameters of the enclosing type(s) (if any), declaringType.GetGenericArguments() 
       // will return objects not equal to this type's generic parameters. Since the call to SetDeclaringType below needs to replace the those type 
       // parameters with type arguments, add a mapping for the declaring type's generic parameters in addition to this type's generic parameters.
 
-      var declaringType = _genericTypeDefinition.DeclaringType;
+      var genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
+      var declaringType = genericTypeDefinition.DeclaringType;
       // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here, declaringType can be null.
       var outerMapping = declaringType != null ? declaringType.GetGenericArguments().Zip (instantiationInfo.TypeArguments) : new Tuple<Type, Type>[0];
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
-      var mapping = _genericTypeDefinition.GetGenericArguments().Zip (instantiationInfo.TypeArguments);
+      var mapping = genericTypeDefinition.GetGenericArguments().Zip (instantiationInfo.TypeArguments);
       _parametersToArguments = outerMapping.Concat (mapping).ToDictionary (t => t.Item1, t => t.Item2);
 
       // Add own instantation to context before substituting any generic parameters. 
@@ -91,16 +90,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (declaringType != null)
         SetDeclaringType (SubstituteGenericParameters (declaringType));
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
-      if (_genericTypeDefinition.BaseType != null)
-        SetBaseType (SubstituteGenericParameters (_genericTypeDefinition.BaseType));
+      if (genericTypeDefinition.BaseType != null)
+        SetBaseType (SubstituteGenericParameters (genericTypeDefinition.BaseType));
 
-      var interfaces = _genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
-      var fields = _genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
-      var constructors = _genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
-      var methods = _genericTypeDefinition.GetMethods (c_allMembers).Select (m => new MethodOnTypeInstantiation (this, m)).ToList();
+      var interfaces = genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
+      var fields = genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
+      var constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
+      var methods = genericTypeDefinition.GetMethods (c_allMembers).Select (m => new MethodOnTypeInstantiation (this, m)).ToList();
       var methodMapping = methods.ToDictionary (m => m.MethodOnGenericType);
-      var properties = _genericTypeDefinition.GetProperties (c_allMembers).Select (p => CreateProperty (p, methodMapping));
-      var events = _genericTypeDefinition.GetEvents (c_allMembers).Select (e => CreateEvent (e, methodMapping));
+      var properties = genericTypeDefinition.GetProperties (c_allMembers).Select (p => CreateProperty (p, methodMapping));
+      var events = genericTypeDefinition.GetEvents (c_allMembers).Select (e => CreateEvent (e, methodMapping));
 
       _interfaces = interfaces.ToList().AsReadOnly();
       _fields = fields.Cast<FieldInfo>().ToList().AsReadOnly();
@@ -108,11 +107,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _methods = methods.Cast<MethodInfo>().ToList().AsReadOnly();
       _properties = properties.Cast<PropertyInfo>().ToList().AsReadOnly();
       _events = events.Cast<EventInfo>().ToList().AsReadOnly();
-    }
-
-    public override Type GetGenericTypeDefinition ()
-    {
-      return _genericTypeDefinition;
     }
 
     public Type SubstituteGenericParameters (Type type)
@@ -143,7 +137,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      return TypePipeCustomAttributeData.GetCustomAttributes (_genericTypeDefinition);
+      return TypePipeCustomAttributeData.GetCustomAttributes (GetGenericTypeDefinition());
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
