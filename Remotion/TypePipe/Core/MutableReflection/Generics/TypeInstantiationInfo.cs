@@ -66,8 +66,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (typeInstantiation != null)
         return typeInstantiation;
 
-      // Make RuntimeType if all type arguments are RuntimeTypes.
-      if (_typeArguments.All (typeArg => typeArg.IsRuntimeType()))
+      if (_genericTypeDefinition.IsRuntimeType() && _typeArguments.All (typeArg => typeArg.IsRuntimeType()))
         return _genericTypeDefinition.MakeGenericType (_typeArguments.ToArray());
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
@@ -80,9 +79,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (other == null)
         return false;
 
-// ReSharper disable CheckForReferenceEqualityInstead.2
+      // ReSharper disable CheckForReferenceEqualityInstead.2
       return Equals (_genericTypeDefinition, other.GenericTypeDefinition) && _typeArguments.SequenceEqual (other._typeArguments);
-// ReSharper restore CheckForReferenceEqualityInstead.2
+      // ReSharper restore CheckForReferenceEqualityInstead.2
     }
 
     public override int GetHashCode ()

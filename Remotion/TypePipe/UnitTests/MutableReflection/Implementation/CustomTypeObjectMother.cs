@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -44,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Type genericTypeDefinition = null,
         IEnumerable<Type> typeArguments = null)
     {
-      memberSelector = memberSelector ?? MockRepository.GenerateStub<IMemberSelector>();
+      memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       baseType = baseType ?? typeof (UnspecifiedType);
       // Declaring type stays null.
       // Generic type definition stays null.
