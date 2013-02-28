@@ -157,6 +157,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _isGenericTypeDefinition; }
     }
 
+    // TODO 5443: Implement by throwing two different exceptions.
+    public override Type GetGenericTypeDefinition ()
+    {
+      throw new NotSupportedException ("Method GetGenericTypeDefinition is not supported.");
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      return _typeArguments.ToArray ();
+    }
+
     /// <summary>
     /// Implements reference equality for <see cref="CustomType"/> derivatives.
     /// </summary>
@@ -188,11 +199,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type GetElementType ()
     {
       return null;
-    }
-
-    public override Type[] GetGenericArguments ()
-    {
-      return _typeArguments.ToArray();
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
@@ -481,11 +487,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type MakeGenericType (params Type[] typeArguments)
     {
       throw new NotSupportedException ("Method MakeGenericType is not supported.");
-    }
-
-    public override Type GetGenericTypeDefinition ()
-    {
-      throw new NotSupportedException ("Method GetGenericTypeDefinition is not supported.");
     }
 
     #endregion
