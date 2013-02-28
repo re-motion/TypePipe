@@ -25,6 +25,7 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -42,7 +43,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFields = new Dictionary<MutableFieldInfo, FieldInfo>();
     private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<MutableConstructorInfo, ConstructorInfo>();
     private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethods = new Dictionary<MutableMethodInfo, MethodInfo>();
-    private readonly Dictionary<MutablePropertyInfo, PropertyInfo> _mappedProperties = new Dictionary<MutablePropertyInfo, PropertyInfo>();
 
     public void AddMapping (ProxyType mappedType, Type emittableType)
     {
@@ -140,11 +140,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private bool IsEmittable (MemberInfo member)
     {
+      // TODO
+      //Debug.Assert (!(member is Type));
+      //return IsEmittable (member.DeclaringType) && !(member is MethodInstantiation);
+
       return IsEmittable (member.DeclaringType);
     }
 
     private static T GetEmittableOperand<T, TMutable, TInstantiation> (
         Dictionary<TMutable, T> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<TInstantiation, T> emittableInstantiationProvider)
+        where T : class
         where TMutable : class, T
         where TInstantiation : T
     {
@@ -155,8 +160,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (mutableOperand == null)
         return emittableInstantiationProvider ((TInstantiation) operand);
 
-      T emittableOperand;
-      if (!mapping.TryGetValue (mutableOperand, out emittableOperand))
+      var emittableOperand = mapping.GetValueOrDefault (mutableOperand);
+      if (emittableOperand == null)
       {
         var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operand, operand.GetType().Name);
         throw new InvalidOperationException (message);
@@ -167,12 +172,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private Type GetEmittableTypeInstantiation (TypeInstantiation typeInstantiation)
     {
-      var typeArguments = typeInstantiation.GetGenericArguments().Select (GetEmittableType).ToArray();
       var genericTypeDefinition = typeInstantiation.GetGenericTypeDefinition();
+      var emittableTypeArguments = typeInstantiation.GetGenericArguments().Select (GetEmittableType).ToArray();
       Assertion.IsNotNull (genericTypeDefinition);
 
       // Should *not* be MakeTypePipeGenericType.
-      return genericTypeDefinition.MakeGenericType (typeArguments);
+      return genericTypeDefinition.MakeGenericType (emittableTypeArguments);
+    }
+
+    private MethodInfo GetEmittableMethodInstantiation (MethodInstantiation methodInstantiation)
+    {
+      var emittableGenericMethodDefinition = GetEmittableMethod (methodInstantiation.GetGenericMethodDefinition());
+      var emittableTypeArguments = methodInstantiation.GetGenericArguments().Select (GetEmittableType).ToArray();
+
+      // Should *not* be MakeTypePipeGenericMethod.
+      return emittableGenericMethodDefinition.MakeGenericMethod (emittableTypeArguments);
     }
 
     private T GetEmittableMemberInstantiation<T, TInstantiation> (
