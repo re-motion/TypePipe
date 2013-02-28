@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -125,97 +124,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (ArgumentException),
         ExpectedMessage = "The type has 2 generic parameter(s), but 1 generic argument(s) were provided. "
                           + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments")]
-    public void MakeTypePipeGenericType_WrongNumberOfTypeArguments ()
+    public void MakeTypePipeGenericType_UsesGenericArgumentUtilityToValidateGenericArguments ()
     {
       typeof (Dictionary<,>).MakeTypePipeGenericType (typeof (int));
     }
-
-    [Test]
-    public void MakeTypePipeGenericType_GenericParameterConstraints ()
-    {
-      var staticType = typeof (TypeExtensions);
-      var typeWithPublicDefaultCtor = typeof (object);
-      var typeWithoutDefaultCtor = typeof (string);
-      var typeWithoutPublicDefaultCtor = typeof (TypeWithNonPublicDefaultCtor);
-      var classType = typeof (string);
-      var valueType = typeof (int);
-      var nullableValueType = typeof (int?);
-      var disposableType = typeof (Stream);
-
-      CheckArgumentCheck (
-          typeof (NewConstraint<>),
-          typeWithPublicDefaultCtor,
-          typeWithoutDefaultCtor,
-          "Generic argument 'String' at position 0 on 'NewConstraint`1' violates a constraint of type parameter 'TNew'.");
-      CheckArgumentCheck (
-          typeof (NewConstraint<>),
-          typeWithPublicDefaultCtor,
-          typeWithoutPublicDefaultCtor,
-          "Generic argument 'TypeWithNonPublicDefaultCtor' at position 0 on 'NewConstraint`1' violates a constraint of type parameter 'TNew'.");
-      CheckArgumentCheck (
-          typeof (ClassConstraint<>),
-          classType,
-          valueType,
-          "Generic argument 'Int32' at position 0 on 'ClassConstraint`1' violates a constraint of type parameter 'TClass'.");
-      CheckArgumentCheck (
-          typeof (StructConstraint<>),
-          valueType,
-          classType,
-          "Generic argument 'String' at position 0 on 'StructConstraint`1' violates a constraint of type parameter 'TStruct'.");
-      CheckArgumentCheck (
-          typeof (StructConstraint<>),
-          valueType,
-          nullableValueType,
-          "Generic argument 'Nullable`1' at position 0 on 'StructConstraint`1' violates a constraint of type parameter 'TStruct'.");
-      CheckArgumentCheck (
-          typeof (BaseTypeConstraint<>),
-          typeof (TypeExtensionsTest),
-          classType,
-          "Generic argument 'String' at position 0 on 'BaseTypeConstraint`1' violates a constraint of type parameter 'T'.");
-      CheckArgumentCheck (
-          typeof (InterfaceConstraint<>),
-          disposableType,
-          classType,
-          "Generic argument 'String' at position 0 on 'InterfaceConstraint`1' violates a constraint of type parameter 'T'.");
-
-      Assert.That (() => typeof (GenericType<>).MakeGenericType (staticType), Throws.Nothing, "Assert original reflection behavior.");
-      Assert.That (
-          () => typeof (DependentConstraint<,>).MakeGenericType (typeof (string), typeof (object)),
-          Throws.ArgumentException,
-          "Assert original reflection behavior.");
-
-      Assert.That (() => typeof (GenericType<>).MakeTypePipeGenericType (staticType), Throws.Nothing);
-      Assert.That (() => typeof (DependentConstraint<,>).MakeTypePipeGenericType (typeof (object), typeof (string)), Throws.Nothing);
-      Assert.That (
-          () => typeof (DependentConstraint<,>).MakeTypePipeGenericType (typeof (string), typeof (object)),
-          Throws.ArgumentException,
-          "Only throws (correct) exception because all participating types are runtime types.");
-      Assert.That (() => typeof (DependentRecursiveConstraint<,>).MakeTypePipeGenericType (typeof (int), typeof (IComparable<int>)), Throws.Nothing);
-      Assert.That (
-          () => typeof (DependentRecursiveConstraint<,>).MakeTypePipeGenericType (typeof (int), typeof (IComparable<string>)),
-          Throws.ArgumentException,
-          "Only throws (correct) exception because all participating types are runtime types.");
-    }
-
-    private void CheckArgumentCheck (Type genericTypeDefinition, Type validTypeArgument, Type invalidTypeArgument, string message)
-    {
-      Assert.That (() => genericTypeDefinition.MakeTypePipeGenericType (validTypeArgument), Throws.Nothing);
-      Assert.That (
-          () => genericTypeDefinition.MakeTypePipeGenericType (invalidTypeArgument),
-          Throws.ArgumentException.With.Message.EqualTo (message + "\r\nParameter name: typeArguments"));
-    }
-
-    class TypeWithNonPublicDefaultCtor
-    {
-      protected internal TypeWithNonPublicDefaultCtor () { }
-    }
-    class GenericType<T> { }
-    class NewConstraint<TNew> where TNew : new () { }
-    class ClassConstraint<TClass> where TClass : class { }
-    class StructConstraint<TStruct> where TStruct : struct { }
-    class BaseTypeConstraint<T> where T : TypeExtensionsTest { }
-    class InterfaceConstraint<T> where T : IDisposable { }
-    class DependentConstraint<T1, T2> where T2 : T1 { }
-    class DependentRecursiveConstraint<T1, T2> where T2 : IComparable<T1> { }
   }
 }

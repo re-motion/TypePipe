@@ -22,7 +22,6 @@ using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -30,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// Represents a constructed generic <see cref="MethodInfo"/>, i.e., a generic method definition that was instantiated with type arguments.
   /// This class is needed because the the original reflection classes do not work in combination with <see cref="CustomType"/> instances.
   /// </summary>
-  // TODO <remarks>Instances of this class are returned by <see cref="MutableMethodInfo.MakeGenericMethod"/>.</remarks>
+  /// <remarks>Instances of this class are returned by <see cref="CustomMethodInfo.MakeGenericMethod"/>.</remarks>
   public class MethodInstantiation : CustomMethodInfo
   {
     private readonly Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();

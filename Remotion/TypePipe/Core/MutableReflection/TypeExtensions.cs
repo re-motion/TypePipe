@@ -120,61 +120,12 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       var typeParameters = genericTypeDefinition.GetGenericArguments();
-      if (typeParameters.Length != typeArguments.Length)
-      {
-        var message = string.Format (
-            "The type has {0} generic parameter(s), but {1} generic argument(s) were provided. "
-            + "A generic argument must be provided for each generic parameter.",
-            typeParameters.Length,
-            typeArguments.Length);
-        throw new ArgumentException (message, "typeArguments");
-      }
-
-      for (int i = 0; i < typeParameters.Length; i++)
-      {
-        var parameter = typeParameters[i];
-        var argument = typeArguments[i];
-
-        if (!IsValidGenericArgument (parameter, argument))
-        {
-          var message = string.Format (
-              "Generic argument '{0}' at position {1} on '{2}' violates a constraint of type parameter '{3}'.",
-              argument.Name, i, genericTypeDefinition.Name, parameter.Name);
-          throw new ArgumentException (message, "typeArguments");
-        }
-      }
+      GenericArgumentUtility.ValidateGenericArguments (typeParameters, typeArguments, genericTypeDefinition.Name);
 
       var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
       var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
 
       return instantiationInfo.Instantiate (instantiations);
-    }
-
-    private static bool IsValidGenericArgument (Type parameter, Type argument)
-    {
-      var attr = parameter.GenericParameterAttributes;
-      return
-          (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || HasPublicDefaultCtor (argument) || argument.IsValueType)
-          && (!attr.IsSet (GenericParameterAttributes.ReferenceTypeConstraint) || argument.IsClass)
-          && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || IsNotNullableValueType (argument))
-          && parameter.GetGenericParameterConstraints().All (constraint => SkipValidation (constraint) || constraint.IsAssignableFromFast (argument));
-    }
-
-    private static bool HasPublicDefaultCtor (Type argument)
-    {
-      return argument.GetConstructor (Type.EmptyTypes) != null;
-    }
-
-    private static bool IsNotNullableValueType (Type argument)
-    {
-      return argument.IsValueType && Nullable.GetUnderlyingType (argument) == null;
-    }
-
-    private static bool SkipValidation (Type constraint)
-    {
-      // Skip validaiton for constraints that are of generic nature themselves (which would be very complex). 
-      // Users will get a TypeLoadException at code generation time violating such a constraint.
-      return constraint.ContainsGenericParameters;
     }
   }
 }
