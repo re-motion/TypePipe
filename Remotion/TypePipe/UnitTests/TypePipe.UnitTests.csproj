@@ -173,7 +173,7 @@
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactoryTest.cs" />
-    <Compile Include="MutableReflection\MethodExtensionsTest.cs" />
+    <Compile Include="MutableReflection\MethodInfoExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableEventInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableEventInfoTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />

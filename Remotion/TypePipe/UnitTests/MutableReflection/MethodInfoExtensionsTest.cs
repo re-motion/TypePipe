@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class MethodExtensionsTest
+  public class MethodInfoExtensionsTest
   {
     [Test]
     public void MakeTypePipeGenericMethod_MakesGenericMethodWithCustomTypeArgument ()

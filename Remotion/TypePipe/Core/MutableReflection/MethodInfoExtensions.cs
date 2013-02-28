@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Contains extensions methods on <see cref="MethodInfo"/> that are useful when working with
   /// <see cref="Remotion.TypePipe.MutableReflection"/> objects.
   /// </summary>
-  public static class MethodExtensions
+  public static class MethodInfoExtensions
   {
     /// <summary>
     /// Substitutes the type parameters of the generic type definition and returns a <see cref="MethodInfo"/> object representing the resulting
@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static MethodInfo MakeTypePipeGenericMethod (this MethodInfo genericMethodDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);
-      ArgumentUtility.CheckNotNullOrEmpty ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
 
       if (!genericMethodDefinition.IsGenericMethodDefinition)
       {
