@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     /// <summary>
     /// Determines whether the current <see cref="Type"/> instance itself is of type <see cref="System.RuntimeType"/>, i.e., the type is a standard
-    /// reflection type.
+    /// reflection <see cref="Type"/>.
     /// </summary>
     /// <param name="type">The type instance.</param>
     /// <returns><c>true</c> if the given type is an instance of <see cref="System.RuntimeType"/>; otherwise, <c>false</c>.</returns>

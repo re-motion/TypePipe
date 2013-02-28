@@ -27,6 +27,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MethodInfoExtensionsTest
   {
     [Test]
+    public void IsRunetimeMethodInfo ()
+    {
+      var runtimeMethod = ReflectionObjectMother.GetSomeMethod();
+      var customMethod = CustomMethodInfoObjectMother.Create();
+
+      Assert.That (runtimeMethod.IsRuntimeMethodInfo(), Is.True);
+      Assert.That (customMethod.IsRuntimeMethodInfo(), Is.False);
+    }
+
+    [Test]
     public void MakeTypePipeGenericMethod_MakesGenericMethodWithCustomTypeArgument ()
     {
       var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Method<Dev.T, Dev.T>());
