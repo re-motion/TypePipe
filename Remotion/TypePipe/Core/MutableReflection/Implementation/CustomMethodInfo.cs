@@ -61,9 +61,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
 
-      // TODO 5443
-      //Assertion.IsTrue ((isGenericMethod && _typeArguments.Count > 0) || (!isGenericMethod && _typeArguments.Count == 0));
-      //Assertion.IsTrue ((genericMethodDefinition != null && isGenericMethod) || (genericMethodDefinition == null));
+      Assertion.IsTrue ((isGenericMethod && _typeArguments.Count > 0) || (!isGenericMethod && _typeArguments.Count == 0));
+      Assertion.IsTrue ((genericMethodDefinition != null && isGenericMethod) || (genericMethodDefinition == null));
     }
 
     public abstract override ParameterInfo ReturnParameter { get; }

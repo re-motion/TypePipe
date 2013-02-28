@@ -77,7 +77,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void GetCustomAttributeData ()
     {
       var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
-      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (isGenericMethod: true, customAttributes: customAttributes);
+      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (
+          isGenericMethod: true, typeArguments: new[] { _typeArgument }, customAttributes: customAttributes);
       var instantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition);
 
       Assert.That (instantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
