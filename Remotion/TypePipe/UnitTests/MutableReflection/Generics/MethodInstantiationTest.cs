@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -74,37 +73,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void GetCustomAttributeData ()
+    public void SubstituteGenericParameters_GenericParameter ()
     {
-      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
-      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (
-          isGenericMethod: true, typeArguments: new[] { _typeArgument }, customAttributes: customAttributes);
-      var instantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition);
-
-      Assert.That (instantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
-    }
-
-    [Test]
-    public void SubstituteGenericParameters_RecursiveGenericType ()
-    {
-      var recursiveGeneric = typeof (List<>).MakeTypePipeGenericType (typeof (Func<>).MakeTypePipeGenericType (_typeParameter));
-      
-      var list = _instantiation.SubstituteGenericParameters (recursiveGeneric);
-
-      Assert.That (list.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
-      var func = list.GetGenericArguments().Single();
-      Assert.That (func.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
-      var typeArgument = func.GetGenericArguments().Single();
-      Assert.That (typeArgument, Is.SameAs (_typeArgument));
-    }
-
-    [Test]
-    public void SubstituteGenericParameters_NonGenericType ()
-    {
-      var nonGeneric = ReflectionObjectMother.GetSomeNonGenericType ();
-      var result = _instantiation.SubstituteGenericParameters (nonGeneric);
-
-      Assert.That (result, Is.SameAs (nonGeneric));
+      Assert.That (_instantiation.SubstituteGenericParameters (_typeParameter), Is.SameAs (_typeArgument));
     }
 
     [Test]
@@ -113,11 +84,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => GenericMethod<Dev.T> (null, null));
       var instantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition, new[] { _typeArgument });
 
-      var parameterTypes = instantiation.GetParameters().Select (p => p.ParameterType).ToList();
+      var parameterTypes = instantiation.GetParameters ().Select (p => p.ParameterType).ToList ();
       Assert.That (parameterTypes, Has.Count.EqualTo (2));
-      Assert.That (parameterTypes[0].GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
-      Assert.That (parameterTypes[0].GetGenericArguments().Single(), Is.SameAs (_typeArgument));
+      Assert.That (parameterTypes[0].GetGenericTypeDefinition (), Is.SameAs (typeof (List<>)));
+      Assert.That (parameterTypes[0].GetGenericArguments ().Single (), Is.SameAs (_typeArgument));
       Assert.That (parameterTypes[0], Is.SameAs (parameterTypes[1]));
+    }
+
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
+      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (
+          isGenericMethod: true, typeArguments: new[] { _typeArgument }, customAttributes: customAttributes);
+      var instantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition);
+
+      Assert.That (instantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
     }
 
     void GenericMethod<T1> (List<T1> p1, List<T1> p2) {}

@@ -56,35 +56,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
           .GetParameters().Select (p => new MemberParameterOnInstantiation (this, p)).Cast<ParameterInfo>().ToList().AsReadOnly();
     }
 
+    public override ParameterInfo ReturnParameter
+    {
+      get { return _returnParameter; }
+    }
+
     public Type SubstituteGenericParameters (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      var typeArgument = _parametersToArguments.GetValueOrDefault (type);
-      if (typeArgument != null)
-        return typeArgument;
-
-      if (!type.IsGenericType)
-        return type;
-
-      Assertion.IsFalse (type.IsArray, "Not yet supported, TODO 5409");
-
-      var oldTypeArguments = type.GetGenericArguments ();
-      var newTypeArguments = oldTypeArguments.Select (SubstituteGenericParameters).ToList ();
-
-      // No substitution necessary (this is an optimization only).
-      if (oldTypeArguments.SequenceEqual (newTypeArguments))
-        return type;
-
-      var genericTypeDefinition = type.GetGenericTypeDefinition ();
-      var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, newTypeArguments);
-
-      return instantiationInfo.Instantiate (_instantiations);
-    }
-
-    public override ParameterInfo ReturnParameter
-    {
-      get { return _returnParameter; }
+      return TypeSubstitutionUtility.SubstituteGenericParameters (_parametersToArguments, _instantiations, type);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

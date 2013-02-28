@@ -219,26 +219,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void SubstituteGenericParameters_RecursiveGenericType ()
+    public void SubstituteGenericParameters_GenericParameter ()
     {
-      var recursiveGeneric = _genericTypeDefinition.GetField ("RecursiveGeneric").FieldType;
+      var genericParameter = _genericTypeDefinition.GetField ("Field").FieldType;
 
-      var list = _instantiation.SubstituteGenericParameters (recursiveGeneric);
+      var result = _instantiation.SubstituteGenericParameters (genericParameter);
 
-      Assert.That (list.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
-      var func = list.GetGenericArguments().Single();
-      Assert.That (func.GetGenericTypeDefinition(), Is.SameAs (typeof (Func<>)));
-      var typeArgument = func.GetGenericArguments().Single();
-      Assert.That (typeArgument, Is.SameAs (_customType));
-    }
-
-    [Test]
-    public void SubstituteGenericParameters_NonGenericType ()
-    {
-      var nonGeneric = ReflectionObjectMother.GetSomeNonGenericType();
-      var result = _instantiation.SubstituteGenericParameters (nonGeneric);
-
-      Assert.That (result, Is.SameAs (nonGeneric));
+      Assert.That (result, Is.SameAs (_customType));
     }
 
     [Test]
@@ -291,7 +278,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       [Abc ("generic type def")]
       public class GenericType<T> : BaseType<T>, IMyInterface<T>
       {
-        public List<Func<T>> RecursiveGeneric;
         public T Field;
         public GenericType (T arg) { }
         public void Method (T arg) { }
