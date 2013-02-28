@@ -25,6 +25,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -169,7 +170,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableMethod_MethodInstantiation_OnCustomType ()
     {
-      
+      var genericMethodDefinition = MutableMethodInfoObjectMother.Create (genericParameters: new[] { GenericParameterObjectMother.Create() });
+      var emittableGenericMethodDefinition = typeof (Enumerable).GetMethod ("Empty");
+      _provider.AddMapping (genericMethodDefinition, emittableGenericMethodDefinition);
+
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      var instantiation = genericMethodDefinition.MakeTypePipeGenericMethod (emittableType);
+      Assert.That (instantiation, Is.TypeOf<MethodInstantiation>());
+
+      var result = _provider.GetEmittableMethod (instantiation);
+
+      Assert.That (result, Is.Not.InstanceOf<CustomMethodInfo>());
+      var emittableGenericArgument = result.GetGenericArguments().Single();
+      Assert.That (emittableGenericArgument, Is.SameAs (emittableType));
     }
 
     [Test]

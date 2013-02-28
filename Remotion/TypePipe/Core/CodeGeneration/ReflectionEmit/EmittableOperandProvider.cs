@@ -185,8 +185,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private MethodInfo GetEmittableMethodInstantiation (MethodInstantiation methodInstantiation)
     {
-      //var emittableGenericMethodDefinition = GetEmittableMethod (methodInstantiation.GetGenericMethodDefinition());
-      var emittableGenericMethodDefinition = methodInstantiation.GetGenericMethodDefinition();
+      var emittableGenericMethodDefinition = GetEmittableMethod (methodInstantiation.GetGenericMethodDefinition ());
       var emittableTypeArguments = methodInstantiation.GetGenericArguments().Select (GetEmittableType).ToArray();
 
       // Should *not* be MakeTypePipeGenericMethod.
