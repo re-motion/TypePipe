@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Collections;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -47,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _customType = CustomTypeObjectMother.Create();
       _runtimeType = ReflectionObjectMother.GetSomeType();
 
-      _info1 = new TypeInstantiationInfo (genericTypeDef1, new[] { _customType }.AsReadOnly());
+      _info1 = new TypeInstantiationInfo (genericTypeDef1, new[] { _customType }.AsOneTime());
       _info2 = new TypeInstantiationInfo (genericTypeDef2, new[] { _customType });
       _info3 = new TypeInstantiationInfo (genericTypeDef1, new[] { _runtimeType });
       _info4 = new TypeInstantiationInfo (genericTypeDef1, new[] { _customType });
@@ -65,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "Specified type must be a generic type definition.\r\nParameter name: genericTypeDefinition")]
-    public void Initialization_NoType ()
+    public void Initialization_NoGenericTypeDefinition ()
     {
       Dev.Null = new TypeInstantiationInfo (typeof (List<int>), Type.EmptyTypes);
     }

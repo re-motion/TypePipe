@@ -113,6 +113,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBaseBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
+    <Compile Include="MutableReflection\Generics\MethodInstantiationInfoTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelperTest.cs" />

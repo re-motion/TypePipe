@@ -156,6 +156,7 @@
     <Compile Include="Caching\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiation.cs" />
+    <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelper.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtility.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclaration.cs" />
