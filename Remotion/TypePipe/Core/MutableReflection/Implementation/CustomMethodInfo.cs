@@ -143,8 +143,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!IsGenericMethodDefinition)
         throw new InvalidOperationException ("MakeGenericMethod can only be called on generic method definitions (IsGenericMethodDefinition must be true).");
 
-      return null;
-      //return this.MakeTypePipeGenericMethod (typeArguments);
+      return this.MakeTypePipeGenericMethod (typeArguments);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

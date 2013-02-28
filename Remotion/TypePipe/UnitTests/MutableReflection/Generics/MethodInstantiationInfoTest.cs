@@ -83,6 +83,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    public void Instantiate_CustomMethodInfo ()
+    {
+      var typeParameter = ReflectionObjectMother.GetSomeGenericParameter();
+      var customGenericMethodDefinition = CustomMethodInfoObjectMother.Create (isGenericMethod: true, typeArguments: new[] { typeParameter });
+      var instantiationInfo = new MethodInstantiationInfo (customGenericMethodDefinition, new[] { _runtimeType });
+
+      var result = instantiationInfo.Instantiate();
+
+      Assert.That (result, Is.TypeOf<MethodInstantiation>());
+      Assert.That (result.GetGenericMethodDefinition(), Is.EqualTo (instantiationInfo.GenericMethodDefinition));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (instantiationInfo.TypeArguments));
+    }
+
+    [Test]
     public void Instantiate_RuntimeTypeArgument ()
     {
       var result = _infoWithRuntimeType.Instantiate();

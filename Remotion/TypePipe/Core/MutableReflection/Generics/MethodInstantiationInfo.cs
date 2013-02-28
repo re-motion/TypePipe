@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public MethodInfo Instantiate ()
     {
       // Make RuntimeMethod if all type arguments are RuntimeTypes.
-      if (_typeArguments.All (typeArg => typeArg.IsRuntimeType()))
+      if (_genericMethodDefinition.IsRuntimeMethodInfo() && _typeArguments.All (typeArg => typeArg.IsRuntimeType()))
         return _genericMethodDefinition.MakeGenericMethod (_typeArguments.ToArray());
 
       return new MethodInstantiation (this);
