@@ -34,7 +34,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   public class MethodInstantiation : CustomMethodInfo
   {
     private readonly Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
-
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
     private readonly Dictionary<Type, Type> _parametersToArguments;

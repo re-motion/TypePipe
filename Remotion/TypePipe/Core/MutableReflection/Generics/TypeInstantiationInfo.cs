@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       get { return _typeArguments; }
     }
 
-    public Type Instantiate (Dictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
+    public Type Instantiate (IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
     {
       var typeInstantiation = instantiations.GetValueOrDefault (this);
       if (typeInstantiation != null)

@@ -43,8 +43,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return string.Format ("{0}[{1}]", info.GenericTypeDefinition.FullName, typeArgumentString);
     }
 
-    private readonly Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
-    private readonly Dictionary<Type, Type> _parametersToArguments;
+    private readonly IDictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
+    private readonly IDictionary<Type, Type> _parametersToArguments;
 
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<FieldInfo> _fields;
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public TypeInstantiation (
         IMemberSelector memberSelector,
         TypeInstantiationInfo instantiationInfo,
-        Dictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
+        IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
         : base (
             memberSelector,
             ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
