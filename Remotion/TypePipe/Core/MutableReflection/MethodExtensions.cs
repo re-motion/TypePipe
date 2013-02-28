@@ -23,8 +23,19 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
+  /// <summary>
+  /// Contains extensions methods on <see cref="MethodInfo"/> that are useful when working with
+  /// <see cref="Remotion.TypePipe.MutableReflection"/> objects.
+  /// </summary>
   public static class MethodExtensions
   {
+    /// <summary>
+    /// Substitutes the type parameters of the generic type definition and returns a <see cref="MethodInfo"/> object representing the resulting
+    /// constructed method. Use this as a replacement for <see cref="MethodInfo.MakeGenericMethod"/>.
+    /// </summary>
+    /// <param name="genericMethodDefinition">The generic method definition.</param>
+    /// <param name="typeArguments">The type arguments.</param>
+    /// <returns>The constructed method.</returns>
     public static MethodInfo MakeTypePipeGenericMethod (this MethodInfo genericMethodDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);

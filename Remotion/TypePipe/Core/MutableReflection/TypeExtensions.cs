@@ -25,7 +25,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// <see cref="Type"/> extension methods that are useful when working in the <see cref="Remotion.TypePipe.MutableReflection"/> domain.
+  /// Contains extensions methods on <see cref="Type"/> that are useful when working with
+  /// <see cref="Remotion.TypePipe.MutableReflection"/> objects.
   /// </summary>
   public static class TypeExtensions
   {
@@ -99,8 +100,8 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Substitutes the type parameters of the generic type definition and returns a <see cref="Type" /> object representing the resulting
-    /// constructed type. Use this as a replacement for <see cref="Type.MakeGenericType" />.
+    /// Substitutes the type parameters of the generic type definition and returns a <see cref="Type"/> object representing the resulting
+    /// constructed type. Use this as a replacement for <see cref="Type.MakeGenericType"/>.
     /// </summary>
     /// <param name="genericTypeDefinition">The generic type definition.</param>
     /// <param name="typeArguments">The type arguments.</param>
