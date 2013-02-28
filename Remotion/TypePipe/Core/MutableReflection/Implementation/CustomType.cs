@@ -171,6 +171,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _typeArguments.ToArray ();
     }
 
+    public override Type MakeGenericType (params Type[] typeArguments)
+    {
+      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+
+      if (!IsGenericTypeDefinition)
+        throw new InvalidOperationException ("MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true).");
+
+      return this.MakeTypePipeGenericType (typeArguments);
+    }
+
     /// <summary>
     /// Implements reference equality for <see cref="CustomType"/> derivatives.
     /// </summary>
@@ -485,11 +495,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override int GetArrayRank ()
     {
       throw new NotSupportedException ("Method GetArrayRank is not supported.");
-    }
-
-    public override Type MakeGenericType (params Type[] typeArguments)
-    {
-      throw new NotSupportedException ("Method MakeGenericType is not supported.");
     }
 
     #endregion

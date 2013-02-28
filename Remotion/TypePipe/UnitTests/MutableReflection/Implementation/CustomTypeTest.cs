@@ -41,6 +41,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private TestableCustomType _customType;
 
+    private Type _typeArgument;
+    private Type _genericTypeUnderlyingDefinition;
+    private CustomType _genericType;
+
+    private Type _typeParameter;
+    private CustomType _genericTypeDefinition;
+
     [SetUp]
     public void SetUp ()
     {
@@ -59,15 +66,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _attributes,
           isGenericType: false,
           genericTypeDefinition: null,
-          typeArguments: Type.EmptyTypes);
+          typeArguments: Type.EmptyTypes)
+                    {
+                        Interfaces = new[] { typeof (IDisposable) },
+                        Fields = new[] { ReflectionObjectMother.GetSomeField() },
+                        Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() },
+                        Methods = new[] { ReflectionObjectMother.GetSomeMethod() },
+                        Properties = new[] { ReflectionObjectMother.GetSomeProperty() },
+                        Events = new[] { ReflectionObjectMother.GetSomeEvent() }
+                    };
 
-      // Initialize test implementation with members.
-      _customType.Interfaces = new[] { typeof (IDisposable) };
-      _customType.Fields = new[] { ReflectionObjectMother.GetSomeField() };
-      _customType.Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() };
-      _customType.Methods = new[] { ReflectionObjectMother.GetSomeMethod() };
-      _customType.Properties = new[] { ReflectionObjectMother.GetSomeProperty() };
-      _customType.Events = new[] { ReflectionObjectMother.GetSomeEvent() };
+      _typeParameter = ReflectionObjectMother.GetSomeGenericParameter();
+      _genericTypeDefinition = CustomTypeObjectMother.Create (isGenericType: true, typeArguments: new[] { _typeParameter });
+
+      _typeArgument = ReflectionObjectMother.GetSomeType ();
+      _genericTypeUnderlyingDefinition = ReflectionObjectMother.GetSomeGenericTypeDefinition ();
+      _genericType = CustomTypeObjectMother.Create (genericTypeDefinition: _genericTypeUnderlyingDefinition, typeArguments: new[] { _typeArgument });
     }
 
     [Test]
@@ -91,26 +105,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Initialization_GenericType ()
     {
-      var typeArgument = ReflectionObjectMother.GetSomeType();
-      var genericTypeUnderlyingDefinition = ReflectionObjectMother.GetSomeGenericTypeDefinition();
-      var genericType = CustomTypeObjectMother.Create (genericTypeDefinition: genericTypeUnderlyingDefinition, typeArguments: new[] { typeArgument });
-
-      Assert.That (genericType.IsGenericType, Is.True);
-      Assert.That (genericType.IsGenericTypeDefinition, Is.False);
-      Assert.That (genericType.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
-      Assert.That (genericType.GetGenericTypeDefinition(), Is.SameAs (genericTypeUnderlyingDefinition));
+      Assert.That (_genericType.IsGenericType, Is.True);
+      Assert.That (_genericType.IsGenericTypeDefinition, Is.False);
+      Assert.That (_genericType.GetGenericArguments(), Is.EqualTo (new[] { _typeArgument }));
+      Assert.That (_genericType.GetGenericTypeDefinition(), Is.SameAs (_genericTypeUnderlyingDefinition));
     }
 
     [Test]
     public void Initialization_GenericTypeDefinition ()
     {
-      var typeArgument = ReflectionObjectMother.GetSomeType();
-      var genericTypeDefinition = CustomTypeObjectMother.Create (isGenericType: true, typeArguments: new[] { typeArgument });
-
-      Assert.That (genericTypeDefinition.IsGenericType, Is.True);
-      Assert.That (genericTypeDefinition.IsGenericTypeDefinition, Is.True);
-      Assert.That (genericTypeDefinition.GetGenericArguments(), Is.EqualTo (new[] { typeArgument }));
-      Assert.That (genericTypeDefinition.GetGenericTypeDefinition(), Is.SameAs (genericTypeDefinition));
+      Assert.That (_genericTypeDefinition.IsGenericType, Is.True);
+      Assert.That (_genericTypeDefinition.IsGenericTypeDefinition, Is.True);
+      Assert.That (_genericTypeDefinition.GetGenericArguments(), Is.EqualTo (new[] { _typeParameter }));
+      Assert.That (_genericTypeDefinition.GetGenericTypeDefinition(), Is.SameAs (_genericTypeDefinition));
     }
 
     [Test]
@@ -151,6 +158,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void AssemblyQualifiedName ()
     {
       Assert.That (_customType.AssemblyQualifiedName, Is.EqualTo ("MyNameSpace.MyTypeName, TypePipe_GeneratedAssembly"));
+    }
+
+    [Test]
+    public void MakeGenericType ()
+    {
+      var result = _genericTypeDefinition.MakeGenericType (_typeParameter);
+
+      Assert.That (result.IsGenericType, Is.True);
+      Assert.That (result.IsGenericTypeDefinition, Is.False);
+      Assert.That (result.GetGenericTypeDefinition (), Is.SameAs (_genericTypeDefinition));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true).")]
+    public void MakeGenericType_NoGenericMethodDefinition ()
+    {
+      Dev.Null = _genericType.MakeGenericType();
     }
 
     [Test]
@@ -557,7 +582,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType(), "MakeArrayType");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType (7), "MakeArrayType");
       UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetArrayRank(), "GetArrayRank");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeGenericType(), "MakeGenericType");
     }
 
     // This exists for GetInterface method with ignore case parameter.

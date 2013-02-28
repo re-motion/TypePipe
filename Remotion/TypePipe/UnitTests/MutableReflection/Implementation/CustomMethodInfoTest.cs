@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private MethodAttributes _attributes;
     private ParameterInfo _returnParameter;
 
-    private TestableCustomMethodInfo _method;
+    private TestableCustomMethodInfo _customMethod;
 
     private Type _typeArgument;
     private MethodInfo _genericMethodUnderlyingDefinition;
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _attributes = (MethodAttributes) 7;
       _returnParameter = CustomParameterInfoObjectMother.Create();
 
-      _method = new TestableCustomMethodInfo (_declaringType, _name, _attributes, false, null, Type.EmptyTypes)
+      _customMethod = new TestableCustomMethodInfo (_declaringType, _name, _attributes, false, null, Type.EmptyTypes)
                 {
                     ReturnParameter_ = _returnParameter
                 };
@@ -66,18 +66,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void Initialization ()
     {
-      Assert.That (_method.DeclaringType, Is.SameAs (_declaringType));
-      Assert.That (_method.Name, Is.EqualTo (_name));
-      Assert.That (_method.Attributes, Is.EqualTo (_attributes));
-      Assert.That (_method.ReturnParameter, Is.SameAs (_returnParameter));
-      Assert.That (_method.ReturnTypeCustomAttributes, Is.SameAs (_returnParameter));
-      Assert.That (_method.ReturnType, Is.SameAs (_returnParameter.ParameterType));
-      Assert.That (_method.IsGenericMethod, Is.False);
-      Assert.That (_method.IsGenericMethodDefinition, Is.False);
-      Assert.That (_method.ContainsGenericParameters, Is.False);
-      Assert.That (_method.GetGenericArguments(), Is.Empty);
+      Assert.That (_customMethod.DeclaringType, Is.SameAs (_declaringType));
+      Assert.That (_customMethod.Name, Is.EqualTo (_name));
+      Assert.That (_customMethod.Attributes, Is.EqualTo (_attributes));
+      Assert.That (_customMethod.ReturnParameter, Is.SameAs (_returnParameter));
+      Assert.That (_customMethod.ReturnTypeCustomAttributes, Is.SameAs (_returnParameter));
+      Assert.That (_customMethod.ReturnType, Is.SameAs (_returnParameter.ParameterType));
+      Assert.That (_customMethod.IsGenericMethod, Is.False);
+      Assert.That (_customMethod.IsGenericMethodDefinition, Is.False);
+      Assert.That (_customMethod.ContainsGenericParameters, Is.False);
+      Assert.That (_customMethod.GetGenericArguments(), Is.Empty);
       Assert.That (
-          () => _method.GetGenericMethodDefinition (),
+          () => _customMethod.GetGenericMethodDefinition (),
           Throws.InvalidOperationException.With.Message.EqualTo (
               "GetGenericMethodDefinition can only be called on generic methods (IsGenericMethod must be true)."));
     }
@@ -116,12 +116,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ReturnType ()
     {
       var type = ReflectionObjectMother.GetSomeType();
-      _method.ReturnParameter_ = CustomParameterInfoObjectMother.Create (type: type);
+      _customMethod.ReturnParameter_ = CustomParameterInfoObjectMother.Create (type: type);
 
-      Assert.That (_method.ReturnType, Is.SameAs (type));
+      Assert.That (_customMethod.ReturnType, Is.SameAs (type));
     }
 
-    [Ignore]
     [Test]
     public void MakeGenericMethod ()
     {
@@ -143,13 +142,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CustomAttributeMethods ()
     {
-      _method.CustomAttributeDatas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute)) };
+      _customMethod.CustomAttributeDatas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute)) };
 
-      Assert.That (_method.GetCustomAttributes (false).Select (a => a.GetType ()), Is.EqualTo (new[] { typeof (ObsoleteAttribute) }));
-      Assert.That (_method.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
+      Assert.That (_customMethod.GetCustomAttributes (false).Select (a => a.GetType ()), Is.EqualTo (new[] { typeof (ObsoleteAttribute) }));
+      Assert.That (_customMethod.GetCustomAttributes (typeof (NonSerializedAttribute), false), Is.Empty);
 
-      Assert.That (_method.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
-      Assert.That (_method.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
+      Assert.That (_customMethod.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
+      Assert.That (_customMethod.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
     }
 
     [Test]
@@ -184,19 +183,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void VirtualMethodsImplementedByMethodInfo ()
     {
       // None of these members should throw an exception 
-      Dev.Null = _method.MemberType;
+      Dev.Null = _customMethod.MemberType;
     }
 
     [Test]
     public void UnsupportedMembers ()
     {
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.ReflectedType, "ReflectedType");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.MetadataToken, "MetadataToken");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.Module, "Module");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.MethodHandle, "MethodHandle");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customMethod.ReflectedType, "ReflectedType");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customMethod.MetadataToken, "MetadataToken");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customMethod.Module, "Module");
+      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customMethod.MethodHandle, "MethodHandle");
 
-      UnsupportedMemberTestHelper.CheckMethod (() => _method.GetMethodBody(), "GetMethodBody");
-      UnsupportedMemberTestHelper.CheckMethod (() => _method.Invoke (null, 0, null, null, null), "Invoke");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customMethod.GetMethodBody(), "GetMethodBody");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customMethod.Invoke (null, 0, null, null, null), "Invoke");
     }
   }
 }
