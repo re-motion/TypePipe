@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (_typeArguments.All (typeArg => typeArg.IsRuntimeType()))
         return _genericMethodDefinition.MakeGenericMethod (_typeArguments.ToArray());
 
-      return new MethodInstantiation (_genericMethodDefinition, _typeArguments);
+      return new MethodInstantiation (this);
     }
   }
 }

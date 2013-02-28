@@ -42,12 +42,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SetUp ()
     {
       _typeParameter = GenericParameterObjectMother.Create();
-      _parameter = CustomParameterInfoObjectMother.Create ();
+      _parameter = CustomParameterInfoObjectMother.Create();
       _genericMethodDefinition = CustomMethodInfoObjectMother.Create (
           parameters: new[] { _parameter }, isGenericMethod: true, typeArguments: new[] { _typeParameter });
       _typeArgument = CustomTypeObjectMother.Create();
 
-      _instantiation = new MethodInstantiation (_genericMethodDefinition, new[] { _typeArgument });
+      var info = new MethodInstantiationInfo (_genericMethodDefinition, new[] { _typeArgument });
+      _instantiation = new MethodInstantiation (info);
     }
 
     [Test]
@@ -76,10 +77,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void GetCustomAttributeData ()
     {
       var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
-      var method = CustomMethodInfoObjectMother.Create (isGenericMethod: true, customAttributes: customAttributes);
-      var methodInstantiation = new MethodInstantiation (method, Type.EmptyTypes);
+      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (isGenericMethod: true, customAttributes: customAttributes);
+      var instantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition);
 
-      Assert.That (methodInstantiation.GetCustomAttributeData (), Is.EqualTo (customAttributes));
+      Assert.That (instantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
     }
 
     [Test]
@@ -109,7 +110,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SubstituteGenericParameters_RemembersSubstitutedTypes ()
     {
       var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => GenericMethod<Dev.T> (null, null));
-      var instantiation = new MethodInstantiation (genericMethodDefinition, new[] { _typeArgument });
+      var instantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition, new[] { _typeArgument });
 
       var parameterTypes = instantiation.GetParameters().Select (p => p.ParameterType).ToList();
       Assert.That (parameterTypes, Has.Count.EqualTo (2));

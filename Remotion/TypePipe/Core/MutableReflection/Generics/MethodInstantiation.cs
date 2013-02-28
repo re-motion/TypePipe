@@ -39,18 +39,18 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
     private readonly Dictionary<Type, Type> _parametersToArguments;
 
-    public MethodInstantiation (MethodInfo genericMethodDefinition, IEnumerable<Type> typeArguments)
+    public MethodInstantiation (MethodInstantiationInfo instantiationInfo)
         : base (
-            ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition).DeclaringType,
-            genericMethodDefinition.Name,
-            genericMethodDefinition.Attributes,
+            ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericMethodDefinition.DeclaringType,
+            instantiationInfo.GenericMethodDefinition.Name,
+            instantiationInfo.GenericMethodDefinition.Attributes,
             true,
-            genericMethodDefinition,
-            ArgumentUtility.CheckNotNull ("typeArguments", typeArguments))
+            instantiationInfo.GenericMethodDefinition,
+            instantiationInfo.TypeArguments)
     {
-      Assertion.IsTrue (genericMethodDefinition.IsGenericMethodDefinition);
-
-      _parametersToArguments = genericMethodDefinition.GetGenericArguments ().Zip (typeArguments).ToDictionary (t => t.Item1, t => t.Item2);
+      var genericMethodDefinition = instantiationInfo.GenericMethodDefinition;
+      _parametersToArguments = genericMethodDefinition
+          .GetGenericArguments().Zip (instantiationInfo.TypeArguments).ToDictionary (t => t.Item1, t => t.Item2);
 
       _returnParameter = new MemberParameterOnInstantiation (this, genericMethodDefinition.ReturnParameter);
       _parameters = genericMethodDefinition

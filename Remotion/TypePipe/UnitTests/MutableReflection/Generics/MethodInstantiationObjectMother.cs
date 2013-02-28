@@ -31,8 +31,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       genericMethodDefinition = genericMethodDefinition
                                 ?? NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => GenericMethod (7));
       typeArguments = typeArguments ?? genericMethodDefinition.GetGenericArguments().Select (a => ReflectionObjectMother.GetSomeType());
+      var instantiationInfo = new MethodInstantiationInfo (genericMethodDefinition, typeArguments);
 
-      return new MethodInstantiation (genericMethodDefinition, typeArguments);
+      return new MethodInstantiation (instantiationInfo);
     }
 
     private static void GenericMethod<T> (T t) {}
