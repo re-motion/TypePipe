@@ -26,17 +26,17 @@ using Remotion.Collections;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
-  public class InstantiationInfoTest
+  public class TypeInstantiationInfoTest
   {
     private Type _customType;
     private Type _runtimeType;
 
-    private InstantiationInfo _info1;
-    private InstantiationInfo _info2;
-    private InstantiationInfo _info3;
-    private InstantiationInfo _info4;
+    private TypeInstantiationInfo _info1;
+    private TypeInstantiationInfo _info2;
+    private TypeInstantiationInfo _info3;
+    private TypeInstantiationInfo _info4;
 
-    private Dictionary<InstantiationInfo, TypeInstantiation> _instantiations;
+    private Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
 
     [SetUp]
     public void SetUp ()
@@ -47,12 +47,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _customType = CustomTypeObjectMother.Create();
       _runtimeType = ReflectionObjectMother.GetSomeType();
 
-      _info1 = new InstantiationInfo (genericTypeDef1, new[] { _customType }.AsReadOnly());
-      _info2 = new InstantiationInfo (genericTypeDef2, new[] { _customType });
-      _info3 = new InstantiationInfo (genericTypeDef1, new[] { _runtimeType });
-      _info4 = new InstantiationInfo (genericTypeDef1, new[] { _customType });
+      _info1 = new TypeInstantiationInfo (genericTypeDef1, new[] { _customType }.AsReadOnly());
+      _info2 = new TypeInstantiationInfo (genericTypeDef2, new[] { _customType });
+      _info3 = new TypeInstantiationInfo (genericTypeDef1, new[] { _runtimeType });
+      _info4 = new TypeInstantiationInfo (genericTypeDef1, new[] { _customType });
 
-      _instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
+      _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
     }
 
     [Test]
@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         "Specified type must be a generic type definition.\r\nParameter name: genericTypeDefinition")]
     public void Initialization_NoType ()
     {
-      Dev.Null = new InstantiationInfo (typeof (List<int>), Type.EmptyTypes);
+      Dev.Null = new TypeInstantiationInfo (typeof (List<int>), Type.EmptyTypes);
     }
 
     [Test]
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         "Generic parameter count of the generic type definition does not match the number of supplied type arguments.\r\nParameter name: typeArguments")]
     public void Initialization_NonMatchingGenericArgumentCount ()
     {
-      Dev.Null = new InstantiationInfo (typeof (List<>), Type.EmptyTypes);
+      Dev.Null = new TypeInstantiationInfo (typeof (List<>), Type.EmptyTypes);
     }
 
     [Test]
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var count = _instantiations.Count;
 
       var result2 = _info1.Instantiate (_instantiations);
-      var result3 = _info1.Instantiate (new Dictionary<InstantiationInfo, TypeInstantiation>());
+      var result3 = _info1.Instantiate (new Dictionary<TypeInstantiationInfo, TypeInstantiation>());
 
       Assert.That (_instantiations, Has.Count.EqualTo (count));
       Assert.That (result2, Is.SameAs (result1));

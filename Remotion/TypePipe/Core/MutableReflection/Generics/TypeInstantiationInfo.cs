@@ -26,15 +26,15 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// A class that holds the information needed to construct a generic type.
+  /// A class that holds the information needed to construct a generic type instantiation.
   /// </summary>
   /// <remarks>This is used by <see cref="TypeInstantiation"/> as the key in a context dictionary to break cyclic dependencies.</remarks>
-  public class InstantiationInfo
+  public class TypeInstantiationInfo
   {
     private readonly Type _genericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
 
-    public InstantiationInfo (Type genericTypeDefinition, IEnumerable<Type> typeArguments)
+    public TypeInstantiationInfo (Type genericTypeDefinition, IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull ("genericTypeDefinition", genericTypeDefinition);
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       get { return _typeArguments; }
     }
 
-    public Type Instantiate (Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
+    public Type Instantiate (Dictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
     {
       var typeInstantiation = instantiations.GetValueOrDefault (this);
       if (typeInstantiation != null)
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override bool Equals (object obj)
     {
-      var other = obj as InstantiationInfo;
+      var other = obj as TypeInstantiationInfo;
       if (other == null)
         return false;
 

@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   // TODO <remarks>Instances of this class are returned by <see cref="MutableMethodInfo.MakeGenericMethod"/>.</remarks>
   public class MethodInstantiation : CustomMethodInfo
   {
-    private readonly Dictionary<InstantiationInfo, TypeInstantiation> _instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
+    private readonly Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
 
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return type;
 
       var genericTypeDefinition = type.GetGenericTypeDefinition ();
-      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
+      var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, newTypeArguments);
 
       return instantiationInfo.Instantiate (_instantiations);
     }

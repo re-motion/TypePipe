@@ -37,14 +37,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
 
-    private static string GetFullName (InstantiationInfo info)
+    private static string GetFullName (TypeInstantiationInfo info)
     {
       var typeArgumentString = SeparatedStringBuilder.Build (",", info.TypeArguments, t => "[" + t.AssemblyQualifiedName + "]");
       return string.Format ("{0}[{1}]", info.GenericTypeDefinition.FullName, typeArgumentString);
     }
 
     private readonly Type _genericTypeDefinition;
-    private readonly Dictionary<InstantiationInfo, TypeInstantiation> _instantiations;
+    private readonly Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
     private readonly Dictionary<Type, Type> _parametersToArguments;
 
     private readonly ReadOnlyCollection<Type> _interfaces;
@@ -56,8 +56,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public TypeInstantiation (
         IMemberSelector memberSelector,
-        InstantiationInfo instantiationInfo,
-        Dictionary<InstantiationInfo, TypeInstantiation> instantiations)
+        TypeInstantiationInfo instantiationInfo,
+        Dictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
         : base (
             memberSelector,
             ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return type;
 
       var genericTypeDefinition = type.GetGenericTypeDefinition();
-      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, newTypeArguments);
+      var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, newTypeArguments);
 
       return instantiationInfo.Instantiate (_instantiations);
     }

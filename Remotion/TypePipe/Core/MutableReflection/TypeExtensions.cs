@@ -144,8 +144,8 @@ namespace Remotion.TypePipe.MutableReflection
         }
       }
 
-      var instantiationInfo = new InstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiations = new Dictionary<InstantiationInfo, TypeInstantiation>();
+      var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
+      var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
 
       return instantiationInfo.Instantiate (instantiations);
     }

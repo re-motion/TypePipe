@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _customType = CustomTypeObjectMother.Create (fullName: "MyNs.InnerTypeArg");
       _typeArguments = new Type[] { _outerCustomType, _customType };
 
-      var info = new InstantiationInfo (_genericTypeDefinition, _typeArguments);
+      var info = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
       _instantiation = new TypeInstantiation (_memberSelector, info, CreateInstantiationContext());
     }
 
@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization_ReadOnlyAndWriteOnlyProperty ()
     {
-      var info1 = new InstantiationInfo (typeof (GenericTypeWithProperties<>), new Type[] { _customType });
+      var info1 = new TypeInstantiationInfo (typeof (GenericTypeWithProperties<>), new Type[] { _customType });
       var instantiation = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
 
       var property1 = instantiation.GetProperty ("ReadOnlyProperty", c_allMembers);
@@ -209,7 +209,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDef)).Return (events);
       
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
-      var info = new InstantiationInfo (genericTypeDef, typeArguments);
+      var info = new TypeInstantiationInfo (genericTypeDef, typeArguments);
 
       Dev.Null = new TypeInstantiation (memberSelectorMock, info, CreateInstantiationContext());
 
@@ -256,7 +256,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       
       var genericTypeDefinition = typeof (RecursiveGenericType<>);
       var typeArguments = new Type[] { _customType };
-      var info = new InstantiationInfo (genericTypeDefinition, typeArguments);
+      var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
       var instantiation = new TypeInstantiation (_memberSelector, info, CreateInstantiationContext());
 
       Assertion.IsNotNull (instantiation.BaseType);
@@ -275,9 +275,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (type3, Is.EqualTo (_outerCustomType));
     }
 
-    private Dictionary<InstantiationInfo, TypeInstantiation> CreateInstantiationContext ()
+    private Dictionary<TypeInstantiationInfo, TypeInstantiation> CreateInstantiationContext ()
     {
-      return new Dictionary<InstantiationInfo, TypeInstantiation> ();
+      return new Dictionary<TypeInstantiationInfo, TypeInstantiation> ();
     }
 
     interface IMyInterface<T> { }
