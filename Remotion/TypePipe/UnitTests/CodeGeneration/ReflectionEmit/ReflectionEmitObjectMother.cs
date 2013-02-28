@@ -19,8 +19,6 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
 

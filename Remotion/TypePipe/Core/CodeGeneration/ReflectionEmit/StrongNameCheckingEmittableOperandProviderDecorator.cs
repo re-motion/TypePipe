@@ -68,12 +68,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _emittableOperandProvider.AddMapping (mappedMethod, emittableMethod);
     }
 
-    public void AddMapping (MutablePropertyInfo mappedProperty, PropertyInfo emittableProperty)
-    {
-      throw new NotImplementedException();
-      //_emittableOperandProvider.AddMapping (mappedProperty, emittableProperty);
-    }
-
     public Type GetEmittableType (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
