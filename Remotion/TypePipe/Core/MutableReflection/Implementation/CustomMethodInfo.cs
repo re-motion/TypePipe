@@ -136,6 +136,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _typeArguments.ToArray();
     }
 
+    public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
+    {
+      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+
+      if (!IsGenericMethodDefinition)
+        throw new InvalidOperationException ("MakeGenericMethod can only be called on generic method definitions (IsGenericMethodDefinition must be true).");
+
+      return null;
+      //return this.MakeTypePipeGenericMethod (typeArguments);
+    }
+
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
     {
       return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
@@ -199,13 +210,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override RuntimeMethodHandle MethodHandle
     {
       get { throw new NotSupportedException ("Property MethodHandle is not supported."); }
-    }
-
-    // TODO think about how to to this?
-    // apply pattern also to CustomType.
-    public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
-    {
-      throw new NotSupportedException ("Method MakeGenericMethod is not supported.");
     }
 
     public override MethodBody GetMethodBody ()

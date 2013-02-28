@@ -121,6 +121,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_method.ReturnType, Is.SameAs (type));
     }
 
+    [Ignore]
+    [Test]
+    public void MakeGenericMethod ()
+    {
+      var result = _genericMethodDefinition.MakeGenericMethod (_typeArgument);
+
+      Assert.That (result.IsGenericMethod, Is.True);
+      Assert.That (result.IsGenericMethodDefinition, Is.False);
+      Assert.That (result.GetGenericMethodDefinition(), Is.SameAs (_genericMethodDefinition));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "MakeGenericMethod can only be called on generic method definitions (IsGenericMethodDefinition must be true).")]
+    public void MakeGenericMethod_NoGenericMethodDefinition ()
+    {
+      _genericMethod.MakeGenericMethod();
+    }
+
     [Test]
     public void CustomAttributeMethods ()
     {
@@ -176,7 +195,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.Module, "Module");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _method.MethodHandle, "MethodHandle");
 
-      UnsupportedMemberTestHelper.CheckMethod (() => _method.MakeGenericMethod (Type.EmptyTypes), "MakeGenericMethod");
       UnsupportedMemberTestHelper.CheckMethod (() => _method.GetMethodBody(), "GetMethodBody");
       UnsupportedMemberTestHelper.CheckMethod (() => _method.Invoke (null, 0, null, null, null), "Invoke");
     }
