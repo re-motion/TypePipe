@@ -117,6 +117,7 @@
     <Compile Include="MutableReflection\Generics\MethodInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\TypeSubstitutionUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelperTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
@@ -172,6 +173,7 @@
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactoryTest.cs" />
+    <Compile Include="MutableReflection\MethodExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableEventInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutableEventInfoTest.cs" />
     <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />

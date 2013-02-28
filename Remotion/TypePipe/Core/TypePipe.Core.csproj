@@ -158,6 +158,7 @@
     <Compile Include="MutableReflection\Generics\TypeSubstitutionUtility.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelper.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtility.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclaration.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactory.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
+    <Compile Include="MutableReflection\MethodExtensions.cs" />
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
