@@ -22,6 +22,8 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
@@ -132,23 +134,46 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void GetEmittableType_GenericType_ProxyTypeGenericParameter ()
+    public void GetEmittableType_TypeInstantiation ()
     {
       var emittableType = ReflectionObjectMother.GetSomeType();
       _provider.AddMapping (_proxyType, emittableType);
 
-      // Test recursion: List<Func<pt xxx>> as TypeBuilderInstantiation
       var instantiation = typeof (List<>).MakeTypePipeGenericType (typeof (Func<>).MakeTypePipeGenericType (_proxyType));
-      Assert.That (instantiation.IsRuntimeType(), Is.False);
+      Assert.That (instantiation, Is.TypeOf<TypeInstantiation>());
 
       var result = _provider.GetEmittableType (instantiation);
 
-      var proxyTypeGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
-      Assert.That (proxyTypeGenericArgument, Is.SameAs (emittableType));
+      Assert.That (result, Is.Not.InstanceOf<CustomType>());
+      var emittableGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
+      Assert.That (emittableGenericArgument, Is.SameAs (emittableType));
     }
 
     [Test]
-    public void GetEmittableXXX_GenericTypeDeclaringType_ProxyTypeGenericParameter ()
+    public void GetEmittableMethod_MethodInstantiation_OnRuntimeType ()
+    {
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      _provider.AddMapping (_proxyType, emittableType);
+
+      var genericMethodDefinition = typeof (Enumerable).GetMethod ("Empty");
+      var instantiation = genericMethodDefinition.MakeTypePipeGenericMethod (_proxyType);
+      Assert.That (instantiation, Is.TypeOf<MethodInstantiation>());
+
+      var result = _provider.GetEmittableMethod (instantiation);
+
+      Assert.That (result, Is.Not.InstanceOf<CustomMethodInfo>());
+      var emittableGenericArgument = result.GetGenericArguments().Single();
+      Assert.That (emittableGenericArgument, Is.SameAs (emittableType));
+    }
+
+    [Test]
+    public void GetEmittableMethod_MethodInstantiation_OnCustomType ()
+    {
+      
+    }
+
+    [Test]
+    public void GetEmittableXXX_MembersFromTypeInstantiation ()
     {
       var field = _listInstantiation.GetField ("_size", BindingFlags.NonPublic | BindingFlags.Instance);
       var ctor = _listInstantiation.GetConstructor (Type.EmptyTypes);

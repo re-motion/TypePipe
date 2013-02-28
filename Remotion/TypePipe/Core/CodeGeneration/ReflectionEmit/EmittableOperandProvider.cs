@@ -80,40 +80,48 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetEmittableOperand<Type, ProxyType, TypeInstantiation> (_mappedTypes, type, IsEmittable, GetEmittableTypeInstantiation);
+      return GetEmittableOperand (_mappedTypes, type, IsEmittable, t => GetEmittableTypeInstantiation ((TypeInstantiation) t));
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      return GetEmittableOperand<FieldInfo, MutableFieldInfo, FieldOnTypeInstantiation> (
+      return GetEmittableOperand (
           _mappedFields,
           field,
           IsEmittable,
-          f => GetEmittableMemberInstantiation (f, fi => fi.FieldOnGenericType, TypeBuilder.GetField));
+          f => GetEmittableMemberInstantiation (f, fi => ((FieldOnTypeInstantiation) fi).FieldOnGenericType, TypeBuilder.GetField));
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return GetEmittableOperand<ConstructorInfo, MutableConstructorInfo, ConstructorOnTypeInstantiation> (
+      return GetEmittableOperand (
           _mappedConstructors,
           constructor,
           IsEmittable,
-          c => GetEmittableMemberInstantiation (c, ci => ci.ConstructorOnGenericType, TypeBuilder.GetConstructor));
+          c => GetEmittableMemberInstantiation (c, ci => ((ConstructorOnTypeInstantiation) ci).ConstructorOnGenericType, TypeBuilder.GetConstructor));
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      return GetEmittableOperand<MethodInfo, MutableMethodInfo, MethodOnTypeInstantiation> (
+      Func<MethodInfo, MethodInfo> emittableInstantiationProvider = m =>
+      {
+        var methodInstantiation = m as MethodInstantiation;
+        if (methodInstantiation != null)
+          return GetEmittableMethodInstantiation (methodInstantiation);
+        else
+          return GetEmittableMemberInstantiation (m, mi => ((MethodOnTypeInstantiation) mi).MethodOnGenericType, TypeBuilder.GetMethod);
+      };
+      return GetEmittableOperand (
           _mappedMethods,
           method,
           IsEmittable,
-          m => GetEmittableMemberInstantiation (m, mi => mi.MethodOnGenericType, TypeBuilder.GetMethod));
+          emittableInstantiationProvider);
     }
 
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
@@ -133,32 +141,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private bool IsEmittable (Type type)
     {
-      Debug.Assert (type is CustomType || type is TypeBuilder || type.IsRuntimeType());
-
       return !(type is CustomType);
     }
 
     private bool IsEmittable (MemberInfo member)
     {
-      // TODO
-      //Debug.Assert (!(member is Type));
-      //return IsEmittable (member.DeclaringType) && !(member is MethodInstantiation);
+      Debug.Assert (member is FieldInfo || member is ConstructorInfo || member is MethodInfo);
 
-      return IsEmittable (member.DeclaringType);
+      return !(member is CustomFieldInfo) && !(member is CustomConstructorInfo) && !(member is CustomMethodInfo);
     }
 
-    private static T GetEmittableOperand<T, TMutable, TInstantiation> (
-        Dictionary<TMutable, T> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<TInstantiation, T> emittableInstantiationProvider)
+    private static T GetEmittableOperand<T, TMutable> (
+        Dictionary<TMutable, T> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<T, T> emittableInstantiationProvider)
         where T : class
         where TMutable : class, T
-        where TInstantiation : T
     {
       if (isAlreadyEmittable (operand))
         return operand;
 
       var mutableOperand = operand as TMutable;
       if (mutableOperand == null)
-        return emittableInstantiationProvider ((TInstantiation) operand);
+        return emittableInstantiationProvider (operand);
 
       var emittableOperand = mapping.GetValueOrDefault (mutableOperand);
       if (emittableOperand == null)
@@ -182,7 +185,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private MethodInfo GetEmittableMethodInstantiation (MethodInstantiation methodInstantiation)
     {
-      var emittableGenericMethodDefinition = GetEmittableMethod (methodInstantiation.GetGenericMethodDefinition());
+      //var emittableGenericMethodDefinition = GetEmittableMethod (methodInstantiation.GetGenericMethodDefinition());
+      var emittableGenericMethodDefinition = methodInstantiation.GetGenericMethodDefinition();
       var emittableTypeArguments = methodInstantiation.GetGenericArguments().Select (GetEmittableType).ToArray();
 
       // Should *not* be MakeTypePipeGenericMethod.
