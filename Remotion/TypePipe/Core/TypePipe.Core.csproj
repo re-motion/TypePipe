@@ -64,8 +64,10 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EventBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EventBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\GenericTypeParameterBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ICustomAttributeTargetBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IEventBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IGenericTypeParameterBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IParameterBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IPropertyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBase.cs" />

@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public abstract class BuilderDecoratorBase : ICustomAttributeTargetBuilder
   {
     private readonly ICustomAttributeTargetBuilder _customAttributeTargetBuilder;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
+    protected readonly IEmittableOperandProvider EmittableOperandProvider;
 
     protected BuilderDecoratorBase (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IEmittableOperandProvider emittableOperandProvider)
     {
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
       _customAttributeTargetBuilder = customAttributeTargetBuilder;
-      _emittableOperandProvider = emittableOperandProvider;
+      EmittableOperandProvider = emittableOperandProvider;
     }
 
     public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       var type = argumentValue as Type;
       if (type != null)
-        return _emittableOperandProvider.GetEmittableType (type);
+        return EmittableOperandProvider.GetEmittableType (type);
 
       var array = argumentValue as Array;
       if (array != null)

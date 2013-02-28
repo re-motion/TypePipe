@@ -30,14 +30,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public abstract class MethodBaseBuilderDecoratorBase : BuilderDecoratorBase, IMethodBaseBuilder
   {
     private readonly IMethodBaseBuilder _methodBaseBuilder;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
     protected MethodBaseBuilderDecoratorBase (IMethodBaseBuilder methodBaseBuilder, IEmittableOperandProvider emittableOperandProvider)
         : base (methodBaseBuilder, emittableOperandProvider)
     {
       _methodBaseBuilder = methodBaseBuilder;
-      _emittableOperandProvider = emittableOperandProvider;
     }
 
     public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)
@@ -46,7 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       var parameterBuilder = _methodBaseBuilder.DefineParameter (iSequence, attributes, strParamName);
 
-      return new ParameterBuilderDecorator (parameterBuilder, _emittableOperandProvider);
+      return new ParameterBuilderDecorator (parameterBuilder, EmittableOperandProvider);
     }
 
     [CLSCompliant (false)]

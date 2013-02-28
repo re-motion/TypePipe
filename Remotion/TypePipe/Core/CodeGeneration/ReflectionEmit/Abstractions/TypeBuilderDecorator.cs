@@ -31,14 +31,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public class TypeBuilderDecorator : BuilderDecoratorBase, ITypeBuilder
   {
     private readonly ITypeBuilder _typeBuilder;
-    private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
     public TypeBuilderDecorator (ITypeBuilder typeBuilder, IEmittableOperandProvider emittableOperandProvider)
         : base (typeBuilder, emittableOperandProvider)
     {
       _typeBuilder = typeBuilder;
-      _emittableOperandProvider = emittableOperandProvider;
     }
 
     [CLSCompliant (false)]
@@ -59,7 +57,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
-      var emittableInterfaceType = _emittableOperandProvider.GetEmittableType (interfaceType);
+      var emittableInterfaceType = EmittableOperandProvider.GetEmittableType (interfaceType);
       _typeBuilder.AddInterfaceImplementation (emittableInterfaceType);
     }
 
@@ -68,10 +66,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("type", type);
 
-      var emittableType = _emittableOperandProvider.GetEmittableType (type);
+      var emittableType = EmittableOperandProvider.GetEmittableType (type);
       var fieldBuilder = _typeBuilder.DefineField (name, emittableType, attributes);
 
-      return new FieldBuilderDecorator (fieldBuilder, _emittableOperandProvider);
+      return new FieldBuilderDecorator (fieldBuilder, EmittableOperandProvider);
     }
 
     [CLSCompliant (false)]    
@@ -79,10 +77,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      var emittableParameterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray();
+      var emittableParameterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
       var constructorBuilder = _typeBuilder.DefineConstructor (attributes, callingConvention, emittableParameterTypes);
 
-      return new ConstructorBuilderDecorator (constructorBuilder, _emittableOperandProvider);
+      return new ConstructorBuilderDecorator (constructorBuilder, EmittableOperandProvider);
     }
 
     [CLSCompliant(false)]
@@ -92,11 +90,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      var emittableReturnType = _emittableOperandProvider.GetEmittableType (returnType);
-      var emittableParameterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray();
+      var emittableReturnType = EmittableOperandProvider.GetEmittableType (returnType);
+      var emittableParameterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes, emittableReturnType, emittableParameterTypes);
 
-      return new MethodBuilderDecorator (methodBuilder, _emittableOperandProvider);
+      return new MethodBuilderDecorator (methodBuilder, EmittableOperandProvider);
     }
 
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
@@ -104,8 +102,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("methodInfoBody", methodInfoBody);
       ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
 
-      var emittableMethodInfoBody = _emittableOperandProvider.GetEmittableMethod (methodInfoBody);
-      var emittableMethodInfoDeclaration = _emittableOperandProvider.GetEmittableMethod (methodInfoDeclaration);
+      var emittableMethodInfoBody = EmittableOperandProvider.GetEmittableMethod (methodInfoBody);
+      var emittableMethodInfoDeclaration = EmittableOperandProvider.GetEmittableMethod (methodInfoDeclaration);
       _typeBuilder.DefineMethodOverride (emittableMethodInfoBody, emittableMethodInfoDeclaration);
     }
 
@@ -117,11 +115,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      var emittableReturnType = _emittableOperandProvider.GetEmittableType (returnType);
-      var emittableParmeterTypes = parameterTypes.Select (_emittableOperandProvider.GetEmittableType).ToArray();
+      var emittableReturnType = EmittableOperandProvider.GetEmittableType (returnType);
+      var emittableParmeterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
       var propertyBuilder = _typeBuilder.DefineProperty (name, attributes, callingConvention, emittableReturnType, emittableParmeterTypes);
 
-      return new PropertyBuilderDecorator (propertyBuilder, _emittableOperandProvider);
+      return new PropertyBuilderDecorator (propertyBuilder, EmittableOperandProvider);
     }
 
     [CLSCompliant (false)]
@@ -130,10 +128,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("eventtype", eventtype);
 
-      var emittableEventType = _emittableOperandProvider.GetEmittableType (eventtype);
+      var emittableEventType = EmittableOperandProvider.GetEmittableType (eventtype);
       var eventBuilder = _typeBuilder.DefineEvent (name, attributes, emittableEventType);
 
-      return new EventBuilderDecorator (eventBuilder, _emittableOperandProvider);
+      return new EventBuilderDecorator (eventBuilder, EmittableOperandProvider);
     }
 
     public Type CreateType ()
