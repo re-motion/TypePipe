@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -23,6 +24,7 @@ using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -50,6 +52,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("method", method);
 
       emittableOperandProvider.AddMapping (method, _methodBuilder);
+    }
+
+    public IGenericTypeParameterBuilder[] DefineGenericParameters (string[] names)
+    {
+      ArgumentUtility.CheckNotNull ("names", names);
+
+      return _methodBuilder.DefineGenericParameters (names)
+                           .Select (b => new GenericTypeParameterBuilderAdapter (b)).Cast<IGenericTypeParameterBuilder>().ToArray();
     }
 
     public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)

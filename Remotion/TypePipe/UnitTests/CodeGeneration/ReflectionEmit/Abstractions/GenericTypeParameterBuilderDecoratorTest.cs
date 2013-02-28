@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
     }
-    
+
     [Test]
     public void DelegatingMembers ()
     {

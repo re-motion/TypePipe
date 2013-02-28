@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -39,6 +41,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
       _decorator = new MethodBuilderDecorator (_innerMock, _operandProvider);
+    }
+
+    [Test]
+    public void DefineGenericParameters ()
+    {
+      var genericParameterNames = new[] { "T1", "T2" };
+      var fakeGenericTypeParameterBuilder = MockRepository.GenerateStub<IGenericTypeParameterBuilder>();
+      _innerMock.Expect (mock => mock.DefineGenericParameters (genericParameterNames)).Return (new[] { fakeGenericTypeParameterBuilder });
+
+      var results = _decorator.DefineGenericParameters (genericParameterNames);
+
+      var result = results.Single();
+      Assert.That (result, Is.TypeOf<GenericTypeParameterBuilderDecorator>());
+      // Use field from base class 'BuilderDecoratorBase'.
+      Assert.That (PrivateInvoke.GetNonPublicField (result, "_customAttributeTargetBuilder"), Is.SameAs (fakeGenericTypeParameterBuilder));
     }
 
     [Test]

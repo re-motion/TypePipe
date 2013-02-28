@@ -15,25 +15,21 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
   /// <summary>
-  /// Decorates an instance of <see cref="GenericTypeParameterBuilder"/> to allow <see cref="CustomType"/>s to be used in signatures and 
-  /// for checking strong-name compatibility.
+  /// Adapts <see cref="GenericTypeParameterBuilder"/> with the <see cref="IGenericTypeParameterBuilder"/> interface.
   /// </summary>
-  public class GenericTypeParameterBuilderDecorator : BuilderDecoratorBase, IGenericTypeParameterBuilder
+  public class GenericTypeParameterBuilderAdapter : BuilderAdapterBase, IGenericTypeParameterBuilder
   {
-    private readonly IGenericTypeParameterBuilder _genericTypeParameterBuilder;
+    private readonly GenericTypeParameterBuilder _genericTypeParameterBuilder;
 
-    public GenericTypeParameterBuilderDecorator (
-        IGenericTypeParameterBuilder genericTypeParameterBuilder, IEmittableOperandProvider emittableOperandProvider)
-        : base (genericTypeParameterBuilder, emittableOperandProvider)
+    public GenericTypeParameterBuilderAdapter (GenericTypeParameterBuilder genericTypeParameterBuilder)
+        : base(ArgumentUtility.CheckNotNull ("genericTypeParameterBuilder", genericTypeParameterBuilder).SetCustomAttribute)
     {
       _genericTypeParameterBuilder = genericTypeParameterBuilder;
     }
@@ -47,16 +43,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
 
-      var emittableBaseTypeConstraint = EmittableOperandProvider.GetEmittableType (baseTypeConstraint);
-      _genericTypeParameterBuilder.SetBaseTypeConstraint (emittableBaseTypeConstraint);
+      _genericTypeParameterBuilder.SetBaseTypeConstraint (baseTypeConstraint);
     }
 
-    public void SetInterfaceConstraints (Type[] interfaceConstraints)
+    public void SetInterfaceConstraints (params Type[] interfaceConstraints)
     {
       ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
 
-      var emittableInterfaceConstraints = interfaceConstraints.Select (EmittableOperandProvider.GetEmittableType).ToArray();
-      _genericTypeParameterBuilder.SetInterfaceConstraints (emittableInterfaceConstraints);
+      _genericTypeParameterBuilder.SetInterfaceConstraints (interfaceConstraints);
     }
   }
 }

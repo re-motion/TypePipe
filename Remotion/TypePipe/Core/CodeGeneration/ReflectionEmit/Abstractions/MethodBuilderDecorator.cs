@@ -19,6 +19,7 @@ using System;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -49,6 +50,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("method", method);
 
       _methodBuilder.RegisterWith (emittableOperandProvider, method);
+    }
+
+    public IGenericTypeParameterBuilder[] DefineGenericParameters (string[] names)
+    {
+      ArgumentUtility.CheckNotNull ("names", names);
+
+      return _methodBuilder.DefineGenericParameters (names)
+                           .Select (b => new GenericTypeParameterBuilderDecorator (b, EmittableOperandProvider))
+                           .Cast<IGenericTypeParameterBuilder>().ToArray();
     }
   }
 }
