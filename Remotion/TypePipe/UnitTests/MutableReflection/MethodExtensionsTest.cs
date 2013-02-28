@@ -18,13 +18,11 @@ using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  [Ignore]
   [TestFixture]
   public class MethodExtensionsTest
   {
@@ -38,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = genericMethodDefinition.MakeTypePipeGenericMethod (runtimeType, customType);
 
       Assert.That (result.IsGenericMethod, Is.True);
-      Assert.That (result.IsGenericMethodDefinition, Is.True);
+      Assert.That (result.IsGenericMethodDefinition, Is.False);
       Assert.That (result.GetGenericArguments(), Is.EqualTo (new[] { runtimeType, customType }));
     }
 
@@ -54,12 +52,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     [Test]
     [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The method has 2 generic parameter(s), but 1 generic argument(s) were provided. "
+        ExpectedMessage = "The generic definition 'Method' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
                           + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments")]
-    public void MakeTypePipeGenericMethod_WrongNumberOfTypeArguments ()
+    public void MakeTypePipeGenericType_UsesGenericArgumentUtilityToValidateGenericArguments ()
     {
-      var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Method<Dev.T, Dev.T>());
-      genericMethodDefinition.MakeTypePipeGenericMethod (typeof (int));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Method<Dev.T, Dev.T>());
+      method.MakeTypePipeGenericMethod (typeof (int));
     }
 
     private void Method<T1, T2> () {}

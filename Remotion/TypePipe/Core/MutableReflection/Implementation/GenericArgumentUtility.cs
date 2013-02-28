@@ -36,8 +36,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (typeParameters.Length != typeArguments.Length)
       {
         var message = string.Format (
-            "The type has {0} generic parameter(s), but {1} generic argument(s) were provided. "
+            "The generic definition '{0}' has {1} generic parameter(s), but {2} generic argument(s) were provided. "
             + "A generic argument must be provided for each generic parameter.",
+            typeOrMethodName,
             typeParameters.Length,
             typeArguments.Length);
         throw new ArgumentException (message, "typeArguments");

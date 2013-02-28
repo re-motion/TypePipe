@@ -17,6 +17,8 @@
 
 using System;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -28,7 +30,20 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);
       ArgumentUtility.CheckNotNullOrEmpty ("typeArguments", typeArguments);
 
-      return null;
+      if (!genericMethodDefinition.IsGenericMethodDefinition)
+      {
+        var message = string.Format (
+            "'{0}' is not a generic method definition. {1} may only be called on a method for which MethodInfo.IsGenericMethodDefinition is true.",
+            genericMethodDefinition.Name,
+            MethodInfo.GetCurrentMethod ().Name);
+        throw new InvalidOperationException (message);
+      }
+
+      var typeParameters = genericMethodDefinition.GetGenericArguments();
+      GenericArgumentUtility.ValidateGenericArguments (typeParameters, typeArguments, genericMethodDefinition.Name);
+
+      var instantiationInfo = new MethodInstantiationInfo (genericMethodDefinition, typeArguments);
+      return instantiationInfo.Instantiate();
     }
   }
 }
