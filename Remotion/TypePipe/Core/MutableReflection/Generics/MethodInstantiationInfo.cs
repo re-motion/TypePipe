@@ -57,5 +57,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       get { return _typeArguments; }
     }
+
+    public MethodInfo Instantiate ()
+    {
+      // Make RuntimeMethod if all type arguments are RuntimeTypes.
+      if (_typeArguments.All (typeArg => typeArg.IsRuntimeType()))
+        return _genericMethodDefinition.MakeGenericMethod (_typeArguments.ToArray());
+
+      return new MethodInstantiation (_genericMethodDefinition, _typeArguments);
+    }
   }
 }

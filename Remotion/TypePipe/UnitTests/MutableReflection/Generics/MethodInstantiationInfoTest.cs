@@ -33,8 +33,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private Type _customType;
     private Type _runtimeType;
 
-    private MethodInstantiationInfo _info1;
-    private MethodInstantiationInfo _info2;
+    private MethodInstantiationInfo _infoWithCustomType;
+    private MethodInstantiationInfo _infoWithRuntimeType;
 
     [SetUp]
     public void SetUp ()
@@ -44,15 +44,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _customType = CustomTypeObjectMother.Create();
       _runtimeType = ReflectionObjectMother.GetSomeType();
 
-      _info1 = new MethodInstantiationInfo (_genericMethodDefinition, new[] { _customType }.AsOneTime());
-      _info2 = new MethodInstantiationInfo (_genericMethodDefinition, new[] { _runtimeType });
+      _infoWithCustomType = new MethodInstantiationInfo (_genericMethodDefinition, new[] { _customType }.AsOneTime());
+      _infoWithRuntimeType = new MethodInstantiationInfo (_genericMethodDefinition, new[] { _runtimeType });
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_info1.GenericMethodDefinition, Is.SameAs (_genericMethodDefinition));
-      Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { _customType }));
+      Assert.That (_infoWithCustomType.GenericMethodDefinition, Is.SameAs (_genericMethodDefinition));
+      Assert.That (_infoWithCustomType.TypeArguments, Is.EqualTo (new[] { _customType }));
     }
 
     [Test]
@@ -70,6 +70,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_NonMatchingGenericArgumentCount ()
     {
       Dev.Null = new MethodInstantiationInfo (_genericMethodDefinition, Type.EmptyTypes);
+    }
+
+    [Test]
+    public void Instantiate_CustomTypeArgument ()
+    {
+      var result = _infoWithCustomType.Instantiate();
+
+      Assert.That (result, Is.TypeOf<MethodInstantiation>());
+      Assert.That (result.GetGenericMethodDefinition(), Is.EqualTo (_infoWithCustomType.GenericMethodDefinition));
+      Assert.That (result.GetGenericArguments (), Is.EqualTo (_infoWithCustomType.TypeArguments));
+    }
+
+    [Test]
+    public void Instantiate_RuntimeTypeArgument ()
+    {
+      var result = _infoWithRuntimeType.Instantiate();
+
+      Assert.That (result.GetType().FullName, Is.EqualTo ("System.Reflection.RuntimeMethodInfo"));
+      Assert.That (result.GetGenericMethodDefinition(), Is.EqualTo (_infoWithRuntimeType.GenericMethodDefinition));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (_infoWithRuntimeType.TypeArguments));
     }
 
     void GenericMethod<T> (T t) {}

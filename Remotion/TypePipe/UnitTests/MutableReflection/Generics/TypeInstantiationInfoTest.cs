@@ -23,35 +23,39 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
   public class TypeInstantiationInfoTest
   {
+    private Type _genericTypeDefinition;
     private Type _customType;
-    private Type _runtimeType;
 
     private TypeInstantiationInfo _info1;
     private TypeInstantiationInfo _info2;
     private TypeInstantiationInfo _info3;
     private TypeInstantiationInfo _info4;
 
+    private Type _runtimeType;
+    private TypeInstantiationInfo _infoWithRuntimeType;
+
     private Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
 
     [SetUp]
     public void SetUp ()
     {
-      var genericTypeDef1 = typeof (List<>);
-      var genericTypeDef2 = typeof (Func<>);
-
+      _genericTypeDefinition = typeof (List<>);
       _customType = CustomTypeObjectMother.Create();
-      _runtimeType = ReflectionObjectMother.GetSomeType();
 
-      _info1 = new TypeInstantiationInfo (genericTypeDef1, new[] { _customType }.AsOneTime());
-      _info2 = new TypeInstantiationInfo (genericTypeDef2, new[] { _customType });
-      _info3 = new TypeInstantiationInfo (genericTypeDef1, new[] { _runtimeType });
-      _info4 = new TypeInstantiationInfo (genericTypeDef1, new[] { _customType });
+      _info1 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _customType }.AsOneTime());
+      _info2 = new TypeInstantiationInfo (typeof (Func<>), new[] { _customType });
+      _info3 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { CustomTypeObjectMother.Create() });
+      _info4 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _customType });
+
+      _runtimeType = ReflectionObjectMother.GetSomeType();
+      _infoWithRuntimeType = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _runtimeType });
 
       _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
     }
@@ -59,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization ()
     {
-      Assert.That (_info1.GenericTypeDefinition, Is.SameAs (typeof (List<>)));
+      Assert.That (_info1.GenericTypeDefinition, Is.SameAs (_genericTypeDefinition));
       Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { _customType }));
     }
 
@@ -92,11 +96,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Instantiate_RuntimeTypeArgument ()
     {
-      var result = _info2.Instantiate (_instantiations);
+      var result = _infoWithRuntimeType.Instantiate (_instantiations);
 
-      Assert.That (result, Is.TypeOf<TypeInstantiation>());
-      Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_info2.GenericTypeDefinition));
-      Assert.That (result.GetGenericArguments(), Is.EqualTo (_info2.TypeArguments));
+      Assert.That (result.IsRuntimeType(), Is.True);
+      Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_infoWithRuntimeType.GenericTypeDefinition));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (_infoWithRuntimeType.TypeArguments));
     }
 
     [Test]
