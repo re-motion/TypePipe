@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _baseTypeConstraint = typeof (DomainType);
       _interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();
 
-      _constrainedParameter = GenericParameterObjectMother.Create (
+      _constrainedParameter = MutableGenericParameterObjectMother.Create (
           baseTypeConstraint: _baseTypeConstraint, interfaceConstraints: new[] { _interfaceConstraint }.AsOneTime());
     }
 
@@ -219,7 +219,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllConstructors_NewConstraint ()
     {
-      var parameter = GenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.DefaultConstructorConstraint);
+      var parameter = MutableGenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.DefaultConstructorConstraint);
 
       var result = parameter.GetConstructors (c_allMembers).Single();
 
@@ -272,7 +272,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       baseMemberSelectorMock.Expect (mock => mock.SelectProperties (properties, c_allMembers, baseTypeConstraint)).Return (properties);
       baseMemberSelectorMock.Expect (mock => mock.SelectEvents (events, c_allMembers, baseTypeConstraint)).Return (events);
 
-      var parameter = GenericParameterObjectMother.Create (baseTypeConstraint: baseTypeConstraint, interfaceConstraints: new[] { _interfaceConstraint });
+      var parameter = MutableGenericParameterObjectMother.Create (baseTypeConstraint: baseTypeConstraint, interfaceConstraints: new[] { _interfaceConstraint });
 
       parameter.InvokeNonPublicMethod ("GetAllFields");
       parameter.InvokeNonPublicMethod ("GetAllConstructors");

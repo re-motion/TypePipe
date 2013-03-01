@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [SetUp]
     public void SetUp ()
     {
-      _typeParameter = GenericParameterObjectMother.Create();
+      _typeParameter = MutableGenericParameterObjectMother.Create();
       _parameter = CustomParameterInfoObjectMother.Create();
       _genericMethodDefinition = CustomMethodInfoObjectMother.Create (
           parameters: new[] { _parameter }, isGenericMethod: true, typeArguments: new[] { _typeParameter });

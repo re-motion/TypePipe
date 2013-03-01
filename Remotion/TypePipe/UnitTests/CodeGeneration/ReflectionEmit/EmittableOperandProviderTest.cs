@@ -170,7 +170,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableMethod_MethodInstantiation_OnCustomType ()
     {
-      var genericMethodDefinition = MutableMethodInfoObjectMother.Create (genericParameters: new[] { GenericParameterObjectMother.Create() });
+      var genericMethodDefinition = MutableMethodInfoObjectMother.Create (genericParameters: new[] { MutableGenericParameterObjectMother.Create() });
       var emittableGenericMethodDefinition = typeof (Enumerable).GetMethod ("Empty");
       _provider.AddMapping (genericMethodDefinition, emittableGenericMethodDefinition);
 

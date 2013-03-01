@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void DelegatingMembers ()
     {
       var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
-      var genericParameter = GenericParameterObjectMother.Create();
+      var genericParameter = MutableGenericParameterObjectMother.Create();
 
       var helper = new DecoratorTestHelper<IGenericTypeParameterBuilder> (_decorator, _innerMock);
 

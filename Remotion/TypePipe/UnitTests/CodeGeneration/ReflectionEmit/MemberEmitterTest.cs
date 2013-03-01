@@ -196,7 +196,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (baseTypeConstraint.GetInterfaces(), Is.Not.Empty);
       Assert.That (baseTypeConstraint.GetInterfaces(), Has.No.Member (interfaceConstraint));
 
-      var genericParameter = GenericParameterObjectMother.Create (
+      var genericParameter = MutableGenericParameterObjectMother.Create (
           name: "TParam",
           genericParameterAttributes: (GenericParameterAttributes) 7,
           baseTypeConstraint: baseTypeConstraint,

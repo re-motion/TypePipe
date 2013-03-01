@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void AppendTypeString_CallsBase_ForInitializedGenericParam ()
     {
-      var initializedGenericParam = GenericParameterObjectMother.Create();
+      var initializedGenericParam = MutableGenericParameterObjectMother.Create();
       initializedGenericParam.InitializeDeclaringMember (MutableMethodInfoObjectMother.Create());
 
       _builder.AppendTypeString (_sb1, initializedGenericParam);
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void AppendTypeString_CallsBase_ForUninitializedGenericParam ()
     {
-      var uninitializedGenericParam = GenericParameterObjectMother.Create (position: 7);
+      var uninitializedGenericParam = MutableGenericParameterObjectMother.Create (position: 7);
 
       _builder.AppendTypeString (_sb1, uninitializedGenericParam);
       Assert.That (() => _originalBuilder.AppendTypeString (_sb2, uninitializedGenericParam), Throws.Exception);

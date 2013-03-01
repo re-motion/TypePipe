@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_GenericMethodDefinition ()
     {
-      var genericParameters = GenericParameterObjectMother.CreateMultiple (2);
+      var genericParameters = MutableGenericParameterObjectMother.CreateMultiple (2);
       var method = MutableMethodInfoObjectMother.Create (genericParameters: genericParameters);
 
       Assert.That (method.IsGenericMethod, Is.True);
@@ -240,7 +240,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = typeof (object);
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod(); // Base method must be virtual.
-      var genericParameters = new[] { GenericParameterObjectMother.Create() };
+      var genericParameters = new[] { MutableGenericParameterObjectMother.Create() };
       var method = MutableMethodInfoObjectMother.Create (
           declaringType, "Method", attribtes, returnType, parameters, baseMethod, genericParameters: genericParameters);
 

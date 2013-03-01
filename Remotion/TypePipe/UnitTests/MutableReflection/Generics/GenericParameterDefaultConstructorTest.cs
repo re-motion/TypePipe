@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = GenericParameterObjectMother.Create ();
+      _declaringType = MutableGenericParameterObjectMother.Create ();
 
       _constructor = new GenericParameterDefaultConstructor (_declaringType);
     }

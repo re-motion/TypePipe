@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
-  public static class GenericParameterObjectMother
+  public static class MutableGenericParameterObjectMother
   {
     public static MutableGenericParameter Create (
         int position = 7,
