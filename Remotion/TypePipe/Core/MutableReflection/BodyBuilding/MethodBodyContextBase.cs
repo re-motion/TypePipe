@@ -21,6 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class MethodBodyContextBase : MethodBaseBodyContextBase
   {
+    private readonly ReadOnlyCollection<Type> _genericParameters;
     private readonly Type _returnType;
     private readonly MethodInfo _baseMethod;
 
@@ -36,21 +38,24 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         ProxyType declaringType,
         bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
+        IEnumerable<Type> genericParameters,
         Type returnType,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
         : base (declaringType, isStatic, parameterExpressions, memberSelector)
     {
+      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       // Base method may be null.
 
+      _genericParameters = genericParameters.ToList ().AsReadOnly ();
       _returnType = returnType;
       _baseMethod = baseMethod;
     }
 
     public ReadOnlyCollection<Type> GenericParameters
     {
-      get { throw new NotImplementedException(); }
+      get { return _genericParameters; }
     }
 
     public Type ReturnType

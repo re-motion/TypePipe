@@ -281,6 +281,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Assert.That (ctx.This.Type, Is.SameAs (_proxyType));
         Assert.That (ctx.Parameters.Single().Name, Is.EqualTo ("paramName"));
         Assert.That (ctx.IsStatic, Is.False);
+        Assert.That (ctx.GenericParameters, Is.EqualTo (genericParameterContext.GenericParameters));
         Assert.That (ctx.ReturnType, Is.SameAs (returnType));
         Assert.That (ctx.HasBaseMethod, Is.False);
 
@@ -1349,15 +1350,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           ctx => Expression.Empty(),
           ctx => Expression.Empty(),
           ctx => Expression.Default (returnType));
-    }
-
-    private MutableEventInfo CreateEvent (ProxyType proxyType, EventAttributes attributes)
-    {
-      var addRemoveParameters = new[] { new ParameterDeclaration (typeof (Action), "handler") };
-      var addMethod = MutableMethodInfoObjectMother.Create (parameters: addRemoveParameters);
-      var removeMethod = MutableMethodInfoObjectMother.Create (parameters: addRemoveParameters);
-
-      return _factory.CreateEvent (proxyType, "dummy", attributes, addMethod, removeMethod, null);
     }
 
     private IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)

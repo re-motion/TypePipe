@@ -240,16 +240,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = typeof (object);
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var baseMethod = ReflectionObjectMother.GetSomeVirtualMethod(); // Base method must be virtual.
-      var method = MutableMethodInfoObjectMother.Create (declaringType, "Method", attribtes, returnType, parameters, baseMethod);
+      var genericParameters = new[] { GenericParameterObjectMother.Create() };
+      var method = MutableMethodInfoObjectMother.Create (
+          declaringType, "Method", attribtes, returnType, parameters, baseMethod, genericParameters: genericParameters);
 
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       Func<MethodBodyModificationContext, Expression> bodyProvider = ctx =>
       {
-        Assert.That (ctx.DeclaringType, Is.SameAs (method.DeclaringType));
+        Assert.That (ctx.DeclaringType, Is.SameAs (declaringType));
         Assert.That (ctx.IsStatic, Is.False);
         Assert.That (ctx.Parameters, Is.EqualTo (method.ParameterExpressions).And.Not.Empty);
+        // TODO 5440: use mutableGenericParameters.
+        Assert.That (ctx.GenericParameters, Is.EqualTo (genericParameters));
         Assert.That (ctx.ReturnType, Is.SameAs (returnType));
-        Assert.That (ctx.BaseMethod, Is.SameAs (method.BaseMethod).And.Not.Null);
+        Assert.That (ctx.BaseMethod, Is.SameAs (baseMethod));
         Assert.That (ctx.PreviousBody, Is.SameAs (method.Body));
 
         return fakeBody;

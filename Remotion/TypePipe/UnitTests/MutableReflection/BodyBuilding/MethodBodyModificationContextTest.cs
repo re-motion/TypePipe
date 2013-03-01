@@ -37,10 +37,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private ProxyType _declaringType;
     private bool _isStatic;
     private ParameterExpression[] _parameters;
+    private Type[] _genericParameters;
     private Type _returnType;
     private MethodInfo _baseMethod;
     private Expression _previousBody;
-    private IMemberSelector _memberSelector;
+    private IMemberSelector _memberSelectorMock;
 
     private MethodBodyModificationContext _context;
     private MethodBodyModificationContext _contextWithoutPreviousBody;
@@ -52,12 +53,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _isStatic = BooleanObjectMother.GetRandomBoolean();
       _parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
+      _genericParameters = new[] { ReflectionObjectMother.GetSomeGenericParameter() };
       _returnType = ReflectionObjectMother.GetSomeType();
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
-      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
+      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
-      _context = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters.AsOneTime(), _returnType, _baseMethod, _previousBody, _memberSelector);
-      _contextWithoutPreviousBody = new MethodBodyModificationContext (_declaringType, _isStatic, _parameters, _returnType, _baseMethod, null, _memberSelector);
+      _context = new MethodBodyModificationContext (
+          _declaringType, _isStatic, _parameters.AsOneTime(), _genericParameters.AsOneTime(), _returnType, _baseMethod, _previousBody, _memberSelectorMock);
+      _contextWithoutPreviousBody = new MethodBodyModificationContext (
+          _declaringType, _isStatic, _parameters, _genericParameters, _returnType, _baseMethod, null, _memberSelectorMock);
     }
 
     [Test]
@@ -66,6 +70,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (_context.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_context.IsStatic, Is.EqualTo (_isStatic));
       Assert.That (_context.Parameters, Is.EqualTo (_parameters));
+      Assert.That (_context.GenericParameters, Is.EqualTo (_genericParameters));
       Assert.That (_context.ReturnType, Is.SameAs (_returnType));
       Assert.That (_context.BaseMethod, Is.SameAs (_baseMethod));
       Assert.That (_context.PreviousBody, Is.SameAs (_previousBody));

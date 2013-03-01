@@ -33,10 +33,11 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         ProxyType declaringType,
         bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
+        IEnumerable<Type> genericParameters,
         Type returnType,
         MethodInfo baseMethod,
         IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, returnType, baseMethod, memberSelector)
+        : base (declaringType, isStatic, parameterExpressions, genericParameters, returnType, baseMethod, memberSelector)
     {
     }
   }

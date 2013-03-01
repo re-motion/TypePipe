@@ -205,9 +205,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
+      // TODO 5440: use mutableGenericParameter
+
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var context = new MethodBodyModificationContext (
-          (ProxyType) DeclaringType, IsStatic, _parameterExpressions, ReturnType, _baseMethod, _body, memberSelector);
+          MutableDeclaringType, IsStatic, _parameterExpressions, GetGenericArguments(), ReturnType, _baseMethod, _body, memberSelector);
       var newBody = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
 
       _body = newBody;

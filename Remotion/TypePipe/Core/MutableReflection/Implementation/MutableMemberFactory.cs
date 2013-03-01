@@ -554,16 +554,23 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var baseMethod = isVirtual && !isNewSlot ? _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType) : null;
       if (baseMethod != null)
         CheckNotFinalForOverride (baseMethod);
+
       return baseMethod;
     }
 
     private Expression GetMethodBody (
-        ProxyType declaringType, MethodAttributes attributes, Func<MethodBodyCreationContext, Expression> bodyProvider, MethodSignatureItems signatureItems, MethodInfo baseMethod)
+        ProxyType declaringType,
+        MethodAttributes attributes,
+        Func<MethodBodyCreationContext, Expression> bodyProvider,
+        MethodSignatureItems signatureItems,
+        MethodInfo baseMethod)
     {
       var parameterExpressions = signatureItems.ParameterDeclarations.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var context = new MethodBodyCreationContext (declaringType, isStatic, parameterExpressions, signatureItems.ReturnType, baseMethod, _memberSelector);
+      var context = new MethodBodyCreationContext (
+          declaringType, isStatic, parameterExpressions, signatureItems.GenericParameters.Cast<Type>(), signatureItems.ReturnType, baseMethod, _memberSelector);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (signatureItems.ReturnType, bodyProvider, context);
+
       return body;
     }
 
