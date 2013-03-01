@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -27,6 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public interface IEmittableOperandProvider
   {
     void AddMapping (ProxyType mappedType, Type emittableType);
+    void AddMapping (MutableGenericParameter mappedGenericParameter, Type emittableGenericParameter);
     void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField);
     void AddMapping (MutableConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor);
     void AddMapping (MutableMethodInfo mappedMethod, MethodInfo emittableMethod);

@@ -52,6 +52,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       AddMapping (_mappedTypes, mappedType, emittableType);
     }
 
+    public void AddMapping (MutableGenericParameter mappedGenericParameter, Type emittableGenericParameter)
+    {
+      throw new NotImplementedException();
+    }
+
     public void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField)
     {
       ArgumentUtility.CheckNotNull ("mappedField", mappedField);

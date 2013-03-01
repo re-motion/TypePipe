@@ -23,6 +23,7 @@ using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -95,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       context.MethodBuilders.Add (method, methodBuilder);
 
       DefineCustomAttributes (methodBuilder, method);
-      DefineGenericParameters (methodBuilder, method);
+      DefineGenericParameters (context, methodBuilder, method);
       DefineParameter (methodBuilder, method.MutableReturnParameter);
       DefineParameters (methodBuilder, method);
 
@@ -173,21 +174,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       DefineCustomAttributes (parameterBuilder, parameter);
     }
 
-    private void DefineGenericParameters (IMethodBuilder methodBuilder, MutableMethodInfo method)
+    private void DefineGenericParameters (CodeGenerationContext context, IMethodBuilder methodBuilder, MutableMethodInfo method)
     {
       if (!method.IsGenericMethodDefinition)
         return;
 
+      // TODO: Use mutableGenericParametters.
       var genericParameters = method.GetGenericArguments();
       var genericParameterNames = genericParameters.Select (p => p.Name).ToArray();
       var genericParametersBuilders = methodBuilder.DefineGenericParameters (genericParameterNames);
 
       foreach (var pair in genericParametersBuilders.Zip (genericParameters, (b, g) => new { Builder = b, GenericParameter = g }))
+      {
+        pair.Builder.RegisterWith (context.EmittableOperandProvider, (MutableGenericParameter) pair.GenericParameter);
         DefineGenericParameter (pair.Builder, pair.GenericParameter);
+      }
     }
 
     private void DefineGenericParameter (IGenericTypeParameterBuilder genericTypeParameterBuilder, Type genericParameter)
     {
+      // TODO: define custom attribute.
+
       // The following differs from just calling genericParameter.GetInterfaces() as it does not repeat the interfaces of the base type.
       var interfaceConstraints = genericParameter.GetGenericParameterConstraints().Where (g => g.IsInterface).ToArray();
 

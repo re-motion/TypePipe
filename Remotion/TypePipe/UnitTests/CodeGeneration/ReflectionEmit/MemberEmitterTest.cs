@@ -209,6 +209,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var genericParameterBuilderMock = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder>();
       methodBuilderMock.Expect (mock => mock.DefineGenericParameters (new[] { "TParam" })).Return (new[] { genericParameterBuilderMock });
+      genericParameterBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, genericParameter));
+
       genericParameterBuilderMock.Expect (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
       genericParameterBuilderMock.Expect (mock => mock.SetBaseTypeConstraint (baseTypeConstraint));
       genericParameterBuilderMock.Expect (mock => mock.SetInterfaceConstraints (new[] { interfaceConstraint }));
