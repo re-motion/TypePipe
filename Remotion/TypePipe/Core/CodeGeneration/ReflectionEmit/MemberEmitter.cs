@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -183,15 +184,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (!method.IsGenericMethodDefinition)
         return;
 
-      // TODO: Use mutableGenericParametters.
-      var genericParameters = method.GetGenericArguments();
-      var genericParameterNames = genericParameters.Select (p => p.Name).ToArray();
+      var genericParameterNames = method.MutableGenericParameters.Select (p => p.Name).ToArray();
       var genericParametersBuilders = methodBuilder.DefineGenericParameters (genericParameterNames);
 
-      foreach (var pair in genericParametersBuilders.Zip (genericParameters, (b, g) => new { Builder = b, GenericParameter = g }))
+      foreach (var pair in genericParametersBuilders.Zip (method.MutableGenericParameters, (b, g) => new { Builder = b, GenericParameter = g }))
       {
-        pair.Builder.RegisterWith (context.EmittableOperandProvider, (MutableGenericParameter) pair.GenericParameter);
-        DefineGenericParameter (pair.Builder, (MutableGenericParameter) pair.GenericParameter);
+        pair.Builder.RegisterWith (context.EmittableOperandProvider, pair.GenericParameter);
+        DefineGenericParameter (pair.Builder, pair.GenericParameter);
       }
     }
 
