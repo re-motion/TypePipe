@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void AppendTypeString_CallsBase_ForInitializedGenericParam ()
     {
       var initializedGenericParam = GenericParameterObjectMother.Create();
-      initializedGenericParam.InitializeDeclaringMember (ReflectionObjectMother.GetSomeMethod());
+      initializedGenericParam.InitializeDeclaringMember (MutableMethodInfoObjectMother.Create());
 
       _builder.AppendTypeString (_sb1, initializedGenericParam);
       _originalBuilder.AppendTypeString (_sb2, initializedGenericParam);

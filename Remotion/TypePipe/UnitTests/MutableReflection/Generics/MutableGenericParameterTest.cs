@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void InitializeDeclaringMember_DeclaringType ()
     {
-      var declaringMember = ReflectionObjectMother.GetSomeType();
+      var declaringMember = ProxyTypeObjectMother.Create();
       _parameter.InitializeDeclaringMember (declaringMember);
 
       Assert.That (_parameter.DeclaringType, Is.SameAs (declaringMember));
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void InitializeDeclaringMember_MethodBase ()
     {
-      var declaringMember = MethodBase.GetCurrentMethod();
+      var declaringMember = MutableMethodInfoObjectMother.Create();
       _parameter.InitializeDeclaringMember (declaringMember);
 
       Assert.That (_parameter.DeclaringType, Is.SameAs (declaringMember.DeclaringType));
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void InitializeDeclaringMember_ThrowsIfAlreadyInitialized ()
     {
-      var declaringMember = MethodBase.GetCurrentMethod();
+      var declaringMember = MutableMethodInfoObjectMother.Create();
       _parameter.InitializeDeclaringMember (declaringMember);
 
       Assert.That (
@@ -165,6 +165,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var result = _parameter.GetGenericParameterConstraints();
 
       Assert.That (result, Is.EqualTo (new[] { _interfaceConstraint }));
+    }
+
+    [Test]
+    public void CustomAttributeMethods ()
+    {
+      var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
+      _parameter.AddCustomAttribute (declaration);
+
+      Assert.That (_parameter.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
+      Assert.That (_parameter.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
     }
 
     [Test]

@@ -28,9 +28,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// <summary>
   /// Represents a generic type parameter on a generic type or method definition.
   /// </summary>
-  public class MutableGenericParameter : CustomType
+  public class MutableGenericParameter : CustomType, IMutableMember
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
+    private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     private readonly int _position;
     private readonly GenericParameterAttributes _genericParameterAttributes;
@@ -65,6 +67,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       SetBaseType (typeof (object));
     }
 
+    public ProxyType MutableDeclaringType
+    {
+      get { return (ProxyType) DeclaringType; }
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    {
+      get { return _customAttributeContainer.AddedCustomAttributes; }
+    }
+
     public override bool IsGenericParameter
     {
       get { return true; }
@@ -88,7 +100,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public void InitializeDeclaringMember (MemberInfo declaringMember)
     {
       ArgumentUtility.CheckNotNull ("declaringMember", declaringMember);
-      Assertion.IsTrue (declaringMember is Type || declaringMember is MethodBase);
+      Assertion.IsTrue (declaringMember is ProxyType || declaringMember is MutableMethodInfo);
 
       if (_declaringMember != null)
         throw new InvalidOperationException ("InitializeDeclaringMember must be called exactly once.");
@@ -123,9 +135,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return new[] { BaseType }.Where (c => c != typeof (object)).Concat (_interfaceConstraints).ToArray();
     }
 
+    public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
+    {
+      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+
+      _customAttributeContainer.AddCustomAttribute (customAttribute);
+    }
+
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      throw new NotImplementedException();
+      return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
