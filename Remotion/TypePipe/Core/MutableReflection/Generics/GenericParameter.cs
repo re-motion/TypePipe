@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       Assertion.IsNotNull (BaseType);
 
-      return BaseType.GetInterfaces().Concat (_interfaceConstraints);
+      return _interfaceConstraints.Concat (BaseType.GetInterfaces()).Distinct();
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()

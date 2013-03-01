@@ -172,7 +172,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllInterfaces");
 
-      Assert.That (result, Is.EqualTo (new[] { typeof (IDomainInterface), _interfaceConstraint }));
+      Assert.That (result, Is.EqualTo (new[] { _interfaceConstraint, typeof (IDomainInterface) }));
+    }
+
+    [Test]
+    public void GetAllInterfaces_Distinct ()
+    {
+      Assert.That (_baseTypeConstraint.GetInterfaces(), Contains.Item (typeof (IDomainInterface)));
+      _parameter.SetBaseTypeConstraint (_baseTypeConstraint);
+      _parameter.SetInterfaceConstraints (new[] { typeof (IDomainInterface) });
+
+      var result = _parameter.InvokeNonPublicMethod ("GetAllInterfaces");
+
+      Assert.That (result, Is.EqualTo (new[] { typeof (IDomainInterface) }));
     }
 
     [Test]
