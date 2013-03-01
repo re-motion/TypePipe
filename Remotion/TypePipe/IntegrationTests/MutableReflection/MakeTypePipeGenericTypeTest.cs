@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   [TestFixture]
   public class MakeTypePipeGenericTypeTest
   {
-    private Type _genericType;
+    private Type _genericTypeDefinition;
     private ProxyType _typeArg1;
     private ProxyType _typeArg2;
 
@@ -38,18 +38,18 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _genericType = typeof (GenericType<,>);
+      _genericTypeDefinition = typeof (GenericType<,>);
       _typeArg1 = ProxyTypeObjectMother.Create (typeof (object));
       _typeArg2 = ProxyTypeObjectMother.Create (typeof (MakeTypePipeGenericTypeTest));
 
-      _instantiation = _genericType.MakeTypePipeGenericType (_typeArg1, _typeArg2);
+      _instantiation = _genericTypeDefinition.MakeTypePipeGenericType (_typeArg1, _typeArg2);
     }
 
     [Test]
     public void TypeInstantiation ()
     {
       Assert.That (_instantiation, Is.TypeOf<TypeInstantiation>());
-      Assert.That (_instantiation.GetGenericTypeDefinition(), Is.SameAs (_genericType));
+      Assert.That (_instantiation.GetGenericTypeDefinition(), Is.SameAs (_genericTypeDefinition));
       Assert.That (_instantiation.GetGenericArguments(), Is.EqualTo (new[] { _typeArg1, _typeArg2 }));
     }
 
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Fields ()
     {
-      var genericField = _genericType.GetField ("Field");
+      var genericField = _genericTypeDefinition.GetField ("Field");
       var field = _instantiation.GetField ("Field");
 
       Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation>());
@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Constructors ()
     {
-      var genericCtor = _genericType.GetConstructors().Single();
+      var genericCtor = _genericTypeDefinition.GetConstructors().Single();
       var ctor = _instantiation.GetConstructors().Single();
 
       Assert.That (ctor, Is.TypeOf<ConstructorOnTypeInstantiation>());
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Methods ()
     {
-      var genericMethod = _genericType.GetMethod ("Method");
+      var genericMethod = _genericTypeDefinition.GetMethod ("Method");
       var method = _instantiation.GetMethod ("Method");
 
       Assert.That (method, Is.TypeOf<MethodOnTypeInstantiation>());
@@ -124,7 +124,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Properties ()
     {
-      var genericProperty = _genericType.GetProperties().Single();
+      var genericProperty = _genericTypeDefinition.GetProperties().Single();
       var genericGetter = genericProperty.GetGetMethod (true);
       var genericSetter = genericProperty.GetSetMethod (true);
       var property = _instantiation.GetProperties().Single();
@@ -144,7 +144,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void Events ()
     {
-      var genericEvt = _genericType.GetEvents().Single();
+      var genericEvt = _genericTypeDefinition.GetEvents().Single();
       var genericAdder = genericEvt.GetAddMethod (true);
       var genericRemover = genericEvt.GetRemoveMethod (true);
       Assert.That (genericEvt.GetRaiseMethod (true), Is.Null);
