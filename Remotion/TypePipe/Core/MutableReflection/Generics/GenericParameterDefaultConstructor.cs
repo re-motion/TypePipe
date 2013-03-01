@@ -25,12 +25,12 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// Represents a default constructor on a generic parameter that is constrained 
   /// with <see cref="GenericParameterAttributes.DefaultConstructorConstraint"/>.
   /// </summary>
-  /// <remarks>This class is an implementation detail of <see cref="GenericParameter"/>.</remarks>
+  /// <remarks>This class is an implementation detail of <see cref="MutableGenericParameter"/>.</remarks>
   public class GenericParameterDefaultConstructor : CustomConstructorInfo
   {
     private const MethodAttributes c_attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
 
-    public GenericParameterDefaultConstructor (GenericParameter declaringType)
+    public GenericParameterDefaultConstructor (MutableGenericParameter declaringType)
         : base (declaringType, c_attributes)
     {
     }

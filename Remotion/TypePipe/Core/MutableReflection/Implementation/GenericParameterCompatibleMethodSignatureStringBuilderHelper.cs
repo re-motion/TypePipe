@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// This <see cref="MethodSignatureStringBuilderHelper"/> executes custom logic in case the specified <see cref="Type"/> is a generic parameter
   /// but has neither a <see cref="Type.DeclaringMethod"/> nor a <see cref="Type.DeclaringType"/>, which happens when we construct
-  /// <see cref="GenericParameter"/> instances before the declaring method is available.
+  /// <see cref="MutableGenericParameter"/> instances before the declaring method is available.
   /// </summary>
   public class GenericParameterCompatibleMethodSignatureStringBuilderHelper : MethodSignatureStringBuilderHelper
   {

@@ -35,12 +35,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private struct MethodSignatureItems
     {
-      public readonly ICollection<GenericParameter> GenericParameters;
+      public readonly ICollection<MutableGenericParameter> GenericParameters;
       public readonly Type ReturnType;
       public readonly ICollection<ParameterDeclaration> ParameterDeclarations;
 
       public MethodSignatureItems (
-          ICollection<GenericParameter> genericParameters, Type returnType, ICollection<ParameterDeclaration> parameterDeclarations)
+          ICollection<MutableGenericParameter> genericParameters, Type returnType, ICollection<ParameterDeclaration> parameterDeclarations)
       {
         ReturnType = returnType;
         ParameterDeclarations = parameterDeclarations;
@@ -534,7 +534,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var genericParameterDeclarations = genericParameters.ConvertToCollection ();
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator ());
       var genericParams = genericParameterDeclarations
-          .Select ((p, i) => new GenericParameter (memberSelector, i, p.Name, declaringType.Namespace, p.Attributes)).ToList ();
+          .Select ((p, i) => new MutableGenericParameter (memberSelector, i, p.Name, declaringType.Namespace, p.Attributes)).ToList ();
 
       var genericParameterContext = new GenericParameterContext (genericParams.Cast<Type> ());
       foreach (var paraAndDecl in genericParams.Zip (genericParameterDeclarations, (p, d) => new { Parameter = p, Declaration = d }))

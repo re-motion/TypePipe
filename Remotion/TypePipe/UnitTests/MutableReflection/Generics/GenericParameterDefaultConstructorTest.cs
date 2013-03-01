@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   [TestFixture]
   public class GenericParameterDefaultConstructorTest
   {
-    private GenericParameter _declaringType;
+    private MutableGenericParameter _declaringType;
 
     private GenericParameterDefaultConstructor _constructor;
 

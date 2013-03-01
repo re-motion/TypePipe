@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        ICollection<GenericParameter> genericParameters,
+        ICollection<MutableGenericParameter> genericParameters,
         Type returnType,
         IEnumerable<ParameterDeclaration> parameters,
         MethodInfo baseMethod,

@@ -31,7 +31,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
   [TestFixture]
-  public class GenericParameterTest
+  public class MutableGenericParameterTest
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
@@ -42,8 +42,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private Type _baseTypeConstraint;
     private Type _interfaceConstraint;
 
-    private GenericParameter _parameter;
-    private GenericParameter _constrainedParameter;
+    private MutableGenericParameter _parameter;
+    private MutableGenericParameter _constrainedParameter;
 
     [SetUp]
     public void SetUp ()
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _namespace = "namespace";
       _genericParameterAttributes = (GenericParameterAttributes) 8;
 
-      _parameter = new GenericParameter (memberSelectorMock, _position, _name, _namespace, _genericParameterAttributes);
+      _parameter = new MutableGenericParameter (memberSelectorMock, _position, _name, _namespace, _genericParameterAttributes);
 
       _baseTypeConstraint = typeof (DomainType);
       _interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();

@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// <summary>
   /// Represents a generic type parameter on a generic type or method definition.
   /// </summary>
-  public class GenericParameter : CustomType
+  public class MutableGenericParameter : CustomType
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private MemberInfo _declaringMember;
     private ReadOnlyCollection<Type> _interfaceConstraints = EmptyTypes.ToList().AsReadOnly();
 
-    public GenericParameter (
+    public MutableGenericParameter (
         IMemberSelector memberSelector,
         int position,
         string name,

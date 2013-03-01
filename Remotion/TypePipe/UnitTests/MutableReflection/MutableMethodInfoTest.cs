@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var body = ExpressionTreeObjectMother.GetSomeExpression (returnType);
 
       var method = new MutableMethodInfo (
-          declaringType, name, attributes, new GenericParameter[0], returnType, parameters.AsOneTime(), baseMethod, body);
+          declaringType, name, attributes, new MutableGenericParameter[0], returnType, parameters.AsOneTime(), baseMethod, body);
 
       Assert.That (method.DeclaringType, Is.SameAs (declaringType));
       Assert.That (method.MutableDeclaringType, Is.SameAs (declaringType));
