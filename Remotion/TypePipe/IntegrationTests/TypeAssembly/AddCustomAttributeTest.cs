@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var parameter = method.MutableParameters.Single();
             var returnParameter = method.MutableReturnParameter;
             var property = proxyType.AddProperty (
-                "Property", typeof (string), ParameterDeclaration.None, MethodAttributes.Public, ctx => Expression.Default (typeof (string)), null);
+                "Property", typeof (string), ParameterDeclaration.None, MethodAttributes.Public, ctx => Expression.Constant(""), null);
             var @event = proxyType.AddEvent ("Event", typeof (Action), MethodAttributes.Public, ctx => Expression.Empty(), ctx => Expression.Empty());
 
             AddCustomAttributes (proxyType);
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckAddedCustomAttributes (methodInfo.ReturnParameter);
       CheckAddedCustomAttributes (type.GetProperty ("Property"));
       CheckAddedCustomAttributes (type.GetEvent ("Event"));
-      // TODO: nested types
+      // TODO 4791: nested types
     }
 
     private void AddCustomAttributes (IMutableInfo mutableInfo)
