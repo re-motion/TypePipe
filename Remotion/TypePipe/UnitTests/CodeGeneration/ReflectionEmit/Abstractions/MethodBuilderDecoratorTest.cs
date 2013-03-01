@@ -19,6 +19,7 @@ using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -30,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
   public class MethodBuilderDecoratorTest
   {
     private IMethodBuilder _innerMock;
-    private IEmittableOperandProvider _operandProvider;
+    private IEmittableOperandProvider _operandProviderMock;
 
     private MethodBuilderDecorator _decorator;
 
@@ -38,9 +39,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void SetUp ()
     {
       _innerMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
-      _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _operandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      _decorator = new MethodBuilderDecorator (_innerMock, _operandProvider);
+      _decorator = new MethodBuilderDecorator (_innerMock, _operandProviderMock);
     }
 
     [Test]
@@ -56,6 +57,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       Assert.That (result, Is.TypeOf<GenericTypeParameterBuilderDecorator>());
       // Use field from base class 'BuilderDecoratorBase'.
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_customAttributeTargetBuilder"), Is.SameAs (fakeGenericTypeParameterBuilder));
+    }
+
+    [Test]
+    public void SetReturnType ()
+    {
+      var returnType = ReflectionObjectMother.GetSomeType();
+      var emittableReturnType = ReflectionObjectMother.GetSomeOtherType();
+      _operandProviderMock.Expect (mock => mock.GetEmittableType (returnType)).Return (emittableReturnType);
+      _innerMock.Expect (mock => mock.SetReturnType (emittableReturnType));
+
+      _decorator.SetReturnType (returnType);
+
+      _operandProviderMock.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void SetParameters ()
+    {
+      var parameterType = ReflectionObjectMother.GetSomeType();
+      var emittableParameterType = ReflectionObjectMother.GetSomeOtherType();
+      _operandProviderMock.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
+      _innerMock.Expect (mock => mock.SetParameters (new[] { emittableParameterType }));
+
+      _decorator.SetParameters (new[] { parameterType });
+
+      _operandProviderMock.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
     }
 
     [Test]

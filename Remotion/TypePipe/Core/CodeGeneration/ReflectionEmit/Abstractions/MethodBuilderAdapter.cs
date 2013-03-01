@@ -58,8 +58,23 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("names", names);
 
-      return _methodBuilder.DefineGenericParameters (names)
-                           .Select (b => new GenericTypeParameterBuilderAdapter (b)).Cast<IGenericTypeParameterBuilder>().ToArray();
+      return _methodBuilder
+          .DefineGenericParameters (names)
+          .Select (b => new GenericTypeParameterBuilderAdapter (b)).Cast<IGenericTypeParameterBuilder>().ToArray();
+    }
+
+    public void SetReturnType (Type returnType)
+    {
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+
+      _methodBuilder.SetReturnType (returnType);
+    }
+
+    public void SetParameters (Type[] parameterTypes)
+    {
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      _methodBuilder.SetParameters (parameterTypes);
     }
 
     public IParameterBuilder DefineParameter (int iSequence, ParameterAttributes attributes, string strParamName)

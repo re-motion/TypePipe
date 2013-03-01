@@ -56,9 +56,25 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     {
       ArgumentUtility.CheckNotNull ("names", names);
 
-      return _methodBuilder.DefineGenericParameters (names)
-                           .Select (b => new GenericTypeParameterBuilderDecorator (b, EmittableOperandProvider))
-                           .Cast<IGenericTypeParameterBuilder>().ToArray();
+      return _methodBuilder
+          .DefineGenericParameters (names)
+          .Select (b => new GenericTypeParameterBuilderDecorator (b, EmittableOperandProvider)).Cast<IGenericTypeParameterBuilder>().ToArray();
+    }
+
+    public void SetReturnType (Type returnType)
+    {
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+
+      var emittableReturnType = EmittableOperandProvider.GetEmittableType (returnType);
+      _methodBuilder.SetReturnType (emittableReturnType);
+    }
+
+    public void SetParameters (Type[] parameterTypes)
+    {
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+
+      var emittableParameterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
+      _methodBuilder.SetParameters (emittableParameterTypes);
     }
   }
 }
