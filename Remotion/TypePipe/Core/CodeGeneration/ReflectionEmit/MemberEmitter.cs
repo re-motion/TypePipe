@@ -78,8 +78,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, callingConvention, parameterTypes);
       ctorBuilder.RegisterWith (context.EmittableOperandProvider, constructor);
 
-      DefineCustomAttributes (ctorBuilder, constructor);
       DefineParameters (ctorBuilder, constructor);
+      DefineCustomAttributes (ctorBuilder, constructor);
 
       var bodyBuildAction = CreateBodyBuildAction (context, ctorBuilder, constructor.ParameterExpressions, constructor.Body);
       context.PostDeclarationsActionManager.AddAction (bodyBuildAction);
@@ -90,15 +90,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("method", method);
 
-      var parameterTypes = GetParameterTypes (method);
-      var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, method.Attributes, method.ReturnType, parameterTypes);
+      var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, method.Attributes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
       context.MethodBuilders.Add (method, methodBuilder);
 
-      DefineCustomAttributes (methodBuilder, method);
+      // Generic parameters must be defined before the signature as generic parameters may be used in the signature.
       DefineGenericParameters (context, methodBuilder, method);
+
+      methodBuilder.SetReturnType (method.ReturnType);
+      methodBuilder.SetParameters (GetParameterTypes (method));
+      
       DefineParameter (methodBuilder, method.MutableReturnParameter);
       DefineParameters (methodBuilder, method);
+      DefineCustomAttributes (methodBuilder, method);
 
       if (!method.IsAbstract)
       {

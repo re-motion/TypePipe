@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private class UnspecifiedType { }
 
-    public static ParameterDeclaration Create (Type type = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.In)
+    public static ParameterDeclaration Create (Type type = null, string name = "parameter", ParameterAttributes attributes = ParameterAttributes.None)
     {
       type = type ?? typeof (UnspecifiedType);
 

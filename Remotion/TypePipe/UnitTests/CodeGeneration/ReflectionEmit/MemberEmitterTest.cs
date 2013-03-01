@@ -156,19 +156,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
       method.AddExplicitBaseDefinition (overriddenMethod);
 
-      var expectedParameterTypes = new[] { typeof (int), typeof (double).MakeByRefType() };
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
-      _typeBuilderMock
-          .Expect (mock => mock.DefineMethod ("Method", MethodAttributes.Virtual, typeof (string), expectedParameterTypes))
-          .Return (methodBuilderMock);
+      _typeBuilderMock.Expect (mock => mock.DefineMethod ("Method", MethodAttributes.Virtual)).Return (methodBuilderMock);
       methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
-      SetupDefineCustomAttribute (methodBuilderMock, method);
+      methodBuilderMock.Expect (mock => mock.SetReturnType (typeof (string)));
+      methodBuilderMock.Expect (mock => mock.SetParameters (new[] { typeof (int), typeof (double).MakeByRefType() }));
+
       var returnParameterBuilderMock = SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None);
       SetupDefineCustomAttribute (returnParameterBuilderMock, method.MutableReturnParameter);
       var parameterBuilderMock = SetupDefineParameter (methodBuilderMock, 1, "i", ParameterAttributes.Reserved3);
       SetupDefineCustomAttribute (parameterBuilderMock, method.MutableParameters[0]);
       SetupDefineParameter (methodBuilderMock, 2, "d", ParameterAttributes.Out);
+      SetupDefineCustomAttribute (methodBuilderMock, method);
 
       Assert.That (_context.PostDeclarationsActionManager.Actions, Is.Empty);
 
@@ -201,21 +201,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           genericParameterAttributes: (GenericParameterAttributes) 7,
           baseTypeConstraint: baseTypeConstraint,
           interfaceConstraints: new[] { interfaceConstraint });
-      var method = MutableMethodInfoObjectMother.Create (genericParameters: new[] { genericParameter });
+      var method = MutableMethodInfoObjectMother.Create (
+          genericParameters: new[] { genericParameter },
+          returnType: genericParameter,
+          parameters: new[] { ParameterDeclarationObjectMother.Create (genericParameter, "genericParam") });
 
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
-      _typeBuilderMock.Stub (mock => mock.DefineMethod (null, 0, null, null)).IgnoreArguments().Return (methodBuilderMock);
+      _typeBuilderMock.Stub (mock => mock.DefineMethod (method.Name, method.Attributes)).Return (methodBuilderMock);
       methodBuilderMock.Stub (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
 
       var genericParameterBuilderMock = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder>();
       methodBuilderMock.Expect (mock => mock.DefineGenericParameters (new[] { "TParam" })).Return (new[] { genericParameterBuilderMock });
       genericParameterBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, genericParameter));
-
       genericParameterBuilderMock.Expect (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
       genericParameterBuilderMock.Expect (mock => mock.SetBaseTypeConstraint (baseTypeConstraint));
       genericParameterBuilderMock.Expect (mock => mock.SetInterfaceConstraints (new[] { interfaceConstraint }));
 
-      SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None); // Return parameter.
+      methodBuilderMock.Expect (mock => mock.SetReturnType (genericParameter));
+      methodBuilderMock.Expect (mock => mock.SetParameters (new Type[] { genericParameter }));
+      SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None);
+      SetupDefineParameter (methodBuilderMock, 1, "genericParam", ParameterAttributes.None);
 
       _emitter.AddMethod (_context, method);
 
@@ -234,10 +239,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           ParameterDeclaration.None);
 
       var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
-      _typeBuilderMock
-          .Expect (mock => mock.DefineMethod ("AbstractMethod", MethodAttributes.Abstract, typeof (int), Type.EmptyTypes))
-          .Return (methodBuilderMock);
-      methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
+      _typeBuilderMock.Stub (stub => stub.DefineMethod ("AbstractMethod", MethodAttributes.Abstract)).Return (methodBuilderMock);
+      methodBuilderMock.Stub (stub => stub.RegisterWith (_emittableOperandProviderMock, method));
+
+      methodBuilderMock.Stub (stub => stub.SetReturnType (typeof (int)));
+      methodBuilderMock.Stub (stub => stub.SetParameters (Type.EmptyTypes));
       SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: ParameterAttributes.None);
 
       _emitter.AddMethod (_context, method);
