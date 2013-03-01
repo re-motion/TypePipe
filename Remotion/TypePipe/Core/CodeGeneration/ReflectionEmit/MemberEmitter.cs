@@ -191,20 +191,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       foreach (var pair in genericParametersBuilders.Zip (genericParameters, (b, g) => new { Builder = b, GenericParameter = g }))
       {
         pair.Builder.RegisterWith (context.EmittableOperandProvider, (MutableGenericParameter) pair.GenericParameter);
-        DefineGenericParameter (pair.Builder, pair.GenericParameter);
+        DefineGenericParameter (pair.Builder, (MutableGenericParameter) pair.GenericParameter);
       }
     }
 
-    private void DefineGenericParameter (IGenericTypeParameterBuilder genericTypeParameterBuilder, Type genericParameter)
+    private void DefineGenericParameter (IGenericTypeParameterBuilder genericTypeParameterBuilder, MutableGenericParameter genericParameter)
     {
-      // TODO: define custom attribute.
-
       // The following differs from just calling genericParameter.GetInterfaces() as it does not repeat the interfaces of the base type.
       var interfaceConstraints = genericParameter.GetGenericParameterConstraints().Where (g => g.IsInterface).ToArray();
 
       genericTypeParameterBuilder.SetGenericParameterAttributes (genericParameter.GenericParameterAttributes);
       genericTypeParameterBuilder.SetBaseTypeConstraint (genericParameter.BaseType);
       genericTypeParameterBuilder.SetInterfaceConstraints (interfaceConstraints);
+
+      DefineCustomAttributes(genericTypeParameterBuilder, genericParameter);
     }
 
     private Action CreateBodyBuildAction (

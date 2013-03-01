@@ -216,6 +216,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       genericParameterBuilderMock.Expect (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
       genericParameterBuilderMock.Expect (mock => mock.SetBaseTypeConstraint (baseTypeConstraint));
       genericParameterBuilderMock.Expect (mock => mock.SetInterfaceConstraints (new[] { interfaceConstraint }));
+      SetupDefineCustomAttribute (genericParameterBuilderMock, genericParameter);
 
       methodBuilderMock.Expect (mock => mock.SetReturnType (genericParameter));
       methodBuilderMock.Expect (mock => mock.SetParameters (new Type[] { genericParameter }));
