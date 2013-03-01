@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
@@ -94,6 +95,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       context.MethodBuilders.Add (method, methodBuilder);
 
       DefineCustomAttributes (methodBuilder, method);
+      DefineGenericParameters (methodBuilder, method);
       DefineParameter (methodBuilder, method.MutableReturnParameter);
       DefineParameters (methodBuilder, method);
 
@@ -169,6 +171,29 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var parameterBuilder = methodBaseBuilder.DefineParameter (parameter.Position + 1, parameter.Attributes, parameter.Name);
       DefineCustomAttributes (parameterBuilder, parameter);
+    }
+
+    private void DefineGenericParameters (IMethodBuilder methodBuilder, MutableMethodInfo method)
+    {
+      if (!method.IsGenericMethodDefinition)
+        return;
+
+      var genericParameters = method.GetGenericArguments();
+      var genericParameterNames = genericParameters.Select (p => p.Name).ToArray();
+      var genericParametersBuilders = methodBuilder.DefineGenericParameters (genericParameterNames);
+
+      foreach (var pair in genericParametersBuilders.Zip (genericParameters, (b, g) => new { Builder = b, GenericParameter = g }))
+        DefineGenericParameter (pair.Builder, pair.GenericParameter);
+    }
+
+    private void DefineGenericParameter (IGenericTypeParameterBuilder genericTypeParameterBuilder, Type genericParameter)
+    {
+      // The following differs from just calling genericParameter.GetInterfaces() as it does not repeat the interfaces of the base type.
+      var interfaceConstraints = genericParameter.GetGenericParameterConstraints().Where (g => g.IsInterface).ToArray();
+
+      genericTypeParameterBuilder.SetGenericParameterAttributes (genericParameter.GenericParameterAttributes);
+      genericTypeParameterBuilder.SetBaseTypeConstraint (genericParameter.BaseType);
+      genericTypeParameterBuilder.SetInterfaceConstraints (interfaceConstraints);
     }
 
     private Action CreateBodyBuildAction (

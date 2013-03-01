@@ -188,44 +188,37 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       CheckExplicitOverrideAction (actions[1], overriddenMethod, method);
     }
 
-    [Ignore ("TODO 5443")]
     [Test]
-    public void AddMethod_Generic ()
+    public void AddMethod_GenericMethodDefinition ()
     {
-      var baseTypeConstraint = ReflectionObjectMother.GetSomeSubclassableType ();
-      var interfaceConstraints = new[] { ReflectionObjectMother.GetSomeInterfaceType() };
-      var genericParameter1 = GenericParameterObjectMother.Create (
-          name: "T1",
-          genericParameterAttributes: (GenericParameterAttributes) 7,
-          baseTypeConstraint: baseTypeConstraint);
-      var genericParameter2 = GenericParameterObjectMother.Create (
-          name: "T2",
-          interfaceConstraints: interfaceConstraints);
-      var method = MutableMethodInfoObjectMother.Create (
-          ProxyTypeObjectMother.Create (baseType: typeof (DomainType)),
-          "Method",
-          0,
-          typeof (void),
-          new ParameterDeclaration[0],
-          genericParameters: new[] { genericParameter1, genericParameter2 });
+      var baseTypeConstraint = typeof (DomainType);
+      var interfaceConstraint = typeof (IDisposable);
+      Assert.That (baseTypeConstraint.GetInterfaces(), Is.Not.Empty);
+      Assert.That (baseTypeConstraint.GetInterfaces(), Has.No.Member (interfaceConstraint));
 
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      var genericParameter = GenericParameterObjectMother.Create (
+          name: "TParam",
+          genericParameterAttributes: (GenericParameterAttributes) 7,
+          baseTypeConstraint: baseTypeConstraint,
+          interfaceConstraints: new[] { interfaceConstraint });
+      var method = MutableMethodInfoObjectMother.Create (genericParameters: new[] { genericParameter });
+
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
       _typeBuilderMock.Stub (mock => mock.DefineMethod (null, 0, null, null)).IgnoreArguments().Return (methodBuilderMock);
       methodBuilderMock.Stub (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
-      var genericParameterBuilderMock1 = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder> ();
-      var genericParameterBuilderMock2 = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder> ();
-      methodBuilderMock.Expect (mock => mock.DefineGenericParameters (new[] { "T1", "T2" }))
-                       .Return (new[] { genericParameterBuilderMock1, genericParameterBuilderMock2 });
-      genericParameterBuilderMock1.Expect (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
-      genericParameterBuilderMock2.Expect (mock => mock.SetGenericParameterAttributes (GenericParameterAttributes.None));
-      genericParameterBuilderMock1.Expect (mock => mock.SetBaseTypeConstraint (baseTypeConstraint));
-      genericParameterBuilderMock2.Expect (mock => mock.SetInterfaceConstraints (interfaceConstraints));
+
+      var genericParameterBuilderMock = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder>();
+      methodBuilderMock.Expect (mock => mock.DefineGenericParameters (new[] { "TParam" })).Return (new[] { genericParameterBuilderMock });
+      genericParameterBuilderMock.Expect (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
+      genericParameterBuilderMock.Expect (mock => mock.SetBaseTypeConstraint (baseTypeConstraint));
+      genericParameterBuilderMock.Expect (mock => mock.SetInterfaceConstraints (new[] { interfaceConstraint }));
+
+      SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None); // Return parameter.
 
       _emitter.AddMethod (_context, method);
 
       methodBuilderMock.VerifyAllExpectations();
-      genericParameterBuilderMock1.VerifyAllExpectations();
-      genericParameterBuilderMock2.VerifyAllExpectations();
+      genericParameterBuilderMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -435,7 +428,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.VerifyAllExpectations ();
     }
 
-    public class DomainType
+    interface IDomainInterface { }
+    public class DomainType : IDomainInterface
     {
       public virtual string ExplicitBaseDefinition (int i, out double d) { Dev.Null = i; d = Dev<double>.Null; return ""; }
     }
