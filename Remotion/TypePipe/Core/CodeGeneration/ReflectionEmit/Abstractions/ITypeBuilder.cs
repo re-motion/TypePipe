@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
     IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
     IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes);
+    IMethodBuilder DefineMethod (string name, MethodAttributes attributes);
     void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration);
     IPropertyBuilder DefineProperty (string name, PropertyAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes);
     IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype);

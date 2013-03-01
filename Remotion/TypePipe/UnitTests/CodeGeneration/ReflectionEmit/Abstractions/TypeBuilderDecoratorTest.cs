@@ -103,20 +103,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void DefineMethod ()
     {
       var name = "method";
-      var returnType = typeof (int);
-      var parameterType = typeof (string);
       var attributes = (MethodAttributes) 7;
 
-      var emittableReturnType = typeof (bool);
-      var emittableParameterType = typeof (double);
       var fakeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      _operandProvider.Expect (mock => mock.GetEmittableType (returnType)).Return (emittableReturnType);
-      _operandProvider.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
-      _innerMock.Expect (mock => mock.DefineMethod (name, attributes, emittableReturnType, new[] { emittableParameterType })).Return (fakeMethodBuilder);
+      _innerMock.Expect (mock => mock.DefineMethod (name, attributes)).Return (fakeMethodBuilder);
 
-      var result = _decorator.DefineMethod (name, attributes, returnType, new[] { parameterType });
+      var result = _decorator.DefineMethod (name, attributes);
 
-      _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<MethodBuilderDecorator>());
       Assert.That (result.As<MethodBuilderDecorator>().DecoratedMethodBuilder, Is.SameAs (fakeMethodBuilder));

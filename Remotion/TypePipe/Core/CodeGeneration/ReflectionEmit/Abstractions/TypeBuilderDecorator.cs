@@ -97,6 +97,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new MethodBuilderDecorator (methodBuilder, EmittableOperandProvider);
     }
 
+    [CLSCompliant (false)]
+    public IMethodBuilder DefineMethod (string name, MethodAttributes attributes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var methodBuilder = _typeBuilder.DefineMethod (name, attributes);
+      return new MethodBuilderDecorator (methodBuilder, EmittableOperandProvider);
+    }
+
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
     {
       ArgumentUtility.CheckNotNull ("methodInfoBody", methodInfoBody);
