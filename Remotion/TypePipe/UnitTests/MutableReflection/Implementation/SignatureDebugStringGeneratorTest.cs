@@ -74,6 +74,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void GetMethodSignature_GenericMethod ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType obj) => obj.GenericMethod<int, int>());
+
+      var result = SignatureDebugStringGenerator.GetMethodSignature (method);
+
+      Assert.That (result, Is.EqualTo ("Void GenericMethod[T1,T2]()"));
+    }
+
+    [Test]
     public void GetParameterSignature ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (ref Dev<int>.Dummy, null));
@@ -129,6 +139,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Dev.Null = dictionary;
         return ""; 
       }
+
+      public void GenericMethod<T1, T2> () {}
 
       public string Property { get { return ""; } }
 

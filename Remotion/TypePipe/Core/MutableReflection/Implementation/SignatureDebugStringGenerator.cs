@@ -40,12 +40,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public static string GetConstructorSignature (ConstructorInfo constructor)
     {
-      return GetSignatureString (typeof (void), constructor.Name, constructor.GetParameters());
+      return GetSignatureString (typeof (void), constructor.Name, Type.EmptyTypes, constructor.GetParameters());
     }
 
     public static string GetMethodSignature (MethodInfo method)
     {
-      return GetSignatureString (method.ReturnType, method.Name, method.GetParameters());
+      return GetSignatureString (method.ReturnType, method.Name, method.GetGenericArguments(), method.GetParameters());
     }
 
     public static string GetParameterSignature (ParameterInfo parameter)
@@ -65,15 +65,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private static string GetShortTypeName (Type type)
     {
-      if (type.IsGenericType)
-        return type.Name + "[" + SeparatedStringBuilder.Build (",", type.GetGenericArguments(), GetShortTypeName) + "]";
-      return type.Name;
+      return type.Name + GetGenericArgumentSignature (type.GetGenericArguments());
     }
 
-    private static string GetSignatureString (Type returnType, string name, IEnumerable<ParameterInfo> parameters)
+    private static string GetSignatureString (Type returnType, string name, Type[] genericArguments, ParameterInfo[] parameters)
     {
-      var parameterTypes = SeparatedStringBuilder.Build (", ", parameters.Select (p => GetShortTypeName (p.ParameterType)));
-      return GetShortTypeName (returnType) + " " + name + "(" + parameterTypes + ")";
+      var returnTypeName = GetShortTypeName (returnType);
+      var genericArgumentSignature = GetGenericArgumentSignature (genericArguments);
+      var parameterTypeNames = SeparatedStringBuilder.Build (", ", parameters.Select (p => p.ParameterType), GetShortTypeName);
+
+      return string.Format ("{0} {1}{2}({3})", returnTypeName, name, genericArgumentSignature, parameterTypeNames);
+    }
+
+    private static string GetGenericArgumentSignature (Type[] genericArguments)
+    {
+      if (genericArguments.Length == 0)
+        return string.Empty;
+
+      return "[" + SeparatedStringBuilder.Build (",", genericArguments, GetShortTypeName) + "]";
     }
   }
 }
