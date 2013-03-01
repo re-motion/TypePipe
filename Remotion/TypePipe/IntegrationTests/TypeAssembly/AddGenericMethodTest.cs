@@ -20,12 +20,13 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  [Ignore ("TODO 4774")]
   [TestFixture]
+  [Ignore ("TODO 4774")]
   public class AddGenericMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -54,7 +55,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var method = genericMethod.MakeGenericMethod (typeof (long));
       var instance = Activator.CreateInstance (type);
-      var result = (int) method.Invoke (instance, new object[] { 5L });
+      var result = method.Invoke (instance, new object[] { 5L });
       Assert.That (result, Is.EqualTo (5L));
     }
 
@@ -85,6 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void Constraints_ReferenceTypes_AndBaseTypeAndInterfaces ()
     {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName());
       var type = AssembleType<DomainType> (
           p => p.AddGenericMethod (
               "GenericMethod",
@@ -99,7 +101,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               },
               ctx => typeof (string),
               ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "arg") },
-              ctx => Expression.Call (Expression.New (ctx.GenericParameters[0]), "GetTypeName", Type.EmptyTypes)));
+              ctx => Expression.Call (Expression.New (ctx.GenericParameters[0]), interfaceMethod)));
 
       var genericMethod = type.GetMethod ("GenericMethod");
       var genericParameter = genericMethod.GetGenericArguments().Single();
