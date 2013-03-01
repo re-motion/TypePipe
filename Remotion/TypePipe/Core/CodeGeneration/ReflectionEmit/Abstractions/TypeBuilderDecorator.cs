@@ -83,20 +83,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new ConstructorBuilderDecorator (constructorBuilder, EmittableOperandProvider);
     }
 
-    [CLSCompliant(false)]
-    public IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
-
-      var emittableReturnType = EmittableOperandProvider.GetEmittableType (returnType);
-      var emittableParameterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
-      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, emittableReturnType, emittableParameterTypes);
-
-      return new MethodBuilderDecorator (methodBuilder, EmittableOperandProvider);
-    }
-
     [CLSCompliant (false)]
     public IMethodBuilder DefineMethod (string name, MethodAttributes attributes)
     {

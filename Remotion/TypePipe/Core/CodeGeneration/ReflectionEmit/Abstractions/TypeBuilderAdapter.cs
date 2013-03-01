@@ -69,17 +69,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
-    public IMethodBuilder DefineMethod (string name, MethodAttributes attributes, Type returnType, Type[] parameterTypes)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
-
-      var methodBuilder = _typeBuilder.DefineMethod (name, attributes, returnType, parameterTypes);
-      return new MethodBuilderAdapter (methodBuilder);
-    }
-
-    [CLSCompliant (false)]
     public IMethodBuilder DefineMethod (string name, MethodAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
