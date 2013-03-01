@@ -27,6 +27,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 using Remotion.FunctionalProgramming;
 
@@ -185,6 +186,46 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       CheckBodyBuildAction (actions[0], methodBuilderMock, method);
       CheckExplicitOverrideAction (actions[1], overriddenMethod, method);
+    }
+
+    [Ignore ("TODO 5443")]
+    [Test]
+    public void AddMethod_Generic ()
+    {
+      var baseTypeConstraint = ReflectionObjectMother.GetSomeSubclassableType ();
+      var interfaceConstraints = new[] { ReflectionObjectMother.GetSomeInterfaceType() };
+      var genericParameter1 = GenericParameterObjectMother.Create (
+          name: "T1",
+          genericParameterAttributes: (GenericParameterAttributes) 7,
+          baseTypeConstraint: baseTypeConstraint);
+      var genericParameter2 = GenericParameterObjectMother.Create (
+          name: "T2",
+          interfaceConstraints: interfaceConstraints);
+      var method = MutableMethodInfoObjectMother.Create (
+          ProxyTypeObjectMother.Create (baseType: typeof (DomainType)),
+          "Method",
+          0,
+          typeof (void),
+          new ParameterDeclaration[0],
+          genericParameters: new[] { genericParameter1, genericParameter2 });
+
+      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
+      _typeBuilderMock.Stub (mock => mock.DefineMethod (null, 0, null, null)).IgnoreArguments().Return (methodBuilderMock);
+      methodBuilderMock.Stub (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
+      var genericParameterBuilderMock1 = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder> ();
+      var genericParameterBuilderMock2 = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder> ();
+      methodBuilderMock.Expect (mock => mock.DefineGenericParameters (new[] { "T1", "T2" }))
+                       .Return (new[] { genericParameterBuilderMock1, genericParameterBuilderMock2 });
+      genericParameterBuilderMock1.Expect (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
+      genericParameterBuilderMock2.Expect (mock => mock.SetGenericParameterAttributes (GenericParameterAttributes.None));
+      genericParameterBuilderMock1.Expect (mock => mock.SetBaseTypeConstraint (baseTypeConstraint));
+      genericParameterBuilderMock2.Expect (mock => mock.SetInterfaceConstraints (interfaceConstraints));
+
+      _emitter.AddMethod (_context, method);
+
+      methodBuilderMock.VerifyAllExpectations();
+      genericParameterBuilderMock1.VerifyAllExpectations();
+      genericParameterBuilderMock2.VerifyAllExpectations();
     }
 
     [Test]
