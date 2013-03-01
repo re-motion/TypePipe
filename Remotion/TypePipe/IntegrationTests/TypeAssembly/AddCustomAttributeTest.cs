@@ -37,19 +37,29 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var field = proxyType.AddField ("Field", FieldAttributes.Public, typeof (int));
             var constructor = proxyType.AddedConstructors.Single();
             var parameters = new[] { new ParameterDeclaration (typeof (int), "p") };
-            var method = proxyType.AddMethod ("Method", MethodAttributes.Public, typeof (int), parameters, ctx => Expression.Constant (7));
-            var parameter = method.MutableParameters.Single ();
+            var method = proxyType.AddGenericMethod (
+                "Method",
+                MethodAttributes.Public,
+                new[] { new GenericParameterDeclaration ("T1") },
+                ctx => typeof (int),
+                ctx => parameters,
+                ctx => Expression.Constant (7));
+            var genericParameter = method.MutableGenericParameters.Single();
+            var parameter = method.MutableParameters.Single();
             var returnParameter = method.MutableReturnParameter;
+            var property = proxyType.AddProperty (
+                "Property", typeof (string), ParameterDeclaration.None, MethodAttributes.Public, ctx => Expression.Default (typeof (string)), null);
+            var @event = proxyType.AddEvent ("Event", typeof (Action), MethodAttributes.Public, ctx => Expression.Empty(), ctx => Expression.Empty());
 
             AddCustomAttributes (proxyType);
             AddCustomAttributes (field);
             AddCustomAttributes (constructor);
             AddCustomAttributes (method);
+            AddCustomAttributes (genericParameter);
             AddCustomAttributes (parameter);
             AddCustomAttributes (returnParameter);
-            // TODO 4791
-            //AddCustomAttributes (property);
-            //AddCustomAttributes (@event);
+            AddCustomAttributes (property);
+            AddCustomAttributes (@event);
           });
 
       var methodInfo = type.GetMethod ("Method");
@@ -57,13 +67,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckAddedCustomAttributes (type.GetField ("Field"));
       CheckAddedCustomAttributes (type.GetConstructor (Type.EmptyTypes));
       CheckAddedCustomAttributes (methodInfo);
+      CheckAddedCustomAttributes (methodInfo.GetGenericArguments().Single());
       CheckAddedCustomAttributes (methodInfo.GetParameters().Single());
       CheckAddedCustomAttributes (methodInfo.ReturnParameter);
-      // TODO 4791
-      //CheckAddedAttributes (type.GetProperty("Property"));
-      //CheckAddedAttributes (type.GetEvent("Event"));
-      // nested types
-      // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
+      CheckAddedCustomAttributes (type.GetProperty ("Property"));
+      CheckAddedCustomAttributes (type.GetEvent ("Event"));
+      // TODO: nested types
     }
 
     private void AddCustomAttributes (IMutableInfo mutableInfo)
