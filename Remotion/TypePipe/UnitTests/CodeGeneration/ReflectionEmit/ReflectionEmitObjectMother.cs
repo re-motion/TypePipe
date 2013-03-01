@@ -45,6 +45,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       return (TypeBuilder) FormatterServices.GetUninitializedObject (typeof (TypeBuilder));
     }
 
+    public static GenericTypeParameterBuilder GetSomeGenericTypeParameterBuilder ()
+    {
+      return (GenericTypeParameterBuilder) FormatterServices.GetUninitializedObject (typeof (GenericTypeParameterBuilder));
+    }
+
     public static FieldBuilder GetSomeFieldBuilder ()
     {
       return (FieldBuilder) FormatterServices.GetUninitializedObject (typeof (FieldBuilder));

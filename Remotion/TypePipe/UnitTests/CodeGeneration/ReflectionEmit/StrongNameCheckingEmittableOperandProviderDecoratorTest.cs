@@ -22,8 +22,10 @@ using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -113,24 +115,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void DelegatingMembers ()
     {
       var mappedType = ProxyTypeObjectMother.Create();
-      var emittableType = ReflectionObjectMother.GetSomeType();
+      var mappedGenericParameter = MutableGenericParameterObjectMother.Create();
       var mappedField = MutableFieldInfoObjectMother.Create();
       var mappedConstructor = MutableConstructorInfoObjectMother.Create();
       var mappedMethod = MutableMethodInfoObjectMother.Create();
-      //var mappedProperty = MutaP
 
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      var emittableGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
       var emittableField = ReflectionObjectMother.GetSomeField();
       var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
       var emittableMethod = ReflectionObjectMother.GetSomeMethod();
-      //var emittableProperty = ReflectionObjectMother.GetSomeProperty();
 
       var helper = new DecoratorTestHelper<IEmittableOperandProvider> (_decorator, _innerMock);
 
       helper.CheckDelegation (d => d.AddMapping (mappedType, emittableType));
+      helper.CheckDelegation (d => d.AddMapping (mappedGenericParameter, emittableGenericParameter));
       helper.CheckDelegation (d => d.AddMapping (mappedField, emittableField));
       helper.CheckDelegation (d => d.AddMapping (mappedConstructor, emittableConstructor));
       helper.CheckDelegation (d => d.AddMapping (mappedMethod, emittableMethod));
-      //helper.CheckDelegation (d => d.AddMapping (mappedProperty, emittableProperty));
     }
 
     private void CheckGetEmittable<T> (Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc, T operand, T emittableOperand, Type checkedType)

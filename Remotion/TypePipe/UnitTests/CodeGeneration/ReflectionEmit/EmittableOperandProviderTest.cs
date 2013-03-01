@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private EmittableOperandProvider _provider;
 
     private ProxyType _proxyType;
+    private MutableGenericParameter _mutableGenericParameter;
     private MutableFieldInfo _mutableField;
     private MutableConstructorInfo _mutableConstructor;
     private MutableMethodInfo _mutableMethod;
@@ -49,6 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _provider = new EmittableOperandProvider();
 
       _proxyType = ProxyTypeObjectMother.Create();
+      _mutableGenericParameter = MutableGenericParameterObjectMother.Create();
       _mutableField = MutableFieldInfoObjectMother.Create();
       _mutableConstructor = MutableConstructorInfoObjectMother.Create();
       _mutableMethod = MutableMethodInfoObjectMother.Create();
@@ -60,6 +62,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMapping ()
     {
       CheckAddMapping<ProxyType, Type> (_provider.AddMapping, _provider.GetEmittableType, _proxyType);
+      CheckAddMapping<MutableGenericParameter, Type> (_provider.AddMapping, _provider.GetEmittableType, _mutableGenericParameter);
       CheckAddMapping<MutableFieldInfo, FieldInfo> (_provider.AddMapping, _provider.GetEmittableField, _mutableField);
       CheckAddMapping<MutableConstructorInfo, ConstructorInfo> (_provider.AddMapping, _provider.GetEmittableConstructor, _mutableConstructor);
       CheckAddMapping<MutableMethodInfo, MethodInfo> (_provider.AddMapping, _provider.GetEmittableMethod, _mutableMethod);
@@ -69,29 +72,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMapping_Twice ()
     {
       CheckAddMappingTwiceThrows<ProxyType, Type> (
-          _provider.AddMapping, _proxyType, "ProxyType '{memberName}' is already mapped.\r\nParameter name: mappedType");
+          _provider.AddMapping, _proxyType, "Type '{memberName}' is already mapped.\r\nParameter name: mappedType");
+      CheckAddMappingTwiceThrows<MutableGenericParameter, Type> (
+          _provider.AddMapping, _mutableGenericParameter, "Type '{memberName}' is already mapped.\r\nParameter name: mappedType");
       CheckAddMappingTwiceThrows<MutableFieldInfo, FieldInfo> (
-          _provider.AddMapping, _mutableField, "MutableFieldInfo '{memberName}' is already mapped.\r\nParameter name: mappedField");
+          _provider.AddMapping, _mutableField, "FieldInfo '{memberName}' is already mapped.\r\nParameter name: mappedField");
       CheckAddMappingTwiceThrows<MutableConstructorInfo, ConstructorInfo> (
-          _provider.AddMapping, _mutableConstructor, "MutableConstructorInfo '{memberName}' is already mapped.\r\nParameter name: mappedConstructor");
+          _provider.AddMapping, _mutableConstructor, "ConstructorInfo '{memberName}' is already mapped.\r\nParameter name: mappedConstructor");
       CheckAddMappingTwiceThrows<MutableMethodInfo, MethodInfo> (
-          _provider.AddMapping, _mutableMethod, "MutableMethodInfo '{memberName}' is already mapped.\r\nParameter name: mappedMethod");
+          _provider.AddMapping, _mutableMethod, "MethodInfo '{memberName}' is already mapped.\r\nParameter name: mappedMethod");
     }
 
     [Test]
     public void GetEmittableXXX_Mutable ()
     {
       var typeBuilder = ReflectionEmitObjectMother.GetSomeTypeBuilder();
+      var genericParameterBuilder = ReflectionEmitObjectMother.GetSomeGenericTypeParameterBuilder();
       var fieldBuilder = ReflectionEmitObjectMother.GetSomeFieldBuilder();
       var constructorBuilder = ReflectionEmitObjectMother.GetSomeConstructorBuilder();
       var methodBuilder = ReflectionEmitObjectMother.GetSomeMethodBuilder();
 
       _provider.AddMapping (_proxyType, typeBuilder);
+      _provider.AddMapping (_mutableGenericParameter, genericParameterBuilder);
       _provider.AddMapping (_mutableField, fieldBuilder);
       _provider.AddMapping (_mutableConstructor, constructorBuilder);
       _provider.AddMapping (_mutableMethod, methodBuilder);
 
       Assert.That (_provider.GetEmittableType (_proxyType), Is.SameAs (typeBuilder));
+      Assert.That (_provider.GetEmittableType (_mutableGenericParameter), Is.SameAs (genericParameterBuilder));
       Assert.That (_provider.GetEmittableField (_mutableField), Is.SameAs (fieldBuilder));
       Assert.That (_provider.GetEmittableConstructor (_mutableConstructor), Is.SameAs (constructorBuilder));
       Assert.That (_provider.GetEmittableMethod (_mutableMethod), Is.SameAs (methodBuilder));
@@ -101,11 +109,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void GetEmittableXXX_RuntimeInfos ()
     {
       var type = ReflectionObjectMother.GetSomeType();
+      var genericParameter = ReflectionObjectMother.GetSomeGenericParameter();
       var field = ReflectionObjectMother.GetSomeField();
       var ctor = ReflectionObjectMother.GetSomeConstructor();
       var method = ReflectionObjectMother.GetSomeMethod();
 
       Assert.That (_provider.GetEmittableType (type), Is.SameAs (type));
+      Assert.That (_provider.GetEmittableType (genericParameter), Is.SameAs (genericParameter));
       Assert.That (_provider.GetEmittableField (field), Is.SameAs (field));
       Assert.That (_provider.GetEmittableConstructor (ctor), Is.SameAs (ctor));
       Assert.That (_provider.GetEmittableMethod (method), Is.SameAs (method));
@@ -114,10 +124,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableXXX_NoMapping ()
     {
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableType, _proxyType);
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableField, _mutableField);
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableConstructor, _mutableConstructor);
-      CheckGetEmitableOperandWithNoMappingThrows (_provider.GetEmittableMethod, _mutableMethod);
+      Assert.That (() => _provider.GetEmittableType (_proxyType), Throws.Exception);
+      Assert.That (() => _provider.GetEmittableType (_mutableGenericParameter), Throws.Exception);
+      Assert.That (() => _provider.GetEmittableField (_mutableField), Throws.Exception);
+      Assert.That (() => _provider.GetEmittableConstructor (_mutableConstructor), Throws.Exception);
+      Assert.That (() => _provider.GetEmittableMethod (_mutableMethod), Throws.Exception);
     }
 
     [Test]
@@ -235,16 +246,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (
           () => addMappingMethod (operandToBeEmitted, MockRepository.GenerateStub<TBuilder>()),
           Throws.ArgumentException.With.Message.EqualTo (expectedMessage));
-    }
-
-    private void CheckGetEmitableOperandWithNoMappingThrows<TMutable, TBase> (
-        Func<TMutable, TBase> getEmittableOperandMethod, TMutable operandToBeEmitted)
-        where TMutable : TBase
-    {
-      var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operandToBeEmitted, operandToBeEmitted.GetType().Name);
-      Assert.That (
-          () => getEmittableOperandMethod (operandToBeEmitted),
-          Throws.InvalidOperationException.With.Message.EqualTo (message));
     }
   }
 }

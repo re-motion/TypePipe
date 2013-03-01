@@ -25,7 +25,6 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -39,10 +38,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class EmittableOperandProvider : IEmittableOperandProvider
   {
-    private readonly Dictionary<ProxyType, Type> _mappedTypes = new Dictionary<ProxyType, Type>();
-    private readonly Dictionary<MutableFieldInfo, FieldInfo> _mappedFields = new Dictionary<MutableFieldInfo, FieldInfo>();
-    private readonly Dictionary<MutableConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<MutableConstructorInfo, ConstructorInfo>();
-    private readonly Dictionary<MutableMethodInfo, MethodInfo> _mappedMethods = new Dictionary<MutableMethodInfo, MethodInfo>();
+    private readonly Dictionary<Type, Type> _mappedTypes = new Dictionary<Type, Type>();
+    private readonly Dictionary<FieldInfo, FieldInfo> _mappedFields = new Dictionary<FieldInfo, FieldInfo>();
+    private readonly Dictionary<ConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<ConstructorInfo, ConstructorInfo>();
+    private readonly Dictionary<MethodInfo, MethodInfo> _mappedMethods = new Dictionary<MethodInfo, MethodInfo>();
 
     public void AddMapping (ProxyType mappedType, Type emittableType)
     {
@@ -54,7 +53,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddMapping (MutableGenericParameter mappedGenericParameter, Type emittableGenericParameter)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("mappedGenericParameter", mappedGenericParameter);
+      ArgumentUtility.CheckNotNull ("emittableGenericParameter", emittableGenericParameter);
+
+      AddMapping (_mappedTypes, mappedGenericParameter, emittableGenericParameter);
     }
 
     public void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField)
@@ -122,11 +124,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         else
           return GetEmittableMemberInstantiation (m, mi => ((MethodOnTypeInstantiation) mi).MethodOnGenericType, TypeBuilder.GetMethod);
       };
-      return GetEmittableOperand (
-          _mappedMethods,
-          method,
-          IsEmittable,
-          emittableInstantiationProvider);
+      return GetEmittableOperand (_mappedMethods, method, IsEmittable, emittableInstantiationProvider);
     }
 
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
@@ -156,26 +154,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return !(member is CustomFieldInfo) && !(member is CustomConstructorInfo) && !(member is CustomMethodInfo);
     }
 
-    private static T GetEmittableOperand<T, TMutable> (
-        Dictionary<TMutable, T> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<T, T> emittableInstantiationProvider)
-        where T : class
-        where TMutable : class, T
+    private T GetEmittableOperand<T> (Dictionary<T, T> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<T, T> emittableInstantiationProvider)
     {
       if (isAlreadyEmittable (operand))
         return operand;
 
-      var mutableOperand = operand as TMutable;
-      if (mutableOperand == null)
+      if (operand is IMutableInfo)
+        return mapping[operand];
+      else
         return emittableInstantiationProvider (operand);
-
-      var emittableOperand = mapping.GetValueOrDefault (mutableOperand);
-      if (emittableOperand == null)
-      {
-        var message = string.Format ("No emittable operand found for '{0}' of type '{1}'.", operand, operand.GetType().Name);
-        throw new InvalidOperationException (message);
-      }
-
-      return emittableOperand;
     }
 
     private Type GetEmittableTypeInstantiation (TypeInstantiation typeInstantiation)
