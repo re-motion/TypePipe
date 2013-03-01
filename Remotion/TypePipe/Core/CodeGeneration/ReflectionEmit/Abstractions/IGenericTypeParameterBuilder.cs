@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.MutableReflection.Generics;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -25,6 +26,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// </summary>
   public interface IGenericTypeParameterBuilder : ICustomAttributeTargetBuilder
   {
+    void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableGenericParameter genericParameter);
+
     void SetBaseTypeConstraint (Type baseTypeConstraint);
     void SetInterfaceConstraints (Type[] interfaceConstraints);
     void SetGenericParameterAttributes (GenericParameterAttributes genericParameterAttributes);

@@ -19,6 +19,7 @@ using System;
 using System.Reflection;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
@@ -51,6 +52,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void AddMapping (ProxyType mappedType, Type emittableType)
     {
       _emittableOperandProvider.AddMapping (mappedType, emittableType);
+    }
+
+    public void AddMapping (MutableGenericParameter mappedGenericParameter, Type emittableGenericParameter)
+    {
+      throw new NotImplementedException();
     }
 
     public void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField)

@@ -21,6 +21,7 @@ using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
@@ -73,8 +74,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [Test]
     public void DelegatingMembers ()
     {
+      var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
+      var genericParameter = GenericParameterObjectMother.Create();
+
       var helper = new DecoratorTestHelper<IGenericTypeParameterBuilder> (_decorator, _innerMock);
 
+      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, genericParameter));
       helper.CheckDelegation (d => d.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
     }
   }

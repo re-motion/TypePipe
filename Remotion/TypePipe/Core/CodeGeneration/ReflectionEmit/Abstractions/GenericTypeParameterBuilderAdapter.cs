@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
@@ -32,6 +33,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
         : base(ArgumentUtility.CheckNotNull ("genericTypeParameterBuilder", genericTypeParameterBuilder).SetCustomAttribute)
     {
       _genericTypeParameterBuilder = genericTypeParameterBuilder;
+    }
+
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableGenericParameter genericParameter)
+    {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("genericParameter", genericParameter);
+
+      emittableOperandProvider.AddMapping (genericParameter, _genericTypeParameterBuilder);
     }
 
     public void SetGenericParameterAttributes (GenericParameterAttributes genericParameterAttributes)
