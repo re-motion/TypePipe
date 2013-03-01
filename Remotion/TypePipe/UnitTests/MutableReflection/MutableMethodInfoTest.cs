@@ -94,6 +94,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (method.IsGenericMethod, Is.True);
       Assert.That (method.IsGenericMethodDefinition, Is.True);
+      Assert.That (method.MutableGenericParameters, Is.EqualTo (genericParameters));
 
       var genParas = method.GetGenericArguments();
       Assert.That (genParas, Is.EqualTo (genericParameters));

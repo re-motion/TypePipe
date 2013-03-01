@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableMethodInfo : CustomMethodInfo, IMutableMethodBase
   {
+    private readonly ReadOnlyCollection<MutableGenericParameter> _genericParameters;
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
@@ -72,6 +73,7 @@ namespace Remotion.TypePipe.MutableReflection
         genericParameter.InitializeDeclaringMember (this);
 
       var paras = parameters.ConvertToCollection();
+      _genericParameters = genericParameters.ToList().AsReadOnly();
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
@@ -83,6 +85,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       get { return (ProxyType) DeclaringType; }
     }
+
+    public ReadOnlyCollection<MutableGenericParameter> MutableGenericParameters
+    {
+      get { return _genericParameters; }
+    } 
 
     public override Type ReturnType
     {
