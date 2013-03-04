@@ -609,9 +609,10 @@ namespace System.Dynamic.Utils {
             if (type.IsGenericTypeDefinition) {
                 throw Error.TypeIsGeneric(type);
             }
-            if (type.ContainsGenericParameters) {
-                throw Error.TypeContainsGenericParameters(type);
-            }
+            // TypePipe: The type can actually contain (or be itself) a MutableGenericParameter. Therefore we need to disable this check.
+            //if (type.ContainsGenericParameters) {
+            //    throw Error.TypeContainsGenericParameters(type);
+            //}
         }
 
         //from TypeHelper
