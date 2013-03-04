@@ -120,6 +120,8 @@
     <Compile Include="MutableReflection\Generics\TypeSubstitutionUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelperTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\InitializationFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
