@@ -736,8 +736,9 @@ namespace System.Linq.Expressions {
         private static void ValidateMethodInfo(MethodInfo method) {
             if (method.IsGenericMethodDefinition)
                 throw Error.MethodIsGeneric(method);
-            if (method.ContainsGenericParameters)
-                throw Error.MethodContainsGenericParameters(method);
+            // TypePipe: The method can actually contain a MutableGenericParameter. Therefore we need to disable this check.
+            //if (method.ContainsGenericParameters)
+            //    throw Error.MethodContainsGenericParameters(method);
         }
 
 
