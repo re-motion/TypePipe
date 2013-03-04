@@ -21,7 +21,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
-using Remotion.Collections;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection;
 
@@ -135,6 +134,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Equals ()
     {
+      Assert.That (_info1.Equals (null), Is.False);
       Assert.That (_info1.Equals (new object()), Is.False);
       Assert.That (_info1.Equals (_info2), Is.False);
       Assert.That (_info1.Equals (_info3), Is.False);

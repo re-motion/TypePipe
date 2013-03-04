@@ -194,7 +194,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// i.e., <see cref="Type.Equals(System.Type)"/> in class <see cref="Type"/>, still works as intended but is slower as it accesses
     /// the <see cref="UnderlyingSystemType"/> property.
     /// </summary>
-    public new bool Equals (Type type)
+    public new virtual bool Equals (Type type)
     {
       // ReSharper disable PossibleUnintendedReferenceComparison
       return this == type;

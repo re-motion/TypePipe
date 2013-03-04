@@ -40,6 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private CustomType _outerCustomType;
     private CustomType _customType;
     private Type[] _typeArguments;
+    private TypeInstantiationInfo _instantiationInfo;
 
     private TypeInstantiation _instantiation;
 
@@ -52,9 +53,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _outerCustomType = CustomTypeObjectMother.Create (fullName: "MyNs.OuterTypeArg");
       _customType = CustomTypeObjectMother.Create (fullName: "MyNs.InnerTypeArg");
       _typeArguments = new Type[] { _outerCustomType, _customType };
+      _instantiationInfo = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
 
-      var info = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
-      _instantiation = new TypeInstantiation (_memberSelector, info, CreateInstantiationContext());
+      _instantiation = new TypeInstantiation (_memberSelector, _instantiationInfo, CreateInstantiationContext());
     }
 
     [Test]
@@ -226,6 +227,49 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var result = _instantiation.SubstituteGenericParameters (genericParameter);
 
       Assert.That (result, Is.SameAs (_customType));
+    }
+
+    [Test]
+    public void Equals_Object ()
+    {
+      var info1 = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments.Reverse());
+      var info2 = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
+      Assert.That (info1, Is.Not.EqualTo (_instantiationInfo));
+      Assert.That (info2, Is.EqualTo (_instantiationInfo));
+
+      var instantiation1 = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
+      var instantiation2 = new TypeInstantiation (_memberSelector, info2, CreateInstantiationContext());
+
+      Assert.That (_instantiation.Equals ((object) null), Is.False);
+      Assert.That (_instantiation.Equals (new object()), Is.False);
+      Assert.That (_instantiation.Equals ((object) instantiation1), Is.False);
+      Assert.That (_instantiation.Equals ((object) instantiation2), Is.True);
+      Assert.That (_instantiation.Equals ((object) _instantiation), Is.True);
+    }
+
+    [Test]
+    public void Equals_Type ()
+    {
+      var info1 = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments.Reverse());
+      var info2 = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
+      Assert.That (info1, Is.Not.EqualTo (_instantiationInfo));
+      Assert.That (info2, Is.EqualTo (_instantiationInfo));
+
+      var instantiation1 = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
+      var instantiation2 = new TypeInstantiation (_memberSelector, info2, CreateInstantiationContext());
+
+      // ReSharper disable CheckForReferenceEqualityInstead.1
+      Assert.That (_instantiation.Equals (null), Is.False);
+      // ReSharper restore CheckForReferenceEqualityInstead.1
+      Assert.That (_instantiation.Equals (instantiation1), Is.False);
+      Assert.That (_instantiation.Equals (instantiation2), Is.True);
+      Assert.That (_instantiation.Equals (_instantiation), Is.True);
+    }
+
+    [Test]
+    public new void GetHashCode ()
+    {
+      Assert.That (_instantiation.GetHashCode(), Is.EqualTo (_instantiationInfo.GetHashCode()));
     }
 
     [Test]

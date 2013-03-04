@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// Represents a constructed generic <see cref="Type"/>, i.e., a generic type definition that was instantiated with type arguments.
   /// This class is needed because the the original reflection classes do not work in combination with <see cref="CustomType"/> instances.
   /// </summary>
-  /// <remarks>Instances of this class are returned by <see cref="TypeExtensions.MakeTypePipeGenericType"/>.</remarks>
+  /// <remarks>Instances of this class are returned by <see cref="TypeExtensions.MakeTypePipeGenericType"/> and implement value equality..</remarks>
   public class TypeInstantiation : CustomType
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return string.Format ("{0}[{1}]", info.GenericTypeDefinition.FullName, typeArgumentString);
     }
 
+    private readonly TypeInstantiationInfo _instantiationInfo;
     private readonly IDictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
     private readonly IDictionary<Type, Type> _parametersToArguments;
 
@@ -69,6 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("instantiations", instantiations);
 
+      _instantiationInfo = instantiationInfo;
       _instantiations = instantiations;
 
       // Even though the _genericTypeDefinition includes the type parameters of the enclosing type(s) (if any), declaringType.GetGenericArguments() 
@@ -114,6 +116,25 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("type", type);
 
       return TypeSubstitutionUtility.SubstituteGenericParameters (_parametersToArguments, _instantiations, type);
+    }
+
+    public override bool Equals (object obj)
+    {
+      return Equals (obj as Type);
+    }
+
+    public override bool Equals (Type type)
+    {
+      var other = type as TypeInstantiation;
+      if (other == null)
+        return false;
+
+      return _instantiationInfo.Equals (other._instantiationInfo);
+    }
+
+    public override int GetHashCode ()
+    {
+      return _instantiationInfo.GetHashCode();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
