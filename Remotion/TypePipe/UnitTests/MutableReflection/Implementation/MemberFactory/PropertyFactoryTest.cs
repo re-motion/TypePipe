@@ -59,10 +59,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2).ToList();
       var accessorAttributes = (MethodAttributes) 7;
       var setterParameters = indexParameters.Concat (ParameterDeclarationObjectMother.Create (type, "value")).ToList();
-      var fakeGetBody = ExpressionTreeObjectMother.GetSomeExpression (type);
-      var fakeSetBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => fakeGetBody;
-      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => fakeSetBody;
+      Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => null;
+      Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => null;
 
       var fakeGetMethod = MutableMethodInfoObjectMother.Create (returnType: type, parameters: indexParameters);
       var fakeSetMethod = MutableMethodInfoObjectMother.Create (parameters: setterParameters);
@@ -73,17 +71,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   Arg.Is (_proxyType),
                   Arg.Is ("get_Property"),
                   Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
+                  Arg.Is (type),
+                  Arg<IEnumerable<ParameterDeclaration>>.Is.Anything,
                   Arg.Is (getBodyProvider)))
           .WhenCalled (
               mi =>
               {
-                var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (null);
-                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (null).ToList();
-
-                Assert.That (returnType, Is.SameAs (type));
+                var parameters = ((IEnumerable<ParameterDeclaration>) mi.Arguments[4]).ToList();
                 Assert.That (parameters.Select (p => p.Type), Is.EqualTo (indexParameters.Select (p => p.Type)));
                 Assert.That (parameters.Select (p => p.Name), Is.EqualTo (indexParameters.Select (p => p.Name)));
               })
@@ -94,17 +88,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   Arg.Is (_proxyType),
                   Arg.Is ("set_Property"),
                   Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
+                  Arg.Is (typeof (void)),
+                  Arg<IEnumerable<ParameterDeclaration>>.Is.Anything,
                   Arg.Is (setBodyProvider)))
           .WhenCalled (
               mi =>
               {
-                var typeProvider = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (null);
-                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (null).ToList();
-
-                Assert.That (typeProvider, Is.SameAs (typeof (void)));
+                var parameters = ((IEnumerable<ParameterDeclaration>) mi.Arguments[4]).ToList();
                 Assert.That (parameters.Select (p => p.Type), Is.EqualTo (setterParameters.Select (p => p.Type)));
                 Assert.That (parameters.Select (p => p.Name), Is.EqualTo (setterParameters.Select (p => p.Name)));
               })
@@ -128,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
       var fakeGetMethod = MutableMethodInfoObjectMother.Create (returnType: type);
       _methodFactoryMock
-          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null, null)).IgnoreArguments ()
+          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null)).IgnoreArguments ()
           .WhenCalled (mi => Assert.That (mi.Arguments[1], Is.EqualTo ("get_Property")))
           .Return (fakeGetMethod);
 
@@ -145,7 +135,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
       var fakeSetMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
       _methodFactoryMock
-          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null, null)).IgnoreArguments()
+          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null)).IgnoreArguments()
           .WhenCalled (mi => Assert.That (mi.Arguments[1], Is.EqualTo ("set_Property")))
           .Return (fakeSetMethod);
 

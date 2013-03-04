@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (getBodyProvider == null && setBodyProvider == null)
         throw new ArgumentException ("At least one accessor body provider must be specified.", "getBodyProvider");
 
-      var indexParams = indexParameters.ConvertToCollection ();
+      var indexParams = indexParameters.ConvertToCollection();
       var signature = new PropertySignature (type, indexParams.Select (pd => pd.Type));
       if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
         throw new InvalidOperationException ("Property with equal name and signature already exists.");
@@ -71,13 +71,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var attributes = accessorAttributes | MethodAttributes.SpecialName;
       MutableMethodInfo getMethod = null, setMethod = null;
       if (getBodyProvider != null)
-        getMethod = _methodFactory.CreateMethod (
-            declaringType, "get_" + name, attributes, GenericParameterDeclaration.None, ctx => type, ctx => indexParams, getBodyProvider);
+        getMethod = _methodFactory.CreateMethod (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
       if (setBodyProvider != null)
       {
         var setterParams = indexParams.Concat (new ParameterDeclaration (type, "value"));
-        setMethod = _methodFactory.CreateMethod (
-            declaringType, "set_" + name, attributes, GenericParameterDeclaration.None, ctx => typeof (void), ctx => setterParams, setBodyProvider);
+        setMethod = _methodFactory.CreateMethod (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
       }
 
       return new MutablePropertyInfo (declaringType, name, PropertyAttributes.None, getMethod, setMethod);
