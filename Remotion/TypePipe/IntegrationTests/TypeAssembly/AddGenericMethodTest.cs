@@ -26,7 +26,6 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  [Ignore ("TODO 4774")]
   public class AddGenericMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
@@ -83,6 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo ("Integer 7"));
     }
 
+    [Ignore ("TODO 4774")]
     [Test]
     public void Constraints_ReferenceTypes_AndBaseTypeAndInterfaces ()
     {
@@ -118,6 +118,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo ("DomainType"));
     }
 
+    [Ignore ("TODO 4774")]
     [Test]
     public void Constraints_ValueTypes_ConstraintContainingGenericMethodParameter ()
     {
