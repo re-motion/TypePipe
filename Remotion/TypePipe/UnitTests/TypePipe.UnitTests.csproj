@@ -123,6 +123,7 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\InitializationFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\PropertyFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
