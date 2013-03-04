@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
-        ProxyType proxyType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
+        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
     {
       Assertion.IsTrue (bodyProviderOrNull != null || overriddenMethodBaseDefinition.IsAbstract);
 
@@ -117,15 +117,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         attributes = attributes.Unset (MethodAttributes.Abstract);
       var parameters = ParameterDeclaration.CreateForEquivalentSignature (overriddenMethodBaseDefinition);
 
-      var method = CreateMethod (proxyType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProviderOrNull);
+      var method = CreateMethod (declaringType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProviderOrNull);
       method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
 
       return method;
     }
 
-    private MethodInfo GetOrCreateImplementationMethod (ProxyType proxyType, MethodInfo ifcMethod, out bool isNewlyCreated)
+    private MethodInfo GetOrCreateImplementationMethod (ProxyType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
     {
-      var interfaceMap = proxyType.GetInterfaceMap (ifcMethod.DeclaringType, allowPartialInterfaceMapping: true);
+      var interfaceMap = declaringType.GetInterfaceMap (ifcMethod.DeclaringType, allowPartialInterfaceMapping: true);
       var index = Array.IndexOf (interfaceMap.InterfaceMethods, ifcMethod);
       var implementation = interfaceMap.TargetMethods[index];
 
@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         try
         {
           isNewlyCreated = true;
-          return CreateMethod (proxyType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
+          return CreateMethod (declaringType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
         }
         catch (InvalidOperationException)
         {
