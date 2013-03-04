@@ -86,6 +86,7 @@
     <Compile Include="TypeAssembly\AddExplicitOverrideTest.cs" />
     <Compile Include="TypeAssembly\AddPropertyTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
+    <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
     <Compile Include="TypeAssembly\ProxyTypeInSignaturesTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
