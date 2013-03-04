@@ -997,7 +997,7 @@ namespace System.Linq.Expressions {
                     return m;
             } else {
                 if (m.IsGenericMethodDefinition && m.GetGenericArguments().Length == typeArgs.Length)
-                    return m.MakeGenericMethod(typeArgs);
+                    return m.MakeTypePipeGenericMethod(typeArgs);
             }
             return null;
         }

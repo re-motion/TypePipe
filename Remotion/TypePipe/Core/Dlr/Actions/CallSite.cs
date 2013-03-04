@@ -281,8 +281,8 @@ namespace System.Runtime.CompilerServices {
                     }
                 }
                 if (method != null) {
-                    _CachedNoMatch = (T)(object)CreateDelegateHelper(target, noMatchMethod.MakeGenericMethod(args));
-                    return (T)(object)CreateDelegateHelper(target, method.MakeGenericMethod(args));
+                    _CachedNoMatch = (T)(object)CreateDelegateHelper(target, noMatchMethod.MakeTypePipeGenericMethod(args));
+                    return (T)(object)CreateDelegateHelper(target, method.MakeTypePipeGenericMethod(args));
                 }
             }
 
