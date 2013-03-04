@@ -121,6 +121,8 @@
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelperTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\InitializationFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\PropertyFactoryTest.cs" />

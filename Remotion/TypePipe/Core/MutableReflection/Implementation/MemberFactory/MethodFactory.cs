@@ -115,6 +115,23 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
           declaringType, name, attributes, methodItems.GenericParameters, methodItems.ReturnType, methodItems.ParameterDeclarations, baseMethod, body);
     }
 
+    public MutableMethodInfo CreateMethod (
+        ProxyType declaringType,
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
+    {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      // Body provider may be null.
+
+      return CreateMethod (declaringType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
+    }
+
     private MethodSignatureItems GetMethodSignatureItems (
         ProxyType declaringType,
         IEnumerable<GenericParameterDeclaration> genericParameters,
