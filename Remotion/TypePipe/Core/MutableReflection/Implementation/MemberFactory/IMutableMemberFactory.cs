@@ -21,7 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
-namespace Remotion.TypePipe.MutableReflection.Implementation
+namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
   /// Serves as a factory for mutable members.

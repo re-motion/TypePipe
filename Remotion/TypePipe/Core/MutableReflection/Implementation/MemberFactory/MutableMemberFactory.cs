@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
-namespace Remotion.TypePipe.MutableReflection.Implementation
+namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
   /// Implements <see cref="IMutableMemberFactory"/>.

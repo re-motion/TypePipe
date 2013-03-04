@@ -155,7 +155,7 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainerTest.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableMemberFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\MutableMemberFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapperTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactoryTest.cs" />

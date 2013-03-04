@@ -211,11 +211,11 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetriever.cs" />
     <Compile Include="MutableReflection\Implementation\ICustomAttributeDataRetriever.cs" />
     <Compile Include="MutableReflection\Implementation\IInterfaceMappingComputer.cs" />
-    <Compile Include="MutableReflection\Implementation\IMutableMemberFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\IMutableMemberFactory.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputer.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedEventFinder.cs" />
     <Compile Include="MutableReflection\Implementation\IRelatedPropertyFinder.cs" />
-    <Compile Include="MutableReflection\Implementation\MutableMemberFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\MutableMemberFactory.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedEventFinder.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataAdapter.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensions.cs" />

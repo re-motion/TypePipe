@@ -20,6 +20,7 @@ using System.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {

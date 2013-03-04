@@ -31,12 +31,13 @@ using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
 using Remotion.FunctionalProgramming;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
+namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
   [TestFixture]
   public class MutableMemberFactoryTest
@@ -553,7 +554,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var result = _factory.CreateExplicitOverride (_proxyType, method, bodyProvider);
 
       Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
-      Assert.That (result.Name, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MutableMemberFactoryTest.A.OverrideHierarchy"));
+      Assert.That (result.Name, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MutableMemberFactoryTest.A.OverrideHierarchy"));
       Assert.That (result.Attributes, Is.EqualTo (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig));
       Assert.That (result.ReturnType, Is.SameAs (typeof (void)));
       var parameters = result.GetParameters();
@@ -659,7 +660,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           "aaa",
           null,
           new[] { baseDefinition },
-          "Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MutableMemberFactoryTest.A.OverrideHierarchy",
+          "Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MutableMemberFactoryTest.A.OverrideHierarchy",
           MethodAttributes.Private,
           MethodAttributes.NewSlot);
     }
