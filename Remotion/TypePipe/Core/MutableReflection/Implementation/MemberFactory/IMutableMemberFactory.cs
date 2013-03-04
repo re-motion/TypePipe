@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     MutableMethodInfo CreateExplicitOverride (
         ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
 
-    MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo baseMethod, out bool isNewlyCreated);
+    MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated);
 
     MutablePropertyInfo CreateProperty (
         ProxyType declaringType,

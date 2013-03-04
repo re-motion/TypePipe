@@ -299,15 +299,15 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="baseMethod"/>.
+    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="overriddenMethod"/>.
     /// </summary>
-    /// <param name="baseMethod">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
+    /// <param name="overriddenMethod">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
     /// <returns>
-    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="baseMethod"/>, an override for a base method or an implementation for 
+    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="overriddenMethod"/>, an override for a base method or an implementation for 
     /// an interface method.
     /// </returns>
     /// <remarks>
-    /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="baseMethod"/> this method returns the following.
+    /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="overriddenMethod"/> this method returns the following.
     /// <list type="number">
     ///   <item>
     ///     Proxy type
@@ -333,13 +333,12 @@ namespace Remotion.TypePipe.MutableReflection
     ///   </item>
     /// </list>
     /// </remarks>
-    public MutableMethodInfo GetOrAddOverride (MethodInfo baseMethod)
+    public MutableMethodInfo GetOrAddOverride (MethodInfo overriddenMethod)
     {
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
-      Assertion.IsNotNull (baseMethod.DeclaringType);
+      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
 
       bool isNewlyCreated;
-      var method = _mutableMemberFactory.GetOrCreateOverride (this, baseMethod, out isNewlyCreated);
+      var method = _mutableMemberFactory.GetOrCreateOverride (this, overriddenMethod, out isNewlyCreated);
       if (isNewlyCreated)
         _addedMethods.Add (method);
 

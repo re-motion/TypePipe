@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// <summary>
   /// A factory for creating mutable methods.
   /// </summary>
-  public class MethodFactory
+  public class MethodFactory : IMethodFactory
   {
     private struct MethodSignatureItems
     {
@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
       var baseMethod = GetBaseMethod (declaringType, name, signature, isVirtual, isNewSlot);
-      // TODO : if it is an implicit baseMethod override, it needs at least the same ore more public visibility
+      // TODO : if it is an implicit overriddenMethod override, it needs at least the same ore more public visibility
 
       var body = GetMethodBody (declaringType, attributes, bodyProvider, methodItems, baseMethod);
 

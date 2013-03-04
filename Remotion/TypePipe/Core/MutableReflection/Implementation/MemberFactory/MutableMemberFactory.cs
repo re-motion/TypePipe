@@ -187,7 +187,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
       var baseMethod = GetBaseMethod (declaringType, name, signature, isVirtual, isNewSlot);
-      // TODO : if it is an implicit baseMethod override, it needs at least the same ore more public visibility
+      // TODO : if it is an implicit overriddenMethod override, it needs at least the same ore more public visibility
 
       var body = GetMethodBody (declaringType, attributes, bodyProvider, methodItems, baseMethod);
 
@@ -223,34 +223,34 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo baseMethod, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
-      Assertion.IsNotNull (baseMethod.DeclaringType);
+      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      Assertion.IsNotNull (overriddenMethod.DeclaringType);
 
       // ReSharper disable PossibleUnintendedReferenceComparison
-      if (!baseMethod.DeclaringType.IsAssignableFromFast (declaringType) || declaringType == baseMethod.DeclaringType)
+      if (!overriddenMethod.DeclaringType.IsAssignableFromFast (declaringType) || declaringType == overriddenMethod.DeclaringType)
       // ReSharper restore PossibleUnintendedReferenceComparison
       {
         var message = string.Format (
-            "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", baseMethod.DeclaringType.Name);
-        throw new ArgumentException (message, "baseMethod");
+            "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", overriddenMethod.DeclaringType.Name);
+        throw new ArgumentException (message, "overriddenMethod");
       }
 
-      if (!baseMethod.IsVirtual)
+      if (!overriddenMethod.IsVirtual)
         throw new NotSupportedException ("Only virtual methods can be overridden.");
 
-      if (baseMethod.DeclaringType.IsInterface)
+      if (overriddenMethod.DeclaringType.IsInterface)
       {
-        baseMethod = GetOrCreateImplementationMethod (declaringType, baseMethod, out isNewlyCreated);
-        if (baseMethod is MutableMethodInfo)
-          return (MutableMethodInfo) baseMethod;
+        overriddenMethod = GetOrCreateImplementationMethod (declaringType, overriddenMethod, out isNewlyCreated);
+        if (overriddenMethod is MutableMethodInfo)
+          return (MutableMethodInfo) overriddenMethod;
 
-        Assertion.IsTrue (baseMethod.IsVirtual, "It's possible to get an interface implementation that is not virtual (in verifiable code).");
+        Assertion.IsTrue (overriddenMethod.IsVirtual, "It's possible to get an interface implementation that is not virtual (in verifiable code).");
       }
 
-      var baseDefinition = baseMethod.GetBaseDefinition();
+      var baseDefinition = overriddenMethod.GetBaseDefinition();
       var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AddedMethods);
       if (existingMutableOverride != null)
       {
@@ -259,22 +259,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       }
       isNewlyCreated = true;
 
-      var overrideBaseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
-      CheckNotFinalForOverride (overrideBaseMethod);
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
+      CheckNotFinalForOverride (baseMethod);
       var bodyProviderOrNull =
-          overrideBaseMethod.IsAbstract
+          baseMethod.IsAbstract
               ? null
-              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.CallBase (overrideBaseMethod, ctx.Parameters.Cast<Expression>()));
+              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.CallBase (baseMethod, ctx.Parameters.Cast<Expression>()));
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
       if (needsExplicitOverride)
         return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProviderOrNull);
 
-      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (overrideBaseMethod);
+      var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
       var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseDefinition);
 
-      return CreateMethod (declaringType, overrideBaseMethod.Name, attributes, overrideBaseMethod.ReturnType, parameters, bodyProviderOrNull);
+      return CreateMethod (declaringType, baseMethod.Name, attributes, baseMethod.ReturnType, parameters, bodyProviderOrNull);
     }
 
     public MutablePropertyInfo CreateProperty (

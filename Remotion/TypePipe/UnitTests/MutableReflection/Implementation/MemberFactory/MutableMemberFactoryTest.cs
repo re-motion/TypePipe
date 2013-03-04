@@ -720,7 +720,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of the proxy base class hierarchy: 'String'.\r\nParameter name: baseMethod")]
+        "Method is declared by a type outside of the proxy base class hierarchy: 'String'.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim());
@@ -729,7 +729,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of the proxy base class hierarchy: 'Proxy'.\r\nParameter name: baseMethod")]
+        "Method is declared by a type outside of the proxy base class hierarchy: 'Proxy'.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
       var method = _proxyType.AddMethod ("method", bodyProvider: ctx => Expression.Empty());
@@ -1261,7 +1261,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (baceCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (baseMethod));
     }
 
-    private static void CheckMethodData (
+    private  void CheckMethodData (
         MutableMethodInfo result,
         string expectedMethodName,
         MethodAttributes expectedVisibility,
