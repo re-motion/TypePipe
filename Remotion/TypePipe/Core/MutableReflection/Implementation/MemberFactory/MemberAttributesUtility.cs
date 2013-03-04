@@ -23,7 +23,7 @@ using Remotion.Text;
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
-  /// A utility class for checking the user-specified attributes when creating a member.
+  /// A utility class for checking the user-specified attributes when creating a mutable member.
   /// </summary>
   public class MemberAttributesUtility
   {

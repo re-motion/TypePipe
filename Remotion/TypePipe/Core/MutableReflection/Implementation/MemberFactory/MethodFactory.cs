@@ -29,7 +29,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
-  /// A factory for creating mutable methods.
+  /// A factory for creating <see cref="MutableMethodInfo"/> instances.
   /// </summary>
   public class MethodFactory : IMethodFactory
   {

@@ -24,7 +24,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
-  /// A factory for creating mutable fields.
+  /// A factory for creating <see cref="MutableFieldInfo"/> instances.
   /// </summary>
   public class FieldFactory
   {

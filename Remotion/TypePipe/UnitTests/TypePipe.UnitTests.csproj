@@ -121,7 +121,6 @@
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelperTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />
-    <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\InitializationFactoryTest.cs" />
@@ -163,7 +162,6 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainerTest.cs" />
-    <Compile Include="MutableReflection\Implementation\MemberFactory\MutableMemberFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapperTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactoryTest.cs" />

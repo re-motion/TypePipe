@@ -25,6 +25,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
+  /// <summary>
+  /// A factory that retrieves or creates method overrides.
+  /// </summary>
   public class MethodOverrideFactory
   {
     private readonly IRelatedMethodFinder _relatedMethodFinder;

@@ -23,7 +23,7 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
-  /// Defined an interface for classes that create mutable methods.
+  /// Defines an interface for classes that create <see cref="MutableMethodInfo"/> instances.
   /// </summary>
   public interface IMethodFactory
   {
@@ -31,17 +31,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        IEnumerable<GenericParameterDeclaration> genericParameters,
-        Func<GenericParameterContext, Type> returnTypeProvider,
-        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateMethod (
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameters,
+        IEnumerable<GenericParameterDeclaration> genericParameters,
+        Func<GenericParameterContext, Type> returnTypeProvider,
+        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider);
   }
 }

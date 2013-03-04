@@ -24,12 +24,12 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
-  /// Serves as a factory for mutable members.
+  /// Serves as a factory for mutable members, that is, mutable reflection objects that implement <see cref="IMutableMember"/>.
   /// </summary>
   /// <remarks>
   /// This interface is an implementation detail of <see cref="ProxyType"/>.
   /// </remarks>
-  public interface IMutableMemberFactory
+  public interface IMutableMemberFactory : IMethodFactory
   {
     Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider);
 
@@ -40,15 +40,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider);
-
-    MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
-        string name,
-        MethodAttributes attributes,
-        IEnumerable<GenericParameterDeclaration> genericParameters,
-        Func<GenericParameterContext, Type> returnTypeProvider,
-        Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
-        Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateExplicitOverride (
         ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);

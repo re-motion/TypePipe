@@ -28,7 +28,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
-  /// A factory for creating mutable constructors.
+  /// A factory for creating <see cref="MutableConstructorInfo"/> instances.
   /// </summary>
   public class ConstructorFactory
   {

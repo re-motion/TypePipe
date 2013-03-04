@@ -20,15 +20,13 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Reflection.MemberSignatures;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
+namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {
   /// <summary>
-  /// A factory for creating mutable events.
+  /// A factory for creating <see cref="MutableEventInfo"/> instances.
   /// </summary>
   public class EventFactory
   {

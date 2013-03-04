@@ -164,6 +164,7 @@
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelper.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\IMethodFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\InitializationFactory.cs" />

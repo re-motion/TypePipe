@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       _factory = new MethodFactory (memberSelectorMock, _relatedMethodFinderMock);
 
-      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (MutableMemberFactoryTest.DomainType));
+      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
     }
 
     [Test]
@@ -387,8 +387,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       return _factory.CreateMethod (
           declaringType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
     }
-
-
 
     public class A
     {
