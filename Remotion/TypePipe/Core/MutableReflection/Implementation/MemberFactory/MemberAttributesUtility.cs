@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// <summary>
   /// A utility class for checking the user-specified attributes when creating a member.
   /// </summary>
-  public class InvalidAttributesUtility
+  public class MemberAttributesUtility
   {
     public static readonly FieldAttributes[] InvalidFieldAttributes =
         new[]
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public static readonly EventAttributes[] InvalidEventAttributes = new EventAttributes[0];
 
-    public static void CheckForInvalidAttributes<T> (string memberKind, T[] invalidAttributes, T attributes, string parameterName)
+    public static void ValidateAttributes<T> (string memberKind, T[] invalidAttributes, T attributes, string parameterName)
     {
       var hasInvalidAttributes = invalidAttributes.Any (a => IsSet (attributes, a));
       if (hasInvalidAttributes)

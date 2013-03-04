@@ -163,9 +163,10 @@
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelper.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\InitializationFactory.cs" />
-    <Compile Include="MutableReflection\Implementation\MemberFactory\InvalidAttributesUtility.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\MemberAttributesUtility.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtility.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclaration.cs" />
     <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiation.cs" />

@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (type == typeof (void))
         throw new ArgumentException ("Field cannot be of type void.", "type");
 
-      InvalidAttributesUtility.CheckForInvalidAttributes ("fields", InvalidAttributesUtility.InvalidFieldAttributes, attributes, "attributes");
+      MemberAttributesUtility.ValidateAttributes ("fields", MemberAttributesUtility.InvalidFieldAttributes, attributes, "attributes");
 
       var signature = new FieldSignature (type);
       if (declaringType.AddedFields.Any (f => f.Name == name && FieldSignature.Create (f).Equals (signature)))
