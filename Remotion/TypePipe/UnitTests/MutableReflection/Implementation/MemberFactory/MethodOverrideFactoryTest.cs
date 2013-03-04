@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var inputMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
 
-      CallAndCheckGetOrAddOverride2 (
+      CallAndCheckGetOrAddOverride (
           baseDefinition,
           baseMethod,
           inputMethod,
@@ -147,7 +147,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (baseMethod.IsFamilyOrAssembly, Is.True);
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
 
-      CallAndCheckGetOrAddOverride2 (
+      CallAndCheckGetOrAddOverride (
           baseDefinition,
           inputMethod,
           baseMethod,
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var baseMethod = baseDefinition;
       Assert.That (baseMethod.IsAbstract, Is.True);
 
-      CallAndCheckGetOrAddOverride2 (
+      CallAndCheckGetOrAddOverride (
           baseDefinition,
           inputMethod,
           baseMethod,
@@ -187,7 +187,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((C obj) => obj.OverrideHierarchy (7));
       Assert.That (baseMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.False);
 
-      CallAndCheckGetOrAddOverride2 (
+      CallAndCheckGetOrAddOverride (
           baseDefinition,
           inputMethod,
           baseMethod,
@@ -227,7 +227,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod (7));
       var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InterfaceMethod (7));
 
-      CallAndCheckGetOrAddOverride2 (
+      CallAndCheckGetOrAddOverride (
           implementation,
           interfaceMethod,
           implementation,
@@ -295,7 +295,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _factory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
     }
 
-    private void CallAndCheckGetOrAddOverride2 (
+    private void CallAndCheckGetOrAddOverride (
         MethodInfo baseDefinition,
         MethodInfo inputMethod,
         MethodInfo baseMethod,
