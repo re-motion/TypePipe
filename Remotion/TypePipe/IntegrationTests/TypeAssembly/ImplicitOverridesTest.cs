@@ -156,9 +156,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (arguments, Is.EqualTo (new object[] { 7, "hello blub" }));
     }
 
-    [Ignore ("TODO 4774")]
+    [Ignore ("TODO 5444")]
     [Test]
-    public void OverrideGenericMethod ()
+    public void OverrideGenericMethod_OverrideWithSameConstraints_CallBase ()
     {
       MethodInfo overriddenMethod =
           NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((BaseType o) => o.OverridableGenericMethod (Dev<Dev.T>.Dummy));
@@ -168,7 +168,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var mutableMethod = proxyType.AddGenericMethod (
                 "OverridableGenericMethod",
                 MethodAttributes.Public | MethodAttributes.Virtual,
-                new[] { new GenericParameterDeclaration ("TDerived") },
+                new[] { new GenericParameterDeclaration ("TDerived", GenericParameterAttributes.ReferenceTypeConstraint) },
                 ctx => typeof (string),
                 ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "arg") },
                 ctx =>
@@ -192,7 +192,28 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.ReferenceTypeConstraint));
 
       var instance = (DerivedType) Activator.CreateInstance (type);
-      Assert.That (instance.OverridableGenericMethod (" test"), Is.EqualTo ("BaseType test overridden"));
+      Assert.That (instance.OverridableGenericMethod ("test"), Is.EqualTo ("BaseType test overridden"));
+    }
+
+    [Ignore("TODO 5444")]
+    [Test]
+    public void OverrideGenericMethod_OverrideWithWeakerConstraints_NoBaseCall ()
+    {
+      var type = AssembleType<DerivedType> (
+          p => p.AddGenericMethod (
+              "OverridableGenericMethod",
+              MethodAttributes.Public | MethodAttributes.Virtual,
+              new[] { new GenericParameterDeclaration ("TDerived") },
+              ctx => typeof (string),
+              ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "arg") },
+              ctx => ExpressionHelper.StringConcat (Expression.Constant ("overridden (no base call) "), ctx.Parameters[0])));
+
+      var genericMethod = GetDeclaredMethod (type, "OverridableGenericMethod");
+      var genericParameter = genericMethod.GetGenericArguments().Single();
+      Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
+
+      var instance = (DerivedType) Activator.CreateInstance (type);
+      Assert.That (instance.OverridableGenericMethod ("test"), Is.EqualTo ("overridden (no base call) test"));
     }
 
     public class BaseType
@@ -201,7 +222,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public virtual string OverridableMethodWithParameters (string s) { return "BaseType " + s; }
       public virtual string MethodOverriddenInDerived () { return "BaseType"; }
       public virtual void MethodWithOutAndRefParameters (out int i, ref string s) { i = 7; s += " blub"; }
-      public virtual string OverridableGenericMethod<TBase> (TBase arg) { return "BaseType " + arg; }
+      public virtual string OverridableGenericMethod<TBase> (TBase arg) where TBase : class { return "BaseType " + arg; }
     }
 
     public class DerivedType : BaseType
