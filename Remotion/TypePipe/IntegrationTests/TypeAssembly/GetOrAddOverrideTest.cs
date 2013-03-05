@@ -27,7 +27,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  public class ModifyBaseMethodTest : TypeAssemblerIntegrationTestBase
+  public class GetOrAddOverrideTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void BaseMethodWithoutOverride ()
