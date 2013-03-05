@@ -42,9 +42,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       public MethodSignatureItems (
           ICollection<MutableGenericParameter> genericParameters, Type returnType, ICollection<ParameterDeclaration> parameterDeclarations)
       {
+        GenericParameters = genericParameters;
         ReturnType = returnType;
         ParameterDeclarations = parameterDeclarations;
-        GenericParameters = genericParameters;
       }
     }
 

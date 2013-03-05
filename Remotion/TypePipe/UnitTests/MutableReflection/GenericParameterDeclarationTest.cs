@@ -25,6 +25,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class GenericParameterDeclarationTest
   {
+    public static void CheckGenericParameter (
+        GenericParameterDeclaration genericParameter,
+        GenericParameterContext genericParameterContext,
+        string expectedName,
+        GenericParameterAttributes expectedAttributes,
+        Type expectedBaseTypeConstraint,
+        params Type[] expectedInterfaceConstraints)
+    {
+      Assert.That (genericParameter, Is.Not.Null);
+      Assert.That (genericParameter.Name, Is.EqualTo (expectedName));
+      Assert.That (genericParameter.Attributes, Is.EqualTo (expectedAttributes));
+      Assert.That (genericParameter.BaseConstraintProvider (genericParameterContext), Is.SameAs (expectedBaseTypeConstraint));
+      Assert.That (genericParameter.InterfaceConstraintsProvider (genericParameterContext), Is.EqualTo (expectedInterfaceConstraints));
+    }
+
     [Test]
     public void None ()
     {

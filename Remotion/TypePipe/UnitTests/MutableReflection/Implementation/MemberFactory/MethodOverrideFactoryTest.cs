@@ -137,6 +137,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                 Assert.That (genericParameter.Attributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
                 Assert.That (genericParameter.BaseConstraintProvider, Is.EqualTo (typeof (DomainType)));
                 Assert.That (genericParameter.InterfaceConstraintsProvider, Is.EqualTo (new[] { typeof (IDisposable) }));
+
                 Assert.That (returnType, Is.SameAs (fakeGenericParameter));
                 ParameterDeclarationTest.CheckParameter (parameters[0], typeof (int), "arg1", ParameterAttributes.None);
                 ParameterDeclarationTest.CheckParameter (parameters[1], fakeGenericParameter, "arg2", ParameterAttributes.None);

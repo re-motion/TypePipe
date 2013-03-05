@@ -40,9 +40,11 @@ namespace Remotion.TypePipe.MutableReflection
       return new ParameterDeclaration (parameterInfo.ParameterType, parameterInfo.Name, parameterInfo.Attributes);
     }
 
+    // TODO 5442: Remove and use more complex version that supports generics.
     public static ReadOnlyCollection<ParameterDeclaration> CreateForEquivalentSignature (MethodBase methodBase)
     {
       ArgumentUtility.CheckNotNull ("methodBase", methodBase);
+      Assertion.IsFalse (methodBase.IsGenericMethod);
 
       return methodBase.GetParameters().Select (CreateEquivalent).ToList().AsReadOnly();
     }
