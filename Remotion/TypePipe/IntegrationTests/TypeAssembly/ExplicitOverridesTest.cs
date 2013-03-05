@@ -225,7 +225,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AbstractShadowedMethod(), Is.EqualTo ("override"));
     }
 
-    [Ignore ("TODO 4774")]
     [Test]
     public void OverrideGenericMethodExplicitly ()
     {
@@ -282,7 +281,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       public virtual string OverridableGenericMethod<T> ()
       {
-        return "A" + typeof (T).Name;
+        return "A " + typeof (T).Name;
       }
     }
 
