@@ -19,6 +19,8 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
 
@@ -158,22 +160,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void OverrideGenericMethod ()
     {
-      MethodInfo overriddenMethod = null;
-          //NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((BaseType o) => o.OverridableGenericMethod (Dev<Dev.T>.Dummy));
+      MethodInfo overriddenMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((BaseType o) => o.OverridableGenericMethod (Dev<Dev.T>.Dummy));
       var type = AssembleType<DerivedType> (
           proxyType =>
           {
             var mutableMethod = proxyType.AddGenericMethod (
                 "OverridableGenericMethod",
                 MethodAttributes.Public | MethodAttributes.Virtual,
-                new[] { new GenericParameterDeclaration ("T") },
+                new[] { new GenericParameterDeclaration ("TDerived") },
                 ctx => typeof (string),
                 ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "arg") },
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
                   Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
-                  return ExpressionHelper.StringConcat (ctx.CallBase (ctx.BaseMethod), Expression.Constant (" overridden"));
+                  return ExpressionHelper.StringConcat (ctx.CallBase (ctx.BaseMethod, ctx.Parameters[0]), Expression.Constant (" overridden"));
                 });
             Assert.That (mutableMethod.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethod.GetBaseDefinition(), Is.EqualTo (overriddenMethod));
@@ -189,49 +191,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (genericMethod.GetBaseDefinition(), Is.EqualTo (overriddenMethod));
       Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.ReferenceTypeConstraint));
 
-      var method = genericMethod.MakeGenericMethod (typeof (string));
       var instance = (DerivedType) Activator.CreateInstance (type);
-      var result = method.Invoke (instance, new object[] { " arg" });
-
-      Assert.That (result, Is.EqualTo ("BaseType arg overridden"));
-      //Assert.That (instance.OverridableGenericMethod (" test"), Is.EqualTo ("BaseType test overridden"));
+      Assert.That (instance.OverridableGenericMethod (" test"), Is.EqualTo ("BaseType test overridden"));
     }
 
     public class BaseType
     {
-      public virtual string OverridableMethod ()
-      {
-        return "BaseType";
-      }
-
-      public virtual string OverridableMethodWithParameters (string s)
-      {
-        return "BaseType " + s;
-      }
-
-      public virtual string MethodOverriddenInDerived ()
-      {
-        return "BaseType";
-      }
-
-      public virtual void MethodWithOutAndRefParameters (out int i, ref string s)
-      {
-        i = 7;
-        s += " blub";
-      }
-
-      //public virtual string OverridableGenericMethod<T> (T arg) where T : class
-      //{
-      //  return "BaseType " + arg;
-      //}
+      public virtual string OverridableMethod () { return "BaseType"; }
+      public virtual string OverridableMethodWithParameters (string s) { return "BaseType " + s; }
+      public virtual string MethodOverriddenInDerived () { return "BaseType"; }
+      public virtual void MethodWithOutAndRefParameters (out int i, ref string s) { i = 7; s += " blub"; }
+      public virtual string OverridableGenericMethod<TBase> (TBase arg) { return "BaseType " + arg; }
     }
 
     public class DerivedType : BaseType
     {
-      public override string MethodOverriddenInDerived ()
-      {
-        return "DerivedType";
-      }
+      public override string MethodOverriddenInDerived () { return "DerivedType"; }
     }
   }
 }
