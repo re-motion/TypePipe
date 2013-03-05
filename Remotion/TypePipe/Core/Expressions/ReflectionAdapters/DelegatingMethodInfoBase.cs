@@ -68,9 +68,49 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
       get { return _innerMethod.ReflectedType; }
     }
 
+    public override int MetadataToken
+    {
+      get { return _innerMethod.MetadataToken; }
+    }
+
+    public override Module Module
+    {
+      get { return _innerMethod.Module; }
+    }
+
     public override RuntimeMethodHandle MethodHandle
     {
       get { return _innerMethod.MethodHandle; }
+    }
+
+    public override MemberTypes MemberType
+    {
+      get { return _innerMethod.MemberType; }
+    }
+
+    public override bool ContainsGenericParameters
+    {
+      get { return _innerMethod.ContainsGenericParameters; }
+    }
+
+    public override bool IsGenericMethod
+    {
+      get { return _innerMethod.IsGenericMethod; }
+    }
+
+    public override bool IsGenericMethodDefinition
+    {
+      get { return _innerMethod.IsGenericMethodDefinition; }
+    }
+
+    public override Type[] GetGenericArguments ()
+    {
+      return _innerMethod.GetGenericArguments ();
+    }
+
+    public override MethodBody GetMethodBody ()
+    {
+      return _innerMethod.GetMethodBody ();
     }
 
     public override ParameterInfo[] GetParameters ()

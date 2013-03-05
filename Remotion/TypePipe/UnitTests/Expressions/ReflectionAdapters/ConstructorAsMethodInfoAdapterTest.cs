@@ -14,11 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.Expressions.ReflectionAdapters
 {
@@ -35,6 +35,12 @@ namespace Remotion.TypePipe.UnitTests.Expressions.ReflectionAdapters
     }
 
     [Test]
+    public void ReturnType ()
+    {
+      Assert.That (_adapter.ReturnType, Is.SameAs (typeof (void)));
+    }
+
+    [Test]
     public void ReturnTypeCustomAttributes ()
     {
       Assert.That (() => _adapter.ReturnTypeCustomAttributes, Throws.TypeOf<NotSupportedException>());
@@ -43,13 +49,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions.ReflectionAdapters
     [Test]
     public void GetBaseDefinition ()
     {
-      Assert.That (_adapter.GetBaseDefinition(), Is.SameAs (_adapter));
-    }
-
-    [Test]
-    public void ReturnType ()
-    {
-      Assert.That (_adapter.ReturnType, Is.SameAs (typeof (void)));
+      Assert.That (() => _adapter.GetBaseDefinition(), Throws.TypeOf<NotSupportedException>());
     }
   }
 }

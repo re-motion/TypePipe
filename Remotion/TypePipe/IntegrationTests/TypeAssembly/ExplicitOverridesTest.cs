@@ -241,7 +241,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-                  return ExpressionHelper.StringConcat (ctx.CallBase (overriddenMethod), Expression.Constant (" explicitly overridden"));
+                  var instantiatedBaseMethod = overriddenMethod.MakeTypePipeGenericMethod (ctx.GenericParameters[0]);
+                  return ExpressionHelper.StringConcat (ctx.CallBase (instantiatedBaseMethod), Expression.Constant (" explicitly overridden"));
                 });
             mutableMethod.AddExplicitBaseDefinition (overriddenMethod);
             Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { overriddenMethod }));

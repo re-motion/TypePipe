@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
 
     public override MethodInfo GetBaseDefinition ()
     {
-      return this;
+      throw new NotSupportedException();
     }
   }
 }

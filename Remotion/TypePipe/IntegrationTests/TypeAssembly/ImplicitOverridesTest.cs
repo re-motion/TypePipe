@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void OverrideGenericMethod_OverrideWithSameConstraints_CallBase ()
     {
-      MethodInfo overriddenMethod =
+      var overriddenMethod =
           NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((BaseType o) => o.OverridableGenericMethod (Dev<Dev.T>.Dummy));
       var type = AssembleType<DerivedType> (
           proxyType =>
