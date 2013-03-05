@@ -32,8 +32,14 @@ namespace Remotion.TypePipe.MutableReflection
     public static MethodDeclaration CreateForEquivalentSignature (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
+      // TODO check: should be non-generic method or genericMethodefinition
 
-      return null;
+      var genericParameters = method.GetGenericArguments().Select (GenericParameterDeclaration.CreateEquivalent);
+
+      Func<GenericParameterContext, Type> returnTypeProvider = null;
+      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider = null;
+
+      return new MethodDeclaration (genericParameters, returnTypeProvider, parameterProvider);
     }
 
     private readonly ReadOnlyCollection<GenericParameterDeclaration> _genericParameters;

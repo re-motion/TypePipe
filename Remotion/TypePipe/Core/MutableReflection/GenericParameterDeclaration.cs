@@ -32,6 +32,21 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static readonly GenericParameterDeclaration[] None = new GenericParameterDeclaration[0];
 
+    public static GenericParameterDeclaration CreateEquivalent (Type genericParameter)
+    {
+      ArgumentUtility.CheckNotNull ("genericParameter", genericParameter);
+
+      if (!genericParameter.IsGenericParameter)
+        throw new ArgumentException ("The specified type must be a generic parameter (IsGenericParameter must be true).", "genericParameter");
+
+      Func<GenericParameterContext, Type> baseConstraintProvider = null;
+      Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintsProvider = null;
+
+      return new GenericParameterDeclaration (
+          genericParameter.Name, genericParameter.GenericParameterAttributes, baseConstraintProvider, interfaceConstraintsProvider);
+    }
+
+
     private readonly string _name;
     private readonly GenericParameterAttributes _attributes;
     private readonly Func<GenericParameterContext, Type> _baseConstraintProvider;

@@ -33,11 +33,11 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static readonly ParameterDeclaration[] None = new ParameterDeclaration[0];
 
-    public static ParameterDeclaration CreateEquivalent (ParameterInfo parameterInfo)
+    public static ParameterDeclaration CreateEquivalent (ParameterInfo parameter)
     {
-      ArgumentUtility.CheckNotNull ("parameterInfo", parameterInfo);
+      ArgumentUtility.CheckNotNull ("parameter", parameter);
 
-      return new ParameterDeclaration (parameterInfo.ParameterType, parameterInfo.Name, parameterInfo.Attributes);
+      return new ParameterDeclaration (parameter.ParameterType, parameter.Name, parameter.Attributes);
     }
 
     // TODO 5442: Remove and use more complex version that supports generics.

@@ -41,16 +41,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           decl.GenericParameters[0],
           context,
           "TRet",
-          GenericParameterAttributes.NotNullableValueTypeConstraint,
+          GenericParameterAttributes.DefaultConstructorConstraint,
           expectedBaseTypeConstraint: null,
-          expectedInterfaceConstraints: typeof (IList<>).MakeGenericType (context.GenericParameters[0]));
+          expectedInterfaceConstraints: new[] { typeof (IDisposable) });
       GenericParameterDeclarationTest.CheckGenericParameter (
           decl.GenericParameters[1],
           context,
           "TRet",
           GenericParameterAttributes.DefaultConstructorConstraint,
-          typeof (MethodDeclarationTest),
-          new[] { typeof (IDisposable) });
+          typeof (List<>).MakeGenericType (context.GenericParameters[0]),
+          new[] { typeof (IList<>).MakeGenericType (context.GenericParameters[1]) });
 
       var returnType = decl.ReturnTypeProvider (context);
       Assert.That (returnType, Is.SameAs (context.GenericParameters[0]));
@@ -65,8 +65,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     private TRet Method<TRet, TArg> (out int i, TArg t)
-        where TRet : struct, IList<TRet>
-        where TArg : MethodDeclarationTest, IDisposable, new()
+        where TRet : IDisposable, new()
+        where TArg : List<TRet>, IList<TArg>
     {
       i = 7;
       return default (TRet);
