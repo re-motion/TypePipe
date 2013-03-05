@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.MutableReflection
         return false;
 
       // Necessary for CustomTypes (reference equality only); an optimization for RuntimeTypes.
-      if (ReferenceEquals (toType, fromType))
+      if (Equals (toType, fromType))
         return true;
 
       // 1) The base type of the CustomType may be assignable to the type.

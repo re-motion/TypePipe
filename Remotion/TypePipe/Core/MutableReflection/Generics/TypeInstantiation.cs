@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// Represents a constructed generic <see cref="Type"/>, i.e., a generic type definition that was instantiated with type arguments.
   /// This class is needed because the the original reflection classes do not work in combination with <see cref="CustomType"/> instances.
   /// </summary>
-  /// <remarks>Instances of this class are returned by <see cref="TypeExtensions.MakeTypePipeGenericType"/> and implement value equality..</remarks>
+  /// <remarks>Instances of this class are returned by <see cref="TypeExtensions.MakeTypePipeGenericType"/> and implement value equality.</remarks>
   public class TypeInstantiation : CustomType
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;

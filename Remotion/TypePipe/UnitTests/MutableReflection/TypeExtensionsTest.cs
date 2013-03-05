@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -80,6 +81,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (customType.IsAssignableFromFast (customType), Is.True);
       Assert.That (customBaseType.IsAssignableFromFast (customType), Is.True);
       Assert.That (customInterfaceType.IsAssignableFromFast (customType), Is.True);
+    }
+
+    [Test]
+    public void IsAssignableFromFast_TypeInstantiations ()
+    {
+      var genericTypeDefinition = typeof (List<>);
+      var instantiation1 = TypeInstantiationObjectMother.Create (genericTypeDefinition, new[] { typeof (int) });
+      var instantiation2 = TypeInstantiationObjectMother.Create (genericTypeDefinition, new[] { typeof (double) });
+      var instantiation3 = TypeInstantiationObjectMother.Create (genericTypeDefinition, new[] { typeof (int) });
+
+      Assert.That (instantiation1.IsAssignableFromFast (instantiation2), Is.False);
+      Assert.That (instantiation1.IsAssignableFromFast (instantiation3), Is.True);
     }
 
     [Test]
