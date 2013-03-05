@@ -59,7 +59,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (resultType.GetElementType(), Is.SameAs (type));
     }
 
-    [Ignore ("TODO 4774")]
     [Test]
     public void AddedMethod ()
     {
@@ -85,7 +84,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (methodInstantiation.IsGenericMethodDefinition, Is.False);
                   Assert.That (methodInstantiation.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
 
-                  return Expression.Call (methodInstantiation);
+                  return Expression.Call (ctx.This, methodInstantiation);
                 });
           });
 
