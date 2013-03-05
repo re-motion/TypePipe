@@ -23,8 +23,10 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -99,6 +101,41 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
 
       Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
+    public void VisitNew_GenericParameterDefaultConstructor ()
+    {
+      var genericParameter = MutableGenericParameterObjectMother.Create();
+      var defaultConstructor = new GenericParameterDefaultConstructor (genericParameter);
+      var expression = Expression.New (defaultConstructor);
+
+      var result = ExpressionVisitorTestHelper.CallVisitNew (_visitorPartialMock, expression);
+
+      Assert.That (result.Type, Is.SameAs (genericParameter));
+      Assert.That (result, Is.InstanceOf<MethodCallExpression>());
+
+      var methodCallExpression = result.As<MethodCallExpression>();
+      Assert.That (methodCallExpression.Object, Is.Null);
+      Assert.That (methodCallExpression.Arguments, Is.Empty);
+
+      var method = methodCallExpression.Method;
+      var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Activator.CreateInstance<Dev.T>());
+      Assert.That (method.GetGenericMethodDefinition(), Is.EqualTo (genericMethodDefinition));
+      Assert.That (method.GetGenericArguments(), Is.EqualTo (new[] { genericParameter }));
+    }
+
+    [Test]
+    public void VisitNew_NoChange ()
+    {
+      var expression1 = Expression.New (typeof (object));
+      var expression2 = Expression.New (typeof (int));
+
+      var result1 = ExpressionVisitorTestHelper.CallVisitNew (_visitorPartialMock, expression1);
+      var result2 = ExpressionVisitorTestHelper.CallVisitNew (_visitorPartialMock, expression2);
+
+      Assert.That (result1, Is.SameAs (expression1));
+      Assert.That (result2, Is.SameAs (expression2));
     }
 
     [Test]

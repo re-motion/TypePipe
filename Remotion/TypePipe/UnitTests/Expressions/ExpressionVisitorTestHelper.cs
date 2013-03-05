@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Development.UnitTesting;
 
@@ -36,6 +35,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     public static Expression CallVisitConstant (ExpressionVisitor expressionVisitor, ConstantExpression expression)
     {
       return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitConstant", expression);
+    }
+
+    public static Expression CallVisitNew (ExpressionVisitor expressionVisitor, NewExpression expression)
+    {
+      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expressionVisitor, "VisitNew", expression);
     }
 
     public static Expression CallVisitDynamic (ExpressionVisitor expressionVisitor, DynamicExpression expression)

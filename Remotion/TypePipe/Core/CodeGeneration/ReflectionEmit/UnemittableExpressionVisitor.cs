@@ -20,7 +20,9 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -30,6 +32,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class UnemittableExpressionVisitor : PrimitiveTypePipeExpressionVisitorBase
   {
+    private static readonly MethodInfo s_createInstanceMethod =
+        MemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Activator.CreateInstance<int>());
+
     private readonly CodeGenerationContext _context;
     private readonly IMethodTrampolineProvider _methodTrampolineProvider;
 
@@ -59,6 +64,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
 
       return base.VisitConstant (node);
+    }
+
+    protected internal override Expression VisitNew (NewExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      if (node.Constructor is GenericParameterDefaultConstructor)
+      {
+        var createInstance = s_createInstanceMethod.MakeTypePipeGenericMethod (node.Type);
+        return Expression.Call (createInstance);
+      }
+
+      return base.VisitNew (node);
     }
 
     protected internal override Expression VisitLambda (LambdaExpression node)
