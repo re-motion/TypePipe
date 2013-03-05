@@ -156,7 +156,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (arguments, Is.EqualTo (new object[] { 7, "hello blub" }));
     }
 
-    [Ignore ("TODO 5444")]
     [Test]
     public void OverrideGenericMethod_OverrideWithSameConstraints_CallBase ()
     {
@@ -175,7 +174,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 {
                   Assert.That (ctx.HasBaseMethod, Is.True);
                   Assert.That (ctx.BaseMethod, Is.EqualTo (overriddenMethod));
-                  return ExpressionHelper.StringConcat (ctx.CallBase (ctx.BaseMethod, ctx.Parameters[0]), Expression.Constant (" overridden"));
+
+                  // We need to instantiate the base method with our own generic parameter before calling it.
+                  var instantiatedBaseMethod = ctx.BaseMethod.MakeTypePipeGenericMethod (ctx.GenericParameters[0]);
+                  return ExpressionHelper.StringConcat (ctx.CallBase (instantiatedBaseMethod, ctx.Parameters[0]), Expression.Constant (" overridden"));
                 });
             Assert.That (mutableMethod.BaseMethod, Is.EqualTo (overriddenMethod));
             Assert.That (mutableMethod.GetBaseDefinition(), Is.EqualTo (overriddenMethod));
