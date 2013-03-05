@@ -16,9 +16,13 @@
 // 
 
 using System;
+using System.IO;
+using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -246,6 +250,62 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (shadowingMethod.Invoke (instance, null), Is.EqualTo ("Shadowing method"));
     }
 
+    [Ignore ("TODO 5442")]
+    [Test]
+    public void BaseMethod_GenericMethod ()
+    {
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType obj) => obj.GenericMethod<Dev.T> (null));
+
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var mutableMethod = proxyType.GetOrAddOverride (baseMethod);
+
+            Assert.That (mutableMethod.BaseMethod, Is.SameAs (baseMethod));
+            Assert.That (mutableMethod.IsGenericMethod, Is.True);
+            var mutableGenericParameter = mutableMethod.MutableGenericParameters.Single();
+            Assert.That (mutableGenericParameter.Name, Is.EqualTo ("TPar"));
+            Assert.That (mutableGenericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
+            Assert.That (mutableGenericParameter.GetGenericParameterConstraints(), Is.Empty);
+
+            mutableMethod.SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" made mutable")));
+          });
+
+      var method = GetDeclaredMethod (type, "GenericMethod");
+      Assert.That (method.GetBaseDefinition(), Is.SameAs (baseMethod));
+      Assert.That (method.IsGenericMethod, Is.True);
+      var genericParameter = method.GetGenericArguments().Single();
+      Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
+      Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
+      Assert.That (genericParameter.GetGenericParameterConstraints(), Is.Empty);
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      Assert.That (instance.GenericMethod (""), Is.EqualTo ("DomainType String made mutable"));
+    }
+
+    [Ignore ("TODO 5442")]
+    [Test]
+    public void BaseMethod_ConstrainedGenericMethod ()
+    {
+      var baseMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType obj) => obj.ConstrainedGenericMethod<TcpClient> (null));
+
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var mutableMethod = proxyType.GetOrAddOverride (baseMethod);
+
+            var mutableGenericParameter = mutableMethod.MutableGenericParameters.Single();
+            Assert.That (mutableGenericParameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { typeof (IDisposable) }));
+            Assert.That (mutableGenericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
+          });
+
+      var method = GetDeclaredMethod (type, "ConstrainedGenericMethod");
+      var genericParameter = method.GetGenericArguments().Single();
+      Assert.That (genericParameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { typeof (IDisposable) }));
+      Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
+    }
+
     [Test]
     public void NonVirtualBaseMethod_NotSupported ()
     {
@@ -267,7 +327,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       AssembleType<DomainType> (
           proxyType =>
           {
-            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.FinalVirtualBaseMethod ());
+            var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod<DomainTypeBase> (x => x.FinalVirtualBaseMethod());
             Assert.That (baseMethod.IsVirtual, Is.True);
             Assert.That (baseMethod.IsFinal, Is.True);
 
@@ -318,6 +378,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public override string ExistingOverride () { return "DomainType"; }
 
       public new virtual string BaseMethodShadowedByModified () { return "DomainType (shadowing)"; }
+
+      public virtual string GenericMethod<TPar> (TPar arg) { return "DomainType " + arg.GetType().Name; }
+      public virtual void ConstrainedGenericMethod<T> (T arg) where T : IDisposable, new() { }
     }
   }
 }
