@@ -150,6 +150,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.Invoke (instance, new object[] { "same", "other" }), Is.False);
     }
 
+    // TODO: test for passing a 1) value type and afterwards 2) a reference type to the same generic method, as a parameter which is has a type of
+    // generic parameter (defined on the method) and is constrained via an interface interface.
+
     public interface IDomainInterface
     {
       string GetTypeName ();
