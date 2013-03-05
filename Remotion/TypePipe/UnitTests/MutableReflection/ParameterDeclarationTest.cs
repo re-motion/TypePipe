@@ -27,6 +27,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class ParameterDeclarationTest
   {
+    public static void CheckParameter (
+        ParameterDeclaration parameter, Type expectedType, string expectedName, ParameterAttributes expectedAttributes)
+    {
+      Assert.That (parameter, Is.Not.Null);
+      Assert.That (parameter.Type, Is.SameAs (expectedType));
+      Assert.That (parameter.Name, Is.EqualTo (expectedName));
+      Assert.That (parameter.Attributes, Is.EqualTo (expectedAttributes));
+    }
+
     [Test]
     public void None ()
     {

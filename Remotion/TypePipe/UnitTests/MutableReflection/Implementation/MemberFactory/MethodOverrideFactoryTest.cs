@@ -101,6 +101,54 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { method }));
     }
 
+    [Ignore]
+    [Test]
+    public void CreateExplicitOverride_Generic ()
+    {
+      var method = typeof (DomainType).GetMethod ("GenericMethod");
+      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => fakeBody;
+
+      var fakeResult = MutableMethodInfoObjectMother.Create (_proxyType, attributes: MethodAttributes.Virtual);
+      _methodFactoryMock
+          .Expect (
+              mock =>
+              mock.CreateMethod (
+                  Arg.Is (_proxyType),
+                  Arg.Is ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MethodOverrideFactoryTest.DomainType.GenericMethod"),
+                  Arg.Is (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig),
+                  Arg<IEnumerable<GenericParameterDeclaration>>.Is.Anything,
+                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
+                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
+                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Anything))
+          .Return (fakeResult)
+          .WhenCalled (
+              mi =>
+              {
+                var fakeGenericParameter = ReflectionObjectMother.GetSomeType();
+                var genericParameterContext = new GenericParameterContext (new[] { fakeGenericParameter });
+
+                var genericParameters = (IEnumerable<GenericParameterDeclaration>) mi.Arguments[3];
+                var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (genericParameterContext);
+                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (genericParameterContext).ToList();
+
+                var genericParameter = genericParameters.Single();
+                Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
+                Assert.That (genericParameter.Attributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
+                Assert.That (genericParameter.BaseConstraintProvider, Is.EqualTo (typeof (DomainType)));
+                Assert.That (genericParameter.InterfaceConstraintsProvider, Is.EqualTo (new[] { typeof (IDisposable) }));
+                Assert.That (returnType, Is.SameAs (fakeGenericParameter));
+                ParameterDeclarationTest.CheckParameter (parameters[0], typeof (int), "arg1", ParameterAttributes.None);
+                ParameterDeclarationTest.CheckParameter (parameters[1], fakeGenericParameter, "arg2", ParameterAttributes.None);
+              });
+
+      var result = _factory.CreateExplicitOverride (_proxyType, method, bodyProvider);
+
+      _methodFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeResult));
+      Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { method }));
+    }
+
     [Test]
     public void GetOrCreateOverride_ExistingOverride ()
     {
@@ -435,8 +483,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     public class DomainType : C, IDomainInterface
     {
-      public virtual void InterfaceMethod (int interfaceMethodOnDomainType) { }
-      public void NonVirtualBaseMethod () { }
+      public virtual void InterfaceMethod (int interfaceMethodOnDomainType) {}
+      public virtual TPar GenericMethod<TPar> (int arg1, TPar arg2) where TPar : DomainType, IDisposable, new () { return arg2; }
+
+      public void NonVirtualBaseMethod () {}
     }
 
     public interface IDomainInterface
