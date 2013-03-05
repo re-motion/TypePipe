@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -30,7 +29,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  public class GetOrAddOverrideTest : TypeAssemblerIntegrationTestBase
+  public class GetOrAddOverrideBaseMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void BaseMethodWithoutOverride ()
@@ -261,7 +260,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var mutableMethod = proxyType.GetOrAddOverride (baseMethod);
 
             Assert.That (mutableMethod.BaseMethod, Is.SameAs (baseMethod));
-            Assert.That (mutableMethod.IsGenericMethod, Is.True);
+            Assert.That (mutableMethod.IsGenericMethodDefinition, Is.True);
             var mutableGenericParameter = mutableMethod.MutableGenericParameters.Single();
             Assert.That (mutableGenericParameter.Name, Is.EqualTo ("TPar"));
             Assert.That (mutableGenericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
@@ -272,7 +271,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var method = GetDeclaredMethod (type, "GenericMethod");
       Assert.That (method.GetBaseDefinition(), Is.SameAs (baseMethod));
-      Assert.That (method.IsGenericMethod, Is.True);
+      Assert.That (method.IsGenericMethodDefinition, Is.True);
       var genericParameter = method.GetGenericArguments().Single();
       Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
       Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
