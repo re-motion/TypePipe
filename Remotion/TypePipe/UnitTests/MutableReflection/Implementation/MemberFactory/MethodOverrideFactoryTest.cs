@@ -31,6 +31,7 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
@@ -101,7 +102,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { method }));
     }
 
-    [Ignore]
     [Test]
     public void CreateExplicitOverride_Generic ()
     {
@@ -109,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => fakeBody;
 
-      var fakeResult = MutableMethodInfoObjectMother.Create (_proxyType, attributes: MethodAttributes.Virtual);
+      var fakeResult = CreateFakeGenericMethod();
       _methodFactoryMock
           .Expect (
               mock =>
@@ -464,6 +464,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
       return new MethodBodyCreationContext (
           _proxyType, false, parameterExpressions, Type.EmptyTypes, baseMethod.ReturnType, baseMethod, memberSelectorMock);
+    }
+
+    private MutableMethodInfo CreateFakeGenericMethod ()
+    {
+      var genericParameter = MutableGenericParameterObjectMother.Create (position: 0);
+      return MutableMethodInfoObjectMother.Create (
+          _proxyType,
+          attributes: MethodAttributes.Virtual,
+          genericParameters: new[] { genericParameter },
+          returnType: genericParameter,
+          parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)), ParameterDeclarationObjectMother.Create (genericParameter) });
     }
 
     public class A
