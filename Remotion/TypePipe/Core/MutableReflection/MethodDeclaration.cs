@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
           ctx =>
           {
             var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-            return CreateEquivalentParameter (method.ReturnParameter, parametersToArguments, instantiations).Type;
+            return TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, method.ReturnType);
           };
       Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
           ctx =>

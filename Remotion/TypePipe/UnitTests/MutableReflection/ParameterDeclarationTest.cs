@@ -20,7 +20,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -40,41 +39,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void None ()
     {
       Assert.That (ParameterDeclaration.None, Is.Empty);
-    }
-
-    [Test]
-    public void CreateEquivalent ()
-    {
-      
-    }
-
-    [Test]
-    public void CreateEquivalent2 ()
-    {
-      var parameterInfo = ReflectionObjectMother.GetSomeParameter();
-
-      var result = ParameterDeclaration.CreateEquivalent2 (parameterInfo);
-
-      Assert.That (result.Type, Is.SameAs (parameterInfo.ParameterType));
-      Assert.That (result.Name, Is.EqualTo (parameterInfo.Name));
-      Assert.That (result.Attributes, Is.EqualTo (parameterInfo.Attributes));
-    }
-
-    [Test]
-    public void CreateForEquivalentSignature ()
-    {
-      string v;
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (42, out v));
-
-      var result = ParameterDeclaration.CreateForEquivalentSignature (method);
-
-      var expected = new[] 
-      { 
-        new { Type = typeof (int), Name = "i", Attributes = ParameterAttributes.None },
-        new { Type = typeof (string).MakeByRefType(), Name = "s", Attributes = ParameterAttributes.Out }
-      };
-      var actual = result.Select (pd => new { pd.Type, pd.Name, pd.Attributes });
-      Assert.That (actual, Is.EqualTo (expected));
     }
 
     [Test]

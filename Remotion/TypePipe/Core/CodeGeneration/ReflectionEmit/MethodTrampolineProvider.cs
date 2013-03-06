@@ -62,13 +62,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private MethodInfo CreateNonVirtualCallTrampoline (CodeGenerationContext context, MethodInfo method, string trampolineName)
     {
-      var parameters = ParameterDeclaration.CreateForEquivalentSignature (method);
-      var trampoline = context.ProxyType.AddMethod (
+      var methodDeclaration = MethodDeclaration.CreateEquivalent (method);
+      var trampoline = context.ProxyType.AddGenericMethod (
           trampolineName,
           MethodAttributes.Private,
-          method.ReturnType,
-          parameters,
-          ctx => Expression.Call (ctx.This, new NonVirtualCallMethodInfoAdapter (method), ctx.Parameters.Cast<Expression>()));
+          methodDeclaration,
+          ctx => Expression.Call (ctx.This, NonVirtualCallMethodInfoAdapter.Adapt (method), ctx.Parameters.Cast<Expression>()));
 
       _memberEmitter.AddMethod (context, trampoline);
 

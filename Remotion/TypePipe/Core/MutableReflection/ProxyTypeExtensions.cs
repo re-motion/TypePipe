@@ -18,6 +18,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -42,6 +44,22 @@ namespace Remotion.TypePipe.MutableReflection
 
       var abstractAttributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
       return proxyType.AddMethod (name, abstractAttributes, returnType, parameters, bodyProvider: null);
+    }
+
+    public static MutableMethodInfo AddGenericMethod (
+        this ProxyType proxyType,
+        string name,
+        MethodAttributes attributes,
+        MethodDeclaration methodDeclaration,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
+    {
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("methodDeclaration", methodDeclaration);
+      // Body provider may be null.
+
+      var md = methodDeclaration;
+      return proxyType.AddGenericMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
     }
   }
 }

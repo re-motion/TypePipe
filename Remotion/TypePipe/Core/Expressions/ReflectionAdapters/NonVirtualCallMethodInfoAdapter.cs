@@ -28,13 +28,18 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
   /// </summary>
   public class NonVirtualCallMethodInfoAdapter : DelegatingMethodInfoBase<MethodInfo>
   {
-    public static NonVirtualCallMethodInfoAdapter Adapt (MethodBase methodBase)
+    public static NonVirtualCallMethodInfoAdapter Adapt (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
-      Assertion.IsTrue (methodBase is MethodInfo || methodBase is ConstructorInfo);
+      ArgumentUtility.CheckNotNull ("method", method);
 
-      var method = methodBase as MethodInfo ?? new ConstructorAsMethodInfoAdapter ((ConstructorInfo) methodBase);
       return new NonVirtualCallMethodInfoAdapter (method);
+    }
+
+    public static NonVirtualCallMethodInfoAdapter Adapt (ConstructorInfo constructor)
+    {
+      ArgumentUtility.CheckNotNull ("constructor", constructor);
+
+      return Adapt (new ConstructorAsMethodInfoAdapter (constructor));
     }
 
     public NonVirtualCallMethodInfoAdapter (MethodInfo adaptedMethod)
