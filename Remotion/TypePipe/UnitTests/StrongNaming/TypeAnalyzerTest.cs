@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Remotion.Collections;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.StrongNaming;
