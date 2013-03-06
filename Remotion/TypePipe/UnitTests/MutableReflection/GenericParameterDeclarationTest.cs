@@ -42,11 +42,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (genericParameter.InterfaceConstraintsProvider (genericParameterContext), Is.EqualTo (expectedInterfaceConstraints));
     }
 
+    [Test]
+    public void None ()
+    {
+      Assert.That (GenericParameterDeclaration.None, Is.Empty);
+    }
+
     [Ignore]
     [Test]
     public void CreateEquivalent ()
     {
       var genericParameter = GetType().GetMethod ("Method").GetGenericArguments().First();
+      var genericParameter2 = GetType().GetMethod ("Method").GetGenericArguments()[1];
+      var genericParameter3 = GetType().GetMethod ("Method").GetGenericArguments().Last();
+
+      Console.WriteLine (genericParameter.IsClass);
+      Console.WriteLine (genericParameter.IsInterface);
+      Console.WriteLine (genericParameter.IsValueType);
+      Console.WriteLine (genericParameter2.IsClass);
+      Console.WriteLine (genericParameter2.IsInterface);
+      Console.WriteLine (genericParameter3.IsClass);
+      Console.WriteLine (genericParameter3.IsInterface);
+      
 
       var declaration = GenericParameterDeclaration.CreateEquivalent (genericParameter);
 
@@ -83,12 +100,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void CreateEquivalent_NoGenericParameter ()
     {
       GenericParameterDeclaration.CreateEquivalent (ReflectionObjectMother.GetSomeType());
-    }
-
-    [Test]
-    public void None ()
-    {
-      Assert.That (GenericParameterDeclaration.None, Is.Empty);
     }
 
     [Test]

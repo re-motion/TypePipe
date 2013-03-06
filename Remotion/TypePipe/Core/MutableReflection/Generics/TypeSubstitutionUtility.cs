@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       Assertion.IsFalse (type.IsArray, "Not yet supported, TODO 5409");
 
       var oldTypeArguments = type.GetGenericArguments();
-      var newTypeArguments =oldTypeArguments.Select (t => SubstituteGenericParameters (parametersToArguments, instantiationContext, t)).ToList();
+      var newTypeArguments = oldTypeArguments.Select (t => SubstituteGenericParameters (parametersToArguments, instantiationContext, t)).ToList();
 
       // No substitution necessary (this is an optimization only).
       if (oldTypeArguments.SequenceEqual (newTypeArguments))
