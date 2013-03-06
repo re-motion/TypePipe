@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </remarks>
   public static class TypeSubstitutionUtility
   {
+    // TODO Review: Move to TypeInstantiationContext
     public static Type SubstituteGenericParameters (
         IDictionary<Type, Type> parametersToArguments, IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiationContext, Type type)
     {

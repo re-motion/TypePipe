@@ -19,27 +19,63 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Holds all values required to declare a method.
+  /// Holds all information required to declare a method signature, that is, the generic parameters, return type and parameters.
   /// </summary>
-  /// <remarks>This can be used to create methods that have an equal or similiar signature to an existing method.</remarks>
+  /// <remarks><see cref="CreateEquivalent"/> can be used to create methods that have an equal or similiar signature to an existing method.</remarks>
+  /// <seealso cref="ProxyType.AddMethod"/>
+  /// <seealso cref="ProxyType.AddGenericMethod"/>
   public class MethodDeclaration
   {
-    public static MethodDeclaration CreateForEquivalentSignature (MethodInfo method)
+    public static MethodDeclaration CreateEquivalent (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
       // TODO check: should be non-generic method or genericMethodefinition
 
-      var genericParameters = method.GetGenericArguments().Select (GenericParameterDeclaration.CreateEquivalent);
+      var oldGenericParameters = method.GetGenericArguments();
+      var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
 
-      Func<GenericParameterContext, Type> returnTypeProvider = null;
-      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider = null;
+      var genericParameters = oldGenericParameters.Select (g => CreateEquivalentGenericParameter (g, oldGenericParameters, instantiations));
+      Func<GenericParameterContext, Type> returnTypeProvider =
+          ctx =>
+          {
+            var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+            return CreateEquivalentParameter (method.ReturnParameter, parametersToArguments, instantiations).Type;
+          };
+      Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
+          ctx =>
+          {
+            var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+            return method.GetParameters().Select (p => CreateEquivalentParameter (p, parametersToArguments, instantiations));
+          };
 
       return new MethodDeclaration (genericParameters, returnTypeProvider, parameterProvider);
+    }
+
+    private static GenericParameterDeclaration CreateEquivalentGenericParameter (
+        Type genericParameter, IEnumerable<Type> oldGenericParameters, IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
+    {
+      Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = ctx =>
+      {
+        var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+        return genericParameter
+            .GetGenericParameterConstraints()
+            .Select (c => TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, c));
+      };
+      return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);
+    }
+
+    private static ParameterDeclaration CreateEquivalentParameter (
+        ParameterInfo parameter, IDictionary<Type, Type> parametersToArguments, IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
+    {
+      var type = TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, parameter.ParameterType);
+      return new ParameterDeclaration (type, parameter.Name, parameter.Attributes);
     }
 
     private readonly ReadOnlyCollection<GenericParameterDeclaration> _genericParameters;

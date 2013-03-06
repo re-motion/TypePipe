@@ -46,13 +46,13 @@ namespace Remotion.TypePipe.MutableReflection
       return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);
     }
 
-    private static IEnumerable<Type> SubstituteConstraints (GenericParameterContext ctx, Type genericParameter)
+    private static IEnumerable<Type> SubstituteConstraints (GenericParameterContext context, Type genericParameter)
     {
       var method = genericParameter.DeclaringMethod;
       var oldGenericParameters = method != null ? method.GetGenericArguments() : genericParameter.DeclaringType.GetGenericArguments();
-      Assertion.IsTrue (oldGenericParameters.Length == ctx.GenericParameters.Count);
+      Assertion.IsTrue (oldGenericParameters.Length == context.GenericParameters.Count);
 
-      var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+      var parametersToArguments = oldGenericParameters.Zip (context.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
       var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
 
       return genericParameter

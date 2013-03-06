@@ -60,6 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       get { return _typeArguments; }
     }
 
+    // TODO Review: Make a specific TypeInstantiationContext object and move this method there.
     public Type Instantiate (IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
     {
       var typeInstantiation = instantiations.GetValueOrDefault (this);

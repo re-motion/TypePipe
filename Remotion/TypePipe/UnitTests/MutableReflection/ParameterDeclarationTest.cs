@@ -45,9 +45,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void CreateEquivalent ()
     {
+      
+    }
+
+    [Test]
+    public void CreateEquivalent2 ()
+    {
       var parameterInfo = ReflectionObjectMother.GetSomeParameter();
 
-      var result = ParameterDeclaration.CreateEquivalent (parameterInfo);
+      var result = ParameterDeclaration.CreateEquivalent2 (parameterInfo);
 
       Assert.That (result.Type, Is.SameAs (parameterInfo.ParameterType));
       Assert.That (result.Name, Is.EqualTo (parameterInfo.Name));
