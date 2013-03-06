@@ -46,22 +46,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (GenericParameterDeclaration.None, Is.Empty);
     }
 
-    [Ignore]
     [Test]
-    public void CreateEquivalent ()
+    public void CreateEquivalent_GenericParameterOnMethod ()
     {
       var genericParameter = GetType().GetMethod ("Method").GetGenericArguments().First();
-      var genericParameter2 = GetType().GetMethod ("Method").GetGenericArguments()[1];
-      var genericParameter3 = GetType().GetMethod ("Method").GetGenericArguments().Last();
-
-      Console.WriteLine (genericParameter.IsClass);
-      Console.WriteLine (genericParameter.IsInterface);
-      Console.WriteLine (genericParameter.IsValueType);
-      Console.WriteLine (genericParameter2.IsClass);
-      Console.WriteLine (genericParameter2.IsInterface);
-      Console.WriteLine (genericParameter3.IsClass);
-      Console.WriteLine (genericParameter3.IsInterface);
-      
 
       var declaration = GenericParameterDeclaration.CreateEquivalent (genericParameter);
 
@@ -75,16 +63,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           typeof (IList<>).MakeGenericType (context.GenericParameters[0]));
     }
 
-    [Ignore]
     [Test]
-    public void CreateEquivalent_NoBaseTypeConstraint ()
+    public void CreateEquivalent_GenericParameterOnType ()
     {
-      var genericParameter = GetType().GetMethod ("Method").GetGenericArguments().Last();
+      var genericParameter = typeof (Class<>).GetGenericArguments().Single();
 
       var declaration = GenericParameterDeclaration.CreateEquivalent (genericParameter);
 
-      var context = new GenericParameterContext (new[] { ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeOtherType() });
-      CheckGenericParameter (declaration, context, "TLast", GenericParameterAttributes.None, expectedConstraints: typeof (object));
+      var context = new GenericParameterContext (new[] { ReflectionObjectMother.GetSomeType() });
+      CheckGenericParameter (declaration, context, "T", GenericParameterAttributes.None);
     }
 
     [Test]
@@ -119,5 +106,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public void Method<TFirst, TLast> () where TFirst : TLast, IList<TFirst>, new() {}
+
+    private class Class<T> {}
   }
 }

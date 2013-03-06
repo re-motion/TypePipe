@@ -42,28 +42,22 @@ namespace Remotion.TypePipe.MutableReflection
       if (!genericParameter.IsGenericParameter)
         throw new ArgumentException ("The specified type must be a generic parameter (IsGenericParameter must be true).", "genericParameter");
 
-      var oldGenericParameters = genericParameter.DeclaringMethod.GetGenericArguments();
-      var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
-
-      Func<GenericParameterContext, Type> baseConstraintProvider =
-          ctx => Substitute (oldGenericParameters, ctx, instantiations, genericParameter.BaseType);
-      Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintsProvider =
-          ctx => genericParameter
-                     .GetGenericParameterConstraints()
-                     .Where (g => g.IsInterface)
-                     .Select (g => Substitute (oldGenericParameters, ctx, instantiations, g));
-
-      return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, null);
+      Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = ctx => SubstituteConstraints (ctx, genericParameter);
+      return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);
     }
 
-    private static Type Substitute (
-        Type[] oldGenericParameters,
-        GenericParameterContext genericParameterContext,
-        Dictionary<TypeInstantiationInfo, TypeInstantiation> instantiations,
-        Type type)
+    private static IEnumerable<Type> SubstituteConstraints (GenericParameterContext ctx, Type genericParameter)
     {
-      var parametersToArguments = oldGenericParameters.Zip (genericParameterContext.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-      return TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, type);
+      var method = genericParameter.DeclaringMethod;
+      var oldGenericParameters = method != null ? method.GetGenericArguments() : genericParameter.DeclaringType.GetGenericArguments();
+      Assertion.IsTrue (oldGenericParameters.Length == ctx.GenericParameters.Count);
+
+      var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+      var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
+
+      return genericParameter
+          .GetGenericParameterConstraints()
+          .Select (c => TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, c));
     }
 
     private readonly string _name;
