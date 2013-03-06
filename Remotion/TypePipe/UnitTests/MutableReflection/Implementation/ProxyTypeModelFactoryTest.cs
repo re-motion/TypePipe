@@ -98,13 +98,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var ctor = result.AddedConstructors.Single();
       Assert.That (ctor.IsStatic, Is.False);
       Assert.That (ctor.IsFamily, Is.True);
+      Assert.That (ctor.IsAssembly, Is.False);
 
-      var parameters = ctor.GetParameters();
-      Assert.That (parameters, Has.Length.EqualTo (1));
-      Assert.That (parameters[0].ParameterType, Is.SameAs (typeof (int)));
-      Assert.That (parameters[0].Name, Is.EqualTo ("i"));
+      var parameter = ctor.GetParameters().Single();
+      CustomParameterInfoTest.CheckParameter (parameter, ctor, 0, "i", typeof (int).MakeByRefType(), ParameterAttributes.Out);
 
-      var baseCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (7));
+      var baseCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType (out Dev<int>.Dummy));
       var expectedBody = Expression.Call (
           new ThisExpression (result), NonVirtualCallMethodInfoAdapter.Adapt (baseCtor), ctor.ParameterExpressions.Cast<Expression>());
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
@@ -114,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       static DomainType() { }
 
-      protected internal DomainType (int i) { Dev.Null = i; }
+      protected internal DomainType (out int i) { i = 7; }
       internal DomainType (string inaccessible) { Dev.Null = inaccessible; }
     }
 

@@ -171,11 +171,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     private MutableMethodInfo AddSimiliarMethod (ProxyType proxyType, MethodInfo template, string methodName = null)
     {
-      return proxyType.AddMethod (
+      var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
+      return proxyType.AddGenericMethod (
           methodName ?? template.Name,
           MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
-          template.ReturnType,
-          ParameterDeclaration.CreateForEquivalentSignature (template),
+          methodDeclaration,
           ctx => Expression.Default (template.ReturnType));
     }
 

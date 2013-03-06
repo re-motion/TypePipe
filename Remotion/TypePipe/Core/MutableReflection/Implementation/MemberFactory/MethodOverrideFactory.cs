@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -101,9 +100,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProviderOrNull);
 
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
-      var parameters = ParameterDeclaration.CreateForEquivalentSignature (baseDefinition);
-
-      return CreateMethod (declaringType, baseMethod.Name, attributes, baseMethod.ReturnType, parameters, bodyProviderOrNull);
+      return CreateOverride (baseMethod, declaringType, baseMethod.Name, attributes, bodyProviderOrNull);
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
@@ -115,9 +112,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var attributes = MethodOverrideUtility.GetAttributesForExplicitOverride (overriddenMethodBaseDefinition);
       if (bodyProviderOrNull != null)
         attributes = attributes.Unset (MethodAttributes.Abstract);
-      var parameters = ParameterDeclaration.CreateForEquivalentSignature (overriddenMethodBaseDefinition);
 
-      var method = CreateMethod (declaringType, name, attributes, overriddenMethodBaseDefinition.ReturnType, parameters, bodyProviderOrNull);
+      var method = CreateOverride (overriddenMethodBaseDefinition, declaringType, name, attributes, bodyProviderOrNull);
       method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
 
       return method;
@@ -131,11 +127,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
       if (implementation == null)
       {
-        var parameters = ParameterDeclaration.CreateForEquivalentSignature (ifcMethod);
         try
         {
           isNewlyCreated = true;
-          return CreateMethod (declaringType, ifcMethod.Name, ifcMethod.Attributes, ifcMethod.ReturnType, parameters, bodyProvider: null);
+          return CreateOverride (ifcMethod, declaringType, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
         }
         catch (InvalidOperationException)
         {
@@ -165,17 +160,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       }
     }
 
-    // TODO Adapt for generic parameters.
-    private MutableMethodInfo CreateMethod (
+    private MutableMethodInfo CreateOverride (
+        MethodInfo overriddenMethod,
         ProxyType declaringType,
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameters,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
+      var md = MethodDeclaration.CreateEquivalent (overriddenMethod);
       return _methodFactory.CreateMethod (
-          declaringType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
+          declaringType, name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
     }
   }
 }

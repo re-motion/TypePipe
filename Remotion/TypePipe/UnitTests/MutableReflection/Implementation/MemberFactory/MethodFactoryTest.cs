@@ -290,24 +290,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty ();
       var method = _proxyType.AddMethod ("Method", 0, typeof (void), ParameterDeclarationObjectMother.CreateMultiple (2), bodyProvider);
+      var methodParameters = method.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
+
+      Assert.That (() => CallCreateMethod (_proxyType, "OtherName", 0, method.ReturnType, methodParameters, bodyProvider), Throws.Nothing);
 
       Assert.That (
-          () => CallCreateMethod (_proxyType, "OtherName", 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
+          () => CallCreateMethod (_proxyType, method.Name, 0, typeof (int), methodParameters, ctx => Expression.Constant (7)), Throws.Nothing);
+
+      Assert.That (
+          () => CallCreateMethod (_proxyType, method.Name, 0, method.ReturnType, ParameterDeclarationObjectMother.CreateMultiple (3), bodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => CallCreateMethod (
-              _proxyType, method.Name, 0, typeof (int), ParameterDeclaration.CreateForEquivalentSignature (method), ctx => Expression.Constant (7)),
-          Throws.Nothing);
-
-      Assert.That (
-          () => CallCreateMethod (
-              _proxyType, method.Name, 0, method.ReturnType, ParameterDeclarationObjectMother.CreateMultiple (3), bodyProvider),
-          Throws.Nothing);
-
-      Assert.That (
-          () => CallCreateMethod (
-              _proxyType, method.Name, 0, method.ReturnType, ParameterDeclaration.CreateForEquivalentSignature (method), bodyProvider),
+          () => CallCreateMethod (_proxyType, method.Name, 0, method.ReturnType, methodParameters, bodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
     }
 

@@ -75,12 +75,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         MethodAttributes adjustedAttributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
-      return proxyType.AddMethod (
-          template.Name,
-          adjustedAttributes,
-          template.ReturnType,
-          ParameterDeclaration.CreateForEquivalentSignature (template),
-          bodyProvider ?? (ctx => Expression.Default (template.ReturnType)));
+      bodyProvider = bodyProvider ?? (ctx => Expression.Default (template.ReturnType));
+      var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
+      return proxyType.AddGenericMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
     }
 
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ProxyType>> participantActions)

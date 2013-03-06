@@ -15,8 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
@@ -32,22 +30,6 @@ namespace Remotion.TypePipe.MutableReflection
   public class ParameterDeclaration
   {
     public static readonly ParameterDeclaration[] None = new ParameterDeclaration[0];
-
-    public static ParameterDeclaration CreateEquivalent2 (ParameterInfo parameter)
-    {
-      ArgumentUtility.CheckNotNull ("parameter", parameter);
-
-      return new ParameterDeclaration (parameter.ParameterType, parameter.Name, parameter.Attributes);
-    }
-
-    // TODO 5442: Remove and use more complex version that supports generics.
-    public static ReadOnlyCollection<ParameterDeclaration> CreateForEquivalentSignature (MethodBase methodBase)
-    {
-      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
-      Assertion.IsFalse (methodBase.IsGenericMethod);
-
-      return methodBase.GetParameters().Select (CreateEquivalent2).ToList().AsReadOnly();
-    }
 
     private readonly Type _type;
     private readonly string _name;
