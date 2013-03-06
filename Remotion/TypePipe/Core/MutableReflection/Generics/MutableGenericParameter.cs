@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly GenericParameterAttributes _genericParameterAttributes;
 
     private MemberInfo _declaringMember;
-    private ReadOnlyCollection<Type> _interfaceConstraints = EmptyTypes.ToList().AsReadOnly();
+    private ReadOnlyCollection<Type> _constraints = EmptyTypes.ToList().AsReadOnly();
 
     public MutableGenericParameter (
         IMemberSelector memberSelector,
@@ -64,7 +64,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _position = position;
       _genericParameterAttributes = genericParameterAttributes;
 
-      SetBaseType (typeof (object));
+      var baseType = genericParameterAttributes.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) ? typeof (ValueType) : typeof (object);
+      SetBaseType (baseType);
     }
 
     public ProxyType MutableDeclaringType
@@ -109,30 +110,23 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _declaringMember = declaringMember;
     }
 
-    public void SetBaseTypeConstraint (Type baseTypeConstraint)
+    public void SetGenericParameterConstraints (IEnumerable<Type> constraints)
     {
-      ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
+      ArgumentUtility.CheckNotNull ("constraints", constraints);
 
-      if (!baseTypeConstraint.IsClass)
-        throw new ArgumentException ("A base type constraint must be a class.", "baseTypeConstraint");
+      _constraints = constraints.ToList().AsReadOnly();
 
-      SetBaseType (baseTypeConstraint);
-    }
+      var baseType = _constraints.SingleOrDefault (
+          c => c.IsClass && !c.IsGenericParameter,
+          () => new ArgumentException ("A generic parameter cannot have multiple base constraints.", "constraints"));
 
-    public void SetInterfaceConstraints (IEnumerable<Type> interfaceConstraints)
-    {
-      ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
-      var ifcConstraints = interfaceConstraints.ConvertToCollection();
-
-      if (!ifcConstraints.All (c => c.IsInterface))
-        throw new ArgumentException ("All interface constraints must be interfaces.", "interfaceConstraints");
-
-      _interfaceConstraints = ifcConstraints.ToList().AsReadOnly();
+      if (baseType != null)
+        SetBaseType (baseType);
     }
 
     public override Type[] GetGenericParameterConstraints ()
     {
-      return new[] { BaseType }.Where (c => c != typeof (object)).Concat (_interfaceConstraints).ToArray();
+      return _constraints.ToArray();
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
@@ -156,7 +150,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       Assertion.IsNotNull (BaseType);
 
-      return _interfaceConstraints.Concat (BaseType.GetInterfaces()).Distinct();
+      return _constraints.Where (c => c.IsInterface).Concat (BaseType.GetInterfaces()).Distinct();
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()

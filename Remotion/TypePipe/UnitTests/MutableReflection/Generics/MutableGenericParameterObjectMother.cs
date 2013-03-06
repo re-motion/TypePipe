@@ -31,17 +31,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         string name = "T",
         string @namespace = "MyNs",
         GenericParameterAttributes genericParameterAttributes = GenericParameterAttributes.None,
-        Type baseTypeConstraint = null,
-        IEnumerable<Type> interfaceConstraints = null,
+        IEnumerable<Type> constraints = null,
         IMemberSelector memberSelector = null)
     {
-      baseTypeConstraint = baseTypeConstraint ?? typeof (object);
-      interfaceConstraints = interfaceConstraints ?? Type.EmptyTypes;
+      constraints = constraints ?? Type.EmptyTypes;
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
       var genericParameter = new MutableGenericParameter (memberSelector, position, name, @namespace, genericParameterAttributes);
-      genericParameter.SetBaseTypeConstraint (baseTypeConstraint);
-      genericParameter.SetInterfaceConstraints (interfaceConstraints);
+      genericParameter.SetGenericParameterConstraints (constraints);
 
       return genericParameter;
     }

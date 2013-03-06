@@ -197,10 +197,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (baseTypeConstraint.GetInterfaces(), Has.No.Member (interfaceConstraint));
 
       var genericParameter = MutableGenericParameterObjectMother.Create (
-          name: "TParam",
-          genericParameterAttributes: (GenericParameterAttributes) 7,
-          baseTypeConstraint: baseTypeConstraint,
-          interfaceConstraints: new[] { interfaceConstraint });
+          name: "TParam", genericParameterAttributes: (GenericParameterAttributes) 7, constraints: new[] { baseTypeConstraint, interfaceConstraint });
       var method = MutableMethodInfoObjectMother.Create (
           genericParameters: new[] { genericParameter },
           returnType: genericParameter,

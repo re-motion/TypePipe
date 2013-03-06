@@ -53,6 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
     }
 
+    [Ignore("TODO 5442")]
     [Test]
     public void CreateMethod ()
     {
