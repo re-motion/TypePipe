@@ -87,6 +87,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Constraints_ReferenceTypes_AndBaseTypeAndInterfaces ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName());
+
       var type = AssembleType<DomainType> (
           p => p.AddGenericMethod (
               "GenericMethod",
@@ -96,8 +97,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   new GenericParameterDeclaration (
                       "T",
                       GenericParameterAttributes.DefaultConstructorConstraint | GenericParameterAttributes.ReferenceTypeConstraint,
-                      ctx => typeof (BaseType),
-                      ctx => new[] { typeof (IDomainInterface) })
+                      ctx => new[] { typeof (BaseType), typeof (IDomainInterface) })
               },
               ctx => typeof (string),
               ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "arg") },
@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   new GenericParameterDeclaration (
                       "T",
                       GenericParameterAttributes.NotNullableValueTypeConstraint,
-                      interfaceConstraintsProvider: ctx => new[] { typeof (IComparable<>).MakeTypePipeGenericType (ctx.GenericParameters[0]) })
+                      constraintProvider: ctx => new[] { typeof (IComparable<>).MakeTypePipeGenericType (ctx.GenericParameters[0]) })
               },
               ctx => typeof (bool),
               ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "a"), new ParameterDeclaration (ctx.GenericParameters[0], "b") },

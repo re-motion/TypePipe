@@ -145,11 +145,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
       var genericParameterContext = new GenericParameterContext (genericParams.Cast<Type>());
       foreach (var paraAndDecl in genericParams.Zip (genericParameterDeclarations, (p, d) => new { Parameter = p, Declaration = d }))
-      {
-        // TODO
-        //paraAndDecl.Parameter.SetBaseTypeConstraint (paraAndDecl.Declaration.BaseConstraintProvider (genericParameterContext));
-        //paraAndDecl.Parameter.SetInterfaceConstraints (paraAndDecl.Declaration.InterfaceConstraintsProvider (genericParameterContext));
-      }
+        paraAndDecl.Parameter.SetGenericParameterConstraints (paraAndDecl.Declaration.ConstraintProvider (genericParameterContext));
 
       var returnType = ProviderUtility.GetNonNullValue (returnTypeProvider, genericParameterContext, "returnTypeProvider");
       var parameters = ProviderUtility.GetNonNullValue (parameterProvider, genericParameterContext, "parameterProvider").ConvertToCollection();

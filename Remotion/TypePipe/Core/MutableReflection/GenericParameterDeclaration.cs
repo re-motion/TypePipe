@@ -53,8 +53,7 @@ namespace Remotion.TypePipe.MutableReflection
                      .Where (g => g.IsInterface)
                      .Select (g => Substitute (oldGenericParameters, ctx, instantiations, g));
 
-      return new GenericParameterDeclaration (
-          genericParameter.Name, genericParameter.GenericParameterAttributes, baseConstraintProvider, interfaceConstraintsProvider);
+      return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, null);
     }
 
     private static Type Substitute (
@@ -69,23 +68,19 @@ namespace Remotion.TypePipe.MutableReflection
 
     private readonly string _name;
     private readonly GenericParameterAttributes _attributes;
-    private readonly Func<GenericParameterContext, Type> _baseConstraintProvider;
-    private readonly Func<GenericParameterContext, IEnumerable<Type>> _interfaceConstraintsProvider;
+    private readonly Func<GenericParameterContext, IEnumerable<Type>> _constraintProvider;
 
     public GenericParameterDeclaration (
         string name,
         GenericParameterAttributes attributes = GenericParameterAttributes.None,
-        Func<GenericParameterContext, Type> baseConstraintProvider = null,
-        Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintsProvider = null)
+        Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Base constraint provider may be null.
-      // Interface constraint provider may be null.
+      // Constraint provider may be null.
 
       _name = name;
       _attributes = attributes;
-      _baseConstraintProvider = baseConstraintProvider ?? (ctx => typeof (object));
-      _interfaceConstraintsProvider = interfaceConstraintsProvider ?? (ctx => Type.EmptyTypes);
+      _constraintProvider = constraintProvider ?? (ctx => Type.EmptyTypes);
     }
 
     public GenericParameterAttributes Attributes
@@ -98,14 +93,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _name; }
     }
 
-    public Func<GenericParameterContext, Type> BaseConstraintProvider
+    public Func<GenericParameterContext, IEnumerable<Type>> ConstraintProvider
     {
-      get { return _baseConstraintProvider; }
-    }
-
-    public Func<GenericParameterContext, IEnumerable<Type>> InterfaceConstraintsProvider
-    {
-      get { return _interfaceConstraintsProvider; }
+      get { return _constraintProvider; }
     }
   }
 }

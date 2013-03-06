@@ -14,13 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -42,15 +43,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           context,
           "TRet",
           GenericParameterAttributes.DefaultConstructorConstraint,
-          expectedBaseTypeConstraint: null,
-          expectedInterfaceConstraints: new[] { typeof (IDisposable) });
+          expectedConstraints: new[] { typeof (IDisposable) });
       GenericParameterDeclarationTest.CheckGenericParameter (
           decl.GenericParameters[1],
           context,
           "TRet",
           GenericParameterAttributes.DefaultConstructorConstraint,
           typeof (List<>).MakeGenericType (context.GenericParameters[0]),
-          new[] { typeof (IList<>).MakeGenericType (context.GenericParameters[1]) });
+          typeof (IList<>).MakeGenericType (context.GenericParameters[1]));
 
       var returnType = decl.ReturnTypeProvider (context);
       Assert.That (returnType, Is.SameAs (context.GenericParameters[0]));

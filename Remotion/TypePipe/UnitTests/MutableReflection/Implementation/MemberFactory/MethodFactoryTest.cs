@@ -53,7 +53,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
     }
 
-    [Ignore("TODO 5442")]
     [Test]
     public void CreateMethod ()
     {
@@ -63,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType ();
       GenericParameterContext genericParameterContext = null;
       Type firstGenericParameter = null;
-      Func<GenericParameterContext, Type> baseConstraintProvider = ctx =>
+      Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = ctx =>
       {
         genericParameterContext = ctx;
         Assert.That (ctx.GenericParameters, Has.Count.EqualTo (2));
@@ -76,18 +75,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
         Assert.That (firstGenericParameter.Namespace, Is.EqualTo (_proxyType.Namespace));
         Assert.That (firstGenericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.Covariant));
 
-        return baseConstraint;
-      };
-      Func<GenericParameterContext, IEnumerable<Type>> interfaceConstraintProvider = ctx =>
-      {
-        Assert.That (ctx, Is.Not.Null.And.SameAs (genericParameterContext));
-        return new[] { interfaceConstraint }.AsOneTime ();
+        return new[] { baseConstraint, interfaceConstraint }.AsOneTime();
       };
       var genericParameters =
           new[]
           {
-              GenericParameterDeclarationObjectMother.Create (
-                  "T1", GenericParameterAttributes.Covariant, baseConstraintProvider, interfaceConstraintProvider),
+              GenericParameterDeclarationObjectMother.Create ("T1", GenericParameterAttributes.Covariant, constraintProvider),
               GenericParameterDeclarationObjectMother.Create()
           };
       var returnType = typeof (IComparable);
