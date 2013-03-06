@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
           ctx =>
           {
             var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-            return TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiationContext, method.ReturnType);
+            return instantiationContext.SubstituteGenericParameters (parametersToArguments, method.ReturnType);
           };
       Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
           ctx =>
@@ -67,9 +67,8 @@ namespace Remotion.TypePipe.MutableReflection
       Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = ctx =>
       {
         var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-        return genericParameter
-            .GetGenericParameterConstraints()
-            .Select (c => TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiationContext, c));
+        return genericParameter.GetGenericParameterConstraints()
+                               .Select (c => instantiationContext.SubstituteGenericParameters (parametersToArguments, c));
       };
       return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);
     }
@@ -77,7 +76,7 @@ namespace Remotion.TypePipe.MutableReflection
     private static ParameterDeclaration CreateEquivalentParameter (
         ParameterInfo parameter, IDictionary<Type, Type> parametersToArguments, TypeInstantiationContext instantiationContext)
     {
-      var type = TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiationContext, parameter.ParameterType);
+      var type = instantiationContext.SubstituteGenericParameters (parametersToArguments, parameter.ParameterType);
       return new ParameterDeclaration (type, parameter.Name, parameter.Attributes);
     }
 

@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return TypeSubstitutionUtility.SubstituteGenericParameters (_parametersToArguments, _instantiationContext, type);
+      return _instantiationContext.SubstituteGenericParameters (_parametersToArguments, type);
     }
 
     public override bool Equals (object obj)
