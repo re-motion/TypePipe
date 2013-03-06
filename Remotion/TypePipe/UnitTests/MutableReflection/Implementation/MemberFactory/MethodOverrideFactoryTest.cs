@@ -187,6 +187,60 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
+    public void GetOrCreateOverride_BaseMethod_ImplicitOverride_Generic ()
+    {
+      var baseDefinition = typeof (DomainType).GetMethod ("GenericMethod");
+      var inputMethod = baseDefinition;
+      var baseMethod = baseDefinition;
+
+      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, _proxyType.AddedMethods)).Return (null);
+      _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, _proxyType.BaseType)).Return (baseMethod);
+      _relatedMethodFinderMock
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (_proxyType))))
+          .Return (false);
+
+      var fakeResult = CreateFakeGenericMethod ();
+      _methodFactoryMock
+          .Expect (
+              mock =>
+              mock.CreateMethod (
+                  Arg.Is (_proxyType),
+                  Arg.Is ("GenericMethod"),
+                  Arg.Is (MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig),
+                  Arg<IEnumerable<GenericParameterDeclaration>>.Is.Anything,
+                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
+                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
+                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Anything))
+          .Return (fakeResult)
+          .WhenCalled (
+              mi =>
+              {
+                var fakeGenericParameter = ReflectionObjectMother.GetSomeType ();
+                var genericParameterContext = new GenericParameterContext (new[] { fakeGenericParameter });
+
+                var genericParameters = (IEnumerable<GenericParameterDeclaration>) mi.Arguments[3];
+                var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (genericParameterContext);
+                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (genericParameterContext).ToList ();
+
+                var genericParameter = genericParameters.Single ();
+                Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
+                Assert.That (genericParameter.Attributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
+                Assert.That (genericParameter.ConstraintProvider (genericParameterContext), Is.EqualTo (new[] { typeof (DomainType), typeof (IDisposable) }));
+
+                Assert.That (returnType, Is.SameAs (fakeGenericParameter));
+                ParameterDeclarationTest.CheckParameter (parameters[0], typeof (int), "arg1", ParameterAttributes.None);
+                ParameterDeclarationTest.CheckParameter (parameters[1], fakeGenericParameter, "arg2", ParameterAttributes.None);
+              });
+
+      var result = _factory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
+
+      _relatedMethodFinderMock.VerifyAllExpectations();
+      _methodFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeResult));
+      Assert.That (_isNewlyCreated, Is.True);
+    }
+
+    [Test]
     public void GetOrCreateOverride_BaseMethod_ImplicitOverride_AdjustsAttributes ()
     {
       var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.ProtectedOrInternalVirtualNewSlotMethodInB (7));
@@ -357,15 +411,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       proxyType = proxyType ?? _proxyType;
 
-      _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (proxyType.AddedMethods)))
-          .Return (null);
+      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, proxyType.AddedMethods)).Return (null);
       _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, proxyType.BaseType)).Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (
-              mock => mock.IsShadowed (
-                  Arg.Is (baseDefinition),
-                  Arg<IEnumerable<MethodInfo>>.List.Equivalent (proxyType.InvokeNonPublicMethod<IEnumerable<MethodInfo>> ("GetAllMethods"))))
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (proxyType))))
           .Return (isBaseDefinitionShadowed);
 
       var fakeResult = SetupExpectationsForCreateMethod (
@@ -384,6 +433,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (_isNewlyCreated, Is.True);
       Assert.That (result, Is.SameAs (fakeResult));
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
+    }
+
+    private static IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
+    {
+      return proxyType.InvokeNonPublicMethod<IEnumerable<MethodInfo>> ("GetAllMethods");
     }
 
     private MutableMethodInfo SetupExpectationsForCreateMethod (
