@@ -64,8 +64,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void CreateExplicitOverride ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.OverrideHierarchy (7));
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => fakeBody;
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
 
       var fakeResult = MutableMethodInfoObjectMother.Create (
           _proxyType, attributes: MethodAttributes.Virtual, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
@@ -79,20 +78,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   Arg.Is (GenericParameterDeclaration.None),
                   Arg<Func<GenericParameterContext, Type>>.Is.Anything,
                   Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Anything))
+                  Arg.Is (bodyProvider)))
           .Return (fakeResult)
           .WhenCalled (
               mi =>
               {
                 var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (_noGenericParameters);
                 var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (_noGenericParameters);
-                var body = ((Func<MethodBodyCreationContext, Expression>) mi.Arguments[6]) (null);
 
                 Assert.That (returnType, Is.SameAs (typeof (void)));
                 var parameter = parameters.Single();
                 Assert.That (parameter.Name, Is.EqualTo ("aaa"));
                 Assert.That (parameter.Type, Is.SameAs (typeof (int)));
-                Assert.That (body, Is.SameAs (fakeBody));
               });
 
       var result = _factory.CreateExplicitOverride (_proxyType, method, bodyProvider);
@@ -106,8 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void CreateExplicitOverride_Generic ()
     {
       var method = typeof (DomainType).GetMethod ("GenericMethod");
-      var fakeBody = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
-      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => fakeBody;
+      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
 
       var fakeResult = CreateFakeGenericMethod();
       _methodFactoryMock
@@ -120,7 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   Arg<IEnumerable<GenericParameterDeclaration>>.Is.Anything,
                   Arg<Func<GenericParameterContext, Type>>.Is.Anything,
                   Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Anything))
+                  Arg.Is (bodyProvider)))
           .Return (fakeResult)
           .WhenCalled (
               mi =>
@@ -215,12 +211,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           .WhenCalled (
               mi =>
               {
-                var fakeGenericParameter = ReflectionObjectMother.GetSomeType ();
+                var fakeGenericParameter = typeof (TypeThatCompliesWithConstraints);
                 var genericParameterContext = new GenericParameterContext (new[] { fakeGenericParameter });
 
                 var genericParameters = (IEnumerable<GenericParameterDeclaration>) mi.Arguments[3];
                 var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (genericParameterContext);
-                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (genericParameterContext).ToList ();
+                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (genericParameterContext).ToList();
 
                 var genericParameter = genericParameters.Single ();
                 Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
@@ -230,6 +226,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                 Assert.That (returnType, Is.SameAs (fakeGenericParameter));
                 ParameterDeclarationTest.CheckParameter (parameters[0], typeof (int), "arg1", ParameterAttributes.None);
                 ParameterDeclarationTest.CheckParameter (parameters[1], fakeGenericParameter, "arg2", ParameterAttributes.None);
+
+                var parameterExpressions = parameters.Select (p => p.Expression).ToList();
+                var memberSelector = MockRepository.GenerateStrictMock<IMemberSelector>();
+                var bodyContext = new MethodBodyCreationContext (
+                    _proxyType, false, parameterExpressions, new[] { fakeGenericParameter }, returnType, baseMethod, memberSelector);
+                var body = ((Func<MethodBodyCreationContext, Expression>) mi.Arguments[6]) (bodyContext);
+
+                var expectedBody = Expression.Call (
+                    bodyContext.This, baseMethod.MakeTypePipeGenericMethod (fakeGenericParameter), parameterExpressions.Cast<Expression>());
+                ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, body);
               });
 
       var result = _factory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
@@ -577,5 +583,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       public abstract void Method (int paramOnAbstractMethod);
     }
     public abstract class DerivedAbstractTypeLeavesAbstractBaseMethod : AbstractTypeWithOneMethod { }
+
+    public class TypeThatCompliesWithConstraints : DomainType, IDisposable
+    {
+      public void Dispose () { }
+    }
   }
 }

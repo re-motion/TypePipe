@@ -87,20 +87,40 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       }
       isNewlyCreated = true;
 
-      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
-      CheckNotFinalForOverride (baseMethod);
-      var bodyProviderOrNull =
-          baseMethod.IsAbstract
-              ? null
-              : new Func<MethodBodyCreationContext, Expression> (ctx => ctx.CallBase (baseMethod, ctx.Parameters.Cast<Expression>()));
+      var baseMethod = GetBaseMethod (declaringType, baseDefinition);
+      var bodyProvider = CreateBodyProvider (baseMethod);
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
       var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
       if (needsExplicitOverride)
-        return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProviderOrNull);
+        return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProvider);
 
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
-      return CreateOverride (baseMethod, declaringType, baseMethod.Name, attributes, bodyProviderOrNull);
+      return CreateOverride (baseMethod, declaringType, baseMethod.Name, attributes, bodyProvider);
+    }
+
+    private MethodInfo GetBaseMethod (ProxyType declaringType, MethodInfo baseDefinition)
+    {
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
+      if (baseMethod.IsFinal)
+      {
+        Assertion.IsNotNull (baseMethod.DeclaringType);
+        var message = string.Format ("Cannot override final method '{0}.{1}'.", baseMethod.DeclaringType.Name, baseMethod.Name);
+        throw new NotSupportedException (message);
+      }
+
+      return baseMethod;
+    }
+
+    private static Func<MethodBodyCreationContext, Expression> CreateBodyProvider (MethodInfo baseMethod)
+    {
+      if (baseMethod.IsAbstract)
+        return null;
+
+      if (baseMethod.IsGenericMethodDefinition)
+        return ctx => ctx.CallBase (baseMethod.MakeTypePipeGenericMethod (ctx.GenericParameters.ToArray()), ctx.Parameters.Cast<Expression>());
+      else
+        return ctx => ctx.CallBase (baseMethod, ctx.Parameters.Cast<Expression>());
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
@@ -147,16 +167,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       {
         isNewlyCreated = false;
         return implementation;
-      }
-    }
-
-    private void CheckNotFinalForOverride (MethodInfo overridenMethod)
-    {
-      if (overridenMethod.IsFinal)
-      {
-        Assertion.IsNotNull (overridenMethod.DeclaringType);
-        var message = string.Format ("Cannot override final method '{0}.{1}'.", overridenMethod.DeclaringType.Name, overridenMethod.Name);
-        throw new NotSupportedException (message);
       }
     }
 
