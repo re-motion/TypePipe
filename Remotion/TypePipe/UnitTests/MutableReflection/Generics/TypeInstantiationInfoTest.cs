@@ -20,9 +20,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting.Enumerables;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -30,40 +28,30 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   public class TypeInstantiationInfoTest
   {
     private Type _genericTypeDefinition;
-    private Type _customType;
+    private Type _typeArg;
 
     private TypeInstantiationInfo _info1;
     private TypeInstantiationInfo _info2;
     private TypeInstantiationInfo _info3;
     private TypeInstantiationInfo _info4;
 
-    private Type _runtimeType;
-    private TypeInstantiationInfo _infoWithRuntimeType;
-
-    private Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
-
     [SetUp]
     public void SetUp ()
     {
       _genericTypeDefinition = typeof (List<>);
-      _customType = CustomTypeObjectMother.Create();
+      _typeArg = ReflectionObjectMother.GetSomeType();
 
-      _info1 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _customType }.AsOneTime());
-      _info2 = new TypeInstantiationInfo (typeof (Func<>), new[] { _customType });
-      _info3 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { CustomTypeObjectMother.Create() });
-      _info4 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _customType });
-
-      _runtimeType = ReflectionObjectMother.GetSomeType();
-      _infoWithRuntimeType = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _runtimeType });
-
-      _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
+      _info1 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _typeArg }.AsOneTime());
+      _info2 = new TypeInstantiationInfo (typeof (Func<>), new[] { _typeArg });
+      _info3 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { ReflectionObjectMother.GetSomeOtherType() });
+      _info4 = new TypeInstantiationInfo (_genericTypeDefinition, new[] { _typeArg });
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_info1.GenericTypeDefinition, Is.SameAs (_genericTypeDefinition));
-      Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { _customType }));
+      Assert.That (_info1.TypeArguments, Is.EqualTo (new[] { _typeArg }));
     }
 
     [Test]
@@ -80,55 +68,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_NonMatchingGenericArgumentCount ()
     {
       Dev.Null = new TypeInstantiationInfo (typeof (List<>), Type.EmptyTypes);
-    }
-
-    [Test]
-    public void Instantiate_CustomTypeArgument ()
-    {
-      var result = _info1.Instantiate (_instantiations);
-
-      Assert.That (result, Is.TypeOf<TypeInstantiation>());
-      Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_info1.GenericTypeDefinition));
-      Assert.That (result.GetGenericArguments(), Is.EqualTo (_info1.TypeArguments));
-    }
-
-    [Test]
-    public void Instantiate_CustomGenericTypeDefinition ()
-    {
-      var typeParameter = ReflectionObjectMother.GetSomeGenericParameter();
-      var customGenericTypeDefinition = CustomTypeObjectMother.Create (isGenericType: true, typeArguments: new[] { typeParameter });
-      var instantiationInfo = new TypeInstantiationInfo (customGenericTypeDefinition, new[] { _runtimeType });
-
-      var result = instantiationInfo.Instantiate (_instantiations);
-
-      Assert.That (result, Is.TypeOf<TypeInstantiation>());
-      Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (instantiationInfo.GenericTypeDefinition));
-      Assert.That (result.GetGenericArguments(), Is.EqualTo (instantiationInfo.TypeArguments));
-    }
-
-    [Test]
-    public void Instantiate_RuntimeTypeArgument ()
-    {
-      var result = _infoWithRuntimeType.Instantiate (_instantiations);
-
-      Assert.That (result.IsRuntimeType(), Is.True);
-      Assert.That (result.GetGenericTypeDefinition(), Is.EqualTo (_infoWithRuntimeType.GenericTypeDefinition));
-      Assert.That (result.GetGenericArguments(), Is.EqualTo (_infoWithRuntimeType.TypeArguments));
-    }
-
-    [Test]
-    public void Instantiate_AlreadyInContext ()
-    {
-      var result1 = _info1.Instantiate (_instantiations);
-      Assert.That (_instantiations[_info1], Is.SameAs (result1));
-      var count = _instantiations.Count;
-
-      var result2 = _info1.Instantiate (_instantiations);
-      var result3 = _info1.Instantiate (new Dictionary<TypeInstantiationInfo, TypeInstantiation>());
-
-      Assert.That (_instantiations, Has.Count.EqualTo (count));
-      Assert.That (result2, Is.SameAs (result1));
-      Assert.That (result3, Is.Not.SameAs (result1));
     }
 
     [Test]

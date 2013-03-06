@@ -117,6 +117,7 @@
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfoTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\TypeInstantiationContextTest.cs" />
     <Compile Include="MutableReflection\Generics\TypeSubstitutionUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelperTest.cs" />

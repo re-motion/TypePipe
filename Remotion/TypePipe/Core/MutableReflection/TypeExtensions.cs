@@ -123,10 +123,10 @@ namespace Remotion.TypePipe.MutableReflection
       var typeParameters = genericTypeDefinition.GetGenericArguments();
       GenericArgumentUtility.ValidateGenericArguments (typeParameters, typeArguments, genericTypeDefinition.Name);
 
+      var instantiationContext = new TypeInstantiationContext();
       var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
 
-      return instantiationInfo.Instantiate (instantiations);
+      return instantiationContext.Instantiate (instantiationInfo);
     }
   }
 }

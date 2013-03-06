@@ -19,8 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Remotion.Collections;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
@@ -58,20 +56,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public ReadOnlyCollection<Type> TypeArguments
     {
       get { return _typeArguments; }
-    }
-
-    // TODO Review: Make a specific TypeInstantiationContext object and move this method there.
-    public Type Instantiate (IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
-    {
-      var typeInstantiation = instantiations.GetValueOrDefault (this);
-      if (typeInstantiation != null)
-        return typeInstantiation;
-
-      if (_genericTypeDefinition.IsRuntimeType() && _typeArguments.All (typeArg => typeArg.IsRuntimeType()))
-        return _genericTypeDefinition.MakeGenericType (_typeArguments.ToArray());
-
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      return new TypeInstantiation (memberSelector, this, instantiations);
     }
 
     public override bool Equals (object obj)

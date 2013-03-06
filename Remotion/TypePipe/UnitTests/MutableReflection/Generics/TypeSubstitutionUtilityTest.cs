@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     private Type _parameter;
     private Type _argument;
     private Dictionary<Type, Type> _parametersToArguments;
-    private Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
+    private TypeInstantiationContext _instantiations;
 
     [SetUp]
     public void SetUp ()
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _parameter = typeof (GenericType<>).GetGenericArguments().Single();
       _argument = ReflectionObjectMother.GetSomeType();
       _parametersToArguments = new Dictionary<Type, Type> { {_parameter, _argument} };
-      _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation> ();
+      _instantiations = new TypeInstantiationContext();
     }
 
     [Test]

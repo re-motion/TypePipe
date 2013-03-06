@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// <remarks>Instances of this class are returned by <see cref="CustomMethodInfo.MakeGenericMethod"/>.</remarks>
   public class MethodInstantiation : CustomMethodInfo
   {
-    private readonly Dictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
+    private readonly TypeInstantiationContext _instantiationContext = new TypeInstantiationContext();
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
     private readonly Dictionary<Type, Type> _parametersToArguments;
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return TypeSubstitutionUtility.SubstituteGenericParameters (_parametersToArguments, _instantiations, type);
+      return TypeSubstitutionUtility.SubstituteGenericParameters (_parametersToArguments, _instantiationContext, type);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

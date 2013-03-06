@@ -42,42 +42,42 @@ namespace Remotion.TypePipe.MutableReflection
             "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.", "method");
 
       var oldGenericParameters = method.GetGenericArguments();
-      var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
+      var instantiationContext = new TypeInstantiationContext();
 
-      var genericParameters = oldGenericParameters.Select (g => CreateEquivalentGenericParameter (g, oldGenericParameters, instantiations));
+      var genericParameters = oldGenericParameters.Select (g => CreateEquivalentGenericParameter (g, oldGenericParameters, instantiationContext));
       Func<GenericParameterContext, Type> returnTypeProvider =
           ctx =>
           {
             var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-            return TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, method.ReturnType);
+            return TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiationContext, method.ReturnType);
           };
       Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
           ctx =>
           {
             var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-            return method.GetParameters().Select (p => CreateEquivalentParameter (p, parametersToArguments, instantiations));
+            return method.GetParameters().Select (p => CreateEquivalentParameter (p, parametersToArguments, instantiationContext));
           };
 
       return new MethodDeclaration (genericParameters, returnTypeProvider, parameterProvider);
     }
 
     private static GenericParameterDeclaration CreateEquivalentGenericParameter (
-        Type genericParameter, IEnumerable<Type> oldGenericParameters, IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
+        Type genericParameter, IEnumerable<Type> oldGenericParameters, TypeInstantiationContext instantiationContext)
     {
       Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = ctx =>
       {
         var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
         return genericParameter
             .GetGenericParameterConstraints()
-            .Select (c => TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, c));
+            .Select (c => TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiationContext, c));
       };
       return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);
     }
 
     private static ParameterDeclaration CreateEquivalentParameter (
-        ParameterInfo parameter, IDictionary<Type, Type> parametersToArguments, IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
+        ParameterInfo parameter, IDictionary<Type, Type> parametersToArguments, TypeInstantiationContext instantiationContext)
     {
-      var type = TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, parameter.ParameterType);
+      var type = TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiationContext, parameter.ParameterType);
       return new ParameterDeclaration (type, parameter.Name, parameter.Attributes);
     }
 

@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -55,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _typeArguments = new Type[] { _outerCustomType, _customType };
       _instantiationInfo = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
 
-      _instantiation = new TypeInstantiation (_memberSelector, _instantiationInfo, CreateInstantiationContext());
+      _instantiation = new TypeInstantiation (_memberSelector, _instantiationInfo, new TypeInstantiationContext());
     }
 
     [Test]
@@ -164,7 +163,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_ReadOnlyAndWriteOnlyProperty ()
     {
       var info1 = new TypeInstantiationInfo (typeof (GenericTypeWithProperties<>), new Type[] { _customType });
-      var instantiation = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
+      var instantiation = new TypeInstantiation (_memberSelector, info1, new TypeInstantiationContext());
 
       var property1 = instantiation.GetProperty ("ReadOnlyProperty", c_allMembers);
       var property2 = instantiation.GetProperty ("WriteOnlyProperty", c_allMembers);
@@ -214,7 +213,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
       var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
 
-      Dev.Null = new TypeInstantiation (memberSelectorMock, info, CreateInstantiationContext());
+      Dev.Null = new TypeInstantiation (memberSelectorMock, info, new TypeInstantiationContext());
 
       memberSelectorMock.VerifyAllExpectations();
     }
@@ -237,8 +236,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (info1, Is.Not.EqualTo (_instantiationInfo));
       Assert.That (info2, Is.EqualTo (_instantiationInfo));
 
-      var instantiation1 = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
-      var instantiation2 = new TypeInstantiation (_memberSelector, info2, CreateInstantiationContext());
+      var instantiation1 = new TypeInstantiation (_memberSelector, info1, new TypeInstantiationContext());
+      var instantiation2 = new TypeInstantiation (_memberSelector, info2, new TypeInstantiationContext());
 
       Assert.That (_instantiation.Equals ((object) null), Is.False);
       Assert.That (_instantiation.Equals (new object()), Is.False);
@@ -255,8 +254,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (info1, Is.Not.EqualTo (_instantiationInfo));
       Assert.That (info2, Is.EqualTo (_instantiationInfo));
 
-      var instantiation1 = new TypeInstantiation (_memberSelector, info1, CreateInstantiationContext());
-      var instantiation2 = new TypeInstantiation (_memberSelector, info2, CreateInstantiationContext());
+      var instantiation1 = new TypeInstantiation (_memberSelector, info1, new TypeInstantiationContext());
+      var instantiation2 = new TypeInstantiation (_memberSelector, info2, new TypeInstantiationContext());
 
       // ReSharper disable CheckForReferenceEqualityInstead.1
       Assert.That (_instantiation.Equals (null), Is.False);
@@ -290,7 +289,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = typeof (RecursiveGenericType<>);
       var typeArguments = new Type[] { _customType };
       var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiation = new TypeInstantiation (_memberSelector, info, CreateInstantiationContext());
+      var instantiation = new TypeInstantiation (_memberSelector, info, new TypeInstantiationContext());
 
       Assertion.IsNotNull (instantiation.BaseType);
       Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));
@@ -306,11 +305,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (type1, Is.EqualTo (_outerCustomType));
       Assert.That (type2, Is.EqualTo (_customType));
       Assert.That (type3, Is.EqualTo (_outerCustomType));
-    }
-
-    private Dictionary<TypeInstantiationInfo, TypeInstantiation> CreateInstantiationContext ()
-    {
-      return new Dictionary<TypeInstantiationInfo, TypeInstantiation> ();
     }
 
     interface IMyInterface<T> { }

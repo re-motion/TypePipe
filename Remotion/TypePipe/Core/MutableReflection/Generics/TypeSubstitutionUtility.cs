@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     // TODO Review: Move to TypeInstantiationContext
     public static Type SubstituteGenericParameters (
-        IDictionary<Type, Type> parametersToArguments, IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiationContext, Type type)
+        IDictionary<Type, Type> parametersToArguments, TypeInstantiationContext instantiationContext, Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNull ("parametersToArguments", parametersToArguments);
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var genericTypeDefinition = type.GetGenericTypeDefinition();
       var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, newTypeArguments);
 
-      return instantiationInfo.Instantiate (instantiationContext);
+      return instantiationContext.Instantiate (instantiationInfo);
     }
   }
 }

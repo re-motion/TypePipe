@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     }
 
     private readonly TypeInstantiationInfo _instantiationInfo;
-    private readonly IDictionary<TypeInstantiationInfo, TypeInstantiation> _instantiations;
+    private readonly TypeInstantiationContext _instantiationContext;
     private readonly IDictionary<Type, Type> _parametersToArguments;
 
     private readonly ReadOnlyCollection<Type> _interfaces;
@@ -54,10 +54,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly ReadOnlyCollection<PropertyInfo> _properties;
     private readonly ReadOnlyCollection<EventInfo> _events;
 
-    public TypeInstantiation (
-        IMemberSelector memberSelector,
-        TypeInstantiationInfo instantiationInfo,
-        IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations)
+    public TypeInstantiation (IMemberSelector memberSelector, TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
         : base (
             memberSelector,
             ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
@@ -68,10 +65,10 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             genericTypeDefinition: instantiationInfo.GenericTypeDefinition,
             typeArguments: instantiationInfo.TypeArguments)
     {
-      ArgumentUtility.CheckNotNull ("instantiations", instantiations);
+      ArgumentUtility.CheckNotNull ("instantiationContext", instantiationContext);
 
       _instantiationInfo = instantiationInfo;
-      _instantiations = instantiations;
+      _instantiationContext = instantiationContext;
 
       // Even though the _genericTypeDefinition includes the type parameters of the enclosing type(s) (if any), declaringType.GetGenericArguments() 
       // will return objects not equal to this type's generic parameters. Since the call to SetDeclaringType below needs to replace the those type 
@@ -86,7 +83,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _parametersToArguments = outerMapping.Concat (mapping).ToDictionary (t => t.Item1, t => t.Item2);
 
       // Add own instantation to context before substituting any generic parameters. 
-      instantiations.Add (instantiationInfo, this);
+      instantiationContext.Add (instantiationInfo, this);
 
       // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here, declaringType can be null.
       if (declaringType != null)
@@ -115,7 +112,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return TypeSubstitutionUtility.SubstituteGenericParameters (_parametersToArguments, _instantiations, type);
+      return TypeSubstitutionUtility.SubstituteGenericParameters (_parametersToArguments, _instantiationContext, type);
     }
 
     public override bool Equals (object obj)
