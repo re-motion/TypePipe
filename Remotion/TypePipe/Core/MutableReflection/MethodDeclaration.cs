@@ -36,7 +36,10 @@ namespace Remotion.TypePipe.MutableReflection
     public static MethodDeclaration CreateEquivalent (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
-      // TODO check: should be non-generic method or genericMethodefinition
+
+      if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
+        throw new ArgumentException (
+            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.", "method");
 
       var oldGenericParameters = method.GetGenericArguments();
       var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();

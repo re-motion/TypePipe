@@ -61,6 +61,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       ParameterDeclarationTest.CheckParameter (parameters[1], context.GenericParameters[1], "t", ParameterAttributes.None);
     }
 
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.\r\n"
+        + "Parameter name: method")]
+    public void CreateEquivalent_MethodInstantiation ()
+    {
+      MethodDeclaration.CreateEquivalent (ReflectionObjectMother.GetSomeMethodInstantiation());
+    }
+
     public TRet Method<TRet, TArg> (out int i, TArg t)
         where TRet : IDisposable, new()
         where TArg : List<TArg>, TRet, IList<TArg>
