@@ -14,12 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
@@ -47,42 +46,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateEquivalent_GenericParameterOnMethod ()
-    {
-      var genericParameter = GetType().GetMethod ("Method").GetGenericArguments().First();
-
-      var declaration = GenericParameterDeclaration.CreateEquivalent (genericParameter);
-
-      var context = new GenericParameterContext (new[] { ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeOtherType() });
-      CheckGenericParameter (
-          declaration,
-          context,
-          "TFirst",
-          GenericParameterAttributes.DefaultConstructorConstraint,
-          context.GenericParameters[1],
-          typeof (IList<>).MakeGenericType (context.GenericParameters[0]));
-    }
-
-    [Test]
-    public void CreateEquivalent_GenericParameterOnType ()
-    {
-      var genericParameter = typeof (Class<>).GetGenericArguments().Single();
-
-      var declaration = GenericParameterDeclaration.CreateEquivalent (genericParameter);
-
-      var context = new GenericParameterContext (new[] { ReflectionObjectMother.GetSomeType() });
-      CheckGenericParameter (declaration, context, "T", GenericParameterAttributes.None);
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The specified type must be a generic parameter (IsGenericParameter must be true).\r\nParameter name: genericParameter")]
-    public void CreateEquivalent_NoGenericParameter ()
-    {
-      GenericParameterDeclaration.CreateEquivalent (ReflectionObjectMother.GetSomeType());
-    }
-
-    [Test]
     public void Initialization ()
     {
       var name = "parameter";
@@ -104,9 +67,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (declaration.Attributes, Is.EqualTo (GenericParameterAttributes.None));
       Assert.That (declaration.ConstraintProvider (null), Is.Empty);
     }
-
-    public void Method<TFirst, TLast> () where TFirst : TLast, IList<TFirst>, new() {}
-
-    private class Class<T> {}
   }
 }

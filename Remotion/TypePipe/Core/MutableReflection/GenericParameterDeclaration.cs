@@ -18,10 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
-using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -34,31 +31,6 @@ namespace Remotion.TypePipe.MutableReflection
   public class GenericParameterDeclaration
   {
     public static readonly GenericParameterDeclaration[] None = new GenericParameterDeclaration[0];
-
-    public static GenericParameterDeclaration CreateEquivalent (Type genericParameter)
-    {
-      ArgumentUtility.CheckNotNull ("genericParameter", genericParameter);
-
-      if (!genericParameter.IsGenericParameter)
-        throw new ArgumentException ("The specified type must be a generic parameter (IsGenericParameter must be true).", "genericParameter");
-
-      Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = ctx => SubstituteConstraints (ctx, genericParameter);
-      return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);
-    }
-
-    private static IEnumerable<Type> SubstituteConstraints (GenericParameterContext context, Type genericParameter)
-    {
-      var method = genericParameter.DeclaringMethod;
-      var oldGenericParameters = method != null ? method.GetGenericArguments() : genericParameter.DeclaringType.GetGenericArguments();
-      Assertion.IsTrue (oldGenericParameters.Length == context.GenericParameters.Count);
-
-      var parametersToArguments = oldGenericParameters.Zip (context.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-      var instantiations = new Dictionary<TypeInstantiationInfo, TypeInstantiation>();
-
-      return genericParameter
-          .GetGenericParameterConstraints()
-          .Select (c => TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, c));
-    }
 
     private readonly string _name;
     private readonly GenericParameterAttributes _attributes;

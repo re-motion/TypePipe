@@ -15,13 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.FunctionalProgramming;
-using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -35,22 +32,6 @@ namespace Remotion.TypePipe.MutableReflection
   public class ParameterDeclaration
   {
     public static readonly ParameterDeclaration[] None = new ParameterDeclaration[0];
-
-    public static Func<GenericParameterContext, ParameterDeclaration> CreateEquivalent (
-        Type[] oldGenericParameters, IDictionary<TypeInstantiationInfo, TypeInstantiation> instantiations, ParameterInfo parameter)
-    {
-      ArgumentUtility.CheckNotNull ("oldGenericParameters", oldGenericParameters);
-      ArgumentUtility.CheckNotNull ("instantiations", instantiations);
-      ArgumentUtility.CheckNotNull ("parameter", parameter);
-
-      return ctx =>
-      {
-        var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-        var type = TypeSubstitutionUtility.SubstituteGenericParameters (parametersToArguments, instantiations, parameter.ParameterType);
-
-        return new ParameterDeclaration (type, parameter.Name, parameter.Attributes);
-      };
-    }
 
     public static ParameterDeclaration CreateEquivalent2 (ParameterInfo parameter)
     {
