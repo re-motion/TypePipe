@@ -25,8 +25,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
   /// <summary>
-  /// Represents a context that can be used to instantiate generic method definitions and for substitution of their generic type parameters 
-  /// in other types.
+  /// Represents a context that allows instantiation generic type definitions.
+  /// In addition <see cref="SubstituteGenericParameters"/> can be used for substitution of generic type parameters in other types.
   /// </summary>
   public class TypeInstantiationContext
   {
@@ -34,6 +34,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public Type Instantiate (TypeInstantiationInfo instantiationInfo)
     {
+      ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo);
+
       var typeInstantiation = _instantiations.GetValueOrDefault (instantiationInfo);
       if (typeInstantiation != null)
         return typeInstantiation;
@@ -54,6 +56,33 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("typeInstantiation", typeInstantiation);
 
       _instantiations.Add (instantiationInfo, typeInstantiation);
+    }
+
+    public Type SubstituteGenericParameters (IDictionary<Type, Type> parametersToArguments, Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull ("parametersToArguments", parametersToArguments);
+
+      var typeArgument = parametersToArguments.GetValueOrDefault (type);
+      if (typeArgument != null)
+        return typeArgument;
+
+      if (!type.IsGenericType)
+        return type;
+
+      Assertion.IsFalse (type.IsArray, "Not yet supported, TODO 5409");
+
+      var oldTypeArguments = type.GetGenericArguments();
+      var newTypeArguments = oldTypeArguments.Select (t => SubstituteGenericParameters (parametersToArguments, t)).ToList();
+
+      // No substitution necessary (this is an optimization only).
+      if (oldTypeArguments.SequenceEqual (newTypeArguments))
+        return type;
+
+      var genericTypeDefinition = type.GetGenericTypeDefinition();
+      var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, newTypeArguments);
+
+      return Instantiate (instantiationInfo);
     }
   }
 }
