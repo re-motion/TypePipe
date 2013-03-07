@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests
@@ -87,13 +88,8 @@ namespace Remotion.TypePipe.IntegrationTests
             return stub;
           });
 
-      var participantStubs = cacheKeyProviderStubs.Select (
-          cacheKeyProvider =>
-          {
-            var stub = MockRepository.GenerateStub<IParticipant>();
-            stub.Stub (x => x.PartialCacheKeyProvider).Return (cacheKeyProvider);
-            return stub;
-          });
+      Action<ProxyType> typeModification = pt => { };
+      var participantStubs = cacheKeyProviderStubs.Select (ckp => new ParticipantStub (typeModification, ckp)).Cast<IParticipant>();
 
       return CreateObjectFactory (participantStubs, stackFramesToSkip: 1);
     }

@@ -48,7 +48,8 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
+    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -69,6 +70,7 @@
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
+    <Compile Include="ParticipantStub.cs" />
     <Compile Include="Serialization\ComplexSerializationTest.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -27,7 +27,6 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -98,10 +97,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected static IParticipant CreateParticipant (Action<ProxyType> typeModification)
     {
-      var participantStub = MockRepository.GenerateStub<IParticipant>();
-      participantStub.Stub (stub => stub.ModifyType (Arg<ProxyType>.Is.Anything)).Do (typeModification);
-
-      return participantStub;
+      return new ParticipantStub (typeModification);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]

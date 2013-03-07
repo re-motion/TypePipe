@@ -275,7 +275,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       var messageRegex =
           "An error occurred during code generation for '" + requestedType.Name + "_Proxy1':\r\n"
           + "Strong-naming is enabled but a participant used the type 'UnsignedType' which comes from the unsigned assembly 'testAssembly'.\r\n"
-          + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
+          + @"The following participants are currently configured and may have caused the error: 'ParticipantStub'\.";
       Assert.That (() => objectFactory.GetAssembledType (requestedType), Throws.InvalidOperationException.With.Message.Matches (messageRegex));
     }
 
