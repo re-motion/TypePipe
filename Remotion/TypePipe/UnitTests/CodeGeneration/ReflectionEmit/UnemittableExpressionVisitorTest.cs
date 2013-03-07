@@ -66,13 +66,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void VisitConstant_EmittableOperand ()
     {
       var type = ReflectionObjectMother.GetSomeType();
-      var emittableType = ReflectionObjectMother.GetSomeType();
+      var emittableType = ReflectionObjectMother.GetSomeOtherType();
       var field = ReflectionObjectMother.GetSomeField();
-      var emittableField = ReflectionObjectMother.GetSomeField();
+      var emittableField = ReflectionObjectMother.GetSomeOtherField();
       var constructor = ReflectionObjectMother.GetSomeConstructor();
-      var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
+      var emittableConstructor = ReflectionObjectMother.GetSomeOtherConstructor();
       var method = ReflectionObjectMother.GetSomeMethod();
-      var emittableMethod = ReflectionObjectMother.GetSomeMethod();
+      var emittableMethod = ReflectionObjectMother.GetSomeOtherMethod();
 
       CheckVisitConstant (type, emittableType, (p, t) => p.GetEmittableType (t));
       CheckVisitConstant (field, emittableField, (p, f) => p.GetEmittableField (f));
@@ -144,8 +144,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var body = Expression.Constant ("original body");
       var parameter = Expression.Parameter (typeof (int));
       var expression = Expression.Lambda<Action<int>> (body, parameter);
-      var fakeStaticClosure = Expression.Constant ("fake body");
-      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeStaticClosure);
 
       var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
 
@@ -157,13 +155,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7, ""));
       var delegateType = typeof (Func<int, string, double>);
-      var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       var parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (string)) };
-      var expression = Expression.Lambda (delegateType, body, parameters);
-
-      var fakeBody = Expression.Call (
+      var body = Expression.Call (
           ExpressionTreeObjectMother.GetSomeThisExpression (_proxyType), new NonVirtualCallMethodInfoAdapter (method), parameters);
-      _visitorPartialMock.Expect (mock => mock.Visit (body)).Return (fakeBody);
+      var expression = Expression.Lambda (delegateType, body, parameters);
 
       var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
       _methodTrampolineProviderMock.Expect (mock => mock.GetNonVirtualCallTrampoline (_context, method)).Return (fakeTrampolineMethod);
@@ -190,6 +185,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expression = Expression.Constant (value, typeof (object));
       _emittableOperandProviderMock.BackToRecord();
       _emittableOperandProviderMock.Expect (mock => getEmittableOperandFunc (mock, value)).Return (emittableValue);
+      _emittableOperandProviderMock.Expect (mock => getEmittableOperandFunc (mock, emittableValue)).Return (emittableValue);
       _emittableOperandProviderMock.Replay();
 
       var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);

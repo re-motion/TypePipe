@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         if (!node.Type.IsInstanceOfType (emittableValue))
           throw NewNotSupportedExceptionWithDescriptiveMessage (node);
 
-        return Expression.Constant (emittableValue, node.Type);
+        return Visit (Expression.Constant (emittableValue, node.Type));
       }
 
       return base.VisitConstant (node);
@@ -73,7 +73,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (node.Constructor is GenericParameterDefaultConstructor)
       {
         var createInstance = s_createInstanceMethod.MakeTypePipeGenericMethod (node.Type);
-        return Expression.Call (createInstance);
+        return Visit (Expression.Call (createInstance));
       }
 
       return base.VisitNew (node);
@@ -82,9 +82,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     protected internal override Expression VisitLambda (LambdaExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
-
-      // Visit inner nodes in order to replace OriginalBodyExpressions with ThisExpressions.
-      var body = Visit (node.Body);
 
       var thisClosureVariable = Expression.Variable (_context.ProxyType, "thisClosure");
       Func<Expression, Expression> lambdaPreparer = expr =>
@@ -103,9 +100,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return expr;
       };
 
-      var newBody = body.InlinedVisit (lambdaPreparer);
-      if (newBody == body)
-        return node;
+      var newBody = node.Body.InlinedVisit (lambdaPreparer);
+      if (newBody == node.Body)
+        return base.VisitLambda (node);
 
       var newLambda = node.Update (newBody, node.Parameters);
       var block = Expression.Block (
