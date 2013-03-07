@@ -87,6 +87,7 @@
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
     <Compile Include="TypeAssembly\AddExplicitOverrideTest.cs" />
     <Compile Include="TypeAssembly\AddPropertyTest.cs" />
+    <Compile Include="TypeAssembly\GenericParameterAssignmentTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
     <Compile Include="TypeAssembly\ProxyTypeInSignaturesTest.cs" />
