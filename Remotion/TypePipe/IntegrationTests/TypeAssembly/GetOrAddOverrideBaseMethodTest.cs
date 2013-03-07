@@ -248,7 +248,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (shadowingMethod.Invoke (instance, null), Is.EqualTo ("Shadowing method"));
     }
 
-    [Ignore ("TODO 5442")]
     [Test]
     public void BaseMethod_GenericMethod ()
     {
@@ -275,18 +274,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var genericParameter = method.GetGenericArguments().Single();
       Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
       Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
-      Assert.That (genericParameter.GetGenericParameterConstraints(), Is.Empty);
+      Assert.That (genericParameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { typeof (object) }), "Why object and not empty?");
 
       var instance = (DomainType) Activator.CreateInstance (type);
       Assert.That (instance.GenericMethod ("doesn't matter"), Is.EqualTo ("DomainType String made mutable"));
     }
 
-    [Ignore ("TODO 5442")]
     [Test]
-    public void BaseMethod_ConstrainedGenericMethod ()
+    public void BaseMethod_GenericMethodWithConstraints ()
     {
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (
-          (DomainType o) => o.ConstrainedGenericMethod<TypeImplementingConstrainingInterface>());
+          (DomainType o) => o.GenericMethodWithConstraints<TypeImplementingConstrainingInterface>());
 
       var type = AssembleType<DomainType> (
           proxyType =>
@@ -298,13 +296,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             Assert.That (mutableGenericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
           });
 
-      var method = GetDeclaredMethod (type, "ConstrainedGenericMethod");
+      var method = GetDeclaredMethod (type, "GenericMethodWithConstraints");
       var genericParameter = method.GetGenericArguments().Single();
-      Assert.That (genericParameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { typeof (IConstrainingInterface) }));
+      Assert.That (genericParameter.GetGenericParameterConstraints(), Is.EquivalentTo (new[] { typeof (object), typeof (IConstrainingInterface) }));
       Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      Assert.That (instance.ConstrainedGenericMethod<TypeImplementingConstrainingInterface>(), Is.EqualTo ("value"));
+      Assert.That (instance.GenericMethodWithConstraints<TypeImplementingConstrainingInterface>(), Is.EqualTo ("value"));
     }
 
     [Test]
@@ -381,7 +379,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public new virtual string BaseMethodShadowedByModified () { return "DomainType (shadowing)"; }
 
       public virtual string GenericMethod<TPar> (TPar arg) { return "DomainType " + arg.GetType().Name; }
-      public virtual string ConstrainedGenericMethod<T> () where T : IConstrainingInterface, new () { return new T ().GetValue (); }
+      public virtual string GenericMethodWithConstraints<T> () where T : IConstrainingInterface, new () { return new T ().GetValue (); }
     }
 
     public class TypeImplementingConstrainingInterface : IConstrainingInterface
