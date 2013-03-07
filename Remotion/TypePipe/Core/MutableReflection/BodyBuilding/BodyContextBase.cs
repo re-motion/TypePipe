@@ -76,9 +76,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic();
       CheckNotStatic (baseMethod);
-      CheckVisibility (baseMethod);
       CheckNotAbstract (baseMethod);
-      // TODO: check that not generic base definition.!
+      CheckNoGenericMethodDefinition (baseMethod);
+      CheckVisibility (baseMethod);
       // TODO: Check if really base call!
 
       return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (baseMethod), arguments);
@@ -123,21 +123,30 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         throw new ArgumentException ("Cannot perform base call for static method.", "baseMethod");
     }
 
+    private void CheckNotAbstract (MethodInfo baseMethod)
+    {
+      if (baseMethod.IsAbstract)
+        throw new ArgumentException ("Cannot perform base call on abstract method.", "baseMethod");
+    }
+
+    private void CheckNoGenericMethodDefinition (MethodInfo baseMethod)
+    {
+      if (baseMethod.IsGenericMethodDefinition)
+      {
+        var message = string.Format (
+            "Cannot perform base call on generic method definition. Construct a method instantiation with MethodInfoExtensions.MakeTypePipeGenericMethod.");
+        throw new ArgumentException (message, "baseMethod");
+      }
+    }
+
     private void CheckVisibility (MethodInfo baseMethod)
     {
       if (!SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
       {
         Assertion.IsNotNull (baseMethod.DeclaringType);
-        var message = string.Format (
-            "Matching base method '{0}.{1}' is not accessible from proxy type.", baseMethod.DeclaringType.Name, baseMethod.Name);
+        var message = string.Format ("Base method '{0}.{1}' is not accessible from proxy type.", baseMethod.DeclaringType.Name, baseMethod.Name);
         throw new MemberAccessException (message);
       }
-    }
-
-    private void CheckNotAbstract (MethodInfo baseMethod)
-    {
-      if (baseMethod.IsAbstract)
-        throw new ArgumentException ("Cannot perform base call on abstract method.", "baseMethod");
     }
   }
 }

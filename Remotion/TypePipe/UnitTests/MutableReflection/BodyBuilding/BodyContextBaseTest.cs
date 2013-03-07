@@ -77,11 +77,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       var result = _context.CallBase (method, arguments.AsOneTime());
 
-      Assert.That (result.Object, Is.TypeOf<ThisExpression> ());
+      Assert.That (result.Object, Is.TypeOf<ThisExpression>());
       var thisExpression = (ThisExpression) result.Object;
       Assert.That (thisExpression.Type, Is.SameAs (_proxyType));
 
-      CheckBaseCallMethodInfo (method, result);
+      Assert.That (result.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
+      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) result.Method;
+      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (method));
 
       Assert.That (result.Arguments, Is.EqualTo (arguments));
     }
@@ -90,46 +92,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
     public void CallBase_StaticContext ()
     {
-      var method = ReflectionObjectMother.GetSomeInstanceMethod();
-      _staticContext.CallBase (method);
+      _staticContext.CallBase (ReflectionObjectMother.GetSomeInstanceMethod());
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.\r\nParameter name: baseMethod")]
     public void CallBase_StaticMethodInfo ()
     {
-      var method = ReflectionObjectMother.GetSomeStaticMethod();
-      _context.CallBase (method);
+      _context.CallBase (ReflectionObjectMother.GetSomeStaticMethod());
     }
 
-    [Test]
-    public void CallBase_AllowedVisibility ()
-    {
-      var protectedMethod = typeof (DomainType).GetMethod ("ProtectedMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-      var protectedInternalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod ());
-
-      var result1 = _context.CallBase (protectedMethod);
-      var result2 = _context.CallBase (protectedInternalMethod);
-
-      CheckBaseCallMethodInfo(protectedMethod, result1);
-      CheckBaseCallMethodInfo(protectedInternalMethod, result2);
-    }
-
-    [Test]
-    [ExpectedException (typeof (MemberAccessException), ExpectedMessage =
-        "Matching base method 'DomainType.InternalMethod' is not accessible from proxy type.")]
-    public void CallBase_DisallowedVisibility ()
-    {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
-      _context.CallBase (method);
-    }
-    
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call on abstract method.\r\nParameter name: baseMethod")]
     public void CallBase_Abstract ()
     {
-      var abstractMethod = ReflectionObjectMother.GetSomeAbstractMethod();
-      _context.CallBase (abstractMethod);
+      _context.CallBase (ReflectionObjectMother.GetSomeAbstractMethod());
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "Cannot perform base call on generic method definition. Construct a method instantiation "
+                          + "with MethodInfoExtensions.MakeTypePipeGenericMethod.\r\nParameter name: baseMethod")]
+    public void CallBase_MethodInstantiation ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Dev.T>());
+      _context.CallBase (method);
+    }
+
+    [Test]
+    public void CallBase_Visibility ()
+    {
+      var protectedMethod = typeof (DomainType).GetMethod ("ProtectedMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+      var protectedInternalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod());
+      var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
+
+      Assert.That (() => _context.CallBase (protectedMethod), Throws.Nothing);
+      Assert.That (() => _context.CallBase (protectedInternalMethod), Throws.Nothing);
+      Assert.That (
+          () => _context.CallBase (internalMethod),
+          Throws.TypeOf<MemberAccessException>().With.Message.EqualTo ("Base method 'DomainType.InternalMethod' is not accessible from proxy type."));
     }
 
     [Test]
@@ -162,13 +163,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (result, Is.SameAs (argument));
     }
 
-    private void CheckBaseCallMethodInfo (MethodInfo method, MethodCallExpression baseCallExpression)
-    {
-      Assert.That (baseCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter> ());
-      var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) baseCallExpression.Method;
-      Assert.That (nonVirtualCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (method));
-    }
-
     private void CopyMethodBodyAndCheckResult (BodyContextBase context, MethodAttributes methodAttributes)
     {
       var parameter = ParameterDeclarationObjectMother.CreateMultiple (2);
@@ -188,6 +182,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       public void Method (int i) { Dev.Null = i; }
       public void MethodWithByRefParam (ref int i) { i++; }
+      public void GenericMethod<T> () {}
 
       [UsedImplicitly] protected void ProtectedMethod () { }
       protected internal void ProtectedInternalMethod () { }
