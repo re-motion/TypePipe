@@ -180,7 +180,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void GetAllInterfaces ()
     {
       Assert.That (_constrainedParameter.GetGenericParameterConstraints(), Contains.Item (_baseTypeConstraint));
-      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllInterfaces");
+      var result = _constrainedParameter.Invoke ("GetAllInterfaces");
 
       Assert.That (result, Is.EqualTo (new[] { _interfaceConstraint, typeof (IDomainInterface) }));
     }
@@ -191,7 +191,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_baseTypeConstraint.GetInterfaces(), Contains.Item (typeof (IDomainInterface)));
       _parameter.SetGenericParameterConstraints (new[] { _baseTypeConstraint, typeof (IDomainInterface) });
 
-      var result = _parameter.InvokeNonPublicMethod ("GetAllInterfaces");
+      var result = _parameter.Invoke ("GetAllInterfaces");
 
       Assert.That (result, Is.EqualTo (new[] { typeof (IDomainInterface) }));
     }
@@ -199,7 +199,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllFields ()
     {
-      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllFields");
+      var result = _constrainedParameter.Invoke ("GetAllFields");
 
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
       Assert.That (result, Has.Member (field));
@@ -210,7 +210,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void GetAllConstructors ()
     {
       Assert.That (typeof (DomainType).GetConstructors(), Is.Not.Empty);
-      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllConstructors");
+      var result = _constrainedParameter.Invoke ("GetAllConstructors");
 
       Assert.That (result, Is.Empty);
     }
@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllMethods ()
     {
-      var result = _constrainedParameter.InvokeNonPublicMethod ("GetAllMethods");
+      var result = _constrainedParameter.Invoke ("GetAllMethods");
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
       Assert.That (result, Has.Member (method));
@@ -239,7 +239,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllProperties ()
     {
-      var result = _constrainedParameter.InvokeNonPublicMethod<IEnumerable<PropertyInfo>> ("GetAllProperties");
+      var result = _constrainedParameter.Invoke<IEnumerable<PropertyInfo>> ("GetAllProperties");
 
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
       Assert.That (result, Is.EqualTo (new[] { property }));
@@ -248,7 +248,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllEvents ()
     {
-      var result = _constrainedParameter.InvokeNonPublicMethod<IEnumerable<EventInfo>> ("GetAllEvents");
+      var result = _constrainedParameter.Invoke<IEnumerable<EventInfo>> ("GetAllEvents");
 
       var event_ = typeof (DomainType).GetEvent ("Event");
       Assert.That (result, Is.EqualTo (new[] { event_ }));
@@ -273,11 +273,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       var parameter = MutableGenericParameterObjectMother.Create (constraints: new[] { baseTypeConstraint, _interfaceConstraint });
 
-      parameter.InvokeNonPublicMethod ("GetAllFields");
-      parameter.InvokeNonPublicMethod ("GetAllConstructors");
-      parameter.InvokeNonPublicMethod ("GetAllMethods");
-      parameter.InvokeNonPublicMethod ("GetAllProperties");
-      parameter.InvokeNonPublicMethod ("GetAllEvents");
+      parameter.Invoke ("GetAllFields");
+      parameter.Invoke ("GetAllConstructors");
+      parameter.Invoke ("GetAllMethods");
+      parameter.Invoke ("GetAllProperties");
+      parameter.Invoke ("GetAllEvents");
 
       baseMemberSelectorMock.AssertWasNotCalled (
           mock => mock.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<Type>.Is.Anything));

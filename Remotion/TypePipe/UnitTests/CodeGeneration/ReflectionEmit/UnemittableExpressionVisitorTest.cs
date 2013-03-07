@@ -148,8 +148,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expression1 = Expression.Convert (fromValueType, toType);
       var expression2 = Expression.Convert (fromGenericParam, toType);
 
-      var result1 = _visitorPartialMock.InvokeNonPublicMethod<Expression> ("VisitUnary", expression1);
-      var result2 = _visitorPartialMock.InvokeNonPublicMethod<Expression> ("VisitUnary", expression2);
+      var result1 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression1);
+      var result2 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression2);
 
       var exptecExpression1 = Expression.Convert (Expression.Convert (fromValueType, typeof (object)), toType);
       var exptecExpression2 = Expression.Convert (Expression.Convert (fromGenericParam, typeof (object)), toType);

@@ -452,7 +452,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     private static IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
     {
-      return proxyType.InvokeNonPublicMethod<IEnumerable<MethodInfo>> ("GetAllMethods");
+      return proxyType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods");
     }
 
     private MutableMethodInfo SetupExpectationsForCreateMethod (
@@ -516,7 +516,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
               mock => mock.IsShadowed (
                   Arg.Is (baseDefinition),
                   Arg<IEnumerable<MethodInfo>>.List.Equivalent (
-                      proxyType.InvokeNonPublicMethod<IEnumerable<MethodInfo>> ("GetAllMethods"))))
+                      proxyType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods"))))
           .Return (isBaseDefinitionShadowed);
       // Needed for CreateMethod (will only be called for implicit overrides)
       if (!isBaseDefinitionShadowed)

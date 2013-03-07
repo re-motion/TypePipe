@@ -126,7 +126,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.DeclaringType, Is.Null);
       var declaringType = ReflectionObjectMother.GetSomeType();
 
-      _customType.InvokeNonPublicMethod ("SetDeclaringType", declaringType);
+      _customType.Invoke ("SetDeclaringType", declaringType);
 
       Assert.That (_customType.DeclaringType, Is.SameAs (declaringType));
     }
@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.BaseType, Is.Null);
       var baseType = ReflectionObjectMother.GetSomeType();
 
-      _customType.InvokeNonPublicMethod ("SetBaseType", baseType);
+      _customType.Invoke ("SetBaseType", baseType);
 
       Assert.That (_customType.BaseType, Is.SameAs (baseType));
     }

@@ -74,7 +74,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AddCalled, Is.True);
       event_.RemoveEventHandler (instance, null);
       Assert.That (instance.RemoveCalled, Is.True);
-      var result = instance.InvokeNonPublicMethod<long> (event_.GetRaiseMethod(), 0, "");
+      var result = instance.Invoke<long> (event_.GetRaiseMethod(), 0, "");
       Assert.That (result, Is.EqualTo (7L));
     }
 
