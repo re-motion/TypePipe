@@ -147,7 +147,7 @@ namespace System.Dynamic.Utils {
             return false;
         }
 
-    public static bool AreEquivalent(Type t1, Type t2)
+        public static bool AreEquivalent(Type t1, Type t2)
         {
 #if CLR2 || SILVERLIGHT
             return t1 == t2;
@@ -156,12 +156,12 @@ namespace System.Dynamic.Utils {
 #endif
         }
 
-    public static bool AreReferenceAssignable(Type dest, Type src) {
+        public static bool AreReferenceAssignable(Type dest, Type src) {
             // WARNING: This actually implements "Is this identity assignable and/or reference assignable?"
             if (AreEquivalent(dest, src)) {
                 return true;
             }
-            if (!dest.IsValueType && !src.IsValueType && dest.IsAssignableFromFast(src)) {
+            if (!dest.IsValueType && !src.IsValueType && !dest.IsGenericParameter && !src.IsGenericParameter && dest.IsAssignableFromFast(src)) {
                 return true;
             }
             return false;
