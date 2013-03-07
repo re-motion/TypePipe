@@ -228,9 +228,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                 ParameterDeclarationTest.CheckParameter (parameters[1], fakeGenericParameter, "arg2", ParameterAttributes.None);
 
                 var parameterExpressions = parameters.Select (p => p.Expression).ToList();
-                var memberSelector = MockRepository.GenerateStrictMock<IMemberSelector>();
                 var bodyContext = new MethodBodyCreationContext (
-                    _proxyType, false, parameterExpressions, new[] { fakeGenericParameter }, returnType, baseMethod, memberSelector);
+                    _proxyType, false, parameterExpressions, new[] { fakeGenericParameter }, returnType, baseMethod);
                 var body = ((Func<MethodBodyCreationContext, Expression>) mi.Arguments[6]) (bodyContext);
 
                 var expectedBody = Expression.Call (
@@ -531,9 +530,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     private MethodBodyCreationContext CreateMethodBodyCreationContext (MethodInfo baseMethod)
     {
       var parameterExpressions = baseMethod.GetParameters().Select (p => Expression.Parameter (p.ParameterType, p.Name));
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
-      return new MethodBodyCreationContext (
-          _proxyType, false, parameterExpressions, Type.EmptyTypes, baseMethod.ReturnType, baseMethod, memberSelectorMock);
+      return new MethodBodyCreationContext (_proxyType, false, parameterExpressions, Type.EmptyTypes, baseMethod.ReturnType, baseMethod);
     }
 
     private MutableMethodInfo CreateFakeGenericMethod ()

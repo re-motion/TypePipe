@@ -18,14 +18,13 @@
 using System;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   public class TestableBodyContextBase : BodyContextBase
   {
-    public TestableBodyContextBase (ProxyType declaringType, bool isStatic, IMemberSelector memberSelector)
-        : base (declaringType, isStatic, memberSelector)
+    public TestableBodyContextBase (ProxyType declaringType, bool isStatic)
+        : base (declaringType, isStatic)
     {
     }
   }

@@ -40,9 +40,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         IEnumerable<ParameterExpression> parameterExpressions,
         IEnumerable<Type> genericParameters,
         Type returnType,
-        MethodInfo baseMethod,
-        IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, memberSelector)
+        MethodInfo baseMethod)
+        : base (declaringType, isStatic, parameterExpressions)
     {
       ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
       ArgumentUtility.CheckNotNull ("returnType", returnType);

@@ -22,10 +22,8 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -39,9 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-
-      _factory = new ConstructorFactory(memberSelectorMock);
+      _factory = new ConstructorFactory();
 
       _proxyType = ProxyTypeObjectMother.Create ();
     }

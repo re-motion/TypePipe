@@ -32,17 +32,13 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   {
     private readonly ProxyType _declaringType;
     private readonly bool _isStatic;
-    private readonly IMemberSelector _memberSelector;
-    // tODO remove!
 
-    protected BodyContextBase (ProxyType declaringType, bool isStatic, IMemberSelector memberSelector)
+    protected BodyContextBase (ProxyType declaringType, bool isStatic)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
       _declaringType = declaringType;
       _isStatic = isStatic;
-      _memberSelector = memberSelector;
     }
 
     public ProxyType DeclaringType

@@ -18,25 +18,19 @@ using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   [TestFixture]
   public class BodyProviderUtilityTest
   {
-    private IMemberSelector _memberSelector;
-
     private BodyContextBase _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector> ();
-
-      _context = new TestableBodyContextBase (ProxyTypeObjectMother.Create(), false, _memberSelector);
+      _context = new TestableBodyContextBase (ProxyTypeObjectMother.Create(), false);
     }
 
     [Test]

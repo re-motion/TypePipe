@@ -40,12 +40,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         bool copyCtorsFromBase = false)
     {
       baseType = baseType ?? typeof (UnspecifiedType);
+
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
-
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
-      mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (memberSelector, relatedMethodFinder);
+      mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
 
       var proxyType = new ProxyType (
           memberSelector,

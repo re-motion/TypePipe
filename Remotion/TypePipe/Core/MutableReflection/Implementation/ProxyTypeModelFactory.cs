@@ -44,30 +44,26 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var relatedMethodFinder = new RelatedMethodFinder();
-      var interfaceMappingComputer = new InterfaceMappingComputer();
-      var mutableMemberFactory = new MutableMemberFactory (memberSelector, relatedMethodFinder);
-
       _counter++;
       var name = string.Format ("{0}_Proxy{1}", baseType.Name, _counter);
-      var fullname = string.IsNullOrEmpty (baseType.Namespace) ? name : string.Format ("{0}.{1}", baseType.Namespace, name);
+      var nameSpace = baseType.Namespace;
+      var fullname = string.IsNullOrEmpty (nameSpace) ? name : string.Format ("{0}.{1}", nameSpace, name);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsSerializableFast() ? TypeAttributes.Serializable : 0);
 
-      var proxyType = new ProxyType (
-          memberSelector,
-          _underlyingTypeFactory,
-          baseType,
-          name,
-          baseType.Namespace,
-          fullname,
-          attributes,
-          interfaceMappingComputer,
-          mutableMemberFactory);
-
+      var proxyType = CreateProxyType (baseType, name, nameSpace, fullname, attributes);
       CopyConstructors (baseType, proxyType);
 
       return proxyType;
+    }
+
+    private ProxyType CreateProxyType (Type baseType, string name, string nameSpace, string fullname, TypeAttributes attributes)
+    {
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var interfaceMappingComputer = new InterfaceMappingComputer();
+      var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
+
+      return new ProxyType (
+          memberSelector, _underlyingTypeFactory, baseType, name, nameSpace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private void CopyConstructors (Type baseType, ProxyType proxyType)

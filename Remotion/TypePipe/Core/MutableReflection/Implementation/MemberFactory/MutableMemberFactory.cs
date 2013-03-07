@@ -38,15 +38,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     private readonly PropertyFactory _propertyFactory;
     private readonly EventFactory _eventFactory;
 
-    public MutableMemberFactory (IMemberSelector memberSelector, IRelatedMethodFinder relatedMethodFinder)
+    public MutableMemberFactory (IRelatedMethodFinder relatedMethodFinder)
     {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
-      _initializationFactory = new InitializationFactory (memberSelector);
+      _initializationFactory = new InitializationFactory();
       _fieldFactory = new FieldFactory();
-      _constructorFactory = new ConstructorFactory (memberSelector);
-      _methodFactory = new MethodFactory (memberSelector, relatedMethodFinder);
+      _constructorFactory = new ConstructorFactory();
+      _methodFactory = new MethodFactory (relatedMethodFinder);
       _methodOverrideFactory = new MethodOverrideFactory (relatedMethodFinder, _methodFactory);
       _propertyFactory = new PropertyFactory (_methodFactory);
       _eventFactory = new EventFactory (_methodFactory);

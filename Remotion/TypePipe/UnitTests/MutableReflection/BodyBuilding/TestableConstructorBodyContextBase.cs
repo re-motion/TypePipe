@@ -19,15 +19,14 @@ using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   public class TestableConstructorBodyContextBase : ConstructorBodyContextBase
   {
     public TestableConstructorBodyContextBase (
-        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, memberSelector)
+        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
+        : base (declaringType, isStatic, parameterExpressions)
     {
     }
   }

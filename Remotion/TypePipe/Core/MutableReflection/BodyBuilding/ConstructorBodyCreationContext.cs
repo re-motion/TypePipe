@@ -16,7 +16,6 @@
 // 
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -26,9 +25,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// <seealso cref="ProxyType.AddConstructor"/>
   public class ConstructorBodyCreationContext : ConstructorBodyContextBase
   {
-    public ConstructorBodyCreationContext (
-        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-      : base (declaringType, isStatic, parameterExpressions, memberSelector)
+    public ConstructorBodyCreationContext (ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
+      : base (declaringType, isStatic, parameterExpressions)
     {
     }
   }

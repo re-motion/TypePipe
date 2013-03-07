@@ -83,8 +83,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var context = new ConstructorBodyModificationContext ((ProxyType) DeclaringType, IsStatic, ParameterExpressions, _body, memberSelector);
+      var context = new ConstructorBodyModificationContext ((ProxyType) DeclaringType, IsStatic, ParameterExpressions, _body);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 

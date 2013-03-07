@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
@@ -38,9 +37,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         IEnumerable<Type> genericParameters,
         Type returnType,
         MethodInfo baseMethod,
-        Expression previousBody,
-        IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, genericParameters, returnType, baseMethod, memberSelector)
+        Expression previousBody)
+        : base (declaringType, isStatic, parameterExpressions, genericParameters, returnType, baseMethod)
     {
       // Previous body is null for abstract methods.
 

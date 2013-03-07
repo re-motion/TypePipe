@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -31,9 +30,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   {
     private readonly ReadOnlyCollection<ParameterExpression> _parameters;
 
-    protected MethodBaseBodyContextBase (
-        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, IMemberSelector memberSelector)
-        : base (declaringType, isStatic, memberSelector)
+    protected MethodBaseBodyContextBase (ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
+        : base (declaringType, isStatic)
     {
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
 

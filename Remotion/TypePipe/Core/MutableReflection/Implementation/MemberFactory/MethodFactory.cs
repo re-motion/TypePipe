@@ -51,15 +51,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     private static readonly IMethodSignatureStringBuilderHelper s_methodSignatureStringBuilderHelper =
         new GenericParameterCompatibleMethodSignatureStringBuilderHelper();
 
-    private readonly IMemberSelector _memberSelector;
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 
-    public MethodFactory (IMemberSelector memberSelector, IRelatedMethodFinder relatedMethodFinder)
+    public MethodFactory (IRelatedMethodFinder relatedMethodFinder)
     {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
-      _memberSelector = memberSelector;
       _relatedMethodFinder = relatedMethodFinder;
     }
 
@@ -179,7 +176,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var parameterExpressions = signatureItems.ParameterDeclarations.Select (pd => pd.Expression);
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var context = new MethodBodyCreationContext (
-          declaringType, isStatic, parameterExpressions, signatureItems.GenericParameters.Cast<Type>(), signatureItems.ReturnType, baseMethod, _memberSelector);
+          declaringType, isStatic, parameterExpressions, signatureItems.GenericParameters.Cast<Type>(), signatureItems.ReturnType, baseMethod);
       var body = bodyProvider == null ? null : BodyProviderUtility.GetTypedBody (signatureItems.ReturnType, bodyProvider, context);
 
       return body;

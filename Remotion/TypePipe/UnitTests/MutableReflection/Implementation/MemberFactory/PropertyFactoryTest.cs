@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [Test]
     public void CreateProperty_Providers_ThrowsIfAlreadyExists ()
     {
-      var factory = new PropertyFactory (new MethodFactory (new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder()));
+      var factory = new PropertyFactory (new MethodFactory (new RelatedMethodFinder()));
 
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => Expression.Empty();
       var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);

@@ -27,9 +27,7 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -47,10 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       _declaringType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType), name: "Domain_Proxy", copyCtorsFromBase: true);
       _parameters = new[] { Expression.Parameter (typeof (string)) };
-      var memberSelectorStub = MockRepository.GenerateStub<IMemberSelector>();
 
-      _context = new TestableConstructorBodyContextBase (_declaringType, false, _parameters.AsOneTime(), memberSelectorStub);
-      _staticContext = new TestableConstructorBodyContextBase (_declaringType, true, _parameters.AsOneTime(), memberSelectorStub);
+      _context = new TestableConstructorBodyContextBase (_declaringType, false, _parameters.AsOneTime());
+      _staticContext = new TestableConstructorBodyContextBase (_declaringType, true, _parameters.AsOneTime());
     }
 
     [Test]

@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -35,9 +34,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         IEnumerable<ParameterExpression> parameterExpressions,
         IEnumerable<Type> genericParameters,
         Type returnType,
-        MethodInfo baseMethod,
-        IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, genericParameters, returnType, baseMethod, memberSelector)
+        MethodInfo baseMethod)
+        : base (declaringType, isStatic, parameterExpressions, genericParameters, returnType, baseMethod)
     {
     }
   }

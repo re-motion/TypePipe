@@ -22,15 +22,12 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -38,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   public class BodyContextBaseTest
   {
     private ProxyType _proxyType;
-    private IMemberSelector _memberSelectorMock;
 
     private BodyContextBase _staticContext;
     private BodyContextBase _context;
@@ -47,20 +43,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void SetUp ()
     {
       _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _staticContext = new TestableBodyContextBase (_proxyType, true, _memberSelectorMock);
-      _context = new TestableBodyContextBase (_proxyType, false, _memberSelectorMock);
+      _context = new TestableBodyContextBase (_proxyType, isStatic: false);
+      _staticContext = new TestableBodyContextBase (_proxyType, isStatic: true);
     }
 
     [Test]
     public void Initialization ()
     {
-      var isStatic = BooleanObjectMother.GetRandomBoolean();
-      var context = new TestableBodyContextBase (_proxyType, isStatic, _memberSelectorMock);
+      Assert.That (_context.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (_context.IsStatic, Is.False);
 
-      Assert.That (context.DeclaringType, Is.SameAs (_proxyType));
-      Assert.That (context.IsStatic, Is.EqualTo (isStatic));
+      Assert.That (_staticContext.IsStatic, Is.True);
     }
 
     [Test]

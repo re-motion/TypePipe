@@ -23,9 +23,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -36,7 +34,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private bool _isStatic;
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
-    private IMemberSelector _memberSelector;
 
     private ConstructorBodyModificationContext _context;
 
@@ -47,9 +44,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _isStatic = BooleanObjectMother.GetRandomBoolean();
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
-      _memberSelector = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _context = new ConstructorBodyModificationContext (_declaringType, _isStatic, _parameters, _previousBody, _memberSelector);
+      _context = new ConstructorBodyModificationContext (_declaringType, _isStatic, _parameters, _previousBody);
     }
 
     [Test]

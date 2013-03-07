@@ -27,21 +27,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// </summary>
   public class InitializationFactory
   {
-    private readonly IMemberSelector _memberSelector;
-
-    public InitializationFactory (IMemberSelector memberSelector)
-    {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-
-      _memberSelector = memberSelector;
-    }
-
     public Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var context = new InitializationBodyContext (declaringType, _memberSelector);
+      var context = new InitializationBodyContext (declaringType);
       return ProviderUtility.GetNonNullValue (initializationProvider, context, "initializationProvider");
     }
   }

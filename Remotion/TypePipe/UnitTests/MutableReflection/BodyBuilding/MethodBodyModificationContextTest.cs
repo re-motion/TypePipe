@@ -25,9 +25,7 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -41,7 +39,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private Type _returnType;
     private MethodInfo _baseMethod;
     private Expression _previousBody;
-    private IMemberSelector _memberSelectorMock;
 
     private MethodBodyModificationContext _context;
     private MethodBodyModificationContext _contextWithoutPreviousBody;
@@ -56,12 +53,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _genericParameters = new[] { ReflectionObjectMother.GetSomeGenericParameter() };
       _returnType = ReflectionObjectMother.GetSomeType();
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
       _context = new MethodBodyModificationContext (
-          _declaringType, _isStatic, _parameters.AsOneTime(), _genericParameters.AsOneTime(), _returnType, _baseMethod, _previousBody, _memberSelectorMock);
+          _declaringType, _isStatic, _parameters.AsOneTime(), _genericParameters.AsOneTime(), _returnType, _baseMethod, _previousBody);
       _contextWithoutPreviousBody = new MethodBodyModificationContext (
-          _declaringType, _isStatic, _parameters, _genericParameters, _returnType, _baseMethod, null, _memberSelectorMock);
+          _declaringType, _isStatic, _parameters, _genericParameters, _returnType, _baseMethod, null);
     }
 
     [Test]

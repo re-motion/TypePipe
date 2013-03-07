@@ -20,8 +20,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -29,7 +27,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   public class MethodBaseBodyContextBaseTest
   {
     private ProxyType _declaringType;
-    private IMemberSelector _memberSelectorStub;
     private bool _isStatic;
 
     private MethodBaseBodyContextBase _context;
@@ -38,10 +35,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void SetUp ()
     {
       _declaringType = ProxyTypeObjectMother.Create();
-      _memberSelectorStub = MockRepository.GenerateStrictMock<IMemberSelector>();
       _isStatic = BooleanObjectMother.GetRandomBoolean();
 
-      _context = new TestableMethodBaseBodyContextBase (_declaringType, new ParameterExpression[0], _isStatic, _memberSelectorStub);
+      _context = new TestableMethodBaseBodyContextBase (_declaringType, new ParameterExpression[0], _isStatic);
     }
 
     [Test]
@@ -58,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var parameter1 = Expression.Parameter (typeof (int), "i");
       var parameter2 = Expression.Parameter (typeof (string), "s");
 
-      var context = new TestableMethodBaseBodyContextBase (_declaringType, new[] { parameter1, parameter2 }, _isStatic, _memberSelectorStub);
+      var context = new TestableMethodBaseBodyContextBase (_declaringType, new[] { parameter1, parameter2 }, _isStatic);
 
       Assert.That (context.Parameters, Is.EqualTo (new[] { parameter1, parameter2 }));
     }

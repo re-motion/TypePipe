@@ -18,10 +18,8 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -35,9 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-
-      _factory = new InitializationFactory (memberSelectorMock);
+      _factory = new InitializationFactory();
 
       _proxyType = ProxyTypeObjectMother.Create();
     }

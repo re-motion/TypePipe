@@ -20,16 +20,12 @@ using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   public class TestableMethodBaseBodyContextBase : MethodBaseBodyContextBase
   {
-    public TestableMethodBaseBodyContextBase (
-        ProxyType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic, IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, memberSelector)
-    {
-    }
+    public TestableMethodBaseBodyContextBase (ProxyType declaringType, IEnumerable<ParameterExpression> parameterExpressions, bool isStatic)
+        : base (declaringType, isStatic, parameterExpressions) {}
   }
 }

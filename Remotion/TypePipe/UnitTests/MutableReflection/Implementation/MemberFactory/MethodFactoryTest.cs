@@ -45,10 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
       _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder> ();
 
-      _factory = new MethodFactory (memberSelectorMock, _relatedMethodFinderMock);
+      _factory = new MethodFactory (_relatedMethodFinderMock);
 
       _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
     }

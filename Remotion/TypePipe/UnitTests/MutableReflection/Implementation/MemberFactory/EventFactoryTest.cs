@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [Test]
     public void CreateEvent_Providers_ThrowsIfAlreadyExists ()
     {
-      var factory = new EventFactory (new MethodFactory (new MemberSelector (new BindingFlagsEvaluator()), new RelatedMethodFinder()));
+      var factory = new EventFactory (new MethodFactory (new RelatedMethodFinder()));
 
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty();
       var event_ = _proxyType.AddEvent ("Event", typeof (Action), addBodyProvider: bodyProvider, removeBodyProvider: bodyProvider);

@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -24,8 +23,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public class InitializationBodyContext : BodyContextBase
   {
-    public InitializationBodyContext (ProxyType declaringType, IMemberSelector memberSelector)
-        : base (declaringType, false, memberSelector)
+    public InitializationBodyContext (ProxyType declaringType)
+        : base (declaringType, isStatic: false)
     {
     }
   }

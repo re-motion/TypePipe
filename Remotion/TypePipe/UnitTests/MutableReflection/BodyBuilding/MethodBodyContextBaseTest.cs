@@ -23,8 +23,6 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -37,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     private Type[] _genericParameters;
     private Type _returnType;
     private MethodInfo _baseMethod;
-    private IMemberSelector _memberSelectorMock;
 
     private MethodBodyContextBase _context;
 
@@ -50,10 +47,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       _genericParameters = new[] { ReflectionObjectMother.GetSomeGenericParameter() };
       _returnType = ReflectionObjectMother.GetSomeType();
       _baseMethod = ReflectionObjectMother.GetSomeMethod();
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector> ();
 
       _context = new TestableMethodBodyContextBase (
-          _declaringType, _isStatic, _parameters.AsOneTime(), _genericParameters.AsOneTime(), _returnType, _baseMethod, _memberSelectorMock);
+          _declaringType, _isStatic, _parameters.AsOneTime(), _genericParameters.AsOneTime(), _returnType, _baseMethod);
     }
 
     [Test]
@@ -72,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.HasBaseMethod, Is.True);
 
-      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters, _genericParameters, _returnType, null, _memberSelectorMock);
+      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters, _genericParameters, _returnType, null);
       Assert.That (context.HasBaseMethod, Is.False);
     }
 
@@ -81,7 +77,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.BaseMethod, Is.SameAs (_baseMethod));
 
-      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters, _genericParameters, _returnType, null, _memberSelectorMock);
+      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters, _genericParameters, _returnType, null);
       Assert.That (
           () => context.BaseMethod, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
     }

@@ -14,13 +14,13 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -32,10 +32,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
         IEnumerable<ParameterExpression> parameterExpressions,
         IEnumerable<Type> genericParameters,
         Type returnType,
-        MethodInfo baseMethod,
-        IMemberSelector memberSelector)
-        : base (declaringType, isStatic, parameterExpressions, genericParameters, returnType, baseMethod, memberSelector)
-    {
-    }
+        MethodInfo baseMethod)
+        : base (declaringType, isStatic, parameterExpressions, genericParameters, returnType, baseMethod) {}
   }
 }

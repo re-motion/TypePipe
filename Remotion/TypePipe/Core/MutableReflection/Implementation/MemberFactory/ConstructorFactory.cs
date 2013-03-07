@@ -32,15 +32,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// </summary>
   public class ConstructorFactory
   {
-    private readonly IMemberSelector _memberSelector;
-
-    public ConstructorFactory (IMemberSelector memberSelector)
-    {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-
-      _memberSelector = memberSelector;
-    }
-
     public MutableConstructorInfo CreateConstructor (
         ProxyType declaringType,
         MethodAttributes attributes,
@@ -63,7 +54,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         throw new InvalidOperationException ("Constructor with equal signature already exists.");
 
       var parameterExpressions = paras.Select (p => p.Expression);
-      var context = new ConstructorBodyCreationContext (declaringType, isStatic, parameterExpressions, _memberSelector);
+      var context = new ConstructorBodyCreationContext (declaringType, isStatic, parameterExpressions);
       var body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
 
       var attr = attributes.Set (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
