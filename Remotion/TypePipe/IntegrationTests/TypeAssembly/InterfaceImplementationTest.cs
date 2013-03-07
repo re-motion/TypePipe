@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -88,7 +89,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
 
       var instance = (IAddedInterfaceWithGenericMethod) Activator.CreateInstance (type);
-      Assert.That (instance.GenericAddedMethod<MemoryStream> (), Is.EqualTo ("implemented"));
+      Assert.That (instance.GenericAddedMethod<MemoryStream>(), Is.EqualTo ("implemented"));
     }
 
     [Test]
@@ -134,18 +135,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.Method(), Is.EqualTo ("DomainType.Method modified"));
     }
 
-    [Ignore ("TODO 4774")]
     [Test]
     public void Modify_Implicit_Generic ()
     {
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.GenericMethod<MemoryStream>());
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((IDomainInterface o) => o.GenericMethod<Dev.T>());
       var type = AssembleType<DomainType> (
           p => p.GetOrAddOverride (interfaceMethod)
                 .SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"))));
 
       var instance = (IDomainInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.GenericMethod<MemoryStream> (), Is.EqualTo ("DomainType.Method MemoryStream modified"));
+      Assert.That (instance.GenericMethod<string> (), Is.EqualTo ("DomainType.GenericMethod String modified"));
     }
 
     [Test]
@@ -210,7 +210,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void Override_Implicit_Generic ()
     {
       var interfaceMethod =
-          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((IBaseInterface obj) => obj.GenericBaseMethod<MemoryStream>());
+          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((IBaseInterface o) => o.GenericBaseMethod<Dev.T>());
       var type = AssembleType<DomainType> (
           p => p.GetOrAddOverride (interfaceMethod)
                 .SetBody (
@@ -222,7 +222,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var instance = (IBaseInterface) Activator.CreateInstance (type);
 
-      Assert.That (instance.GenericBaseMethod<MemoryStream> (), Is.EqualTo ("DomainType.GenericBaseMethod MemoryStream implicitly overridden"));
+      Assert.That (instance.GenericBaseMethod<int> (), Is.EqualTo ("DomainType.GenericBaseMethod Int32 implicitly overridden"));
     }
 
     [Test]
@@ -258,7 +258,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public class DomainType : DomainTypeBase, IDomainInterface
     {
       public virtual string Method () { return "DomainType.Method"; }
-      public string GenericMethod<T> () { return "DomainType.GenericMethod " + typeof (T).Name; }
+      public virtual string GenericMethod<T> () { return "DomainType.GenericMethod " + typeof (T).Name; }
 
       void IDomainInterface.ExplicitlyImplemented () { }
 
