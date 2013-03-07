@@ -27,31 +27,33 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class GenericParameterAssignmentTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("5440")]
     [Test]
     public void CreateAssignment ()
     {
       SkipSavingAndPeVerification();
-      var genericParameter = ReflectionObjectMother.GetSomeGenericParameter ();
+      var genericParameter = ReflectionObjectMother.GetSomeGenericParameter();
 
-      // RefType <- AssignableFrom
+      // RefType <- x
       Assert.That (() => CreateAssignment (typeof (object), typeof (string)), Throws.Nothing);
       Assert.That (() => CreateAssignment (typeof (IComparable), typeof (string)), Throws.Nothing);
 
-      // RefType <- x
-      Assert.That (() => CreateAssignment (typeof (string), typeof (object)), Throws.ArgumentException);
+      Assert.That (() => CreateAssignment (typeof (object), typeof (object)), Throws.Nothing);
       Assert.That (() => CreateAssignment (typeof (object), typeof (int)), Throws.ArgumentException);
       Assert.That (() => CreateAssignment (typeof (object), genericParameter), Throws.ArgumentException);
 
+      Assert.That (() => CreateAssignment (typeof (string), typeof (object)), Throws.ArgumentException);
+      Assert.That (() => CreateAssignment (typeof (string), typeof (int)), Throws.ArgumentException);
+      Assert.That (() => CreateAssignment (typeof (string), genericParameter), Throws.ArgumentException);
+
       // ValueType <- x
       Assert.That (() => CreateAssignment (typeof (int), typeof (object)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (typeof (int), typeof (int)), Throws.ArgumentException);
+      Assert.That (() => CreateAssignment (typeof (int), typeof (int)), Throws.Nothing);
       Assert.That (() => CreateAssignment (typeof (int), genericParameter), Throws.ArgumentException);
 
       // Generic <- x
       Assert.That (() => CreateAssignment (genericParameter, typeof (object)), Throws.ArgumentException);
       Assert.That (() => CreateAssignment (genericParameter, typeof (int)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (genericParameter, genericParameter), Throws.ArgumentException);
+      Assert.That (() => CreateAssignment (genericParameter, genericParameter), Throws.Nothing);
     }
 
     [Ignore ("5440")]
@@ -62,28 +64,34 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           p =>
           p.GetOrAddOverride (method)
-           .SetBody (ctx =>
-           {
-             var genFromRef = new { ToType = ctx.GenericParameters[0], FromType = typeof (B) };
-             var genFromVal = new { ToType = ctx.GenericParameters[2], FromType = typeof (int) };
-             var genFromGen = new { ToType = ctx.GenericParameters[0], FromType = ctx.GenericParameters[1] };
-             var refFromGen = new { ToType = typeof (A), FromType = ctx.GenericParameters[0] };
-             var valFromGen = new { ToType = typeof (int), FromType = ctx.GenericParameters[1] };
+           .SetBody (
+               ctx =>
+               {
+                 var genFromRef = new { ToType = ctx.GenericParameters[0], FromType = typeof (B) };
+                 var genFromVal = new { ToType = ctx.GenericParameters[2], FromType = typeof (int) };
+                 var genFromGen = new { ToType = ctx.GenericParameters[0], FromType = ctx.GenericParameters[1] };
+                 var refFromGen = new { ToType = typeof (A), FromType = ctx.GenericParameters[0] };
+                 var valFromGen = new { ToType = typeof (int), FromType = ctx.GenericParameters[1] };
 
-             var mapping = new[] { genFromRef, genFromVal, genFromGen, refFromGen, valFromGen };
-             var variables = mapping.Select (a => Expression.Variable (a.ToType)).ToList();
-             var assignments = mapping.Zip (variables, (m, v) => Expression.Assign (v, Expression.Default (m.FromType))).Cast<Expression>();
+                 var mapping = new[] { genFromRef, genFromVal, genFromGen, refFromGen, valFromGen };
+                 var variables = mapping.Select (m => Expression.Variable (m.ToType)).ToList();
+                 var assignments = mapping.Zip (variables, (m, v) => CreateConvertAssignment (v, m.FromType));
 
-             return Expression.Block (variables, assignments);
-           }));
+                 return Expression.Block (variables, assignments);
+               }));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       instance.GenericMethod<A, B, int>();
     }
 
-    private BinaryExpression CreateAssignment (Type toType, Type fromType)
+    private Expression CreateAssignment (Type toType, Type fromType)
     {
       return Expression.Assign (Expression.Variable (toType), Expression.Default (fromType));
+    }
+
+    private Expression CreateConvertAssignment (ParameterExpression variable, Type fromType)
+    {
+      return Expression.Assign (variable, Expression.Convert (Expression.Default (fromType), variable.Type));
     }
 
     public class DomainType
