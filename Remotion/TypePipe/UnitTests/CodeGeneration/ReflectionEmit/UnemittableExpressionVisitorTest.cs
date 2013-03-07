@@ -138,16 +138,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result2, Is.SameAs (expression2));
     }
 
+    [Ignore]
     [Test]
-    public void VisitLambda_StaticClosure ()
+    public void VisitUnary_ToGenericParameter ()
     {
-      var body = Expression.Constant ("original body");
-      var parameter = Expression.Parameter (typeof (int));
-      var expression = Expression.Lambda<Action<int>> (body, parameter);
+      var toType = ReflectionObjectMother.GetSomeGenericParameter();
+      var fromValueType = Expression.Default (ReflectionObjectMother.GetSomeValueType());
+      var fromGenericParam = Expression.Default (ReflectionObjectMother.GetSomeOtherGenericParameter());
+      var expression1 = Expression.Convert (fromValueType, toType);
+      var expression2 = Expression.Convert (fromGenericParam, toType);
 
-      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+      var result1 = _visitorPartialMock.InvokeNonPublicMethod<Expression> ("VisitUnary", expression1);
+      var result2 = _visitorPartialMock.InvokeNonPublicMethod<Expression> ("VisitUnary", expression2);
 
-      Assert.That (result, Is.SameAs (expression));
+      var exptecExpression1 = Expression.Convert (Expression.Convert (fromValueType, typeof (object)), toType);
+      var exptecExpression2 = Expression.Convert (Expression.Convert (fromGenericParam, typeof (object)), toType);
+      ExpressionTreeComparer.CheckAreEqualTrees (exptecExpression1, result1);
+      ExpressionTreeComparer.CheckAreEqualTrees (exptecExpression2, result2);
+    }
+
+    [Ignore]
+    [Test]
+    public void VisitUnary_NonConvertExpression_NonGenericParameter ()
+    {
+      var nonConvertExpression = Expression.Not (Expression.Constant (true));
+      
     }
 
     [Test]
@@ -178,6 +193,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
 
       Assert.That (result, Is.SameAs (fakeResultExpression));
+    }
+
+    [Test]
+    public void VisitLambda_StaticClosure ()
+    {
+      var body = Expression.Constant ("static body without ThisExpression");
+      var parameter = Expression.Parameter (typeof (int));
+      var expression = Expression.Lambda<Action<int>> (body, parameter);
+
+      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+
+      Assert.That (result, Is.SameAs (expression));
     }
 
     private void CheckVisitConstant<T> (T value, T emittableValue, Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc)

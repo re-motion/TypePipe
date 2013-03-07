@@ -79,6 +79,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return base.VisitNew (node);
     }
 
+    protected internal override Expression VisitUnary (UnaryExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      
+
+      return base.VisitUnary (node);
+    }
+
     protected internal override Expression VisitLambda (LambdaExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
