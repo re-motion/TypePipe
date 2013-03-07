@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                       Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
 
                   return ExpressionHelper.StringConcat (
-                      ctx.CallBase ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
+                      Expression.Call (ctx.This, shadowedMethod, ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.HasBaseMethod, Is.False);
 
                   return ExpressionHelper.StringConcat (
-                      ctx.CallBase ("OverridableMethod", ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
+                      Expression.Call (ctx.This, shadowedMethod, ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
             Assert.That (mutableMethodInfo.GetBaseDefinition(), Is.SameAs (mutableMethodInfo));
@@ -102,25 +102,23 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.OverridableMethod (), Is.EqualTo ("DomainType"));
     }
 
-    [Ignore ("TODO 4774")]
     [Test]
     public void ShadowGenericMethod_VirtualAndNewSlot ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var mutableMethod = proxyType.AddGenericMethod (
-                "OverridableGenericMethod", 
+            var shadowedMethod = typeof (DomainType).GetMethod ("OverridableGenericMethod");
+            var mutableMethod = AddEquivalentMethod (
+                proxyType,
+                shadowedMethod,
                 MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
-                new[]{new GenericParameterDeclaration("T")},
-                ctx => typeof(string),
-                ctx => ParameterDeclaration.None,
                 ctx =>
                 {
                   Assert.That (ctx.HasBaseMethod, Is.False);
-
+                  var methodInstantiation = shadowedMethod.MakeTypePipeGenericMethod (ctx.GenericParameters.ToArray());
                   return ExpressionHelper.StringConcat (
-                      ctx.CallBase ("OverridableGenericMethod", ctx.Parameters.Cast<Expression> ()), Expression.Constant (" shadowed"));
+                      Expression.Call (ctx.This, methodInstantiation, ctx.Parameters.Cast<Expression>()), Expression.Constant (" shadowed"));
                 });
             Assert.That (mutableMethod.BaseMethod, Is.Null);
             Assert.That (mutableMethod.GetBaseDefinition(), Is.SameAs (mutableMethod));

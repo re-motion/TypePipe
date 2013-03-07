@@ -76,80 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    public void CallBase_Name_Params ()
-    {
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseMethods = typeof (DomainType).GetMethods (bindingFlags);
-      var arguments = new ArgumentTestHelper (7);
-      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
-      _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "blub", _proxyType, arguments.Types, null))
-          .Return (fakeBaseMethod);
-
-      var result = _context.CallBase ("blub", arguments.Expressions.AsOneTime());
-
-      _memberSelectorMock.VerifyAllExpectations();
-      var expected = Expression.Call (new ThisExpression (_proxyType), NonVirtualCallMethodInfoAdapter.Adapt (fakeBaseMethod), arguments.Expressions);
-      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
-    }
-
-    [Test]
-    public void CallBase_Name_Params_ByRefParam ()
-    {
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseMethods = typeof (DomainType).GetMethods (bindingFlags);
-      var argumentTypes = new[] { typeof (int).MakeByRefType() };
-      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodWithByRefParam (ref Dev<int>.Dummy));
-      _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "bla", _proxyType, argumentTypes, null))
-          .Return (fakeBaseMethod);
-
-      var argument = Expression.Parameter (typeof (int).MakeByRefType());
-      var result = _context.CallBase ("bla", argument);
-
-      _memberSelectorMock.VerifyAllExpectations();
-      var expected = Expression.Call (new ThisExpression (_proxyType), NonVirtualCallMethodInfoAdapter.Adapt (fakeBaseMethod), argument);
-      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Instance method 'Foo' could not be found on base type "
-        + "'Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding.BodyContextBaseTest+DomainType'.\r\nParameter name: baseMethod")]    
-    public void CallBase_Name_Params_NoMatchingMethod ()
-    {
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseMethods = typeof (DomainType).GetMethods (bindingFlags);
-      var arguments = new ArgumentTestHelper (7);
-      _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod (baseMethods, Type.DefaultBinder, bindingFlags, "Foo", _proxyType, arguments.Types, null))
-          .Return (null);
-
-      _context.CallBase ("Foo", arguments.Expressions);
-    }
-
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
-    public void CallBase_Name_Params_StaticContext ()
-    {
-      _staticContext.CallBase ("NotImportant");
-    }
-
-    [Test]
-    [ExpectedException (typeof (MemberAccessException), ExpectedMessage =
-        "Matching base method 'DomainType.InternalMethod' is not accessible from proxy type.")]
-    public void CallBase_Name_Params_DisallowedVisibility ()
-    {
-      var internalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
-      _memberSelectorMock
-          .Expect (mock => mock.SelectSingleMethod<MethodInfo> (null, null, 0, null, null, null, null)).IgnoreArguments()
-          .Return (internalMethod);
-
-      _context.CallBase ("InternalMethod");
-    }
-
-    [Test]
-    public void CallBase_MethodInfo_Params ()
+    public void CallBase ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (1));
       var arguments = new[] { ExpressionTreeObjectMother.GetSomeExpression (typeof (int)) };
@@ -167,7 +94,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
-    public void CallBase_MethodInfo_Params_StaticContext ()
+    public void CallBase_StaticContext ()
     {
       var method = ReflectionObjectMother.GetSomeInstanceMethod();
       _staticContext.CallBase (method);
@@ -175,14 +102,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.\r\nParameter name: baseMethod")]
-    public void CallBase_MethodInfo_Params_StaticMethodInfo ()
+    public void CallBase_StaticMethodInfo ()
     {
       var method = ReflectionObjectMother.GetSomeStaticMethod();
       _context.CallBase (method);
     }
 
     [Test]
-    public void CallBase_MethodInfo_Params_AllowedVisibility ()
+    public void CallBase_AllowedVisibility ()
     {
       var protectedMethod = typeof (DomainType).GetMethod ("ProtectedMethod", BindingFlags.NonPublic | BindingFlags.Instance);
       var protectedInternalMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ProtectedInternalMethod ());
@@ -197,7 +124,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     [ExpectedException (typeof (MemberAccessException), ExpectedMessage =
         "Matching base method 'DomainType.InternalMethod' is not accessible from proxy type.")]
-    public void CallBase_MethodInfo_Params_DisallowedVisibility ()
+    public void CallBase_DisallowedVisibility ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InternalMethod());
       _context.CallBase (method);
@@ -205,7 +132,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call on abstract method.\r\nParameter name: baseMethod")]
-    public void CallBase_MethodInfo_Abstract_Throws ()
+    public void CallBase_Abstract ()
     {
       var abstractMethod = ReflectionObjectMother.GetSomeAbstractMethod();
       _context.CallBase (abstractMethod);

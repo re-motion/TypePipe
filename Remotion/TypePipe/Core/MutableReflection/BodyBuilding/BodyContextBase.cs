@@ -22,7 +22,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -34,6 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly ProxyType _declaringType;
     private readonly bool _isStatic;
     private readonly IMemberSelector _memberSelector;
+    // tODO remove!
 
     protected BodyContextBase (ProxyType declaringType, bool isStatic, IMemberSelector memberSelector)
     {
@@ -66,37 +66,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       get { return _isStatic; }
     }
 
-    public MethodCallExpression CallBase (string baseMethod, params Expression[] arguments)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-
-      return CallBase (baseMethod, (IEnumerable<Expression>) arguments);
-    }
-
-    public MethodCallExpression CallBase (string baseMethod, IEnumerable<Expression> arguments)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("baseMethod", baseMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
-      Assertion.IsNotNull (_declaringType.BaseType);
-      EnsureNotStatic();
-
-      var args = arguments.ConvertToCollection();
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var baseTypeMethods = _declaringType.BaseType.GetMethods (bindingFlags);
-      var argumentTypes = BodyContextUtility.GetArgumentTypes (args);
-      var baseMethodInfo = _memberSelector.SelectSingleMethod (
-          baseTypeMethods, Type.DefaultBinder, bindingFlags, baseMethod, _declaringType, argumentTypes, modifiersOrNull: null);
-
-      if (baseMethodInfo == null)
-      {
-        var message = string.Format ("Instance method '{0}' could not be found on base type '{1}'.", baseMethod, _declaringType.BaseType);
-        throw new ArgumentException (message, "baseMethod");
-      }
-
-      return CallBase (baseMethodInfo, args);
-    }
-
     public MethodCallExpression CallBase (MethodInfo baseMethod, params Expression[] arguments)
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
@@ -113,6 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       CheckNotStatic (baseMethod);
       CheckVisibility (baseMethod);
       CheckNotAbstract (baseMethod);
+      // TODO: check that not generic base definition.!
       // TODO: Check if really base call!
 
       return Expression.Call (This, NonVirtualCallMethodInfoAdapter.Adapt (baseMethod), arguments);

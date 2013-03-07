@@ -241,8 +241,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               typeof (void),
               new[]
               { new ParameterDeclaration (typeof (int).MakeByRefType(), "i"), new ParameterDeclaration (typeof (string).MakeByRefType(), "s") },
-              ctx => ctx.CallBase ("MethodWithOutAndRefParameters", ctx.Parameters.Cast<Expression>())));
-      // Use overload which takes the name of the base method to test manual method selection.
+              ctx => Expression.Call (ctx.This, "MethodWithOutAndRefParameters", Type.EmptyTypes, ctx.Parameters.Cast<Expression>().ToArray())));
 
       var addedMethod = type.GetMethod ("AddedMethod");
       var instance = Activator.CreateInstance (type);
