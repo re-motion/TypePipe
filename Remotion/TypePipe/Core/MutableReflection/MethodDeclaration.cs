@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      if (method.IsGenericMethod && !method.IsGenericMethodDefinition)
+      if (method.IsGenericMethodInstantiation())
         throw new ArgumentException (
             "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.", "method");
 

@@ -316,7 +316,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             Assert.That (
                 () => proxyType.GetOrAddOverride (baseMethod),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("Only virtual methods can be overridden."));
+                Throws.TypeOf<ArgumentException>().With.Message.EqualTo ("Only virtual methods can be overridden.\r\nParameter name: overriddenMethod"));
           });
     }
 

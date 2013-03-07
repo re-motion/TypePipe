@@ -364,11 +364,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Only virtual methods can be overridden.\r\nParameter name: overriddenMethod")]
+    public void GetOrCreateOverride_NonVirtualMethod ()
+    {
+      var method = ReflectionObjectMother.GetSomeNonVirtualMethod();
+      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "The specified method must be either a non-generic method or a generic method definition; "
+                          + "it cannot be a method instantiation.\r\nParameter name: overriddenMethod")]
+    public void GetOrCreateOverride_MethodInstantiation ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.GenericMethod<TypeThatCompliesWithConstraints> (7, null));
+      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of the proxy base class hierarchy: 'String'.\r\nParameter name: overriddenMethod")]
+        "Method is declared by a type outside of the proxy base class hierarchy: 'IDisposable'.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_UnrelatedDeclaringType ()
     {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((string obj) => obj.Trim ());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
       _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 
@@ -377,15 +395,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
         "Method is declared by a type outside of the proxy base class hierarchy: 'Proxy'.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
-      var method = _proxyType.AddMethod ("method", bodyProvider: ctx => Expression.Empty ());
-      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Only virtual methods can be overridden.")]
-    public void GetOrCreateOverride_NonVirtualMethod ()
-    {
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualBaseMethod ());
+      var method = _proxyType.AddMethod ("method", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
       _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
     }
 
@@ -564,8 +574,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       public virtual void InterfaceMethod (int interfaceMethodOnDomainType) {}
       public virtual TPar GenericMethod<TPar> (int arg1, TPar arg2) where TPar : DomainType, IDisposable, new () { return arg2; }
-
-      public void NonVirtualBaseMethod () {}
     }
 
     public interface IDomainInterface

@@ -166,14 +166,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var message = "Only virtual methods can be overridden.";
+            var message = "Only virtual methods can be overridden.\r\nParameter name: overriddenMethod";
             Assert.That (
                 () => proxyType.GetOrAddOverride (nonVirtualMethod),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+                Throws.TypeOf<ArgumentException>().With.Message.EqualTo (message));
 
             Assert.That (
                 () => proxyType.GetOrAddOverride (staticMethod),
-                Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+                Throws.TypeOf<ArgumentException>().With.Message.EqualTo (message));
 
             Assert.That (
                 () => proxyType.GetOrAddOverride (finalMethod),

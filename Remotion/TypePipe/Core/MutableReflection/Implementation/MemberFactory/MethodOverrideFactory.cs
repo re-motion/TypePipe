@@ -57,6 +57,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsNotNull (overriddenMethod.DeclaringType);
 
+      if (!overriddenMethod.IsVirtual)
+        throw new ArgumentException ("Only virtual methods can be overridden.", "overriddenMethod");
+
+      if (overriddenMethod.IsGenericMethodInstantiation())
+      {
+        throw new ArgumentException (
+            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
+            "overriddenMethod");
+      }
+
       // ReSharper disable PossibleUnintendedReferenceComparison
       if (!overriddenMethod.DeclaringType.IsAssignableFromFast (declaringType) || declaringType == overriddenMethod.DeclaringType)
           // ReSharper restore PossibleUnintendedReferenceComparison
@@ -65,9 +75,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
             "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", overriddenMethod.DeclaringType.Name);
         throw new ArgumentException (message, "overriddenMethod");
       }
-
-      if (!overriddenMethod.IsVirtual)
-        throw new NotSupportedException ("Only virtual methods can be overridden.");
 
       if (overriddenMethod.DeclaringType.IsInterface)
       {
