@@ -37,6 +37,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsGenericMethodInstantiation ()
+    {
+      var nonGenericMethod = ReflectionObjectMother.GetSomeNonGenericMethod();
+      var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Method<Dev.T, Dev.T>());
+      var methodInstantiation = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Method<int, string>());
+
+      Assert.That (nonGenericMethod.IsGenericMethodInstantiation(), Is.False);
+      Assert.That (genericMethodDefinition.IsGenericMethodInstantiation(), Is.False);
+      Assert.That (methodInstantiation.IsGenericMethodInstantiation(), Is.True);
+    }
+
+    [Test]
     public void MakeTypePipeGenericMethod_MakesGenericMethodWithCustomTypeArgument ()
     {
       var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Method<Dev.T, Dev.T>());

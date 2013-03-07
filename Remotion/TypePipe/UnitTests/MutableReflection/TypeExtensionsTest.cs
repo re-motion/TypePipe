@@ -38,6 +38,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsGenericTypeInstantiation ()
+    {
+      var nonGenericType = ReflectionObjectMother.GetSomeNonGenericType();
+      var genericTypeDefinition = typeof (List<>);
+      var typeInstantiation = typeof (List<string>);
+
+      Assert.That (nonGenericType.IsGenericTypeInstantiation(), Is.False);
+      Assert.That (genericTypeDefinition.IsGenericTypeInstantiation(), Is.False);
+      Assert.That (typeInstantiation.IsGenericTypeInstantiation(), Is.True);
+    }
+
+    [Test]
     public void IsAssignableFromFast_NoCustomTypes ()
     {
       Assert.That (typeof (string).IsAssignableFromFast (typeof (string)), Is.True);

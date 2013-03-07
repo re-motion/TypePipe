@@ -43,12 +43,25 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
+    /// Determines whether the current <see cref="MethodInfo"/> is a generic method instantiation, that means,
+    /// <see cref="MethodInfo.IsGenericMethod"/> is <c>true</c> and <see cref="MethodInfo.IsGenericMethodDefinition"/> is <c>false</c>.
+    /// </summary>
+    /// <param name="method">The method.</param>
+    /// <returns><c>true</c> if the method is a generic method instantiation; otherwise, <c>false</c>.</returns>
+    public static bool IsGenericMethodInstantiation (this MethodInfo method)
+    {
+      ArgumentUtility.CheckNotNull ("method", method);
+
+      return method.IsGenericMethod && !method.IsGenericMethodDefinition;
+    }
+
+    /// <summary>
     /// Substitutes the type parameters of the generic type definition and returns a <see cref="MethodInfo"/> object representing the resulting
     /// constructed method. Use this as a replacement for <see cref="MethodInfo.MakeGenericMethod"/>.
     /// </summary>
     /// <param name="genericMethodDefinition">The generic method definition.</param>
     /// <param name="typeArguments">The type arguments.</param>
-    /// <returns>The constructed method.</returns>
+    /// <returns>The generic method instantiation.</returns>
     public static MethodInfo MakeTypePipeGenericMethod (this MethodInfo genericMethodDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);

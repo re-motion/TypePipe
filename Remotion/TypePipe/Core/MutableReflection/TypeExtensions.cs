@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
@@ -43,6 +42,19 @@ namespace Remotion.TypePipe.MutableReflection
       // ReSharper disable PossibleMistakenCallToGetType.2
       return type.GetType().FullName == "System.RuntimeType";
       // ReSharper restore PossibleMistakenCallToGetType.2
+    }
+
+    /// <summary>
+    /// Determines whether the current <see cref="Type"/> is a generic type instantiation, that means,
+    /// <see cref="Type.IsGenericType"/> is <c>true</c> and <see cref="Type.IsGenericTypeDefinition"/> is <c>false</c>.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns><c>true</c> if the type is a generic type instantiation; otherwise, <c>false</c>.</returns>
+    public static bool IsGenericTypeInstantiation (this Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return type.IsGenericType && !type.IsGenericTypeDefinition;
     }
 
     /// <summary>
@@ -101,11 +113,11 @@ namespace Remotion.TypePipe.MutableReflection
 
     /// <summary>
     /// Substitutes the type parameters of the generic type definition and returns a <see cref="Type"/> object representing the resulting
-    /// constructed type. Use this as a replacement for <see cref="Type.MakeGenericType"/>.
+    /// constructed generic type. Use this as a replacement for <see cref="Type.MakeGenericType"/>.
     /// </summary>
     /// <param name="genericTypeDefinition">The generic type definition.</param>
     /// <param name="typeArguments">The type arguments.</param>
-    /// <returns>The constructed type.</returns>
+    /// <returns>The generic type instantiation.</returns>
     public static Type MakeTypePipeGenericType (this Type genericTypeDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
