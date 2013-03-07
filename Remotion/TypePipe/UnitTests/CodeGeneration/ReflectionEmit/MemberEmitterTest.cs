@@ -101,10 +101,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
                       });
       var expectedAttributes = constructor.Attributes;
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
+      var expectedCallingConventions = CallingConventions.Standard | CallingConventions.HasThis;
 
       var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineConstructor (expectedAttributes, CallingConventions.HasThis, expectedParameterTypes))
+          .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConventions, expectedParameterTypes))
           .Return (constructorBuilderMock);
       constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, constructor));
 

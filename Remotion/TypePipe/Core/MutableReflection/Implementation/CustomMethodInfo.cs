@@ -89,13 +89,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override CallingConventions CallingConvention
     {
-      get
-      {
-        if (IsStatic)
-          return CallingConventions.Standard;
-        else
-          return CallingConventions.Standard | CallingConventions.HasThis;
-      }
+      get { return IsStatic ? CallingConventions.Standard : CallingConventions.Standard | CallingConventions.HasThis; }
     }
 
     public override Type ReturnType

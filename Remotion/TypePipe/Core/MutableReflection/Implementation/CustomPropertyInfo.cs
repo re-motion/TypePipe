@@ -42,11 +42,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly Type _type;
 
     protected CustomPropertyInfo (
-        CustomType declaringType,
-        string name,
-        PropertyAttributes attributes,
-        CustomMethodInfo getMethod,
-        CustomMethodInfo setMethod)
+        CustomType declaringType, string name, PropertyAttributes attributes, CustomMethodInfo getMethod, CustomMethodInfo setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

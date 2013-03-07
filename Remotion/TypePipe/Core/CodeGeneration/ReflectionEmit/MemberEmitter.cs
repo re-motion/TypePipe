@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -74,9 +73,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("context", context);
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      var callingConvention = constructor.IsStatic ? CallingConventions.Standard : CallingConventions.HasThis;
       var parameterTypes = GetParameterTypes (constructor);
-      var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, callingConvention, parameterTypes);
+      var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, constructor.CallingConvention, parameterTypes);
       ctorBuilder.RegisterWith (context.EmittableOperandProvider, constructor);
 
       DefineParameters (ctorBuilder, constructor);

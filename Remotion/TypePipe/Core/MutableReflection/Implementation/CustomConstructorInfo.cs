@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override CallingConventions CallingConvention
     {
-      get { return IsStatic ? CallingConventions.Standard : CallingConventions.HasThis; }
+      get { return IsStatic ? CallingConventions.Standard : CallingConventions.Standard | CallingConventions.HasThis; }
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

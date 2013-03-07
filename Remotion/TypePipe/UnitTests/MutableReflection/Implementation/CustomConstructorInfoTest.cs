@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var constructor = CustomConstructorInfoObjectMother.Create (attributes: 0);
       var typeInitializer = CustomConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
 
-      Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.HasThis));
+      Assert.That (constructor.CallingConvention, Is.EqualTo (CallingConventions.Standard | CallingConventions.HasThis));
       Assert.That (typeInitializer.CallingConvention, Is.EqualTo (CallingConventions.Standard));
     }
 
