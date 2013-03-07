@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -31,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Ignore ("TODO 4774")]
     public void ExistingMethodWithGenericParameters ()
     {
-      var baseMethod = typeof (DomainType).GetMethod ("GenericMethod");
+      var baseMethod = GetDeclaredMethod (typeof (DomainType), "GenericMethod");
 
       var type = AssembleType<DomainType> (
           proxyType =>
@@ -44,19 +45,21 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var keyParameter = genericParameters[0];
             var valueParameter = genericParameters[1];
             var keyParameterConstraint = keyParameter.GetGenericParameterConstraints().Single();
-            Assert.That (keyParameterConstraint.GetGenericTypeDefinition(), Is.SameAs (typeof (IComparable)));
+            Assert.That (keyParameterConstraint.GetGenericTypeDefinition(), Is.SameAs (typeof (IComparable<>)));
             Assert.That (keyParameterConstraint.GetGenericArguments().Single(), Is.SameAs (keyParameter));
             Assert.That (valueParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.ReferenceTypeConstraint));
 
             genericMethodOverride.SetBody (
                 ctx =>
                 {
-                  Assert.That (ctx.Parameters[0].Type, Is.SameAs (typeof (IDictionary<,>).MakeGenericType (genericParameters)));
+                  Assert.That (ctx.GenericParameters, Is.EqualTo (genericParameters));
+                  Assert.That (ctx.Parameters[0].Type, Is.EqualTo (typeof (IDictionary<,>).MakeTypePipeGenericType (genericParameters)), "TODO: 5452 Change to Is.SameAs");
+
                   var containsKeyMethod = ctx.Parameters[0].Type.GetMethod ("ContainsKey");
                   return Expression.Condition (
                       Expression.Call (ctx.Parameters[0], containsKeyMethod, ctx.Parameters[1]),
                       ctx.PreviousBody,
-                      Expression.Default (ctx.Parameters[1].Type));
+                      Expression.Default (ctx.GenericParameters[1]));
                 });
           });
 
