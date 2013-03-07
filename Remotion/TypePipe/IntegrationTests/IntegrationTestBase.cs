@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -95,9 +96,9 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipDeletion = true;
     }
 
-    protected static IParticipant CreateParticipant (Action<ProxyType> typeModification)
+    protected static IParticipant CreateParticipant (Action<ProxyType> typeModification, ICacheKeyProvider cacheKeyProvider = null)
     {
-      return new ParticipantStub (typeModification);
+      return new ParticipantStub (typeModification, cacheKeyProvider);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
@@ -131,6 +132,8 @@ namespace Remotion.TypePipe.IntegrationTests
 
       if (!skipDeletion)
         _assembliesToDelete.Add (assemblyPath);
+      else
+        Console.WriteLine ("Skipping deletion of: {0}", assemblyPath);
 
       if (!skipPeVerification)
         PeVerifyAssembly (assemblyPath);

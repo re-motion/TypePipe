@@ -27,9 +27,10 @@ namespace Remotion.TypePipe.IntegrationTests
     private readonly Action<ProxyType> _typeModification;
     private readonly ICacheKeyProvider _cacheKeyProvider;
 
-    public ParticipantStub (Action<ProxyType> typeModification, ICacheKeyProvider cacheKeyProvider = null)
+    public ParticipantStub (Action<ProxyType> typeModification, ICacheKeyProvider cacheKeyProvider)
     {
       ArgumentUtility.CheckNotNull ("typeModification", typeModification);
+      // Cache key provider may be null.
 
       _typeModification = typeModification;
       _cacheKeyProvider = cacheKeyProvider;

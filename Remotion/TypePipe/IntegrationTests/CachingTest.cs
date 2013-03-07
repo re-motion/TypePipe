@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.IntegrationTests
           });
 
       Action<ProxyType> typeModification = pt => { };
-      var participantStubs = cacheKeyProviderStubs.Select (ckp => new ParticipantStub (typeModification, ckp)).Cast<IParticipant>();
+      var participantStubs = cacheKeyProviderStubs.Select (ckp => CreateParticipant (typeModification, ckp));
 
       return CreateObjectFactory (participantStubs, stackFramesToSkip: 1);
     }

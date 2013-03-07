@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ProxyType>> participantActions)
     {
-      var participants = participantActions.Select (CreateParticipant).AsOneTime();
+      var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
       var proxyTypeModelFactory = SafeServiceLocator.Current.GetInstance<IProxyTypeModelFactory>();
       var subclassProxyBuilder = CreateSubclassProxyBuilder (testName);
       var typeAssembler = new TypeAssembler (participants, proxyTypeModelFactory, subclassProxyBuilder);
