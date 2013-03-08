@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -138,31 +139,60 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result2, Is.SameAs (expression2));
     }
 
-    [Ignore]
     [Test]
-    public void VisitUnary_ToGenericParameter ()
+    public void VisitUnary_ToGenericParameter_FromValueType_FromGenericParameter ()
     {
-      var toType = ReflectionObjectMother.GetSomeGenericParameter();
+      var toGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
       var fromValueType = Expression.Default (ReflectionObjectMother.GetSomeValueType());
       var fromGenericParam = Expression.Default (ReflectionObjectMother.GetSomeOtherGenericParameter());
-      var expression1 = Expression.Convert (fromValueType, toType);
-      var expression2 = Expression.Convert (fromGenericParam, toType);
+      var expression1 = Expression.Convert (fromValueType, toGenericParameter);
+      var expression2 = Expression.Convert (fromGenericParam, toGenericParameter);
 
       var result1 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression1);
       var result2 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression2);
 
-      var exptecExpression1 = Expression.Convert (Expression.Convert (fromValueType, typeof (object)), toType);
-      var exptecExpression2 = Expression.Convert (Expression.Convert (fromGenericParam, typeof (object)), toType);
+      var exptecExpression1 = Expression.Convert (Expression.Convert (fromValueType, typeof (object)), toGenericParameter);
+      var exptecExpression2 = Expression.Convert (Expression.Convert (fromGenericParam, typeof (object)), toGenericParameter);
       ExpressionTreeComparer.CheckAreEqualTrees (exptecExpression1, result1);
       ExpressionTreeComparer.CheckAreEqualTrees (exptecExpression2, result2);
     }
 
-    [Ignore]
     [Test]
-    public void VisitUnary_NonConvertExpression_NonGenericParameter ()
+    public void VisitUnary_UnchangedCombinations ()
     {
-      var nonConvertExpression = Expression.Not (Expression.Constant (true));
-      
+      var toReferenceType = ReflectionObjectMother.GetSomeClassType();
+      var toValueType = ReflectionObjectMother.GetSomeValueType();
+      var toGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
+      var fromReferenceType = Expression.Default (ReflectionObjectMother.GetSomeClassType());
+      var fromGenericParameter = Expression.Default (ReflectionObjectMother.GetSomeGenericParameter());
+      var expression1 = Expression.Convert (fromGenericParameter, toReferenceType);
+      var expression2 = Expression.Convert (fromGenericParameter, toValueType);
+      var expression3 = Expression.Convert (fromReferenceType, toGenericParameter);
+
+      var result1 = _visitorPartialMock.Invoke ("VisitUnary", expression1);
+      var result2 = _visitorPartialMock.Invoke ("VisitUnary", expression2);
+      var result3 = _visitorPartialMock.Invoke ("VisitUnary", expression3);
+
+      Assert.That (result1, Is.SameAs (expression1));
+      Assert.That (result2, Is.SameAs (expression2));
+      Assert.That (result3, Is.SameAs (expression3));
+    }
+
+    [Test]
+    public void VisitUnary_NonConvertExpression ()
+    {
+      var expression = Expression.Not (Expression.Constant (true));
+
+      var result = _visitorPartialMock.Invoke ("VisitUnary", expression);
+
+      Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
+    public void VisitUnary_ConvertChecked_AssertFactoryBehavior ()
+    {
+      var expression = Expression.ConvertChecked (Expression.Constant (new object()), typeof (string));
+      Assert.That (expression.NodeType, Is.EqualTo (ExpressionType.Convert));
     }
 
     [Test]
@@ -172,7 +202,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var delegateType = typeof (Func<int, string, double>);
       var parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (string)) };
       var body = Expression.Call (
-          ExpressionTreeObjectMother.GetSomeThisExpression (_proxyType), new NonVirtualCallMethodInfoAdapter (method), parameters);
+          ExpressionTreeObjectMother.GetSomeThisExpression (_proxyType), new NonVirtualCallMethodInfoAdapter (method), parameters.Cast<Expression>());
       var expression = Expression.Lambda (delegateType, body, parameters);
 
       var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
@@ -183,7 +213,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           Expression.Block (
               new[] { thisClosure },
               Expression.Assign (thisClosure, new ThisExpression (_proxyType)),
-              Expression.Lambda (delegateType, Expression.Call (thisClosure, fakeTrampolineMethod, parameters), parameters));
+              Expression.Lambda (delegateType, Expression.Call (thisClosure, fakeTrampolineMethod, parameters.Cast<Expression>()), parameters));
       var fakeResultExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _visitorPartialMock
           .Expect (mock => mock.Visit (Arg<Expression>.Is.Anything))

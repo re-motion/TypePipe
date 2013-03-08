@@ -83,7 +83,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      
+      var toType = node.Type;
+      var fromType = node.Operand.Type;
+
+      if (node.NodeType == ExpressionType.Convert && toType.IsGenericParameter && (fromType.IsValueType || fromType.IsGenericParameter))
+      {
+        var toObjectConversion = Expression.Convert (node.Operand, typeof (object));
+        return Visit (Expression.Convert (toObjectConversion, toType));
+      }
 
       return base.VisitUnary (node);
     }
@@ -110,16 +117,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       };
 
       var newBody = node.Body.InlinedVisit (lambdaPreparer);
-      if (newBody == node.Body)
-        return base.VisitLambda (node);
+      if (newBody != node.Body)
+      {
+        var newLambda = node.Update (newBody, node.Parameters);
+        var block = Expression.Block (
+            new[] { thisClosureVariable },
+            Expression.Assign (thisClosureVariable, new ThisExpression (_context.ProxyType)),
+            newLambda);
 
-      var newLambda = node.Update (newBody, node.Parameters);
-      var block = Expression.Block (
-          new[] { thisClosureVariable },
-          Expression.Assign (thisClosureVariable, new ThisExpression (_context.ProxyType)),
-          newLambda);
+        return Visit (block);
+      }
 
-      return Visit (block);
+      return base.VisitLambda (node);
     }
 
     private object GetEmittableValue (object value)
