@@ -15,10 +15,10 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using Microsoft.Scripting.Ast;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
@@ -46,6 +46,20 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.DomainMethod (7, null));
       var target = GetSomeExpression (method.DeclaringType);
       return new NewDelegateExpression (delegateType, target, method);
+    }
+
+    public static BoxExpression GetSomeBoxExpression ()
+    {
+      var operand = GetSomeExpression();
+      var type = ReflectionObjectMother.GetSomeType();
+      return new BoxExpression (operand, type);
+    }
+
+    public static UnboxExpression GetSomeUnboxExpression ()
+    {
+      var operand = GetSomeExpression();
+      var type = ReflectionObjectMother.GetSomeType();
+      return new UnboxExpression (operand, type);
     }
 
     class DomainType

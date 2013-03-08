@@ -16,6 +16,7 @@
 // 
 using System;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 
 namespace Remotion.TypePipe.Expressions
 {
@@ -26,5 +27,9 @@ namespace Remotion.TypePipe.Expressions
   {
     Expression VisitThis (ThisExpression node);
     Expression VisitNewDelegate (NewDelegateExpression node);
+
+    // TODO review: Easy way to remove these methods from the code-generation-independent interface?
+    Expression VisitBox (BoxExpression node);
+    Expression VisitUnbox (UnboxExpression node);
   }
 }

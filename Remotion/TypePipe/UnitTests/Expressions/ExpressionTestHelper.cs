@@ -16,9 +16,11 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Expressions;
 using Rhino.Mocks;
 
@@ -51,11 +53,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     public static void CheckVisitChildren_NoChanges (Expression parentExpression, params Expression[] childExpressions)
-    {
-      CheckVisitChildren_NoChanges (parentExpression, (IEnumerable<Expression>) childExpressions);
-    }
-
-    public static void CheckVisitChildren_NoChanges (Expression parentExpression, IEnumerable<Expression> childExpressions)
     {
       var expressionVisitor = MockRepository.GenerateStrictMock<ExpressionVisitor>();
       foreach (var childExpression in childExpressions)

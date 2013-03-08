@@ -18,47 +18,59 @@ using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Expressions;
-using Rhino.Mocks;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
+using Remotion.TypePipe.UnitTests.Expressions;
 
-namespace Remotion.TypePipe.UnitTests.Expressions
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
   [TestFixture]
-  public class ThisExpressionTest
+  public class UnboxExpressionTest
   {
+    private Expression _operand;
     private Type _type;
 
-    private ThisExpression _expression;
+    private UnboxExpression _expression;
 
     [SetUp]
     public void SetUp ()
     {
+      _operand = ExpressionTreeObjectMother.GetSomeExpression();
       _type = ReflectionObjectMother.GetSomeType();
 
-      _expression = new ThisExpression (_type);
+      _expression = new UnboxExpression (_operand, _type);
     }
 
     [Test]
     public void Initialization ()
     {
+      Assert.That (_expression.Operand, Is.SameAs (_operand));
       Assert.That (_expression.Type, Is.SameAs (_type));
+    }
+
+    [Test]
+    public void Update_NoChanges ()
+    {
+      var result = _expression.Update (_operand);
+
+      Assert.That (result, Is.SameAs (_expression));
+    }
+
+    [Test]
+    public void Update_WithChanges ()
+    {
+      var newOperand = ExpressionTreeObjectMother.GetSomeExpression();
+
+      var result = _expression.Update (newOperand);
+
+      Assert.That (result, Is.TypeOf<UnboxExpression>());
+      Assert.That (result.Type, Is.SameAs (_expression.Type));
+      Assert.That (result.Operand, Is.SameAs ((newOperand)));
     }
 
     [Test]
     public void Accept ()
     {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitThis (_expression));
-    }
-
-    [Test]
-    public void VisitChildren ()
-    {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
-
-      // Expectation: No calls to expressionVisitorMock.
-      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
-
-      Assert.That (result, Is.SameAs (_expression));
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitUnbox (_expression));
     }
   }
 }

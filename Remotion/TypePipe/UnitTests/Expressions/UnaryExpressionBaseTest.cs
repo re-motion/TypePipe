@@ -14,51 +14,54 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Rhino.Mocks;
+using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
-  public class ThisExpressionTest
+  public class UnaryExpressionBaseTest
   {
+    private Expression _operand;
     private Type _type;
 
-    private ThisExpression _expression;
+    private UnaryExpressionBase _expressionPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
+      _operand = ExpressionTreeObjectMother.GetSomeExpression();
       _type = ReflectionObjectMother.GetSomeType();
 
-      _expression = new ThisExpression (_type);
+      _expressionPartialMock = MockRepository.GeneratePartialMock<UnaryExpressionBase> (_operand, _type);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expression.Type, Is.SameAs (_type));
+      Assert.That (_expressionPartialMock.Operand, Is.SameAs (_operand));
+      Assert.That (_expressionPartialMock.Type, Is.SameAs (_type));
     }
 
     [Test]
-    public void Accept ()
-    {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitThis (_expression));
-    }
-
-    [Test]
-    public void VisitChildren ()
+    public void VisitChildren_WithChanges ()
     {
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
+      var fakeOperand = ExpressionTreeObjectMother.GetSomeExpression();
+      var fakeResult = MockRepository.GenerateStub<UnaryExpressionBase> (_operand, _type);
+      expressionVisitorMock.Expect (mock => mock.Visit (_operand)).Return (fakeOperand);
+      _expressionPartialMock.Expect (mock => mock.Update (fakeOperand)).Return (fakeResult);
 
-      // Expectation: No calls to expressionVisitorMock.
-      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
+      var result = _expressionPartialMock.Invoke ("VisitChildren", expressionVisitorMock);
 
-      Assert.That (result, Is.SameAs (_expression));
+      expressionVisitorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeResult));
     }
   }
 }

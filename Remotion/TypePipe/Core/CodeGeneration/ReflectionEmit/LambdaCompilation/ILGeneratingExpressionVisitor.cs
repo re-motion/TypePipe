@@ -18,6 +18,7 @@ using System;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
@@ -74,6 +75,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _ilGenerator.Emit (OpCodes.Newobj, constructorInfo);
 
       return node;
+    }
+
+    public Expression VisitBox (BoxExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      throw new NotImplementedException();
+    }
+
+    public Expression VisitUnbox (UnboxExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      throw new NotImplementedException();
     }
   }
 }

@@ -68,6 +68,9 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxExpressionTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpressionTest.cs" />
+    <Compile Include="Expressions\UnaryExpressionBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />
@@ -98,12 +101,10 @@
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
-    <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
-    <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />

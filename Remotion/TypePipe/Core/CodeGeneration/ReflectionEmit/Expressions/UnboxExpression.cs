@@ -26,28 +26,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// <summary>
   /// Represents an <see cref="OpCodes.Unbox_Any"/> operation.
   /// </summary>
-  public class UnboxExpression : PrimitiveTypePipeExpressionBase
+  public class UnboxExpression : UnaryExpressionBase
   {
-    private readonly Expression _operand;
-
     public UnboxExpression (Expression operand, Type toType)
-        : base (toType)
+        : base (operand, toType)
+    {
+    }
+
+    public override UnaryExpressionBase Update (Expression operand)
     {
       ArgumentUtility.CheckNotNull ("operand", operand);
 
-      _operand = operand;
+      if (operand == Operand)
+        return this;
+
+      return new UnboxExpression (operand, Type);
     }
-
-
 
     public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
     {
-      return this;
-    }
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
 
-    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
-    {
-      return this;
+      return visitor.VisitUnbox (this);
     }
   }
 }
