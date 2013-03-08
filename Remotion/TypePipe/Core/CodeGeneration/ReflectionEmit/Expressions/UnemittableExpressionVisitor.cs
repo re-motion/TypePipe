@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
@@ -168,15 +169,25 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     private Expression GetAdaptedConvertExpression (UnaryExpression node)
     {
+      var operand = node.Operand;
       var toType = node.Type;
-      var fromType = node.Operand.Type;
+      var fromType = operand.Type;
 
       if (toType.IsGenericParameter && fromType.IsGenericParameter)
-        return Expression.Convert (Expression.Convert (node.Operand, typeof (object)), toType);
+        //return Expression.Convert (Expression.Convert (operand, typeof (object)), toType);
+        // TODO Review
+        // TODO: Adapt test name
+        return new UnboxExpression (new BoxExpression (operand, typeof (object)), toType);
+
       if (toType.IsGenericParameter && fromType.IsClass)
-        return new UnboxExpression (node.Operand, toType);
+        return new UnboxExpression (operand, toType);
+      if (toType.IsGenericParameter && fromType.IsValueType)
+        Debug.Fail ("Invalid conversion: From value type to generic parameter.");
+
       if (toType.IsClass && fromType.IsGenericParameter)
-        return new BoxExpression (node.Operand, toType);
+        return new BoxExpression (operand, toType);
+      if (toType.IsValueType && fromType.IsGenericParameter)
+        return new UnboxExpression (operand, toType);
 
       return node;
     }
