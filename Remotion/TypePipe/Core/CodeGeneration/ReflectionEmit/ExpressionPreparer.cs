@@ -18,6 +18,7 @@
 using System;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.Utilities;
 

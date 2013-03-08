@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Linq;
 using Microsoft.Scripting.Ast;
@@ -21,6 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -30,7 +32,7 @@ using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
   [TestFixture]
   public class UnemittableExpressionVisitorTest
@@ -141,43 +143,51 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     [Ignore]
     [Test]
-    public void VisitUnary_ToGenericParameter_FromValueType_FromGenericParameter ()
+    public void VisitUnary_Convert_ToGenericParameter_FromGenericParameter_InsertsObjectCast ()
     {
-      var toGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
-      var fromValueType = Expression.Default (ReflectionObjectMother.GetSomeValueType());
-      var fromGenericParam = Expression.Default (ReflectionObjectMother.GetSomeOtherGenericParameter());
-      var expression1 = Expression.Convert (fromValueType, toGenericParameter);
-      var expression2 = Expression.Convert (fromGenericParam, toGenericParameter);
+      var fromGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
+      var toGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { fromGenericParameter });
+      var expression = Expression.Convert (Expression.Default (fromGenericParameter), toGenericParameter);
 
-      var result1 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression1);
-      var result2 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression2);
+      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
 
-      var exptecExpression1 = Expression.Convert (Expression.Convert (fromValueType, typeof (object)), toGenericParameter);
-      var exptecExpression2 = Expression.Convert (Expression.Convert (fromGenericParam, typeof (object)), toGenericParameter);
-      ExpressionTreeComparer.CheckAreEqualTrees (exptecExpression1, result1);
-      ExpressionTreeComparer.CheckAreEqualTrees (exptecExpression2, result2);
+      var expectedExpression = Expression.Convert (Expression.Convert (expression.Operand, typeof (object)), toGenericParameter);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 
-    [Ignore]
     [Test]
-    public void VisitUnary_UnchangedCombinations ()
+    public void VisitUnary_Convert_ToGenericParameter_FromReferenceType_ChangesToUnbox ()
+    {
+      var fromReferenceType = ReflectionObjectMother.GetSomeClassType();
+      var toGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { fromReferenceType });
+      var expression = Expression.Convert (Expression.Default (fromReferenceType), toGenericParameter);
+
+      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
+
+      var expectedExpression = new UnboxExpression (expression.Operand, toGenericParameter);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
+    }
+
+    [Test]
+    public void VisitUnary_Convert_ToReferenceType_FromGenericParameter_ChangesToBoxAndCast ()
     {
       var toReferenceType = ReflectionObjectMother.GetSomeClassType();
-      var toValueType = ReflectionObjectMother.GetSomeValueType();
-      var toGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
-      var fromReferenceType = Expression.Default (ReflectionObjectMother.GetSomeClassType());
-      var fromGenericParameter = Expression.Default (ReflectionObjectMother.GetSomeGenericParameter());
-      var expression1 = Expression.Convert (fromGenericParameter, toReferenceType);
-      var expression2 = Expression.Convert (fromGenericParameter, toValueType);
-      var expression3 = Expression.Convert (fromReferenceType, toGenericParameter);
+      var fromGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { toReferenceType });
+      var expression = Expression.Convert (Expression.Default (fromGenericParameter), toReferenceType);
 
-      var result1 = _visitorPartialMock.Invoke ("VisitUnary", expression1);
-      var result2 = _visitorPartialMock.Invoke ("VisitUnary", expression2);
-      var result3 = _visitorPartialMock.Invoke ("VisitUnary", expression3);
+      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
 
-      Assert.That (result1, Is.SameAs (expression1));
-      Assert.That (result2, Is.SameAs (expression2));
-      Assert.That (result3, Is.SameAs (expression3));
+      var expectedExpression = new BoxExpression (expression.Operand, toReferenceType);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
+    }
+
+    [Test]
+    public void VisitUnary_Convert_Unchanged ()
+    {
+      CheckVisitUnaryUnchanged (typeof (string), typeof (object));
+      CheckVisitUnaryUnchanged (typeof (object), typeof (int));
+      CheckVisitUnaryUnchanged (typeof (int), typeof (object));
+      CheckVisitUnaryUnchanged (typeof (int), typeof (long));
     }
 
     [Test]
@@ -254,6 +264,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constantExpression = (ConstantExpression) result;
       Assert.That (constantExpression.Value, Is.SameAs (emittableValue));
       Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
+    }
+
+    private void CheckVisitUnaryUnchanged (Type toType, Type fromType)
+    {
+      var expression = Expression.Convert (Expression.Default (fromType), toType);
+
+      var result = _visitorPartialMock.Invoke ("VisitUnary", expression);
+
+      Assert.That (result, Is.SameAs (expression));
     }
 
     public class DomainType

@@ -82,7 +82,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContextTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnemittableExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyCreatorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />

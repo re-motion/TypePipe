@@ -79,6 +79,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
@@ -122,7 +123,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecorator.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\UnemittableExpressionVisitor.cs">
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnemittableExpressionVisitor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactory.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
     <Compile Include="Dlr\Ast\LambdaExpression.TypePipe.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxExpression.cs" />
     <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />

@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -24,7 +25,7 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 {
   /// <summary>
   /// Replaces occurences of <see cref="ConstantExpression"/> that contain mutable members and other expressions that can not be emitted by 
@@ -83,13 +84,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      var toType = node.Type;
-      var fromType = node.Operand.Type;
-
-      if (node.NodeType == ExpressionType.Convert && toType.IsGenericParameter && (fromType.IsValueType || fromType.IsGenericParameter))
+      if (node.NodeType == ExpressionType.Convert)
       {
-        var toObjectConversion = Expression.Convert (node.Operand, typeof (object));
-        return Visit (Expression.Convert (toObjectConversion, toType));
+        var adaptedConvert = GetAdaptedConvertExpression (node);
+        if (adaptedConvert != node)
+          return Visit (adaptedConvert);
       }
 
       return base.VisitUnary (node);
@@ -165,6 +164,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
               node.Type.Name);
 
       return new NotSupportedException (message);
+    }
+
+    private Expression GetAdaptedConvertExpression (UnaryExpression node)
+    {
+      var toType = node.Type;
+      var fromType = node.Operand.Type;
+
+      if (toType.IsGenericParameter && fromType.IsGenericParameter)
+        return Expression.Convert (Expression.Convert (node.Operand, typeof (object)), toType);
+      if (toType.IsGenericParameter && fromType.IsClass)
+        return new UnboxExpression (node.Operand, toType);
+      if (toType.IsClass && fromType.IsGenericParameter)
+        return new BoxExpression (node.Operand, toType);
+
+      return node;
     }
   }
 }
