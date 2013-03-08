@@ -248,9 +248,6 @@ namespace System.Dynamic.Utils {
             if (source.IsInterface || dest.IsInterface) {
                 return true;
             }
-            // Generic parameter conversion
-            if (source.IsGenericParameter || dest.IsGenericParameter)
-                return true;
             // Variant delegate conversion
             if (IsLegalExplicitVariantDelegateConversion(source, dest))
                 return true;
