@@ -23,7 +23,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
-using Is = NUnit.Framework.Is;
 using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -114,6 +113,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       _visitor.VisitNewDelegate (expression);
 
       _ilGeneratorMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void VisitBox ()
+    {
+      var expression = ExpressionTreeObjectMother.GetSomeBoxExpression();
+      Assert.That (expression.Type, Is.Not.SameAs (expression.Operand.Type));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Box, expression.Operand.Type));
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Castclass, expression.Type));
+
+      var result = _visitor.VisitBox (expression);
+
+      _ilGeneratorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
+    public void VisitUnbox ()
+    {
+      var expression = ExpressionTreeObjectMother.GetSomeUnboxExpression();
+      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Unbox_Any, expression.Type));
+
+      var result = _visitor.VisitUnbox (expression);
+
+      _ilGeneratorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (expression));
     }
 
     class BaseType

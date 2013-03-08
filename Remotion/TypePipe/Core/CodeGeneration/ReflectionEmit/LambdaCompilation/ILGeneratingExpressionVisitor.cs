@@ -50,6 +50,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("node", node);
 
       _ilGenerator.Emit (OpCodes.Ldarg_0);
+
       return node;
     }
 
@@ -81,14 +82,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      throw new NotImplementedException();
+      _ilGenerator.Emit (OpCodes.Box, node.Operand.Type);
+      _ilGenerator.Emit (OpCodes.Castclass, node.Type);
+
+      return node;
     }
 
     public Expression VisitUnbox (UnboxExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      throw new NotImplementedException();
+      _ilGenerator.Emit (OpCodes.Unbox_Any, node.Type);
+
+      return node;
     }
   }
 }
