@@ -82,6 +82,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
+      _childExpressionEmitter (node.Operand);
       _ilGenerator.Emit (OpCodes.Box, node.Operand.Type);
       _ilGenerator.Emit (OpCodes.Castclass, node.Type);
 
@@ -92,6 +93,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
+      _childExpressionEmitter (node.Operand);
       _ilGenerator.Emit (OpCodes.Unbox_Any, node.Type);
 
       return node;

@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _visitor.VisitNewDelegate (expression);
 
-      _ilGeneratorMock.VerifyAllExpectations ();
+      _ilGeneratorMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -112,7 +112,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
 
       _visitor.VisitNewDelegate (expression);
 
-      _ilGeneratorMock.VerifyAllExpectations ();
+      _childExpressionEmitterMock.VerifyAllExpectations();
+      _ilGeneratorMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -120,11 +121,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     {
       var expression = ExpressionTreeObjectMother.GetSomeBoxExpression();
       Assert.That (expression.Type, Is.Not.SameAs (expression.Operand.Type));
+      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Operand));
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Box, expression.Operand.Type));
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Castclass, expression.Type));
 
       var result = _visitor.VisitBox (expression);
 
+      _childExpressionEmitterMock.VerifyAllExpectations();
       _ilGeneratorMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expression));
     }
@@ -133,10 +136,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void VisitUnbox ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeUnboxExpression();
+      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Operand));
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Unbox_Any, expression.Type));
 
       var result = _visitor.VisitUnbox (expression);
 
+      _childExpressionEmitterMock.VerifyAllExpectations();
       _ilGeneratorMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expression));
     }
