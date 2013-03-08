@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                }));
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      instance.GenericMethod<A, B, int>();
+      Assert.That (() => instance.GenericMethod<A, B, int>(), Throws.Nothing);
     }
 
     private Expression CreateAssignment (Type toType, Type fromType)
