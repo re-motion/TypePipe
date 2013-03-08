@@ -108,6 +108,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void IsAssignableFromFast_GenericParameterConstraints ()
+    {
+      var genericParameter1 = MutableGenericParameterObjectMother.Create (constraints: new[] { typeof (IDisposable) });
+      var genericParameter2 = MutableGenericParameterObjectMother.Create (constraints: new[] { typeof (TypeExtensionsTest) });
+      var genericParameter3 = MutableGenericParameterObjectMother.Create (constraints: new[] { typeof (IDisposable) });
+
+      Assert.That (typeof (object).IsAssignableFromFast (genericParameter1), Is.True);
+      Assert.That (typeof (TypeExtensionsTest).IsAssignableFromFast (genericParameter1), Is.False);
+      Assert.That (typeof (TypeExtensionsTest).IsAssignableFromFast (genericParameter2), Is.True);
+
+      Assert.That (typeof (IDisposable).IsAssignableFromFast (genericParameter1), Is.True);
+      Assert.That (typeof (IDisposable).IsAssignableFromFast (genericParameter2), Is.False);
+
+      Assert.That (genericParameter1.IsAssignableFromFast (typeof (object)), Is.False);
+      Assert.That (genericParameter1.IsAssignableFromFast (typeof (IDisposable)), Is.False);
+      Assert.That (genericParameter1.IsAssignableFromFast (genericParameter1), Is.True);
+      Assert.That (genericParameter1.IsAssignableFromFast (genericParameter2), Is.False);
+      Assert.That (genericParameter1.IsAssignableFromFast (genericParameter3), Is.False);
+    }
+
+    [Test]
     public void IsAssignableFromFast_NullFromType ()
     {
       Assert.That (typeof (object).IsAssignableFromFast (null), Is.False);

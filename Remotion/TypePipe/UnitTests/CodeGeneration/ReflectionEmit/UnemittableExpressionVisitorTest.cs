@@ -139,6 +139,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result2, Is.SameAs (expression2));
     }
 
+    [Ignore]
     [Test]
     public void VisitUnary_ToGenericParameter_FromValueType_FromGenericParameter ()
     {
@@ -157,6 +158,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       ExpressionTreeComparer.CheckAreEqualTrees (exptecExpression2, result2);
     }
 
+    [Ignore]
     [Test]
     public void VisitUnary_UnchangedCombinations ()
     {
