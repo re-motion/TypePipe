@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
-    public void VisitUnary_Convert_ToGenericParameter_FromGenericParameter_InsertsObjectCast ()
+    public void VisitUnary_Convert_ToGenericParameter_FromGenericParameter_BoxThenUnbox ()
     {
       var fromGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
       var toGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { fromGenericParameter });
@@ -164,6 +164,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
 
       var expectedExpression = new UnboxExpression (expression.Operand, toGenericParameter);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
+    }
+
+    [Test]
+    public void VisitUnary_Convert_ToGenericParameter_FromValueType_BoxThenUnbox ()
+    {
+      var fromValueType = typeof (ValueTypeImplementingIDisposable);
+      var toGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { fromValueType });
+      var expression = Expression.Convert (Expression.Default (fromValueType), toGenericParameter);
+
+      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
+
+      var expectedExpression = new UnboxExpression (new BoxExpression (expression.Operand, typeof (object)), toGenericParameter);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 
@@ -291,6 +304,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     {
       public double Method (int p1, string p2) { Dev.Null = p1; Dev.Null = p2; return 7.7; }
       public double TrampolineMethod (int p1, string p2) { Dev.Null = p1; Dev.Null = p2; return 0; }
+    }
+
+    public struct ValueTypeImplementingIDisposable : IDisposable
+    {
+      public void Dispose () {}
     }
   }
 }

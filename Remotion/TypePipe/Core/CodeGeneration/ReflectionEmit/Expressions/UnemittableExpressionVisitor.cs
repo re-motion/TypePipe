@@ -182,7 +182,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       if (toType.IsGenericParameter && fromType.IsClass)
         return new UnboxExpression (operand, toType);
       if (toType.IsGenericParameter && fromType.IsValueType)
-        Debug.Fail ("Invalid conversion: From value type to generic parameter.");
+        return new UnboxExpression (new BoxExpression (operand, typeof (object)), toType);
 
       if (toType.IsClass && fromType.IsGenericParameter)
         return new BoxExpression (operand, toType);
