@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var expression = Expression.Constant ("emittable");
 
-      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+      var result = _visitorPartialMock.Invoke ("VisitConstant", expression);
 
       Assert.That (result, Is.SameAs (expression));
     }
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expression = Expression.Constant (proxyType);
       _emittableOperandProviderMock.Stub (stub => stub.GetEmittableType (proxyType)).Return (typeof (int));
 
-      ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+      _visitorPartialMock.Invoke ("VisitConstant", expression);
     }
 
     [Test]
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var expression = Expression.Constant (null);
 
-      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+      var result = _visitorPartialMock.Invoke ("VisitConstant", expression);
 
       Assert.That (result, Is.SameAs (expression));
     }
@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var defaultConstructor = new GenericParameterDefaultConstructor (genericParameter);
       var expression = Expression.New (defaultConstructor);
 
-      var result = ExpressionVisitorTestHelper.CallVisitNew (_visitorPartialMock, expression);
+      var result = _visitorPartialMock.Invoke<Expression> ("VisitNew", expression);
 
       Assert.That (result.Type, Is.SameAs (genericParameter));
       Assert.That (result, Is.InstanceOf<MethodCallExpression>());
@@ -131,8 +131,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expression1 = Expression.New (typeof (object));
       var expression2 = Expression.New (typeof (int));
 
-      var result1 = ExpressionVisitorTestHelper.CallVisitNew (_visitorPartialMock, expression1);
-      var result2 = ExpressionVisitorTestHelper.CallVisitNew (_visitorPartialMock, expression2);
+      var result1 = _visitorPartialMock.Invoke ("VisitNew", expression1);
+      var result2 = _visitorPartialMock.Invoke ("VisitNew", expression2);
 
       Assert.That (result1, Is.SameAs (expression1));
       Assert.That (result2, Is.SameAs (expression2));
@@ -190,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .WhenCalled (mi => ExpressionTreeComparer.CheckAreEqualTrees (expectedTree, (Expression) mi.Arguments[0]))
           .Return (fakeResultExpression);
 
-      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+      var result = _visitorPartialMock.Invoke ("VisitLambda", expression);
 
       Assert.That (result, Is.SameAs (fakeResultExpression));
     }
@@ -202,7 +202,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var parameter = Expression.Parameter (typeof (int));
       var expression = Expression.Lambda<Action<int>> (body, parameter);
 
-      var result = ExpressionVisitorTestHelper.CallVisitLambda (_visitorPartialMock, expression);
+      var result = _visitorPartialMock.Invoke ("VisitLambda", expression);
 
       Assert.That (result, Is.SameAs (expression));
     }
@@ -215,7 +215,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _emittableOperandProviderMock.Expect (mock => getEmittableOperandFunc (mock, emittableValue)).Return (emittableValue);
       _emittableOperandProviderMock.Replay();
 
-      var result = ExpressionVisitorTestHelper.CallVisitConstant (_visitorPartialMock, expression);
+      var result = _visitorPartialMock.Invoke ("VisitConstant", expression);
 
       _emittableOperandProviderMock.VerifyAllExpectations();
       Assert.That (result, Is.AssignableTo<ConstantExpression>());

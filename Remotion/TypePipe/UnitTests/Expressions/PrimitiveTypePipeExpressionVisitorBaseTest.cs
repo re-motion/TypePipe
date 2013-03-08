@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 using Rhino.Mocks;
 using Rhino.Mocks.Interfaces;
+using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -51,12 +52,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var fakeResult = ExpressionTreeObjectMother.GetSomeExpression();
 
       var visitorBaseMock = MockRepository.GenerateStrictMock<PrimitiveTypePipeExpressionVisitorBase>();
-      visitorBaseMock
-          .Expect (expectedVisitMethod)
-          .CallOriginalMethod (OriginalCallOptions.CreateExpectation);
-      visitorBaseMock
-          .Expect (mock => ExpressionVisitorTestHelper.CallVisitExtension(mock, expression))
-          .Return (fakeResult);
+      visitorBaseMock.Expect (expectedVisitMethod).CallOriginalMethod (OriginalCallOptions.CreateExpectation);
+      visitorBaseMock.Expect (mock => mock.Invoke ("VisitExtension", expression)).Return (fakeResult);
 
       var result = invokedMethod (visitorBaseMock);
 
