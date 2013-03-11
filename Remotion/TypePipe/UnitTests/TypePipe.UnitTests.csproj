@@ -77,7 +77,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingExpressionVisitorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\CodeGenerationExpressionEmitterTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />

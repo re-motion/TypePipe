@@ -112,7 +112,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\IILGeneratorFactory.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratingExpressionVisitor.cs">
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\CodeGenerationExpressionEmitter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecorator.cs" />

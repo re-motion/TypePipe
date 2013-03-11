@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Prepares method (and constructor) bodies so that code can be generated for them by replacing all nodes not
-  /// understood by <see cref="LambdaCompiler"/> and <see cref="ILGeneratingExpressionVisitor"/>.
+  /// understood by <see cref="LambdaCompiler"/> and <see cref="CodeGenerationExpressionEmitter"/>.
   /// </summary>
   public class ExpressionPreparer : IExpressionPreparer
   {

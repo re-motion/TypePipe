@@ -30,13 +30,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// <remarks>
   /// This class participates in code generation via <see cref="LambdaCompiler.EmitPrimitiveTypePipeExpression"/> in the <see cref="LambdaCompiler"/>.
   /// </remarks>
-  public class ILGeneratingExpressionVisitor : IPrimitiveTypePipeExpressionVisitor
+  public class CodeGenerationExpressionEmitter : IPrimitiveTypePipeExpressionVisitor
   {
     private readonly IILGenerator _ilGenerator;
     private readonly Action<Expression> _childExpressionEmitter;
 
     [CLSCompliant (false)]
-    public ILGeneratingExpressionVisitor (IILGenerator ilGenerator, Action<Expression> childExpressionEmitter)
+    public CodeGenerationExpressionEmitter (IILGenerator ilGenerator, Action<Expression> childExpressionEmitter)
     {
       ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
       ArgumentUtility.CheckNotNull ("childExpressionEmitter", childExpressionEmitter);

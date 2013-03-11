@@ -772,7 +772,7 @@ namespace System.Linq.Expressions.Compiler {
         private void EmitPrimitiveTypePipeExpression (Expression expr, CompilationFlags flags)
         {
           var typePipeExpression = (Remotion.TypePipe.Expressions.IPrimitiveTypePipeExpression) expr;
-          var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.ILGeneratingExpressionVisitor (
+          var visitor = new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.CodeGenerationExpressionEmitter (
               _ilg, childExpression => EmitExpression (childExpression, flags));
 
           typePipeExpression.Accept (visitor);
