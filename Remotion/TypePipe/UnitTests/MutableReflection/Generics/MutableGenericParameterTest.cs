@@ -137,6 +137,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    public void SetGenericParameterConstraints_ValueTypeBaseConstraint ()
+    {
+      var baseConstraint = ReflectionObjectMother.GetSomeValueType();
+
+      _parameter.SetGenericParameterConstraints (new[] { baseConstraint });
+
+      Assert.That (_parameter.BaseType, Is.SameAs (baseConstraint));
+      Assert.That (_parameter.GetInterfaces(), Is.EqualTo (baseConstraint.GetInterfaces()));
+      Assert.That (_parameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { baseConstraint }));
+    }
+
+    [Test]
     public void SetGenericParameterConstraints_NoBaseConstraint ()
     {
       _parameter.SetGenericParameterConstraints (Type.EmptyTypes);

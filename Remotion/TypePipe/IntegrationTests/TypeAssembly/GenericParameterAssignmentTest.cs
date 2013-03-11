@@ -20,11 +20,9 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using System.Linq;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -105,7 +103,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                  var genFromRef4 = new { ToType = tRef, FromType = typeof (C) };
                  var genFromRef5 = new { ToType = tRef, FromType = typeof (D) };
 
-                 SetValueTypeConstraint (ctx.GenericParameters[2], typeof (int));
                  var genFromVal1 = new { ToType = ctx.GenericParameters[2], FromType = typeof (int), FromOperand = (Expression) Expression.Constant (7) };
                  var genfromVal2 = new { ToType = ctx.GenericParameters[2], FromType = typeof (string) };
                  
@@ -154,11 +151,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private Expression CreateConvertAssignment (ParameterExpression variable, Type fromType, Expression fromOperand)
     {
       return Expression.Assign (variable, Expression.Convert (fromOperand, variable.Type));
-    }
-
-    private static void SetValueTypeConstraint (Type genericParameter, Type valueTypeConstraint)
-    {
-      genericParameter.As<MutableGenericParameter>().SetGenericParameterConstraints (new[] { valueTypeConstraint });
     }
 
     private void CheckExceptionIsThrown (Type toType, Type fromType)
