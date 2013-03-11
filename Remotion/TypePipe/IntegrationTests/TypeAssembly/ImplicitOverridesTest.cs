@@ -197,7 +197,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.OverridableGenericMethod ("test"), Is.EqualTo ("BaseType test overridden"));
     }
 
-    [Ignore("TODO 5444")]
     [Test]
     public void OverrideGenericMethod_OverrideWithWeakerConstraints_NoBaseCall ()
     {

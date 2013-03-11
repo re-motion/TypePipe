@@ -29,7 +29,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   public class ModifyGenericMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    [Ignore ("TODO 4774")]
     public void ExistingMethodWithGenericParameters ()
     {
       var baseMethod = GetDeclaredMethod (typeof (DomainType), "GenericMethod");
@@ -40,14 +39,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var genericMethodOverride = proxyType.GetOrAddOverride (baseMethod);
             Assert.That (genericMethodOverride.IsGenericMethod, Is.True);
             Assert.That (genericMethodOverride.IsGenericMethodDefinition, Is.True);
+
             var genericParameters = genericMethodOverride.GetGenericArguments();
             Assert.That (genericParameters.Select (t => t.Name), Is.EqualTo (new[] { "TKey", "TValue" }));
             var keyParameter = genericParameters[0];
             var valueParameter = genericParameters[1];
+            Assert.That (keyParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
             var keyParameterConstraint = keyParameter.GetGenericParameterConstraints().Single();
             Assert.That (keyParameterConstraint.GetGenericTypeDefinition(), Is.SameAs (typeof (IComparable<>)));
             Assert.That (keyParameterConstraint.GetGenericArguments().Single(), Is.SameAs (keyParameter));
             Assert.That (valueParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.ReferenceTypeConstraint));
+            Assert.That (valueParameter.GetGenericParameterConstraints(), Is.Empty);
 
             genericMethodOverride.SetBody (
                 ctx =>
