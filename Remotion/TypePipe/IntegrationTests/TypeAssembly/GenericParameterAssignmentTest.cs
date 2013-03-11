@@ -20,7 +20,6 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using System.Linq;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -30,37 +29,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class GenericParameterAssignmentTest : TypeAssemblerIntegrationTestBase
   {
-    [Test]
-    public void CreateAssignment ()
-    {
-      SkipSavingAndPeVerification();
-      var genericParameter = ReflectionObjectMother.GetSomeGenericParameter();
-
-      // TODO rework this test.. there are a lot more options :/!!!
-
-      // RefType <- x
-      Assert.That (() => CreateAssignment (typeof (object), typeof (string)), Throws.Nothing);
-      Assert.That (() => CreateAssignment (typeof (IComparable), typeof (string)), Throws.Nothing);
-
-      Assert.That (() => CreateAssignment (typeof (object), typeof (object)), Throws.Nothing);
-      Assert.That (() => CreateAssignment (typeof (object), typeof (int)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (typeof (object), genericParameter), Throws.ArgumentException);
-
-      Assert.That (() => CreateAssignment (typeof (string), typeof (object)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (typeof (string), typeof (int)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (typeof (string), genericParameter), Throws.ArgumentException);
-
-      // ValueType <- x
-      Assert.That (() => CreateAssignment (typeof (int), typeof (object)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (typeof (int), typeof (int)), Throws.Nothing);
-      Assert.That (() => CreateAssignment (typeof (int), genericParameter), Throws.ArgumentException);
-
-      // Generic <- x
-      Assert.That (() => CreateAssignment (genericParameter, typeof (object)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (genericParameter, typeof (int)), Throws.ArgumentException);
-      Assert.That (() => CreateAssignment (genericParameter, genericParameter), Throws.Nothing);
-    }
-
     [Test]
     public void Assign_LocalVariable ()
     {
@@ -138,11 +106,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       // instance.GenericMethod<C, D, int> (null, null, 7);
       Assert.That (() => method.Invoke (instance, new object[] { null, null, 7 }), Throws.Nothing);
-    }
-
-    private Expression CreateAssignment (Type toType, Type fromType)
-    {
-      return Expression.Assign (Expression.Variable (toType), Expression.Default (fromType));
     }
 
     private Expression CreateConvertAssignment (ParameterExpression variable, Type fromType, Expression fromOperand)

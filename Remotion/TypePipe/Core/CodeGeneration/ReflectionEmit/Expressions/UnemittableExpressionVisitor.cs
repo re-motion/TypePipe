@@ -175,6 +175,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       if (Equals (toType, fromType))
         return node;
 
+      // Note that generic parameters can be instantiated with both - a refernce type or a value type.
+      // The issue with this is that the IL instructions dealing with converting/boxing/unboxing are not symmetric.
+      // The IL instruction <c>box</c> always leaves a reference type on the stack (box for value type, nop for reference types).
+      // The outcome of <c>unbox.any</c>, however, depends on the type argument, which may be a generic parameter.
+      // This means that we cannot determine the type of the value left on the evaluation stack at compile time.
+      // Therefore, we box the value first (guaranteed boxed value) and immediatly unbox it again (guaranteed to work if cast is valid).
+      // This is roughly equivalent why the (object) cast is necessary in the following C# snippets:
+      //   T Method<T>() { return (T) (object) 7; }
+      //   int Method<T>(T t) { return (int) (object) t; }
+
       if (toType.IsGenericParameter && fromType.IsGenericParameter)
         return BoxThenUnbox (operand, toType);
       if (toType.IsGenericParameter && fromType.IsClass)
