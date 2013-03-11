@@ -26,7 +26,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class DefaultExpressionTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore]
     [Test]
     public void GenericParameters ()
     {
