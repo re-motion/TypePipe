@@ -176,21 +176,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
         return node;
 
       if (toType.IsGenericParameter && fromType.IsGenericParameter)
-        //return Expression.Convert (Expression.Convert (operand, typeof (object)), toType);
-        // TODO Review
-        return new UnboxExpression (new BoxExpression (operand, typeof (object)), toType);
-
+        return BoxThenUnbox (operand, toType);
       if (toType.IsGenericParameter && fromType.IsClass)
         return new UnboxExpression (operand, toType);
       if (toType.IsGenericParameter && fromType.IsValueType)
-        return new UnboxExpression (new BoxExpression (operand, typeof (object)), toType);
-
+        return BoxThenUnbox (operand, toType);
       if (toType.IsClass && fromType.IsGenericParameter)
         return new BoxExpression (operand, toType);
       if (toType.IsValueType && fromType.IsGenericParameter)
-        return new UnboxExpression (operand, toType);
+        return BoxThenUnbox (operand, toType);
 
       return node;
+    }
+
+    private UnboxExpression BoxThenUnbox (Expression operand, Type toType)
+    {
+      return new UnboxExpression (new BoxExpression (operand, typeof (object)), toType);
     }
   }
 }

@@ -181,7 +181,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
-    public void VisitUnary_Convert_ToReferenceType_FromGenericParameter_BoxAndCast ()
+    public void VisitUnary_Convert_ToReferenceType_FromGenericParameter_Box ()
     {
       var toReferenceType = ReflectionObjectMother.GetSomeClassType();
       var fromGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { toReferenceType });
@@ -194,7 +194,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
-    public void VisitUnary_Convert_ToValueType_FromGenericParameter_UnboxAny ()
+    public void VisitUnary_Convert_ToValueType_FromGenericParameter_BoxThenUnbox ()
     {
       var toValueType = ReflectionObjectMother.GetSomeValueType();
       var fromGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { toValueType });
@@ -202,7 +202,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 
       var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
 
-      var expectedExpression = new UnboxExpression (expression.Operand, toValueType);
+      var expectedExpression = new UnboxExpression (new BoxExpression (expression.Operand, typeof (object)), toValueType);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 

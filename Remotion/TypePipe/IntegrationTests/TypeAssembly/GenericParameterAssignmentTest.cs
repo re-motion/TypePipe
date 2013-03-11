@@ -64,13 +64,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void Assign_LocalVariable ()
     {
-      SkipDeletion();
-
-      //public void GenericMethod<TRef, TOtherRef, TValue> (TRef tref, TOtherRef tOtherRef, TValue tValue)
-      //    where TRef : B
-      //    where TOtherRef : TRef
-      //    where TValue : int // Not possible in C#.
-      //{} 
+      // public void GenericMethod<TRef, TOtherRef, TValue> (TRef tref, TOtherRef tOtherRef, TValue tValue)
+      //     where TRef : B
+      //     where TOtherRef : TRef
+      //     where TValue : int // Not possible in C#.
+      // {} 
 
       var type = AssembleType<DomainType> (
           p =>
@@ -91,54 +89,53 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                       new ParameterDeclaration (ctx.GenericParameters[1], "tOtherRef"),
                       new ParameterDeclaration (ctx.GenericParameters[2], "tValue")
                   },
-           
-               bodyProvider: ctx =>
-               {
-                 var tRef = ctx.GenericParameters[0];
-                 var pRef = (Expression) ctx.Parameters[0];
+              bodyProvider: ctx =>
+              {
+                var tRef = ctx.GenericParameters[0];
+                var pRef = (Expression) ctx.Parameters[0];
 
-                 var genFromRef1 = new { ToType = tRef, FromType = typeof (object), FromOperand = (Expression) Expression.Default (typeof (object)) };
-                 var genFromRef2 = new { ToType = tRef, FromType = typeof (A), FromOperand = (Expression) Expression.Default (typeof (A)) };
-                 var genFromRef3 = new { ToType = tRef, FromType = typeof (B), FromOperand = (Expression) Expression.Default (typeof (B)) };
-                 var genFromRef4 = new { ToType = tRef, FromType = typeof (C) };
-                 var genFromRef5 = new { ToType = tRef, FromType = typeof (D) };
+                var genFromRef1 = new { ToType = tRef, FromType = typeof (object), FromOperand = (Expression) Expression.Default (typeof (object)) };
+                var genFromRef2 = new { ToType = tRef, FromType = typeof (A), FromOperand = (Expression) Expression.Default (typeof (A)) };
+                var genFromRef3 = new { ToType = tRef, FromType = typeof (B), FromOperand = (Expression) Expression.Default (typeof (B)) };
+                var genFromRef4 = new { ToType = tRef, FromType = typeof (C) };
+                var genFromRef5 = new { ToType = tRef, FromType = typeof (D) };
 
-                 var genFromVal1 = new { ToType = ctx.GenericParameters[2], FromType = typeof (int), FromOperand = (Expression) Expression.Constant (7) };
-                 var genfromVal2 = new { ToType = ctx.GenericParameters[2], FromType = typeof (string) };
-                 
-                 var genFromGen1 = new { ToType = tRef, FromType = tRef, FromOperand = pRef };
-                 var genFromGen2 = new { ToType = tRef, FromType = ctx.GenericParameters[1], FromOperand = (Expression) ctx.Parameters[1] };
-                 var genFromGen3 = new { ToType = tRef, FromType = ctx.GenericParameters[2] };
+                var genFromVal1 = new { ToType = ctx.GenericParameters[2], FromType = typeof (int), FromOperand = (Expression) Expression.Constant (7) };
+                var genfromVal2 = new { ToType = ctx.GenericParameters[2], FromType = typeof (string) };
 
-                 var refFromGen1 = new { ToType = typeof (object), FromType = tRef, FromOperand = pRef };
-                 var refFromGen2 = new { ToType = typeof (A), FromType = tRef, FromOperand = pRef };
-                 var refFromGen3 = new { ToType = typeof (B), FromType = tRef, FromOperand = pRef };
-                 var refFromGen4 = new { ToType = typeof (C), FromType = tRef };
-                 var refFromGen5 = new { ToType = typeof (D), FromType = tRef };
+                var genFromGen1 = new { ToType = tRef, FromType = tRef, FromOperand = pRef };
+                var genFromGen2 = new { ToType = tRef, FromType = ctx.GenericParameters[1], FromOperand = (Expression) ctx.Parameters[1] };
+                var genFromGen3 = new { ToType = tRef, FromType = ctx.GenericParameters[2] };
 
-                 var valFromGen1 = new { ToType = typeof (int), FromType = ctx.GenericParameters[2], FromOperand = (Expression) ctx.Parameters[2] };
-                 var valFromGen2 = new { ToType = typeof (string), FromType = ctx.GenericParameters[2] };
+                var refFromGen1 = new { ToType = typeof (object), FromType = tRef, FromOperand = pRef };
+                var refFromGen2 = new { ToType = typeof (A), FromType = tRef, FromOperand = pRef };
+                var refFromGen3 = new { ToType = typeof (B), FromType = tRef, FromOperand = pRef };
+                var refFromGen4 = new { ToType = typeof (C), FromType = tRef };
+                var refFromGen5 = new { ToType = typeof (D), FromType = tRef };
 
-                 var invalidCompileTimeCasts = new[] { genFromRef4, genFromRef5, genfromVal2, genFromGen3, refFromGen4, refFromGen5, valFromGen2 };
-                 invalidCompileTimeCasts.ApplySideEffect (m => CheckExceptionIsThrown (m.ToType, m.FromType)).ForceEnumeration();
+                var valFromGen1 = new { ToType = typeof (int), FromType = ctx.GenericParameters[2], FromOperand = (Expression) ctx.Parameters[2] };
+                var valFromGen2 = new { ToType = typeof (string), FromType = ctx.GenericParameters[2] };
 
-                 var validCasts = new[]
-                                  {
-                                      genFromRef1, genFromRef2, genFromRef3,
-                                      genFromVal1,
-                                      genFromGen1, genFromGen2,
-                                      refFromGen1, refFromGen2, refFromGen3,
-                                      //valFromGen1
-                                  };
-                 var variables = validCasts.Select (m => Expression.Variable (m.ToType)).ToList();
-                 var assignments = validCasts.Zip (variables, (m, v) => CreateConvertAssignment (v, m.FromType, m.FromOperand));
+                var invalidCompileTimeCasts = new[] { genFromRef4, genFromRef5, genfromVal2, genFromGen3, refFromGen4, refFromGen5, valFromGen2 };
+                invalidCompileTimeCasts.ApplySideEffect (m => CheckExceptionIsThrown (m.ToType, m.FromType)).ForceEnumeration();
 
-                 return Expression.Block (variables, assignments);
-               }));
+                var validCasts = new[]
+                                 {
+                                     genFromRef1, genFromRef2, genFromRef3,
+                                     genFromVal1,
+                                     genFromGen1, genFromGen2,
+                                     refFromGen1, refFromGen2, refFromGen3,
+                                     valFromGen1
+                                 };
+                var variables = validCasts.Select (m => Expression.Variable (m.ToType)).ToList();
+                var assignments = validCasts.Zip (variables, (m, v) => CreateConvertAssignment (v, m.FromType, m.FromOperand));
+
+                return Expression.Block (variables, assignments);
+              }));
 
       var method = type.GetMethod ("GenericMethod").MakeGenericMethod (typeof (C), typeof (D), typeof (int));
       var instance = (DomainType) Activator.CreateInstance (type);
-      
+
       // instance.GenericMethod<C, D, int> (null, null, 7);
       Assert.That (() => method.Invoke (instance, new object[] { null, null, 7 }), Throws.Nothing);
     }
