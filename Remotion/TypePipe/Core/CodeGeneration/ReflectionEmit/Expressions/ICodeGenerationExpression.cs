@@ -16,7 +16,6 @@
 // 
 
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 {
@@ -25,7 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// </summary>
   /// Expressions of this type can be handled using an <see cref="ICodeGenerationExpressionVisitor"/>.
   /// <seealso cref="CodeGenerationExpressionBase"/>
-  public interface ICodeGenerationExpression : IPrimitiveTypePipeExpression
+  public interface ICodeGenerationExpression
   {
     Expression Accept (ICodeGenerationExpressionVisitor visitor);
   }

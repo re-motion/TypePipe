@@ -82,7 +82,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\CodeGenerationExpressionBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\ICodeGenerationExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\ICodeGenerationExpressionVisitor.cs" />
-    <Compile Include="Expressions\UnaryExpressionBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnaryExpressionBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />

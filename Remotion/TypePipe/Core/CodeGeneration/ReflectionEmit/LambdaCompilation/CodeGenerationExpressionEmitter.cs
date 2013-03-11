@@ -25,12 +25,13 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   /// <summary>
-  /// An <see cref="IPrimitiveTypePipeExpressionVisitor"/> that emits code for <see cref="IPrimitiveTypePipeExpression"/> instances.
+  /// An <see cref="ICodeGenerationExpressionVisitor"/> that emits code for <see cref="IPrimitiveTypePipeExpression"/> and
+  /// <see cref="ICodeGenerationExpression"/> instances.
   /// </summary>
   /// <remarks>
   /// This class participates in code generation via <see cref="LambdaCompiler.EmitPrimitiveTypePipeExpression"/> in the <see cref="LambdaCompiler"/>.
   /// </remarks>
-  public class CodeGenerationExpressionEmitter : IPrimitiveTypePipeExpressionVisitor
+  public class CodeGenerationExpressionEmitter : ICodeGenerationExpressionVisitor
   {
     private readonly IILGenerator _ilGenerator;
     private readonly Action<Expression> _childExpressionEmitter;

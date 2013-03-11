@@ -19,11 +19,12 @@ using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting;
 
-namespace Remotion.TypePipe.UnitTests.Expressions
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
   [TestFixture]
   public class UnaryExpressionBaseTest

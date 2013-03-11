@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   public abstract class CodeGenerationExpressionBase : PrimitiveTypePipeExpressionBase, ICodeGenerationExpression
   {
     protected CodeGenerationExpressionBase (Type toType)
-        : base(toType)
+        : base (toType)
     {
     }
 
@@ -44,8 +44,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       if (codeGenerationExpressionVisitor != null)
         return Accept (codeGenerationExpressionVisitor);
 
-      // TODO review: Cast is not guaranteed to succeed.
-      return base.Accept ((ExpressionVisitor) visitor);
+      // TODO review: Cast is not guaranteed to succeed. (AND: stackoverflow!!)
+      //return base.Accept ((ExpressionVisitor) visitor);
+      return this;
     }
   }
 }

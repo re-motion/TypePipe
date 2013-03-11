@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using Microsoft.Scripting.Ast;
 using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
@@ -24,6 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// </summary>
   public interface ICodeGenerationExpressionVisitor : IPrimitiveTypePipeExpressionVisitor
   {
-     
+    Expression VisitBox (BoxExpression node);
+    Expression VisitUnbox (UnboxExpression node);
   }
 }

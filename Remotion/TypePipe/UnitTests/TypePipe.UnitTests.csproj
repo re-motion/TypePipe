@@ -71,7 +71,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxExpressionTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\CodeGenerationExpressionBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpressionTest.cs" />
-    <Compile Include="Expressions\UnaryExpressionBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnaryExpressionBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />

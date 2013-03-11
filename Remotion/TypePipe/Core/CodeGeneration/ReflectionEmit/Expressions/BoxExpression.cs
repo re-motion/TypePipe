@@ -18,7 +18,6 @@
 using System;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
@@ -43,7 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       return new BoxExpression (operand, Type);
     }
 
-    public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
+    public override Expression Accept (ICodeGenerationExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 

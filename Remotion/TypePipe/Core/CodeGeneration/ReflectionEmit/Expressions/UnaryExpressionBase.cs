@@ -19,12 +19,12 @@ using System;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Expressions
+namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 {
   /// <summary>
   /// A base class for expressions representing unary operations, that is, an operation that has a single <see cref="Operand"/>.
   /// </summary>
-  public abstract class UnaryExpressionBase : PrimitiveTypePipeExpressionBase
+  public abstract class UnaryExpressionBase : CodeGenerationExpressionBase
   {
     private readonly Expression _operand;
 
@@ -42,8 +42,6 @@ namespace Remotion.TypePipe.Expressions
     }
 
     public abstract UnaryExpressionBase Update (Expression operand);
-
-    public abstract override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor);
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {

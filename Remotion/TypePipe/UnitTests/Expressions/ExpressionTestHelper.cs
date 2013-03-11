@@ -18,6 +18,7 @@ using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Expressions;
 using Rhino.Mocks;
 
@@ -39,9 +40,19 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       var visitorMock = MockRepository.GenerateMock<IPrimitiveTypePipeExpressionVisitor>();
       var visitorResult = ExpressionTreeObjectMother.GetSomeExpression();
-      visitorMock
-          .Expect (expectation)
-          .Return (visitorResult);
+      visitorMock.Expect (expectation).Return (visitorResult);
+
+      var result = expression.Accept (visitorMock);
+
+      visitorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (visitorResult));
+    }
+
+    public static void CheckAccept (ICodeGenerationExpression expression, Function<ICodeGenerationExpressionVisitor, Expression> expectation)
+    {
+      var visitorMock = MockRepository.GenerateMock<ICodeGenerationExpressionVisitor>();
+      var visitorResult = ExpressionTreeObjectMother.GetSomeExpression();
+      visitorMock.Expect (expectation).Return (visitorResult);
 
       var result = expression.Accept (visitorMock);
 

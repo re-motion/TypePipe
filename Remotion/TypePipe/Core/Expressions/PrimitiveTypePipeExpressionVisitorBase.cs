@@ -16,7 +16,6 @@
 // 
 using System;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
@@ -39,34 +38,12 @@ namespace Remotion.TypePipe.Expressions
       return VisitNewDelegate (node);
     }
 
-    Expression IPrimitiveTypePipeExpressionVisitor.VisitBox (BoxExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
-
-      return VisitBox (node);
-    }
-
-    Expression IPrimitiveTypePipeExpressionVisitor.VisitUnbox (UnboxExpression node)
-    {
-      return VisitUnbox (node);
-    }
-
     protected virtual Expression VisitThis (ThisExpression node)
     {
       return VisitExtension (node);
     }
 
     protected virtual Expression VisitNewDelegate (NewDelegateExpression node)
-    {
-      return VisitExtension (node);
-    }
-
-    protected virtual Expression VisitBox (BoxExpression node)
-    {
-      return VisitExtension (node);
-    }
-
-    protected virtual Expression VisitUnbox (UnboxExpression node)
     {
       return VisitExtension (node);
     }
