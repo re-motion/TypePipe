@@ -15,11 +15,9 @@
 // under the License.
 // 
 using System;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -53,12 +51,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [Test]
     public void VisitChildren ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
-
-      // Expectation: No calls to expressionVisitorMock.
-      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
-
-      Assert.That (result, Is.SameAs (_expression));
+      ExpressionTestHelper.CheckVisitChildren_NoChanges (_expression);
     }
   }
 }

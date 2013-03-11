@@ -26,16 +26,6 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 {
   public static class ExpressionTestHelper
   {
-    public static Expression CallVisitChildren (Expression expression, ExpressionVisitor expressionVisitor)
-    {
-      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "VisitChildren", expressionVisitor);
-    }
-
-    public static Expression CallAccept (Expression expression, ExpressionVisitor expressionVisitor)
-    {
-      return (Expression) PrivateInvoke.InvokeNonPublicMethod (expression, "Accept", expressionVisitor);
-    }
-
     public static void CheckAccept (IPrimitiveTypePipeExpression expression, Function<IPrimitiveTypePipeExpressionVisitor, Expression> expectation)
     {
       var visitorMock = MockRepository.GenerateMock<IPrimitiveTypePipeExpressionVisitor>();
@@ -69,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
         expressionVisitor.Expect (mock => mock.Visit (childExpressionCopy)).Return (childExpressionCopy);
       }
 
-      var result = CallVisitChildren (parentExpression, expressionVisitor);
+      var result = parentExpression.Invoke ("VisitChildren", expressionVisitor);
 
       expressionVisitor.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (parentExpression));

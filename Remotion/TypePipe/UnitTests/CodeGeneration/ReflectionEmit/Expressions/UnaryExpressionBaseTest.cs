@@ -51,6 +51,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
+    public void VisitChildren_NoChanges ()
+    {
+      var expression = new BoxExpression (_operand, _type);
+      ExpressionTestHelper.CheckVisitChildren_NoChanges (expression, expression.Operand);
+    }
+
+    [Test]
     public void VisitChildren_WithChanges ()
     {
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();

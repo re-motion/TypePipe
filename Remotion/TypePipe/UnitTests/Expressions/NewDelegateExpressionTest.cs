@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
       expressionVisitorMock.Expect (mock => mock.Visit (_expression.Target)).Return (newTargetExpression);
 
-      var result = ExpressionTestHelper.CallVisitChildren (_expression, expressionVisitorMock);
+      var result = _expression.Invoke<Expression> ("VisitChildren", expressionVisitorMock);
 
       expressionVisitorMock.VerifyAllExpectations ();
 
