@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void VisitAccept_TypePipeExpressionVisitor ()
+    public void VisitAccept_PrimitiveTypePipeExpressionVisitor ()
     {
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor, IPrimitiveTypePipeExpressionVisitor>();
       var expectedResult = ExpressionTreeObjectMother.GetSomeExpression();

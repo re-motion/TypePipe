@@ -15,11 +15,10 @@
 // under the License.
 // 
 using System;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
+using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
@@ -47,26 +46,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
-    public void Accept_StandardExpressionVisitor ()
+    public void Accept_PrimitiveTypePipeExpressionVisitor ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
-      var expectedResult = ExpressionTreeObjectMother.GetSomeExpression();
-      expressionVisitorMock.Expect (mock => mock.Invoke ("VisitExtension", _expressionPartialMock)).Return (expectedResult);
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<IPrimitiveTypePipeExpressionVisitor>();
 
-      var result = _expressionPartialMock.Invoke ("Accept", expressionVisitorMock);
+      var result = _expressionPartialMock.Accept (expressionVisitorMock);
 
       _expressionPartialMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (expectedResult));
+      Assert.That (result, Is.SameAs (_expressionPartialMock));
     }
 
     [Test]
-    public void Accept_TypePipeExpressionVisitor ()
+    public void Accept_CodeGenerationExpressionVisitor ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor, ICodeGenerationExpressionVisitor>();
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<IPrimitiveTypePipeExpressionVisitor, ICodeGenerationExpressionVisitor>();
       var expectedResult = ExpressionTreeObjectMother.GetSomeExpression();
-      _expressionPartialMock.Expect (mock => mock.Accept ((ICodeGenerationExpressionVisitor) expressionVisitorMock)).Return (expectedResult);
+      _expressionPartialMock.Expect (mock => mock.Accept (expressionVisitorMock)).Return (expectedResult);
 
-      var result = _expressionPartialMock.Invoke ("Accept", expressionVisitorMock);
+      var result = _expressionPartialMock.Accept (expressionVisitorMock);
 
       _expressionPartialMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expectedResult));
