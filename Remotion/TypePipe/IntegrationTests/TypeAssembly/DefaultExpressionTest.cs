@@ -26,35 +26,41 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class DefaultExpressionTest : TypeAssemblerIntegrationTestBase
   {
+    [Ignore]
     [Test]
     public void GenericParameters ()
     {
-      SkipDeletion();
-
-      var method1 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.Unconstrained<Dev.T>());
-      var method2 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.ReferenceTypeConstraint<Dev.T>());
-      var method3 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.NotNuallableValueTypeConstraint<int>());
-      var method4 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.ClassBaseTypeConstraint<DomainType>());
+      var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.ReferenceType());
+      var method2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.ValueType());
+      var method3 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.Unconstrained<Dev.T>());
+      var method4 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.ReferenceTypeConstraint<Dev.T>());
+      var method5 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.NotNuallableValueTypeConstraint<int>());
+      var method6 = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.ClassBaseTypeConstraint<DomainType>());
 
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            //proxyType.GetOrAddOverride (method1).SetBody (ctx => Expression.Default (ctx.GenericParameters[0]));
-            //proxyType.GetOrAddOverride (method2).SetBody (ctx => Expression.Default (ctx.GenericParameters[0]));
+            proxyType.GetOrAddOverride (method1).SetBody (ctx => Expression.Default (typeof (string)));
+            proxyType.GetOrAddOverride (method2).SetBody (ctx => Expression.Default (typeof (int)));
             proxyType.GetOrAddOverride (method3).SetBody (ctx => Expression.Default (ctx.GenericParameters[0]));
-            //proxyType.GetOrAddOverride (method4).SetBody (ctx => Expression.Default (ctx.GenericParameters[0]));
+            proxyType.GetOrAddOverride (method4).SetBody (ctx => Expression.Default (ctx.GenericParameters[0]));
+            proxyType.GetOrAddOverride (method5).SetBody (ctx => Expression.Default (ctx.GenericParameters[0]));
+            proxyType.GetOrAddOverride (method6).SetBody (ctx => Expression.Default (ctx.GenericParameters[0]));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
 
-      //Assert.That (instance.Unconstrained<string>(), Is.Null);
-      //Assert.That (instance.ReferenceTypeConstraint<string>(), Is.Null);
+      Assert.That (instance.ReferenceType(), Is.Null);
+      Assert.That (instance.Unconstrained<string>(), Is.Null);
+      Assert.That (instance.ReferenceTypeConstraint<string>(), Is.Null);
       Assert.That (instance.NotNuallableValueTypeConstraint<int>(), Is.EqualTo (0));
-      //Assert.That (instance.ClassBaseTypeConstraint<DomainType>(), Is.Null);
+      Assert.That (instance.ClassBaseTypeConstraint<DomainType>(), Is.Null);
     }
 
     public class DomainType
     {
+      public virtual object ReferenceType () { throw new NotImplementedException (); }
+      public virtual ValueType ValueType () { throw new NotImplementedException (); }
       public virtual T Unconstrained<T> () { throw new NotImplementedException (); }
       public virtual T ReferenceTypeConstraint<T> () where T : class { throw new NotImplementedException (); }
       public virtual T NotNuallableValueTypeConstraint<T> () where T : struct { throw new NotImplementedException (); }
