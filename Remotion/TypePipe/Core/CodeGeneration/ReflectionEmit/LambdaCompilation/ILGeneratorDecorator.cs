@@ -168,17 +168,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     {
       ArgumentUtility.CheckNotNull ("meth", meth);
 
-      var constructorMethodInfo = meth as ConstructorAsMethodInfoAdapter;
-      if (constructorMethodInfo != null)
+      var constructorAsMethod = meth as ConstructorAsMethodInfoAdapter;
+      if (constructorAsMethod != null)
       {
-        Emit (opcode, constructorMethodInfo.AdaptedConstructor);
+        Emit (opcode, constructorAsMethod.AdaptedConstructor);
         return;
       }
 
-      var baseCallMethodInfo = meth as NonVirtualCallMethodInfoAdapter;
-      if (baseCallMethodInfo != null)
+      var baseCallMethod = meth as NonVirtualCallMethodInfoAdapter;
+      if (baseCallMethod != null)
       {
-        Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethod);
+        Emit (AdjustOpCodeForBaseCall (opcode), baseCallMethod.AdaptedMethod);
         return;
       }
 
@@ -191,20 +191,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
       // Optional parameters may be null
 
-      var baseConstructorMethodInfo = methodInfo as ConstructorAsMethodInfoAdapter;
-      if (baseConstructorMethodInfo != null)
+      var constructorAsMethod = methodInfo as ConstructorAsMethodInfoAdapter;
+      if (constructorAsMethod != null)
       {
         if (!ArrayUtility.IsNullOrEmpty (optionalParameterTypes))
           throw new InvalidOperationException ("Constructor calls cannot have optional parameters.");
 
-        Emit (opcode, baseConstructorMethodInfo.AdaptedConstructor);
+        Emit (opcode, constructorAsMethod.AdaptedConstructor);
         return;
       }
 
-      var baseCallMethodInfo = methodInfo as NonVirtualCallMethodInfoAdapter;
-      if (baseCallMethodInfo != null)
+      var baseCallMethod = methodInfo as NonVirtualCallMethodInfoAdapter;
+      if (baseCallMethod != null)
       {
-        EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethodInfo.AdaptedMethod, optionalParameterTypes);
+        EmitCall (AdjustOpCodeForBaseCall (opcode), baseCallMethod.AdaptedMethod, optionalParameterTypes);
         return;
       }
 
