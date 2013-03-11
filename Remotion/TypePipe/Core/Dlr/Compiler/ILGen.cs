@@ -987,7 +987,7 @@ namespace System.Linq.Expressions.Compiler {
             switch (type.GetTypeCodeFast()) {
                 case TypeCode.Object:
                 case TypeCode.DateTime:
-                    if (type.IsValueType) {
+                    if (type.IsValueType || type.IsGenericParameter) {
                         // Type.GetTypeCode on an enum returns the underlying
                         // integer TypeCode, so we won't get here.
                         Debug.Assert(!type.IsEnum);
