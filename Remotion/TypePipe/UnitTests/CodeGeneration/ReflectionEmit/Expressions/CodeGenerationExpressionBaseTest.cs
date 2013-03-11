@@ -19,24 +19,25 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.Expressions
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
   [TestFixture]
-  public class PrimitiveTypePipeExpressionBaseTest
+  public class CodeGenerationExpressionBaseTest
   {
     private Type _type;
 
-    private PrimitiveTypePipeExpressionBase _expressionPartialMock;
+    private CodeGenerationExpressionBase _expressionPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _type = ReflectionObjectMother.GetSomeType ();
+      _type = ReflectionObjectMother.GetSomeType();
 
-      _expressionPartialMock = MockRepository.GeneratePartialMock<PrimitiveTypePipeExpressionBase> (_type);
+      _expressionPartialMock = MockRepository.GeneratePartialMock<CodeGenerationExpressionBase> (_type);
     }
 
     [Test]
@@ -46,13 +47,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    public void NodeType ()
-    {
-      Assert.That (_expressionPartialMock.NodeType, Is.EqualTo ((ExpressionType) 1337));
-    }
-
-    [Test]
-    public void VisitAccept_StandardExpressionVisitor ()
+    public void Accept_StandardExpressionVisitor ()
     {
       var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
       var expectedResult = ExpressionTreeObjectMother.GetSomeExpression();
@@ -60,16 +55,16 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
       var result = _expressionPartialMock.Invoke ("Accept", expressionVisitorMock);
 
-      expressionVisitorMock.VerifyAllExpectations();
+      _expressionPartialMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (expectedResult));
     }
 
     [Test]
-    public void VisitAccept_TypePipeExpressionVisitor ()
+    public void Accept_TypePipeExpressionVisitor ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor, IPrimitiveTypePipeExpressionVisitor>();
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor, ICodeGenerationExpressionVisitor>();
       var expectedResult = ExpressionTreeObjectMother.GetSomeExpression();
-      _expressionPartialMock.Expect (mock => mock.Accept ((IPrimitiveTypePipeExpressionVisitor) expressionVisitorMock)).Return (expectedResult);
+      _expressionPartialMock.Expect (mock => mock.Accept ((ICodeGenerationExpressionVisitor) expressionVisitorMock)).Return (expectedResult);
 
       var result = _expressionPartialMock.Invoke ("Accept", expressionVisitorMock);
 

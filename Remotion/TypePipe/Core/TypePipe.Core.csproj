@@ -79,6 +79,9 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecorator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\CodeGenerationExpressionBase.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\ICodeGenerationExpression.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\ICodeGenerationExpressionVisitor.cs" />
     <Compile Include="Expressions\UnaryExpressionBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
