@@ -91,8 +91,8 @@ namespace Remotion.TypePipe.MutableReflection
         return true;
 
       // 1) This type may be assignable from the base type of the other type.                   (toType <- fromType)
-      // 2) his interface may be assignable from an interface of the other type.                (toType <- any ifc of fromType)
-      // 3) This type may be assignable from an generic parameter constraint of the other type. (toType <- any con of fromType)
+      // 2) his interface may be assignable from an interface of the other type.                (any: toType <- ifcs of fromType)
+      // 3) This type may be assignable from an generic parameter constraint of the other type. (any: toType <- cons of fromType)
       if (toType is CustomType || fromType is CustomType)
       {
         return toType.IsAssignableFromFast (fromType.BaseType)

@@ -207,6 +207,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
+    public void VisitUnary_Convert_SameType_Unchanged ()
+    {
+      var fromGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
+      var toGenericParameter = fromGenericParameter;
+      var expression = Expression.Convert (Expression.Default (fromGenericParameter), toGenericParameter);
+
+      var result = _visitorPartialMock.Invoke ("VisitUnary", expression);
+
+      Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
     public void VisitUnary_Convert_Unchanged ()
     {
       CheckVisitUnaryUnchanged (typeof (string), typeof (object));

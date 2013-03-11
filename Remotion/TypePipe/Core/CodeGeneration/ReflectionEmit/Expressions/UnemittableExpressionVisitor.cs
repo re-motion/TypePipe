@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
@@ -173,10 +172,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       var toType = node.Type;
       var fromType = operand.Type;
 
+      if (Equals (toType, fromType))
+        return node;
+
       if (toType.IsGenericParameter && fromType.IsGenericParameter)
         //return Expression.Convert (Expression.Convert (operand, typeof (object)), toType);
         // TODO Review
-        // TODO: Adapt test name
         return new UnboxExpression (new BoxExpression (operand, typeof (object)), toType);
 
       if (toType.IsGenericParameter && fromType.IsClass)
