@@ -344,7 +344,7 @@ namespace System.Linq.Expressions.Compiler {
 
             // Emit the actual call
             OpCode callOp = UseVirtual(mi) ? OpCodes.Callvirt : OpCodes.Call;
-            if (callOp == OpCodes.Callvirt && objectType.IsValueType) {
+            if (callOp == OpCodes.Callvirt && (objectType.IsValueType || objectType.IsGenericParameter)) {
                 // This automatically boxes value types if necessary.
                 _ilg.Emit(OpCodes.Constrained, objectType);
             }
@@ -381,7 +381,7 @@ namespace System.Linq.Expressions.Compiler {
             }
 
             OpCode callOp = UseVirtual(method) ? OpCodes.Callvirt : OpCodes.Call;
-            if (callOp == OpCodes.Callvirt && objectType.IsValueType) {
+            if (callOp == OpCodes.Callvirt && (objectType.IsValueType || objectType.IsGenericParameter)) {
                 _ilg.Emit(OpCodes.Constrained, objectType);
             }
             _ilg.Emit(callOp, method);
@@ -717,7 +717,7 @@ namespace System.Linq.Expressions.Compiler {
 
         private void EmitInstance(Expression instance, Type type) {
             if (instance != null) {
-                if (type.IsValueType) {
+                if (type.IsValueType || type.IsGenericParameter) {
                     EmitAddress(instance, type);
                 } else {
                     EmitExpression(instance);
