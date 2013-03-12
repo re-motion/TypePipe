@@ -41,9 +41,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx =>
       {
         var parameter = ctx.Parameters[0];
+        var variable = Expression.Variable (ctx.GenericParameters[0]);
+
         return Expression.Block (
-            //Expression.Assign (Expression.Field (parameter, field), ctx.Parameters[1]),
-            //Expression.Assign (Expression.Property (parameter, property), Expression.Field (parameter, field)),
+            new[] { variable },
+            Expression.Assign (variable, Expression.Call (parameter, method, ctx.Parameters[0])),
+            Expression.Assign (Expression.Field (parameter, field), variable),
+            Expression.Assign (Expression.Property (parameter, property), Expression.Field (parameter, field)),
             Expression.Property (parameter, property));
       }));
 
@@ -57,15 +61,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo ("method: abc"));
     }
 
-    [Ignore ("TODO 5444")]
     [Test]
     public void CallVirtualMethod ()
     {
+      // TODO 5444: remove
       SkipDeletion();
 
       var overriddenMethod =
           NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null, ""));
-      var virtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.VirtualMethod(""));
+      var virtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.VirtualMethod (""));
 
       var type = AssembleType<DomainType> (
           p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx => Expression.Call (ctx.Parameters[0], virtualMethod, ctx.Parameters[1])));
