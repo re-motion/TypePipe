@@ -27,8 +27,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// </summary>
   public abstract class CodeGenerationExpressionBase : PrimitiveTypePipeExpressionBase, ICodeGenerationExpression
   {
-    protected CodeGenerationExpressionBase (Type toType)
-        : base (toType)
+    protected CodeGenerationExpressionBase (Type type)
+        : base (type)
     {
     }
 

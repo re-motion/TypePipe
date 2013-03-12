@@ -27,17 +27,18 @@ namespace Remotion.TypePipe.Expressions
   {
     public const ExpressionType TypePipeExpressionType = (ExpressionType) 1337;
 
-    private readonly Type _toType;
+    private readonly Type _type;
 
-    protected PrimitiveTypePipeExpressionBase (Type toType)
+    protected PrimitiveTypePipeExpressionBase (Type type)
     {
-      ArgumentUtility.CheckNotNull ("toType", toType);
-      _toType = toType;
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      _type = type;
     }
 
     public override Type Type
     {
-      get { return _toType; }
+      get { return _type; }
     }
 
     public override ExpressionType NodeType

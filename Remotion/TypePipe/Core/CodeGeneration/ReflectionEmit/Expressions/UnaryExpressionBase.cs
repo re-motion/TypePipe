@@ -28,8 +28,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   {
     private readonly Expression _operand;
 
-    protected UnaryExpressionBase (Expression operand, Type toType)
-        : base (toType)
+    protected UnaryExpressionBase (Expression operand, Type type)
+        : base (type)
     {
       ArgumentUtility.CheckNotNull ("operand", operand);
 
