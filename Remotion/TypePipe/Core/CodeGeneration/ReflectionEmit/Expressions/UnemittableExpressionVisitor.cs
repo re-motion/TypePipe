@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
         if (!node.Type.IsInstanceOfType (emittableValue))
           throw NewNotSupportedExceptionWithDescriptiveMessage (node);
 
-        return Visit (Expression.Constant (emittableValue, node.Type));
+        return Expression.Constant (emittableValue, node.Type);
       }
 
       return base.VisitConstant (node);
@@ -70,6 +70,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
     protected internal override Expression VisitMethodCall (MethodCallExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
+
+      if (node.Object != null && node.Object.Type.IsGenericParameter)
+        return new ConstrainedMethodCallExpression (node);
 
       return base.VisitMethodCall (node);
     }
@@ -81,7 +84,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       if (node.Constructor is GenericParameterDefaultConstructor)
       {
         var createInstance = s_createInstanceMethod.MakeTypePipeGenericMethod (node.Type);
-        return Visit (Expression.Call (createInstance));
+        return Expression.Call (createInstance);
       }
 
       return base.VisitNew (node);
