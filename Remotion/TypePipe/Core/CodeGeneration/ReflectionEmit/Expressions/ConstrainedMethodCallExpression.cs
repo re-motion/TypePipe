@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
 using Remotion.Utilities;
@@ -28,9 +27,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// </summary>
   public class ConstrainedMethodCallExpression : UnaryExpressionBase
   {
+    private readonly Type _constrainingType;
+
     public ConstrainedMethodCallExpression (MethodCallExpression methodCall)
         : base (methodCall, methodCall.Type)
     {
+      _constrainingType = methodCall.Method.DeclaringType;
+    }
+
+    public Type ConstrainingType
+    {
+      get { return _constrainingType; }
     }
 
     public override Expression Accept (ICodeGenerationExpressionVisitor visitor)

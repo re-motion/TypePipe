@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     {
       Assert.That (_expression.Operand, Is.SameAs (_methodCall));
       Assert.That (_expression.Type, Is.SameAs (_methodCall.Type));
+      Assert.That (_expression.ConstrainingType, Is.SameAs (typeof (object)));
     }
 
     [Test]
