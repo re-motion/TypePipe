@@ -30,28 +30,31 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void AccessMembers ()
     {
-      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint>(null));
+      SkipDeletion();
+
+      var overriddenMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null, ""));
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((Constraint o) => o.Field);
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.Method());
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.Method(""));
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((Constraint o) => o.Property);
 
       var type = AssembleType<DomainType> (p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx =>
       {
         var parameter = ctx.Parameters[0];
         return Expression.Block (
-            Expression.Assign (Expression.Field (parameter, field), Expression.Call (parameter, method)),
-            Expression.Assign (Expression.Property (parameter, property), Expression.Field (parameter, field)));
-
+            //Expression.Assign (Expression.Field (parameter, field), ctx.Parameters[1]),
+            //Expression.Assign (Expression.Property (parameter, property), Expression.Field (parameter, field)),
+            Expression.Property (parameter, property));
       }));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
 
-      var result = instance.GenericMethod (arg);
+      var result = instance.GenericMethod (arg, "abc");
 
-      Assert.That (arg.Field, Is.EqualTo ("method"));
-      Assert.That (arg.Property, Is.EqualTo ("method"));
-      Assert.That (result, Is.EqualTo ("method"));
+      Assert.That (arg.Field, Is.EqualTo ("method: abc"));
+      Assert.That (arg.Property, Is.EqualTo ("method: abc"));
+      Assert.That (result, Is.EqualTo ("method: abc"));
     }
 
     [Ignore ("TODO 5444")]
@@ -60,34 +63,35 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       SkipDeletion();
 
-      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null));
-      var virtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.Method());
+      var overriddenMethod =
+          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null, ""));
+      var virtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.VirtualMethod(""));
 
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx => Expression.Call (ctx.Parameters[0], virtualMethod)));
+          p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx => Expression.Call (ctx.Parameters[0], virtualMethod, ctx.Parameters[1])));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
 
-      var result = instance.GenericMethod (arg);
+      var result = instance.GenericMethod (arg, "abc");
 
-      Assert.That (result, Is.EqualTo ("virtual method"));
+      Assert.That (result, Is.EqualTo ("virtual method: abc"));
     }
 
     public class DomainType
     {
-      public virtual string GenericMethod<T> (T t) where T : Constraint { return ""; }
+      public virtual string GenericMethod<T> (T t, string arg) where T : Constraint { return ""; }
     }
 
     public class Constraint
     {
       [UsedImplicitly] public string Field;
       // Constructors are not called via 'this' reference.
-      public string Method () { return "method"; }
+      public string Method (string arg) { return "method: " + arg; }
       public string Property { get; set; }
       // Events do not have a representation in expression trees.
 
-      public virtual string VirtualMethod () { return "virtual method"; }
+      public virtual string VirtualMethod (string arg) { return "virtual method: " + arg; }
     }
   }
 }
