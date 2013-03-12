@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// Replaces occurences of <see cref="ConstantExpression"/> that contain mutable members and other expressions that can not be emitted by 
   /// our customized <see cref="LambdaCompiler"/>.
   /// </summary>
-  public class UnemittableExpressionVisitor : PrimitiveTypePipeExpressionVisitorBase
+  public class UnemittableExpressionVisitor : ExpressionVisitor
   {
     private static readonly MethodInfo s_createInstanceMethod =
         MemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Activator.CreateInstance<int>());
@@ -65,6 +65,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       }
 
       return base.VisitConstant (node);
+    }
+
+    protected internal override Expression VisitMethodCall (MethodCallExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return base.VisitMethodCall (node);
     }
 
     protected internal override Expression VisitNew (NewExpression node)

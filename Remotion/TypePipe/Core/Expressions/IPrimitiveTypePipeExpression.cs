@@ -27,7 +27,6 @@ namespace Remotion.TypePipe.Expressions
   /// Expressions of this type can be handled using an <see cref="IPrimitiveTypePipeExpressionVisitor"/>.
   /// </summary>
   /// <seealso cref="PrimitiveTypePipeExpressionBase"/>
-  /// <seealso cref="PrimitiveTypePipeExpressionVisitorBase"/>
   public interface IPrimitiveTypePipeExpression
   {
     Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor);

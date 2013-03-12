@@ -159,7 +159,6 @@
     <Compile Include="Expressions\ThisExpression.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\SubclassProxyCreator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
-    <Compile Include="Expressions\PrimitiveTypePipeExpressionVisitorBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
     <Compile Include="Caching\IConstructorFinder.cs" />
     <Compile Include="IObjectFactory.cs" />
