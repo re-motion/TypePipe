@@ -79,10 +79,10 @@ namespace Remotion.TypePipe.Expressions
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 
       var newTarget = visitor.Visit (_target);
-      if (newTarget != _target)
-        return new NewDelegateExpression (Type, newTarget, _method);
-      else
+      if (newTarget == _target)
         return this;
+      
+      return new NewDelegateExpression (Type, newTarget, _method);
     }
   }
 }

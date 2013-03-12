@@ -70,7 +70,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxExpressionTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\CodeGenerationExpressionBaseTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\ConstrainedMethodCallExpressionTest.cs" />
+    <Compile Include="Expressions\ConstrainedMethodCallExpressionTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpressionTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnaryExpressionBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />

@@ -14,14 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
-using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.TypePipe.Expressions;
+using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
+namespace Remotion.TypePipe.UnitTests.Expressions
 {
   [TestFixture]
   public class ConstrainedMethodCallExpressionTest
@@ -41,27 +42,37 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expression.Operand, Is.SameAs (_methodCall));
       Assert.That (_expression.Type, Is.SameAs (_methodCall.Type));
+      Assert.That (_expression.MethodCall, Is.SameAs (_methodCall));
       Assert.That (_expression.ConstrainingType, Is.SameAs (typeof (object)));
-    }
-
-    [Test]
-    public void CreateSimiliar ()
-    {
-      var newMethodCall = Expression.Call (Expression.Default (typeof (object)), "ToString", Type.EmptyTypes);
-
-      var result = _expression.Invoke<UnaryExpressionBase> ("CreateSimiliar", newMethodCall);
-
-      Assert.That (result, Is.TypeOf<ConstrainedMethodCallExpression>());
-      Assert.That (result.Type, Is.SameAs (_expression.Type));
-      Assert.That (result.Operand, Is.SameAs ((newMethodCall)));
     }
 
     [Test]
     public virtual void Accept ()
     {
       ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitConstrainedMethodCall (_expression));
+    }
+
+    [Test]
+    public void VisitChildren_NoChanges ()
+    {
+      ExpressionTestHelper.CheckVisitChildren_NoChanges (_expression, _expression.MethodCall);
+    }
+
+    [Test]
+    public void VisitChildren_WithChanges ()
+    {
+      var newMethodCall = Expression.Call (Expression.Default (typeof (object)), "ToString", Type.EmptyTypes);
+
+      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
+      expressionVisitorMock.Expect (mock => mock.Visit (_expression.MethodCall)).Return (newMethodCall);
+
+      var result = _expression.Invoke<Expression> ("VisitChildren", expressionVisitorMock);
+
+      Assert.That (result, Is.Not.SameAs (_expression));
+      Assert.That (result.Type, Is.SameAs (_expression.Type));
+      Assert.That (result, Is.TypeOf<ConstrainedMethodCallExpression>());
+      Assert.That (result.As<ConstrainedMethodCallExpression>().MethodCall, Is.SameAs (newMethodCall));
     }
   }
 }

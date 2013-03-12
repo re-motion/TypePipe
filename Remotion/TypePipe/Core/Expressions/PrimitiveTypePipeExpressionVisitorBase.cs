@@ -38,12 +38,24 @@ namespace Remotion.TypePipe.Expressions
       return VisitNewDelegate (node);
     }
 
+    Expression IPrimitiveTypePipeExpressionVisitor.VisitConstrainedMethodCall (ConstrainedMethodCallExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return VisitConstrainedMethodCall (node);
+    }
+
     protected virtual Expression VisitThis (ThisExpression node)
     {
       return VisitExtension (node);
     }
 
     protected virtual Expression VisitNewDelegate (NewDelegateExpression node)
+    {
+      return VisitExtension (node);
+    }
+
+    protected virtual Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node)
     {
       return VisitExtension (node);
     }

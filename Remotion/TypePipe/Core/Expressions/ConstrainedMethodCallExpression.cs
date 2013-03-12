@@ -18,38 +18,50 @@
 using System;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
+namespace Remotion.TypePipe.Expressions
 {
   /// <summary>
   /// Represents a <see cref="OpCodes.Constrained"/> virtual method call (<see cref="OpCodes.Callvirt"/>).
   /// </summary>
-  public class ConstrainedMethodCallExpression : UnaryExpressionBase
+  public class ConstrainedMethodCallExpression : PrimitiveTypePipeExpressionBase
   {
-    private readonly Type _constrainingType;
+    private readonly MethodCallExpression _methodCall;
 
     public ConstrainedMethodCallExpression (MethodCallExpression methodCall)
-        : base (methodCall, methodCall.Type)
+        : base (ArgumentUtility.CheckNotNull ("methodCall", methodCall).Type)
     {
-      _constrainingType = methodCall.Method.DeclaringType;
+      _methodCall = methodCall;
+    }
+
+    public MethodCallExpression MethodCall
+    {
+      get { return _methodCall; }
     }
 
     public Type ConstrainingType
     {
-      get { return _constrainingType; }
+      get { return _methodCall.Method.DeclaringType; }
     }
 
-    public override Expression Accept (ICodeGenerationExpressionVisitor visitor)
+    public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 
       return visitor.VisitConstrainedMethodCall (this);
     }
 
-    protected override UnaryExpressionBase CreateSimiliar (Expression operand)
+    protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {
-      return new ConstrainedMethodCallExpression ((MethodCallExpression) operand);
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+
+      var newMethodCall = visitor.VisitAndConvert (_methodCall, "VisitChildren");
+      if (newMethodCall == _methodCall)
+        return this;
+
+      return new ConstrainedMethodCallExpression (newMethodCall);
     }
   }
 }

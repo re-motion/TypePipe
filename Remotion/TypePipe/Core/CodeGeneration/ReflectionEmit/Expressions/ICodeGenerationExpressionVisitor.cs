@@ -27,6 +27,5 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   {
     Expression VisitBox (BoxExpression node);
     Expression VisitUnbox (UnboxExpression node);
-    Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node);
   }
 }
