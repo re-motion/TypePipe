@@ -117,21 +117,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    public void VisitConstrainedMethodCall ()
-    {
-      var methodCall = Expression.Call (Expression.Default (typeof (string)), "ToString", Type.EmptyTypes);
-      var expression = new ConstrainedMethodCallExpression (methodCall);
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Constrained, typeof (string)));
-      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (methodCall));
-
-      var result = _emitter.VisitConstrainedMethodCall (expression);
-
-      _ilGeneratorMock.VerifyAllExpectations();
-      _childExpressionEmitterMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (expression));
-    }
-
-    [Test]
     public void VisitBox ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeBoxExpression();

@@ -67,16 +67,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       return base.VisitConstant (node);
     }
 
-    protected internal override Expression VisitMethodCall (MethodCallExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
-
-      if (node.Object != null && node.Object.Type.IsGenericParameter)
-        return new ConstrainedMethodCallExpression (node);
-
-      return base.VisitMethodCall (node);
-    }
-
     protected internal override Expression VisitNew (NewExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);

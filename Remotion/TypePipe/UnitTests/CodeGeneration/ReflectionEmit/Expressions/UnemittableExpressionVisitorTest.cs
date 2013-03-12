@@ -107,36 +107,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
-    public void VisitMethodCall_InstanceMethodOnGenericParameter ()
-    {
-      var genericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { typeof (DomainType) });
-      var instance = Expression.Variable (genericParameter);
-      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.SimpleMethod());
-      var expression = Expression.Call (instance, method);
-
-      var result = _visitorPartialMock.Invoke ("VisitMethodCall", expression);
-
-      Assert.That (result, Is.TypeOf<ConstrainedMethodCallExpression>());
-      var constrained = result.As<ConstrainedMethodCallExpression>();
-      Assert.That (constrained.MethodCall, Is.SameAs (expression));
-      Assert.That (constrained.Type, Is.SameAs (typeof (void)));
-      Assert.That (constrained.ConstrainingType, Is.SameAs (genericParameter));
-    }
-
-    [Test]
-    public void VisitMethodCall_NoChange ()
-    {
-      var expression1 = Expression.Call (Expression.Default (typeof (object)), "ToString", Type.EmptyTypes);
-      var expression2 = Expression.Call (typeof (string), "Intern", Type.EmptyTypes, Expression.Default (typeof (string)));
-
-      var result1 = _visitorPartialMock.Invoke ("VisitMethodCall", expression1);
-      var result2 = _visitorPartialMock.Invoke ("VisitMethodCall", expression2);
-
-      Assert.That (result1, Is.SameAs (expression1));
-      Assert.That (result2, Is.SameAs (expression2));
-    }
-
-    [Test]
     public void VisitNew_GenericParameterDefaultConstructor ()
     {
       var genericParameter = MutableGenericParameterObjectMother.Create();

@@ -79,16 +79,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return node;
     }
 
-    public Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
-
-      _ilGenerator.Emit (OpCodes.Constrained, node.ConstrainingType);
-      _childExpressionEmitter (node.MethodCall);
-
-      return node;
-    }
-
     public Expression VisitBox (BoxExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);

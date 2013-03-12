@@ -26,6 +26,5 @@ namespace Remotion.TypePipe.Expressions
   {
     Expression VisitThis (ThisExpression node);
     Expression VisitNewDelegate (NewDelegateExpression node);
-    Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node);
   }
 }
