@@ -47,36 +47,36 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
 
-      instance.GenericMethod (arg);
+      var result = instance.GenericMethod (arg);
 
       Assert.That (arg.Field, Is.EqualTo ("method"));
       Assert.That (arg.Property, Is.EqualTo ("method"));
+      Assert.That (result, Is.EqualTo ("method"));
     }
 
     [Ignore ("TODO 5444")]
     [Test]
     public void CallVirtualMethod ()
     {
+      SkipDeletion();
+
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null));
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((Constraint o) => o.Field);
       var virtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.Method());
 
       var type = AssembleType<DomainType> (
-          p =>
-          p.GetOrAddOverride (overriddenMethod)
-           .SetBody (ctx => Expression.Assign (Expression.Field (ctx.Parameters[0], field), Expression.Call (ctx.Parameters[0], virtualMethod))));
+          p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx => Expression.Call (ctx.Parameters[0], virtualMethod)));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
 
-      instance.GenericMethod (arg);
+      var result = instance.GenericMethod (arg);
 
-      Assert.That (arg.Field, Is.EqualTo ("virtual method"));
+      Assert.That (result, Is.EqualTo ("virtual method"));
     }
 
     public class DomainType
     {
-      public virtual void GenericMethod<T> (T t) where T : Constraint {}
+      public virtual string GenericMethod<T> (T t) where T : Constraint { return ""; }
     }
 
     public class Constraint
