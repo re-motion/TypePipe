@@ -99,5 +99,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
       return node;
     }
+
+    public Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      return node;
+    }
   }
 }

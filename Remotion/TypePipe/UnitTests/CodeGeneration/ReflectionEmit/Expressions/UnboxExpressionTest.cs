@@ -49,6 +49,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
+    public void Accept ()
+    {
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitUnbox (_expression));
+    }
+
+    [Test]
     public void CreateSimiliar ()
     {
       var newOperand = ExpressionTreeObjectMother.GetSomeExpression();
@@ -58,12 +64,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       Assert.That (result, Is.TypeOf<UnboxExpression>());
       Assert.That (result.Type, Is.SameAs (_expression.Type));
       Assert.That (result.Operand, Is.SameAs ((newOperand)));
-    }
-
-    [Test]
-    public void Accept ()
-    {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitUnbox (_expression));
     }
   }
 }

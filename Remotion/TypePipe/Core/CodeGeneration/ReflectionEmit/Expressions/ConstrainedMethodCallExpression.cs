@@ -15,18 +15,34 @@
 // under the License.
 // 
 
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.Expressions;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 {
   /// <summary>
-  /// Defines an interface for classes handling <see cref="ICodeGenerationExpressionVisitor"/> instances.
+  /// Represents a <see cref="OpCodes.Constrained"/> virtual method call (<see cref="OpCodes.Callvirt"/>).
   /// </summary>
-  public interface ICodeGenerationExpressionVisitor : IPrimitiveTypePipeExpressionVisitor
+  public class ConstrainedMethodCallExpression : UnaryExpressionBase
   {
-    Expression VisitBox (BoxExpression node);
-    Expression VisitUnbox (UnboxExpression node);
-    Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node);
+    public ConstrainedMethodCallExpression (MethodCallExpression methodCall)
+        : base (methodCall, methodCall.Type)
+    {
+    }
+
+    public override Expression Accept (ICodeGenerationExpressionVisitor visitor)
+    {
+      ArgumentUtility.CheckNotNull ("visitor", visitor);
+
+      return visitor.VisitConstrainedMethodCall (this);
+    }
+
+    protected override UnaryExpressionBase CreateSimiliar (Expression operand)
+    {
+      return new ConstrainedMethodCallExpression ((MethodCallExpression) operand);
+    }
   }
 }

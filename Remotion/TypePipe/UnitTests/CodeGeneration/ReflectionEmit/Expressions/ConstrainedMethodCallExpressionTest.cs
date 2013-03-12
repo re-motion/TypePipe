@@ -17,53 +17,50 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
   [TestFixture]
-  public class BoxExpressionTest
+  public class ConstrainedMethodCallExpressionTest
   {
-    private Expression _operand;
-    private Type _type;
+    private MethodCallExpression _methodCall;
 
-    private BoxExpression _expression;
+    private ConstrainedMethodCallExpression _expression;
 
     [SetUp]
     public void SetUp ()
     {
-      _operand = ExpressionTreeObjectMother.GetSomeExpression ();
-      _type = ReflectionObjectMother.GetSomeType ();
+      _methodCall = Expression.Call (Expression.Default (typeof (object)), "ToString", Type.EmptyTypes);
 
-      _expression = new BoxExpression(_operand, _type);
+      _expression = new ConstrainedMethodCallExpression (_methodCall);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expression.Operand, Is.SameAs (_operand));
-      Assert.That (_expression.Type, Is.SameAs (_type));
-    }
-
-    [Test]
-    public void Accept ()
-    {
-      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitBox (_expression));
+      Assert.That (_expression.Operand, Is.SameAs (_methodCall));
+      Assert.That (_expression.Type, Is.SameAs (_methodCall.Type));
     }
 
     [Test]
     public void CreateSimiliar ()
     {
-      var newOperand = ExpressionTreeObjectMother.GetSomeExpression();
+      var newMethodCall = Expression.Call (Expression.Default (typeof (object)), "ToString", Type.EmptyTypes);
 
-      var result = _expression.Invoke<UnaryExpressionBase> ("CreateSimiliar", newOperand);
+      var result = _expression.Invoke<UnaryExpressionBase> ("CreateSimiliar", newMethodCall);
 
-      Assert.That (result, Is.TypeOf<BoxExpression>());
+      Assert.That (result, Is.TypeOf<ConstrainedMethodCallExpression>());
       Assert.That (result.Type, Is.SameAs (_expression.Type));
-      Assert.That (result.Operand, Is.SameAs ((newOperand)));
+      Assert.That (result.Operand, Is.SameAs ((newMethodCall)));
+    }
+
+    [Test]
+    public virtual void Accept ()
+    {
+      ExpressionTestHelper.CheckAccept (_expression, mock => mock.VisitConstrainedMethodCall (_expression));
     }
   }
 }
