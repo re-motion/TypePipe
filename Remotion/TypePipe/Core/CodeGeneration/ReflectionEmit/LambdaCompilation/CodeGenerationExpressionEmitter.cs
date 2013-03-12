@@ -79,6 +79,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return node;
     }
 
+    public Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node)
+    {
+      ArgumentUtility.CheckNotNull ("node", node);
+
+      _ilGenerator.Emit (OpCodes.Constrained, node.ConstrainingType);
+      _childExpressionEmitter (node.MethodCall);
+
+      return node;
+    }
+
     public Expression VisitBox (BoxExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
@@ -96,13 +106,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
       _childExpressionEmitter (node.Operand);
       _ilGenerator.Emit (OpCodes.Unbox_Any, node.Type);
-
-      return node;
-    }
-
-    public Expression VisitConstrainedMethodCall (ConstrainedMethodCallExpression node)
-    {
-      ArgumentUtility.CheckNotNull ("node", node);
 
       return node;
     }
