@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     [SetUp]
     public void SetUp ()
     {
-      _methodCall = Expression.Call (Expression.Default (typeof (object)), "ToString", Type.EmptyTypes);
+      _methodCall = Expression.Call (Expression.Default (typeof (ConstrainedMethodCallExpressionTest)), "ToString", Type.EmptyTypes);
 
       _expression = new ConstrainedMethodCallExpression (_methodCall);
     }
@@ -44,7 +44,15 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       Assert.That (_expression.Type, Is.SameAs (_methodCall.Type));
       Assert.That (_expression.MethodCall, Is.SameAs (_methodCall));
-      Assert.That (_expression.ConstrainingType, Is.SameAs (typeof (object)));
+      Assert.That (_expression.ConstrainingType, Is.SameAs (typeof (ConstrainedMethodCallExpressionTest)));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot constrain calls to static methods.\r\nParameter name: methodCall")]
+    public void Initialization_StaticMethod ()
+    {
+      var expression = Expression.Call (typeof (string), "Intern", Type.EmptyTypes, Expression.Default (typeof (string)));
+      Dev.Null = new ConstrainedMethodCallExpression (expression);
     }
 
     [Test]

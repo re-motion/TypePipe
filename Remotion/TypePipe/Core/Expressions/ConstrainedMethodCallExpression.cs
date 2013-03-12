@@ -18,7 +18,6 @@
 using System;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions
@@ -33,6 +32,9 @@ namespace Remotion.TypePipe.Expressions
     public ConstrainedMethodCallExpression (MethodCallExpression methodCall)
         : base (ArgumentUtility.CheckNotNull ("methodCall", methodCall).Type)
     {
+      if (methodCall.Object == null)
+        throw new ArgumentException ("Cannot constrain calls to static methods.", "methodCall");
+
       _methodCall = methodCall;
     }
 
@@ -43,7 +45,7 @@ namespace Remotion.TypePipe.Expressions
 
     public Type ConstrainingType
     {
-      get { return _methodCall.Method.DeclaringType; }
+      get { return _methodCall.Object.Type; }
     }
 
     public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
