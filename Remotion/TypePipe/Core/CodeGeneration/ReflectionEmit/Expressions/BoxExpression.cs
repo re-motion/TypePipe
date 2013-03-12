@@ -32,21 +32,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
     {
     }
 
-    public override UnaryExpressionBase Update (Expression operand)
-    {
-      ArgumentUtility.CheckNotNull ("operand", operand);
-
-      if (operand == Operand)
-        return this;
-
-      return new BoxExpression (operand, Type);
-    }
-
     public override Expression Accept (ICodeGenerationExpressionVisitor visitor)
     {
       ArgumentUtility.CheckNotNull ("visitor", visitor);
 
       return visitor.VisitBox (this);
+    }
+
+    protected override UnaryExpressionBase CreateSimiliar (Expression operand)
+    {
+      return new BoxExpression (operand, Type);
     }
   }
 }

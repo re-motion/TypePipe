@@ -17,6 +17,7 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -48,19 +49,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
-    public void Update_NoChanges ()
-    {
-      var result = _expression.Update (_operand);
-
-      Assert.That (result, Is.SameAs (_expression));
-    }
-
-    [Test]
-    public void Update_WithChanges ()
+    public void CreateSimiliar ()
     {
       var newOperand = ExpressionTreeObjectMother.GetSomeExpression();
 
-      var result = _expression.Update (newOperand);
+      var result = _expression.Invoke<UnaryExpressionBase> ("CreateSimiliar", newOperand);
 
       Assert.That (result, Is.TypeOf<UnboxExpression>());
       Assert.That (result.Type, Is.SameAs (_expression.Type));

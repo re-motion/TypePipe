@@ -51,6 +51,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
+    public void Update_NoChanges ()
+    {
+      var result = _expressionPartialMock.Update (_operand);
+
+      Assert.That (result, Is.SameAs (_expressionPartialMock));
+    }
+
+    [Test]
+    public void Update_WithChanges ()
+    {
+      var newOperand = ExpressionTreeObjectMother.GetSomeExpression();
+      var fakeResult = MockRepository.GenerateStrictMock<UnaryExpressionBase>(_operand, _type);
+      _expressionPartialMock.Expect (mock => mock.Invoke ("CreateSimiliar", newOperand)).Return (fakeResult);
+
+      var result = _expressionPartialMock.Update (newOperand);
+
+      Assert.That (result, Is.SameAs (fakeResult));
+    }
+
+    [Test]
     public void VisitChildren_NoChanges ()
     {
       var expression = new BoxExpression (_operand, _type);

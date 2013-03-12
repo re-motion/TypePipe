@@ -41,7 +41,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       get { return _operand; }
     }
 
-    public abstract UnaryExpressionBase Update (Expression operand);
+    protected abstract UnaryExpressionBase CreateSimiliar (Expression operand);
+
+    public UnaryExpressionBase Update (Expression operand)
+    {
+      if (operand == Operand)
+        return this;
+
+      return CreateSimiliar (operand);
+    }
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {
