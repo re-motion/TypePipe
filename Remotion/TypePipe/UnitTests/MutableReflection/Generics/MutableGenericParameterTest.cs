@@ -156,11 +156,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "A generic parameter cannot be constrained by a value type.\r\nParameter name: constraints")]
     public void SetGenericParameterConstraints_ValueTypeBaseConstraint ()
     {
-      _parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeValueType () });
+      var message = "A generic parameter cannot be constrained by a value type.\r\nParameter name: constraints";
+      Assert.That (
+          () => _parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeValueType() }),
+          Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => _parameter.SetGenericParameterConstraints (new[] { typeof (ValueType) }),
+          Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -168,9 +172,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         "A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.\r\nParameter name: constraints")]
     public void SetGenericParameterConstraints_BaseConstraintConflicts_WithNotNullableValueTypeConstraint ()
     {
-      var parameter =
-          MutableGenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.NotNullableValueTypeConstraint);
-
+      var parameter = MutableGenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.NotNullableValueTypeConstraint);
       parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeSubclassableType() });
     }
 
