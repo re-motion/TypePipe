@@ -68,6 +68,7 @@ namespace Remotion.TypePipe.MutableReflection
       {
         var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
         return genericParameter.GetGenericParameterConstraints()
+                               .Where (g => g != typeof (ValueType))
                                .Select (c => instantiationContext.SubstituteGenericParameters (parametersToArguments, c));
       };
       return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);

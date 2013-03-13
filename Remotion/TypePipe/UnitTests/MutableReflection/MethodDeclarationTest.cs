@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var decl = MethodDeclaration.CreateEquivalent (method);
 
       var context = new GenericParameterContext (new[] { ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeOtherType() });
-      Assert.That (decl.GenericParameters, Has.Count.EqualTo (2));
+      Assert.That (decl.GenericParameters, Has.Count.EqualTo (3));
       GenericParameterDeclarationTest.CheckGenericParameter (
           decl.GenericParameters[0],
           context,
@@ -51,6 +51,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           typeof (List<>).MakeGenericType (context.GenericParameters[1]),
           context.GenericParameters[0],
           typeof (IList<>).MakeGenericType (context.GenericParameters[1]));
+      GenericParameterDeclarationTest.CheckGenericParameter (
+          decl.GenericParameters[2],
+          context,
+          "TValue",
+          GenericParameterAttributes.NotNullableValueTypeConstraint | GenericParameterAttributes.DefaultConstructorConstraint);
 
       var returnType = decl.ReturnTypeProvider (context);
       Assert.That (returnType, Is.SameAs (context.GenericParameters[0]));
@@ -70,9 +75,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       MethodDeclaration.CreateEquivalent (ReflectionObjectMother.GetSomeMethodInstantiation());
     }
 
-    public TRet Method<TRet, TArg> (out int i, TArg t)
+    public TRet Method<TRet, TArg, TValue> (out int i, TArg t)
         where TRet : IDisposable, new()
         where TArg : List<TArg>, TRet, IList<TArg>
+        where TValue : struct
     {
       i = 7;
       return default (TRet);
