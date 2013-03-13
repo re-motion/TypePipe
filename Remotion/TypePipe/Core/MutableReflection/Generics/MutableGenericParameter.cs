@@ -123,9 +123,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
           c => c.IsClass && !c.IsGenericParameter,
           () => new ArgumentException ("A generic parameter cannot have multiple base constraints.", "constraints"));
 
-      // TODO 5439: current base type must not be value type (_genericParameterAttributes should not contain GenericParameterAttributes.NotNullableValueTypeConstraint)
       if (baseType != null)
+      {
+        if (_genericParameterAttributes.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint))
+          throw new ArgumentException ("A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.", "constraints");
+
         SetBaseType (baseType);
+      }
     }
 
     public override Type[] GetGenericParameterConstraints ()

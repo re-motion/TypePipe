@@ -165,6 +165,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.\r\nParameter name: constraints")]
+    public void SetGenericParameterConstraints_BaseConstraintConflicts_WithNotNullableValueTypeConstraint ()
+    {
+      var parameter =
+          MutableGenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.NotNullableValueTypeConstraint);
+
+      parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeSubclassableType() });
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
         "A generic parameter cannot have multiple base constraints.\r\nParameter name: constraints")]
     public void SetGenericParameterConstraints_MoreThanOneBaseConstraint ()
     {
