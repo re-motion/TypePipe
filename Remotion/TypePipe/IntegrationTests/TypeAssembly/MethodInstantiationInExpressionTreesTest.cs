@@ -97,7 +97,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (resultType.GetElementType(), Is.SameAs (type));
     }
 
-    public class DomainType {
+    public class DomainType
+    {
       public virtual object Method () { return null; }
     }
   }
