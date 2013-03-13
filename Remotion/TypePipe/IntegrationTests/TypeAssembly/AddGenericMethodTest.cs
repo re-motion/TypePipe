@@ -159,8 +159,31 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.Invoke (instance, new object[] { 7, 8 }), Is.False);
     }
 
-    // TODO: test for passing a 1) value type and afterwards 2) a reference type to the same generic method, as a parameter which is has a type of
-    // generic parameter (defined on the method) and is constrained via an interface interface.
+    [Test]
+    public void CallMethod_DefinedByInterfaceConstraint ()
+    {
+      // public string GenericMethod<T> (T t) where T : IDomainInterface
+      // { return t.GetTypeName(); }
+
+      var ifcMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName());
+      var type = AssembleType<DomainType> (
+          p => p.AddGenericMethod (
+              "GenericMethod",
+              MethodAttributes.Public,
+              new[] { new GenericParameterDeclaration ("T", constraintProvider: ctx => new[] { typeof (IDomainInterface) }) },
+              ctx => typeof (string),
+              ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t") },
+              ctx => Expression.Call (ctx.Parameters[0], ifcMethod)));
+
+      var genericMethod = type.GetMethod ("GenericMethod");
+      var instance = Activator.CreateInstance (type);
+
+      var instantiation1 = genericMethod.MakeGenericMethod (typeof (DomainType));
+      var instantiation2 = genericMethod.MakeGenericMethod (typeof (DomainValueType));
+
+      Assert.That (instantiation1.Invoke (instance, new object[] { new DomainType() }), Is.EqualTo ("DomainType"));
+      Assert.That (instantiation2.Invoke (instance, new object[] { new DomainValueType() }), Is.EqualTo ("value type"));
+    }
 
     public interface IDomainInterface
     {
@@ -170,6 +193,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public class DomainType : BaseType, IDomainInterface
     {
       public string GetTypeName () { return GetType().Name; }
+    }
+    public class DomainValueType : IDomainInterface
+    {
+      public string GetTypeName () { return "value type"; }
     }
   }
 }
