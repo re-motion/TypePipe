@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void Convert_ThrowsIfCastIsGuaranteedToFail ()
     {
       var valueType = ReflectionObjectMother.GetSomeValueType();
-      var otherValueType = typeof (int);
+      var otherValueType = typeof (bool);
       var genericParameter = ReflectionObjectMother.GetSomeGenericParameter();
       var otherGenericParameter = typeof (IList<>).GetGenericArguments().Single();
       Assert.That (otherValueType, Is.Not.SameAs (valueType));
