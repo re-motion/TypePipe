@@ -251,7 +251,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Assert.That (ctx.DeclaringType, Is.SameAs (declaringType));
         Assert.That (ctx.IsStatic, Is.False);
         Assert.That (ctx.Parameters, Is.EqualTo (method.ParameterExpressions).And.Not.Empty);
-        // TODO 5440: use mutableGenericParameters.
         Assert.That (ctx.GenericParameters, Is.EqualTo (genericParameters));
         Assert.That (ctx.ReturnType, Is.SameAs (returnType));
         Assert.That (ctx.BaseMethod, Is.SameAs (baseMethod));

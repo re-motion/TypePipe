@@ -114,8 +114,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override bool ContainsGenericParameters
     {
-      // TODO 5443: improve also use ContaingsGenericParameters.
-      get { return _typeArguments.Any (g => g.IsGenericParameter); }
+      get { return _declaringType.ContainsGenericParameters || _typeArguments.Any (g => g.ContainsGenericParameters); }
     }
 
     public override MethodInfo GetGenericMethodDefinition ()

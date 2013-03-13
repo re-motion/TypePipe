@@ -15,12 +15,14 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -122,6 +124,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void ContainsGenericParameters ()
+    {
+      Assert.That (_customMethod.ContainsGenericParameters, Is.False);
+      Assert.That (_genericMethod.ContainsGenericParameters, Is.False);
+      Assert.That (_genericMethodDefinition.ContainsGenericParameters, Is.True);
+
+      var typeInstantiation = TypeInstantiationObjectMother.Create (typeof (IList<>), new[] { ReflectionObjectMother.GetSomeGenericParameter() });
+      var method1 = CustomMethodInfoObjectMother.Create (
+          genericMethodDefintion: _genericMethodUnderlyingDefinition, typeArguments: new[] { typeInstantiation });
+      Assert.That (method1.ContainsGenericParameters, Is.True);
+
+      var genericTypeDefinition = CustomTypeObjectMother.Create (isGenericType: true, typeArguments: new[] { ReflectionObjectMother.GetSomeGenericParameter() });
+      var method2 = CustomMethodInfoObjectMother.Create (declaringType: genericTypeDefinition);
+      Assert.That (method2.ContainsGenericParameters, Is.True);
+    }
+
+    [Test]
     public void MakeGenericMethod ()
     {
       var result = _genericMethodDefinition.MakeGenericMethod (_typeArgument);
@@ -196,6 +215,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       UnsupportedMemberTestHelper.CheckMethod (() => _customMethod.GetMethodBody(), "GetMethodBody");
       UnsupportedMemberTestHelper.CheckMethod (() => _customMethod.Invoke (null, 0, null, null, null), "Invoke");
+    }
+
+    public class DomainType<T>
+    {
+      public void Method (T arg) { } 
     }
   }
 }
