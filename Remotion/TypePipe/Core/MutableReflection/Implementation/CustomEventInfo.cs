@@ -83,19 +83,24 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _attributes; }
     }
 
-    public override MethodInfo GetRemoveMethod (bool nonPublic)
-    {
-      return _removeMethod.IsPublic || nonPublic ? _removeMethod : null;
-    }
-
     public override MethodInfo GetAddMethod (bool nonPublic)
     {
       return _addMethod.IsPublic || nonPublic ? _addMethod : null;
     }
 
+    public override MethodInfo GetRemoveMethod (bool nonPublic)
+    {
+      return _removeMethod.IsPublic || nonPublic ? _removeMethod : null;
+    }
+
     public override MethodInfo GetRaiseMethod (bool nonPublic)
     {
       return _raiseMethod != null && (_raiseMethod.IsPublic || nonPublic) ? _raiseMethod : null;
+    }
+
+    public override MethodInfo[] GetOtherMethods (bool nonPublic)
+    {
+      return new MethodInfo[0];
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
@@ -137,11 +142,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type ReflectedType
     {
       get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
-    }
-
-    public override MethodInfo[] GetOtherMethods (bool nonPublic)
-    {
-      throw new NotSupportedException ("Method GetOtherMethods is not supported.");
     }
 
     #endregion

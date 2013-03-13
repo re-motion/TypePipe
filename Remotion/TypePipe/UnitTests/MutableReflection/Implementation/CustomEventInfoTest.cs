@@ -18,7 +18,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -32,6 +34,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private MethodInfo _nonPublicRemoveMethod;
     private MethodInfo _nonPublicRaiseMethod;
 
+    private CustomType _declaringType;
+    private string _name;
+    private EventAttributes _attributes;
+
+    private TestableCustomEventInfo _event;
+
     [SetUp]
     public void SetUp ()
     {
@@ -41,23 +49,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _nonPublicAddMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.NonPublicAddMethod (null));
       _nonPublicRemoveMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.NonPublicRemoveMethod (null));
       _nonPublicRaiseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.NonPublicRaiseMethod ("", 7));
+
+      _declaringType = CustomTypeObjectMother.Create();
+      _name = "Event";
+      _attributes = (EventAttributes) 7;
+
+      _event = new TestableCustomEventInfo (_declaringType, _name, _attributes, _publicAddMethod, _publicRemoveMethod, _publicRaiseMethod);
     }
 
     [Test]
     public void Initialization ()
     {
-      var declaringType = CustomTypeObjectMother.Create();
-      var name = "Event";
-      var attributes = (EventAttributes) 7;
-
-      var result = new TestableCustomEventInfo (declaringType, name, attributes, _publicAddMethod, _publicRemoveMethod, _publicRaiseMethod);
-
-      Assert.That (result.DeclaringType, Is.EqualTo (declaringType));
-      Assert.That (result.Name, Is.EqualTo (name));
-      Assert.That (result.Attributes, Is.EqualTo (attributes));
-      Assert.That (result.GetAddMethod(), Is.SameAs (_publicAddMethod));
-      Assert.That (result.GetRemoveMethod(), Is.SameAs (_publicRemoveMethod));
-      Assert.That (result.GetRaiseMethod(), Is.SameAs (_publicRaiseMethod));
+      Assert.That (_event.DeclaringType, Is.EqualTo (_declaringType));
+      Assert.That (_event.Name, Is.EqualTo (_name));
+      Assert.That (_event.Attributes, Is.EqualTo (_attributes));
+      Assert.That (_event.GetAddMethod(), Is.SameAs (_publicAddMethod));
+      Assert.That (_event.GetRemoveMethod(), Is.SameAs (_publicRemoveMethod));
+      Assert.That (_event.GetRaiseMethod(), Is.SameAs (_publicRaiseMethod));
     }
 
     [Test]
@@ -100,6 +108,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void GetOtherMethods ()
+    {
+      var nonPublic = BooleanObjectMother.GetRandomBoolean();
+      Assert.That (_event.GetOtherMethods (nonPublic), Is.Empty);
+    }
+
+    [Test]
     public void CustomAttributeMethods ()
     {
       var event_ = CustomEventInfoObjectMother.Create (
@@ -139,7 +154,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var event_ = CustomEventInfoObjectMother.Create();
 
       UnsupportedMemberTestHelper.CheckProperty (() => event_.ReflectedType, "ReflectedType");
-      UnsupportedMemberTestHelper.CheckMethod (() => event_.GetOtherMethods (true), "GetOtherMethods");
     }
 
     delegate void MyEventDelegate (string arg1, int arg2);
