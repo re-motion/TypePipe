@@ -117,7 +117,7 @@ namespace System.Linq.Expressions.Compiler {
                 // emit "this", if any
                 Type objectType = null;
                 if (node.Expression != null) {
-                    EmitInstance(node.Expression, objectType = node.Expression.Type);
+                    EmitInstance(node.Expression, objectType = node.Expression.Type, node.Member);
                 }
                 EmitMemberAddress(node.Member, objectType);
             } else {
@@ -249,7 +249,7 @@ namespace System.Linq.Expressions.Compiler {
             LocalBuilder instanceLocal = null;
             Type instanceType = null;
             if (node.Expression != null) {
-                EmitInstance(node.Expression, instanceType = node.Expression.Type);
+                EmitInstance(node.Expression, instanceType = node.Expression.Type, node.Member);
                 // store in local
                 _ilg.Emit(OpCodes.Dup);
                 _ilg.Emit(OpCodes.Stloc, instanceLocal = GetLocal(instanceType));
@@ -287,7 +287,7 @@ namespace System.Linq.Expressions.Compiler {
             LocalBuilder instanceLocal = null;
             Type instanceType = null;
             if (node.Object != null) {
-                EmitInstance(node.Object, instanceType = node.Object.Type);
+                EmitInstance(node.Object, instanceType = node.Object.Type, node.Indexer);
                 
                 _ilg.Emit(OpCodes.Dup);
                 _ilg.Emit(OpCodes.Stloc, instanceLocal = GetLocal(instanceType));

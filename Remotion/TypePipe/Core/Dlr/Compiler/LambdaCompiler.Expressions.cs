@@ -222,7 +222,7 @@ namespace System.Linq.Expressions.Compiler {
             // Emit instance, if calling an instance method
             Type objectType = null;
             if (node.Object != null) {
-                EmitInstance(node.Object, objectType = node.Object.Type);
+                EmitInstance(node.Object, objectType = node.Object.Type, node.Indexer);
             }
 
             // Emit indexes. We don't allow byref args, so no need to worry
@@ -242,7 +242,7 @@ namespace System.Linq.Expressions.Compiler {
             // Emit instance, if calling an instance method
             Type objectType = null;
             if (index.Object != null) {
-                EmitInstance(index.Object, objectType = index.Object.Type);
+                EmitInstance(index.Object, objectType = index.Object.Type, index.Indexer);
             }
 
             // Emit indexes. We don't allow byref args, so no need to worry
@@ -320,7 +320,7 @@ namespace System.Linq.Expressions.Compiler {
             // Emit instance, if calling an instance method
             Type objectType = null;
             if (!method.IsStatic) {
-                EmitInstance(obj, objectType = obj.Type);
+                EmitInstance(obj, objectType = obj.Type, method);
             }
             // if the obj has a value type, its address is passed to the method call so we cannot destroy the 
             // stack by emitting a tail call
@@ -653,7 +653,7 @@ namespace System.Linq.Expressions.Compiler {
             // emit "this", if any
             Type objectType = null;
             if (lvalue.Expression != null) {
-                EmitInstance(lvalue.Expression, objectType = lvalue.Expression.Type);
+                EmitInstance(lvalue.Expression, objectType = lvalue.Expression.Type, member);
             }
 
             // emit value
@@ -690,7 +690,7 @@ namespace System.Linq.Expressions.Compiler {
             // emit "this", if any
             Type instanceType = null;
             if (node.Expression != null) {
-                EmitInstance(node.Expression, instanceType = node.Expression.Type);
+                EmitInstance(node.Expression, instanceType = node.Expression.Type, node.Member);
             }
 
             EmitMemberGet(node.Member, instanceType);
@@ -715,13 +715,29 @@ namespace System.Linq.Expressions.Compiler {
             }
         }
 
-        private void EmitInstance(Expression instance, Type type) {
+        private void EmitInstance(Expression instance, Type type, MemberInfo member) {
             if (instance != null) {
-                if (type.IsValueType || type.IsGenericParameter) {
+                if (type.IsGenericParameter) {
+                    EmitGenericParameterInstance(instance, type, member);
+                } else if (type.IsValueType) {
                     EmitAddress(instance, type);
                 } else {
                     EmitExpression(instance);
                 }
+            }
+        }
+
+        private void EmitGenericParameterInstance (Expression instance, Type type, MemberInfo member) {
+            Debug.Assert (member != null, "A generic parameter instance is only emitted to access a field or method on the generic parameter.");
+          
+            if (member is FieldInfo) {
+                // We need the instance otherwise ldfld/stfld is not verifiable.
+                EmitExpression (instance);
+                _ilg.Emit (OpCodes.Box, type);
+            } else {
+                // If the member isn't a field the instance will be used for a method call (e.g. accessors of properties).
+                // For method calls we need to emit the address because of: .constrained callvirt.
+                EmitAddress (instance, type);
             }
         }
 
