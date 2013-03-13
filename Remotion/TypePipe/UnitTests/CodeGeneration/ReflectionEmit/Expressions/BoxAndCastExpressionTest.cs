@@ -25,12 +25,12 @@ using Remotion.Development.UnitTesting;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
   [TestFixture]
-  public class BoxExpressionTest
+  public class BoxAndCastExpressionTest
   {
     private Expression _operand;
     private Type _type;
 
-    private BoxExpression _expression;
+    private BoxAndCastExpression _expression;
 
     [SetUp]
     public void SetUp ()
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       _operand = ExpressionTreeObjectMother.GetSomeExpression ();
       _type = ReflectionObjectMother.GetSomeType ();
 
-      _expression = new BoxExpression(_operand, _type);
+      _expression = new BoxAndCastExpression(_operand, _type);
     }
 
     [Test]
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 
       var result = _expression.Invoke<UnaryExpressionBase> ("CreateSimiliar", newOperand);
 
-      Assert.That (result, Is.TypeOf<BoxExpression>());
+      Assert.That (result, Is.TypeOf<BoxAndCastExpression>());
       Assert.That (result.Type, Is.SameAs (_expression.Type));
       Assert.That (result.Operand, Is.SameAs ((newOperand)));
     }

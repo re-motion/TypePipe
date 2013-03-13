@@ -25,9 +25,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// <summary>
   /// Represents a <see cref="OpCodes.Box"/> operation followed by a <see cref="OpCodes.Castclass"/> to the correct type.
   /// </summary>
-  public class BoxExpression : UnaryExpressionBase
+  public class BoxAndCastExpression : UnaryExpressionBase
   {
-    public BoxExpression (Expression operand, Type toType)
+    public BoxAndCastExpression (Expression operand, Type toType)
         : base (operand, toType)
     {
     }
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     protected override UnaryExpressionBase CreateSimiliar (Expression operand)
     {
-      return new BoxExpression (operand, Type);
+      return new BoxAndCastExpression (operand, Type);
     }
   }
 }

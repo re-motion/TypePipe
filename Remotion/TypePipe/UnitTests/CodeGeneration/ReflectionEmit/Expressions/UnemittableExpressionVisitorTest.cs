@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 
       var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
 
-      var expectedExpression = new UnboxExpression (new BoxExpression (expression.Operand, typeof (object)), toGenericParameter);
+      var expectedExpression = new UnboxExpression (new BoxAndCastExpression (expression.Operand, typeof (object)), toGenericParameter);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 
@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 
       var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
 
-      var expectedExpression = new BoxExpression (expression.Operand, toReferenceType);
+      var expectedExpression = new BoxAndCastExpression (expression.Operand, toReferenceType);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 

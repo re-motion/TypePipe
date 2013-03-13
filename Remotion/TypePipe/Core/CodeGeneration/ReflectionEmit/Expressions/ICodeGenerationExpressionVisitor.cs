@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
   /// </summary>
   public interface ICodeGenerationExpressionVisitor : IPrimitiveTypePipeExpressionVisitor
   {
-    Expression VisitBox (BoxExpression node);
+    Expression VisitBox (BoxAndCastExpression node);
     Expression VisitUnbox (UnboxExpression node);
   }
 }

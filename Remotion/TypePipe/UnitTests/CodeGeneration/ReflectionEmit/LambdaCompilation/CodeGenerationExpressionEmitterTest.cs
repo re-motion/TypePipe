@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void VisitBox ()
     {
-      var expression = ExpressionTreeObjectMother.GetSomeBoxExpression();
+      var expression = ExpressionTreeObjectMother.GetSomeBoxAndCastExpression();
       Assert.That (expression.Type, Is.Not.SameAs (expression.Operand.Type));
       _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Operand));
       _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Box, expression.Operand.Type));

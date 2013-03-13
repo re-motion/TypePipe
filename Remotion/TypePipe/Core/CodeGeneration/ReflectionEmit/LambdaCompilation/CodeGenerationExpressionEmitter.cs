@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       return node;
     }
 
-    public Expression VisitBox (BoxExpression node)
+    public Expression VisitBox (BoxAndCastExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
 

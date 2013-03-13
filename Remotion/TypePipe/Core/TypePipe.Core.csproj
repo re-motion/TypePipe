@@ -138,7 +138,7 @@
     <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
     <Compile Include="Dlr\Ast\LambdaExpression.TypePipe.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxExpression.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxAndCastExpression.cs" />
     <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
     <Compile Include="Expressions\Expression.cs" />
     <Compile Include="Expressions\ExpressionExtensions.cs" />

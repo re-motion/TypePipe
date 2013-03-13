@@ -48,11 +48,11 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       return new NewDelegateExpression (delegateType, target, method);
     }
 
-    public static BoxExpression GetSomeBoxExpression ()
+    public static BoxAndCastExpression GetSomeBoxAndCastExpression ()
     {
       var operand = GetSomeExpression();
       var type = ReflectionObjectMother.GetSomeType();
-      return new BoxExpression (operand, type);
+      return new BoxAndCastExpression (operand, type);
     }
 
     public static UnboxExpression GetSomeUnboxExpression ()
