@@ -42,11 +42,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 MethodAttributes.Public, new[] { new ParameterDeclaration (typeof (int), "p") }, ctx => ctx.CallThisConstructor());
             ctor.AddCustomAttribute (CreateAttribute (proxyType));
             ctor.MutableParameters.Single().AddCustomAttribute (CreateAttribute (proxyType));
-            proxyType
-                .AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty())
-                .AddCustomAttribute (CreateAttribute (proxyType));
-            // TODO 4675: Add attribute to property
-            // TODO 4676: Add attribute to event
+            proxyType.AddMethod ("Method", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty())
+                     .AddCustomAttribute (CreateAttribute (proxyType));
+            proxyType.AddProperty ("Property", typeof (int), ParameterDeclaration.None, MethodAttributes.Public, ctx => Expression.Constant (7), null)
+                     .AddCustomAttribute (CreateAttribute (proxyType));
+            proxyType.AddEvent ("Event", typeof (Action), MethodAttributes.Public, ctx => Expression.Empty(), ctx => Expression.Empty())
+                     .AddCustomAttribute (CreateAttribute (proxyType));
           });
 
       var constructor = type.GetConstructor (new[] { typeof (int) });
@@ -57,6 +58,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckCustomAttribute (constructor, type);
       CheckCustomAttribute (constructor.GetParameters().Single(), type);
       CheckCustomAttribute (type.GetMethod ("Method"), type);
+      CheckCustomAttribute (type.GetProperty ("Property"), type);
+      CheckCustomAttribute (type.GetEvent ("Event"), type);
     }
 
     [Test]
