@@ -16,24 +16,19 @@
 // 
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
   public class GenericParameterMemberAccessTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore("TODO 5444")]
     [Test]
     public void AccessMembers ()
     {
-      SkipDeletion();
-
       var overriddenMethod =
           NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null, ""));
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((Constraint o) => o.Field);
@@ -43,11 +38,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx =>
       {
         var parameter = ctx.Parameters[0];
-        var variable = Expression.Variable (ctx.GenericParameters[0]);
+        var variable = Expression.Variable (typeof (string));
 
         return Expression.Block (
             new[] { variable },
-            Expression.Assign (variable, Expression.Call (parameter, method, ctx.Parameters[0])),
+            Expression.Assign (variable, Expression.Call (parameter, method, ctx.Parameters[1])),
             Expression.Assign (Expression.Field (parameter, field), variable),
             Expression.Assign (Expression.Property (parameter, property), Expression.Field (parameter, field)),
             Expression.Property (parameter, property));
@@ -66,9 +61,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void CallVirtualMethod ()
     {
-      // TODO 5444: remove
-      SkipDeletion();
-
       var overriddenMethod =
           NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null, ""));
       var virtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.VirtualMethod (""));
@@ -84,62 +76,29 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo ("virtual method: abc"));
     }
 
-    [Ignore ("TODO 5444")]
     [Test]
     public void AccessField_ReferenceConstraint ()
     {
-      SkipDeletion();
+      var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null, ""));
 
       var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
-              "Method",
-              MethodAttributes.Public,
-              new[] { new GenericParameterDeclaration ("T", constraintProvider: ctx => new[] { typeof (Constraint) }) },
-              ctx => typeof (string),
-              ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t") },
+          p => p.GetOrAddOverride (overriddenMethod).SetBody (
               ctx => Expression.Block (
-                  Expression.Assign (Expression.Field (ctx.Parameters[0], "Field"), Expression.Constant ("field on value type constraint")),
+                  Expression.Assign (Expression.Field (ctx.Parameters[0], "Field"), ctx.Parameters[1]),
                   Expression.Field (ctx.Parameters[0], "Field"))));
 
-      var method = type.GetMethod ("Method");
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
 
-      method.Invoke (instance, new object[] { arg });
+      var result = instance.GenericMethod (arg, "field on value type");
 
       Assert.That (arg.Field, Is.EqualTo ("field on value type"));
-    }
-
-    [Ignore ("TODO 5444")]
-    [Test]
-    public void AccessField_ValueTypeConstraint ()
-    {
-      SkipDeletion();
-
-      var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
-              "Method",
-              MethodAttributes.Public,
-              new[] { new GenericParameterDeclaration ("T", constraintProvider: ctx => new[] { typeof (ValueTypeConstraint) }) },
-              ctx => typeof (void),
-              ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t") },
-              ctx => Expression.Block (
-                  Expression.Assign (Expression.Field (ctx.Parameters[0], "Field"), Expression.Constant ("field on value type constraint")),
-                  Expression.Field (ctx.Parameters[0], "Field"))));
-
-      var method = type.GetMethod ("Method");
-      var instance = (DomainType) Activator.CreateInstance (type);
-      var arg = new ValueTypeConstraint();
-
-      method.Invoke (instance, new object[] { arg });
-
-      Assert.That (arg.Field, Is.EqualTo ("field on value type"));
+      Assert.That (result, Is.EqualTo ("field on value type"));
     }
 
     public class DomainType
     {
       public virtual string GenericMethod<T> (T t, string arg) where T : Constraint { return ""; }
-      // public virtual string GenericMethod<T> (T t, string arg) where T : ValueTypeConstraint { return "";  } // Not possible in C#.
     }
 
     public class Constraint
@@ -151,11 +110,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       // Events do not have a representation in expression trees.
 
       public virtual string VirtualMethod (string arg) { return "virtual method: " + arg; }
-    }
-
-    public struct ValueTypeConstraint
-    {
-      [UsedImplicitly] public string Field;
     }
   }
 }
