@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Ast.Compiler;
@@ -182,19 +183,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       // This means that we cannot determine the type of the value left on the evaluation stack at compile time.
       // Therefore, we box the value first (guaranteed boxed value) and immediatly unbox it again (guaranteed to work if cast is valid).
       // This is roughly equivalent why the (object) cast is necessary in the following C# snippets:
-      //   T Method<T>() { return (T) (object) 7; }
-      //   int Method<T>(T t) { return (int) (object) t; }
+      //   T1 Method<T1, T2> (T2 t2) { return (T1) (object) t2; }
 
       if (toType.IsGenericParameter && fromType.IsGenericParameter)
         return BoxThenUnbox (operand, toType);
       if (toType.IsGenericParameter && fromType.IsClass)
         return new UnboxExpression (operand, toType);
-      if (toType.IsGenericParameter && fromType.IsValueType)
-        return BoxThenUnbox (operand, toType);
       if (toType.IsClass && fromType.IsGenericParameter)
         return new BoxExpression (operand, toType);
+      if (toType.IsGenericParameter && fromType.IsValueType)
+        Debug.Fail ("Convert expression that converts from value type to generic parameter is not valid (must convert via object).");
       if (toType.IsValueType && fromType.IsGenericParameter)
-        return BoxThenUnbox (operand, toType);
+        Debug.Fail ("Convert expression that converts from generic parameter to value type is not valid (must convert via object).");
 
       return node;
     }

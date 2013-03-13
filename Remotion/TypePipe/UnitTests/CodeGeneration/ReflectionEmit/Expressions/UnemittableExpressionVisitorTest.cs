@@ -167,20 +167,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 
-    [Ignore ("TODO 5460")]
-    [Test]
-    public void VisitUnary_Convert_ToGenericParameter_FromValueType_BoxThenUnbox ()
-    {
-      var fromValueType = typeof (ValueTypeImplementingIDisposable);
-      var toGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { fromValueType });
-      var expression = Expression.Convert (Expression.Default (fromValueType), toGenericParameter);
-
-      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
-
-      var expectedExpression = new UnboxExpression (new BoxExpression (expression.Operand, typeof (object)), toGenericParameter);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
-    }
-
     [Test]
     public void VisitUnary_Convert_ToReferenceType_FromGenericParameter_Box ()
     {
@@ -191,20 +177,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
 
       var expectedExpression = new BoxExpression (expression.Operand, toReferenceType);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
-    }
-
-    [Ignore("TODO 5460")]
-    [Test]
-    public void VisitUnary_Convert_ToValueType_FromGenericParameter_BoxThenUnbox ()
-    {
-      var toValueType = ReflectionObjectMother.GetSomeValueType();
-      var fromGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { toValueType });
-      var expression = Expression.Convert (Expression.Default (fromGenericParameter), toValueType);
-
-      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
-
-      var expectedExpression = new UnboxExpression (new BoxExpression (expression.Operand, typeof (object)), toValueType);
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 
