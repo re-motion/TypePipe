@@ -82,7 +82,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo ("Integer 7"));
     }
 
-    [Ignore ("TODO 4774")]
     [Test]
     public void Constraints_ReferenceTypes_AndBaseTypeAndInterfaces ()
     {
@@ -114,14 +113,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var method = genericMethod.MakeGenericMethod (typeof (DomainType));
       var instance = Activator.CreateInstance (type);
-      var result = method.Invoke (instance, null);
+      var result = method.Invoke (instance, new object[] { null });
       Assert.That (result, Is.EqualTo ("DomainType"));
     }
 
-    [Ignore ("TODO 4774")]
     [Test]
     public void Constraints_ValueTypes_ConstraintContainingGenericMethodParameter ()
     {
+      // public bool GenericEquals<T> (T a, T b)
+      //    where T : IComparable<>
+      // {  return a.CompareTo(b) == 0; }
+
       var type = AssembleType<DomainType> (
           p => p.AddGenericMethod (
               "GenericEquals",
@@ -135,19 +137,26 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               },
               ctx => typeof (bool),
               ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "a"), new ParameterDeclaration (ctx.GenericParameters[0], "b") },
-              ctx => Expression.Equal (Expression.Call (ctx.Parameters[0], "CompareTo", Type.EmptyTypes, ctx.Parameters[1]), Expression.Constant (0))));
+              ctx =>
+              {
+                var compareMethod = typeof(IComparable<>).MakeTypePipeGenericType(ctx.GenericParameters[0]).GetMethod ("CompareTo");
+                return Expression.Equal (Expression.Call (ctx.Parameters[0], compareMethod, ctx.Parameters[1]), Expression.Constant (0));
+              }));
 
       var genericMethod = type.GetMethod ("GenericEquals");
       var genericParameter = genericMethod.GetGenericArguments().Single();
-      var parameterType = genericMethod.GetParameters().Single().ParameterType;
-      Assert.That (parameterType.GetGenericTypeDefinition(), Is.SameAs (typeof (IComparable<>)));
-      Assert.That (parameterType.GetGenericArguments().Single(), Is.SameAs (genericParameter));
+      Assert.That (genericParameter.IsGenericParameter, Is.True);
+      Assert.That (
+          genericParameter.GetGenericParameterConstraints(),
+          Is.EquivalentTo (new[] { typeof (ValueType), typeof (IComparable<>).MakeGenericType (genericParameter) }));
+      var parameterTypes = genericMethod.GetParameters().Select (p => p.ParameterType).ToList();
+      Assert.That (parameterTypes[0], Is.SameAs (parameterTypes[1]).And.SameAs (genericParameter));
 
-      var method = genericMethod.MakeGenericMethod (typeof (string));
+      var method = genericMethod.MakeGenericMethod (typeof (int));
       var instance = Activator.CreateInstance (type);
 
-      Assert.That (method.Invoke (instance, new object[] { "same", "same" }), Is.True);
-      Assert.That (method.Invoke (instance, new object[] { "same", "other" }), Is.False);
+      Assert.That (method.Invoke (instance, new object[] { 7, 7 }), Is.True);
+      Assert.That (method.Invoke (instance, new object[] { 7, 8 }), Is.False);
     }
 
     // TODO: test for passing a 1) value type and afterwards 2) a reference type to the same generic method, as a parameter which is has a type of
@@ -158,7 +167,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       string GetTypeName ();
     }
     public class BaseType { }
-    public class DomainType : IDomainInterface
+    public class DomainType : BaseType, IDomainInterface
     {
       public string GetTypeName () { return GetType().Name; }
     }
