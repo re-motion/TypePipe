@@ -167,6 +167,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 
+    [Ignore ("TODO 5460")]
     [Test]
     public void VisitUnary_Convert_ToGenericParameter_FromValueType_BoxThenUnbox ()
     {
@@ -193,6 +194,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
     }
 
+    [Ignore("TODO 5460")]
     [Test]
     public void VisitUnary_Convert_ToValueType_FromGenericParameter_BoxThenUnbox ()
     {

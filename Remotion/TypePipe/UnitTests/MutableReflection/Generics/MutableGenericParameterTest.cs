@@ -137,18 +137,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    public void SetGenericParameterConstraints_ValueTypeBaseConstraint ()
-    {
-      var baseConstraint = ReflectionObjectMother.GetSomeValueType();
-
-      _parameter.SetGenericParameterConstraints (new[] { baseConstraint });
-
-      Assert.That (_parameter.BaseType, Is.SameAs (baseConstraint));
-      Assert.That (_parameter.GetInterfaces(), Is.EqualTo (baseConstraint.GetInterfaces()));
-      Assert.That (_parameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { baseConstraint }));
-    }
-
-    [Test]
     public void SetGenericParameterConstraints_NoBaseConstraint ()
     {
       _parameter.SetGenericParameterConstraints (Type.EmptyTypes);
@@ -165,6 +153,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _parameter.SetGenericParameterConstraints (new[] { genericParameter });
 
       Assert.That (_parameter.BaseType, Is.SameAs (typeof (object)));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "A generic parameter cannot be constrained by a value type.\r\nParameter name: constraints")]
+    public void SetGenericParameterConstraints_ValueTypeBaseConstraint ()
+    {
+      _parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeValueType () });
     }
 
     [Test]
