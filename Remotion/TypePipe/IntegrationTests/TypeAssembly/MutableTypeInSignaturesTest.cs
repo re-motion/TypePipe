@@ -28,7 +28,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  public class ProxyTypeInSignaturesTest : TypeAssemblerIntegrationTestBase
+  public class MutableTypeInSignaturesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void CustomAttributes ()
@@ -190,10 +190,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       }
     }
 
-    private CustomAttributeDeclaration CreateAttribute (ProxyType proxyType)
+    private CustomAttributeDeclaration CreateAttribute (MutableType mutableType)
     {
       var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (null));
-      return new CustomAttributeDeclaration (attributeCtor, new object[] { proxyType });
+      return new CustomAttributeDeclaration (attributeCtor, new object[] { mutableType });
     }
 
     public class DomainType { }

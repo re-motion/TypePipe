@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   {
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-    protected ConstructorBodyContextBase (ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
+    protected ConstructorBodyContextBase (MutableType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
         : base (declaringType, isStatic, parameterExpressions)
     {
     }

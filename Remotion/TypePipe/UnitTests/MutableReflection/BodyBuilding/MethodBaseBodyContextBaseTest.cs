@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class MethodBaseBodyContextBaseTest
   {
-    private ProxyType _declaringType;
+    private MutableType _declaringType;
     private bool _isStatic;
 
     private MethodBaseBodyContextBase _context;
@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create();
+      _declaringType = MutableTypeObjectMother.Create();
       _isStatic = BooleanObjectMother.GetRandomBoolean();
 
       _context = new TestableMethodBaseBodyContextBase (_declaringType, new ParameterExpression[0], _isStatic);

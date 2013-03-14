@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   public interface IMethodFactory
   {
     MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,

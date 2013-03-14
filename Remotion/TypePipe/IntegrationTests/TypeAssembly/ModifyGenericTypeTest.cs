@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo (7));
     }
 
-    // TODO 4744: Implement ProxyType.GetGenericArguments, GetGenericTypeDefinition, IsGenericType, IsGenericTypeDefinition, etc.; use them in an integration test.
+    // TODO 4744: Implement MutableType.GetGenericArguments, GetGenericTypeDefinition, IsGenericType, IsGenericTypeDefinition, etc.; use them in an integration test.
 
     [Test]
     public void ClosedGenericType_OverrideMethodWithGenericParameter ()

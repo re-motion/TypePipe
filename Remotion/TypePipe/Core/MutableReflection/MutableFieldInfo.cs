@@ -32,14 +32,14 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
-    public MutableFieldInfo (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo (MutableType declaringType, string name, Type type, FieldAttributes attributes)
         : base (declaringType, name, type, attributes)
     {
     }
 
-    public ProxyType MutableDeclaringType
+    public MutableType MutableDeclaringType
     {
-      get { return (ProxyType) DeclaringType; }
+      get { return (MutableType) DeclaringType; }
     }
 
     public override FieldAttributes Attributes

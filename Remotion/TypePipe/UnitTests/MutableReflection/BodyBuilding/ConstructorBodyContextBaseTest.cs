@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class ConstructorBodyContextBaseTest
   {
-    private ProxyType _declaringType;
+    private MutableType _declaringType;
     private ParameterExpression[] _parameters;
 
     private ConstructorBodyContextBase _context;
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType), name: "Domain_Proxy", copyCtorsFromBase: true);
+      _declaringType = MutableTypeObjectMother.Create (baseType: typeof (DomainType), name: "Domain_Proxy", copyCtorsFromBase: true);
       _parameters = new[] { Expression.Parameter (typeof (string)) };
 
       _context = new TestableConstructorBodyContextBase (_declaringType, false, _parameters.AsOneTime());

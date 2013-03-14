@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class MethodBodyContextBaseTest
   {
-    private ProxyType _declaringType;
+    private MutableType _declaringType;
     private bool _isStatic;
     private ParameterExpression[] _parameters;
     private Type[] _genericParameters;
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create();
+      _declaringType = MutableTypeObjectMother.Create();
       _isStatic = BooleanObjectMother.GetRandomBoolean();
       _parameters = new[] { Expression.Parameter (typeof (string)) };
       _genericParameters = new[] { ReflectionObjectMother.GetSomeGenericParameter() };

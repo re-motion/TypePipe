@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// </summary>
   public class FieldFactory
   {
-    public MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

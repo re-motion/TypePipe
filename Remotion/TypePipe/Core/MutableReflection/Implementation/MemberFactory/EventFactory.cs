@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableEventInfo CreateEvent (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         Type handlerType,
         MethodAttributes accessorAttributes,
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableEventInfo CreateEvent (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         EventAttributes attributes,
         MutableMethodInfo addMethod,

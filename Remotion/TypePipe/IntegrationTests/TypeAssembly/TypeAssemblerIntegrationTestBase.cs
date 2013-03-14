@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType<T> (params Action<ProxyType>[] participantActions)
+    protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
       var actions = participantActions.Select (a => (Action<TypeContext>) (ctx => a (ctx.ProxyType)));
       return AssembleType (typeof (T), actions, 1);
@@ -77,14 +77,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     protected MutableMethodInfo AddEquivalentMethod (
-        ProxyType proxyType,
+        MutableType mutableType,
         MethodInfo template,
         MethodAttributes adjustedAttributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
       bodyProvider = bodyProvider ?? (ctx => Expression.Default (template.ReturnType));
       var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
-      return proxyType.AddGenericMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
+      return mutableType.AddGenericMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
     }
 
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<TypeContext>> participantActions)

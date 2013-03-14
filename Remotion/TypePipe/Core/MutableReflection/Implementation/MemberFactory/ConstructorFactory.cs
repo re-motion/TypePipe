@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   public class ConstructorFactory
   {
     public MutableConstructorInfo CreateConstructor (
-        ProxyType declaringType,
+        MutableType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)

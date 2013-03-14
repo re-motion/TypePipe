@@ -24,9 +24,9 @@ using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class ProxyTypeObjectMother
+  public static class MutableTypeObjectMother
   {
-    public static ProxyType Create (
+    public static MutableType Create (
         Type baseType = null,
         string name = "Proxy",
         string @namespace = "MyNamespace",
@@ -44,14 +44,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
 
-      var proxyType = new ProxyType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      var proxyType = new MutableType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
       if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
 
       return proxyType;
     }
 
-    private static void CopyConstructors (Type baseType, ProxyType proxyType)
+    private static void CopyConstructors (Type baseType, MutableType proxyType)
     {
       var proxyTypeModelFactory = new MutableTypeFactory();
       PrivateInvoke.InvokeNonPublicMethod (proxyTypeModelFactory, "CopyConstructors", baseType, proxyType);

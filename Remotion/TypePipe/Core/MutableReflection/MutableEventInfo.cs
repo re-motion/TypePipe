@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
     public MutableEventInfo (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         EventAttributes attributes,
         MutableMethodInfo addMethod,
@@ -43,9 +43,9 @@ namespace Remotion.TypePipe.MutableReflection
     {
     }
 
-    public ProxyType MutableDeclaringType
+    public MutableType MutableDeclaringType
     {
-      get { return (ProxyType) DeclaringType; }
+      get { return (MutableType) DeclaringType; }
     }
 
     public MutableMethodInfo MutableAddMethod

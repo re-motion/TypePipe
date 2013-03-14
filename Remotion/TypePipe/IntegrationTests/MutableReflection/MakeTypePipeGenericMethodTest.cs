@@ -31,8 +31,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   public class MakeTypePipeGenericMethodTest
   {
     private MethodInfo _genericMethodDefinition;
-    private ProxyType _typeArg1;
-    private ProxyType _typeArg2;
+    private MutableType _typeArg1;
+    private MutableType _typeArg2;
 
     private MethodInfo _instantiation;
 
@@ -40,8 +40,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void SetUp ()
     {
       _genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => GenericMethod<Dev.T, Dev.T> (null));
-      _typeArg1 = ProxyTypeObjectMother.Create (typeof (object));
-      _typeArg2 = ProxyTypeObjectMother.Create (typeof (Exception));
+      _typeArg1 = MutableTypeObjectMother.Create (typeof (object));
+      _typeArg2 = MutableTypeObjectMother.Create (typeof (Exception));
 
       _instantiation = _genericMethodDefinition.MakeTypePipeGenericMethod (_typeArg1, _typeArg2);
     }

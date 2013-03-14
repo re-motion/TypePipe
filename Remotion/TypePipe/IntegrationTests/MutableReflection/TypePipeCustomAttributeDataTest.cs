@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void MutableReflection ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (DomainType));
       var typeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
       var field = proxyType.AddField ("_field", FieldAttributes.Private, typeof (int));
       var ctor = proxyType.AddedConstructors.Single();
@@ -151,7 +151,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var returnParameter = method.MutableReturnParameter;
       var parameters = method.MutableParameters.Single();
       // TODO 4791
-      //var property = ProxyType.GetProperties().Single();
+      //var property = MutableType.GetProperties().Single();
       // TODO 4791
       //var getter = property.GetGetMethod();
       // TODO 4791
@@ -159,9 +159,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       // TODO 4791
       //var setter = property.GetGetMethod();
       // TODO 4791
-      //var @event = ProxyType.GetEvents().Single();
+      //var @event = MutableType.GetEvents().Single();
       // TODO 4791
-      //var nestedType = ProxyType.GetNestedTypes().Single();
+      //var nestedType = MutableType.GetNestedTypes().Single();
       // TODO 4791
       // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
 

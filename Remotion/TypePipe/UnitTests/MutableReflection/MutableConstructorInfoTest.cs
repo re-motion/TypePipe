@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = ProxyTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var attributes = (MethodAttributes) 7 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       var body = ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ToDebugString ()
     {
       // Note: ToDebugString is defined in CustomConstructorInfo base class.
-      var declaringType = ProxyTypeObjectMother.Create (name: "Abc");
+      var declaringType = MutableTypeObjectMother.Create (name: "Abc");
       var ctor = MutableConstructorInfoObjectMother.Create (declaringType, parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });
 
       var expected = "MutableConstructor = \"Void .ctor(Int32)\", DeclaringType = \"Abc\"";

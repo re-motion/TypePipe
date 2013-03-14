@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class BodyContextBaseTest
   {
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     private BodyContextBase _staticContext;
     private BodyContextBase _context;
@@ -42,16 +42,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
 
-      _context = new TestableBodyContextBase (_proxyType, isStatic: false);
-      _staticContext = new TestableBodyContextBase (_proxyType, isStatic: true);
+      _context = new TestableBodyContextBase (_mutableType, isStatic: false);
+      _staticContext = new TestableBodyContextBase (_mutableType, isStatic: true);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_context.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (_context.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (_context.IsStatic, Is.False);
 
       Assert.That (_staticContext.IsStatic, Is.True);
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void This ()
     {
-      Assert.That (_context.This.Type, Is.SameAs (_proxyType));
+      Assert.That (_context.This.Type, Is.SameAs (_mutableType));
     }
 
     [Test]
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (result.Object, Is.TypeOf<ThisExpression>());
       var thisExpression = (ThisExpression) result.Object;
-      Assert.That (thisExpression.Type, Is.SameAs (_proxyType));
+      Assert.That (thisExpression.Type, Is.SameAs (_mutableType));
 
       Assert.That (result.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
       var nonVirtualCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) result.Method;
@@ -141,11 +141,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       CopyMethodBodyAndCheckResult (_staticContext, MethodAttributes.Static);
 
       Assert.That (
-          () => _staticContext.CopyMethodBody (MutableMethodInfoObjectMother.Create (_proxyType)),
+          () => _staticContext.CopyMethodBody (MutableMethodInfoObjectMother.Create (_mutableType)),
           Throws.ArgumentException.With.Message.EqualTo (
               "The body of an instance method cannot be copied into a static method.\r\nParameter name: otherMethod"));
       Assert.That (
-          () => _context.CopyMethodBody (MutableMethodInfoObjectMother.Create (ProxyTypeObjectMother.Create (name: "Abc"))),
+          () => _context.CopyMethodBody (MutableMethodInfoObjectMother.Create (MutableTypeObjectMother.Create (name: "Abc"))),
           Throws.ArgumentException.With.Message.EqualTo (
               "The specified method is declared by a different type 'Abc'.\r\nParameter name: otherMethod"));
     }
@@ -154,7 +154,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     public void CopyMethodBody_Enumerable ()
     {
       var methodToCopy = MutableMethodInfoObjectMother.Create (
-          declaringType: _proxyType, returnType: typeof (int), parameters: new[] { new ParameterDeclaration (typeof (int), "i") });
+          declaringType: _mutableType, returnType: typeof (int), parameters: new[] { new ParameterDeclaration (typeof (int), "i") });
       methodToCopy.SetBody (ctx => ctx.Parameters[0]);
       var argument = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
 
@@ -169,7 +169,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       var constantBodyPart = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       var body = Expression.Block (parameter[0].Expression, parameter[1].Expression, constantBodyPart);
       var methodToCopy = MutableMethodInfoObjectMother.Create (
-          declaringType: _proxyType, attributes: methodAttributes, returnType: typeof (int), parameters: parameter, body: body);
+          declaringType: _mutableType, attributes: methodAttributes, returnType: typeof (int), parameters: parameter, body: body);
       var arguments = parameter.Select (p => ExpressionTreeObjectMother.GetSomeExpression (p.Type)).ToArray();
 
       var result = context.CopyMethodBody (methodToCopy, arguments.AsOneTime());

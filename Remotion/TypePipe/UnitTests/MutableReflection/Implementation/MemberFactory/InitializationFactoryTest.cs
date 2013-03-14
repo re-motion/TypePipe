@@ -28,14 +28,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
   {
     private InitializationFactory _factory;
 
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
       _factory = new InitializationFactory();
 
-      _proxyType = ProxyTypeObjectMother.Create();
+      _mutableType = MutableTypeObjectMother.Create();
     }
 
     [Test]
@@ -44,10 +44,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
 
       var result = _factory.CreateInitialization (
-          _proxyType,
+          _mutableType,
           ctx =>
           {
-            Assert.That (ctx.DeclaringType, Is.SameAs (_proxyType));
+            Assert.That (ctx.DeclaringType, Is.SameAs (_mutableType));
             Assert.That (ctx.IsStatic, Is.False);
 
             return fakeExpression;
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: initializationProvider")]
     public void CreateInitialization_NullBody ()
     {
-      _factory.CreateInitialization (_proxyType, ctx => null);
+      _factory.CreateInitialization (_mutableType, ctx => null);
     }
   }
 }

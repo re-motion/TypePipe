@@ -29,14 +29,14 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// The <see cref="ProxyType"/> represents the proxy type to be generated for the <see cref="RequestedType"/> including the modifications
   /// applied by preceding participants.
-  /// Its mutating members (e.g. <see cref="MutableReflection.ProxyType.AddMethod" />) can be used to specify the needed modifications.
+  /// Its mutating members (e.g. <see cref="MutableType.AddMethod" />) can be used to specify the needed modifications.
   /// </remarks>
   public class TypeContext : IMutableTypeFactory
   {
-    private readonly List<ProxyType> _additionalTypes = new List<ProxyType>();
+    private readonly List<MutableType> _additionalTypes = new List<MutableType>();
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly Type _requestedType;
-    private readonly ProxyType _proxyType;
+    private readonly MutableType _proxyType;
 
     public TypeContext (IMutableTypeFactory mutableTypeFactory, Type requestedType)
     {
@@ -59,15 +59,15 @@ namespace Remotion.TypePipe.MutableReflection
     /// <summary>
     /// The mutable proxy type that was created by the pipeline for the <see cref="RequestedType"/>.
     /// </summary>
-    public ProxyType ProxyType
+    public MutableType ProxyType
     {
       get { return _proxyType; }
     }
 
     /// <summary>
-    /// Gets the additional <see cref="MutableReflection.ProxyType"/>s that should be generated alongside with the <see cref="ProxyType"/>.
+    /// Gets the additional <see cref="MutableType"/>s that should be generated alongside with the <see cref="ProxyType"/>.
     /// </summary>
-    public ReadOnlyCollection<ProxyType> AdditionalTypes
+    public ReadOnlyCollection<MutableType> AdditionalTypes
     {
       get { return _additionalTypes.AsReadOnly(); }
     }
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <param name="attributes">The type attributes.</param>
     /// <param name="baseType">The base type of the new type.</param>
     /// <returns>A new mutable type.</returns>
-    public ProxyType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
+    public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
@@ -93,12 +93,12 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Creates an additional <see cref="MutableReflection.ProxyType"/> that represents a proxy type for the specified base type.
+    /// Creates an additional <see cref="MutableType"/> that represents a proxy type for the specified base type.
     /// This method copies all accessible constructors of the base type.
     /// </summary>
     /// <param name="baseType">The proxied type.</param>
     /// <returns>A new mutable proxy type.</returns>
-    public ProxyType CreateProxyType (Type baseType)
+    public MutableType CreateProxyType (Type baseType)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 

@@ -26,40 +26,40 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// This class contains useful convenience APIs for <see cref="ProxyType"/>.
+  /// This class contains convenience APIs for <see cref="MutableType"/>.
   /// </summary>
-  public static class ProxyTypeExtensions
+  public static class MutableTypeExtensions
   {
     public static MutableMethodInfo AddAbstractMethod (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         string name,
         MethodAttributes attributes = MethodAttributes.Public,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Return type may be null.
       // Parameters may be null.
 
       var abstractAttributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
-      return proxyType.AddMethod (name, abstractAttributes, returnType, parameters, bodyProvider: null);
+      return mutableType.AddMethod (name, abstractAttributes, returnType, parameters, bodyProvider: null);
     }
 
     public static MutableMethodInfo AddGenericMethod (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         string name,
         MethodAttributes attributes,
         MethodDeclaration methodDeclaration,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("methodDeclaration", methodDeclaration);
       // Body provider may be null.
 
       var md = methodDeclaration;
-      return proxyType.AddGenericMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
+      return mutableType.AddGenericMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
     }
   }
 }

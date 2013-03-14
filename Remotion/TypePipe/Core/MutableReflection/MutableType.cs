@@ -30,13 +30,9 @@ using System.Linq;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Represents a subclass proxy type, which allows overriding base members and the addition of new members and custom attributes.
+  /// Represents a mutable type which allows overriding base members, the addition of new members and custom attributes.
   /// </summary>
-  /// <remarks>
-  /// Avoid using the members <see cref="CustomType.UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/> in combination with
-  /// <see cref="ProxyType"/> instances. Use <see cref="TypeExtensions.IsTypePipeAssignableFrom"/> instead.
-  /// </remarks>
-  public class ProxyType : CustomType, IMutableMember
+  public class MutableType : CustomType, IMutableMember
   {
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
@@ -60,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private MutableConstructorInfo _typeInitializer;
 
-    public ProxyType (
+    public MutableType (
         IMemberSelector memberSelector,
         Type baseType,
         string name,
@@ -89,9 +85,9 @@ namespace Remotion.TypePipe.MutableReflection
       _mutableMemberFactory = mutableMemberFactory;
     }
 
-    public ProxyType MutableDeclaringType
+    public MutableType MutableDeclaringType
     {
-      get { return (ProxyType) DeclaringType; }
+      get { return (MutableType) DeclaringType; }
     }
 
     public MutableConstructorInfo MutableTypeInitializer

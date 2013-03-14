@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     public void NoStrongName_Default ()
     {
       // Could be strong-named, but isn't - the default is to output assemblies without strong name.
-      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
+      Action<MutableType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void NoStrongName_UnsignedType ()
     {
-      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _unsignedType);
+      Action<MutableType> action = p => p.AddField ("f", FieldAttributes.Private, _unsignedType);
 
       CheckStrongNaming (action, forceStrongNaming: false);
     }
@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName ()
     {
-      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
+      Action<MutableType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
 
       CheckStrongNaming (action, forceStrongNaming: true, expectedKey: FallbackKey.KeyPair);
     }
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_CustomKey ()
     {
-      Action<ProxyType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
+      Action<MutableType> action = p => p.AddField ("f", FieldAttributes.Private, _signedType);
 
       var keyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"StrongNaming\OtherKey.snk");
       var customKey = new StrongNameKeyPair (File.ReadAllBytes (keyPath));
@@ -229,14 +229,14 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     [Test]
     public void ForceStrongName_SignatureAndExpression_ProxyType ()
     {
-      Action<ProxyType> action = p => p.AddMethod ("Method", 0, p, new[] { new ParameterDeclaration (p, "p1") }, ctx => Expression.New (p));
+      Action<MutableType> action = p => p.AddMethod ("Method", 0, p, new[] { new ParameterDeclaration (p, "p1") }, ctx => Expression.New (p));
 
       CheckStrongNaming (action, forceStrongNaming: true);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNaming (
-        Action<ProxyType> participantAction,
+        Action<MutableType> participantAction,
         bool forceStrongNaming = true,
         string keyFilePath = null,
         StrongNameKeyPair expectedKey = null,
@@ -266,7 +266,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNamingException (Action<ProxyType> participantAction, Type requestedType = null, int stackFramesToSkip = 0)
+    private void CheckStrongNamingException (Action<MutableType> participantAction, Type requestedType = null, int stackFramesToSkip = 0)
     {
       requestedType = requestedType ?? typeof (DomainType);
       var participant = CreateParticipant (participantAction);

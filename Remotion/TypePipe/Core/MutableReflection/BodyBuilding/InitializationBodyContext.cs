@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public class InitializationBodyContext : BodyContextBase
   {
-    public InitializationBodyContext (ProxyType declaringType)
+    public InitializationBodyContext (MutableType declaringType)
         : base (declaringType, isStatic: false)
     {
     }

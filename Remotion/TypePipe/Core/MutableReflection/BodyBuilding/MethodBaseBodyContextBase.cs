@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   {
     private readonly ReadOnlyCollection<ParameterExpression> _parameters;
 
-    protected MethodBaseBodyContextBase (ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
+    protected MethodBaseBodyContextBase (MutableType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
         : base (declaringType, isStatic)
     {
       ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);

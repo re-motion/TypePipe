@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableEventInfoObjectMother
   {
     public static MutableEventInfo Create (
-        ProxyType declaringType = null,
+        MutableType declaringType = null,
         string name = "UnspecifiedEvent",
         EventAttributes attributes = EventAttributes.None,
         MutableMethodInfo addMethod = null,
@@ -36,19 +36,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         MutableMethodInfo raiseMethod = null)
     {
       Assertion.IsTrue (addMethod != null && removeMethod != null);
-      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
 
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
 
     public static MutableEventInfo CreateWithAccessors (
-        ProxyType declaringType = null,
+        MutableType declaringType = null,
         string name = "UnspecifiedEvent",
         EventAttributes attributes = EventAttributes.None,
         Type handlerType = null,
         bool createRaiseMethod = false)
     {
-      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
       handlerType = handlerType ?? typeof (Func<,>).MakeGenericType (ReflectionObjectMother.GetSomeType(), ReflectionObjectMother.GetSomeOtherType());
       Assertion.IsTrue (handlerType.IsSubclassOf (typeof (Delegate)));
 
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
 
-    private static MutableMethodInfo CreateMethod (ProxyType declaringType, string name, Type[] parameterTypes, Type returnType = null)
+    private static MutableMethodInfo CreateMethod (MutableType declaringType, string name, Type[] parameterTypes, Type returnType = null)
     {
       var parameters = parameterTypes.Select ((t, i) => ParameterDeclarationObjectMother.Create (t, i.ToString (CultureInfo.InvariantCulture)));
       return MutableMethodInfoObjectMother.Create (declaringType, name, returnType: returnType, parameters: parameters);

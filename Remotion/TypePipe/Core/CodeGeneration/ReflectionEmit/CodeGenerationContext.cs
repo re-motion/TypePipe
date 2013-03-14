@@ -34,28 +34,28 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IDictionary<MethodInfo, MethodInfo> _trampolineMethods =
         new Dictionary<MethodInfo, MethodInfo> (MemberInfoEqualityComparer<MethodInfo>.Instance);
 
-    private readonly ProxyType _proxyType;
+    private readonly MutableType _mutableType;
     private readonly ITypeBuilder _typeBuilder;
     private readonly DebugInfoGenerator _debugInfoGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
 
     [CLSCompliant (false)]
     public CodeGenerationContext (
-        ProxyType proxyType, ITypeBuilder typeBuilder, DebugInfoGenerator debugInfoGeneratorOrNull, IEmittableOperandProvider emittableOperandProvider)
+        MutableType proxyType, ITypeBuilder typeBuilder, DebugInfoGenerator debugInfoGeneratorOrNull, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
-      _proxyType = proxyType;
+      _mutableType = proxyType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
       _emittableOperandProvider = emittableOperandProvider;
     }
 
-    public ProxyType ProxyType
+    public MutableType ProxyType
     {
-      get { return _proxyType; }
+      get { return _mutableType; }
     }
 
     [CLSCompliant (false)]

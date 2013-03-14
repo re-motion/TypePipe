@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   [TestFixture]
   public class GetInterfaceMapTest
   {
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     private MethodInfo _existingBaseInterfaceMethod;
     private MethodInfo _existingInterfaceMethod;
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (typeof (DomainType));
 
       _existingBaseInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingBaseInterface obj) => obj.MethodOnExistingBaseInterface());
       _existingInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.MethodOnExistingInterface());
@@ -51,25 +51,25 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingInterface());
 
-      CheckGetInterfaceMap (_proxyType, _existingInterfaceMethod, implementation);
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
     public void ExistingInterface_AddedMethod ()
     {
       // Although we add a method that could be used as an implementation (no override!), the existing base implementation is returned.
-      AddSimiliarMethod (_proxyType, _existingBaseInterfaceMethod);
+      AddSimiliarMethod (_mutableType, _existingBaseInterfaceMethod);
       var implementationOnBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingBaseInterface());
       Assert.That (implementationOnBase.DeclaringType, Is.SameAs (typeof (DomainTypeBase)));
 
-      CheckGetInterfaceMap (_proxyType, _existingBaseInterfaceMethod, implementationOnBase);
+      CheckGetInterfaceMap (_mutableType, _existingBaseInterfaceMethod, implementationOnBase);
     }
 
     [Test]
     public void ExistingInterface_ExistingMethod_Explicit ()
     {
       var implementation = GetExplicitImplementation (typeof (OtherDomainType), _existingInterfaceMethod);
-      var proxyType = ProxyTypeObjectMother.Create (typeof (OtherDomainType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (OtherDomainType));
 
       CheckGetInterfaceMap (proxyType, _existingInterfaceMethod, implementation);
     }
@@ -77,27 +77,27 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExistingInterface_ExistingMethod_ExplicitReplacesImplicit ()
     {
-      CheckGetInterfaceMap (_proxyType, _existingInterfaceMethod, _proxyType.GetMethod ("MethodOnExistingInterface"));
-      var implementation = _proxyType.AddMethod (
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, _mutableType.GetMethod ("MethodOnExistingInterface"));
+      var implementation = _mutableType.AddMethod (
           "UnrelatedMethod", MethodAttributes.Virtual, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
       implementation.AddExplicitBaseDefinition (_existingInterfaceMethod);
 
-      CheckGetInterfaceMap (_proxyType, _existingInterfaceMethod, implementation);
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
     public void ExistingInterface_AddedMethod_Explicit ()
     {
-      var implementation = AddSimiliarMethod (_proxyType, _existingInterfaceMethod, methodName: "ExplicitImplementation");
+      var implementation = AddSimiliarMethod (_mutableType, _existingInterfaceMethod, methodName: "ExplicitImplementation");
       implementation.AddExplicitBaseDefinition (_existingInterfaceMethod);
 
-      CheckGetInterfaceMap (_proxyType, _existingInterfaceMethod, implementation);
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
     public void AddedInterface_ExistingMethod ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (OtherDomainType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (OtherDomainType));
       proxyType.AddInterface (typeof (IAddedInterface));
       var implementation = proxyType.GetMethod ("MethodOnAddedInterface");
 
@@ -107,32 +107,32 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void AddedInterface_AddedMethod ()
     {
-      _proxyType.AddInterface (typeof (IAddedInterface));
-      var implementation = AddSimiliarMethod (_proxyType, _addedInterfaceMethod);
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      var implementation = AddSimiliarMethod (_mutableType, _addedInterfaceMethod);
 
-      CheckGetInterfaceMap (_proxyType, _addedInterfaceMethod, implementation);
+      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementation);
     }
 
     [Test]
     public void AddInterface_ExistingMethod_ShadowedByAddedMethod ()
     {
-      _proxyType.AddInterface (typeof (IOtherAddedInterface));
-      var implementationOnBase = _proxyType.GetMethod ("MethodOnOtherAddedInterface");
-      CheckGetInterfaceMap (_proxyType, _otherAddedInterfaceMethod, implementationOnBase);
+      _mutableType.AddInterface (typeof (IOtherAddedInterface));
+      var implementationOnBase = _mutableType.GetMethod ("MethodOnOtherAddedInterface");
+      CheckGetInterfaceMap (_mutableType, _otherAddedInterfaceMethod, implementationOnBase);
 
-      var shadowingImplementation = AddSimiliarMethod (_proxyType, _otherAddedInterfaceMethod);
+      var shadowingImplementation = AddSimiliarMethod (_mutableType, _otherAddedInterfaceMethod);
 
-      CheckGetInterfaceMap (_proxyType, _otherAddedInterfaceMethod, shadowingImplementation);
+      CheckGetInterfaceMap (_mutableType, _otherAddedInterfaceMethod, shadowingImplementation);
     }
 
     [Test]
     public void AddedInterface_AddedMethod_Explicit ()
     {
-      _proxyType.AddInterface (typeof (IAddedInterface));
-      var implementation = AddSimiliarMethod (_proxyType, _addedInterfaceMethod, methodName: "ExplicitImplementation");
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      var implementation = AddSimiliarMethod (_mutableType, _addedInterfaceMethod, methodName: "ExplicitImplementation");
       implementation.AddExplicitBaseDefinition (_addedInterfaceMethod);
 
-      CheckGetInterfaceMap (_proxyType, _addedInterfaceMethod, implementation);
+      CheckGetInterfaceMap (_mutableType, _addedInterfaceMethod, implementation);
     }
 
     [Test]
@@ -140,8 +140,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
         "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: 'MethodOnAddedInterface'.")]
     public void AddedInterface_NotImplemented ()
     {
-      _proxyType.AddInterface (typeof (IAddedInterface));
-      _proxyType.GetInterfaceMap (typeof (IAddedInterface));
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      _mutableType.GetInterfaceMap (typeof (IAddedInterface));
     }
 
     [Test]
@@ -150,29 +150,29 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
         + "'NonPublicMethod', 'NonVirtualMethod', 'StaticMethod'.")]
     public void AddedInterface_NotImplemented_Candidates ()
     {
-      _proxyType.AddInterface (typeof (IImplementationCandidates));
-      _proxyType.GetInterfaceMap (typeof (IImplementationCandidates));
+      _mutableType.AddInterface (typeof (IImplementationCandidates));
+      _mutableType.GetInterfaceMap (typeof (IImplementationCandidates));
     }
 
-    private void CheckGetInterfaceMap (ProxyType proxyType, MethodInfo interfaceMethod, MethodInfo expectedImplementationMethod)
+    private void CheckGetInterfaceMap (MutableType mutableType, MethodInfo interfaceMethod, MethodInfo expectedImplementationMethod)
     {
       var interfaceType = interfaceMethod.DeclaringType;
       Assertion.IsNotNull (interfaceType);
       Assert.That (interfaceType.IsInterface, Is.True);
 
-      var mapping = proxyType.GetInterfaceMap (interfaceType);
+      var mapping = mutableType.GetInterfaceMap (interfaceType);
 
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
-      Assert.That (mapping.TargetType, Is.SameAs (proxyType));
+      Assert.That (mapping.TargetType, Is.SameAs (mutableType));
       var interfaceMethodIndex = Array.IndexOf (mapping.InterfaceMethods, interfaceMethod);
       var targetMethodIndex = Array.IndexOf (mapping.TargetMethods, expectedImplementationMethod);
       Assert.That (targetMethodIndex, Is.EqualTo (interfaceMethodIndex).And.Not.EqualTo (-1));
     }
 
-    private MutableMethodInfo AddSimiliarMethod (ProxyType proxyType, MethodInfo template, string methodName = null)
+    private MutableMethodInfo AddSimiliarMethod (MutableType mutableType, MethodInfo template, string methodName = null)
     {
       var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
-      return proxyType.AddGenericMethod (
+      return mutableType.AddGenericMethod (
           methodName ?? template.Name,
           MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
           methodDeclaration,

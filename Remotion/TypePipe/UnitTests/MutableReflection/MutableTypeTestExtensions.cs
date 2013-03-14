@@ -26,21 +26,21 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  public static class ProxyTypeTestExtensions
+  public static class MutableTypeTestExtensions
   {
     private static int s_counter;
 
     public static MutableFieldInfo AddField (
-        this ProxyType proxyType, string name = null, FieldAttributes attributes = FieldAttributes.Private, Type type = null)
+        this MutableType mutableType, string name = null, FieldAttributes attributes = FieldAttributes.Private, Type type = null)
     {
       name = name ?? "Field_" + ++s_counter;
       type = type ?? typeof (int);
 
-      return proxyType.AddField (name, attributes, type);
+      return mutableType.AddField (name, attributes, type);
     }
 
     public static MutableConstructorInfo AddConstructor (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         MethodAttributes attributes = MethodAttributes.Public,
         IEnumerable<ParameterDeclaration> parameters = null,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider = null)
@@ -48,11 +48,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       parameters = parameters ?? ParameterDeclaration.None;
       bodyProvider = bodyProvider ?? (ctx => Expression.Empty());
 
-      return proxyType.AddConstructor (attributes, parameters, bodyProvider);
+      return mutableType.AddConstructor (attributes, parameters, bodyProvider);
     }
 
     public static MutableMethodInfo AddMethod (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         string name = null,
         MethodAttributes attributes = MethodAttributes.Public,
         Type returnType = null,
@@ -66,11 +66,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                          ? (ctx => Expression.Default (ctx.ReturnType))
                          : bodyProvider;
 
-      return proxyType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
+      return mutableType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
     }
 
     public static MutablePropertyInfo AddProperty (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         string name = null,
         Type type = null,
         IEnumerable<ParameterDeclaration> indexParameters = null,
@@ -84,11 +84,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (getBodyProvider == null && setBodyProvider == null)
         getBodyProvider = ctx => Expression.Default (ctx.ReturnType);
 
-      return proxyType.AddProperty (name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
+      return mutableType.AddProperty (name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
     }
 
     public static MutablePropertyInfo AddProperty2 (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         string name = null,
         PropertyAttributes attributes = PropertyAttributes.None,
         MutableMethodInfo getMethod = null,
@@ -96,13 +96,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       name = name ?? "Property_" + ++s_counter;
       if (getMethod == null && setMethod == null)
-        getMethod = MutableMethodInfoObjectMother.Create (proxyType, "Getter", returnType: typeof (int));
+        getMethod = MutableMethodInfoObjectMother.Create (mutableType, "Getter", returnType: typeof (int));
 
-      return proxyType.AddProperty (name, attributes, getMethod, setMethod);
+      return mutableType.AddProperty (name, attributes, getMethod, setMethod);
     }
 
     public static MutableEventInfo AddEvent (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         string name = null,
         Type handlerType = null,
         MethodAttributes accessorAttributes = MethodAttributes.Public,
@@ -118,11 +118,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (removeBodyProvider == null)
         removeBodyProvider = ctx => Expression.Empty();
 
-      return proxyType.AddEvent (name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
+      return mutableType.AddEvent (name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
     }
 
     public static MutableEventInfo AddEvent2 (
-        this ProxyType proxyType,
+        this MutableType mutableType,
         string name = null,
         EventAttributes attributes = EventAttributes.None,
         MutableMethodInfo addMethod = null,
@@ -132,10 +132,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       name = name ?? "Event_" + ++s_counter;
       var handlerMethod = addMethod ?? removeMethod;
       var handlerType = handlerMethod != null ? handlerMethod.GetParameters().Single().ParameterType : typeof (Action);
-      addMethod = addMethod ?? MutableMethodInfoObjectMother.Create (proxyType, "Adder", parameters: new[] { ParameterDeclarationObjectMother.Create(handlerType) });
-      removeMethod = removeMethod ?? MutableMethodInfoObjectMother.Create (proxyType, "Adder", parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType) });
+      addMethod = addMethod ?? MutableMethodInfoObjectMother.Create (mutableType, "Adder", parameters: new[] { ParameterDeclarationObjectMother.Create(handlerType) });
+      removeMethod = removeMethod ?? MutableMethodInfoObjectMother.Create (mutableType, "Adder", parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType) });
 
-      return proxyType.AddEvent (name, attributes, addMethod, removeMethod, raiseMethod);
+      return mutableType.AddEvent (name, attributes, addMethod, removeMethod, raiseMethod);
     }
   }
 }

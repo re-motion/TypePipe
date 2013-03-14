@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutablePropertyInfo CreateProperty (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         Type type,
         IEnumerable<ParameterDeclaration> indexParameters,
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutablePropertyInfo CreateProperty (
-        ProxyType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
+        MutableType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

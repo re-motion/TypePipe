@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock1.Expect (mock => mock.PartialCacheKeyProvider);
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
-        var fakeProxyType = ProxyTypeObjectMother.Create();
+        var fakeProxyType = MutableTypeObjectMother.Create();
         mutableTypeFactoryMock.Expect (mock => mock.CreateProxyType (_requestedType)).Return (fakeProxyType);
 
         TypeContext typeContext = null;
@@ -111,13 +111,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
-      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxyType (_requestedType)).Return (ProxyTypeObjectMother.Create (name: "ProxyName"));
+      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxyType (_requestedType)).Return (MutableTypeObjectMother.Create (name: "ProxyName"));
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
-      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<ProxyType>.Is.Anything)).Throw (exception1);
-      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<ProxyType>.Is.Anything)).Throw (exception2);
-      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<ProxyType>.Is.Anything)).Throw (exception3);
+      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<MutableType>.Is.Anything)).Throw (exception1);
+      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<MutableType>.Is.Anything)).Throw (exception2);
+      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<MutableType>.Is.Anything)).Throw (exception3);
       var typeAssembler = CreateTypeAssembler (participants: MockRepository.GenerateStub<IParticipant>());
 
       var expectedMessageRegex = "An error occurred during code generation for 'ProxyName':\r\nblub\r\n"

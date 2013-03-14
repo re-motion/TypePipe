@@ -189,7 +189,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ToDebugString ()
     {
       var method = CustomMethodInfoObjectMother.Create (
-          declaringType: ProxyTypeObjectMother.Create (name: "AbcProxy"),
+          declaringType: MutableTypeObjectMother.Create (name: "AbcProxy"),
           name: "Xxx",
           returnParameter: CustomParameterInfoObjectMother.Create (position: -1, type: typeof (void)),
           parameters: new[] { CustomParameterInfoObjectMother.Create (type: typeof (int)) });

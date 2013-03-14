@@ -30,10 +30,10 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class BodyContextBase
   {
-    private readonly ProxyType _declaringType;
+    private readonly MutableType _declaringType;
     private readonly bool _isStatic;
 
-    protected BodyContextBase (ProxyType declaringType, bool isStatic)
+    protected BodyContextBase (MutableType declaringType, bool isStatic)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
 
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _isStatic = isStatic;
     }
 
-    public ProxyType DeclaringType
+    public MutableType DeclaringType
     {
       get { return _declaringType; }
     }

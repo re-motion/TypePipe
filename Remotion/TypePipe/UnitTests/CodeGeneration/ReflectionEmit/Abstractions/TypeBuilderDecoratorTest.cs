@@ -180,7 +180,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void DelegatingMembers ()
     {
       var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
-      var proxyType = ProxyTypeObjectMother.Create();
+      var proxyType = MutableTypeObjectMother.Create();
 
       var helper = new DecoratorTestHelper<ITypeBuilder> (_decorator, _innerMock);
 

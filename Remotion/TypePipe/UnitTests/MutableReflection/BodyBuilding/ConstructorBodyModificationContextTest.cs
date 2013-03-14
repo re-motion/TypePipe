@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
   [TestFixture]
   public class ConstructorBodyModificationContextTest
   {
-    private ProxyType _declaringType;
+    private MutableType _declaringType;
     private bool _isStatic;
     private List<ParameterExpression> _parameters;
     private Expression _previousBody;
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create();
+      _declaringType = MutableTypeObjectMother.Create();
       _isStatic = BooleanObjectMother.GetRandomBoolean();
       _parameters = new List<ParameterExpression> { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (object)) };
       _previousBody = Expression.Block (_parameters[0], _parameters[1]);

@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     private MethodOverrideFactory _factory;
 
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
     private bool _isNewlyCreated;
     private GenericParameterContext _noGenericParameters;
 
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       _factory = new MethodOverrideFactory (_relatedMethodFinderMock, _methodFactoryMock);
 
-      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
       _noGenericParameters = new GenericParameterContext (Type.EmptyTypes);
     }
 
@@ -67,12 +67,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
 
       var fakeResult = MutableMethodInfoObjectMother.Create (
-          _proxyType, attributes: MethodAttributes.Virtual, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
+          _mutableType, attributes: MethodAttributes.Virtual, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
       _methodFactoryMock
           .Expect (
               mock =>
               mock.CreateMethod (
-                  Arg.Is (_proxyType),
+                  Arg.Is (_mutableType),
                   Arg.Is ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MethodOverrideFactoryTest.A.OverrideHierarchy"),
                   Arg.Is (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig),
                   Arg.Is (GenericParameterDeclaration.None),
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                 Assert.That (parameter.Type, Is.SameAs (typeof (int)));
               });
 
-      var result = _factory.CreateExplicitOverride (_proxyType, method, bodyProvider);
+      var result = _factory.CreateExplicitOverride (_mutableType, method, bodyProvider);
 
       _methodFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           .Expect (
               mock =>
               mock.CreateMethod (
-                  Arg.Is (_proxyType),
+                  Arg.Is (_mutableType),
                   Arg.Is ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MethodOverrideFactoryTest.DomainType.GenericMethod"),
                   Arg.Is (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig),
                   Arg<IEnumerable<GenericParameterDeclaration>>.Is.Anything,
@@ -138,7 +138,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                 ParameterDeclarationTest.CheckParameter (parameters[1], fakeGenericParameter, "arg2", ParameterAttributes.None);
               });
 
-      var result = _factory.CreateExplicitOverride (_proxyType, method, bodyProvider);
+      var result = _factory.CreateExplicitOverride (_mutableType, method, bodyProvider);
 
       _methodFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -154,10 +154,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       var fakeExistingOverride = MutableMethodInfoObjectMother.Create ();
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_proxyType.AddedMethods)))
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AddedMethods)))
           .Return (fakeExistingOverride);
 
-      var result = _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations ();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
@@ -189,10 +189,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var inputMethod = baseDefinition;
       var baseMethod = baseDefinition;
 
-      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, _proxyType.AddedMethods)).Return (null);
-      _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, _proxyType.BaseType)).Return (baseMethod);
+      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, _mutableType.AddedMethods)).Return (null);
+      _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, _mutableType.BaseType)).Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (_proxyType))))
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (_mutableType))))
           .Return (false);
 
       var fakeResult = CreateFakeGenericMethod ();
@@ -200,7 +200,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           .Expect (
               mock =>
               mock.CreateMethod (
-                  Arg.Is (_proxyType),
+                  Arg.Is (_mutableType),
                   Arg.Is ("GenericMethod"),
                   Arg.Is (MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig),
                   Arg<IEnumerable<GenericParameterDeclaration>>.Is.Anything,
@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
                 var parameterExpressions = parameters.Select (p => p.Expression).ToList();
                 var bodyContext = new MethodBodyCreationContext (
-                    _proxyType, false, parameterExpressions, new[] { fakeGenericParameter }, returnType, baseMethod);
+                    _mutableType, false, parameterExpressions, new[] { fakeGenericParameter }, returnType, baseMethod);
                 var body = ((Func<MethodBodyCreationContext, Expression>) mi.Arguments[6]) (bodyContext);
 
                 var expectedBody = Expression.Call (
@@ -237,7 +237,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                 ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, body);
               });
 
-      var result = _factory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (_mutableType, inputMethod, out _isNewlyCreated);
 
       _relatedMethodFinderMock.VerifyAllExpectations();
       _methodFactoryMock.VerifyAllExpectations();
@@ -282,7 +282,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           expectedAddedExplicitBaseDefinitions: new MethodInfo[0],
           expectedOverrideMethodName: "Method",
           expectedOverrideAttributes: MethodAttributes.Abstract | MethodAttributes.Public | MethodAttributes.ReuseSlot,
-          proxyType: ProxyTypeObjectMother.Create (typeof (AbstractTypeWithOneMethod)),
+          mutableType: MutableTypeObjectMother.Create (typeof (AbstractTypeWithOneMethod)),
           skipBodyProviderCheck: true);
     }
 
@@ -310,18 +310,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void GetOrCreateOverride_InterfaceMethod_AddImplementation ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedInterfaceMethod (7));
-      _proxyType.AddInterface (typeof (IAddedInterface));
+      _mutableType.AddInterface (typeof (IAddedInterface));
 
       var fakeResult = SetupExpectationsForCreateMethod (
           _methodFactoryMock,
-          _proxyType,
+          _mutableType,
           baseMethod: interfaceMethod,
           expectedParameterName: "addedInterface",
           expectedOverrideMethodName: "AddedInterfaceMethod",
           expectedOverrideAttributes: MethodAttributes.Public | MethodAttributes.Abstract | MethodAttributes.NewSlot,
           skipBodyProviderCheck: true);
 
-      var result = _factory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
 
       _methodFactoryMock.VerifyAllExpectations();
       Assert.That (_isNewlyCreated, Is.True);
@@ -348,18 +348,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
-        + "Use ProxyType.AddExplicitOverride to create an explicit implementation.")]
+        + "Use MutableType.AddExplicitOverride to create an explicit implementation.")]
     public void GetOrCreateOverride_InterfaceMethod_InvalidCandidate ()
     {
-      _proxyType.AddInterface (typeof (IAddedInterface));
-      _proxyType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      _mutableType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate ());
 
       _methodFactoryMock
           .Expect (mock => mock.CreateMethod (null, "", 0, null, null, null, null)).IgnoreArguments()
           .Throw (new InvalidOperationException());
 
-      _factory.GetOrCreateOverride (_proxyType, interfaceMethod, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
     }
 
     [Test]
@@ -367,7 +367,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void GetOrCreateOverride_NonVirtualMethod ()
     {
       var method = ReflectionObjectMother.GetSomeNonVirtualMethod();
-      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -377,7 +377,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void GetOrCreateOverride_MethodInstantiation ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.GenericMethod<TypeThatCompliesWithConstraints> (7, null));
-      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -386,7 +386,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void GetOrCreateOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
-      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -394,8 +394,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
         "Method is declared by a type outside of the proxy base class hierarchy: 'Proxy'.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
-      var method = _proxyType.AddMethod ("method", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
-      _factory.GetOrCreateOverride (_proxyType, method, out _isNewlyCreated);
+      var method = _mutableType.AddMethod ("method", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
+      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
     [Test]
@@ -409,7 +409,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
 
-      _factory.GetOrCreateOverride (_proxyType, inputMethod, out _isNewlyCreated);
+      _factory.GetOrCreateOverride (_mutableType, inputMethod, out _isNewlyCreated);
     }
 
     private void CallAndCheckGetOrAddOverride (
@@ -421,27 +421,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
         IEnumerable<MethodInfo> expectedAddedExplicitBaseDefinitions,
         string expectedOverrideMethodName,
         MethodAttributes expectedOverrideAttributes,
-        ProxyType proxyType = null,
+        MutableType mutableType = null,
         bool skipBodyProviderCheck = false)
     {
-      proxyType = proxyType ?? _proxyType;
+      mutableType = mutableType ?? _mutableType;
 
-      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, proxyType.AddedMethods)).Return (null);
-      _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, proxyType.BaseType)).Return (baseMethod);
+      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, mutableType.AddedMethods)).Return (null);
+      _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, mutableType.BaseType)).Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (proxyType))))
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (mutableType))))
           .Return (isBaseDefinitionShadowed);
 
       var fakeResult = SetupExpectationsForCreateMethod (
           _methodFactoryMock,
-          proxyType,
+          mutableType,
           baseMethod,
           expectedParameterName,
           expectedOverrideMethodName,
           expectedOverrideAttributes,
           skipBodyProviderCheck);
 
-      var result = _factory.GetOrCreateOverride (proxyType, inputMethod, out _isNewlyCreated);
+      var result = _factory.GetOrCreateOverride (mutableType, inputMethod, out _isNewlyCreated);
 
       _methodFactoryMock.VerifyAllExpectations();
       _relatedMethodFinderMock.VerifyAllExpectations();
@@ -450,14 +450,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
     }
 
-    private static IEnumerable<MethodInfo> GetAllMethods (ProxyType proxyType)
+    private static IEnumerable<MethodInfo> GetAllMethods (MutableType mutableType)
     {
-      return proxyType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods");
+      return mutableType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods");
     }
 
     private MutableMethodInfo SetupExpectationsForCreateMethod (
         IMethodFactory methodFactoryMock,
-        ProxyType proxyType,
+        MutableType mutableType,
         MethodInfo baseMethod,
         string expectedParameterName,
         string expectedOverrideMethodName,
@@ -465,11 +465,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
         bool skipBodyProviderCheck)
     {
       var methodParameters = baseMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
-      var fakeResult = MutableMethodInfoObjectMother.Create (proxyType, attributes: MethodAttributes.Virtual, parameters: methodParameters);
+      var fakeResult = MutableMethodInfoObjectMother.Create (mutableType, attributes: MethodAttributes.Virtual, parameters: methodParameters);
       methodFactoryMock
           .Expect (
               mock => mock.CreateMethod (
-                  Arg.Is (proxyType),
+                  Arg.Is (mutableType),
                   Arg.Is (expectedOverrideMethodName),
                   Arg.Is (expectedOverrideAttributes | MethodAttributes.Virtual | MethodAttributes.HideBySig),
                   Arg.Is (GenericParameterDeclaration.None),
@@ -501,28 +501,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     private void SetupExpectationsForGetOrAddMethod (
-        MethodInfo baseDefinition, MethodInfo baseMethod, bool isBaseDefinitionShadowed, MethodInfo fakeBaseMethod, ProxyType proxyType = null)
+        MethodInfo baseDefinition, MethodInfo baseMethod, bool isBaseDefinitionShadowed, MethodInfo fakeBaseMethod, MutableType mutableType = null)
     {
-      proxyType = proxyType ?? _proxyType;
+      mutableType = mutableType ?? _mutableType;
 
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (proxyType.AddedMethods)))
+          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (mutableType.AddedMethods)))
           .Return (null);
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, proxyType.BaseType))
+          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, mutableType.BaseType))
           .Return (baseMethod);
       _relatedMethodFinderMock
           .Expect (
               mock => mock.IsShadowed (
                   Arg.Is (baseDefinition),
                   Arg<IEnumerable<MethodInfo>>.List.Equivalent (
-                      proxyType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods"))))
+                      mutableType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods"))))
           .Return (isBaseDefinitionShadowed);
       // Needed for CreateMethod (will only be called for implicit overrides)
       if (!isBaseDefinitionShadowed)
       {
         _relatedMethodFinderMock
-            .Expect (mock => mock.GetMostDerivedVirtualMethod (baseMethod.Name, MethodSignature.Create (baseMethod), proxyType.BaseType))
+            .Expect (mock => mock.GetMostDerivedVirtualMethod (baseMethod.Name, MethodSignature.Create (baseMethod), mutableType.BaseType))
             .Return (fakeBaseMethod);
       }
     }
@@ -530,14 +530,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     private MethodBodyCreationContext CreateMethodBodyCreationContext (MethodInfo baseMethod)
     {
       var parameterExpressions = baseMethod.GetParameters().Select (p => Expression.Parameter (p.ParameterType, p.Name));
-      return new MethodBodyCreationContext (_proxyType, false, parameterExpressions, Type.EmptyTypes, baseMethod.ReturnType, baseMethod);
+      return new MethodBodyCreationContext (_mutableType, false, parameterExpressions, Type.EmptyTypes, baseMethod.ReturnType, baseMethod);
     }
 
     private MutableMethodInfo CreateFakeGenericMethod ()
     {
       var genericParameter = MutableGenericParameterObjectMother.Create (position: 0);
       return MutableMethodInfoObjectMother.Create (
-          _proxyType,
+          _mutableType,
           attributes: MethodAttributes.Virtual,
           genericParameters: new[] { genericParameter },
           returnType: genericParameter,

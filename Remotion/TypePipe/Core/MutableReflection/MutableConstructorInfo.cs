@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
     private Expression _body;
 
     public MutableConstructorInfo (
-        ProxyType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
+        MutableType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
         : base (declaringType, attributes)
     {
       ArgumentUtility.CheckNotNull ("parameters", parameters);
@@ -54,9 +54,9 @@ namespace Remotion.TypePipe.MutableReflection
       _body = body;
     }
 
-    public ProxyType MutableDeclaringType
+    public MutableType MutableDeclaringType
     {
-      get { return (ProxyType) DeclaringType; }
+      get { return (MutableType) DeclaringType; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
-      var context = new ConstructorBodyModificationContext ((ProxyType) DeclaringType, IsStatic, ParameterExpressions, _body);
+      var context = new ConstructorBodyModificationContext ((MutableType) DeclaringType, IsStatic, ParameterExpressions, _body);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
     }
 

@@ -25,7 +25,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Creates a <see cref="ProxyType"/> model for the given base type.
+  /// Creates a <see cref="MutableType"/> model for the given base type.
   /// </summary>
   // TODO Update doc.
   public class MutableTypeFactory : IMutableTypeFactory
@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private int _counter;
 
     // TODO: Maybe move to proxy?
-    public ProxyType CreateProxyType (Type baseType)
+    public MutableType CreateProxyType (Type baseType)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     // TODO: add Tests
-    public ProxyType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
+    public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
@@ -62,10 +62,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
-      return new ProxyType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return new MutableType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
-    private void CopyConstructors (Type baseType, ProxyType proxyType)
+    private void CopyConstructors (Type baseType, MutableType proxyType)
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var accessibleInstanceCtors = baseType.GetConstructors (bindingFlags).Where (SubclassFilterUtility.IsVisibleFromSubclass);

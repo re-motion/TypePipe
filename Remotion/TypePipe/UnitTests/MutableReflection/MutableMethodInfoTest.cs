@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableMethodInfoTest
   {
-    private ProxyType _declaringType;
+    private MutableType _declaringType;
 
     private MutableMethodInfo _method;
     private MutableMethodInfo _virtualMethod;
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
+      _declaringType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
 
       _method = MutableMethodInfoObjectMother.Create (_declaringType, "NonVirtualMethod");
       _virtualMethod = MutableMethodInfoObjectMother.Create (_declaringType, attributes: MethodAttributes.Virtual);
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
-      var declaringType = ProxyTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var name = "abc";
       var attributes = (MethodAttributes) 7 | MethodAttributes.Virtual;
       var returnType = ReflectionObjectMother.GetSomeType();
@@ -236,7 +236,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void SetBody ()
     {
-      var declaringType = ProxyTypeObjectMother.Create();
+      var declaringType = MutableTypeObjectMother.Create();
       var attribtes = MethodAttributes.Virtual; // Methods which have a base method must be virtual.
       var returnType = typeof (object);
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
@@ -309,7 +309,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       // Note: ToDebugString is defined in CustomMethodInfo base class.
       var method = MutableMethodInfoObjectMother.Create (
-          declaringType: ProxyTypeObjectMother.Create (name: "AbcProxy"),
+          declaringType: MutableTypeObjectMother.Create (name: "AbcProxy"),
           name: "Xxx",
           returnType: typeof (void),
           parameters: new[] { new ParameterDeclaration (typeof (int), "p1") });

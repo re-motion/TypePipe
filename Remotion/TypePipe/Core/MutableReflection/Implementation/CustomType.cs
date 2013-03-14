@@ -34,10 +34,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Note that the equality members <see cref="Equals(object)"/>, <see cref="Equals(System.Type)"/> and <see cref="GetHashCode"/> are implemented for
   /// reference equality.
   /// </summary>
-  /// <remarks>
-  /// Avoid using the members <see cref="UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/>.
-  /// Use <see cref="TypeExtensions.IsTypePipeAssignableFrom"/> instead.
-  /// </remarks>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {

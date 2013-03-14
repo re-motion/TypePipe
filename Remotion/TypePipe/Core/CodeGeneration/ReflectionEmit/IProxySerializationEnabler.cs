@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   [ConcreteImplementation (typeof (ProxySerializationEnabler))]
   public interface IProxySerializationEnabler
   {
-    void MakeSerializable (ProxyType proxyType, MethodInfo initializationMethod);
+    void MakeSerializable (MutableType proxyType, MethodInfo initializationMethod);
    
     bool IsDeserializationConstructor (ConstructorInfo constructor);
   }

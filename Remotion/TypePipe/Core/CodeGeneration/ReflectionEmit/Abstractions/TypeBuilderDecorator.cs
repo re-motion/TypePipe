@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _typeBuilder; }
     }
 
-    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, ProxyType type)
+    public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("type", type);

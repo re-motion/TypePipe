@@ -207,7 +207,7 @@
     <Compile Include="MutableReflection\MethodInfoExtensions.cs" />
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
-    <Compile Include="MutableReflection\ProxyTypeExtensions.cs" />
+    <Compile Include="MutableReflection\MutableTypeExtensions.cs" />
     <Compile Include="MutableReflection\GenericParameterContext.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
@@ -382,7 +382,7 @@
     <Compile Include="MutableReflection\MutableFieldInfo.cs" />
     <Compile Include="MutableReflection\MutableMethodInfo.cs" />
     <Compile Include="MutableReflection\MutableParameterInfo.cs" />
-    <Compile Include="MutableReflection\ProxyType.cs" />
+    <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
     <Compile Include="IParticipant.cs" />
     <Compile Include="ObjectFactory.cs" />

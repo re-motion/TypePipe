@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
   [TestFixture]
   public class UnemittableExpressionVisitorTest
   {
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private IMethodTrampolineProvider _methodTrampolineProviderMock;
     private CodeGenerationContext _context;
@@ -47,9 +47,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
       _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
-      _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType, emittableOperandProvider: _emittableOperandProviderMock);
+      _context = CodeGenerationContextObjectMother.GetSomeContext (_mutableType, emittableOperandProvider: _emittableOperandProviderMock);
       _methodTrampolineProviderMock = MockRepository.GenerateStrictMock<IMethodTrampolineProvider>();
 
       _visitorPartialMock = MockRepository.GeneratePartialMock<UnemittableExpressionVisitor> (_context, _methodTrampolineProviderMock);
@@ -85,11 +85,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), MatchType = MessageMatch.StartsWith, ExpectedMessage =
-        "It is not supported to have a ConstantExpression of type 'ProxyType' because instances of 'ProxyType' exist only at " +
+        "It is not supported to have a ConstantExpression of type 'MutableType' because instances of 'MutableType' exist only at " +
         "code generation time, not at runtime.")]
     public void VisitConstant_NotAssignableValue ()
     {
-      var proxyType = ProxyTypeObjectMother.Create();
+      var proxyType = MutableTypeObjectMother.Create();
       var expression = Expression.Constant (proxyType);
       _emittableOperandProviderMock.Stub (stub => stub.GetEmittableType (proxyType)).Return (typeof (int));
 
@@ -225,17 +225,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       var delegateType = typeof (Func<int, string, double>);
       var parameters = new[] { Expression.Parameter (typeof (int)), Expression.Parameter (typeof (string)) };
       var body = Expression.Call (
-          ExpressionTreeObjectMother.GetSomeThisExpression (_proxyType), new NonVirtualCallMethodInfoAdapter (method), parameters.Cast<Expression>());
+          ExpressionTreeObjectMother.GetSomeThisExpression (_mutableType), new NonVirtualCallMethodInfoAdapter (method), parameters.Cast<Expression>());
       var expression = Expression.Lambda (delegateType, body, parameters);
 
       var fakeTrampolineMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.TrampolineMethod (7, ""));
       _methodTrampolineProviderMock.Expect (mock => mock.GetNonVirtualCallTrampoline (_context, method)).Return (fakeTrampolineMethod);
 
-      var thisClosure = Expression.Parameter (_proxyType, "thisClosure");
+      var thisClosure = Expression.Parameter (_mutableType, "thisClosure");
       var expectedTree =
           Expression.Block (
               new[] { thisClosure },
-              Expression.Assign (thisClosure, new ThisExpression (_proxyType)),
+              Expression.Assign (thisClosure, new ThisExpression (_mutableType)),
               Expression.Lambda (delegateType, Expression.Call (thisClosure, fakeTrampolineMethod, parameters.Cast<Expression>()), parameters));
       var fakeResultExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _visitorPartialMock

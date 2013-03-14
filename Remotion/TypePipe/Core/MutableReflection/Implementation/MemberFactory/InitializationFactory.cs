@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// </summary>
   public class InitializationFactory
   {
-    public Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
+    public Expression CreateInitialization (MutableType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);

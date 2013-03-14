@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private InitializationBuilder _builder;
 
     private IProxySerializationEnabler _proxySerializationEnablerMock;
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
@@ -45,33 +45,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _builder = new InitializationBuilder();
 
       _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
-      _proxyType = ProxyTypeObjectMother.Create();
+      _mutableType = MutableTypeObjectMother.Create();
     }
 
     [Test]
     public void CreateInstanceInitializationMembers ()
     {
       var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();
-      _proxyType.AddInitialization (ctx => initExpression);
+      _mutableType.AddInitialization (ctx => initExpression);
 
-      var result = _builder.CreateInitializationMembers (_proxyType);
+      var result = _builder.CreateInitializationMembers (_mutableType);
 
       var counter = (MutableFieldInfo) result.Item1;
       var initMethod = (MutableMethodInfo) result.Item2;
 
       // Interface added.
-      Assert.That (_proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (IInitializableObject) }));
+      Assert.That (_mutableType.AddedInterfaces, Is.EqualTo (new[] { typeof (IInitializableObject) }));
 
       // Field added.
-      Assert.That (_proxyType.AddedFields, Is.EqualTo (new[] { counter }));
+      Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { counter }));
       Assert.That (counter.Name, Is.EqualTo ("<tp>_ctorRunCounter"));
       Assert.That (counter.FieldType, Is.SameAs (typeof (int)));
       Assert.That (counter.AddedCustomAttributes.Single().Type, Is.SameAs (typeof (NonSerializedAttribute)));
 
       // Initialization method added.
       var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
-      Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { initMethod }));
-      Assert.That (initMethod.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { initMethod }));
+      Assert.That (initMethod.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (initMethod.Name, Is.EqualTo ("Remotion.TypePipe.Caching.IInitializableObject.Initialize"));
       Assert.That (initMethod.Attributes, Is.EqualTo (methodAttributes));
       Assert.That (initMethod.ReturnType, Is.SameAs (typeof (void)));
@@ -87,21 +87,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateInstanceInitializationMembers_Empty ()
     {
-      var result = _builder.CreateInitializationMembers (_proxyType);
+      var result = _builder.CreateInitializationMembers (_mutableType);
 
       Assert.That (result, Is.Null);
-      Assert.That (_proxyType.AddedInterfaces, Is.Empty);
-      Assert.That (_proxyType.AddedFields, Is.Empty);
-      Assert.That (_proxyType.AddedMethods, Is.Empty);
+      Assert.That (_mutableType.AddedInterfaces, Is.Empty);
+      Assert.That (_mutableType.AddedFields, Is.Empty);
+      Assert.That (_mutableType.AddedMethods, Is.Empty);
     }
 
     [Test]
     public void WireConstructorWithInitialization ()
     {
-      var counter = MutableFieldInfoObjectMother.Create (_proxyType, type: typeof (int));
-      var initMethod = MutableMethodInfoObjectMother.Create (_proxyType);
+      var counter = MutableFieldInfoObjectMother.Create (_mutableType, type: typeof (int));
+      var initMethod = MutableMethodInfoObjectMother.Create (_mutableType);
       var initializationMembers = Tuple.Create<FieldInfo, MethodInfo> (counter, initMethod);
-      var constructor = MutableConstructorInfoObjectMother.Create (_proxyType);
+      var constructor = MutableConstructorInfoObjectMother.Create (_mutableType);
       var oldBody = constructor.Body;
 
       _proxySerializationEnablerMock.Expect (mock => mock.IsDeserializationConstructor (constructor)).Return (false);
@@ -111,15 +111,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _proxySerializationEnablerMock.VerifyAllExpectations();
       var expectedBody = Expression.Block (
           Expression.Assign (
-              Expression.Field (new ThisExpression (_proxyType), counter),
-              Expression.Add (Expression.Field (new ThisExpression (_proxyType), counter), Expression.Constant (1))),
+              Expression.Field (new ThisExpression (_mutableType), counter),
+              Expression.Add (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (1))),
           oldBody,
           Expression.Assign (
-              Expression.Field (new ThisExpression (_proxyType), counter),
-              Expression.Subtract (Expression.Field (new ThisExpression (_proxyType), counter), Expression.Constant (1))),
+              Expression.Field (new ThisExpression (_mutableType), counter),
+              Expression.Subtract (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (1))),
           Expression.IfThen (
-              Expression.Equal (Expression.Field (new ThisExpression (_proxyType), counter), Expression.Constant (0)),
-              Expression.Call (new ThisExpression (_proxyType), initMethod)));
+              Expression.Equal (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (0)),
+              Expression.Call (new ThisExpression (_mutableType), initMethod)));
 
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, constructor.Body);
     }

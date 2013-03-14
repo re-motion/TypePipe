@@ -28,22 +28,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
   {
     private FieldFactory _factory;
 
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
       _factory = new FieldFactory();
 
-      _proxyType = ProxyTypeObjectMother.Create();
+      _mutableType = MutableTypeObjectMother.Create();
     }
 
     [Test]
     public void CreateField ()
     {
-      var field = _factory.CreateField (_proxyType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
+      var field = _factory.CreateField (_mutableType, "_newField", typeof (string), FieldAttributes.FamANDAssem);
 
-      Assert.That (field.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (field.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (field.Name, Is.EqualTo ("_newField"));
       Assert.That (field.FieldType, Is.EqualTo (typeof (string)));
       Assert.That (field.Attributes, Is.EqualTo (FieldAttributes.FamANDAssem));
@@ -54,40 +54,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var message = "The following FieldAttributes are not supported for fields: " +
                     "Literal, HasFieldMarshal, HasDefault, HasFieldRVA.\r\nParameter name: attributes";
-      Assert.That (() => CreateField (_proxyType, FieldAttributes.Literal), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_proxyType, FieldAttributes.HasFieldMarshal), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_proxyType, FieldAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_proxyType, FieldAttributes.HasFieldRVA), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.Literal), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasFieldMarshal), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasFieldRVA), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Field cannot be of type void.\r\nParameter name: type")]
     public void CreateField_VoidType ()
     {
-      _factory.CreateField (_proxyType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
+      _factory.CreateField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
     }
 
     [Test]
     public void CreateField_ThrowsIfAlreadyExist ()
     {
-      var field = _proxyType.AddField ("Field", FieldAttributes.Private, typeof (int));
+      var field = _mutableType.AddField ("Field", FieldAttributes.Private, typeof (int));
 
       Assert.That (
-          () => _factory.CreateField (_proxyType, "OtherName", field.FieldType, 0),
+          () => _factory.CreateField (_mutableType, "OtherName", field.FieldType, 0),
           Throws.Nothing);
 
       Assert.That (
-          () => _factory.CreateField (_proxyType, field.Name, typeof (string), 0),
+          () => _factory.CreateField (_mutableType, field.Name, typeof (string), 0),
           Throws.Nothing);
 
       Assert.That (
-          () => _factory.CreateField (_proxyType, field.Name, field.FieldType, 0),
+          () => _factory.CreateField (_mutableType, field.Name, field.FieldType, 0),
           Throws.InvalidOperationException.With.Message.EqualTo ("Field with equal name and signature already exists."));
     }
 
-    private MutableFieldInfo CreateField (ProxyType proxyType, FieldAttributes attributes)
+    private MutableFieldInfo CreateField (MutableType mutableType, FieldAttributes attributes)
     {
-      return _factory.CreateField (proxyType, "dummy", typeof (int), attributes);
+      return _factory.CreateField (mutableType, "dummy", typeof (int), attributes);
     }
   }
 }

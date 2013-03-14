@@ -23,13 +23,13 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Helps with building initializations for a <see cref="ProxyType"/>.
+  /// Helps with building initializations for a <see cref="MutableType"/>.
   /// </summary>
   /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyCreator"/>.</remarks>
   [ConcreteImplementation (typeof (InitializationBuilder))]
   public interface IInitializationBuilder
   {
-    Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (ProxyType proxyType);
+    Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (MutableType mutableType);
 
     void WireConstructorWithInitialization (
         MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler);

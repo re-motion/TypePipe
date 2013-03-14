@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     private MethodSignatureItems GetMethodSignatureItems (
-        ProxyType declaringType,
+        MutableType declaringType,
         IEnumerable<GenericParameterDeclaration> genericParameters,
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider)
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return new MethodSignatureItems (genericParams, returnType, parameters);
     }
 
-    private MethodInfo GetBaseMethod (ProxyType declaringType, string name, MethodSignature signature, bool isVirtual, bool isNewSlot)
+    private MethodInfo GetBaseMethod (MutableType declaringType, string name, MethodSignature signature, bool isVirtual, bool isNewSlot)
     {
       if (!isVirtual || isNewSlot)
         return null;
@@ -167,7 +167,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     private Expression GetMethodBody (
-        ProxyType declaringType,
+        MutableType declaringType,
         MethodAttributes attributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider,
         MethodSignatureItems signatureItems,

@@ -26,33 +26,33 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   [TestFixture]
   public class IsAssignableFromTest
   {
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (typeof (DomainType));
     }
 
     [Test]
     public void IsAssignableFromFast ()
     {
-      Assert.That (_proxyType.IsTypePipeAssignableFrom (_proxyType), Is.True);
-      Assert.That (typeof (object).IsTypePipeAssignableFrom (_proxyType), Is.True);
-      Assert.That (typeof (DomainType).IsTypePipeAssignableFrom (_proxyType), Is.True);
-      Assert.That (_proxyType.IsTypePipeAssignableFrom (typeof (DomainType)), Is.False);
-      Assert.That (typeof (IDomainInterface).IsTypePipeAssignableFrom (_proxyType), Is.True);
-      Assert.That (typeof (IAddedInterface).IsTypePipeAssignableFrom (_proxyType), Is.False);
-      Assert.That (typeof (UnrelatedType).IsTypePipeAssignableFrom (_proxyType), Is.False);
+      Assert.That (_mutableType.IsTypePipeAssignableFrom (_mutableType), Is.True);
+      Assert.That (typeof (object).IsTypePipeAssignableFrom (_mutableType), Is.True);
+      Assert.That (typeof (DomainType).IsTypePipeAssignableFrom (_mutableType), Is.True);
+      Assert.That (_mutableType.IsTypePipeAssignableFrom (typeof (DomainType)), Is.False);
+      Assert.That (typeof (IDomainInterface).IsTypePipeAssignableFrom (_mutableType), Is.True);
+      Assert.That (typeof (IAddedInterface).IsTypePipeAssignableFrom (_mutableType), Is.False);
+      Assert.That (typeof (UnrelatedType).IsTypePipeAssignableFrom (_mutableType), Is.False);
 
-      _proxyType.AddInterface (typeof (IAddedInterface));
-      Assert.That (typeof (IAddedInterface).IsTypePipeAssignableFrom (_proxyType), Is.True);
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      Assert.That (typeof (IAddedInterface).IsTypePipeAssignableFrom (_mutableType), Is.True);
     }
 
     [Test]
     public void IsAssignableFromFast_TypeInstantiations ()
     {
-      var instantiation = typeof (GenericType<>).MakeTypePipeGenericType (_proxyType);
+      var instantiation = typeof (GenericType<>).MakeTypePipeGenericType (_mutableType);
       var baseInstantiation = instantiation.BaseType;
       var ifcInstantiation = instantiation.GetInterfaces().Single();
       Assert.That (baseInstantiation, Is.TypeOf<TypeInstantiation>());
@@ -66,49 +66,49 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void IsSubclassOf ()
     {
-      Assert.That (_proxyType.IsSubclassOf (typeof (object)), Is.True);
-      Assert.That (_proxyType.IsSubclassOf (typeof (DomainType)), Is.True);
-      Assert.That (_proxyType.IsSubclassOf (_proxyType), Is.False);
-      Assert.That (typeof (DomainType).IsSubclassOf (_proxyType), Is.False);
-      Assert.That (_proxyType.IsSubclassOf (typeof (IDomainInterface)), Is.False);
+      Assert.That (_mutableType.IsSubclassOf (typeof (object)), Is.True);
+      Assert.That (_mutableType.IsSubclassOf (typeof (DomainType)), Is.True);
+      Assert.That (_mutableType.IsSubclassOf (_mutableType), Is.False);
+      Assert.That (typeof (DomainType).IsSubclassOf (_mutableType), Is.False);
+      Assert.That (_mutableType.IsSubclassOf (typeof (IDomainInterface)), Is.False);
     }
 
     [Test]
     public void Equals_Type ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (DomainType));
 
-      Assert.That (_proxyType.Equals (_proxyType), Is.True);
-      Assert.That (_proxyType.Equals (proxyType), Is.False);
+      Assert.That (_mutableType.Equals (_mutableType), Is.True);
+      Assert.That (_mutableType.Equals (proxyType), Is.False);
       // ReSharper disable CheckForReferenceEqualityInstead.1
-      Assert.That (_proxyType.Equals (typeof (DomainType)), Is.False);
+      Assert.That (_mutableType.Equals (typeof (DomainType)), Is.False);
       // ReSharper restore CheckForReferenceEqualityInstead.1
-      Assert.That (() => typeof (DomainType).Equals (_proxyType), Throws.TypeOf<NotSupportedException>());
+      Assert.That (() => typeof (DomainType).Equals (_mutableType), Throws.TypeOf<NotSupportedException>());
     }
 
     [Test]
     public void Equals_Object ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (DomainType));
 
-      Assert.That (_proxyType.Equals ((object) _proxyType), Is.True);
-      Assert.That (_proxyType.Equals ((object) proxyType), Is.False);
-      Assert.That (_proxyType.Equals ((object) typeof (DomainType)), Is.False);
-      Assert.That (typeof (DomainType).Equals ((object) _proxyType), Is.False);
+      Assert.That (_mutableType.Equals ((object) _mutableType), Is.True);
+      Assert.That (_mutableType.Equals ((object) proxyType), Is.False);
+      Assert.That (_mutableType.Equals ((object) typeof (DomainType)), Is.False);
+      Assert.That (typeof (DomainType).Equals ((object) _mutableType), Is.False);
     }
 
     [Test]
     public new void GetHashCode ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (DomainType));
 
-      var result = _proxyType.GetHashCode();
+      var result = _mutableType.GetHashCode();
 
-      Assert.That (_proxyType.GetHashCode(), Is.EqualTo (result));
+      Assert.That (_mutableType.GetHashCode(), Is.EqualTo (result));
       Assert.That (proxyType.GetHashCode(), Is.Not.EqualTo (result));
 
-      _proxyType.AddInterface (typeof (IDisposable));
-      Assert.That (_proxyType.GetHashCode(), Is.EqualTo (result), "Hash code must not change.");
+      _mutableType.AddInterface (typeof (IDisposable));
+      Assert.That (_mutableType.GetHashCode(), Is.EqualTo (result), "Hash code must not change.");
     }
 
     public class DomainType : IDomainInterface { }

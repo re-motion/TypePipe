@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Selects members based on <see cref="BindingFlags"/> and other criteria. This is used to implement member access operations in 
-  /// <see cref="ProxyType"/>.
+  /// <see cref="MutableType"/>.
   /// </summary>
   public class MemberSelector : IMemberSelector
   {

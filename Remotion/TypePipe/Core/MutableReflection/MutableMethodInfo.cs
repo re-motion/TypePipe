@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
     private Expression _body;
 
     public MutableMethodInfo (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         ICollection<MutableGenericParameter> genericParameters,
@@ -81,9 +81,9 @@ namespace Remotion.TypePipe.MutableReflection
       _body = body;
     }
 
-    public ProxyType MutableDeclaringType
+    public MutableType MutableDeclaringType
     {
-      get { return (ProxyType) DeclaringType; }
+      get { return (MutableType) DeclaringType; }
     }
 
     public ReadOnlyCollection<MutableGenericParameter> MutableGenericParameters

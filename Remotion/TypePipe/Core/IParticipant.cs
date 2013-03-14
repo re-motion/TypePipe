@@ -23,14 +23,14 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Participates in the assembly of a type by calling mutating members of <see cref="ProxyType"/>.
+  /// Participates in the assembly of a type by calling mutating members of <see cref="MutableType"/>.
   /// Framework authors implement this interface in order to take part in the code generation process.
   /// </summary>
   /// <remarks>
   /// <para>
   /// Instances of this interface can be configured in the pipeline.
-  /// Every participant has the chance the specify type modifications via the provided <see cref="ProxyType"/> instance.
-  /// The <see cref="ProxyType"/> is a representation of the type to be generated for the requested type.
+  /// Every participant has the chance the specify type modifications via the provided <see cref="MutableType"/> instance.
+  /// The <see cref="MutableType"/> is a representation of the type to be generated for the requested type.
   /// In addition, it contains all modifications applied by preceding participants in the pipeline.
   /// </para>
   /// </remarks>

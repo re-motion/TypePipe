@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     private MethodTrampolineProvider _provider;
 
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
     private CodeGenerationContext _context;
 
     [SetUp]
@@ -47,8 +47,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _provider = new MethodTrampolineProvider (_memberEmitterMock);
 
-      _proxyType = ProxyTypeObjectMother.Create (baseType: typeof (DomainType));
-      _context = CodeGenerationContextObjectMother.GetSomeContext (_proxyType);
+      _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
+      _context = CodeGenerationContextObjectMother.GetSomeContext (_mutableType);
     }
 
     [Test]
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _memberEmitterMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (mutableMethod));
-      Assert.That (_proxyType.AddedMethods, Has.Member (result));
+      Assert.That (_mutableType.AddedMethods, Has.Member (result));
 
       var name = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.MethodTrampolineProviderTest+DomainType.Abc_NonVirtualCallTrampoline";
       Assert.That (result.Name, Is.EqualTo (name));
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       Assert.That (mutableMethod.Body, Is.InstanceOf<MethodCallExpression>());
       var methodCallExpression = ((MethodCallExpression) mutableMethod.Body);
-      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().And.Property ("Type").SameAs (_proxyType));
+      Assert.That (methodCallExpression.Object, Is.TypeOf<ThisExpression>().And.Property ("Type").SameAs (_mutableType));
       Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>().And.Property ("AdaptedMethod").SameAs (method));
       Assert.That (methodCallExpression.Arguments, Is.EqualTo (mutableMethod.ParameterExpressions));
     }

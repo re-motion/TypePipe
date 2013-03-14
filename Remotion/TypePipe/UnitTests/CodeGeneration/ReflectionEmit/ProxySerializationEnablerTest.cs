@@ -42,11 +42,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     
     private ProxySerializationEnabler _enabler;
 
-    private ProxyType _someProxy;
-    private ProxyType _serializableInterfaceProxy;
-    private ProxyType _serializableProxy;
-    private ProxyType _deserializationCallbackProxy;
-    private ProxyType _serializableInterfaceWithDeserializationCallbackProxy;
+    private MutableType _someProxy;
+    private MutableType _serializableInterfaceProxy;
+    private MutableType _serializableProxy;
+    private MutableType _deserializationCallbackProxy;
+    private MutableType _serializableInterfaceWithDeserializationCallbackProxy;
 
     private MethodInfo _someInitializationMethod;
 
@@ -57,12 +57,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _enabler = new ProxySerializationEnabler (_serializableFieldFinderMock);
 
-      _someProxy = ProxyTypeObjectMother.Create (typeof (SomeType));
-      _serializableProxy = ProxyTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
-      _serializableInterfaceProxy = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: true);
-      _deserializationCallbackProxy = ProxyTypeObjectMother.Create (typeof (DeserializationCallbackType));
+      _someProxy = MutableTypeObjectMother.Create (typeof (SomeType));
+      _serializableProxy = MutableTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
+      _serializableInterfaceProxy = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: true);
+      _deserializationCallbackProxy = MutableTypeObjectMother.Create (typeof (DeserializationCallbackType));
       _serializableInterfaceWithDeserializationCallbackProxy =
-          ProxyTypeObjectMother.Create (baseType: typeof (SerializableWithDeserializationCallbackType), attributes: TypeAttributes.Serializable);
+          MutableTypeObjectMother.Create (baseType: typeof (SerializableWithDeserializationCallbackType), attributes: TypeAttributes.Serializable);
 
       _someInitializationMethod = ReflectionObjectMother.GetSomeInstanceMethod();
     }
@@ -228,7 +228,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void MakeSerializable_ISerializable_SerializedFields_MissingCtor ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: false);
+      var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), copyCtorsFromBase: false);
       StubFilterWithSerializedFields (proxyType);
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
@@ -243,7 +243,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_ISerializable_SerializedFields_CannotOverrideGetObjectData ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), copyCtorsFromBase: true);
+      var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), copyCtorsFromBase: true);
       StubFilterWithSerializedFields (proxyType);
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
@@ -255,7 +255,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
     public void MakeSerializable_IDeserializationCallback_CannotOverrideGetObjectData ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (ExplicitDeserializationCallbackType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitDeserializationCallbackType));
       StubFilterWithNoSerializedFields ();
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
@@ -278,7 +278,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Return (new Tuple<string, FieldInfo>[0]);
     }
 
-    private void StubFilterWithSerializedFields (ProxyType declaringType)
+    private void StubFilterWithSerializedFields (MutableType declaringType)
     {
       _serializableFieldFinderMock
           .Stub (stub => stub.GetSerializableFieldMapping (Arg<IEnumerable<FieldInfo>>.Is.Anything))

@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableMethodInfo CreateExplicitOverride (
-        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
+        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return CreateOverride (baseMethod, declaringType, baseMethod.Name, attributes, bodyProvider);
     }
 
-    private MethodInfo GetBaseMethod (ProxyType declaringType, MethodInfo baseDefinition)
+    private MethodInfo GetBaseMethod (MutableType declaringType, MethodInfo baseDefinition)
     {
       var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
       if (baseMethod.IsFinal)
@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
-        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
+        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProviderOrNull)
     {
       Assertion.IsTrue (bodyProviderOrNull != null || overriddenMethodBaseDefinition.IsAbstract);
 
@@ -146,7 +146,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return method;
     }
 
-    private MethodInfo GetOrCreateImplementationMethod (ProxyType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
+    private MethodInfo GetOrCreateImplementationMethod (MutableType declaringType, MethodInfo ifcMethod, out bool isNewlyCreated)
     {
       var interfaceMap = declaringType.GetInterfaceMap (ifcMethod.DeclaringType, allowPartialInterfaceMapping: true);
       var index = Array.IndexOf (interfaceMap.InterfaceMethods, ifcMethod);
@@ -165,8 +165,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
               "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
               + "Use {1}.{2} to create an explicit implementation.",
               ifcMethod.Name,
-              typeof (ProxyType).Name,
-              MemberInfoFromExpressionUtility.GetMethod ((ProxyType obj) => obj.AddExplicitOverride (null, null)).Name);
+              typeof (MutableType).Name,
+              MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddExplicitOverride (null, null)).Name);
           throw new InvalidOperationException (message);
         }
       }
@@ -179,7 +179,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     private MutableMethodInfo CreateOverride (
         MethodInfo overriddenMethod,
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider)

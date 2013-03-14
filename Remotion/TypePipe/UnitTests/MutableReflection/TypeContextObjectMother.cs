@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       return new TypeContext (mutableTypeFactory, requestedType);
     }
 
-    public static TypeContext Create (ProxyType proxyType)
+    public static TypeContext Create (MutableType proxyType)
     {
       var typeContext = (TypeContext) FormatterServices.GetUninitializedObject (typeof (TypeContext));
       PrivateInvoke.SetNonPublicField (typeContext, "_proxyType", proxyType);

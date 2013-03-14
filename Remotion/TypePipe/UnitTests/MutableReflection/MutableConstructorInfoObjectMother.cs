@@ -26,12 +26,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableConstructorInfoObjectMother
   {
     public static MutableConstructorInfo Create (
-        ProxyType declaringType = null,
+        MutableType declaringType = null,
         MethodAttributes attributes = (MethodAttributes) 7,
         IEnumerable<ParameterDeclaration> parameters = null,
         Expression body = null)
     {
-      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
       attributes |= MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
       parameters = parameters ?? ParameterDeclaration.None;
       body = body ?? Expression.Empty();

@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutableEventInfoTest
   {
-    private ProxyType _declaringType;
+    private MutableType _declaringType;
     private string _name;
     private EventAttributes _attributes;
     private Type _argumentType;
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create();
+      _declaringType = MutableTypeObjectMother.Create();
       _name = "Event";
       _attributes = (EventAttributes) 7;
       _argumentType = ReflectionObjectMother.GetSomeType();

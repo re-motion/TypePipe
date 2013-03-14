@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
       var attributes = (TypeAttributes) 7;
       var fullName = "MyNs.Abc";
-      var proxyType = ProxyTypeObjectMother.Create (baseType, "Abc", "MyNs", attributes);
+      var proxyType = MutableTypeObjectMother.Create (baseType, "Abc", "MyNs", attributes);
 
       var typeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
 
@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Build_NoTypeInitializer_NoInitializations ()
     {
-      var proxyType = ProxyTypeObjectMother.Create();
+      var proxyType = MutableTypeObjectMother.Create();
       Assert.That (proxyType.MutableTypeInitializer, Is.Null);
 
       _codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (_emittableOperandProviderMock);

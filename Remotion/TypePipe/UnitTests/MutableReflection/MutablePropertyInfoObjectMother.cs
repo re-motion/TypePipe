@@ -25,13 +25,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public class MutablePropertyInfoObjectMother
   {
     public static MutablePropertyInfo Create (
-        ProxyType declaringType = null,
+        MutableType declaringType = null,
         string name = "UnspecifiedProperty",
         PropertyAttributes attributes = PropertyAttributes.None,
         MutableMethodInfo getMethod = null,
         MutableMethodInfo setMethod = null)
     {
-      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
       if (getMethod == null && setMethod == null)
         getMethod = MutableMethodInfoObjectMother.Create (declaringType, "Getter", returnType: typeof (int));
 
@@ -39,9 +39,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     public static MutablePropertyInfo CreateReadWrite (
-        ProxyType declaringType = null, string name = "UnspecifiedProperty", PropertyAttributes attributes = PropertyAttributes.None, Type type = null)
+        MutableType declaringType = null, string name = "UnspecifiedProperty", PropertyAttributes attributes = PropertyAttributes.None, Type type = null)
     {
-      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
       type = type ?? ReflectionObjectMother.GetSomeType();
 
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: type);

@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableMethodInfoObjectMother
   {
     public static MutableMethodInfo Create (
-        ProxyType declaringType = null,
+        MutableType declaringType = null,
         string name = "UnspecifiedMethod",
         MethodAttributes attributes = (MethodAttributes) 7,
         Type returnType = null,
@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Expression body = null,
         IEnumerable<MutableGenericParameter> genericParameters = null)
     {
-      declaringType = declaringType ?? ProxyTypeObjectMother.Create();
+      declaringType = declaringType ?? MutableTypeObjectMother.Create();
       if (baseMethod != null)
         attributes = attributes.Set (MethodAttributes.Virtual);
       returnType = returnType ?? typeof (void);

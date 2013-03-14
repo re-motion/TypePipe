@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DomainType);
-      var proxyType = ProxyTypeObjectMother.Create (type);
+      var proxyType = MutableTypeObjectMother.Create (type);
       CheckAttributeInheritance (proxyType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.OverriddenProperty);
-      //var mutableProperty = ProxyType.AllMutableProperties.Single();
+      //var mutableProperty = MutableType.AllMutableProperties.Single();
       //CheckAttributes (mutableProperty, property);
 
       // TODO 4791
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var @event = type.GetEvents().Single();
-      //var mutableEvent = ProxyType.AllMutableEvents().Single();
+      //var mutableEvent = MutableType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
 
       // TODO 4791
@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
       var type = typeof (DomainType);
-      var proxyType = ProxyTypeObjectMother.Create (type);
+      var proxyType = MutableTypeObjectMother.Create (type);
       CheckAttributeInheritanceAllowMultiple (proxyType);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.AllowMultipleMethod());
@@ -130,12 +130,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.AllowMultipleProperty);
-      //var mutableProperty = ProxyType.GetMutableProperty(property);
+      //var mutableProperty = MutableType.GetMutableProperty(property);
       //CheckAttributes (mutableEvent, @event);
 
       // TODO 4791
       //var @event = type.GetEvents().Single ...
-      //var mutableEvent = ProxyType.AllMutableEvents().Single();
+      //var mutableEvent = MutableType.AllMutableEvents().Single();
       //CheckAttributes (mutableEvent, @event);
     }
 
@@ -168,7 +168,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void IsDefined_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DomainType);
-      var proxyType = ProxyTypeObjectMother.Create (type);
+      var proxyType = MutableTypeObjectMother.Create (type);
       CheckIsDefinedInheritance (proxyType);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
@@ -177,12 +177,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.Property);
-      //var mutableProperty = ProxyType.GetMutableProperty(property);
+      //var mutableProperty = MutableType.GetMutableProperty(property);
       //CheckIsDefinedInheritance (mutableEvent, @event);
 
       // TODO 4791
       //var @event = type.GetEvents().Single ...
-      //var mutableEvent = ProxyType.AllMutableEvents().Single();
+      //var mutableEvent = MutableType.AllMutableEvents().Single();
       //CheckIsDefinedInheritance (mutableEvent, @event);
     }
 
@@ -195,7 +195,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 
     private IMutableMember CreateMutableInfo (params CustomAttributeDeclaration[] customAttributes)
     {
-      var member = new MutableFieldInfo (ProxyTypeObjectMother.Create (GetType()), "member", typeof (int), FieldAttributes.Private);
+      var member = new MutableFieldInfo (MutableTypeObjectMother.Create (GetType()), "member", typeof (int), FieldAttributes.Private);
       foreach (var customAttriubte in customAttributes)
         member.AddCustomAttribute (customAttriubte);
 

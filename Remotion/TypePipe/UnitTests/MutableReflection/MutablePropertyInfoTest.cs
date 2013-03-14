@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class MutablePropertyInfoTest
   {
-    private ProxyType _declaringType;
+    private MutableType _declaringType;
     private string _name;
     private PropertyAttributes _attributes;
     private Type _type;
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = ProxyTypeObjectMother.Create();
+      _declaringType = MutableTypeObjectMother.Create();
       _name = "Property";
       _attributes = (PropertyAttributes) 7;
       _type = ReflectionObjectMother.GetSomeType();

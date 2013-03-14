@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void InitializeDeclaringMember_DeclaringType ()
     {
-      var declaringMember = ProxyTypeObjectMother.Create();
+      var declaringMember = MutableTypeObjectMother.Create();
       _parameter.InitializeDeclaringMember (declaringMember);
 
       Assert.That (_parameter.DeclaringType, Is.SameAs (declaringMember));

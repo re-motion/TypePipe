@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _codeGenerator; }
     }
 
-    public Type CreateProxy (ProxyType proxyType)
+    public Type CreateProxy (MutableType proxyType)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 

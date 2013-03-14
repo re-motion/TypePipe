@@ -68,9 +68,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       SetBaseType (baseType);
     }
 
-    public ProxyType MutableDeclaringType
+    public MutableType MutableDeclaringType
     {
-      get { return (ProxyType) DeclaringType; }
+      get { return (MutableType) DeclaringType; }
     }
 
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public void InitializeDeclaringMember (MemberInfo declaringMember)
     {
       ArgumentUtility.CheckNotNull ("declaringMember", declaringMember);
-      Assertion.IsTrue (declaringMember is ProxyType || declaringMember is MutableMethodInfo);
+      Assertion.IsTrue (declaringMember is MutableType || declaringMember is MutableMethodInfo);
 
       if (_declaringMember != null)
         throw new InvalidOperationException ("InitializeDeclaringMember must be called exactly once.");

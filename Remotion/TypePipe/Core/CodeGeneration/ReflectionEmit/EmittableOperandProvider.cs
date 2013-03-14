@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Maps mutable reflection objects to associated emittable operands, which can be used for code generation by <see cref="ILGeneratorDecorator"/>.
   /// </summary>
   /// <remarks>
-  /// This class is used to map instances of <see cref="ProxyType"/>, <see cref="MutableConstructorInfo"/>, etc. to the respective
+  /// This class is used to map instances of <see cref="MutableType"/>, <see cref="MutableConstructorInfo"/>, etc. to the respective
   /// <see cref="TypeBuilder"/>, <see cref="ConstructorBuilder"/>, etc. objects. That way, <see cref="ILGeneratorDecorator"/> can resolve
   /// references to the mutable reflection objects when it emits code.
   /// </remarks>
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly Dictionary<ConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<ConstructorInfo, ConstructorInfo>();
     private readonly Dictionary<MethodInfo, MethodInfo> _mappedMethods = new Dictionary<MethodInfo, MethodInfo>();
 
-    public void AddMapping (ProxyType mappedType, Type emittableType)
+    public void AddMapping (MutableType mappedType, Type emittableType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
       ArgumentUtility.CheckNotNull ("emittableType", emittableType);

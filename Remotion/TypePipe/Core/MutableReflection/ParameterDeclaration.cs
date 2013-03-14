@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Holds all values required to declare a method, constructor, or property parameter.
   /// </summary>
   /// <remarks>
-  /// This is used by <see cref="ProxyType"/> when declaring methods, constructors, or indexed properties.
+  /// This is used by <see cref="MutableType"/> when declaring methods, constructors, or indexed properties.
   /// </remarks>
   public class ParameterDeclaration
   {

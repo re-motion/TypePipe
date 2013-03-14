@@ -67,7 +67,7 @@
     <Compile Include="MutableReflection\IsAssignableFromTest.cs" />
     <Compile Include="MutableReflection\MakeTypePipeGenericMethodTest.cs" />
     <Compile Include="MutableReflection\MakeTypePipeGenericTypeTest.cs" />
-    <Compile Include="MutableReflection\ProxyTypeMemberSelectionTest.cs" />
+    <Compile Include="MutableReflection\MutableTypeMemberSelectionTest.cs" />
     <Compile Include="ObjectCreationTest.cs" />
     <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
     <Compile Include="ObjectInitializationTest.cs" />
@@ -96,7 +96,7 @@
     <Compile Include="TypeAssembly\GenericParameterMemberAccessTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
-    <Compile Include="TypeAssembly\ProxyTypeInSignaturesTest.cs" />
+    <Compile Include="TypeAssembly\MutableTypeInSignaturesTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\TypeInitializerTest.cs" />
@@ -104,7 +104,7 @@
     <Compile Include="TypeAssembly\DelegateInstantiationTest.cs" />
     <Compile Include="MutableReflection\GetCustomAttributesTest.cs" />
     <Compile Include="TypeAssembly\LambdaExpressionTest.cs" />
-    <Compile Include="MutableReflection\ProxyTypeObjectMother.cs" />
+    <Compile Include="MutableReflection\MutableTypeObjectMother.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataTest.cs" />
     <Compile Include="TypeAssembly\ExplicitOverridesTest.cs" />
     <Compile Include="TypeAssembly\GetOrAddOverrideBaseMethodTest.cs" />

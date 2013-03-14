@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SomeType), attributes: TypeAttributes.Serializable);
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (SomeType), attributes: TypeAttributes.Serializable);
       var typeContext = TypeContextObjectMother.Create (proxyType);
 
       _participant.Modify (typeContext);
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SerializableInterfaceType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
+      var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
       var typeContext = TypeContextObjectMother.Create (proxyType);
 
       _participant.Modify (typeContext);
@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void ModifyType_SomeType ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (SomeType));
+      var proxyType = MutableTypeObjectMother.Create (typeof (SomeType));
       var typeContext = TypeContextObjectMother.Create (proxyType);
 
       _participant.Modify (typeContext);
@@ -126,7 +126,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
                           + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
     public void ModifyType_CannotOverrideGetObjectData ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
+      var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
       var typeContext = TypeContextObjectMother.Create (proxyType);
 
       _participant.Modify (typeContext);

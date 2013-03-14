@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly Expression _previousBody;
 
     public MethodBodyModificationContext (
-        ProxyType declaringType,
+        MutableType declaringType,
         bool isStatic,
         IEnumerable<ParameterExpression> parameterExpressions,
         IEnumerable<Type> genericParameters,

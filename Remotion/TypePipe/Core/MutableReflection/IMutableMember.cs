@@ -22,6 +22,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMutableMember : IMutableInfo
   {
-    ProxyType MutableDeclaringType { get; }
+    MutableType MutableDeclaringType { get; }
   }
 }

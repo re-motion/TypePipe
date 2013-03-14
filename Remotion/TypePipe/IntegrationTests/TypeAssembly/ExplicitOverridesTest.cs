@@ -206,7 +206,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   return Expression.Constant ("shadowing method");
                 });
             // TODO 5059: Uncomment
-            //Assert.That (ProxyType.GetMethod ("AbstractShadowedMethod"), Is.SameAs (shadowingMethod));
+            //Assert.That (MutableType.GetMethod ("AbstractShadowedMethod"), Is.SameAs (shadowingMethod));
             Assert.That (proxyType.IsAbstract, Is.True);
 
             var overrideForAbstractShadowedMethod = proxyType.GetOrAddOverride (shadowedMethod);

@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipDeletion = true;
     }
 
-    protected static IParticipant CreateParticipant (Action<ProxyType> typeModification, ICacheKeyProvider cacheKeyProvider = null)
+    protected static IParticipant CreateParticipant (Action<MutableType> typeModification, ICacheKeyProvider cacheKeyProvider = null)
     {
       return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider);
     }

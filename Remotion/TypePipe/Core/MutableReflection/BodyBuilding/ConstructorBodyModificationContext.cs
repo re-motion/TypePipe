@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private readonly Expression _previousBody;
 
     public ConstructorBodyModificationContext (
-        ProxyType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, Expression previousBody)
+        MutableType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, Expression previousBody)
         : base (declaringType, isStatic, parameterExpressions)
     {
       ArgumentUtility.CheckNotNull ("previousBody", previousBody);

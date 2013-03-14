@@ -189,8 +189,8 @@
     <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="MutableReflection\MutablePropertyInfoTest.cs" />
-    <Compile Include="MutableReflection\ProxyTypeExtensionsTest.cs" />
-    <Compile Include="MutableReflection\ProxyTypeTestExtensions.cs" />
+    <Compile Include="MutableReflection\MutableTypeExtensionsTest.cs" />
+    <Compile Include="MutableReflection\MutableTypeTestExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\SubclassFilterUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGeneratorTest.cs" />
@@ -216,8 +216,8 @@
     <Compile Include="MutableReflection\MutableFieldInfoTest.cs" />
     <Compile Include="MutableReflection\MutableMethodInfoTest.cs" />
     <Compile Include="MutableReflection\MutableParameterInfoTest.cs" />
-    <Compile Include="MutableReflection\ProxyTypeObjectMother.cs" />
-    <Compile Include="MutableReflection\ProxyTypeTest.cs" />
+    <Compile Include="MutableReflection\MutableTypeObjectMother.cs" />
+    <Compile Include="MutableReflection\MutableTypeTest.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
     <Compile Include="MutableReflection\UnsupportedMemberTestHelper.cs" />

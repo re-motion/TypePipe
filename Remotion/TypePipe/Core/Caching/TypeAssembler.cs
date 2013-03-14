@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.Caching
       }
     }
 
-    private string BuildExceptionMessage (ProxyType proxyType, SystemException exception)
+    private string BuildExceptionMessage (MutableType proxyType, SystemException exception)
     {
       var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
       return string.Format (

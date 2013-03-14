@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void DelegatingMembers ()
     {
-      var mappedType = ProxyTypeObjectMother.Create();
+      var mappedType = MutableTypeObjectMother.Create();
       var mappedGenericParameter = MutableGenericParameterObjectMother.Create();
       var mappedField = MutableFieldInfoObjectMother.Create();
       var mappedConstructor = MutableConstructorInfoObjectMother.Create();

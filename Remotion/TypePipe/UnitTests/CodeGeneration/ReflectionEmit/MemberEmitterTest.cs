@@ -143,7 +143,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMethod ()
     {
       var method = MutableMethodInfoObjectMother.Create (
-          ProxyTypeObjectMother.Create (baseType: typeof (DomainType)),
+          MutableTypeObjectMother.Create (baseType: typeof (DomainType)),
           "Method",
           MethodAttributes.Virtual,
           typeof (string),

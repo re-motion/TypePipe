@@ -51,18 +51,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       _eventFactory = new EventFactory (_methodFactory);
     }
 
-    public Expression CreateInitialization (ProxyType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
+    public Expression CreateInitialization (MutableType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
     {
       return _initializationFactory.CreateInitialization (declaringType, initializationProvider);
     }
 
-    public MutableFieldInfo CreateField (ProxyType declaringType, string name, Type type, FieldAttributes attributes)
+    public MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       return _fieldFactory.CreateField (declaringType, name, type, attributes);
     }
 
     public MutableConstructorInfo CreateConstructor (
-        ProxyType declaringType,
+        MutableType declaringType,
         MethodAttributes attributes,
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         Type returnType,
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableMethodInfo CreateMethod (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
@@ -94,18 +94,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableMethodInfo CreateExplicitOverride (
-        ProxyType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
+        MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       return _methodOverrideFactory.CreateExplicitOverride (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateOverride (ProxyType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated)
     {
       return _methodOverrideFactory.GetOrCreateOverride (declaringType, overriddenMethod, out isNewlyCreated);
     }
 
     public MutablePropertyInfo CreateProperty (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         Type type,
         IEnumerable<ParameterDeclaration> indexParameters,
@@ -117,13 +117,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutablePropertyInfo CreateProperty (
-        ProxyType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
+        MutableType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
     {
       return _propertyFactory.CreateProperty (declaringType, name, attributes, getMethod, setMethod);
     }
 
     public MutableEventInfo CreateEvent (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         Type handlerType,
         MethodAttributes accessorAttributes,
@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     public MutableEventInfo CreateEvent (
-        ProxyType declaringType,
+        MutableType declaringType,
         string name,
         EventAttributes attributes,
         MutableMethodInfo addMethod,

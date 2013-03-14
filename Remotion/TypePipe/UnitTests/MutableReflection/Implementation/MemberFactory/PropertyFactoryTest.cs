@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     private PropertyFactory _factory;
 
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       _factory = new PropertyFactory (_methodFactoryMock);
 
-      _proxyType = ProxyTypeObjectMother.Create();
+      _mutableType = MutableTypeObjectMother.Create();
     }
 
     [Test]
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _methodFactoryMock
           .Expect (
               mock => mock.CreateMethod (
-                  Arg.Is (_proxyType),
+                  Arg.Is (_mutableType),
                   Arg.Is ("get_Property"),
                   Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
                   Arg.Is (type),
@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _methodFactoryMock
           .Expect (
               mock => mock.CreateMethod (
-                  Arg.Is (_proxyType),
+                  Arg.Is (_mutableType),
                   Arg.Is ("set_Property"),
                   Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
                   Arg.Is (typeof (void)),
@@ -100,10 +100,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
               })
           .Return (fakeSetMethod);
 
-      var result = _factory.CreateProperty (_proxyType, name, type, indexParameters.AsOneTime(), accessorAttributes, getBodyProvider, setBodyProvider);
+      var result = _factory.CreateProperty (_mutableType, name, type, indexParameters.AsOneTime(), accessorAttributes, getBodyProvider, setBodyProvider);
 
       _methodFactoryMock.VerifyAllExpectations();
-      Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Attributes, Is.EqualTo (PropertyAttributes.None));
       Assert.That (result.PropertyType, Is.SameAs (type));
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           .Return (fakeGetMethod);
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
+          _mutableType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
 
       Assert.That (result.MutableSetMethod, Is.Null);
     }
@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           .Return (fakeSetMethod);
 
       var result = _factory.CreateProperty (
-          _proxyType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
+          _mutableType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod, Is.Null);
     }
@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var message = "The following MethodAttributes are not supported for property accessor methods: " +
                     "RequireSecObject.\r\nParameter name: accessorAttributes";
-      Assert.That (() => CreateProperty (_proxyType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void CreateProperty_Providers_NoAccessorProviders ()
     {
       _factory.CreateProperty (
-          _proxyType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null);
+          _mutableType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null);
     }
 
     [Test]
@@ -169,23 +169,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => Expression.Empty();
       var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var property = _proxyType.AddProperty ("Property", typeof (int), indexParameters, setBodyProvider: setBodyProvider);
+      var property = _mutableType.AddProperty ("Property", typeof (int), indexParameters, setBodyProvider: setBodyProvider);
 
       Assert.That (
-          () => factory.CreateProperty (_proxyType, "OtherName", property.PropertyType, indexParameters, 0, null, setBodyProvider),
+          () => factory.CreateProperty (_mutableType, "OtherName", property.PropertyType, indexParameters, 0, null, setBodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => factory.CreateProperty (_proxyType, property.Name, typeof (string), indexParameters, 0, null, setBodyProvider),
+          () => factory.CreateProperty (_mutableType, property.Name, typeof (string), indexParameters, 0, null, setBodyProvider),
           Throws.Nothing);
 
       Assert.That (
           () => factory.CreateProperty (
-              _proxyType, property.Name, property.PropertyType, ParameterDeclarationObjectMother.CreateMultiple (3), 0, null, setBodyProvider),
+              _mutableType, property.Name, property.PropertyType, ParameterDeclarationObjectMother.CreateMultiple (3), 0, null, setBodyProvider),
           Throws.Nothing);
 
       Assert.That (
-          () => factory.CreateProperty (_proxyType, property.Name, property.PropertyType, indexParameters, 0, null, setBodyProvider),
+          () => factory.CreateProperty (_mutableType, property.Name, property.PropertyType, indexParameters, 0, null, setBodyProvider),
           Throws.InvalidOperationException.With.Message.EqualTo ("Property with equal name and signature already exists."));
     }
 
@@ -195,13 +195,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var name = "Property";
       var attributes = (PropertyAttributes) 7;
       var type = ReflectionObjectMother.GetSomeType ();
-      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: type);
+      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: type);
       var setMethod = MutableMethodInfoObjectMother.Create (
-          declaringType: _proxyType, parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
+          declaringType: _mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
 
-      var result = _factory.CreateProperty (_proxyType, name, attributes, getMethod, setMethod);
+      var result = _factory.CreateProperty (_mutableType, name, attributes, getMethod, setMethod);
 
-      Assert.That (result.DeclaringType, Is.SameAs (_proxyType));
+      Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.MutableGetMethod, Is.SameAs (getMethod));
@@ -213,17 +213,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var message = "The following PropertyAttributes are not supported for properties: " +
                     "HasDefault, Reserved2, Reserved3, Reserved4.\r\nParameter name: attributes";
-      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_proxyType, PropertyAttributes.Reserved4), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved4), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Property must have at least one accessor.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_NoAccessorProviders ()
     {
-      _factory.CreateProperty (_proxyType, "Property", 0, getMethod: null, setMethod: null);
+      _factory.CreateProperty (_mutableType, "Property", 0, getMethod: null, setMethod: null);
     }
 
     [Test]
@@ -234,7 +234,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var getMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
       var setMethod = MutableMethodInfoObjectMother.Create (attributes: 0 /*instance*/);
 
-      _factory.CreateProperty (_proxyType, "Property", 0, getMethod, setMethod);
+      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod);
     }
 
     [Test]
@@ -244,10 +244,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       var message = "{0} method is not declared on the current type.\r\nParameter name: {1}";
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, "Property", 0, nonMatchingMethod, null),
+          () => _factory.CreateProperty (_mutableType, "Property", 0, nonMatchingMethod, null),
           Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Get", "getMethod")));
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, "Property", 0, null, nonMatchingMethod),
+          () => _factory.CreateProperty (_mutableType, "Property", 0, null, nonMatchingMethod),
           Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Set", "setMethod")));
     }
 
@@ -255,16 +255,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Get accessor must be a non-void method.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_ThrowsForVoidGetMethod ()
     {
-      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (void));
-      _factory.CreateProperty (_proxyType, "Property", 0, getMethod, null);
+      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: typeof (void));
+      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, null);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Set accessor must have return type void.\r\nParameter name: setMethod")]
     public void CreateProperty_Accessors_ThrowsForNonVoidSetMethod ()
     {
-      var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: typeof (int));
-      _factory.CreateProperty (_proxyType, "Property", 0, null, setMethod);
+      var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: typeof (int));
+      _factory.CreateProperty (_mutableType, "Property", 0, null, setMethod);
     }
 
     [Test]
@@ -275,44 +275,44 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var indexParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (int)) };
       var valueParameter = ParameterDeclarationObjectMother.Create (typeof (string));
       var nonMatchingSetParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (long)) }.Concat (valueParameter);
-      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: valueParameter.Type, parameters: indexParameters);
-      var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, parameters: nonMatchingSetParameters);
+      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: valueParameter.Type, parameters: indexParameters);
+      var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, parameters: nonMatchingSetParameters);
 
-      _factory.CreateProperty (_proxyType, "Property", 0, getMethod, setMethod);
+      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod);
     }
 
     [Test]
     public void CreateProperty_Accessors_ThrowsIfAlreadyExists ()
     {
       var returnType = ReflectionObjectMother.GetSomeType ();
-      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: returnType);
-      var property = _proxyType.AddProperty2 ("Property", getMethod: getMethod);
+      var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: returnType);
+      var property = _mutableType.AddProperty2 ("Property", getMethod: getMethod);
 
-      Assert.That (() => _factory.CreateProperty (_proxyType, "OtherName", 0, getMethod, null), Throws.Nothing);
+      Assert.That (() => _factory.CreateProperty (_mutableType, "OtherName", 0, getMethod, null), Throws.Nothing);
 
       var differentPropertyType = ReflectionObjectMother.GetSomeOtherType ();
-      var getMethod2 = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: differentPropertyType);
-      Assert.That (() => _factory.CreateProperty (_proxyType, property.Name, 0, getMethod2, null), Throws.Nothing);
+      var getMethod2 = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: differentPropertyType);
+      Assert.That (() => _factory.CreateProperty (_mutableType, property.Name, 0, getMethod2, null), Throws.Nothing);
 
       var differentIndexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var getMethod3 = MutableMethodInfoObjectMother.Create (declaringType: _proxyType, returnType: returnType, parameters: differentIndexParameters);
-      Assert.That (() => _factory.CreateProperty (_proxyType, property.Name, 0, getMethod3, null), Throws.Nothing);
+      var getMethod3 = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: returnType, parameters: differentIndexParameters);
+      Assert.That (() => _factory.CreateProperty (_mutableType, property.Name, 0, getMethod3, null), Throws.Nothing);
 
       Assert.That (
-          () => _factory.CreateProperty (_proxyType, property.Name, 0, getMethod, null),
+          () => _factory.CreateProperty (_mutableType, property.Name, 0, getMethod, null),
           Throws.InvalidOperationException.With.Message.EqualTo ("Property with equal name and signature already exists."));
     }
 
-    private MutablePropertyInfo CreateProperty (ProxyType proxyType, MethodAttributes accessorAttributes)
+    private MutablePropertyInfo CreateProperty (MutableType mutableType, MethodAttributes accessorAttributes)
     {
       return _factory.CreateProperty (
-          proxyType, "dummy", typeof (int), ParameterDeclaration.None, accessorAttributes, ctx => Expression.Constant (7), null);
+          mutableType, "dummy", typeof (int), ParameterDeclaration.None, accessorAttributes, ctx => Expression.Constant (7), null);
     }
 
-    private MutablePropertyInfo CreateProperty (ProxyType proxyType, PropertyAttributes attributes)
+    private MutablePropertyInfo CreateProperty (MutableType mutableType, PropertyAttributes attributes)
     {
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: typeof (int));
-      return _factory.CreateProperty (proxyType, "dummy", attributes, getMethod, null);
+      return _factory.CreateProperty (mutableType, "dummy", attributes, getMethod, null);
     }
   }
 }

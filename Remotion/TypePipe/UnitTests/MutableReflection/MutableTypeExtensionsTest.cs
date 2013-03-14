@@ -24,14 +24,14 @@ using System.Linq;
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
-  public class ProxyTypeExtensionsTest
+  public class MutableTypeExtensionsTest
   {
-    private ProxyType _proxyType;
+    private MutableType _mutableType;
 
     [SetUp]
     public void SetUp ()
     {
-      _proxyType = ProxyTypeObjectMother.Create();
+      _mutableType = MutableTypeObjectMother.Create();
     }
 
     [Test]
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
 
-      var result = _proxyType.AddAbstractMethod (name, attributes, returnType, parameters);
+      var result = _mutableType.AddAbstractMethod (name, attributes, returnType, parameters);
 
       Assert.That (result.IsAbstract, Is.True);
       Assert.That (result.Name, Is.EqualTo (name));
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (result.ReturnType, Is.SameAs (returnType));
       Assert.That (result.GetParameters().Select (p => p.ParameterType), Is.EqualTo (parameters.Select (p => p.Type)));
 
-      Assert.That (_proxyType.AddedMethods, Is.EqualTo (new[] { result }));
+      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result }));
     }
   }
 }

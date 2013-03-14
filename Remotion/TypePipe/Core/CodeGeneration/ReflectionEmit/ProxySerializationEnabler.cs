@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _serializableFieldFinder = serializableFieldFinder;
     }
 
-    public void MakeSerializable (ProxyType proxyType, MethodInfo initializationMethod)
+    public void MakeSerializable (MutableType proxyType, MethodInfo initializationMethod)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       // initializationMethod may be null
@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return constructor.GetParameters ().Select (x => x.ParameterType).SequenceEqual (new[] { typeof (SerializationInfo), typeof (StreamingContext) });
     }
 
-    private void OverrideGetObjectData (ProxyType proxyType, Tuple<string, FieldInfo>[] serializedFieldMapping)
+    private void OverrideGetObjectData (MutableType proxyType, Tuple<string, FieldInfo>[] serializedFieldMapping)
     {
       try
       {
@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private MutableConstructorInfo GetDeserializationConstructor (ProxyType type)
+    private MutableConstructorInfo GetDeserializationConstructor (MutableType type)
     {
       var parameterTypes = new[] { typeof (SerializationInfo), typeof (StreamingContext) };
       return type.AddedConstructors
@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                   new[] { ctx.PreviousBody }.Concat (BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
     }
 
-    private static void OverrideOnDeserialization (ProxyType proxyType, MethodInfo initializationMethod)
+    private static void OverrideOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
     {
       try
       {
@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private static void ExplicitlyImplementOnDeserialization (ProxyType proxyType, MethodInfo initializationMethod)
+    private static void ExplicitlyImplementOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
     {
       proxyType.AddInterface (typeof (IDeserializationCallback));
       proxyType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));

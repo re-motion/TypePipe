@@ -34,10 +34,10 @@ namespace Remotion.TypePipe.CodeGeneration
     /// Generates a proxy type based on the data specified by the participants.
     /// </summary>
     /// <remarks>This method may throw instances of <see cref="InvalidOperationException"/> and <see cref="NotSupportedException"/>.</remarks>
-    /// <param name="proxyType">The proxy model type.</param>
+    /// <param name="mutableType">The proxy model type.</param>
     /// <returns>The generated proxy type.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    Type CreateProxy (ProxyType proxyType);
+    Type CreateProxy (MutableType mutableType);
   }
 }

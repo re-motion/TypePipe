@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
   public class TestableBodyContextBase : BodyContextBase
   {
-    public TestableBodyContextBase (ProxyType declaringType, bool isStatic)
+    public TestableBodyContextBase (MutableType declaringType, bool isStatic)
         : base (declaringType, isStatic)
     {
     }
