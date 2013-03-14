@@ -25,27 +25,11 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Creates a <see cref="MutableType"/> model for the given base type.
+  /// Creates <see cref="MutableType"/> instances from the specified data or the given base type.
   /// </summary>
-  // TODO Update doc.
   public class MutableTypeFactory : IMutableTypeFactory
   {
     private int _counter;
-
-    // TODO: Maybe move to proxy?
-    public MutableType CreateProxyType (Type baseType)
-    {
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
-
-      _counter++;
-      var name = string.Format ("{0}_Proxy{1}", baseType.Name, _counter);
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
-
-      var proxyType = CreateType (name, baseType.Namespace, attributes, baseType);
-      CopyConstructors (baseType, proxyType);
-
-      return proxyType;
-    }
 
     // TODO: add Tests
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
@@ -63,6 +47,20 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
       return new MutableType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+    }
+
+    public MutableType CreateProxyType (Type baseType)
+    {
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
+
+      _counter++;
+      var name = string.Format ("{0}_Proxy{1}", baseType.Name, _counter);
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
+
+      var proxyType = CreateType (name, baseType.Namespace, attributes, baseType);
+      CopyConstructors (baseType, proxyType);
+
+      return proxyType;
     }
 
     private void CopyConstructors (Type baseType, MutableType proxyType)

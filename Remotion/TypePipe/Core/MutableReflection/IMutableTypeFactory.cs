@@ -23,13 +23,13 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
-  /// Defines an interface for classes creating a <see cref="MutableType"/> model for the given base type.
+  /// Defines an interface for classes creating <see cref="MutableType"/> model instances.
   /// </summary>
-  // TODO Update doc 
   [ConcreteImplementation (typeof (MutableTypeFactory))]
   public interface IMutableTypeFactory
   {
     MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
+
     MutableType CreateProxyType (Type baseType);
   }
 }
