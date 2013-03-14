@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private static void CopyConstructors (Type baseType, ProxyType proxyType)
     {
-      var proxyTypeModelFactory = new ProxyTypeModelFactory();
+      var proxyTypeModelFactory = new MutableTypeFactory();
       PrivateInvoke.InvokeNonPublicMethod (proxyTypeModelFactory, "CopyConstructors", baseType, proxyType);
     }
 

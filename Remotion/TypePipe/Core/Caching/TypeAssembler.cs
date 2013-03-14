@@ -36,20 +36,20 @@ namespace Remotion.TypePipe.Caching
   public class TypeAssembler : ITypeAssembler
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
-    private readonly IProxyTypeModelFactory _proxyTypeModelFactory;
+    private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly ISubclassProxyCreator _subclassProxyCreator;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
     public TypeAssembler (
-        IEnumerable<IParticipant> participants, IProxyTypeModelFactory proxyTypeModelFactory, ISubclassProxyCreator subclassProxyCreator)
+        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, ISubclassProxyCreator subclassProxyCreator)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
-      ArgumentUtility.CheckNotNull ("proxyTypeModelFactory", proxyTypeModelFactory);
+      ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("subclassProxyCreator", subclassProxyCreator);
 
       _participants = participants.ToList().AsReadOnly();
-      _proxyTypeModelFactory = proxyTypeModelFactory;
+      _mutableTypeFactory = mutableTypeFactory;
       _subclassProxyCreator = subclassProxyCreator;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.Caching
 
     public Type AssembleType (Type requestedType)
     {
-      var proxyType = _proxyTypeModelFactory.CreateProxyType (requestedType);
+      var proxyType = _mutableTypeFactory.CreateType (requestedType);
 
       foreach (var participant in _participants)
         participant.ModifyType (proxyType);

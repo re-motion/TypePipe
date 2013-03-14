@@ -27,32 +27,39 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Creates a <see cref="ProxyType"/> model for the given base type.
   /// </summary>
-  public class ProxyTypeModelFactory : IProxyTypeModelFactory
+  // TODO Update doc.
+  public class MutableTypeFactory : IMutableTypeFactory
   {
     private int _counter;
 
-    public ProxyType CreateProxyType (Type baseType)
+    // TODO: Maybe move to proxy?
+    public ProxyType CreateType (Type baseType)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
       _counter++;
       var name = string.Format ("{0}_Proxy{1}", baseType.Name, _counter);
-      var nameSpace = baseType.Namespace;
-      var fullname = string.IsNullOrEmpty (nameSpace) ? name : string.Format ("{0}.{1}", nameSpace, name);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
 
-      var proxyType = CreateProxyType (baseType, name, nameSpace, fullname, attributes);
+      var proxyType = CreateType (name, baseType.Namespace, attributes, baseType);
       CopyConstructors (baseType, proxyType);
 
       return proxyType;
     }
 
-    private ProxyType CreateProxyType (Type baseType, string name, string nameSpace, string fullname, TypeAttributes attributes)
+    // TODO: add Tests
+    public ProxyType CreateType (string name, string nameSpace, TypeAttributes attributes, Type baseType)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Name space may be null.
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
+
+      var fullname = string.IsNullOrEmpty (nameSpace) ? name : string.Format ("{0}.{1}", nameSpace, name);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
+      // TODO move fullname calculation to customType
       return new ProxyType (memberSelector, baseType, name, nameSpace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 

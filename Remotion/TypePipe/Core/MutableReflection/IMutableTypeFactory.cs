@@ -14,17 +14,23 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using Remotion.ServiceLocation;
 
-namespace Remotion.TypePipe.MutableReflection.Implementation
+using System;
+using System.Reflection;
+using Remotion.ServiceLocation;
+using Remotion.TypePipe.MutableReflection.Implementation;
+
+namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Defines an interface for classes creating a <see cref="ProxyType"/> model for the given base type.
   /// </summary>
-  [ConcreteImplementation (typeof (ProxyTypeModelFactory))]
-  public interface IProxyTypeModelFactory
+  // TODO Update doc 
+  [ConcreteImplementation (typeof (MutableTypeFactory))]
+  public interface IMutableTypeFactory
   {
-    ProxyType CreateProxyType (Type baseType);
+    // TODO delete and move to caller.
+    ProxyType CreateType (Type baseType);
+    ProxyType CreateType (string name, string nameSpace, TypeAttributes attributes, Type baseType);
   }
 }

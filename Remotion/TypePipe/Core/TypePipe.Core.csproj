@@ -197,9 +197,9 @@
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
     <Compile Include="MutableReflection\Implementation\CustomPropertyInfo.cs" />
-    <Compile Include="MutableReflection\Implementation\IProxyTypeModelFactory.cs" />
+    <Compile Include="MutableReflection\IMutableTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapper.cs" />
-    <Compile Include="MutableReflection\Implementation\ProxyTypeModelFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\MutableTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
