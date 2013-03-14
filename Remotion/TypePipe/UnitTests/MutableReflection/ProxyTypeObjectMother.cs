@@ -29,8 +29,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static ProxyType Create (
         Type baseType = null,
         string name = "Proxy",
-        string @namespace = "My",
-        string fullName = "My.Proxy",
+        string @namespace = "MyNamespace",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
@@ -45,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
 
-      var proxyType = new ProxyType (memberSelector, baseType, name, @namespace, fullName, attributes, interfaceMappingComputer, mutableMemberFactory);
+      var proxyType = new ProxyType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
       if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
 

@@ -65,20 +65,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization ()
     {
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
-      var name = "abc";
-      var @namespace = "def";
-      var fullname = "hij";
+      var name = "MyType";
+      var @namespace = "MyNs";
       var attributes = (TypeAttributes) 7;
 
       var proxyType = new ProxyType (
-          _memberSelectorMock, baseType, name, @namespace, fullname, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+          _memberSelectorMock, baseType, name, @namespace, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
       Assert.That (proxyType.DeclaringType, Is.Null);
       Assert.That (proxyType.MutableDeclaringType, Is.Null);
       Assert.That (proxyType.BaseType, Is.SameAs (baseType));
       Assert.That (proxyType.Name, Is.EqualTo (name));
       Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));
-      Assert.That (proxyType.FullName, Is.EqualTo (fullname));
+      Assert.That (proxyType.FullName, Is.EqualTo ("MyNs.MyType"));
       _memberSelectorMock.Stub (mock => mock.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
       Assert.That (proxyType.Attributes, Is.EqualTo (attributes));
       Assert.That (proxyType.IsGenericType, Is.False);
@@ -93,6 +92,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.AddedMethods, Is.Empty);
       Assert.That (proxyType.AddedProperties, Is.Empty);
       Assert.That (proxyType.AddedEvents, Is.Empty);
+    }
+
+    [Test]
+    public void Initialization_NullNamespace ()
+    {
+      var proxyType = ProxyTypeObjectMother.Create (name: "MyType", @namespace: null);
+
+      Assert.That (proxyType.Namespace, Is.Null);
+      Assert.That (proxyType.FullName, Is.EqualTo ("MyType"));
     }
 
     [Test]

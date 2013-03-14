@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProxy ()
+    public void CreateProxyType ()
     {
       var result = _factory.CreateProxyType (_domainType);
 
@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProxy_UniqueNames ()
+    public void CreateProxyType_UniqueNames ()
     {
       var result1 = _factory.CreateProxyType (_domainType);
       var result2 = _factory.CreateProxyType (_domainType);
@@ -66,16 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProxy_NullNamespace ()
-    {
-      var result = _factory.CreateProxyType (typeof (NullNamespaceType));
-
-      Assert.That (result.Namespace, Is.Null);
-      Assert.That (result.FullName, Is.EqualTo ("NullNamespaceType_Proxy1"));
-    }
-
-    [Test]
-    public void CreateProxy_Serializable ()
+    public void CreateProxyType_Serializable ()
     {
       var result = _factory.CreateProxyType (typeof (SerializableType));
 
@@ -83,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProxy_CopiesAccessibleInstanceConstructors ()
+    public void CreateProxyType_CopiesAccessibleInstanceConstructors ()
     {
       var result = _factory.CreateProxyType (_domainType);
 
@@ -115,5 +106,3 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public class SerializableType { }
   }
 }
-
-public class NullNamespaceType { }

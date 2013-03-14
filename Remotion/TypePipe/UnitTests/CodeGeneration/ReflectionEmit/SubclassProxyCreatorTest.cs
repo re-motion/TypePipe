@@ -86,9 +86,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateProxy ()
     {
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
-      var fullName = "AbcProxy";
       var attributes = (TypeAttributes) 7;
-      var proxyType = ProxyTypeObjectMother.Create (baseType: baseType, fullName: fullName, attributes: attributes);
+      var fullName = "MyNs.Abc";
+      var proxyType = ProxyTypeObjectMother.Create (baseType, "Abc", "MyNs", attributes);
 
       var typeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
 

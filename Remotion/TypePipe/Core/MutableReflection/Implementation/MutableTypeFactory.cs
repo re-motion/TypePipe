@@ -58,13 +58,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // base type not null, but can be null if interface
       // attributes and base type must be correct.
 
-      var fullname = string.IsNullOrEmpty (@namespace) ? name : string.Format ("{0}.{1}", @namespace, name);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
-      // TODO move fullname calculation to customType
-      return new ProxyType (memberSelector, baseType, name, @namespace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return new ProxyType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private void CopyConstructors (Type baseType, ProxyType proxyType)
