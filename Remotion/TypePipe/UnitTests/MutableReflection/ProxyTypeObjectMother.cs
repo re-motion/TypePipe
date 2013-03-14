@@ -33,7 +33,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         string fullName = "My.Proxy",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
         IMemberSelector memberSelector = null,
-        IUnderlyingTypeFactory underlyingTypeFactory = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null,
@@ -42,22 +41,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       baseType = baseType ?? typeof (UnspecifiedType);
 
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
-      underlyingTypeFactory = underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory();
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
 
-      var proxyType = new ProxyType (
-          memberSelector,
-          underlyingTypeFactory,
-          baseType,
-          name,
-          @namespace,
-          fullName,
-          attributes,
-          interfaceMappingComputer,
-          mutableMemberFactory);
-
+      var proxyType = new ProxyType (memberSelector, baseType, name, @namespace, fullName, attributes, interfaceMappingComputer, mutableMemberFactory);
       if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
 
@@ -66,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private static void CopyConstructors (Type baseType, ProxyType proxyType)
     {
-      var proxyTypeModelFactory = new ProxyTypeModelFactory (new ThrowingUnderlyingTypeFactory());
+      var proxyTypeModelFactory = new ProxyTypeModelFactory();
       PrivateInvoke.InvokeNonPublicMethod (proxyTypeModelFactory, "CopyConstructors", baseType, proxyType);
     }
 

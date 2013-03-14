@@ -566,10 +566,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "Property UnderlyingSystemType is not supported. "
+        + "Use a replacement method from class TypeExtensions (e.g. IsAssignableFromFast) to avoid accessing the property.")]
+    public void UnderlyingSystemType ()
+    {
+      Dev.Null = _customType.UnderlyingSystemType;
+    }
+
+    [Test]
     public void UnsupportedMembers ()
     {
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.ReflectedType, "ReflectedType");
-      UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.UnderlyingSystemType, "UnderlyingSystemType");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.MetadataToken, "MetadataToken");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.GUID, "GUID");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.StructLayoutAttribute, "StructLayoutAttribute");

@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
@@ -42,7 +41,6 @@ namespace Remotion.TypePipe.MutableReflection
     private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
     private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
 
-    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
@@ -55,12 +53,10 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutablePropertyInfo> _addedProperties = new List<MutablePropertyInfo>();
     private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
-    private Type _underlyingSystemType;
     private MutableConstructorInfo _typeInitializer;
 
     public ProxyType (
         IMemberSelector memberSelector,
-        IUnderlyingTypeFactory underlyingTypeFactory,
         Type baseType,
         string name,
         string @namespace,
@@ -68,10 +64,8 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-      // TODO
         : base (memberSelector, name, @namespace, fullName, attributes, false, null, EmptyTypes)
     {
-      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
       Assertion.IsTrue (baseType.IsRuntimeType());
@@ -87,7 +81,6 @@ namespace Remotion.TypePipe.MutableReflection
       SetDeclaringType (null);
       SetBaseType (baseType);
 
-      _underlyingTypeFactory = underlyingTypeFactory;
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
     }
@@ -95,18 +88,6 @@ namespace Remotion.TypePipe.MutableReflection
     public ProxyType MutableDeclaringType
     {
       get { return (ProxyType) DeclaringType; }
-    }
-
-    /// <summary>
-    /// Returns a dummy representation of the underlying system type. Do not use the returned type for any kind of analysis. Accessing this property
-    /// may cause significant overhead. It is only implemented as internal parts of <see cref="System.Reflection"/> depend on it.
-    /// The method <see cref="Type.IsAssignableFrom"/> uses this property internally; use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
-    /// </summary>
-    /// <returns> A dummy representation of the underlying system type for the <see cref="ProxyType"/>.</returns>
-    [DebuggerBrowsable (DebuggerBrowsableState.Never)]
-    public override Type UnderlyingSystemType
-    {
-      get { return _underlyingSystemType = _underlyingSystemType ?? _underlyingTypeFactory.CreateUnderlyingSystemType (BaseType, _addedInterfaces); }
     }
 
     public MutableConstructorInfo MutableTypeInitializer
@@ -220,7 +201,6 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       _addedInterfaces.Add (interfaceType);
-      _underlyingSystemType = null;
     }
 
     public MutableFieldInfo AddField (string name, FieldAttributes attributes, Type type)

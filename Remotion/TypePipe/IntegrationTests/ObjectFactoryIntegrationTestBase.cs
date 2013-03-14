@@ -22,7 +22,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 using System.Linq;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -35,15 +34,13 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected IObjectFactory CreateObjectFactory (
-        IEnumerable<IParticipant> participants, int stackFramesToSkip, IUnderlyingTypeFactory underlyingTypeFactory = null)
+    protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
       var participantProviders = participants.Select (p => (Func<object>) (() => p));
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       var subclassProxyBuilder = CreateSubclassProxyBuilder (testName);
 
       var serviceLocator = new DefaultServiceLocator();
-      serviceLocator.Register (typeof (IUnderlyingTypeFactory), () => underlyingTypeFactory ?? new ThrowingUnderlyingTypeFactory());
       serviceLocator.Register (typeof (ISubclassProxyCreator), () => subclassProxyBuilder);
       serviceLocator.Register (typeof (IParticipant), participantProviders);
 

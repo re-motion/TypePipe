@@ -180,7 +180,6 @@
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
-    <Compile Include="MutableReflection\Implementation\UnderlyingTypeFactoryTest.cs" />
     <Compile Include="MutableReflection\MethodDeclarationTest.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensionsTest.cs" />
     <Compile Include="MutableReflection\MutableEventInfoObjectMother.cs" />

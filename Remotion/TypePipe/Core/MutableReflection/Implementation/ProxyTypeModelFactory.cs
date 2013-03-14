@@ -29,16 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class ProxyTypeModelFactory : IProxyTypeModelFactory
   {
-    private readonly IUnderlyingTypeFactory _underlyingTypeFactory;
-
     private int _counter;
-
-    public ProxyTypeModelFactory (IUnderlyingTypeFactory underlyingTypeFactory)
-    {
-      ArgumentUtility.CheckNotNull ("underlyingTypeFactory", underlyingTypeFactory);
-
-      _underlyingTypeFactory = underlyingTypeFactory;
-    }
 
     public ProxyType CreateProxyType (Type baseType)
     {
@@ -62,8 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
-      return new ProxyType (
-          memberSelector, _underlyingTypeFactory, baseType, name, nameSpace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return new ProxyType (memberSelector, baseType, name, nameSpace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private void CopyConstructors (Type baseType, ProxyType proxyType)

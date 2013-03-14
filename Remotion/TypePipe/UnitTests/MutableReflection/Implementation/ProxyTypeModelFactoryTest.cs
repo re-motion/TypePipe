@@ -26,15 +26,12 @@ using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
 using System.Linq;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
   public class ProxyTypeModelFactoryTest
   {
-    private IUnderlyingTypeFactory _underlyingTypeFactoryMock;
-
     private ProxyTypeModelFactory _factory;
 
     private Type _domainType;
@@ -42,9 +39,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _underlyingTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory>();
-
-      _factory = new ProxyTypeModelFactory (_underlyingTypeFactoryMock);
+      _factory = new ProxyTypeModelFactory();
 
       _domainType = typeof (DomainType);
     }
@@ -59,7 +54,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
       Assert.That (result.FullName, Is.EqualTo (@"Remotion.TypePipe.UnitTests.MutableReflection.Implementation.DomainType_Proxy1"));
       Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_underlyingTypeFactory"), Is.SameAs (_underlyingTypeFactoryMock));
     }
 
     [Test]

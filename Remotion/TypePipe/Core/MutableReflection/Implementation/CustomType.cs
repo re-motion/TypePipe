@@ -432,14 +432,31 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     #region Unsupported Members
 
+    /// <summary>
+    /// This property is not supported due to limitations of the <see cref="System.Reflection"/> implementation.
+    /// It always throws a <see cref="NotSupportedException"/>.
+    /// </summary>
+    /// <remarks>
+    /// Avoid calling members that access this property, e.g., <see cref="Type.IsAssignableFrom"/>.
+    /// See the <see cref="TypeExtensions"/> class for replacements for those members.
+    /// </remarks>
+    /// <exception cref="NotSupportedException">Always thrown.</exception>
+    /// <seealso cref="TypeExtensions.IsAssignableFromFast"/>
+    /// <seealso cref="TypeExtensions.IsSerializableFast"/>
+    // TODO remove sealded
+    public sealed override Type UnderlyingSystemType
+    {
+      get
+      {
+        throw new NotSupportedException (
+            "Property UnderlyingSystemType is not supported. "
+            + "Use a replacement method from class TypeExtensions (e.g. IsAssignableFromFast) to avoid accessing the property.");
+      }
+    }
+
     public override Type ReflectedType
     {
       get { throw new NotSupportedException ("Property ReflectedType is not supported."); }
-    }
-
-    public override Type UnderlyingSystemType
-    {
-      get { throw new NotSupportedException ("Property UnderlyingSystemType is not supported."); }
     }
 
     public override int MetadataToken

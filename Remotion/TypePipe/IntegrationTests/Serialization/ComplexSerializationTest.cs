@@ -23,7 +23,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
@@ -80,12 +79,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     private static void SetUpDeserialization (IObjectFactoryRegistry registry, IEnumerable<Func<IParticipant>> participantProviders)
     {
-      var participantCreators = participantProviders.Select<Func<IParticipant>, Func<object>> (pp => () => pp());
-      var serviceLocator = new DefaultServiceLocator();
-      serviceLocator.Register (typeof (IUnderlyingTypeFactory), () => new ThrowingUnderlyingTypeFactory());
-      serviceLocator.Register (typeof (IParticipant), participantCreators);
+      var participantCreators = participantProviders.Select<Func<IParticipant>, Func<object>> (pp => () => pp()).ToArray();
 
-      using (new ServiceLocatorScope (serviceLocator))
+      using (new ServiceLocatorScope (typeof (IParticipant), participantCreators))
       {
         var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
         // Register a factory for deserialization in current (new) app domain.

@@ -20,7 +20,6 @@ using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
@@ -28,43 +27,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   public class IsAssignableFromTest
   {
     private ProxyType _proxyType;
-    private ProxyType _proxyTypeWithUnderlyingType;
 
     [SetUp]
     public void SetUp ()
     {
       _proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
-      _proxyTypeWithUnderlyingType = ProxyTypeObjectMother.Create (typeof (DomainType), new UnderlyingTypeFactory());
-    }
-
-    [Test]
-    public void UnderlyingSystemType ()
-    {
-      var result = _proxyTypeWithUnderlyingType.UnderlyingSystemType;
-
-      Assert.That (result.IsRuntimeType(), Is.True);
-      Assert.That (_proxyTypeWithUnderlyingType.UnderlyingSystemType, Is.SameAs (result));
-      Assert.That (typeof (DomainType).IsAssignableFrom (_proxyTypeWithUnderlyingType.UnderlyingSystemType), Is.True);
-      Assert.That (typeof (IDomainInterface).IsAssignableFrom (_proxyTypeWithUnderlyingType.UnderlyingSystemType), Is.True);
-
-      _proxyTypeWithUnderlyingType.AddInterface (typeof (IAddedInterface));
-      Assert.That (_proxyTypeWithUnderlyingType.UnderlyingSystemType, Is.Not.SameAs (result));
-      Assert.That (typeof (IAddedInterface).IsAssignableFrom (_proxyTypeWithUnderlyingType.UnderlyingSystemType), Is.True);
-    }
-
-    [Test]
-    public void IsAssignableFrom ()
-    {
-      Assert.That (_proxyTypeWithUnderlyingType.IsAssignableFrom (_proxyTypeWithUnderlyingType), Is.True);
-      Assert.That (typeof (object).IsAssignableFrom (_proxyTypeWithUnderlyingType), Is.True);
-      Assert.That (typeof (DomainType).IsAssignableFrom (_proxyTypeWithUnderlyingType), Is.True);
-      Assert.That (_proxyTypeWithUnderlyingType.IsAssignableFrom (typeof (DomainType)), Is.False);
-      Assert.That (typeof (IDomainInterface).IsAssignableFrom (_proxyTypeWithUnderlyingType), Is.True);
-      Assert.That (typeof (IAddedInterface).IsAssignableFrom (_proxyTypeWithUnderlyingType), Is.False);
-      Assert.That (typeof (UnrelatedType).IsAssignableFrom (_proxyTypeWithUnderlyingType), Is.False);
-
-      _proxyTypeWithUnderlyingType.AddInterface (typeof (IAddedInterface));
-      Assert.That (typeof (IAddedInterface).IsAssignableFrom (_proxyTypeWithUnderlyingType), Is.True);
     }
 
     [Test]
@@ -111,12 +78,12 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       var proxyType = ProxyTypeObjectMother.Create (typeof (DomainType));
 
-      Assert.That (_proxyTypeWithUnderlyingType.Equals (_proxyTypeWithUnderlyingType), Is.True);
-      Assert.That (_proxyTypeWithUnderlyingType.Equals (proxyType), Is.False);
+      Assert.That (_proxyType.Equals (_proxyType), Is.True);
+      Assert.That (_proxyType.Equals (proxyType), Is.False);
       // ReSharper disable CheckForReferenceEqualityInstead.1
-      Assert.That (_proxyTypeWithUnderlyingType.Equals (typeof (DomainType)), Is.False);
+      Assert.That (_proxyType.Equals (typeof (DomainType)), Is.False);
       // ReSharper restore CheckForReferenceEqualityInstead.1
-      Assert.That (typeof (DomainType).Equals (_proxyTypeWithUnderlyingType), Is.False);
+      Assert.That (() => typeof (DomainType).Equals (_proxyType), Throws.TypeOf<NotSupportedException>());
     }
 
     [Test]

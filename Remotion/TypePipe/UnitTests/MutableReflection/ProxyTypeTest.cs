@@ -23,7 +23,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -31,7 +30,6 @@ using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
-using Remotion.Development.RhinoMocks.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -41,7 +39,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private IMemberSelector _memberSelectorMock;
-    private IUnderlyingTypeFactory _underlyingTypeFactoryMock;
     private IInterfaceMappingComputer _interfaceMappingComputerMock;
     private IMutableMemberFactory _mutableMemberFactoryMock;
 
@@ -52,14 +49,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void SetUp ()
     {
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _underlyingTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory> ();
       _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
       _proxyType = ProxyTypeObjectMother.Create (
           baseType: typeof (DomainType),
           memberSelector: _memberSelectorMock,
-          underlyingTypeFactory: _underlyingTypeFactoryMock,
           interfaceMappingComputer: _interfaceMappingComputerMock,
           mutableMemberFactory: _mutableMemberFactoryMock);
 
@@ -76,15 +71,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = (TypeAttributes) 7;
 
       var proxyType = new ProxyType (
-          _memberSelectorMock,
-          MockRepository.GenerateStub<IUnderlyingTypeFactory>(),
-          baseType,
-          name,
-          @namespace,
-          fullname,
-          attributes,
-          _interfaceMappingComputerMock,
-          _mutableMemberFactoryMock);
+          _memberSelectorMock, baseType, name, @namespace, fullname, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
       Assert.That (proxyType.DeclaringType, Is.Null);
       Assert.That (proxyType.MutableDeclaringType, Is.Null);
@@ -138,41 +125,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
       // no accessible ctor
       Assert.That (() => ProxyTypeObjectMother.Create (baseType: typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
-    }
-
-    [Test]
-    public void UnderlyingSystemType_GeneratedByFactoryOnDemand ()
-    {
-      var baseType = typeof (TypeWithMyInterface);
-      var newInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      var proxyType = ProxyTypeObjectMother.Create (underlyingTypeFactory: _underlyingTypeFactoryMock, baseType: baseType);
-      proxyType.AddInterface (newInterface);
-      Assert.That (proxyType.GetInterfaces(), Is.EqualTo (new[] { newInterface, typeof (IMyInterface) }));
-
-      var fakeUnderlyingType = ReflectionObjectMother.GetSomeType();
-      _underlyingTypeFactoryMock
-          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (baseType), Arg<IEnumerable<Type>>.List.Equivalent (newInterface)))
-          .Return (fakeUnderlyingType);
-
-      var result = proxyType.UnderlyingSystemType;
-
-      _underlyingTypeFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeUnderlyingType));
-    }
-
-    [Test]
-    public void UnderlyingSystemType_IsCached ()
-    {
-      var fakeUnderlyingType = ReflectionObjectMother.GetSomeType ();
-      _underlyingTypeFactoryMock
-          .Stub (mock => mock.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything))
-          .Return (fakeUnderlyingType);
-
-      var result = _proxyType.UnderlyingSystemType;
-
-      Assert.That (_proxyType.UnderlyingSystemType, Is.SameAs (result), "Should be cached.");
-      _underlyingTypeFactoryMock.AssertWasCalled (
-          mock => mock.CreateUnderlyingSystemType (Arg<Type>.Is.Anything, Arg<IEnumerable<Type>>.Is.Anything), o => o.Repeat.Once ());
     }
 
     [Test]
@@ -231,36 +183,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _proxyType.AddInterface (baseInterface); // Base interface can be re-implemented.
       Assert.That (_proxyType.AddedInterfaces, Is.EqualTo (new[] { addedInterface, baseInterface }));
       Assert.That (_proxyType.GetInterfaces(), Is.EqualTo (new[] { addedInterface, baseInterface }));
-    }
-
-    [Test]
-    public void AddInterface_InvalidatesUnderlyingSystemType ()
-    {
-      var underlyingSystemTypeFactoryMock = MockRepository.GenerateStrictMock<IUnderlyingTypeFactory>();
-      var proxyType = ProxyTypeObjectMother.Create (underlyingTypeFactory: underlyingSystemTypeFactoryMock);
-      var interfaces = proxyType.GetInterfaces();
-      underlyingSystemTypeFactoryMock
-          .Expect (mock => mock.CreateUnderlyingSystemType (Arg.Is (proxyType.BaseType), Arg<IEnumerable<Type>>.List.Equivalent (interfaces)))
-          .Return (ReflectionObjectMother.GetSomeType());
-
-      Dev.Null = proxyType.UnderlyingSystemType; // Retrieves underlying type, cache result.
-      Dev.Null = proxyType.UnderlyingSystemType; // Cache hit.
-
-      underlyingSystemTypeFactoryMock.VerifyAllExpectations();
-
-      underlyingSystemTypeFactoryMock.BackToRecord();
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      underlyingSystemTypeFactoryMock
-          .Expect (
-              mock => mock.CreateUnderlyingSystemType (
-                  Arg.Is (proxyType.BaseType), Arg<IEnumerable<Type>>.List.Equivalent (interfaces.Concat (addedInterface))))
-          .Return (ReflectionObjectMother.GetSomeType());
-      underlyingSystemTypeFactoryMock.Replay();
-
-      proxyType.AddInterface (addedInterface); // Invalidates cache.
-      Dev.Null = proxyType.UnderlyingSystemType; // Retrieves new underlying type.
-
-      underlyingSystemTypeFactoryMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -598,13 +520,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_Serializable ()
     {
-      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock, underlyingTypeFactory: new UnderlyingTypeFactory());
+      var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock);
       _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
-      Assert.That (proxyType.IsSerializable, Is.False);
+      Assert.That (proxyType.IsSerializableFast(), Is.False);
 
       proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
 
-      Assert.That (proxyType.IsSerializable, Is.True);
+      Assert.That (proxyType.IsSerializableFast(), Is.True);
     }
 
     [Test]
