@@ -43,9 +43,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       var codeGenerationExpressionVisitor = visitor as ICodeGenerationExpressionVisitor;
       if (codeGenerationExpressionVisitor != null)
         return Accept (codeGenerationExpressionVisitor);
-
+      
       // TODO review: Cast is not guaranteed to succeed. (AND: stackoverflow!!)
       //return base.Accept ((ExpressionVisitor) visitor);
+      // OR: Throw exception: code generation expressions cannot be handled by "just IPrimitiveTypePipeExpressionVisitor".
       return this;
     }
   }
