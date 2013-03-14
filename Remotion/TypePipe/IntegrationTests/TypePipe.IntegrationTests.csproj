@@ -89,6 +89,9 @@
     <Compile Include="TypeAssembly\AddExplicitOverrideTest.cs" />
     <Compile Include="TypeAssembly\AddPropertyTest.cs" />
     <Compile Include="TypeAssembly\DefaultExpressionTest.cs" />
+    <Compile Include="TypeAssembly\GenerateAdditionalTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="TypeAssembly\GenericParameterAssignmentTest.cs" />
     <Compile Include="TypeAssembly\GenericParameterMemberAccessTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />

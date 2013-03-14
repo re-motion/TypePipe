@@ -80,6 +80,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     /// <summary>
     /// Creates a <see cref="ProxyType"/> that represents a proxy type for the specified base type.
+    /// This method copies all accessible constructors of the base type.
     /// </summary>
     /// <param name="baseType">The proxied type.</param>
     /// <returns>A new mutable proxy type.</returns>

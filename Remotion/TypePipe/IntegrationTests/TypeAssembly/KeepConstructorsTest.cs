@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -36,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           GetCtorSignatures (typeof (DomainType)),
           Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)", ".ctor(Int32)", ".ctor(System.String, Int32)" }));
 
-      var type = AssembleType<DomainType> (proxyType => { });
+      var type = AssembleType<DomainType> ((ProxyType p) => { });
 
       Assert.That (type, Is.Not.SameAs (typeof (DomainType))); // No shortcut for zero modifications (yet).
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void ConstructorWithOutAndRefParameters ()
     {
-      var type = AssembleType<DomainTypeWithWeirdCtor> (proxyType => { });
+      var type = AssembleType<DomainTypeWithWeirdCtor> ((ProxyType p) => { });
 
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(Int32 ByRef, System.String ByRef)" }));
       

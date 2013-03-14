@@ -54,6 +54,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Name space may be null.
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
+      // TODO argument checks:
+      // base type not null, but can be null if interface
+      // attributes and base type must be correct.
+
       var fullname = string.IsNullOrEmpty (@namespace) ? name : string.Format ("{0}.{1}", @namespace, name);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();

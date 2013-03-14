@@ -255,15 +255,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void MethodsRequiringForwardDeclarations ()
     {
-      // public static int Method1 (int i)
-      // {
+      // public static int Method1 (int i) {
       //   if (i <= 0)
       //     return i;
       //   else
       //     return Method2 (i);
       // }
-      // public static int Method2 (int i)
-      // {
+      // public static int Method2 (int i) {
       //   return Method1 (i - 1);
       // }
       var type = AssembleType<DomainType> (
