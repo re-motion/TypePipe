@@ -129,7 +129,7 @@ namespace System.Linq.Expressions {
         }
 
         private static void ValidateListInitArgs(Type listType, ReadOnlyCollection<ElementInit> initializers) {
-            if (!typeof(IEnumerable).IsAssignableFromFast(listType)) {
+            if (!typeof(IEnumerable).IsTypePipeAssignableFrom(listType)) {
                 throw Error.TypeNotIEnumerable(listType);
             }
             for (int i = 0, n = initializers.Count; i < n; i++) {

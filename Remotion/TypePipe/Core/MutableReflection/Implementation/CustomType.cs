@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   /// <remarks>
   /// Avoid using the members <see cref="UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/>.
-  /// Use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
+  /// Use <see cref="TypeExtensions.IsTypePipeAssignableFrom"/> instead.
   /// </remarks>
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type, ICustomAttributeDataProvider
@@ -441,8 +441,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// See the <see cref="TypeExtensions"/> class for replacements for those members.
     /// </remarks>
     /// <exception cref="NotSupportedException">Always thrown.</exception>
-    /// <seealso cref="TypeExtensions.IsAssignableFromFast"/>
-    /// <seealso cref="TypeExtensions.IsSerializableFast"/>
+    /// <seealso cref="TypeExtensions.IsTypePipeAssignableFrom"/>
+    /// <seealso cref="TypeExtensions.IsTypePipeSerializable"/>
     // TODO remove sealded
     public sealed override Type UnderlyingSystemType
     {
@@ -450,7 +450,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       {
         throw new NotSupportedException (
             "Property UnderlyingSystemType is not supported. "
-            + "Use a replacement method from class TypeExtensions (e.g. IsAssignableFromFast) to avoid accessing the property.");
+            + "Use a replacement method from class TypeExtensions (e.g. IsTypePipeAssignableFrom) to avoid accessing the property.");
       }
     }
 

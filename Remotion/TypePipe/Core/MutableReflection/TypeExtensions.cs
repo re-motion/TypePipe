@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// Use this as an replacement for <see cref="Type.IsSerializable"/>.
     /// </summary>
     /// <returns><c>true</c> if the <see cref="Type"/> is serializable; otherwise, <c>false</c>.</returns>
-    public static bool IsSerializableFast (this Type type)
+    public static bool IsTypePipeSerializable (this Type type)
     {
       var customType = type as CustomType;
       if (customType != null)
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <param name="toType">The current type, i.e., the left-hand side of the assignment.</param>
     /// <param name="fromType">The other type, i.e., the right-hand side of the assignment.</param>
     /// <returns><c>true</c> if this type is "assignable from" the specified type; <c>false</c> otherwise.</returns>
-    public static bool IsAssignableFromFast (this Type toType, Type fromType)
+    public static bool IsTypePipeAssignableFrom (this Type toType, Type fromType)
     {
       ArgumentUtility.CheckNotNull ("toType", toType);
       // fromType may be null.
@@ -95,9 +95,9 @@ namespace Remotion.TypePipe.MutableReflection
       // 3) This type may be assignable from an generic parameter constraint of the other type. (any: toType <- cons of fromType)
       if (toType is CustomType || fromType is CustomType)
       {
-        return toType.IsAssignableFromFast (fromType.BaseType)
-               || fromType.GetInterfaces().Any (toType.IsAssignableFromFast)
-               || fromType.IsGenericParameter && fromType.GetGenericParameterConstraints().Any (toType.IsAssignableFromFast);
+        return toType.IsTypePipeAssignableFrom (fromType.BaseType)
+               || fromType.GetInterfaces().Any (toType.IsTypePipeAssignableFrom)
+               || fromType.IsGenericParameter && fromType.GetGenericParameterConstraints().Any (toType.IsTypePipeAssignableFrom);
       }
 
       return toType.IsAssignableFrom (fromType);
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </summary>
     /// <param name="type">The type.</param>
     /// <returns>The appropriate type code.</returns>
-    public static TypeCode GetTypeCodeFast (this Type type)
+    public static TypeCode GetTypePipeTypeCode (this Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 

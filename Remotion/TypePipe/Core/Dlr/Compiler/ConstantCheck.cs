@@ -85,7 +85,7 @@ namespace System.Linq.Expressions {
             // Type.IsInstanceOfType, and the isinst instruction were all
             // equivalent when used against a live object
             //
-            if (nnTestType.IsAssignableFromFast(nnOperandType)) {
+            if (nnTestType.IsTypePipeAssignableFrom(nnOperandType)) {
                 // If the operand is a value type (other than nullable), we
                 // know the result is always true.
                 if (operandType.IsValueType && !operandType.IsNullableType()) {

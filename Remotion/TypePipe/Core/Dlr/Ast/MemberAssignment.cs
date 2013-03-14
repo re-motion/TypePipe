@@ -73,7 +73,7 @@ namespace System.Linq.Expressions {
             RequiresCanRead(expression, "expression");
             Type memberType;
             ValidateSettableFieldOrPropertyMember(member, out memberType);
-            if (!memberType.IsAssignableFromFast(expression.Type)) {
+            if (!memberType.IsTypePipeAssignableFrom(expression.Type)) {
                 throw Error.ArgumentTypesMustMatch();
             }
             return new MemberAssignment(member, expression);

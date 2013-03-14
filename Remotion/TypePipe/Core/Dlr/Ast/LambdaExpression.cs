@@ -465,7 +465,7 @@ namespace System.Linq.Expressions {
             ContractUtils.RequiresNotNull(delegateType, "delegateType");
             RequiresCanRead(body, "body");
 
-            if (!typeof(MulticastDelegate).IsAssignableFromFast(delegateType) || delegateType == typeof(MulticastDelegate)) {
+            if (!typeof(MulticastDelegate).IsTypePipeAssignableFrom(delegateType) || delegateType == typeof(MulticastDelegate)) {
                 throw Error.LambdaTypeMustBeDerivedFromSystemDelegate();
             }
 

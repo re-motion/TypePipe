@@ -147,7 +147,7 @@ namespace System.Linq.Expressions {
             for (int i = 0, n = bindings.Count; i < n; i++) {
                 MemberBinding b = bindings[i];
                 ContractUtils.RequiresNotNull(b, "bindings");
-                if (!b.Member.DeclaringType.IsAssignableFromFast(type)) {
+                if (!b.Member.DeclaringType.IsTypePipeAssignableFrom(type)) {
                     throw Error.NotAMemberOfType(b.Member.Name, type);
                 }
             }

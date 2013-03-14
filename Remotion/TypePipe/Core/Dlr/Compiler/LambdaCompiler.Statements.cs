@@ -252,7 +252,7 @@ namespace System.Linq.Expressions.Compiler {
                 Default = @default;
                 Type = Node.SwitchValue.Type;
                 IsUnsigned = TypeUtils.IsUnsigned(Type);
-                var code = Type.GetTypeCodeFast();
+                var code = Type.GetTypePipeTypeCode();
                 Is64BitSwitch = code == TypeCode.UInt64 || code == TypeCode.Int64;
             }
         }
@@ -300,7 +300,7 @@ namespace System.Linq.Expressions.Compiler {
         // Determines if the type is an integer we can switch on.
         private static bool CanOptimizeSwitchType(Type valueType) {
             // enums & char are allowed
-            switch (valueType.GetTypeCodeFast()) {
+            switch (valueType.GetTypePipeTypeCode()) {
                 case TypeCode.Byte:
                 case TypeCode.SByte:
                 case TypeCode.Char:

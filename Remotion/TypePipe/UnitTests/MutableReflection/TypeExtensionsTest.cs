@@ -52,9 +52,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void IsAssignableFromFast_NoCustomTypes ()
     {
-      Assert.That (typeof (string).IsAssignableFromFast (typeof (string)), Is.True);
-      Assert.That (typeof (object).IsAssignableFromFast (typeof (string)), Is.True);
-      Assert.That (typeof (string).IsAssignableFromFast (typeof (object)), Is.False);
+      Assert.That (typeof (string).IsTypePipeAssignableFrom (typeof (string)), Is.True);
+      Assert.That (typeof (object).IsTypePipeAssignableFrom (typeof (string)), Is.True);
+      Assert.That (typeof (string).IsTypePipeAssignableFrom (typeof (object)), Is.False);
     }
 
     [Test]
@@ -62,9 +62,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var customType = CustomTypeObjectMother.Create();
 
-      Assert.That (customType.IsAssignableFromFast (customType), Is.True);
-      Assert.That (customType.IsAssignableFromFast (customType.BaseType), Is.False);
-      Assert.That (customType.IsAssignableFromFast (typeof (object)), Is.False);
+      Assert.That (customType.IsTypePipeAssignableFrom (customType), Is.True);
+      Assert.That (customType.IsTypePipeAssignableFrom (customType.BaseType), Is.False);
+      Assert.That (customType.IsTypePipeAssignableFrom (typeof (object)), Is.False);
     }
 
     [Test]
@@ -72,15 +72,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var customType = CustomTypeObjectMother.Create (baseType: typeof (List<int>), interfaces: new[] { typeof (IDisposable) });
 
-      Assert.That (customType.IsAssignableFromFast (customType), Is.True);
+      Assert.That (customType.IsTypePipeAssignableFrom (customType), Is.True);
 
-      Assert.That (typeof (List<int>).IsAssignableFromFast (customType), Is.True);
-      Assert.That (typeof (object).IsAssignableFromFast (customType), Is.True);
+      Assert.That (typeof (List<int>).IsTypePipeAssignableFrom (customType), Is.True);
+      Assert.That (typeof (object).IsTypePipeAssignableFrom (customType), Is.True);
 
-      Assert.That (typeof (IDisposable).IsAssignableFromFast (customType), Is.True);
+      Assert.That (typeof (IDisposable).IsTypePipeAssignableFrom (customType), Is.True);
 
       var unrelatedType = ReflectionObjectMother.GetSomeType();
-      Assert.That (unrelatedType.IsAssignableFromFast (customType), Is.False);
+      Assert.That (unrelatedType.IsTypePipeAssignableFrom (customType), Is.False);
     }
 
     [Test]
@@ -90,9 +90,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var customInterfaceType = CustomTypeObjectMother.Create();
       var customType = CustomTypeObjectMother.Create (baseType: customBaseType, interfaces: new[] { customInterfaceType });
 
-      Assert.That (customType.IsAssignableFromFast (customType), Is.True);
-      Assert.That (customBaseType.IsAssignableFromFast (customType), Is.True);
-      Assert.That (customInterfaceType.IsAssignableFromFast (customType), Is.True);
+      Assert.That (customType.IsTypePipeAssignableFrom (customType), Is.True);
+      Assert.That (customBaseType.IsTypePipeAssignableFrom (customType), Is.True);
+      Assert.That (customInterfaceType.IsTypePipeAssignableFrom (customType), Is.True);
     }
 
     [Test]
@@ -103,8 +103,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var instantiation2 = TypeInstantiationObjectMother.Create (genericTypeDefinition, new[] { typeof (double) });
       var instantiation3 = TypeInstantiationObjectMother.Create (genericTypeDefinition, new[] { typeof (int) });
 
-      Assert.That (instantiation1.IsAssignableFromFast (instantiation2), Is.False);
-      Assert.That (instantiation1.IsAssignableFromFast (instantiation3), Is.True);
+      Assert.That (instantiation1.IsTypePipeAssignableFrom (instantiation2), Is.False);
+      Assert.That (instantiation1.IsTypePipeAssignableFrom (instantiation3), Is.True);
     }
 
     [Test]
@@ -114,24 +114,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var genericParameter2 = MutableGenericParameterObjectMother.Create (constraints: new[] { typeof (TypeExtensionsTest) });
       var genericParameter3 = MutableGenericParameterObjectMother.Create (constraints: new[] { typeof (IDisposable) });
 
-      Assert.That (typeof (object).IsAssignableFromFast (genericParameter1), Is.True);
-      Assert.That (typeof (TypeExtensionsTest).IsAssignableFromFast (genericParameter1), Is.False);
-      Assert.That (typeof (TypeExtensionsTest).IsAssignableFromFast (genericParameter2), Is.True);
+      Assert.That (typeof (object).IsTypePipeAssignableFrom (genericParameter1), Is.True);
+      Assert.That (typeof (TypeExtensionsTest).IsTypePipeAssignableFrom (genericParameter1), Is.False);
+      Assert.That (typeof (TypeExtensionsTest).IsTypePipeAssignableFrom (genericParameter2), Is.True);
 
-      Assert.That (typeof (IDisposable).IsAssignableFromFast (genericParameter1), Is.True);
-      Assert.That (typeof (IDisposable).IsAssignableFromFast (genericParameter2), Is.False);
+      Assert.That (typeof (IDisposable).IsTypePipeAssignableFrom (genericParameter1), Is.True);
+      Assert.That (typeof (IDisposable).IsTypePipeAssignableFrom (genericParameter2), Is.False);
 
-      Assert.That (genericParameter1.IsAssignableFromFast (typeof (object)), Is.False);
-      Assert.That (genericParameter1.IsAssignableFromFast (typeof (IDisposable)), Is.False);
-      Assert.That (genericParameter1.IsAssignableFromFast (genericParameter1), Is.True);
-      Assert.That (genericParameter1.IsAssignableFromFast (genericParameter2), Is.False);
-      Assert.That (genericParameter1.IsAssignableFromFast (genericParameter3), Is.False);
+      Assert.That (genericParameter1.IsTypePipeAssignableFrom (typeof (object)), Is.False);
+      Assert.That (genericParameter1.IsTypePipeAssignableFrom (typeof (IDisposable)), Is.False);
+      Assert.That (genericParameter1.IsTypePipeAssignableFrom (genericParameter1), Is.True);
+      Assert.That (genericParameter1.IsTypePipeAssignableFrom (genericParameter2), Is.False);
+      Assert.That (genericParameter1.IsTypePipeAssignableFrom (genericParameter3), Is.False);
     }
 
     [Test]
     public void IsAssignableFromFast_NullFromType ()
     {
-      Assert.That (typeof (object).IsAssignableFromFast (null), Is.False);
+      Assert.That (typeof (object).IsTypePipeAssignableFrom (null), Is.False);
     }
 
     [Test]
@@ -140,8 +140,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var runtimeType = ReflectionObjectMother.GetSomeType();
       var customType = CustomTypeObjectMother.Create();
 
-      Assert.That (runtimeType.GetTypeCodeFast(), Is.EqualTo (Type.GetTypeCode (runtimeType)));
-      Assert.That (customType.GetTypeCodeFast(), Is.EqualTo (TypeCode.Object));
+      Assert.That (runtimeType.GetTypePipeTypeCode(), Is.EqualTo (Type.GetTypeCode (runtimeType)));
+      Assert.That (customType.GetTypePipeTypeCode(), Is.EqualTo (TypeCode.Object));
     }
 
     [Test]

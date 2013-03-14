@@ -522,11 +522,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var proxyType = ProxyTypeObjectMother.Create (memberSelector: _memberSelectorMock);
       _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
-      Assert.That (proxyType.IsSerializableFast(), Is.False);
+      Assert.That (proxyType.IsTypePipeSerializable(), Is.False);
 
       proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
 
-      Assert.That (proxyType.IsSerializableFast(), Is.True);
+      Assert.That (proxyType.IsTypePipeSerializable(), Is.True);
     }
 
     [Test]

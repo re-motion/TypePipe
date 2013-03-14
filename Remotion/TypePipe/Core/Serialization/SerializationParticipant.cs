@@ -72,10 +72,10 @@ namespace Remotion.TypePipe.Serialization
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
 
-      if (!proxyType.IsSerializableFast())
+      if (!proxyType.IsTypePipeSerializable())
         return;
 
-      if (typeof (ISerializable).IsAssignableFromFast (proxyType))
+      if (typeof (ISerializable).IsTypePipeAssignableFrom (proxyType))
       {
         // If the mutable type already implements ISerializable, we only need to extend the implementation to include the metadata required for 
         // deserialization. Existing fields will be serialized by the base ISerialization implementation. Added fields will be serialized by

@@ -772,7 +772,7 @@ namespace System.Linq.Expressions {
         ///<paramref name="array" />.Type does not represent an array type.</exception>
         public static UnaryExpression ArrayLength(Expression array) {
             ContractUtils.RequiresNotNull(array, "array");
-            if (!array.Type.IsArray || !typeof(Array).IsAssignableFromFast(array.Type)) {
+            if (!array.Type.IsArray || !typeof(Array).IsTypePipeAssignableFrom(array.Type)) {
                 throw Error.ArgumentMustBeArray();
             }
             if (array.Type.GetArrayRank() != 1) {

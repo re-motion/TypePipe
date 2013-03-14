@@ -46,7 +46,7 @@ namespace System.Linq.Expressions {
                 return new ByRefParameterExpression(type, name);
             } else {
                 if (!type.IsEnum) {
-                    switch (type.GetTypeCodeFast()) {
+                    switch (type.GetTypePipeTypeCode()) {
                         case TypeCode.Boolean: return new PrimitiveParameterExpression<Boolean>(name);
                         case TypeCode.Byte: return new PrimitiveParameterExpression<Byte>(name);
                         case TypeCode.Char: return new PrimitiveParameterExpression<Char>(name);

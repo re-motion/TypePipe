@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // If the base type implements ISerializable but has no deserialization constructor, we can't implement ISerializable correctly, so
       // we don't even try. (SerializationParticipant relies on this behavior.)
       var needsCustomFieldSerialization =
-          serializedFieldMapping.Length != 0 && typeof (ISerializable).IsAssignableFromFast (proxyType) && deserializationConstructor != null;
+          serializedFieldMapping.Length != 0 && typeof (ISerializable).IsTypePipeAssignableFrom (proxyType) && deserializationConstructor != null;
 
       if (needsCustomFieldSerialization)
       {
@@ -73,9 +73,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (initializationMethod != null)
       {
-        if (typeof (IDeserializationCallback).IsAssignableFromFast (proxyType))
+        if (typeof (IDeserializationCallback).IsTypePipeAssignableFrom (proxyType))
           OverrideOnDeserialization (proxyType, initializationMethod);
-        else if (proxyType.IsSerializableFast())
+        else if (proxyType.IsTypePipeSerializable())
           ExplicitlyImplementOnDeserialization (proxyType, initializationMethod);
       }
     }

@@ -922,7 +922,7 @@ namespace System.Linq.Expressions {
             if (SilverlightQuirks) quoteable = typeof(Expression);
 #endif
             if (TypeUtils.IsSameOrSubclass(quoteable, parameterType) &&
-                parameterType.IsAssignableFromFast(argument.GetType())) {
+                parameterType.IsTypePipeAssignableFrom(argument.GetType())) {
                 argument = Expression.Quote(argument);
                 return true;
             }
@@ -984,7 +984,7 @@ namespace System.Linq.Expressions {
                     pType = pType.GetElementType();
                 }
                 if (!TypeUtils.AreReferenceAssignable(pType, argType) &&
-                    !(TypeUtils.IsSameOrSubclass(typeof(LambdaExpression), pType) && pType.IsAssignableFromFast(arg.GetType()))) {
+                    !(TypeUtils.IsSameOrSubclass(typeof(LambdaExpression), pType) && pType.IsTypePipeAssignableFrom(arg.GetType()))) {
                     return false;
                 }
             }

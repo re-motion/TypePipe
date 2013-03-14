@@ -979,7 +979,7 @@ namespace System.Linq.Expressions.Compiler {
             // Primitive value types are okay because they are all readonly,
             // but we can't rely on this for non-primitive types. So we throw
             // NotSupported.
-            if (instance != null && instance.Type.IsValueType && instance.Type.GetTypeCodeFast() == TypeCode.Object) {
+            if (instance != null && instance.Type.IsValueType && instance.Type.GetTypePipeTypeCode() == TypeCode.Object) {
                 throw Error.TryNotSupportedForValueTypeInstances(instance.Type);
             }
         }

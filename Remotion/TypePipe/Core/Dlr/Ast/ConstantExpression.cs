@@ -130,7 +130,7 @@ namespace System.Linq.Expressions {
             if (value == null && type.IsValueType && !TypeUtils.IsNullableType(type)) {
                 throw Error.ArgumentTypesMustMatch();
             }
-            if (value != null && !type.IsAssignableFromFast(value.GetType())) {
+            if (value != null && !type.IsTypePipeAssignableFrom(value.GetType())) {
                 throw Error.ArgumentTypesMustMatch();
             }
             return ConstantExpression.Make(value, type);

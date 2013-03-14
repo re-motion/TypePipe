@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
-      Assertion.IsTrue (body == null || returnType.IsAssignableFromFast (body.Type));
+      Assertion.IsTrue (body == null || returnType.IsTypePipeAssignableFrom (body.Type));
 
       foreach (var genericParameter in genericParameters)
         genericParameter.InitializeDeclaringMember (this);
@@ -191,7 +191,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!MethodSignature.AreEqual (this, overriddenMethodBaseDefinition))
         throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
 
-      if (!overriddenMethodBaseDefinition.DeclaringType.IsAssignableFromFast (DeclaringType))
+      if (!overriddenMethodBaseDefinition.DeclaringType.IsTypePipeAssignableFrom (DeclaringType))
         throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
 
       if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)

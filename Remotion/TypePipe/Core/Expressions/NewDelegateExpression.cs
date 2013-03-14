@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.Expressions
       if (method.IsStatic && target != null)
         throw new ArgumentException ("Static method must not have target.", "target");
 
-      if (target != null && !method.DeclaringType.IsAssignableFromFast (target.Type))
+      if (target != null && !method.DeclaringType.IsTypePipeAssignableFrom (target.Type))
         throw new ArgumentException ("Method is not declared on type hierarchy of target.", "method");
 
       if (!MethodSignature.AreEqual (delegateType.GetMethod ("Invoke"), method))

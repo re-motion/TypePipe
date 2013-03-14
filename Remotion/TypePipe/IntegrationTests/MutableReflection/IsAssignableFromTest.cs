@@ -37,16 +37,16 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void IsAssignableFromFast ()
     {
-      Assert.That (_proxyType.IsAssignableFromFast (_proxyType), Is.True);
-      Assert.That (typeof (object).IsAssignableFromFast (_proxyType), Is.True);
-      Assert.That (typeof (DomainType).IsAssignableFromFast (_proxyType), Is.True);
-      Assert.That (_proxyType.IsAssignableFromFast (typeof (DomainType)), Is.False);
-      Assert.That (typeof (IDomainInterface).IsAssignableFromFast (_proxyType), Is.True);
-      Assert.That (typeof (IAddedInterface).IsAssignableFromFast (_proxyType), Is.False);
-      Assert.That (typeof (UnrelatedType).IsAssignableFromFast (_proxyType), Is.False);
+      Assert.That (_proxyType.IsTypePipeAssignableFrom (_proxyType), Is.True);
+      Assert.That (typeof (object).IsTypePipeAssignableFrom (_proxyType), Is.True);
+      Assert.That (typeof (DomainType).IsTypePipeAssignableFrom (_proxyType), Is.True);
+      Assert.That (_proxyType.IsTypePipeAssignableFrom (typeof (DomainType)), Is.False);
+      Assert.That (typeof (IDomainInterface).IsTypePipeAssignableFrom (_proxyType), Is.True);
+      Assert.That (typeof (IAddedInterface).IsTypePipeAssignableFrom (_proxyType), Is.False);
+      Assert.That (typeof (UnrelatedType).IsTypePipeAssignableFrom (_proxyType), Is.False);
 
       _proxyType.AddInterface (typeof (IAddedInterface));
-      Assert.That (typeof (IAddedInterface).IsAssignableFromFast (_proxyType), Is.True);
+      Assert.That (typeof (IAddedInterface).IsTypePipeAssignableFrom (_proxyType), Is.True);
     }
 
     [Test]
@@ -58,9 +58,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (baseInstantiation, Is.TypeOf<TypeInstantiation>());
       Assert.That (ifcInstantiation, Is.TypeOf<TypeInstantiation> ());
 
-      Assert.That (instantiation.IsAssignableFromFast (instantiation), Is.True);
-      Assert.That (baseInstantiation.IsAssignableFromFast (instantiation), Is.True);
-      Assert.That (ifcInstantiation.IsAssignableFromFast (instantiation), Is.True);
+      Assert.That (instantiation.IsTypePipeAssignableFrom (instantiation), Is.True);
+      Assert.That (baseInstantiation.IsTypePipeAssignableFrom (instantiation), Is.True);
+      Assert.That (ifcInstantiation.IsTypePipeAssignableFrom (instantiation), Is.True);
     }
 
     [Test]

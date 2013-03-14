@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       }
 
       // ReSharper disable PossibleUnintendedReferenceComparison
-      if (!overriddenMethod.DeclaringType.IsAssignableFromFast (declaringType) || declaringType == overriddenMethod.DeclaringType)
+      if (!overriddenMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType) || declaringType == overriddenMethod.DeclaringType)
           // ReSharper restore PossibleUnintendedReferenceComparison
       {
         var message = string.Format (

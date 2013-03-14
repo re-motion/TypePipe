@@ -304,7 +304,7 @@ namespace System.Linq.Expressions.Compiler {
         private void EmitConvertArithmeticResult(ExpressionType op, Type resultType) {
             Debug.Assert(!resultType.IsNullableType());
 
-            switch (resultType.GetTypeCodeFast()) {
+            switch (resultType.GetTypePipeTypeCode()) {
                 case TypeCode.Byte:
                     _ilg.Emit(IsChecked(op) ? OpCodes.Conv_Ovf_U1 : OpCodes.Conv_U1);
                     break;

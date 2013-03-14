@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var name = string.Format ("{0}_Proxy{1}", baseType.Name, _counter);
       var nameSpace = baseType.Namespace;
       var fullname = string.IsNullOrEmpty (nameSpace) ? name : string.Format ("{0}.{1}", nameSpace, name);
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsSerializableFast() ? TypeAttributes.Serializable : 0);
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
 
       var proxyType = CreateProxyType (baseType, name, nameSpace, fullname, attributes);
       CopyConstructors (baseType, proxyType);

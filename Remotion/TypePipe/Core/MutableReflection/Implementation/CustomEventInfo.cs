@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("removeMethod", removeMethod);
       // Raise method may be null.
       var delegateType = addMethod.GetParameters().Single().ParameterType;
-      Assertion.IsTrue (typeof (Delegate).IsAssignableFromFast (delegateType));
+      Assertion.IsTrue (typeof (Delegate).IsTypePipeAssignableFrom (delegateType));
       Assertion.IsTrue (removeMethod.GetParameters().Single().ParameterType == delegateType);
       var parameterTypes = delegateType.GetMethod ("Invoke").GetParameters().Select (p => p.ParameterType);
       Assertion.IsTrue (raiseMethod == null || raiseMethod.GetParameters().Select (p => p.ParameterType).SequenceEqual (parameterTypes));

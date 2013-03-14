@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private void CheckConstructor (ConstructorInfo constructor)
     {
-      if (!typeof (Attribute).IsAssignableFromFast (constructor.DeclaringType))
+      if (!typeof (Attribute).IsTypePipeAssignableFrom (constructor.DeclaringType))
       {
         var message = string.Format ("Type '{0}' does not derive from '{1}'.", constructor.DeclaringType.FullName, typeof(Attribute).FullName);
         throw new ArgumentException (message, "constructor");
@@ -154,7 +154,7 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var namedArgument in namedArguments)
       {
         var memberDeclaringType = namedArgument.MemberInfo.DeclaringType;
-        if (!memberDeclaringType.IsAssignableFromFast (attributeType))
+        if (!memberDeclaringType.IsTypePipeAssignableFrom (attributeType))
         {
           var message = string.Format (
             "Named argument '{0}' cannot be used with custom attribute type '{1}'.", namedArgument.MemberInfo.Name, attributeType);

@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           (!attr.IsSet (GenericParameterAttributes.DefaultConstructorConstraint) || HasPublicDefaultCtor (argument) || argument.IsValueType)
           && (!attr.IsSet (GenericParameterAttributes.ReferenceTypeConstraint) || argument.IsClass)
           && (!attr.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint) || IsNotNullableValueType (argument))
-          && parameter.GetGenericParameterConstraints().All (constraint => SkipValidation (constraint) || constraint.IsAssignableFromFast (argument));
+          && parameter.GetGenericParameterConstraints().All (constraint => SkipValidation (constraint) || constraint.IsTypePipeAssignableFrom (argument));
     }
 
     private static bool HasPublicDefaultCtor (Type argument)

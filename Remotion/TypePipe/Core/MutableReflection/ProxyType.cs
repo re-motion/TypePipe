@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   /// <remarks>
   /// Avoid using the members <see cref="CustomType.UnderlyingSystemType"/> and <see cref="Type.IsAssignableFrom"/> in combination with
-  /// <see cref="ProxyType"/> instances. Use <see cref="TypeExtensions.IsAssignableFromFast"/> instead.
+  /// <see cref="ProxyType"/> instances. Use <see cref="TypeExtensions.IsTypePipeAssignableFrom"/> instead.
   /// </remarks>
   public class ProxyType : CustomType, IMutableMember
   {
@@ -496,7 +496,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       return type.IsSealed
              || type.IsInterface
-             || typeof (Delegate).IsAssignableFromFast (type)
+             || typeof (Delegate).IsTypePipeAssignableFrom (type)
              || type.ContainsGenericParameters
              || !HasAccessibleConstructor (type);
     }

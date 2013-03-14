@@ -244,7 +244,7 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         private void EmitConstantOne(Type type) {
-            switch (type.GetTypeCodeFast()) {
+            switch (type.GetTypePipeTypeCode()) {
                 case TypeCode.UInt16:
                 case TypeCode.UInt32:
                 case TypeCode.Int16:
