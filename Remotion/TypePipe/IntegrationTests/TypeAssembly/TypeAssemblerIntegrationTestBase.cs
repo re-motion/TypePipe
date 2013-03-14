@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
       var mutableTypeFactory = SafeServiceLocator.Current.GetInstance<IMutableTypeFactory>();
-      var subclassProxyBuilder = CreateSubclassProxyBuilder (testName);
+      var subclassProxyBuilder = CreateSubclassProxyCreator (testName);
       var typeAssembler = new TypeAssembler (participants, mutableTypeFactory, subclassProxyBuilder);
 
       return typeAssembler.AssembleType (requestedType);

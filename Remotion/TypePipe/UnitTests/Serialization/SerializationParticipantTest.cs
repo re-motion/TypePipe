@@ -20,9 +20,9 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.Expressions;
@@ -53,8 +53,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void ModifyType_SerializableType ()
     {
       var proxyType = ProxyTypeObjectMother.Create (baseType: typeof (SomeType), attributes: TypeAttributes.Serializable);
+      var typeContext = TypeContextObjectMother.Create (proxyType);
 
-      _participant.ModifyType (proxyType);
+      _participant.Modify (typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (proxyType.AddedConstructors, Is.Empty);
@@ -82,15 +83,16 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void ModifyType_SerializableInterfaceType ()
     {
       var proxyType = ProxyTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var baseMethod = proxyType.GetMethod ("GetObjectData");
+      var typeContext = TypeContextObjectMother.Create (proxyType);
 
-      _participant.ModifyType (proxyType);
+      _participant.Modify (typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Has.Count.EqualTo (1));
 
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableInterfaceType o) => o.GetObjectData (null, new StreamingContext()));
       var method = proxyType.AddedMethods.Single();
-      var serializationInfo = method.ParameterExpressions[0];
+      var serializationInfo = method.ParameterExpressions[0];      
       var expectedBody = Expression.Block (
           Expression.Call (
               new ThisExpression (proxyType), new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
@@ -110,8 +112,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void ModifyType_SomeType ()
     {
       var proxyType = ProxyTypeObjectMother.Create (typeof (SomeType));
+      var typeContext = TypeContextObjectMother.Create (proxyType);
 
-      _participant.ModifyType (proxyType);
+      _participant.Modify (typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
@@ -124,8 +127,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void ModifyType_CannotOverrideGetObjectData ()
     {
       var proxyType = ProxyTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
+      var typeContext = TypeContextObjectMother.Create (proxyType);
 
-      _participant.ModifyType (proxyType);
+      _participant.Modify (typeContext);
     }
 
     public class SomeType { }

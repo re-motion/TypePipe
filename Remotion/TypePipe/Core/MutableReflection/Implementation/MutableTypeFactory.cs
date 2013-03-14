@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private int _counter;
 
     // TODO: Maybe move to proxy?
-    public ProxyType CreateType (Type baseType)
+    public ProxyType CreateProxyType (Type baseType)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
@@ -48,19 +48,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     // TODO: add Tests
-    public ProxyType CreateType (string name, string nameSpace, TypeAttributes attributes, Type baseType)
+    public ProxyType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      var fullname = string.IsNullOrEmpty (nameSpace) ? name : string.Format ("{0}.{1}", nameSpace, name);
+      var fullname = string.IsNullOrEmpty (@namespace) ? name : string.Format ("{0}.{1}", @namespace, name);
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
       // TODO move fullname calculation to customType
-      return new ProxyType (memberSelector, baseType, name, nameSpace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return new ProxyType (memberSelector, baseType, name, @namespace, fullname, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private void CopyConstructors (Type baseType, ProxyType proxyType)

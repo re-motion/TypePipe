@@ -15,21 +15,23 @@
 // under the License.
 // 
 
-using System;
-using System.Reflection;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection.Implementation;
+using NUnit.Framework;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  /// <summary>
-  /// Defines an interface for classes creating a <see cref="ProxyType"/> model for the given base type.
-  /// </summary>
-  // TODO Update doc 
-  [ConcreteImplementation (typeof (MutableTypeFactory))]
-  public interface IMutableTypeFactory
+  [TestFixture]
+  public class GenerateAdditionalTypes : TypeAssemblerIntegrationTestBase
   {
-    ProxyType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
-    ProxyType CreateProxyType (Type baseType);
+    [Test]
+    public void ProxyImplementsGeneratedInterface ()
+    {
+      //var type = AssembleType<DomainType> (
+      //    (proxyType =>
+      //    {
+
+      //    });
+    }
+
+    public class DomainType {}
   }
 }

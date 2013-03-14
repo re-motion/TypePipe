@@ -22,7 +22,6 @@ using System.Linq;
 using Remotion.Text;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -67,12 +66,12 @@ namespace Remotion.TypePipe.Caching
 
     public Type AssembleType (Type requestedType)
     {
-      var proxyType = _mutableTypeFactory.CreateType (requestedType);
+      var typeContext = new TypeContext (_mutableTypeFactory, requestedType);
 
       foreach (var participant in _participants)
-        participant.ModifyType (proxyType);
+        participant.Modify (typeContext);
 
-      return ApplyModificationsWithDiagnostics (proxyType);
+      return ApplyModificationsWithDiagnostics (typeContext);
     }
 
     public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
@@ -90,8 +89,9 @@ namespace Remotion.TypePipe.Caching
       return compoundKey;
     }
 
-    private Type ApplyModificationsWithDiagnostics (ProxyType proxyType)
+    private Type ApplyModificationsWithDiagnostics (TypeContext typeContext)
     {
+      var proxyType = typeContext.ProxyType;
       try
       {
         return _subclassProxyCreator.CreateProxy (proxyType);

@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -73,8 +74,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var mockRepository = new MockRepository();
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
-      var proxyTypeModelFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
-      var subclassProxyBuilderMock = mockRepository.StrictMock<ISubclassProxyCreator>();
+      var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
+      var subclassProxyCreatorMock = mockRepository.StrictMock<ISubclassProxyCreator>();
 
       var fakeResult = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
@@ -83,16 +84,23 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         var fakeProxyType = ProxyTypeObjectMother.Create();
-        proxyTypeModelFactoryMock.Expect (mock => mock.CreateType (_requestedType)).Return (fakeProxyType);
-        participantMock1.Expect (mock => mock.ModifyType (fakeProxyType));
-        participantMock2.Expect (mock => mock.ModifyType (fakeProxyType));
+        mutableTypeFactoryMock.Expect (mock => mock.CreateProxyType (_requestedType)).Return (fakeProxyType);
 
-        subclassProxyBuilderMock.Expect (mock => mock.CreateProxy (fakeProxyType)).Return (fakeResult);
+        TypeContext typeContext = null;
+        participantMock1.Expect (mock => mock.Modify (Arg<TypeContext>.Is.Anything)).WhenCalled (
+            mi =>
+            {
+              typeContext = mi.Arguments[0].As<TypeContext>();
+              Assert.That (typeContext.ProxyType, Is.SameAs (fakeProxyType));
+            });
+        participantMock2.Expect (mock => mock.Modify (Arg<TypeContext>.Matches (ctx => ctx == typeContext)));
+
+        subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (fakeProxyType)).Return (fakeResult);
       }
       mockRepository.ReplayAll();
 
       var typeAssembler = CreateTypeAssembler (
-          proxyTypeModelFactoryMock, subclassProxyBuilderMock, participants: new[] { participantMock1, participantMock2 });
+          mutableTypeFactoryMock, subclassProxyCreatorMock, participants: new[] { participantMock1, participantMock2 });
 
       var result = typeAssembler.AssembleType (_requestedType);
 
@@ -103,7 +111,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
-      _mutableTypeFactoryMock.Stub (stub => stub.CreateType (_requestedType)).Return (ProxyTypeObjectMother.Create (name: "ProxyName"));
+      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxyType (_requestedType)).Return (ProxyTypeObjectMother.Create (name: "ProxyName"));
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();

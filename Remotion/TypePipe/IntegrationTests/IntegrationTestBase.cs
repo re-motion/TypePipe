@@ -93,7 +93,12 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected static IParticipant CreateParticipant (Action<ProxyType> typeModification, ICacheKeyProvider cacheKeyProvider = null)
     {
-      return new ParticipantStub (typeModification, cacheKeyProvider);
+      return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider);
+    }
+
+    protected static IParticipant CreateParticipant (Action<TypeContext> typeContextModification, ICacheKeyProvider cacheKeyProvider = null)
+    {
+      return new ParticipantStub (typeContextModification, cacheKeyProvider);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
@@ -106,7 +111,7 @@ namespace Remotion.TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
-    protected ISubclassProxyCreator CreateSubclassProxyBuilder (string assemblyName)
+    protected ISubclassProxyCreator CreateSubclassProxyCreator (string assemblyName)
     {
       var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<ISubclassProxyCreator>();
 
@@ -119,7 +124,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateSubclassProxyBuilder");
+      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateSubclassProxyCreator");
 
       var assemblyPath = _codeGenerator.FlushCodeToDisk();
       if (assemblyPath == null)

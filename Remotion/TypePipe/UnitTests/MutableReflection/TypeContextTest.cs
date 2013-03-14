@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,22 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using System.Reflection;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection.Implementation;
+using NUnit.Framework;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
-  /// <summary>
-  /// Defines an interface for classes creating a <see cref="ProxyType"/> model for the given base type.
-  /// </summary>
-  // TODO Update doc 
-  [ConcreteImplementation (typeof (MutableTypeFactory))]
-  public interface IMutableTypeFactory
+  [TestFixture]
+  public class TypeContextTest
   {
-    ProxyType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
-    ProxyType CreateProxyType (Type baseType);
+    
   }
 }

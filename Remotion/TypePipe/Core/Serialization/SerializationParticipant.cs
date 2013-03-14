@@ -68,9 +68,10 @@ namespace Remotion.TypePipe.Serialization
       get { return null; }
     }
 
-    public void ModifyType (ProxyType proxyType)
+    public void Modify (TypeContext typeContext)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("typeContext", typeContext);
+      var proxyType = typeContext.ProxyType;
 
       if (!proxyType.IsTypePipeSerializable())
         return;

@@ -50,11 +50,10 @@ namespace Remotion.TypePipe
 
     /// <summary>
     /// This method allows framework authors to specify their code generation needs.
-    /// The provided <see cref="ProxyType"/> instance represents the type to be generated for the requested type, plus the modifications applied
-    /// by preceding participants.
-    /// Its mutating members (e.g. <see cref="ProxyType.AddMethod"/>) can be used to specify the needed modifications.
+    /// The provided <see cref="TypeContext"/> contains the type requested by the user and the mutable proxy type that was created for it by
+    /// the pipeline.
     /// </summary>
-    /// <param name="proxyType">The mutable type.</param>
-    void ModifyType (ProxyType proxyType);
+    /// <param name="typeContext">The type context.</param>
+    void Modify (TypeContext typeContext);
   }
 }
