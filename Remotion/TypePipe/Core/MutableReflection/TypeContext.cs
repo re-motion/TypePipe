@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -31,6 +33,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </remarks>
   public class TypeContext : IMutableTypeFactory
   {
+    private readonly List<ProxyType> _additionalTypes = new List<ProxyType>();
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly Type _requestedType;
     private readonly ProxyType _proxyType;
@@ -62,7 +65,15 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Creates an additional type that should be generated.
+    /// Gets the additional <see cref="MutableReflection.ProxyType"/>s that should be generated alongside with the <see cref="ProxyType"/>.
+    /// </summary>
+    public ReadOnlyCollection<ProxyType> AdditionalTypes
+    {
+      get { return _additionalTypes.AsReadOnly(); }
+    }
+
+    /// <summary>
+    /// Creates an additional <see cref="ProxyType"/> that should be generated.
     /// </summary>
     /// <param name="name">The type name.</param>
     /// <param name="namespace">The namespace of the type.</param>
@@ -75,11 +86,14 @@ namespace Remotion.TypePipe.MutableReflection
       // Namespace may be null.
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      return null;
+      var type = _mutableTypeFactory.CreateType (name, @namespace, attributes, baseType);
+      _additionalTypes.Add (type);
+
+      return type;
     }
 
     /// <summary>
-    /// Creates a <see cref="ProxyType"/> that represents a proxy type for the specified base type.
+    /// Creates an additional <see cref="MutableReflection.ProxyType"/> that represents a proxy type for the specified base type.
     /// This method copies all accessible constructors of the base type.
     /// </summary>
     /// <param name="baseType">The proxied type.</param>
@@ -88,7 +102,10 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      return null;
+      var type = _mutableTypeFactory.CreateProxyType (baseType);
+      _additionalTypes.Add (type);
+
+      return type;
     }
   }
 }
