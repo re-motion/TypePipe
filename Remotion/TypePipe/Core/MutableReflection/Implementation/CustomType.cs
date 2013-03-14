@@ -443,8 +443,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <exception cref="NotSupportedException">Always thrown.</exception>
     /// <seealso cref="TypeExtensions.IsTypePipeAssignableFrom"/>
     /// <seealso cref="TypeExtensions.IsTypePipeSerializable"/>
-    // TODO remove sealded
-    public sealed override Type UnderlyingSystemType
+    public override Type UnderlyingSystemType
     {
       get
       {

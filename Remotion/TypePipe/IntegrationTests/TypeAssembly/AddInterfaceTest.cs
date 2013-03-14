@@ -19,6 +19,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void MarkerInterface ()
     {
-      Assert.That (typeof (DomainType).GetInterfaces(), Is.EquivalentTo (new[] { typeof (IOriginalInterface) }));
+      Assert.That (typeof (DomainType).GetInterfaces(), Is.EqualTo (new[] { typeof (IOriginalInterface) }));
 
       var type = AssembleType<DomainType> (proxyType => proxyType.AddInterface (typeof (IMarkerInterface)));
 
@@ -39,12 +40,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void AddMethodAsExplicitInterfaceImplementation ()
     {
-      var interfaceMethod = GetDeclaredMethod (typeof (IInterfaceWithMethod), "Method");
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInterfaceWithMethod o) => o.Method());
       var type = AssembleType<DomainType> (
           proxyType =>
           {
             proxyType.AddInterface (typeof (IInterfaceWithMethod));
-            var mutableMethodInfo = proxyType.AddMethod (
+            var mutableMethod = proxyType.AddMethod (
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 typeof (string),
@@ -54,10 +55,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   Assert.That (ctx.HasBaseMethod, Is.False);
                   return Expression.Constant ("explicitly implemented");
                 });
-            mutableMethodInfo.AddExplicitBaseDefinition (interfaceMethod);
-            Assert.That (mutableMethodInfo.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { interfaceMethod }));
-            Assert.That (mutableMethodInfo.BaseMethod, Is.Null);
-            Assert.That (mutableMethodInfo.GetBaseDefinition (), Is.EqualTo (mutableMethodInfo));
+            mutableMethod.AddExplicitBaseDefinition (interfaceMethod);
+
+            Assert.That (mutableMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { interfaceMethod }));
+            Assert.That (mutableMethod.BaseMethod, Is.Null);
+            Assert.That (mutableMethod.GetBaseDefinition(), Is.EqualTo (mutableMethod));
           });
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -74,12 +76,42 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (((IInterfaceWithMethod) instance).Method (), Is.EqualTo ("explicitly implemented"));
     }
 
+    [Test]
+    public void ReImplement ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInterfaceWithMethod o) => o.Method());
+      var type = AssembleType<DomainTypeWithMethod> (
+          proxyType =>
+          {
+            proxyType.AddInterface (typeof (IInterfaceWithMethod));
+            var mutableMethod = AddEquivalentMethod (
+                proxyType,
+                interfaceMethod,
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  return Expression.Constant ("new implementation");
+                });
+
+            Assert.That (mutableMethod.BaseMethod, Is.Null);
+            Assert.That (mutableMethod.GetBaseDefinition(), Is.EqualTo (mutableMethod));
+          });
+
+      var instance = (DomainTypeWithMethod) Activator.CreateInstance (type);
+
+      Assert.That (instance.Method(), Is.EqualTo ("original implementation"));
+      Assert.That (((IInterfaceWithMethod) instance).Method(), Is.EqualTo ("new implementation"));
+    }
+
     public class DomainType : IOriginalInterface { }
+    public class DomainTypeWithMethod : IInterfaceWithMethod
+    {
+      public string Method () { return "original implementation"; }
+    }
 
     public interface IOriginalInterface { }
-
     public interface IMarkerInterface { }
-
     public interface IInterfaceWithMethod
     {
       string Method ();
