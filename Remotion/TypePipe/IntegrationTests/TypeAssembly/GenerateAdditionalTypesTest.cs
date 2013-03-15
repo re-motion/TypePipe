@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [Ignore("TODO 5475")]
   [TestFixture]
-  public class GenerateAdditionalTypes : TypeAssemblerIntegrationTestBase
+  public class GenerateAdditionalTypesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
     public void ProxyImplementsGeneratedInterface ()
