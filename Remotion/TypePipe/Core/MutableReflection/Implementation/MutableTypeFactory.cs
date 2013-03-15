@@ -29,17 +29,27 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class MutableTypeFactory : IMutableTypeFactory
   {
+    private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
     private int _counter;
 
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      // Base type may be null (for interfaces).
 
       // TODO 5471: argument checks (for example):
       // base type not null, but can be null if interface
       // attributes and base type must be correct.
+      // TODO (maybe): check that baseType.IsVisible
+      if (CanNotBeSubclassed (baseType))
+      {
+        throw new ArgumentException (
+            "Base type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+            + "a generic parameter, contain generic parameters and must have an accessible constructor.",
+            "baseType");
+      }
 
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();
@@ -74,6 +84,20 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
         proxyType.AddConstructor (attributes, parameters, ctx => ctx.CallBaseConstructor (ctx.Parameters.Cast<Expression>()));
       }
+    }
+
+    private static bool CanNotBeSubclassed (Type type)
+    {
+      return type.IsSealed
+             || type.IsInterface
+             || typeof (Delegate).IsTypePipeAssignableFrom (type)
+             || type.ContainsGenericParameters
+             || !HasAccessibleConstructor (type);
+    }
+
+    private static bool HasAccessibleConstructor (Type type)
+    {
+      return type.GetConstructors (c_allInstanceMembers).Where (SubclassFilterUtility.IsVisibleFromSubclass).Any ();
     }
   }
 }

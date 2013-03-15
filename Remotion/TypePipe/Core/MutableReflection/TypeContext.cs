@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      // Base type may be null (for interfaces).
 
       var type = _mutableTypeFactory.CreateType (name, @namespace, attributes, baseType);
       _additionalTypes.Add (type);

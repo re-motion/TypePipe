@@ -105,38 +105,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void Initialization_ThrowsIfUnderlyingTypeCannotBeSubclassed ()
-    {
-      var msg = "Proxied type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
-                + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
-      // sealed
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (string)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // interface
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (IDisposable)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // value type
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (int)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // enum
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (ExpressionType)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // delegate
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (Delegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (MulticastDelegate)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // open generics
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (List<>)), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // closed generics
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (List<int>)), Throws.Nothing);
-      // generic parameter
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (List<>).GetGenericArguments ().Single ()), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // array
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (int).MakeArrayType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // by ref
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (int).MakeByRefType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // pointer
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (int).MakePointerType ()), Throws.ArgumentException.With.Message.EqualTo (msg));
-      // no accessible ctor
-      Assert.That (() => MutableTypeObjectMother.Create (baseType: typeof (TypeWithoutAccessibleConstructor)), Throws.ArgumentException.With.Message.EqualTo (msg));
-    }
-
-    [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
@@ -729,13 +697,5 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       public override abstract void AbstractMethod1 ();
       public abstract void AbstractMethod2 ();
     }
-
-    public class TypeWithoutAccessibleConstructor
-    {
-      internal TypeWithoutAccessibleConstructor () { }
-    }
-
-    class TypeWithMyInterface : IMyInterface { }
-    interface IMyInterface { }
   }
 }

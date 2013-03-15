@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -58,6 +59,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.Namespace, Is.EqualTo (@namespace));
       Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.BaseType, Is.SameAs (baseType));
+    }
+
+    [Test]
+    public void CreateType_ThrowsIfClassAndBaseTypeCannotBeSubclassed ()
+    {
+      CheckThrowsForInvalidBaseType (typeof (string));
+      CheckThrowsForInvalidBaseType (typeof (int));
+      CheckThrowsForInvalidBaseType (typeof (ExpressionType));
+      CheckThrowsForInvalidBaseType (typeof (Delegate));
+      CheckThrowsForInvalidBaseType (typeof (MulticastDelegate));
+      CheckThrowsForInvalidBaseType (typeof (List<>));
+      CheckThrowsForInvalidBaseType (typeof (List<>).GetGenericArguments ().Single ());
+      CheckThrowsForInvalidBaseType (typeof (int).MakeArrayType ());
+      CheckThrowsForInvalidBaseType (typeof (int).MakeByRefType ());
+      CheckThrowsForInvalidBaseType (typeof (int).MakePointerType());
+      CheckThrowsForInvalidBaseType (typeof (TypeWithoutAccessibleConstructor));
+
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, typeof (List<int>)), Throws.Nothing);
     }
 
     [Test]
@@ -109,6 +128,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
     }
 
+    private void CheckThrowsForInvalidBaseType (Type invalidBaseType)
+    {
+      var message = "Base type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+                    + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType), Throws.ArgumentException.With.Message.EqualTo (message));
+    }
+
     public class DomainType
     {
       static DomainType() { }
@@ -119,5 +145,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Serializable]
     public class SerializableType { }
+
+    public class TypeWithoutAccessibleConstructor
+    {
+      internal TypeWithoutAccessibleConstructor () { }
+    }
   }
 }

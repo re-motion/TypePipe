@@ -34,8 +34,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableType : CustomType, IMutableMember
   {
-    private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-    private const BindingFlags c_allMembers = c_allInstanceMembers | BindingFlags.Static;
+    private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private static string GetFullName (string name, string @namespace)
     {
@@ -66,18 +65,10 @@ namespace Remotion.TypePipe.MutableReflection
         IMutableMemberFactory mutableMemberFactory)
         : base (memberSelector, name, @namespace, GetFullName (name, @namespace), attributes, false, null, EmptyTypes)
     {
+      // Base type may be null (for interfaces).
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
-      Assertion.IsTrue (baseType.IsRuntimeType());
 
-      // TODO (maybe): check that baseType.IsVisible
-      if (CanNotBeSubclassed (baseType))
-      {
-        throw new ArgumentException (
-            "Proxied type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
-            + "a generic parameter, contain generic parameters and must have an accessible constructor.",
-            "baseType");
-      }
       SetDeclaringType (null);
       SetBaseType (baseType);
 
@@ -490,20 +481,6 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (BaseType);
 
       return _addedEvents.Cast<EventInfo>().Concat (BaseType.GetEvents (c_allMembers));
-    }
-
-    private static bool CanNotBeSubclassed (Type type)
-    {
-      return type.IsSealed
-             || type.IsInterface
-             || typeof (Delegate).IsTypePipeAssignableFrom (type)
-             || type.ContainsGenericParameters
-             || !HasAccessibleConstructor (type);
-    }
-
-    private static bool HasAccessibleConstructor (Type type)
-    {
-      return type.GetConstructors (c_allInstanceMembers).Where (SubclassFilterUtility.IsVisibleFromSubclass).Any();
     }
   } 
 }
