@@ -31,14 +31,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private int _counter;
 
-    // TODO: add Tests
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      // TODO argument checks:
+      // TODO 5471: argument checks (for example):
       // base type not null, but can be null if interface
       // attributes and base type must be correct.
 

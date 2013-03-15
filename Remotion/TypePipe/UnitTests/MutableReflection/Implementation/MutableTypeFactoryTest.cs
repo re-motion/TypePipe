@@ -45,6 +45,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateType ()
+    {
+      var name = "MyName";
+      var @namespace = "MyNamespace";
+      var attributes = (TypeAttributes) 7;
+      var baseType = ReflectionObjectMother.GetSomeSubclassableType();
+
+      var result = _factory.CreateType (name, @namespace, attributes, baseType);
+
+      Assert.That (result.Name, Is.EqualTo (name));
+      Assert.That (result.Namespace, Is.EqualTo (@namespace));
+      Assert.That (result.Attributes, Is.EqualTo (attributes));
+      Assert.That (result.BaseType, Is.SameAs (baseType));
+    }
+
+    [Test]
     public void CreateProxyType ()
     {
       var result = _factory.CreateProxyType (_domainType);
@@ -52,7 +68,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result.BaseType, Is.SameAs (_domainType));
       Assert.That (result.Name, Is.EqualTo (@"DomainType_Proxy1"));
       Assert.That (result.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
-      Assert.That (result.FullName, Is.EqualTo (@"Remotion.TypePipe.UnitTests.MutableReflection.Implementation.DomainType_Proxy1"));
       Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
     }
 
