@@ -26,29 +26,40 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class MutableTypeCodeGeneratorFactory : IMutableTypeCodeGeneratorFactory
   {
     private readonly IMemberEmitterFactory _memberEmitterFactory;
+    private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
+    [CLSCompliant (false)]
     public MutableTypeCodeGeneratorFactory (
-        IMemberEmitterFactory memberEmitterFactory, IInitializationBuilder initializationBuilder, IProxySerializationEnabler proxySerializationEnabler)
+        IMemberEmitterFactory memberEmitterFactory,
+        IReflectionEmitCodeGenerator codeGenerator,
+        IInitializationBuilder initializationBuilder,
+        IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
+      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _memberEmitterFactory = memberEmitterFactory;
+      _codeGenerator = codeGenerator;
       _initializationBuilder = initializationBuilder;
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
+    public ICodeGenerator CodeGenerator
+    {
+      get { return _codeGenerator; }
+    }
+
     [CLSCompliant (false)]
-    public IMutableTypeCodeGenerator Create (MutableType mutableType, IReflectionEmitCodeGenerator codeGenerator)
+    public IMutableTypeCodeGenerator Create (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
-      var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (codeGenerator.EmittableOperandProvider);
-      return new MutableTypeCodeGenerator (mutableType, codeGenerator, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
+      var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (_codeGenerator.EmittableOperandProvider);
+      return new MutableTypeCodeGenerator (mutableType, _codeGenerator, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
     }
   }
 }

@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   [CLSCompliant (false)]
   public interface IMutableTypeCodeGeneratorFactory
   {
-    IMutableTypeCodeGenerator Create (MutableType mutableType, IReflectionEmitCodeGenerator codeGenerator);
+    ICodeGenerator CodeGenerator { get; }
+    IMutableTypeCodeGenerator Create (MutableType mutableType);
   }
 }

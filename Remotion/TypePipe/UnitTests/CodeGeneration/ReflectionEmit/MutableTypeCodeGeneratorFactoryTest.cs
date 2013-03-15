@@ -27,6 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class MutableTypeCodeGeneratorFactoryTest
   {
     private IProxySerializationEnabler _proxySerializationEnablerMock;
+    private IReflectionEmitCodeGenerator _codeGeneratorMock;
     private IInitializationBuilder _initializationBuilderMock;
     private IMemberEmitterFactory _memberEmitterFactoryMock;
 
@@ -36,28 +37,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _memberEmitterFactoryMock = MockRepository.GenerateStrictMock<IMemberEmitterFactory> ();
+      _codeGeneratorMock = MockRepository.GenerateStrictMock<IReflectionEmitCodeGenerator>();
       _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder> ();
       _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler> ();
 
-      _factory = new MutableTypeCodeGeneratorFactory (_memberEmitterFactoryMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+      _factory = new MutableTypeCodeGeneratorFactory (
+          _memberEmitterFactoryMock, _codeGeneratorMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+    }
+
+    [Test]
+    public void Initialization ()
+    {
+      Assert.That (_factory.CodeGenerator, Is.SameAs (_codeGeneratorMock));
     }
 
     [Test]
     public void Create ()
     {
       var mutableType = MutableTypeObjectMother.Create();
-      var codeGeneratorMock = MockRepository.GenerateStrictMock<IReflectionEmitCodeGenerator>();
-
       var fakeEmittableOperandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       var fakeMemberEmitter = MockRepository.GenerateStrictMock<IMemberEmitter>();
-      codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (fakeEmittableOperandProvider);
+      _codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (fakeEmittableOperandProvider);
       _memberEmitterFactoryMock.Expect (mock => mock.CreateMemberEmitter (fakeEmittableOperandProvider)).Return (fakeMemberEmitter);
 
-      var result = _factory.Create (mutableType, codeGeneratorMock);
+      var result = _factory.Create (mutableType);
 
       Assert.That (result, Is.TypeOf<MutableTypeCodeGenerator>());
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_mutableType"), Is.SameAs (mutableType));
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_codeGenerator"), Is.SameAs (codeGeneratorMock));
+      Assert.That (PrivateInvoke.GetNonPublicField (result, "_codeGenerator"), Is.SameAs (_codeGeneratorMock));
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_memberEmitter"), Is.SameAs (fakeMemberEmitter));
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_initializationBuilder"), Is.SameAs (_initializationBuilderMock));
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_proxySerializationEnabler"), Is.SameAs (_proxySerializationEnablerMock));

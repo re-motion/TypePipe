@@ -28,45 +28,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class TypeContextCodeGenerator : ITypeContextCodeGenerator
   {
-    private readonly IReflectionEmitCodeGenerator _codeGenerator;
-    private readonly IMemberEmitterFactory _memberEmitterFactory;
-    private readonly IInitializationBuilder _initializationBuilder;
-    private readonly IProxySerializationEnabler _proxySerializationEnabler;
+    private readonly IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactory;
 
     [CLSCompliant (false)]
-    public TypeContextCodeGenerator (
-        IReflectionEmitCodeGenerator codeGenerator,
-        IMemberEmitterFactory memberEmitterFactory,
-        IInitializationBuilder initializationBuilder,
-        IProxySerializationEnabler proxySerializationEnabler)
+    public TypeContextCodeGenerator (IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
     {
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
-      ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
-      ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
-      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
+      ArgumentUtility.CheckNotNull ("mutableTypeCodeGeneratorFactory", mutableTypeCodeGeneratorFactory);
 
-      _codeGenerator = codeGenerator;
-      _memberEmitterFactory = memberEmitterFactory;
-      _initializationBuilder = initializationBuilder;
-      _proxySerializationEnabler = proxySerializationEnabler;
+      _mutableTypeCodeGeneratorFactory = mutableTypeCodeGeneratorFactory;
     }
 
     public ICodeGenerator CodeGenerator
     {
-      get { return _codeGenerator; }
+      get { return _mutableTypeCodeGeneratorFactory.CodeGenerator; }
     }
 
     public Type GenerateProxy (TypeContext typeContext)
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
-      var me = _memberEmitterFactory.CreateMemberEmitter (_codeGenerator.EmittableOperandProvider);
-
-      //MutableType mt = ...
-      //var x = _mutableTypeCodeGeneratorFactory.CreateXXX (mt, _codeGenerator);
-
-      
-      var x = new MutableTypeCodeGenerator (typeContext.ProxyType, _codeGenerator, me, _initializationBuilder, _proxySerializationEnabler);
+      var x = _mutableTypeCodeGeneratorFactory.Create (typeContext.ProxyType);
 
       x.DefineType();
       x.DefineTypeFacet();
