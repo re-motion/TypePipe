@@ -23,6 +23,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
@@ -31,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   public class TypeAssemblerTest
   {
     private IMutableTypeFactory _mutableTypeFactoryMock;
-    private ISubclassProxyCreator _subclassProxyCreatorMock;
+    private IMutableTypeCodeGenerator _mutableTypeCodeGeneratorMock;
     
     private Type _requestedType;
 
@@ -39,9 +40,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void SetUp ()
     {
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
-      _subclassProxyCreatorMock = MockRepository.GenerateStrictMock<ISubclassProxyCreator> ();
+      _mutableTypeCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeCodeGenerator> ();
 
-      _requestedType = typeof (object);
+      _requestedType = CustomTypeObjectMother.Create (name: "RequestedType");
     }
 
     [Test]
@@ -53,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
       var participants = new[] { participantStub, participantWithCacheProviderStub };
-      var typeAssembler = new TypeAssembler (participants.AsOneTime (), _mutableTypeFactoryMock, _subclassProxyCreatorMock);
+      var typeAssembler = new TypeAssembler (participants.AsOneTime (), _mutableTypeFactoryMock, _mutableTypeCodeGeneratorMock);
 
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
@@ -62,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void CodeGenerator ()
     {
       var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
-      _subclassProxyCreatorMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
       var typeAssembler = CreateTypeAssembler();
 
       Assert.That (typeAssembler.CodeGenerator, Is.SameAs (fakeCodeGenerator));
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
-      var subclassProxyCreatorMock = mockRepository.StrictMock<ISubclassProxyCreator>();
+      var subclassProxyCreatorMock = mockRepository.StrictMock<IMutableTypeCodeGenerator>();
 
       var fakeResult = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
@@ -95,7 +96,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
             });
         participantMock2.Expect (mock => mock.Modify (Arg<TypeContext>.Matches (ctx => ctx == typeContext)));
 
-        subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (fakeProxyType)).Return (fakeResult);
+        subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Matches(ctx => ctx == typeContext))).Return (fakeResult);
       }
       mockRepository.ReplayAll();
 
@@ -111,16 +112,16 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
-      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxyType (_requestedType)).Return (MutableTypeObjectMother.Create (name: "ProxyName"));
+      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxyType (_requestedType)).Return (MutableTypeObjectMother.Create());
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
-      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<MutableType>.Is.Anything)).Throw (exception1);
-      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<MutableType>.Is.Anything)).Throw (exception2);
-      _subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<MutableType>.Is.Anything)).Throw (exception3);
+      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception1);
+      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception2);
+      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception3);
       var typeAssembler = CreateTypeAssembler (participants: MockRepository.GenerateStub<IParticipant>());
 
-      var expectedMessageRegex = "An error occurred during code generation for 'ProxyName':\r\nblub\r\n"
+      var expectedMessageRegex = "An error occurred during code generation for 'RequestedType':\r\nblub\r\n"
                                  + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
       Assert.That (
           () => typeAssembler.AssembleType (_requestedType),
@@ -145,12 +146,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     private TypeAssembler CreateTypeAssembler (
-        IMutableTypeFactory mutableTypeFactory = null, ISubclassProxyCreator subclassProxyCreator = null, params IParticipant[] participants)
+        IMutableTypeFactory mutableTypeFactory = null, IMutableTypeCodeGenerator mutableTypeCodeGenerator = null, params IParticipant[] participants)
     {
       mutableTypeFactory = mutableTypeFactory ?? _mutableTypeFactoryMock;
-      subclassProxyCreator = subclassProxyCreator ?? _subclassProxyCreatorMock;
+      mutableTypeCodeGenerator = mutableTypeCodeGenerator ?? _mutableTypeCodeGeneratorMock;
 
-      return new TypeAssembler (participants.AsOneTime(), mutableTypeFactory, subclassProxyCreator);
+      return new TypeAssembler (participants.AsOneTime(), mutableTypeFactory, mutableTypeCodeGenerator);
     }
 
     private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)

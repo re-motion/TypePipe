@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
-  /// <see cref="ISubclassProxyCreator"/>.
+  /// <see cref="IMutableTypeCodeGenerator"/>.
   /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
   /// <see cref="ICacheKeyProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
@@ -36,20 +36,20 @@ namespace Remotion.TypePipe.Caching
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
-    private readonly ISubclassProxyCreator _subclassProxyCreator;
+    private readonly IMutableTypeCodeGenerator _mutableTypeCodeGenerator;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
     public TypeAssembler (
-        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, ISubclassProxyCreator subclassProxyCreator)
+        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, IMutableTypeCodeGenerator mutableTypeCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
-      ArgumentUtility.CheckNotNull ("subclassProxyCreator", subclassProxyCreator);
+      ArgumentUtility.CheckNotNull ("mutableTypeCodeGenerator", mutableTypeCodeGenerator);
 
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
-      _subclassProxyCreator = subclassProxyCreator;
+      _mutableTypeCodeGenerator = mutableTypeCodeGenerator;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.Caching
 
     public ICodeGenerator CodeGenerator
     {
-      get { return _subclassProxyCreator.CodeGenerator; }
+      get { return _mutableTypeCodeGenerator.CodeGenerator; }
     }
 
     public Type AssembleType (Type requestedType)
@@ -91,28 +91,27 @@ namespace Remotion.TypePipe.Caching
 
     private Type ApplyModificationsWithDiagnostics (TypeContext typeContext)
     {
-      var proxyType = typeContext.ProxyType;
       try
       {
-        return _subclassProxyCreator.CreateProxy (proxyType);
+        return _mutableTypeCodeGenerator.CreateProxy (typeContext);
       }
       catch (InvalidOperationException ex)
       {
-        throw new InvalidOperationException (BuildExceptionMessage (proxyType, ex), ex);
+        throw new InvalidOperationException (BuildExceptionMessage (typeContext.RequestedType, ex), ex);
       }
       catch (NotSupportedException ex)
       {
-        throw new NotSupportedException (BuildExceptionMessage (proxyType, ex), ex);
+        throw new NotSupportedException (BuildExceptionMessage (typeContext.RequestedType, ex), ex);
       }
     }
 
-    private string BuildExceptionMessage (MutableType proxyType, SystemException exception)
+    private string BuildExceptionMessage (Type requestedType, SystemException exception)
     {
       var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
       return string.Format (
           "An error occurred during code generation for '{0}':{1}{2}{3}"
           + "The following participants are currently configured and may have caused the error: {4}.",
-          proxyType.Name,
+          requestedType.Name,
           Environment.NewLine,
           exception.Message,
           Environment.NewLine,

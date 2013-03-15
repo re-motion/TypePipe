@@ -33,7 +33,7 @@ using System.Linq;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
-  public class SubclassProxyCreatorTest
+  public class MutableTypeCodeGeneratorTest
   {
     private MockRepository _mockRepository;
 
@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private IInitializationBuilder _initializationBuilderMock;
     private IProxySerializationEnabler _proxySerializationEnablerMock;
 
-    private SubclassProxyCreator _creator;
+    private MutableTypeCodeGenerator _creator;
 
     private IMemberEmitter _memberEmitterMock;
     // Context members
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _debugInfoGeneratorMock = _mockRepository.StrictMock<DebugInfoGenerator>();
       _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider>();
 
-      _creator = new SubclassProxyCreator (_codeGeneratorMock, _memberEmitterFactoryMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+      _creator = new MutableTypeCodeGenerator (_codeGeneratorMock, _memberEmitterFactoryMock, _initializationBuilderMock, _proxySerializationEnablerMock);
 
       _fakeInitializationField = ReflectionObjectMother.GetSomeField();
       _fakeInitializationMethod = ReflectionObjectMother.GetSomeMethod();
@@ -162,7 +162,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       }
       _mockRepository.ReplayAll();
 
-      var result = _creator.CreateProxy (proxyType);
+      var typeContext = TypeContextObjectMother.Create (proxyType);
+      var result = _creator.CreateProxy (typeContext);
 
       _mockRepository.VerifyAll();
       Assert.That (result, Is.SameAs (fakeType));
@@ -185,7 +186,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.Expect (mock => mock.CreateType());
       _mockRepository.ReplayAll();
 
-      _creator.CreateProxy (proxyType);
+      var typeContext = TypeContextObjectMother.Create (proxyType);
+      _creator.CreateProxy (typeContext);
 
       _mockRepository.VerifyAll();
     }

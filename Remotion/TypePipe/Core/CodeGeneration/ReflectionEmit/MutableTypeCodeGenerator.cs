@@ -25,10 +25,11 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Implements <see cref="ISubclassProxyCreator"/> by building a subclass proxy using <see cref="ITypeBuilder"/> and related interfaces.
-  /// Implements forward declarations of method and constructor bodies by deferring emission of code to the <see cref="CreateProxy"/> method.
+  /// Implements <see cref="IMutableTypeCodeGenerator"/> by building a subclass proxy and additional types using <see cref="ITypeBuilder"/> and
+  /// related interfaces. Implements forward declarations of types (stage 1), method and constructor bodies (stage 2) by deferring emission.
+  /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
-  public class SubclassProxyCreator : ISubclassProxyCreator
+  public class MutableTypeCodeGenerator : IMutableTypeCodeGenerator
   {
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IMemberEmitterFactory _memberEmitterFactory;
@@ -36,7 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     [CLSCompliant (false)]
-    public SubclassProxyCreator (
+    public MutableTypeCodeGenerator (
         IReflectionEmitCodeGenerator codeGenerator,
         IMemberEmitterFactory memberEmitterFactory,
         IInitializationBuilder initializationBuilder,
@@ -58,9 +59,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _codeGenerator; }
     }
 
-    public Type CreateProxy (MutableType proxyType)
+    public Type CreateProxy (TypeContext typeContext)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("typeContext", typeContext);
+      var proxyType = typeContext.ProxyType;
 
       var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
       var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (emittableOperandProvider);

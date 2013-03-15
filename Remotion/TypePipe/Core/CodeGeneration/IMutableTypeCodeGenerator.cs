@@ -23,21 +23,21 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Defines an interface for classes building a subclass proxy.
+  /// Defines an interface for classes generating code from a <see cref="TypeContext"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (SubclassProxyCreator))]
-  public interface ISubclassProxyCreator
+  [ConcreteImplementation (typeof (MutableTypeCodeGenerator))]
+  public interface IMutableTypeCodeGenerator
   {
     ICodeGenerator CodeGenerator { get; }
 
     /// <summary>
-    /// Generates a proxy type based on the data specified by the participants.
+    /// Generates a proxy and additional types based on the data specified by the participants.
     /// </summary>
     /// <remarks>This method may throw instances of <see cref="InvalidOperationException"/> and <see cref="NotSupportedException"/>.</remarks>
-    /// <param name="mutableType">The proxy model type.</param>
+    /// <param name="typeContext">The type context to generate code for.</param>
     /// <returns>The generated proxy type.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    Type CreateProxy (MutableType mutableType);
+    Type CreateProxy (TypeContext typeContext);
   }
 }

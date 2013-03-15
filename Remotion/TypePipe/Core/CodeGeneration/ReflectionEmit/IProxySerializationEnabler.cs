@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Makes proxies serializable.
   /// </summary>
-  /// <remarks>This interface is an implementation detail of <see cref="SubclassProxyCreator"/>.</remarks>
+  /// <remarks>This interface is an implementation detail of <see cref="MutableTypeCodeGenerator"/>.</remarks>
   [ConcreteImplementation (typeof (ProxySerializationEnabler))]
   public interface IProxySerializationEnabler
   {
