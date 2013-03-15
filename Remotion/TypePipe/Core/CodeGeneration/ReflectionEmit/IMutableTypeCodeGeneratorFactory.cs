@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -23,6 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Defines an interface for classes creating instances of <see cref="IMutableTypeCodeGenerator"/>.
   /// </summary>
   [CLSCompliant (false)]
+  [ConcreteImplementation (typeof (MutableTypeCodeGeneratorFactory))]
   public interface IMutableTypeCodeGeneratorFactory
   {
     ICodeGenerator CodeGenerator { get; }
