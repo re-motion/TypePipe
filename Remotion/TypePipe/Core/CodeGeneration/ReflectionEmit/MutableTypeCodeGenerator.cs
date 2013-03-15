@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
       var debugInfoGeneratorOrNull = _codeGenerator.DebugInfoGenerator;
 
-      var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _mutableType.BaseType);
+      var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes);
       typeBuilder.RegisterWith (emittableOperandProvider, _mutableType);
 
       _context = new CodeGenerationContext (_mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider);
@@ -78,19 +78,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       EnsureState (1);
 
+      _context.TypeBuilder.SetParent (_mutableType.BaseType);
+
+      foreach (var ifc in _mutableType.AddedInterfaces)
+        _context.TypeBuilder.AddInterfaceImplementation (ifc);
+
+      foreach (var customAttribute in _mutableType.AddedCustomAttributes)
+        _context.TypeBuilder.SetCustomAttribute (customAttribute);
+
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
 
       var initializationMembers = _initializationBuilder.CreateInitializationMembers (_mutableType);
       var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
-
       _proxySerializationEnabler.MakeSerializable (_mutableType, initializationMethod);
-
-      foreach (var customAttribute in _mutableType.AddedCustomAttributes)
-        _context.TypeBuilder.SetCustomAttribute (customAttribute);
-
-      foreach (var ifc in _mutableType.AddedInterfaces)
-        _context.TypeBuilder.AddInterfaceImplementation (ifc);
 
       foreach (var field in _mutableType.AddedFields)
         _memberEmitter.AddField (_context, field);

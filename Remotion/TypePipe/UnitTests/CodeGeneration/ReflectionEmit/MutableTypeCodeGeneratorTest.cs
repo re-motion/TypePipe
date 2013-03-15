@@ -79,14 +79,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void DefineType ()
+    public void DeclareType ()
     {
       using (_mockRepository.Ordered())
       {
         _codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (_emittableOperandProviderMock);
         _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
-        _codeGeneratorMock.Expect (mock => mock.DefineType (_mutableType.FullName, _mutableType.Attributes, _mutableType.BaseType))
-                          .Return (_typeBuilderMock);
+        _codeGeneratorMock.Expect (mock => mock.DefineType (_mutableType.FullName, _mutableType.Attributes)).Return (_typeBuilderMock);
         _typeBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, _mutableType));
       }
       _mockRepository.ReplayAll();
@@ -96,10 +95,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mockRepository.VerifyAll();
       var context = (CodeGenerationContext) PrivateInvoke.GetNonPublicField (_generator, "_context");
       Assert.That (context, Is.Not.Null);
-      Assert.That (context.MutableType, Is.SameAs(_mutableType));
-      Assert.That (context.TypeBuilder, Is.SameAs(_typeBuilderMock));
-      Assert.That (context.DebugInfoGenerator, Is.SameAs(_debugInfoGeneratorMock));
-      Assert.That (context.EmittableOperandProvider, Is.SameAs(_emittableOperandProviderMock));
+      Assert.That (context.MutableType, Is.SameAs (_mutableType));
+      Assert.That (context.TypeBuilder, Is.SameAs (_typeBuilderMock));
+      Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorMock));
+      Assert.That (context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
     }
 
     [Test]
@@ -126,11 +125,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       using (_mockRepository.Ordered())
       {
+        _typeBuilderMock.Expect (mock => mock.SetParent (_mutableType.BaseType));
+        _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
+        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
+
         _memberEmitterMock.Expect (mock => mock.AddConstructor (context, typeInitializer));
         _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_mutableType)).Return (_fakeInitializationMembers);
         _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
-        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
-        _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
 
         _memberEmitterMock.Expect (mock => mock.AddField (context, field));
         _initializationBuilderMock
@@ -154,6 +155,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       PopulateContext (_generator, 1);
       Assert.That (_mutableType.MutableTypeInitializer, Is.Null);
 
+      _typeBuilderMock.SetParent (_mutableType.BaseType);
       // No call to AddConstructor because of null type initializer.
       _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_mutableType)).Return (null);
       _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, null));
@@ -188,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var memberEmitterStub = MockRepository.GenerateStub<IMemberEmitter>();
       var initializationBuilderStub = MockRepository.GenerateStub<IInitializationBuilder>();
       var proxySerializationEnablerStub = MockRepository.GenerateStub<IProxySerializationEnabler>();
-      codeGeneratorStub.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments().Return (_typeBuilderMock);
+      codeGeneratorStub.Stub (stub => stub.DefineType (null, 0)).IgnoreArguments().Return (_typeBuilderMock);
       codeGeneratorStub.Stub (stub => stub.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
       codeGeneratorStub.Stub (stub => stub.EmittableOperandProvider).Return (_emittableOperandProviderMock);
 
