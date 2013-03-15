@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
-    public void DefineType ()
+    public void DeclareType ()
     {
       // TODO 5472: in correct state?
 

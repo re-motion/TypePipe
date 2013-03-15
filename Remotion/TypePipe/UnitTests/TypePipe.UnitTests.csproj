@@ -92,6 +92,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
     <Compile Include="Caching\ConstructorFinderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\TypeContextCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
     <Compile Include="Configuration\TypePipeConfigurationProviderTest.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSectionTest.cs" />

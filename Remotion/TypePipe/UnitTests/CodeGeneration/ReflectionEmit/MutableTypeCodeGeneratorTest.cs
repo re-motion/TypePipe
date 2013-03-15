@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       }
       _mockRepository.ReplayAll();
 
-      _generator.DefineType();
+      _generator.DeclareType();
 
       _mockRepository.VerifyAll();
       var context = (CodeGenerationContext) PrivateInvoke.GetNonPublicField (_generator, "_context");

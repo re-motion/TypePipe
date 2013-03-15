@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Linq;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -47,11 +48,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
-      var x = _mutableTypeCodeGeneratorFactory.Create (typeContext.ProxyType);
+      var mutableTypes = new[] { typeContext.ProxyType }.Concat (typeContext.AdditionalTypes);
+      var generators = mutableTypes.Select (_mutableTypeCodeGeneratorFactory.Create).ToList();
 
-      x.DefineType();
-      x.DefineTypeFacet();
-      return x.CreateType();
+      foreach (var g in generators)
+        g.DeclareType();
+      foreach (var g in generators)
+        g.DefineTypeFacet();
+      foreach (var g in generators.Skip (1))
+        g.CreateType();
+
+      return generators[0].CreateType();
     }
   }
 }
