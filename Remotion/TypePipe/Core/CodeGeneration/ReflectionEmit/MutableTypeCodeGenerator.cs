@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
+    private int _state;
     private CodeGenerationContext _context;
 
     [CLSCompliant (false)]
@@ -62,7 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void DeclareType ()
     {
-      // TODO 5472: in correct state?
+      EnsureState (0);
 
       var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
       var debugInfoGeneratorOrNull = _codeGenerator.DebugInfoGenerator;
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void DefineTypeFacet ()
     {
-      // TODO 5472: in correct state?
+      EnsureState (1);
 
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
@@ -106,7 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type CreateType ()
     {
-      // TODO 5472: in correct state?
+      EnsureState (2);
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
@@ -118,6 +119,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
       member.AddConstructor (context, constructor);
+    }
+
+    private void EnsureState (int expectedState)
+    {
+      if (_state != expectedState)
+        throw new InvalidOperationException (
+            "Methods DeclareType, DefineTypeFacet and CreateType must be called exactly once and in the correct order.");
+
+      _state++;
     }
   }
 }

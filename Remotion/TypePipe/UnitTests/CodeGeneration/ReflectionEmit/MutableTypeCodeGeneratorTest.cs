@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var property = _mutableType.AddProperty();
       var event_ = _mutableType.AddEvent();
 
-      var context = PopulateContext (_generator);
+      var context = PopulateContext (_generator, 1);
 
       using (_mockRepository.Ordered())
       {
@@ -151,6 +151,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void DefineTypeFacet_NoTypeInitializer_NoInitializations ()
     {
+      PopulateContext (_generator, 1);
       Assert.That (_mutableType.MutableTypeInitializer, Is.Null);
 
       // No call to AddConstructor because of null type initializer.
@@ -166,7 +167,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateType ()
     {
-      var context = PopulateContext (_generator);
+      var context = PopulateContext (_generator, 2);
       bool wasCalled = false;
       context.PostDeclarationsActionManager.AddAction (() => wasCalled = true);
       var fakeType = ReflectionObjectMother.GetSomeType();
@@ -180,10 +181,38 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.SameAs (fakeType));
     }
 
-    private CodeGenerationContext PopulateContext (MutableTypeCodeGenerator generator)
+    [Test]
+    public void ThrowsForInvalidOperation ()
+    {
+      var codeGeneratorStub = MockRepository.GenerateStub<IReflectionEmitCodeGenerator>();
+      var memberEmitterStub = MockRepository.GenerateStub<IMemberEmitter>();
+      var initializationBuilderStub = MockRepository.GenerateStub<IInitializationBuilder>();
+      var proxySerializationEnablerStub = MockRepository.GenerateStub<IProxySerializationEnabler>();
+      codeGeneratorStub.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments().Return (_typeBuilderMock);
+      codeGeneratorStub.Stub (stub => stub.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
+      codeGeneratorStub.Stub (stub => stub.EmittableOperandProvider).Return (_emittableOperandProviderMock);
+
+      var generator = new MutableTypeCodeGenerator (
+          _mutableType, codeGeneratorStub, memberEmitterStub, initializationBuilderStub, proxySerializationEnablerStub);
+
+      CheckThrowsForInvalidOperation (generator.DefineTypeFacet);
+      CheckThrowsForInvalidOperation (() => generator.CreateType());
+      Assert.That (() => generator.DeclareType(), Throws.Nothing);
+
+      CheckThrowsForInvalidOperation (generator.DeclareType);
+      CheckThrowsForInvalidOperation (() => generator.CreateType());
+      Assert.That (() => generator.DefineTypeFacet(), Throws.Nothing);
+
+      CheckThrowsForInvalidOperation (generator.DeclareType);
+      CheckThrowsForInvalidOperation (generator.DefineTypeFacet);
+      Assert.That (() => generator.CreateType(), Throws.Nothing);
+    }
+
+    private CodeGenerationContext PopulateContext (MutableTypeCodeGenerator generator, int currentState)
     {
       var context = new CodeGenerationContext (_mutableType, _typeBuilderMock, _debugInfoGeneratorMock, _emittableOperandProviderMock);
       PrivateInvoke.SetNonPublicField (generator, "_context", context);
+      PrivateInvoke.SetNonPublicField (generator, "_state", currentState);
 
       return context;
     }
@@ -195,6 +224,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         var m = method;
         memberEmitterMock.Expect (mock => mock.AddMethod (Arg<CodeGenerationContext>.Is.Anything, Arg.Is (m)));
       }
+    }
+
+    private void CheckThrowsForInvalidOperation (Action action)
+    {
+      Assert.That (
+          () => action(),
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "Methods DeclareType, DefineTypeFacet and CreateType must be called exactly once and in the correct order."));
     }
   }
 }
