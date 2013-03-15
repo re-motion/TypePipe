@@ -62,6 +62,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateType_Interface ()
+    {
+      var result = _factory.CreateType ("IAbc", null, TypeAttributes.Interface, baseType: null);
+
+      Assert.That (result.Namespace, Is.Null);
+      Assert.That (result.BaseType, Is.Null);
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Value cannot be null.\r\nParameter name: baseType")]
     public void CreateType_Class_BaseTypeCannotBeNull ()
     {

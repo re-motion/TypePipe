@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // attributes and base type must be correct.
       // TODO (maybe): check that baseType.IsVisible
 
-      if (CanNotBeSubclassed (baseType))
+      if (baseType != null && CanNotBeSubclassed (baseType))
       {
         throw new ArgumentException (
             "Base type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
