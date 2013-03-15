@@ -41,19 +41,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public CodeGenerationContext (
-        MutableType proxyType, ITypeBuilder typeBuilder, DebugInfoGenerator debugInfoGeneratorOrNull, IEmittableOperandProvider emittableOperandProvider)
+        MutableType mutableType, ITypeBuilder typeBuilder, DebugInfoGenerator debugInfoGeneratorOrNull, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
-      _mutableType = proxyType;
+      _mutableType = mutableType;
       _typeBuilder = typeBuilder;
       _debugInfoGenerator = debugInfoGeneratorOrNull;
       _emittableOperandProvider = emittableOperandProvider;
     }
 
-    public MutableType ProxyType
+    public MutableType MutableType
     {
       get { return _mutableType; }
     }

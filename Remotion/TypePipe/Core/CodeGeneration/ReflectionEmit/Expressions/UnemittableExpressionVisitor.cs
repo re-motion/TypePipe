@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      var thisClosureVariable = Expression.Variable (_context.ProxyType, "thisClosure");
+      var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
       Func<Expression, Expression> lambdaPreparer = expr =>
       {
         if (expr is ThisExpression)
@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
         var newLambda = node.Update (newBody, node.Parameters);
         var block = Expression.Block (
             new[] { thisClosureVariable },
-            Expression.Assign (thisClosureVariable, new ThisExpression (_context.ProxyType)),
+            Expression.Assign (thisClosureVariable, new ThisExpression (_context.MutableType)),
             newLambda);
 
         return Visit (block);

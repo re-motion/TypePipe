@@ -26,15 +26,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Implements <see cref="IMutableTypeCodeGenerator"/> using <see cref="ITypeBuilder"/> and related interfaces.
-  /// Implements forward declarations of types (stage 1), method and constructor bodies (stage 2) by deferring emission.
+  /// Implements forward declarations of types and method and constructor bodies by deferring code emission.
   /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
   public class MutableTypeCodeGenerator : IMutableTypeCodeGenerator
   {
+    private readonly MutableType _mutableType;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
+    private readonly IMemberEmitter _memberEmitter;
     private readonly IMemberEmitterFactory _memberEmitterFactory;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
+
+    private CodeGenerationContext _context;
 
     [CLSCompliant (false)]
     public MutableTypeCodeGenerator (
@@ -52,6 +56,74 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _memberEmitterFactory = memberEmitterFactory;
       _initializationBuilder = initializationBuilder;
       _proxySerializationEnabler = proxySerializationEnabler;
+    }
+
+    [CLSCompliant (false)]
+    public MutableTypeCodeGenerator (
+        MutableType mutableType,
+        IReflectionEmitCodeGenerator codeGenerator,
+        IMemberEmitter memberEmitter,
+        IInitializationBuilder initializationBuilder,
+        IProxySerializationEnabler proxySerializationEnabler)
+    {
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
+      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
+      ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
+      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
+
+      _mutableType = mutableType;
+      _codeGenerator = codeGenerator;
+      _memberEmitter = memberEmitter;
+      _initializationBuilder = initializationBuilder;
+      _proxySerializationEnabler = proxySerializationEnabler;
+    }
+
+    public void DefineType ()
+    {
+      var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
+      var debugInfoGeneratorOrNull = _codeGenerator.DebugInfoGenerator;
+
+      var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _mutableType.BaseType);
+      typeBuilder.RegisterWith (emittableOperandProvider, _mutableType);
+
+      _context = new CodeGenerationContext (_mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider);
+    }
+
+    public void DefineTypeFacet ()
+    {
+      if (_mutableType.MutableTypeInitializer != null)
+        _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
+
+      var initializationMembers = _initializationBuilder.CreateInitializationMembers (_mutableType);
+      var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
+
+      _proxySerializationEnabler.MakeSerializable (_mutableType, initializationMethod);
+
+      foreach (var customAttribute in _mutableType.AddedCustomAttributes)
+        _context.TypeBuilder.SetCustomAttribute (customAttribute);
+
+      foreach (var ifc in _mutableType.AddedInterfaces)
+        _context.TypeBuilder.AddInterfaceImplementation (ifc);
+
+      foreach (var field in _mutableType.AddedFields)
+        _memberEmitter.AddField (_context, field);
+      foreach (var ctor in _mutableType.AddedConstructors)
+        WireAndAddConstructor (_memberEmitter, _context, ctor, initializationMembers);
+      foreach (var method in _mutableType.AddedMethods)
+        _memberEmitter.AddMethod (_context, method);
+      // Note that accessor methods must be added before their associated properties and events.
+      foreach (var property in _mutableType.AddedProperties)
+        _memberEmitter.AddProperty (_context, property);
+      foreach (var evt in _mutableType.AddedEvents)
+        _memberEmitter.AddEvent (_context, evt);
+    }
+
+    public Type CreateType ()
+    {
+      _context.PostDeclarationsActionManager.ExecuteAllActions();
+
+      return _context.TypeBuilder.CreateType();
     }
 
     public Type GenerateProxy (TypeContext typeContext)
@@ -103,26 +175,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
       member.AddConstructor (context, constructor);
-    }
-
-    public void DefineType ()
-    {
-      throw new System.NotImplementedException();
-    }
-
-    public void DefineTypeFacet ()
-    {
-      throw new System.NotImplementedException();
-    }
-
-    public void DefineMethodBodies ()
-    {
-      throw new System.NotImplementedException();
-    }
-
-    public Type CreateType ()
-    {
-      throw new NotImplementedException();
     }
   }
 }

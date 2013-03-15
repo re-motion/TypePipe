@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private MethodInfo CreateNonVirtualCallTrampoline (CodeGenerationContext context, MethodInfo method, string trampolineName)
     {
       var methodDeclaration = MethodDeclaration.CreateEquivalent (method);
-      var trampoline = context.ProxyType.AddGenericMethod (
+      var trampoline = context.MutableType.AddGenericMethod (
           trampolineName,
           MethodAttributes.Private,
           methodDeclaration,

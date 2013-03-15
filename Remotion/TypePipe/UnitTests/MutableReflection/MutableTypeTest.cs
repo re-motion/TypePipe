@@ -53,6 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
 
       _mutableType = MutableTypeObjectMother.Create (
+          name: "MyAbcType",
           baseType: typeof (DomainType),
           memberSelector: _memberSelectorMock,
           interfaceMappingComputer: _interfaceMappingComputerMock,
@@ -692,7 +693,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void ToDebugString ()
     {
       // Note: ToDebugString() is implemented in CustomType base class.
-      Assert.That (_mutableType.ToDebugString(), Is.EqualTo ("MutableType = \"Proxy\""));
+      Assert.That (_mutableType.ToDebugString (), Is.EqualTo ("MutableType = \"MyAbcType\""));
     }
 
     private IEnumerable<MethodInfo> GetAllMethods (MutableType mutableType)

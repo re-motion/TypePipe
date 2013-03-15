@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       _factory = new MethodOverrideFactory (_relatedMethodFinderMock, _methodFactoryMock);
 
-      _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
+      _mutableType = MutableTypeObjectMother.Create (name: "MyAbcType", baseType: typeof (DomainType));
       _noGenericParameters = new GenericParameterContext (Type.EmptyTypes);
     }
 
@@ -391,7 +391,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of the proxy base class hierarchy: 'Proxy'.\r\nParameter name: overriddenMethod")]
+        "Method is declared by a type outside of the proxy base class hierarchy: 'MyAbcType'.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
       var method = _mutableType.AddMethod ("method", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());

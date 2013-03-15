@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     public static MutableType Create (
         Type baseType = null,
-        string name = "Proxy",
+        string name = "MyMutableType",
         string @namespace = "MyNamespace",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
         IMemberSelector memberSelector = null,

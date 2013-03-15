@@ -22,17 +22,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Defines an interfaces for classes building subclass proxies from a <see cref="MutableType"/>.
-  /// The staged process (<see cref="DefineType"/>, <see cref="DefineTypeFacet"/>, <see cref="DefineMethodBodies"/>, <see cref="CreateType"/>)
+  /// The staged process (<see cref="DefineType"/>, <see cref="DefineTypeFacet"/>, <see cref="CreateType"/>)
   /// is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
   /// <remarks>
-  /// Note that the methods must be called in the order: type -> type facet -> method bodies -> create type.
+  /// Note that the methods must be called in the order: define type -> define type facet -> create type.
   /// </remarks>
   public interface IMutableTypeCodeGenerator
   {
     void DefineType ();
     void DefineTypeFacet ();
-    void DefineMethodBodies ();
 
     Type CreateType ();
 
