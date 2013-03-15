@@ -126,13 +126,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       using (_mockRepository.Ordered())
       {
         _typeBuilderMock.Expect (mock => mock.SetParent (_mutableType.BaseType));
-        _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
         _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
 
         _memberEmitterMock.Expect (mock => mock.AddConstructor (context, typeInitializer));
         _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_mutableType)).Return (_fakeInitializationMembers);
         _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
 
+        _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
         _memberEmitterMock.Expect (mock => mock.AddField (context, field));
         _initializationBuilderMock
             .Expect (mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));

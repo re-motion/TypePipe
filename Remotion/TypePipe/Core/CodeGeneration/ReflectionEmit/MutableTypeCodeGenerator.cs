@@ -80,19 +80,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       _context.TypeBuilder.SetParent (_mutableType.BaseType);
 
-      foreach (var ifc in _mutableType.AddedInterfaces)
-        _context.TypeBuilder.AddInterfaceImplementation (ifc);
-
       foreach (var customAttribute in _mutableType.AddedCustomAttributes)
         _context.TypeBuilder.SetCustomAttribute (customAttribute);
 
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
 
+      // Creation of initialization members must happen before interfaces, fields or methods are added.
       var initializationMembers = _initializationBuilder.CreateInitializationMembers (_mutableType);
       var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
       _proxySerializationEnabler.MakeSerializable (_mutableType, initializationMethod);
 
+      foreach (var ifc in _mutableType.AddedInterfaces)
+        _context.TypeBuilder.AddInterfaceImplementation (ifc);
       foreach (var field in _mutableType.AddedFields)
         _memberEmitter.AddField (_context, field);
       foreach (var ctor in _mutableType.AddedConstructors)
