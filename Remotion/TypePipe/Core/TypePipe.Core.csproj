@@ -89,6 +89,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IMutableTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\NullExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnabler.cs" />
@@ -105,7 +106,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />
-    <Compile Include="CodeGeneration\IMutableTypeCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\ITypeContextCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitterFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMethodTrampolineProvider.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactory.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Caching\ConstructorFinder.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGenerator.cs" />
     <Compile Include="Configuration\ITypePipeConfigurationProvider.cs" />
     <Compile Include="Configuration\ForceStrongNamingConfigurationElement.cs" />
     <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
@@ -156,7 +158,7 @@
     <Compile Include="Expressions\ReflectionAdapters\DelegatingMethodInfoBase.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\TypeContextContextCodeGenerator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
     <Compile Include="Caching\IConstructorFinder.cs" />

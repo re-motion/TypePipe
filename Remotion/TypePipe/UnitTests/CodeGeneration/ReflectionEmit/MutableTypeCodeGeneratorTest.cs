@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private IInitializationBuilder _initializationBuilderMock;
     private IProxySerializationEnabler _proxySerializationEnablerMock;
 
-    private MutableTypeCodeGenerator _creator;
+    private MutableTypeCodeGenerator _generator;
 
     private IMemberEmitter _memberEmitterMock;
     // Context members
@@ -69,17 +69,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _debugInfoGeneratorMock = _mockRepository.StrictMock<DebugInfoGenerator>();
       _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider>();
 
-      _creator = new MutableTypeCodeGenerator (_codeGeneratorMock, _memberEmitterFactoryMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+      _generator = new MutableTypeCodeGenerator (_codeGeneratorMock, _memberEmitterFactoryMock, _initializationBuilderMock, _proxySerializationEnablerMock);
 
       _fakeInitializationField = ReflectionObjectMother.GetSomeField();
       _fakeInitializationMethod = ReflectionObjectMother.GetSomeMethod();
       _fakeInitializationMembers = Tuple.Create (_fakeInitializationField, _fakeInitializationMethod);
-    }
-
-    [Test]
-    public void Initialization ()
-    {
-      Assert.That (_creator.CodeGenerator, Is.SameAs (_codeGeneratorMock));
     }
 
     [Test]
@@ -163,7 +157,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mockRepository.ReplayAll();
 
       var typeContext = TypeContextObjectMother.Create (proxyType);
-      var result = _creator.CreateProxy (typeContext);
+      var result = _generator.GenerateProxy (typeContext);
 
       _mockRepository.VerifyAll();
       Assert.That (result, Is.SameAs (fakeType));
@@ -187,7 +181,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mockRepository.ReplayAll();
 
       var typeContext = TypeContextObjectMother.Create (proxyType);
-      _creator.CreateProxy (typeContext);
+      _generator.GenerateProxy (typeContext);
 
       _mockRepository.VerifyAll();
     }

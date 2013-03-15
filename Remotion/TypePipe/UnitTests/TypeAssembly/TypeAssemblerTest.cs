@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   public class TypeAssemblerTest
   {
     private IMutableTypeFactory _mutableTypeFactoryMock;
-    private IMutableTypeCodeGenerator _mutableTypeCodeGeneratorMock;
+    private ITypeContextCodeGenerator _typeContextCodeGeneratorMock;
     
     private Type _requestedType;
 
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void SetUp ()
     {
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
-      _mutableTypeCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeCodeGenerator> ();
+      _typeContextCodeGeneratorMock = MockRepository.GenerateStrictMock<ITypeContextCodeGenerator> ();
 
       _requestedType = CustomTypeObjectMother.Create (name: "RequestedType");
     }
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
 
       var participants = new[] { participantStub, participantWithCacheProviderStub };
-      var typeAssembler = new TypeAssembler (participants.AsOneTime (), _mutableTypeFactoryMock, _mutableTypeCodeGeneratorMock);
+      var typeAssembler = new TypeAssembler (participants.AsOneTime (), _mutableTypeFactoryMock, _typeContextCodeGeneratorMock);
 
       Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void CodeGenerator ()
     {
       var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
-      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
+      _typeContextCodeGeneratorMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
       var typeAssembler = CreateTypeAssembler();
 
       Assert.That (typeAssembler.CodeGenerator, Is.SameAs (fakeCodeGenerator));
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
-      var subclassProxyCreatorMock = mockRepository.StrictMock<IMutableTypeCodeGenerator>();
+      var subclassProxyCreatorMock = mockRepository.StrictMock<ITypeContextCodeGenerator>();
 
       var fakeResult = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
             });
         participantMock2.Expect (mock => mock.Modify (Arg<TypeContext>.Matches (ctx => ctx == typeContext)));
 
-        subclassProxyCreatorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Matches(ctx => ctx == typeContext))).Return (fakeResult);
+        subclassProxyCreatorMock.Expect (mock => mock.GenerateProxy (Arg<TypeContext>.Matches(ctx => ctx == typeContext))).Return (fakeResult);
       }
       mockRepository.ReplayAll();
 
@@ -116,9 +116,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
-      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception1);
-      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception2);
-      _mutableTypeCodeGeneratorMock.Expect (mock => mock.CreateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception3);
+      _typeContextCodeGeneratorMock.Expect (mock => mock.GenerateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception1);
+      _typeContextCodeGeneratorMock.Expect (mock => mock.GenerateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception2);
+      _typeContextCodeGeneratorMock.Expect (mock => mock.GenerateProxy (Arg<TypeContext>.Is.Anything)).Throw (exception3);
       var typeAssembler = CreateTypeAssembler (participants: MockRepository.GenerateStub<IParticipant>());
 
       var expectedMessageRegex = "An error occurred during code generation for 'RequestedType':\r\nblub\r\n"
@@ -146,12 +146,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     private TypeAssembler CreateTypeAssembler (
-        IMutableTypeFactory mutableTypeFactory = null, IMutableTypeCodeGenerator mutableTypeCodeGenerator = null, params IParticipant[] participants)
+        IMutableTypeFactory mutableTypeFactory = null, ITypeContextCodeGenerator typeContextCodeGenerator = null, params IParticipant[] participants)
     {
       mutableTypeFactory = mutableTypeFactory ?? _mutableTypeFactoryMock;
-      mutableTypeCodeGenerator = mutableTypeCodeGenerator ?? _mutableTypeCodeGeneratorMock;
+      typeContextCodeGenerator = typeContextCodeGenerator ?? _typeContextCodeGeneratorMock;
 
-      return new TypeAssembler (participants.AsOneTime(), mutableTypeFactory, mutableTypeCodeGenerator);
+      return new TypeAssembler (participants.AsOneTime(), mutableTypeFactory, typeContextCodeGenerator);
     }
 
     private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)

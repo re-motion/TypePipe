@@ -25,8 +25,8 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Defines an interface for classes generating code from a <see cref="TypeContext"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (MutableTypeCodeGenerator))]
-  public interface IMutableTypeCodeGenerator
+  [ConcreteImplementation (typeof (TypeContextCodeGenerator))]
+  public interface ITypeContextCodeGenerator
   {
     ICodeGenerator CodeGenerator { get; }
 
@@ -38,6 +38,6 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <returns>The generated proxy type.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    Type CreateProxy (TypeContext typeContext);
+    Type GenerateProxy (TypeContext typeContext);
   }
 }

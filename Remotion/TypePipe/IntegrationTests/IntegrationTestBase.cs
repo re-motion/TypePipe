@@ -111,9 +111,9 @@ namespace Remotion.TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
-    protected IMutableTypeCodeGenerator CreateSubclassProxyCreator (string assemblyName)
+    protected ITypeContextCodeGenerator CreateSubclassProxyCreator (string assemblyName)
     {
-      var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<IMutableTypeCodeGenerator>();
+      var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<ITypeContextCodeGenerator>();
 
       _codeGenerator = subclassProxyBuilder.CodeGenerator;
       _codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);

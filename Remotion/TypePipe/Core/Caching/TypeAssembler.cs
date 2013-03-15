@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
-  /// <see cref="IMutableTypeCodeGenerator"/>.
+  /// <see cref="ITypeContextCodeGenerator"/>.
   /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
   /// <see cref="ICacheKeyProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
@@ -36,20 +36,20 @@ namespace Remotion.TypePipe.Caching
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
-    private readonly IMutableTypeCodeGenerator _mutableTypeCodeGenerator;
+    private readonly ITypeContextCodeGenerator _typeContextCodeGenerator;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
     public TypeAssembler (
-        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, IMutableTypeCodeGenerator mutableTypeCodeGenerator)
+        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, ITypeContextCodeGenerator typeContextCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
-      ArgumentUtility.CheckNotNull ("mutableTypeCodeGenerator", mutableTypeCodeGenerator);
+      ArgumentUtility.CheckNotNull ("typeContextCodeGenerator", typeContextCodeGenerator);
 
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
-      _mutableTypeCodeGenerator = mutableTypeCodeGenerator;
+      _typeContextCodeGenerator = typeContextCodeGenerator;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.Caching
 
     public ICodeGenerator CodeGenerator
     {
-      get { return _mutableTypeCodeGenerator.CodeGenerator; }
+      get { return _typeContextCodeGenerator.CodeGenerator; }
     }
 
     public Type AssembleType (Type requestedType)
@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.Caching
     {
       try
       {
-        return _mutableTypeCodeGenerator.CreateProxy (typeContext);
+        return _typeContextCodeGenerator.GenerateProxy (typeContext);
       }
       catch (InvalidOperationException ex)
       {

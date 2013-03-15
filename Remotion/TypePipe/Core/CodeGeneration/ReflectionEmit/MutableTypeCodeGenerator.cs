@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -25,8 +25,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Implements <see cref="IMutableTypeCodeGenerator"/> by building a subclass proxy and additional types using <see cref="ITypeBuilder"/> and
-  /// related interfaces. Implements forward declarations of types (stage 1), method and constructor bodies (stage 2) by deferring emission.
+  /// Implements <see cref="IMutableTypeCodeGenerator"/> using <see cref="ITypeBuilder"/> and related interfaces.
+  /// Implements forward declarations of types (stage 1), method and constructor bodies (stage 2) by deferring emission.
   /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
   public class MutableTypeCodeGenerator : IMutableTypeCodeGenerator
@@ -54,12 +54,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
-    public ICodeGenerator CodeGenerator
-    {
-      get { return _codeGenerator; }
-    }
-
-    public Type CreateProxy (TypeContext typeContext)
+    public Type GenerateProxy (TypeContext typeContext)
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
       var proxyType = typeContext.ProxyType;
@@ -108,6 +103,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
       member.AddConstructor (context, constructor);
+    }
+
+    public void DefineType ()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public void DefineTypeFacet ()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public void DefineMethodBodies ()
+    {
+      throw new System.NotImplementedException();
+    }
+
+    public Type CreateType ()
+    {
+      throw new NotImplementedException();
     }
   }
 }
