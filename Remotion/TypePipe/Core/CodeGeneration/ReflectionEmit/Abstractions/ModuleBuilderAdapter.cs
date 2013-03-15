@@ -57,16 +57,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attr, Type parent)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("parent", parent);
-
-      var typeBuilder = _moduleBuilder.DefineType (name, attr, parent);
-      return new TypeBuilderAdapter (typeBuilder);
-    }
-
-    [CLSCompliant (false)]
     public ITypeBuilder DefineType (string name, TypeAttributes attr)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

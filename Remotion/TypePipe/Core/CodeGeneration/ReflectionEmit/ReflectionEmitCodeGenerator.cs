@@ -155,24 +155,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("parent", parent);
-
-      if (_moduleContext.ModuleBuilder == null)
-      {
-        var strongName = _moduleContext.ForceStrongNaming;
-        var keyFilePathOrNull = _configurationProvider.KeyFilePath;
-
-        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (
-            AssemblyName, _assemblyDirectory, strongName, keyFilePathOrNull, EmittableOperandProvider);
-      }
-
-      return _moduleContext.ModuleBuilder.DefineType (name, attributes, parent);
-    }
-
-    [CLSCompliant (false)]
     public ITypeBuilder DefineType (string name, TypeAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

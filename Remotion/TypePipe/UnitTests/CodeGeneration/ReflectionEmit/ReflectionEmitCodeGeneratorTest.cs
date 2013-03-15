@@ -184,10 +184,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderFactoryMock
           .Expect (stub => stub.CreateModuleBuilder (_generator.AssemblyName, null, true, null, _generator.EmittableOperandProvider))
           .Return (_moduleBuilderMock);
-      _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
+      _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0)).IgnoreArguments();
 
       Assert.That (_generator.EmittableOperandProvider, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator>());
-      _generator.DefineType ("SomeType", 0, ReflectionObjectMother.GetSomeType());
+      _generator.DefineType ("SomeType", 0);
 
       _configurationProviderMock.VerifyAllExpectations();
     }
@@ -199,9 +199,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderFactoryMock
           .Stub (stub => stub.CreateModuleBuilder (_generator.AssemblyName, _generator.AssemblyDirectory, false, null, _generator.EmittableOperandProvider))
           .Return (_moduleBuilderMock);
-      _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments();
+      _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0)).IgnoreArguments();
 
-      _generator.DefineType ("SomeType", 0, ReflectionObjectMother.GetSomeType());
+      _generator.DefineType ("SomeType", 0);
     }
   }
 }

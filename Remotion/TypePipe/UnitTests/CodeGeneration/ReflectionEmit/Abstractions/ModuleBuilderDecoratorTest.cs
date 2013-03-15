@@ -44,27 +44,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [Test]
-    // TODO 5473 remove
-    public void DefineType2 ()
-    {
-      var name = "method";
-      var attributes = (TypeAttributes) 7;
-      var baseType = ReflectionObjectMother.GetSomeType();
-
-      var emittableBaseType = ReflectionObjectMother.GetSomeOtherType();
-      var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
-      _operandProvider.Expect (mock => mock.GetEmittableType (baseType)).Return (emittableBaseType);
-      _innerMock.Expect (mock => mock.DefineType (name, attributes, emittableBaseType)).Return (fakeTypeBuilder);
-
-      var result = _decorator.DefineType (name, attributes, baseType);
-
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
-      Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_typeBuilder"), Is.SameAs (fakeTypeBuilder));
-    }
-
-    [Test]
     public void DefineType ()
     {
       var name = "method";
