@@ -39,8 +39,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Return type may be null.
-      // Parameters may be null.
+      returnType = returnType ?? typeof (void);
+      parameters = parameters ?? ParameterDeclaration.None;
 
       var abstractAttributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
       return mutableType.AddMethod (name, abstractAttributes, returnType, parameters, bodyProvider: null);

@@ -89,13 +89,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       CheckThrowsForInvalidBaseType (typeof (string));
       CheckThrowsForInvalidBaseType (typeof (int));
+      CheckThrowsForInvalidBaseType (typeof (IDisposable));
       CheckThrowsForInvalidBaseType (typeof (ExpressionType));
       CheckThrowsForInvalidBaseType (typeof (Delegate));
       CheckThrowsForInvalidBaseType (typeof (MulticastDelegate));
       CheckThrowsForInvalidBaseType (typeof (List<>));
-      CheckThrowsForInvalidBaseType (typeof (List<>).GetGenericArguments ().Single ());
-      CheckThrowsForInvalidBaseType (typeof (int).MakeArrayType ());
-      CheckThrowsForInvalidBaseType (typeof (int).MakeByRefType ());
+      CheckThrowsForInvalidBaseType (typeof (List<>).GetGenericArguments().Single());
+      CheckThrowsForInvalidBaseType (typeof (int).MakeArrayType());
+      CheckThrowsForInvalidBaseType (typeof (int).MakeByRefType());
       CheckThrowsForInvalidBaseType (typeof (int).MakePointerType());
       CheckThrowsForInvalidBaseType (typeof (TypeWithoutAccessibleConstructor));
 
