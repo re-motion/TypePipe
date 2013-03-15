@@ -39,10 +39,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Name space may be null.
       // Base type may be null (for interfaces).
 
+      var isClass = attributes.IsSet (TypeAttributes.ClassSemanticsMask, TypeAttributes.Class);
+      if (isClass && baseType == null)
+        throw new ArgumentNullException ("baseType");
+      if (!isClass && baseType != null)
+        throw new ArgumentException ("Interfaces cannot have a base type.", "baseType");
+
       // TODO 5471: argument checks (for example):
-      // base type not null, but can be null if interface
       // attributes and base type must be correct.
       // TODO (maybe): check that baseType.IsVisible
+
       if (CanNotBeSubclassed (baseType))
       {
         throw new ArgumentException (

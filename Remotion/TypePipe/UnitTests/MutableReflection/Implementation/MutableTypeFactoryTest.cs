@@ -62,6 +62,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Value cannot be null.\r\nParameter name: baseType")]
+    public void CreateType_Class_BaseTypeCannotBeNull ()
+    {
+      _factory.CreateType ("t", "ns", TypeAttributes.Class, baseType: null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Interfaces cannot have a base type.\r\nParameter name: baseType")]
+    public void CreateType_Interface_BaseTypeMustBeNull ()
+    {
+      _factory.CreateType ("i", "ns", TypeAttributes.Interface, baseType: ReflectionObjectMother.GetSomeSubclassableType());
+    }
+
+    [Test]
     public void CreateType_ThrowsIfClassAndBaseTypeCannotBeSubclassed ()
     {
       CheckThrowsForInvalidBaseType (typeof (string));
