@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -22,55 +21,34 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Generates types for the classes in the specified <see cref="TypeContext"/> by creating a list of <see cref="IMutableTypeCodeGenerator"/>
-  /// and calling their staged Define***- interleaved and in the correct order.
-  /// This is necessary to allow the generation of types and method bodies which reference each other.
+  /// Serves as a factory for instances of <see cref="IMutableTypeCodeGenerator"/>.
   /// </summary>
-  public class TypeContextCodeGenerator : ITypeContextCodeGenerator
+  public class MutableTypeCodeGeneratorFactory : IMutableTypeCodeGeneratorFactory
   {
-    private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IMemberEmitterFactory _memberEmitterFactory;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
-    [CLSCompliant (false)]
-    public TypeContextCodeGenerator (
-        IReflectionEmitCodeGenerator codeGenerator,
-        IMemberEmitterFactory memberEmitterFactory,
-        IInitializationBuilder initializationBuilder,
-        IProxySerializationEnabler proxySerializationEnabler)
+    public MutableTypeCodeGeneratorFactory (
+        IMemberEmitterFactory memberEmitterFactory, IInitializationBuilder initializationBuilder, IProxySerializationEnabler proxySerializationEnabler)
     {
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
       ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
-      _codeGenerator = codeGenerator;
       _memberEmitterFactory = memberEmitterFactory;
       _initializationBuilder = initializationBuilder;
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
-    public ICodeGenerator CodeGenerator
+    [CLSCompliant (false)]
+    public IMutableTypeCodeGenerator Create (MutableType mutableType, IReflectionEmitCodeGenerator codeGenerator)
     {
-      get { return _codeGenerator; }
-    }
+      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
-    public Type GenerateProxy (TypeContext typeContext)
-    {
-      ArgumentUtility.CheckNotNull ("typeContext", typeContext);
-
-      var me = _memberEmitterFactory.CreateMemberEmitter (_codeGenerator.EmittableOperandProvider);
-
-      //MutableType mt = ...
-      //var x = _mutableTypeCodeGeneratorFactory.CreateXXX (mt, _codeGenerator);
-
-      
-      var x = new MutableTypeCodeGenerator (typeContext.ProxyType, _codeGenerator, me, _initializationBuilder, _proxySerializationEnabler);
-
-      x.DefineType();
-      x.DefineTypeFacet();
-      return x.CreateType();
+      var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (codeGenerator.EmittableOperandProvider);
+      return new MutableTypeCodeGenerator (mutableType, codeGenerator, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
     }
   }
 }

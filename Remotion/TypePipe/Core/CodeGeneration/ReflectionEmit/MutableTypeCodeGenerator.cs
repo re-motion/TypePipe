@@ -62,6 +62,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void DefineType ()
     {
+      // TODO 5472: in correct state?
+
       var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
       var debugInfoGeneratorOrNull = _codeGenerator.DebugInfoGenerator;
 
@@ -73,6 +75,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void DefineTypeFacet ()
     {
+      // TODO 5472: in correct state?
+
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
 
@@ -102,6 +106,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type CreateType ()
     {
+      // TODO 5472: in correct state?
+
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();

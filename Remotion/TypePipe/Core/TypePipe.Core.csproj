@@ -84,6 +84,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\ICodeGenerationExpressionVisitor.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnaryExpressionBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpression.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IMutableTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMutableTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\NullExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
