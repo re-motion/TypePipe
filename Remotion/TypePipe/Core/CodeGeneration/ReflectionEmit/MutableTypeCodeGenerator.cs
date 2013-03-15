@@ -34,29 +34,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly MutableType _mutableType;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IMemberEmitter _memberEmitter;
-    private readonly IMemberEmitterFactory _memberEmitterFactory;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     private CodeGenerationContext _context;
-
-    [CLSCompliant (false)]
-    public MutableTypeCodeGenerator (
-        IReflectionEmitCodeGenerator codeGenerator,
-        IMemberEmitterFactory memberEmitterFactory,
-        IInitializationBuilder initializationBuilder,
-        IProxySerializationEnabler proxySerializationEnabler)
-    {
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
-      ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
-      ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
-      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
-
-      _codeGenerator = codeGenerator;
-      _memberEmitterFactory = memberEmitterFactory;
-      _initializationBuilder = initializationBuilder;
-      _proxySerializationEnabler = proxySerializationEnabler;
-    }
 
     [CLSCompliant (false)]
     public MutableTypeCodeGenerator (
@@ -124,50 +105,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();
-    }
-
-    public Type GenerateProxy (TypeContext typeContext)
-    {
-      ArgumentUtility.CheckNotNull ("typeContext", typeContext);
-      var proxyType = typeContext.ProxyType;
-
-      var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
-      var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (emittableOperandProvider);
-
-      var typeBuilder = _codeGenerator.DefineType (proxyType.FullName, proxyType.Attributes, proxyType.BaseType);
-      typeBuilder.RegisterWith (emittableOperandProvider, proxyType);
-
-      var context = new CodeGenerationContext (proxyType, typeBuilder, _codeGenerator.DebugInfoGenerator, emittableOperandProvider);
-
-      if (proxyType.MutableTypeInitializer != null)
-        memberEmitter.AddConstructor (context, proxyType.MutableTypeInitializer);
-
-      var initializationMembers = _initializationBuilder.CreateInitializationMembers (proxyType);
-      var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
-
-      _proxySerializationEnabler.MakeSerializable (proxyType, initializationMethod);
-
-      foreach (var customAttribute in proxyType.AddedCustomAttributes)
-        typeBuilder.SetCustomAttribute (customAttribute);
-
-      foreach (var ifc in proxyType.AddedInterfaces)
-        typeBuilder.AddInterfaceImplementation (ifc);
-
-      foreach (var field in proxyType.AddedFields)
-        memberEmitter.AddField (context, field);
-      foreach (var ctor in proxyType.AddedConstructors)
-        WireAndAddConstructor (memberEmitter, context, ctor, initializationMembers);
-      foreach (var method in proxyType.AddedMethods)
-        memberEmitter.AddMethod (context, method);
-      // Note that accessor methods must be added before their associated properties and events.
-      foreach (var property in proxyType.AddedProperties)
-        memberEmitter.AddProperty (context, property);
-      foreach (var evt in proxyType.AddedEvents)
-        memberEmitter.AddEvent (context, evt);
-
-      context.PostDeclarationsActionManager.ExecuteAllActions();
-
-      return typeBuilder.CreateType();
     }
 
     private void WireAndAddConstructor (

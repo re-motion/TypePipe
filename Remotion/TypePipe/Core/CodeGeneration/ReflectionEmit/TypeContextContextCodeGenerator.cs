@@ -16,8 +16,6 @@
 // 
 
 using System;
-using System.Reflection;
-using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -62,9 +60,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
-      var x = new MutableTypeCodeGenerator (_codeGenerator, _memberEmitterFactory, _initializationBuilder, _proxySerializationEnabler);
+      var me = _memberEmitterFactory.CreateMemberEmitter (_codeGenerator.EmittableOperandProvider);
 
-      return x.GenerateProxy (typeContext);
+      var x = new MutableTypeCodeGenerator (typeContext.ProxyType, _codeGenerator, me, _initializationBuilder, _proxySerializationEnabler);
+
+      x.DefineType();
+      x.DefineTypeFacet();
+      return x.CreateType();
     }
   }
 }

@@ -34,8 +34,5 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     void DefineTypeFacet ();
 
     Type CreateType ();
-
-
-    Type GenerateProxy (TypeContext typeContext);
   }
 }
