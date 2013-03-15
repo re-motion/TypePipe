@@ -44,7 +44,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [Test]
-    public void DefineType ()
+    // TODO 5473 remove
+    public void DefineType2 ()
     {
       var name = "method";
       var attributes = (TypeAttributes) 7;
@@ -58,6 +59,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var result = _decorator.DefineType (name, attributes, baseType);
 
       _operandProvider.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
+      Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
+      Assert.That (PrivateInvoke.GetNonPublicField (result, "_typeBuilder"), Is.SameAs (fakeTypeBuilder));
+    }
+
+    [Test]
+    public void DefineType ()
+    {
+      var name = "method";
+      var attributes = (TypeAttributes) 7;
+      var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
+      _innerMock.Expect (mock => mock.DefineType (name, attributes)).Return (fakeTypeBuilder);
+
+      var result = _decorator.DefineType (name, attributes);
+
       _innerMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_typeBuilder"), Is.SameAs (fakeTypeBuilder));

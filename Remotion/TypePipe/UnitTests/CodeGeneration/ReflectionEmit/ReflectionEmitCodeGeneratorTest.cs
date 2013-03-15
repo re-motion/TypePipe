@@ -152,8 +152,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var name = "DomainType";
       var attributes = (TypeAttributes) 7;
-      var type = ReflectionObjectMother.GetSomeType();
-      var otherType = ReflectionObjectMother.GetSomeOtherType();
       var forceStrongNaming = BooleanObjectMother.GetRandomBoolean();
       var keyFilePath = "key file path";
 
@@ -165,11 +163,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var fakeTypeBuilder1 = MockRepository.GenerateStub<ITypeBuilder>();
       var fakeTypeBuilder2 = MockRepository.GenerateStub<ITypeBuilder>();
-      _moduleBuilderMock.Expect (mock => mock.DefineType (name, attributes, type)).Return (fakeTypeBuilder1);
-      _moduleBuilderMock.Expect (mock => mock.DefineType ("OtherType", 0, otherType)).Return (fakeTypeBuilder2);
+      _moduleBuilderMock.Expect (mock => mock.DefineType (name, attributes)).Return (fakeTypeBuilder1);
+      _moduleBuilderMock.Expect (mock => mock.DefineType ("OtherType", 0)).Return (fakeTypeBuilder2);
 
-      var result1 = _generator.DefineType (name, attributes, type);
-      var result2 = _generator.DefineType ("OtherType", 0, otherType);
+      var result1 = _generator.DefineType (name, attributes);
+      var result2 = _generator.DefineType ("OtherType", 0);
 
       _moduleBuilderFactoryMock.VerifyAllExpectations();
       _moduleBuilderMock.VerifyAllExpectations();

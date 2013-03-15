@@ -59,6 +59,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       return new TypeBuilderDecorator (typeBuilder, _emittableOperandProvider);
     }
 
+    [CLSCompliant (false)]
+    public ITypeBuilder DefineType (string name, TypeAttributes attr)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var typeBuilder = _moduleBuilder.DefineType (name, attr);
+      return new TypeBuilderDecorator (typeBuilder, _emittableOperandProvider);
+    }
+
     public string SaveToDisk ()
     {
       return _moduleBuilder.SaveToDisk();

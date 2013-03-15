@@ -33,6 +33,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     DebugInfoGenerator DebugInfoGenerator { get; }
     IEmittableOperandProvider EmittableOperandProvider { get; }
 
+    // TODO Remove 5473
     ITypeBuilder DefineType (string name, TypeAttributes attributes, Type parent);
+    ITypeBuilder DefineType (string name, TypeAttributes attributes);
   }
 }
