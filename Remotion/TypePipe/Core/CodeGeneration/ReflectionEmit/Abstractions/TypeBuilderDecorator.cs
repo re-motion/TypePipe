@@ -53,6 +53,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _typeBuilder.RegisterWith (emittableOperandProvider, type);
     }
 
+    public void SetParent (Type parent)
+    {
+      ArgumentUtility.CheckNotNull ("parent", parent);
+
+      var emittableParent = EmittableOperandProvider.GetEmittableType (parent);
+      _typeBuilder.SetParent (emittableParent);
+    }
+
     public void AddInterfaceImplementation (Type interfaceType)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);

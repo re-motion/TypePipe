@@ -29,7 +29,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   {
     void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type);
 
+    void SetParent (Type parent);
     void AddInterfaceImplementation (Type interfaceType);
+
     IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
     IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
     IMethodBuilder DefineMethod (string name, MethodAttributes attributes);

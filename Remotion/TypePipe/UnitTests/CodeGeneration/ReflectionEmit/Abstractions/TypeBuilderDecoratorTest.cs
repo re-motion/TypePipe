@@ -45,6 +45,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [Test]
+    public void SetParent ()
+    {
+      var baseType = ReflectionObjectMother.GetSomeSubclassableType();
+
+      var emittableType = ReflectionObjectMother.GetSomeOtherType();
+      _operandProvider.Expect (mock => mock.GetEmittableType (baseType)).Return (emittableType);
+      _innerMock.Expect (mock => mock.SetParent (emittableType));
+
+      _decorator.SetParent (baseType);
+
+      _operandProvider.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void AddInterfaceImplementation ()
     {
       var interfaceType = ReflectionObjectMother.GetSomeInterfaceType();
