@@ -261,7 +261,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       //   else
       //     return Method2 (i);
       // }
-      // public static int Method2 (int i) {
+      // private static int Method2 (int i) {
       //   return Method1 (i - 1);
       // }
       var type = AssembleType<DomainType> (

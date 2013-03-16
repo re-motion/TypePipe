@@ -25,10 +25,10 @@ using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  [Ignore("TODO 5475")]
   [TestFixture]
   public class GenerateAdditionalTypesTest : TypeAssemblerIntegrationTestBase
   {
+    [Ignore ("TODO 5475")]
     [Test]
     public void ProxyImplementsGeneratedInterface ()
     {
@@ -53,6 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo ("new interface implemented"));
     }
 
+    [Ignore ("TODO 5475")]
     [Test]
     public void ProxyIsBaseTypeOfNewClass ()
     {
@@ -79,26 +80,24 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void TypesRequiringForwardDeclarations ()
     {
-      // public class Proxy {
+      // public class Proxy : DomainType {
       //   public int Method1 (NewClass x, int i) {
       //     if (i <= 0)
       //       return i;
       //     else
-      //       return x.Method2 (i);
+      //       return x.Method2 (this, i);
       //   }
       // }
       // public class NewClass {
       //   public int Method2 (Proxy x, int i) {
-      //     return x.Method1 (i - 1);
+      //     return x.Method1 (this, i - 1);
       //   }
       // }
-      string newClassName = null;
       var type = AssembleType<DomainType> (
           typeContext =>
           {
             var proxyType = typeContext.ProxyType;
             var newClass = typeContext.CreateType ("NewClass", null, TypeAttributes.Public | TypeAttributes.Class, typeof (object));
-            newClassName = newClass.FullName;
 
             var method1 = proxyType.AddAbstractMethod (
                 "Method1",
@@ -107,20 +106,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 new[] { new ParameterDeclaration (newClass, "x"), new ParameterDeclaration (typeof (int), "i") });
             var method2 = newClass.AddMethod (
                 "Method2",
-                MethodAttributes.Private | MethodAttributes.Static,
+                MethodAttributes.Public,
                 typeof (int),
                 new[] { new ParameterDeclaration (proxyType, "x"), new ParameterDeclaration (typeof (int), "i") },
-                ctx => Expression.Call (ctx.Parameters[0], method1, Expression.Decrement (ctx.Parameters[1])));
+                ctx => Expression.Call (ctx.Parameters[0], method1, ctx.This, Expression.Decrement (ctx.Parameters[1])));
 
             method1.SetBody (
                 ctx => Expression.Condition (
                     Expression.LessThanOrEqual (ctx.Parameters[1], Expression.Constant (0)),
                     ctx.Parameters[1],
-                    Expression.Call (ctx.Parameters[0], method2, ctx.Parameters[1])));
+                    Expression.Call (ctx.Parameters[0], method2, ctx.This, ctx.Parameters[1])));
           });
 
       var method = type.GetMethod ("Method1");
-      var newClassType = type.Assembly.GetType (newClassName, throwOnError: true);
+      var newClassType = type.Assembly.GetType ("NewClass", throwOnError: true);
       var proxyInstance = Activator.CreateInstance (type);
       var newClassInstance = Activator.CreateInstance (newClassType);
 
