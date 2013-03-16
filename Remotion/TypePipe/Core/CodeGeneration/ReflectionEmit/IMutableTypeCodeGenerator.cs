@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// The staged process is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
   /// <remarks>
-  /// Note that the methods must be called in the order.
+  /// Note that the methods must be called in the following order.
   /// <list type="number">
   ///   <item><see cref="DeclareType"/></item>
   ///   <item><see cref="DefineTypeFacet"/></item>

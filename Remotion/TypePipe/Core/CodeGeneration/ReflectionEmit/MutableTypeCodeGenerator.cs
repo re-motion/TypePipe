@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Implements <see cref="IMutableTypeCodeGenerator"/> using <see cref="ITypeBuilder"/> and related interfaces.
-  /// Implements forward declarations of types and method and constructor bodies by deferring code emission.
+  /// Implements forward declarations of types and method/constructor bodies by deferring code emission.
   /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
   public class MutableTypeCodeGenerator : IMutableTypeCodeGenerator
