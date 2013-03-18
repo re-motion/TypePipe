@@ -79,64 +79,48 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetCustomAttributes_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DomainType);
-      var proxyType = MutableTypeObjectMother.Create (type);
-      CheckAttributeInheritance (proxyType, type);
+      var mutableType = MutableTypeObjectMother.Create (type);
+      CheckAttributeInheritance (mutableType, type);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
-      var mutableMethod = proxyType.GetOrAddOverride (method);
+      var mutableMethod = mutableType.GetOrAddOverride (method);
       CheckAttributeInheritance (mutableMethod, method);
 
-      // TODO 4791
-      //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.OverriddenProperty);
-      //var mutableProperty = MutableType.AllMutableProperties.Single();
-      //CheckAttributes (mutableProperty, property);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+      var mutableGetMethod = mutableType.GetOrAddOverride (property.GetGetMethod ());
+      var mutableSetMethod = mutableType.GetOrAddOverride (property.GetSetMethod ());
+      var mutableProperty = mutableType.AddProperty (property.Name, property.Attributes, mutableGetMethod, mutableSetMethod);
+      CheckAttributeInheritance (mutableProperty, property);
 
-      // TODO 4791
-      //var getter = property.GetGetMethod();
-      //var mutableGetter = mutableProperty.GetGetMethod();
-      //CheckAttributes (mutableGetter, getter);
-
-      // TODO 4791
-      //var setter = property.GetSetMethod();
-      //var mutableSetter = mutableProperty.GetSetMethod();
-      //CheckAttributes (mutableSetter, setter);
-
-      // TODO 4791
-      //var @event = type.GetEvents().Single();
-      //var mutableEvent = MutableType.AllMutableEvents().Single();
-      //CheckAttributes (mutableEvent, @event);
-
-      // TODO 4791
-      //var eventAdder = @event.GetAddMethod();
-      //var mutableEventAdder = ...
-      //CheckAttributes (mutableEventAdder, @eventAdder);
-
-      // TODO 4791
-      //var eventsetter = @event.GetAddMethod();
-      //var mutableEventsetter = ...
-      //CheckAttributes (mutableEventsetter, @eventsetter);
+      var event_ = typeof (DomainType).GetEvent ("Event");
+      var mutableAddMethod = mutableType.GetOrAddOverride (event_.GetAddMethod ());
+      var mutableRemoveMethod = mutableType.GetOrAddOverride (event_.GetRemoveMethod ());
+      var mutableEvent = mutableType.AddEvent (event_.Name, event_.Attributes, mutableAddMethod, mutableRemoveMethod);
+      CheckAttributeInheritance (mutableEvent, event_);
     }
 
     [Test]
     public void GetCustomAttributes_Inheritance_AllowMultiple_BehavesLikeReflection ()
     {
       var type = typeof (DomainType);
-      var proxyType = MutableTypeObjectMother.Create (type);
-      CheckAttributeInheritanceAllowMultiple (proxyType);
+      var mutableType = MutableTypeObjectMother.Create (type);
+      CheckAttributeInheritanceAllowMultiple (mutableType);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.AllowMultipleMethod());
-      var mutableMethod = proxyType.GetOrAddOverride (method);
+      var mutableMethod = mutableType.GetOrAddOverride (method);
       CheckAttributeInheritanceAllowMultiple (mutableMethod);
 
-      // TODO 4791
-      //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.AllowMultipleProperty);
-      //var mutableProperty = MutableType.GetMutableProperty(property);
-      //CheckAttributes (mutableEvent, @event);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.AllowMultipleProperty);
+      var mutableGetMethod = mutableType.GetOrAddOverride (property.GetGetMethod ());
+      var mutableSetMethod = mutableType.GetOrAddOverride (property.GetSetMethod ());
+      var mutableProperty = mutableType.AddProperty (property.Name, property.Attributes, mutableGetMethod, mutableSetMethod);
+      CheckAttributeInheritanceAllowMultiple (mutableProperty);
 
-      // TODO 4791
-      //var @event = type.GetEvents().Single ...
-      //var mutableEvent = MutableType.AllMutableEvents().Single();
-      //CheckAttributes (mutableEvent, @event);
+      var event_ = typeof (DomainType).GetEvent ("AllowMultipleEvent");
+      var mutableAddMethod = mutableType.GetOrAddOverride (event_.GetAddMethod ());
+      var mutableRemoveMethod = mutableType.GetOrAddOverride (event_.GetRemoveMethod ());
+      var mutableEvent = mutableType.AddEvent (event_.Name, event_.Attributes, mutableAddMethod, mutableRemoveMethod);
+      CheckAttributeInheritanceAllowMultiple (mutableEvent);
     }
 
     [Test]
@@ -168,23 +152,24 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void IsDefined_Inheritance_BehavesLikeReflection ()
     {
       var type = typeof (DomainType);
-      var proxyType = MutableTypeObjectMother.Create (type);
-      CheckIsDefinedInheritance (proxyType);
+      var mutableType = MutableTypeObjectMother.Create (type);
+      CheckIsDefinedInheritance (mutableType);
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
-      var mutableMethod = proxyType.GetOrAddOverride (method);
+      var mutableMethod = mutableType.GetOrAddOverride (method);
       CheckIsDefinedInheritance (mutableMethod);
 
-      // TODO Review: Uncomment
-      // TODO 4791
-      //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.Property);
-      //var mutableProperty = MutableType.GetMutableProperty(property);
-      //CheckIsDefinedInheritance (mutableEvent, @event);
+      var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
+      var mutableGetMethod = mutableType.GetOrAddOverride(property.GetGetMethod());
+      var mutableSetMethod = mutableType.GetOrAddOverride(property.GetSetMethod());
+      var mutableProperty = mutableType.AddProperty (property.Name, property.Attributes, mutableGetMethod, mutableSetMethod);
+      CheckIsDefinedInheritance (mutableProperty);
 
-      // TODO 4791
-      //var @event = type.GetEvents().Single ...
-      //var mutableEvent = MutableType.AllMutableEvents().Single();
-      //CheckIsDefinedInheritance (mutableEvent, @event);
+      var event_ = typeof (DomainType).GetEvent ("Event");
+      var mutableAddMethod = mutableType.GetOrAddOverride (event_.GetAddMethod());
+      var mutableRemoveMethod = mutableType.GetOrAddOverride (event_.GetRemoveMethod());
+      var mutableEvent = mutableType.AddEvent (event_.Name, event_.Attributes, mutableAddMethod, mutableRemoveMethod);
+      CheckIsDefinedInheritance (mutableEvent);
     }
 
     private CustomAttributeDeclaration CreateAttribute<T> (object[] ctorArgs, params NamedArgumentDeclaration[] namedArguments)
