@@ -39,7 +39,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             declaringType,
             ArgumentUtility.CheckNotNull ("method", method).Name,
             method.Attributes,
-            method.IsGenericMethod,
             method.IsGenericMethod ? method.GetGenericMethodDefinition() : null,
             method.GetGenericArguments())
       // TODO 5450: also wrap generic parameter constraints.

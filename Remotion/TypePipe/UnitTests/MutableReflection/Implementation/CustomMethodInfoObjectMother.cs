@@ -34,7 +34,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<ParameterInfo> parameters = null,
         MethodInfo baseDefinition = null,
         IEnumerable<ICustomAttributeData> customAttributes = null,
-        bool isGenericMethod = false,
         MethodInfo genericMethodDefintion = null,
         IEnumerable<Type> typeArguments = null)
     {
@@ -45,9 +44,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       customAttributes = customAttributes ?? new ICustomAttributeData[0];
       // Generic method definition stays null.
       var typeArgs = (typeArguments ?? Type.EmptyTypes).ToList ();
-      isGenericMethod = isGenericMethod || genericMethodDefintion != null || typeArgs.Count > 0;
 
-      return new TestableCustomMethodInfo (declaringType, name, attributes, isGenericMethod, genericMethodDefintion, typeArgs)
+      return new TestableCustomMethodInfo (declaringType, name, attributes, genericMethodDefintion, typeArgs)
              {
                  ReturnParameter_ = returnParameter,
                  Parameters = parameters.ToArray(),

@@ -69,8 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
       var genericMethodDefinition = ReflectionObjectMother.GetSomeGenericMethodDefinition();
-      var method = CustomMethodInfoObjectMother.Create (
-          _declaringType, isGenericMethod: true, genericMethodDefintion: genericMethodDefinition, typeArguments: typeArguments);
+      var method = CustomMethodInfoObjectMother.Create (_declaringType, genericMethodDefintion: genericMethodDefinition, typeArguments: typeArguments);
       Assert.That (method.IsGenericMethodDefinition, Is.False);
 
       var instantiation = new MethodOnTypeInstantiation (_declaringType, method);
@@ -85,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_FromGenericMethodDefinition ()
     {
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
-      var method = CustomMethodInfoObjectMother.Create (_declaringType, isGenericMethod: true, typeArguments: typeArguments);
+      var method = CustomMethodInfoObjectMother.Create (_declaringType, typeArguments: typeArguments);
       Assert.That (method.IsGenericMethodDefinition, Is.True);
 
       var instantiation = new MethodOnTypeInstantiation (_declaringType, method);

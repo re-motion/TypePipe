@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _attributes = (MethodAttributes) 7;
       _returnParameter = CustomParameterInfoObjectMother.Create();
 
-      _customMethod = new TestableCustomMethodInfo (_declaringType, _name, _attributes, false, null, Type.EmptyTypes)
+      _customMethod = new TestableCustomMethodInfo (_declaringType, _name, _attributes, null, Type.EmptyTypes)
                 {
                     ReturnParameter_ = _returnParameter
                 };
@@ -59,10 +59,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _typeArgument = ReflectionObjectMother.GetSomeType();
       _genericMethodUnderlyingDefinition = ReflectionObjectMother.GetSomeGenericMethodDefinition();
       _genericMethod = CustomMethodInfoObjectMother.Create (
-          isGenericMethod: true, genericMethodDefintion: _genericMethodUnderlyingDefinition, typeArguments: new[] { _typeArgument });
+          genericMethodDefintion: _genericMethodUnderlyingDefinition, typeArguments: new[] { _typeArgument });
 
       _typeParameter = ReflectionObjectMother.GetSomeGenericParameter();
-      _genericMethodDefinition = CustomMethodInfoObjectMother.Create (isGenericMethod: true, typeArguments: new[] { _typeParameter });
+      _genericMethodDefinition = CustomMethodInfoObjectMother.Create (typeArguments: new[] { _typeParameter });
     }
 
     [Test]

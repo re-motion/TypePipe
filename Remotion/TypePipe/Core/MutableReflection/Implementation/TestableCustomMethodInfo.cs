@@ -27,10 +27,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         CustomType declaringType,
         string name,
         MethodAttributes attributes,
-        bool isGenericMethod,
         MethodInfo genericMethodDefinition,
         IEnumerable<Type> typeArguments)
-        : base (declaringType, name, attributes, isGenericMethod, genericMethodDefinition, typeArguments)
+        : base (declaringType, name, attributes, genericMethodDefinition, typeArguments)
     {
     }
 

@@ -37,7 +37,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly Type _declaringType;
     private readonly string _name;
     private readonly MethodAttributes _attributes;
-    private readonly bool _isGenericMethod;
     private readonly MethodInfo _genericMethodDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
 
@@ -45,7 +44,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type declaringType,
         string name,
         MethodAttributes attributes,
-        bool isGenericMethod,
         MethodInfo genericMethodDefinition,
         IEnumerable<Type> typeArguments)
     {
@@ -57,12 +55,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _declaringType = declaringType;
       _name = name;
       _attributes = attributes;
-      _isGenericMethod = isGenericMethod;
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
-
-      Assertion.IsTrue ((isGenericMethod && _typeArguments.Count > 0) || (!isGenericMethod && _typeArguments.Count == 0));
-      Assertion.IsTrue ((genericMethodDefinition != null && isGenericMethod) || (genericMethodDefinition == null));
+      Assertion.IsTrue (genericMethodDefinition == null || genericMethodDefinition.GetGenericArguments().Length == _typeArguments.Count);
     }
 
     public abstract override ParameterInfo ReturnParameter { get; }
@@ -104,12 +99,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override bool IsGenericMethod
     {
-      get { return _isGenericMethod; }
+      get { return _typeArguments.Count > 0; }
     }
 
     public override bool IsGenericMethodDefinition
     {
-      get { return _isGenericMethod && _genericMethodDefinition == null; }
+      get { return IsGenericMethod && _genericMethodDefinition == null; }
     }
 
     public override bool ContainsGenericParameters
@@ -119,7 +114,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo GetGenericMethodDefinition ()
     {
-      if (!_isGenericMethod)
+      if (!IsGenericMethod)
         throw new InvalidOperationException ("GetGenericMethodDefinition can only be called on generic methods (IsGenericMethod must be true).");
 
       return _genericMethodDefinition ?? this;

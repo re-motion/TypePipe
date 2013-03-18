@@ -42,7 +42,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericMethodDefinition.DeclaringType,
             instantiationInfo.GenericMethodDefinition.Name,
             instantiationInfo.GenericMethodDefinition.Attributes,
-            true,
             instantiationInfo.GenericMethodDefinition,
             instantiationInfo.TypeArguments)
     {

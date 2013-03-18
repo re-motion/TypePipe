@@ -42,8 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       _typeParameter = MutableGenericParameterObjectMother.Create();
       _parameter = CustomParameterInfoObjectMother.Create();
-      _genericMethodDefinition = CustomMethodInfoObjectMother.Create (
-          parameters: new[] { _parameter }, isGenericMethod: true, typeArguments: new[] { _typeParameter });
+      _genericMethodDefinition = CustomMethodInfoObjectMother.Create (parameters: new[] { _parameter }, typeArguments: new[] { _typeParameter });
       _typeArgument = CustomTypeObjectMother.Create();
 
       var info = new MethodInstantiationInfo (_genericMethodDefinition, new[] { _typeArgument });
@@ -94,9 +93,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetCustomAttributeData ()
     {
-      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
-      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (
-          isGenericMethod: true, typeArguments: new[] { _typeArgument }, customAttributes: customAttributes);
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      var genericMethodDefinition = CustomMethodInfoObjectMother.Create (typeArguments: new[] { _typeArgument }, customAttributes: customAttributes);
       var instantiation = MethodInstantiationObjectMother.Create (genericMethodDefinition);
 
       Assert.That (instantiation.GetCustomAttributeData(), Is.EqualTo (customAttributes));
