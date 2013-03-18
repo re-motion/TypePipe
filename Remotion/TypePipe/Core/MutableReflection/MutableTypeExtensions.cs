@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.MutableReflection
       // Body provider may be null.
 
       var md = methodDeclaration;
-      return mutableType.AddGenericMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
+      return mutableType.AddMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
     }
   }
 }

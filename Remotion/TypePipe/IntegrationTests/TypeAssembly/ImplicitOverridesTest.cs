@@ -164,7 +164,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DerivedType> (
           proxyType =>
           {
-            var mutableMethod = proxyType.AddGenericMethod (
+            var mutableMethod = proxyType.AddMethod (
                 "OverridableGenericMethod",
                 MethodAttributes.Public | MethodAttributes.Virtual,
                 new[] { new GenericParameterDeclaration ("TDerived", GenericParameterAttributes.ReferenceTypeConstraint) },
@@ -201,7 +201,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void OverrideGenericMethod_OverrideWithWeakerConstraints_NoBaseCall ()
     {
       var type = AssembleType<DerivedType> (
-          p => p.AddGenericMethod (
+          p => p.AddMethod (
               "OverridableGenericMethod",
               MethodAttributes.Public | MethodAttributes.Virtual,
               new[] { new GenericParameterDeclaration ("TDerived") },

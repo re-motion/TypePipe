@@ -232,7 +232,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<B> (
           proxyType =>
           {
-            var mutableMethod = proxyType.AddGenericMethod (
+            var mutableMethod = proxyType.AddMethod (
                 "DifferentName",
                 MethodAttributes.Private | MethodAttributes.Virtual,
                 new[] { new GenericParameterDeclaration ("T") },

@@ -29,8 +29,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// Holds all information required to declare a method signature, that is, the generic parameters, return type and parameters.
   /// </summary>
   /// <remarks><see cref="CreateEquivalent"/> can be used to create methods that have an equal or similiar signature to an existing method.</remarks>
-  /// <seealso cref="MutableType.AddMethod"/>
-  /// <seealso cref="MutableType.AddGenericMethod"/>
+  /// <seealso cref="MutableType.AddMethod(string,System.Reflection.MethodAttributes,System.Type,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.ParameterDeclaration},System.Func{Remotion.TypePipe.MutableReflection.BodyBuilding.MethodBodyCreationContext,Microsoft.Scripting.Ast.Expression})"/>
+  /// <seealso cref="MutableType.AddMethod(string,System.Reflection.MethodAttributes,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.GenericParameterDeclaration},System.Func{Remotion.TypePipe.MutableReflection.GenericParameterContext,System.Type},System.Func{Remotion.TypePipe.MutableReflection.GenericParameterContext,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.ParameterDeclaration}},System.Func{Remotion.TypePipe.MutableReflection.BodyBuilding.MethodBodyCreationContext,Microsoft.Scripting.Ast.Expression})"/>
   public class MethodDeclaration
   {
     public static MethodDeclaration CreateEquivalent (MethodInfo method)

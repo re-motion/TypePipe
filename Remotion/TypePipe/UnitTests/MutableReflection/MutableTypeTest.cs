@@ -262,7 +262,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
               mock.CreateMethod (_mutableType, name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider))
           .Return (fakeMethod);
 
-      var result = _mutableType.AddGenericMethod (name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider);
+      var result = _mutableType.AddMethod (name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider);
 
       _mutableMemberFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeMethod));

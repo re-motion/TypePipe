@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void GenericParameterInSignature_AndLocalVariable ()
     {
       var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
+          p => p.AddMethod (
               "GenericMethod",
               MethodAttributes.Public,
               new[] { new GenericParameterDeclaration ("T", GenericParameterAttributes.NotNullableValueTypeConstraint) },
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void GenericMethodParametersUsedInsideParameters_AndInvokingLambda ()
     {
       var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
+          p => p.AddMethod (
               "GenericMethod",
               MethodAttributes.Public | MethodAttributes.Static,
               new[] { new GenericParameterDeclaration ("TArg"), new GenericParameterDeclaration ("TReturn") },
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var ifcMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName ());
       var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
+          p => p.AddMethod (
               "GenericMethod",
               MethodAttributes.Public,
               new[] { new GenericParameterDeclaration ("T", constraintProvider: ctx => new[] { typeof (IDomainInterface) }) },
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName());
 
       var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
+          p => p.AddMethod (
               "GenericMethod",
               MethodAttributes.Public,
               new[]
@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       // {  return a.CompareTo(b) == 0; }
 
       var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
+          p => p.AddMethod (
               "GenericEquals",
               MethodAttributes.Public,
               new[]

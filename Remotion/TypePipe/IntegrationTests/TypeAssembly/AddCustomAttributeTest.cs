@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var field = proxyType.AddField ("Field", FieldAttributes.Public, typeof (int));
             var constructor = proxyType.AddedConstructors.Single();
             var parameters = new[] { new ParameterDeclaration (typeof (int), "p") };
-            var method = proxyType.AddGenericMethod (
+            var method = proxyType.AddMethod (
                 "Method",
                 MethodAttributes.Public,
                 new[] { new GenericParameterDeclaration ("T1") },

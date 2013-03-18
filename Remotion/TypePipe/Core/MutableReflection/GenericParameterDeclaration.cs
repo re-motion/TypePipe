@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// Holds all information required to declare a generic parameter on a type or method.
   /// </summary>
   /// <remarks>
-  /// This is used by <see cref="MutableType.AddGenericMethod"/> when declaring generic methods.
+  /// This is used by <see cref="MutableType.AddMethod(string,System.Reflection.MethodAttributes,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.GenericParameterDeclaration},System.Func{Remotion.TypePipe.MutableReflection.GenericParameterContext,System.Type},System.Func{Remotion.TypePipe.MutableReflection.GenericParameterContext,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.ParameterDeclaration}},System.Func{Remotion.TypePipe.MutableReflection.BodyBuilding.MethodBodyCreationContext,Microsoft.Scripting.Ast.Expression})"/> when declaring generic methods.
   /// </remarks>
   public class GenericParameterDeclaration
   {

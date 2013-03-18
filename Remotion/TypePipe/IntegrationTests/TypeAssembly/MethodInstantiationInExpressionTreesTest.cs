@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var addedGenericMethod = proxyType.AddGenericMethod (
+            var addedGenericMethod = proxyType.AddMethod (
                 "GenericMethod",
                 MethodAttributes.Public,
                 new[] { new GenericParameterDeclaration ("T") },

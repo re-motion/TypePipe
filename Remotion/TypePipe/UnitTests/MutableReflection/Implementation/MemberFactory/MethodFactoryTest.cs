@@ -313,7 +313,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
           ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t1"), new ParameterDeclaration (ctx.GenericParameters[1], "t2") };
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => Expression.Empty ();
-      var method = _mutableType.AddGenericMethod ("GenericMethod", 0, genericParameters, returnTypeProvider, parameterProvider, bodyProvider);
+      var method = _mutableType.AddMethod ("GenericMethod", 0, genericParameters, returnTypeProvider, parameterProvider, bodyProvider);
 
       Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider1 =
           ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t1") };

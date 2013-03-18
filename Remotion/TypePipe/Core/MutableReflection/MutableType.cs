@@ -241,7 +241,7 @@ namespace Remotion.TypePipe.MutableReflection
       return method;
     }
 
-    public MutableMethodInfo AddGenericMethod (
+    public MutableMethodInfo AddMethod (
         string name,
         MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
