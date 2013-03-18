@@ -229,26 +229,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void AddMethod ()
     {
-      var name = "Method";
-      var attributes = MethodAttributes.Public;
-      var returnType = ReflectionObjectMother.GetSomeType();
-      var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
-      var fakeMethod = MutableMethodInfoObjectMother.Create();
-      _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (_mutableType, name, attributes, returnType, parameters, bodyProvider))
-          .Return (fakeMethod);
-
-      var result = _mutableType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
-
-      _mutableMemberFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeMethod));
-      Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result }));
-    }
-
-    [Test]
-    public void AddGenericMethod ()
-    {
       var name = "GenericMethod";
       var attributes = (MethodAttributes) 7;
       var genericParameterDeclarations = new[] { GenericParameterDeclarationObjectMother.Create() };
@@ -621,7 +601,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           parameters: ParameterDeclaration.None,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null))
+          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null, null))
           .IgnoreArguments()
           .Return (fakeOverride);
       _mutableType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.None, ctx => null);

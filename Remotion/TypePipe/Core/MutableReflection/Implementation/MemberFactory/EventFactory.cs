@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -65,17 +66,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var attributes = accessorAttributes | MethodAttributes.SpecialName;
       var addRemoveParameters = new[] { new ParameterDeclaration (handlerType, "handler") };
 
-      var addMethod = _methodFactory.CreateMethod (declaringType, "add_" + name, attributes, typeof (void), addRemoveParameters, addBodyProvider);
-      var removeMethod = _methodFactory.CreateMethod (
-          declaringType, "remove_" + name, attributes, typeof (void), addRemoveParameters, removeBodyProvider);
+      var addMethod = CreateAccessor (declaringType, "add_" + name, attributes, typeof (void), addRemoveParameters, addBodyProvider);
+      var removeMethod = CreateAccessor (declaringType, "remove_" + name, attributes, typeof (void), addRemoveParameters, removeBodyProvider);
 
       MutableMethodInfo raiseMethod = null;
       if (raiseBodyProvider != null)
       {
         var invokeMethod = GetInvokeMethod (handlerType);
         var raiseParameters = invokeMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
-        raiseMethod = _methodFactory.CreateMethod (
-            declaringType, "raise_" + name, attributes, invokeMethod.ReturnType, raiseParameters, raiseBodyProvider);
+        raiseMethod = CreateAccessor (declaringType, "raise_" + name, attributes, invokeMethod.ReturnType, raiseParameters, raiseBodyProvider);
       }
 
       return new MutableEventInfo (declaringType, name, EventAttributes.None, addMethod, removeMethod, raiseMethod);
@@ -135,11 +134,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return new MutableEventInfo (declaringType, name, attributes, addMethod, removeMethod, raiseMethod);
     }
 
-
     private MethodInfo GetInvokeMethod (Type delegateType)
     {
       Assertion.IsTrue (delegateType.IsSubclassOf (typeof (Delegate)));
       return delegateType.GetMethod ("Invoke", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+    }
+
+    private MutableMethodInfo CreateAccessor (
+        MutableType declaringType,
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
+    {
+      return _methodFactory.CreateMethod (
+          declaringType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
     }
   }
 }

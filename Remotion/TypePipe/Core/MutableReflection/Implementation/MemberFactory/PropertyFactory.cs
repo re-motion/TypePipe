@@ -71,11 +71,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var attributes = accessorAttributes | MethodAttributes.SpecialName;
       MutableMethodInfo getMethod = null, setMethod = null;
       if (getBodyProvider != null)
-        getMethod = _methodFactory.CreateMethod (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
+        getMethod = CreateAccessor (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
       if (setBodyProvider != null)
       {
         var setterParams = indexParams.Concat (new ParameterDeclaration (type, "value"));
-        setMethod = _methodFactory.CreateMethod (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
+        setMethod = CreateAccessor (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
       }
 
       return new MutablePropertyInfo (declaringType, name, PropertyAttributes.None, getMethod, setMethod);
@@ -120,6 +120,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         throw new InvalidOperationException ("Property with equal name and signature already exists.");
 
       return new MutablePropertyInfo (declaringType, name, attributes, getMethod, setMethod);
+    }
+
+    private MutableMethodInfo CreateAccessor (
+        MutableType declaringType,
+        string name,
+        MethodAttributes attributes,
+        Type returnType,
+        IEnumerable<ParameterDeclaration> parameters,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
+    {
+      return _methodFactory.CreateMethod (
+          declaringType, name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
     }
   }
 }

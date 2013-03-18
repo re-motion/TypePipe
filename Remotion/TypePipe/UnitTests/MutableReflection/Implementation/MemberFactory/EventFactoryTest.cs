@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var name = "Event";
       var accessorAttributes = (MethodAttributes) 7;
       var handlerType = typeof (SomeDelegate);
-      var returnType = typeof (string);
+      var handlerReturnType = typeof (string);
       Func<MethodBodyCreationContext, Expression> addBodyProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> raiseBodyProvider = ctx => null;
@@ -77,13 +77,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   Arg.Is (_mutableType),
                   Arg.Is ("add_Event"),
                   Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (typeof (void)),
-                  Arg<IEnumerable<ParameterDeclaration>>.Is.Anything,
+                  Arg.Is (GenericParameterDeclaration.None),
+                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
+                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
                   Arg.Is (addBodyProvider)))
           .WhenCalled (
               mi =>
               {
-                var parameter = mi.Arguments[4].As<IEnumerable<ParameterDeclaration>>().Single();
+                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                Assert.That (returnType, Is.SameAs (typeof (void)));
+
+                var parameter = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).Single();
                 Assert.That (parameter.Type, Is.SameAs (handlerType));
                 Assert.That (parameter.Name, Is.EqualTo ("handler"));
               })
@@ -95,13 +99,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   Arg.Is (_mutableType),
                   Arg.Is ("remove_Event"),
                   Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (typeof (void)),
-                  Arg<IEnumerable<ParameterDeclaration>>.Is.Anything,
+                  Arg.Is (GenericParameterDeclaration.None),
+                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
+                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
                   Arg.Is (removeBodyProvider)))
           .WhenCalled (
               mi =>
               {
-                var parameter = mi.Arguments[4].As<IEnumerable<ParameterDeclaration>>().Single();
+                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                Assert.That (returnType, Is.SameAs (typeof (void)));
+
+                var parameter = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).Single();
                 Assert.That (parameter.Type, Is.SameAs (handlerType));
                 Assert.That (parameter.Name, Is.EqualTo ("handler"));
               })
@@ -113,13 +121,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   Arg.Is (_mutableType),
                   Arg.Is ("raise_Event"),
                   Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (returnType),
-                  Arg<IEnumerable<ParameterDeclaration>>.Is.Anything,
+                  Arg.Is (GenericParameterDeclaration.None),
+                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
+                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
                   Arg.Is (raiseBodyProvider)))
           .WhenCalled (
               mi =>
               {
-                var parameters = mi.Arguments[4].As<IEnumerable<ParameterDeclaration>>().ToList();
+                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                Assert.That (returnType, Is.SameAs (handlerReturnType));
+
+                var parameters = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).ToList();
                 Assert.That (parameters[0].Type, Is.SameAs (typeof (object)));
                 Assert.That (parameters[0].Name, Is.EqualTo ("sender"));
                 Assert.That (parameters[0].Attributes, Is.EqualTo (ParameterAttributes.None));
@@ -148,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
       var addAndRemoveMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
       _methodFactoryMock
-          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null)).IgnoreArguments()
+          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null, null)).IgnoreArguments()
           .WhenCalled (mi => Assert.That (mi.Arguments[1], Is.Not.StringStarting ("raise_")))
           .Return (addAndRemoveMethod);
 

@@ -226,24 +226,6 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableMethodInfo AddMethod (
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameters,
-        Func<MethodBodyCreationContext, Expression> bodyProvider)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      // Body provider may be null (for abstract methods).
-
-      var method = _mutableMemberFactory.CreateMethod (this, name, attributes, returnType, parameters, bodyProvider);
-      _addedMethods.Add (method);
-
-      return method;
-    }
-
-    public MutableMethodInfo AddMethod (
-        string name,
-        MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,

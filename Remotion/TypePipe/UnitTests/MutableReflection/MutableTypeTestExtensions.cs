@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
                          ? (ctx => Expression.Default (ctx.ReturnType))
                          : bodyProvider;
 
-      return mutableType.AddMethod (name, attributes, returnType, parameters, bodyProvider);
+      return MutableTypeExtensions.AddMethod (mutableType, name, attributes, returnType, parameters, bodyProvider);
     }
 
     public static MutablePropertyInfo AddProperty (

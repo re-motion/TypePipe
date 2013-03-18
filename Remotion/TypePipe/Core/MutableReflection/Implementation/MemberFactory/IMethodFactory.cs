@@ -31,14 +31,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         MutableType declaringType,
         string name,
         MethodAttributes attributes,
-        Type returnType,
-        IEnumerable<ParameterDeclaration> parameters,
-        Func<MethodBodyCreationContext, Expression> bodyProvider);
-
-    MutableMethodInfo CreateMethod (
-        MutableType declaringType,
-        string name,
-        MethodAttributes attributes,
         IEnumerable<GenericParameterDeclaration> genericParameters,
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,

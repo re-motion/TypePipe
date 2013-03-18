@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <remarks>
   /// The <see cref="ProxyType"/> represents the proxy type to be generated for the <see cref="RequestedType"/> including the modifications
   /// applied by preceding participants.
-  /// Its mutating members (e.g. <see cref="MutableType.AddMethod(string,System.Reflection.MethodAttributes,System.Type,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.ParameterDeclaration},System.Func{Remotion.TypePipe.MutableReflection.BodyBuilding.MethodBodyCreationContext,Microsoft.Scripting.Ast.Expression})" />) can be used to specify the needed modifications.
+  /// Its mutating members (e.g. <see cref="MutableType.AddMethod"/>) can be used to specify the needed modifications.
   /// </remarks>
   public class TypeContext : IMutableTypeFactory
   {
