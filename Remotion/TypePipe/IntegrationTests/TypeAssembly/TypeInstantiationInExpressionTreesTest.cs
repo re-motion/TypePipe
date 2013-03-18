@@ -92,6 +92,52 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo (2));
     }
 
+    [Ignore ("TODO 5445")]
+    [Test]
+    public void MethodInstantiationOnTypeInstantiation ()
+    {
+      // public Ux Method<Tx, Ux> (Tx key, Ux value, IDictionary<Tx, Ux> dictionary) {
+      //   return GenericType<Tx>.GenericMethod<Ux> (key, value, dictionary);
+      // }
+
+      var type = AssembleType<DomainType> (
+          proxyType => proxyType.AddMethod (
+              "Method",
+              MethodAttributes.Public,
+              new[] { new GenericParameterDeclaration ("Tx"), new GenericParameterDeclaration ("Ux") },
+              ctx => ctx.GenericParameters[1],
+              ctx =>
+              new[]
+              {
+                  new ParameterDeclaration (ctx.GenericParameters[0], "key"),
+                  new ParameterDeclaration (ctx.GenericParameters[1], "value"),
+                  new ParameterDeclaration (typeof (IDictionary<,>).MakeTypePipeGenericType (ctx.GenericParameters.ToArray()), "dictionary")
+              },
+              ctx =>
+              {
+                var typeInstantiation = typeof (GenericType<>).MakeTypePipeGenericType (ctx.GenericParameters[0]);
+                var methodInstantiation = typeInstantiation.GetMethod ("GenericMethod").MakeTypePipeGenericMethod (ctx.GenericParameters[1]);
+
+                return Expression.Call (methodInstantiation, ctx.Parameters.Cast<Expression>());
+              }));
+
+      var method = type.GetMethod ("Method").MakeGenericMethod (typeof (int), typeof (string));
+      var instance = Activator.CreateInstance (type);
+      var dictionary = new Dictionary<int, string>();
+      var result = method.Invoke (instance, new object[] { 7, "test", dictionary });
+
+      Assert.That (result, Is.EqualTo ("test"));
+    }
+
     public class DomainType { }
+
+    public class GenericType<T>
+    {
+      public static U GenericMethod<U> (T key, U value, IDictionary<T, U> dictionary)
+      {
+        dictionary[key] = value;
+        return dictionary[key];
+      }
+    }
   }
 }
