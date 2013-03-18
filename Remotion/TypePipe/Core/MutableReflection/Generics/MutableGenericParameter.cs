@@ -153,8 +153,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
     {
-      // TODO Review: NotSupportedException
-      throw new NotImplementedException();
+      throw new NotSupportedException ("Method GetInterfaceMap is not supported.");
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()
