@@ -59,6 +59,7 @@ namespace Remotion.TypePipe.MutableReflection
             declaringType,
             name,
             attributes,
+            // TODO Review: Check whether the "isGenericMethod" parameter can be removed (by moving this check to CustomMethodInfo). Same with MutableType.
             ArgumentUtility.CheckNotNull ("genericParameters", genericParameters).Count > 0,
             null,
             genericParameters.Cast<Type>())

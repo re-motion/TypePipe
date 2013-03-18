@@ -76,6 +76,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
       // Body provider may be null (for abstract methods).
 
+      // TODO Review: Add task.
       // TODO : virtual and static is an invalid combination
 
       var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
@@ -104,6 +105,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         throw new InvalidOperationException ("Method with equal name and signature already exists.");
 
       var baseMethod = GetBaseMethod (declaringType, name, signature, isVirtual, isNewSlot);
+      // TODO Review: Add task.
       // TODO : if it is an implicit overriddenMethod override, it needs at least the same ore more public visibility
 
       var body = GetMethodBody (declaringType, attributes, bodyProvider, methodItems, baseMethod);

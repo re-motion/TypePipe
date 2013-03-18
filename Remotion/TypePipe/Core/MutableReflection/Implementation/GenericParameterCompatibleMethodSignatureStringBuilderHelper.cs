@@ -29,7 +29,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class GenericParameterCompatibleMethodSignatureStringBuilderHelper : MethodSignatureStringBuilderHelper
   {
-    // TODO Review: This is ambigious when we support generic proxy types?!
+    // TODO Review: This is ambigious when we support generic proxy types. Rename this class to express that it's only for generic methods.
+    // Later, when we add support for generic type definitions, we can adapt this class so that the concrete usage can specify whether a generic 
+    // method or a generic type is defined.
     public override void AppendTypeString (StringBuilder sb, Type type)
     {
       // ReSharper disable ConditionIsAlwaysTrueOrFalse

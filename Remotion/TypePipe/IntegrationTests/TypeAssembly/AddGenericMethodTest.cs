@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class AddGenericMethodTest : TypeAssemblerIntegrationTestBase
   {
+    // TODO Review: Remove constraint and move to one of the constraint tests.
     [Test]
     public void GenericParameterInSignature_AndLocalVariable ()
     {
@@ -43,7 +44,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 var local = Expression.Variable (ctx.GenericParameters[0]);
                 return Expression.Block (
                     new[] { local },
-                    Expression.Assign (local, ctx.Parameters[0]));
+                    Expression.Assign (local, ctx.Parameters[0]),
+                    local);
               }));
 
       var genericMethod = type.GetMethod ("GenericMethod");
@@ -83,8 +85,37 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void Constraints_ReferenceTypes_AndBaseTypeAndInterfaces ()
+    public void Constraints_Interface_CallInterfaceMethod_InstantiatedWithReferenceType_AndWithValueType ()
     {
+      // public string GenericMethod<T> (T t) where T : IDomainInterface
+      // { return t.GetTypeName(); }
+
+      var ifcMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName ());
+      var type = AssembleType<DomainType> (
+          p => p.AddGenericMethod (
+              "GenericMethod",
+              MethodAttributes.Public,
+              new[] { new GenericParameterDeclaration ("T", constraintProvider: ctx => new[] { typeof (IDomainInterface) }) },
+              ctx => typeof (string),
+              ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t") },
+            // TODO Review: Check context properties.
+              ctx => Expression.Call (ctx.Parameters[0], ifcMethod)));
+
+      var genericMethod = type.GetMethod ("GenericMethod");
+      var instance = Activator.CreateInstance (type);
+
+      var instantiation1 = genericMethod.MakeGenericMethod (typeof (DomainType));
+      var instantiation2 = genericMethod.MakeGenericMethod (typeof (DomainValueType));
+
+      Assert.That (instantiation1.Invoke (instance, new object[] { new DomainType () }), Is.EqualTo ("DomainType"));
+      Assert.That (instantiation2.Invoke (instance, new object[] { new DomainValueType () }), Is.EqualTo ("value type"));
+    }
+
+    [Test]
+    public void Constraints_DefaultCtor_AndReferenceType_AndBaseTypeAndInterfaces_AndBaseMethodCall ()
+    {
+      // TODO Review: Call base method instead of interface method (and get it directly from the generic parameter).
+      // TODO Review: Add C# explanation in comment.
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName());
 
       var type = AssembleType<DomainType> (
@@ -100,7 +131,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               },
               ctx => typeof (string),
               ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "arg") },
-              ctx => Expression.Call (Expression.New (ctx.GenericParameters[0]), interfaceMethod)));
+              ctx =>
+              {
+                Assert.That (ctx.GenericParameters[0].BaseType, Is.SameAs (typeof (BaseType)));
+                Assert.That (ctx.GenericParameters[0].GetInterfaces (), Is.EqualTo (new[] { typeof (IDomainInterface) }));
+                Assert.That (
+                    ctx.GenericParameters[0].GetGenericParameterConstraints(),
+                    Is.EquivalentTo (new[] { typeof (BaseType), typeof (IDomainInterface) }));
+                Assert.That (
+                    ctx.GenericParameters[0].GenericParameterAttributes,
+                    Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint | GenericParameterAttributes.ReferenceTypeConstraint));
+                Assert.That (
+                    ctx.GenericParameters[0].GetConstructors(),
+                    Has.Length.EqualTo (1).And.All.Matches<ConstructorInfo> (c => c.GetParameters().Length == 0));
+
+                return Expression.Call (Expression.New (ctx.GenericParameters[0]), interfaceMethod); 
+              }));
 
       var genericMethod = type.GetMethod ("GenericMethod");
       var genericParameter = genericMethod.GetGenericArguments().Single();
@@ -118,10 +164,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void Constraints_ValueTypes_ConstraintContainingGenericMethodParameter ()
+    public void Constraints_RecursiveConstraint ()
     {
       // public bool GenericEquals<T> (T a, T b)
-      //    where T : IComparable<>
+      //    where T : IComparable<T>
       // {  return a.CompareTo(b) == 0; }
 
       var type = AssembleType<DomainType> (
@@ -132,14 +178,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               {
                   new GenericParameterDeclaration (
                       "T",
-                      GenericParameterAttributes.NotNullableValueTypeConstraint,
                       constraintProvider: ctx => new[] { typeof (IComparable<>).MakeTypePipeGenericType (ctx.GenericParameters[0]) })
               },
               ctx => typeof (bool),
               ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "a"), new ParameterDeclaration (ctx.GenericParameters[0], "b") },
               ctx =>
               {
-                var compareMethod = typeof(IComparable<>).MakeTypePipeGenericType(ctx.GenericParameters[0]).GetMethod ("CompareTo");
+                // TODO Review: Check context properties.
+                var compareMethod = typeof (IComparable<>).MakeTypePipeGenericType (ctx.GenericParameters[0]).GetMethod ("CompareTo");
                 return Expression.Equal (Expression.Call (ctx.Parameters[0], compareMethod, ctx.Parameters[1]), Expression.Constant (0));
               }));
 
@@ -148,7 +194,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (genericParameter.IsGenericParameter, Is.True);
       Assert.That (
           genericParameter.GetGenericParameterConstraints(),
-          Is.EquivalentTo (new[] { typeof (ValueType), typeof (IComparable<>).MakeGenericType (genericParameter) }));
+          Is.EquivalentTo (new[] { typeof (object), typeof (IComparable<>).MakeGenericType (genericParameter) }));
       var parameterTypes = genericMethod.GetParameters().Select (p => p.ParameterType).ToList();
       Assert.That (parameterTypes[0], Is.SameAs (parameterTypes[1]).And.SameAs (genericParameter));
 
@@ -159,32 +205,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.Invoke (instance, new object[] { 7, 8 }), Is.False);
     }
 
-    [Test]
-    public void CallMethod_DefinedByInterfaceConstraint ()
-    {
-      // public string GenericMethod<T> (T t) where T : IDomainInterface
-      // { return t.GetTypeName(); }
-
-      var ifcMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface o) => o.GetTypeName());
-      var type = AssembleType<DomainType> (
-          p => p.AddGenericMethod (
-              "GenericMethod",
-              MethodAttributes.Public,
-              new[] { new GenericParameterDeclaration ("T", constraintProvider: ctx => new[] { typeof (IDomainInterface) }) },
-              ctx => typeof (string),
-              ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0], "t") },
-              ctx => Expression.Call (ctx.Parameters[0], ifcMethod)));
-
-      var genericMethod = type.GetMethod ("GenericMethod");
-      var instance = Activator.CreateInstance (type);
-
-      var instantiation1 = genericMethod.MakeGenericMethod (typeof (DomainType));
-      var instantiation2 = genericMethod.MakeGenericMethod (typeof (DomainValueType));
-
-      Assert.That (instantiation1.Invoke (instance, new object[] { new DomainType() }), Is.EqualTo ("DomainType"));
-      Assert.That (instantiation2.Invoke (instance, new object[] { new DomainValueType() }), Is.EqualTo ("value type"));
-    }
-
+    // TODO Review: Add test using MethodDeclaration.
+    
     public interface IDomainInterface
     {
       string GetTypeName ();

@@ -28,8 +28,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class GenericParameterAssignmentTest : TypeAssemblerIntegrationTestBase
   {
+    // TODO Review: Refactor to a single test fixture with multiple test cases for each conversion case (generic param to value type, 
+    // reference type, etc. - with constraints/without constraints (if it makes a difference) - with convert/without convert).
     [Test]
-    public void Assign_LocalVariable ()
+    public void GenericParameterConversions_WithReferenceTypes ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<C, D> (null, null));
       var type = AssembleType<DomainType> (

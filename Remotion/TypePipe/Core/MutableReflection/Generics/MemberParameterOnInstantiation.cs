@@ -27,6 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class MemberParameterOnInstantiation : CustomParameterInfo
   {
+    // TODO Review: Add an integration test with a generic type that has a generic method with custom type instantiations.
     private static Type Substitute (MemberInfo declaringMember, Type parameterType)
     {
       var methodInstantiation = declaringMember as MethodInstantiation;

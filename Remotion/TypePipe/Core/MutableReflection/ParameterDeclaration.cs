@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ParameterAttributes _attributes;
     private readonly ParameterExpression _expression;
 
+    // TODO Review: Make name optional, add an integration test.
     public ParameterDeclaration (Type type, string name, ParameterAttributes attributes = ParameterAttributes.None)
     {
       ArgumentUtility.CheckNotNull ("type", type);

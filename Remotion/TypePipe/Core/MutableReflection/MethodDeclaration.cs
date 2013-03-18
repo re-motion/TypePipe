@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
           ctx =>
           {
             var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
-            return instantiationContext.SubstituteGenericParameters (parametersToArguments, method.ReturnType);
+            return instantiationContext.SubstituteGenericParameters (method.ReturnType, parametersToArguments);
           };
       Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
           ctx =>
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.MutableReflection
         var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
         return genericParameter.GetGenericParameterConstraints()
                                .Where (g => g != typeof (ValueType))
-                               .Select (c => instantiationContext.SubstituteGenericParameters (parametersToArguments, c));
+                               .Select (c => instantiationContext.SubstituteGenericParameters (c, parametersToArguments));
       };
       return new GenericParameterDeclaration (genericParameter.Name, genericParameter.GenericParameterAttributes, constraintProvider);
     }
@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.MutableReflection
     private static ParameterDeclaration CreateEquivalentParameter (
         ParameterInfo parameter, IDictionary<Type, Type> parametersToArguments, TypeInstantiationContext instantiationContext)
     {
-      var type = instantiationContext.SubstituteGenericParameters (parametersToArguments, parameter.ParameterType);
+      var type = instantiationContext.SubstituteGenericParameters (parameter.ParameterType, parametersToArguments);
       return new ParameterDeclaration (type, parameter.Name, parameter.Attributes);
     }
 

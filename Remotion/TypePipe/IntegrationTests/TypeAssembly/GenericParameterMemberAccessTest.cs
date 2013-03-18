@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void AccessField_ReferenceConstraint ()
+    public void AccessField_BaseTypeConstraint ()
     {
       var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Constraint> (null, ""));
 
@@ -90,10 +90,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
 
-      var result = instance.GenericMethod (arg, "field on value type");
+      var result = instance.GenericMethod (arg, "field on reference type");
 
-      Assert.That (arg.Field, Is.EqualTo ("field on value type"));
-      Assert.That (result, Is.EqualTo ("field on value type"));
+      Assert.That (arg.Field, Is.EqualTo ("field on reference type"));
+      Assert.That (result, Is.EqualTo ("field on reference type"));
+
+      // Note that fields can only be accessed via a base type constraint. Since value types cannot be used as base type constraints, only fields 
+      // declared on reference types can be accessed from a generic parameter.
     }
 
     public class DomainType

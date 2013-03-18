@@ -175,6 +175,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var mutableMethod = proxyType.GetOrAddOverride (method);
       CheckIsDefinedInheritance (mutableMethod);
 
+      // TODO Review: Uncomment
       // TODO 4791
       //var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedClass obj) => obj.Property);
       //var mutableProperty = MutableType.GetMutableProperty(property);

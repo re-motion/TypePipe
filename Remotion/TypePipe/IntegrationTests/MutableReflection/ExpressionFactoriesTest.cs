@@ -24,6 +24,7 @@ using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
+  // TODO Review: Test name should express relation with generics.
   [TestFixture]
   public class ExpressionFactoriesTest
   {

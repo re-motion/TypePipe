@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return _instantiationContext.SubstituteGenericParameters (_parametersToArguments, type);
+      return _instantiationContext.SubstituteGenericParameters (type, _parametersToArguments);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

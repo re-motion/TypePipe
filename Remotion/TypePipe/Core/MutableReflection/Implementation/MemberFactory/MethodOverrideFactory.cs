@@ -124,10 +124,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (baseMethod.IsAbstract)
         return null;
 
-      if (baseMethod.IsGenericMethodDefinition)
-        return ctx => ctx.CallBase (baseMethod.MakeTypePipeGenericMethod (ctx.GenericParameters.ToArray()), ctx.Parameters.Cast<Expression>());
-      else
-        return ctx => ctx.CallBase (baseMethod, ctx.Parameters.Cast<Expression>());
+      return ctx =>
+      {
+        var methodToCall = baseMethod.IsGenericMethodDefinition ? baseMethod.MakeTypePipeGenericMethod (ctx.GenericParameters.ToArray()) : baseMethod;
+        return ctx.CallBase (methodToCall, ctx.Parameters.Cast<Expression> ());
+      };
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (

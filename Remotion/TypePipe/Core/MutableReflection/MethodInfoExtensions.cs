@@ -70,9 +70,9 @@ namespace Remotion.TypePipe.MutableReflection
       if (!genericMethodDefinition.IsGenericMethodDefinition)
       {
         var message = string.Format (
-            "'{0}' is not a generic method definition. {1} may only be called on a method for which MethodInfo.IsGenericMethodDefinition is true.",
-            genericMethodDefinition.Name,
-            MethodInfo.GetCurrentMethod ().Name);
+            "'{0}' is not a generic method definition. MakeTypePipeGenericMethod may only be called on a method for which "
+            + "MethodInfo.IsGenericMethodDefinition is true.",
+            genericMethodDefinition.Name);
         throw new InvalidOperationException (message);
       }
 

@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var genericParameter = typeof (GenericType<>).GetField ("Field").FieldType;
 
-      var result = _context.SubstituteGenericParameters (_parametersToArguments, genericParameter);
+      var result = _context.SubstituteGenericParameters (genericParameter, _parametersToArguments);
 
       Assert.That (result, Is.SameAs (_argument));
     }
@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var parametersToArguments = new Dictionary<Type, Type> ();
       var genericParameter = typeof (GenericType<>).GetField ("Field").FieldType;
 
-      var result = _context.SubstituteGenericParameters (parametersToArguments, genericParameter);
+      var result = _context.SubstituteGenericParameters (genericParameter, parametersToArguments);
 
       Assert.That (result, Is.SameAs (genericParameter));
     }
@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var recursiveGeneric = typeof (GenericType<>).GetField ("RecursiveGeneric").FieldType;
 
-      var list = _context.SubstituteGenericParameters (_parametersToArguments, recursiveGeneric);
+      var list = _context.SubstituteGenericParameters (recursiveGeneric, _parametersToArguments);
 
       Assert.That (list.GetGenericTypeDefinition (), Is.SameAs (typeof (List<>)));
       var func = list.GetGenericArguments ().Single ();
@@ -152,7 +152,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void SubstituteGenericParameters_NonGenericType ()
     {
       var nonGeneric = ReflectionObjectMother.GetSomeNonGenericType ();
-      var result = _context.SubstituteGenericParameters (_parametersToArguments, nonGeneric);
+      var result = _context.SubstituteGenericParameters (nonGeneric, _parametersToArguments);
 
       Assert.That (result, Is.SameAs (nonGeneric));
     }

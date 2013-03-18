@@ -280,6 +280,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.GenericMethod ("doesn't matter"), Is.EqualTo ("DomainType String made mutable"));
     }
 
+    // TODO Review: Add generic constraint to base method (T : IComparable<T>).
     [Test]
     public void BaseMethod_GenericMethodWithConstraints ()
     {
