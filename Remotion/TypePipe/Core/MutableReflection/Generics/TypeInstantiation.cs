@@ -61,7 +61,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             instantiationInfo.GenericTypeDefinition.Namespace,
             GetFullName (instantiationInfo),
             instantiationInfo.GenericTypeDefinition.Attributes,
-            isGenericType: true,
             genericTypeDefinition: instantiationInfo.GenericTypeDefinition,
             typeArguments: instantiationInfo.TypeArguments)
     {

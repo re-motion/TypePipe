@@ -39,7 +39,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IEnumerable<MethodInfo> methods = null,
         IEnumerable<PropertyInfo> properties = null,
         IEnumerable<EventInfo> events = null,
-        bool isGenericType = false,
         Type genericTypeDefinition = null,
         IEnumerable<Type> typeArguments = null)
     {
@@ -48,7 +47,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       // Declaring type stays null.
       // Generic type definition stays null.
       var typeArgs = (typeArguments ?? Type.EmptyTypes).ToList();
-      isGenericType = isGenericType || genericTypeDefinition != null || typeArgs.Count > 0;
 
       var customType =
           new TestableCustomType (
@@ -57,7 +55,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               @namespace,
               fullName,
               attributes,
-              isGenericType,
               genericTypeDefinition,
               typeArgs)
           {

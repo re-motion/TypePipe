@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, name, @namespace, GetFullName (name, @namespace), attributes, false, null, EmptyTypes)
+        : base (memberSelector, name, @namespace, GetFullName (name, @namespace), attributes, null, EmptyTypes)
     {
       // Base type may be null (for interfaces).
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);

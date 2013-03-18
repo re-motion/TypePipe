@@ -57,6 +57,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _attributes = attributes;
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
+
       Assertion.IsTrue (genericMethodDefinition == null || genericMethodDefinition.GetGenericArguments().Length == _typeArguments.Count);
     }
 

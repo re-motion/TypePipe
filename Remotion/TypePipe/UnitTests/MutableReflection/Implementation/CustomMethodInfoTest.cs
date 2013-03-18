@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           genericMethodDefintion: _genericMethodUnderlyingDefinition, typeArguments: new[] { typeInstantiation });
       Assert.That (method1.ContainsGenericParameters, Is.True);
 
-      var genericTypeDefinition = CustomTypeObjectMother.Create (isGenericType: true, typeArguments: new[] { ReflectionObjectMother.GetSomeGenericParameter() });
+      var genericTypeDefinition = CustomTypeObjectMother.Create (typeArguments: new[] { ReflectionObjectMother.GetSomeGenericParameter() });
       var method2 = CustomMethodInfoObjectMother.Create (declaringType: genericTypeDefinition);
       Assert.That (method2.ContainsGenericParameters, Is.True);
     }

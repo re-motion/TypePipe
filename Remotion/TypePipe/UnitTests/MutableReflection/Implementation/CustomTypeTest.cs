@@ -64,7 +64,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           _namespace,
           _fullName,
           _attributes,
-          isGenericType: false,
           genericTypeDefinition: null,
           typeArguments: Type.EmptyTypes)
                     {
@@ -77,10 +76,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
                     };
 
       _typeParameter = ReflectionObjectMother.GetSomeGenericParameter();
-      _genericTypeDefinition = CustomTypeObjectMother.Create (isGenericType: true, typeArguments: new[] { _typeParameter });
+      _genericTypeDefinition = CustomTypeObjectMother.Create (typeArguments: new[] { _typeParameter });
 
       _typeArgument = ReflectionObjectMother.GetSomeType ();
-      _genericTypeUnderlyingDefinition = ReflectionObjectMother.GetSomeGenericTypeDefinition ();
+      _genericTypeUnderlyingDefinition = typeof (IList<>);
       _genericType = CustomTypeObjectMother.Create (genericTypeDefinition: _genericTypeUnderlyingDefinition, typeArguments: new[] { _typeArgument });
     }
 
@@ -550,7 +549,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       // None of these virtual members should throw an exception.
       Dev.Null = _customType.MemberType;
       Dev.Null = _customType.IsGenericParameter;
-      Dev.Null = CustomTypeObjectMother.Create (isGenericType: false).ContainsGenericParameters;
+      Dev.Null = _customType.ContainsGenericParameters;
       Dev.Null = _customType.IsValueType; // IsValueTypeImpl()
       Dev.Null = _customType.IsContextful; // IsContextfulImpl()
       Dev.Null = _customType.IsMarshalByRef; // IsMarshalByRefImpl()

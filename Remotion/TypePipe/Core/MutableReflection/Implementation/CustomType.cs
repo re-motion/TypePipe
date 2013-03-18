@@ -43,7 +43,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _namespace;
     private readonly string _fullName;
     private readonly TypeAttributes _attributes;
-    private readonly bool _isGenericType;
     private readonly Type _genericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
 
@@ -56,7 +55,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         string @namespace,
         string fullName,
         TypeAttributes attributes,
-        bool isGenericType,
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
     {
@@ -73,12 +71,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _namespace = @namespace;
       _fullName = fullName;
       _attributes = attributes;
-      _isGenericType = isGenericType;
       _genericTypeDefinition = genericTypeDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
 
-      Assertion.IsTrue ((isGenericType && _typeArguments.Count > 0) || (!isGenericType && _typeArguments.Count == 0));
-      Assertion.IsTrue ((genericTypeDefinition != null && isGenericType) || (genericTypeDefinition == null));
+      Assertion.IsTrue (genericTypeDefinition == null || genericTypeDefinition.GetGenericArguments ().Length == _typeArguments.Count);
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
@@ -146,17 +142,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override bool IsGenericType
     {
-      get { return _isGenericType; }
+      get { return _typeArguments.Count > 0; }
     }
 
     public override bool IsGenericTypeDefinition
     {
-      get { return _isGenericType && _genericTypeDefinition == null; }
+      get { return IsGenericType && _genericTypeDefinition == null; }
     }
 
     public override Type GetGenericTypeDefinition ()
     {
-      if (!_isGenericType)
+      if (!IsGenericType)
         throw new InvalidOperationException ("GetGenericTypeDefinition can only be called on generic types (IsGenericType must be true).");
 
       return _genericTypeDefinition ?? this;

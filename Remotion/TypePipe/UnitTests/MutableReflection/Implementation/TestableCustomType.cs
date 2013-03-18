@@ -31,7 +31,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string @namespace,
         string fullName,
         TypeAttributes attributes,
-        bool isGenericType,
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
         : base (
@@ -40,7 +39,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
             @namespace,
             fullName,
             attributes,
-            isGenericType,
             genericTypeDefinition,
             typeArguments)
     {

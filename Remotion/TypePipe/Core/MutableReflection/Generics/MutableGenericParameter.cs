@@ -52,7 +52,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             @namespace,
             fullName: null,
             attributes: TypeAttributes.Public,
-            isGenericType: false,
             genericTypeDefinition: null,
             typeArguments: EmptyTypes)
     {

@@ -200,8 +200,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       var typeParameters = new[] { ReflectionObjectMother.GetSomeType() };
-      var genericTypeDefinition = CustomTypeObjectMother.Create (
-          memberSelectorMock, isGenericType: true, typeArguments: typeParameters,
+      var genericTypeDefinition = CustomTypeObjectMother.Create (memberSelectorMock, typeArguments: typeParameters,
           fields: fields, constructors: ctors, methods: methods, properties: properties, events: events);
 
       memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition)).Return (fields);
