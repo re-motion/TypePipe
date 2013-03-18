@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -246,8 +247,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.Invoke (instance, new object[] { 7, 8 }), Is.False);
     }
 
-    // TODO Review: Add test using MethodDeclaration.
-    
+    [Test]
+    public void AddMethod_MethodDeclaration ()
+    {
+      var method =
+          NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType obj) => obj.MethodDeclaration<MemoryStream> (null));
+      var declaration = MethodDeclaration.CreateEquivalent (method);
+      var type = AssembleType<DomainType> (p => p.AddMethod ("GenericMethod", MethodAttributes.Public, declaration, ctx => Expression.Empty()));
+
+      var genericMethod = type.GetMethod ("GenericMethod");
+      var genericParameter = genericMethod.GetGenericArguments().Single();
+      Assert.That (
+          genericParameter.GenericParameterAttributes,
+          Is.EqualTo (GenericParameterAttributes.ReferenceTypeConstraint | GenericParameterAttributes.DefaultConstructorConstraint));
+      Assert.That (genericParameter.GetGenericParameterConstraints(), Is.EquivalentTo (new[] { typeof (object), typeof (IDisposable) }));
+    }
+
     public interface IDomainInterface
     {
       string GetTypeName ();
@@ -259,6 +274,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public class DomainType : BaseType, IDomainInterface
     {
       public string GetTypeName () { return GetType().Name; }
+      public void MethodDeclaration<T> (T arg) where T : class, IDisposable, new() {}
     }
     public class DomainValueType : IDomainInterface
     {
