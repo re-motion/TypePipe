@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     private static readonly IMethodSignatureStringBuilderHelper s_methodSignatureStringBuilderHelper =
-        new GenericParameterCompatibleMethodSignatureStringBuilderHelper();
+        new MethodSignatureStringBuilderHelperForGenericMethod();
 
     private readonly IRelatedMethodFinder _relatedMethodFinder;
 

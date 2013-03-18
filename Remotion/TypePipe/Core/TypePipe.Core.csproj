@@ -171,7 +171,7 @@
     <Compile Include="MutableReflection\Generics\MethodInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
-    <Compile Include="MutableReflection\Implementation\GenericParameterCompatibleMethodSignatureStringBuilderHelper.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethod.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactory.cs" />

@@ -25,10 +25,10 @@ using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
-  public class GenericParameterCompatibleMethodSignatureStringBuilderHelperTest
+  public class MethodSignatureStringBuilderHelperForGenericMethodTest
   {
     private MethodSignatureStringBuilderHelper _originalBuilder;
-    private GenericParameterCompatibleMethodSignatureStringBuilderHelper _builder;
+    private MethodSignatureStringBuilderHelperForGenericMethod _builder;
 
     private StringBuilder _sb1;
     private StringBuilder _sb2;
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void SetUp ()
     {
       _originalBuilder = new MethodSignatureStringBuilderHelper();
-      _builder = new GenericParameterCompatibleMethodSignatureStringBuilderHelper();
+      _builder = new MethodSignatureStringBuilderHelperForGenericMethod();
 
       _sb1 = new StringBuilder();
       _sb2 = new StringBuilder();

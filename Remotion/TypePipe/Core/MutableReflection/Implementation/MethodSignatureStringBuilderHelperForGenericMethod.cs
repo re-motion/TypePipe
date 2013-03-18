@@ -27,9 +27,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// but has neither a <see cref="Type.DeclaringMethod"/> nor a <see cref="Type.DeclaringType"/>, which happens when we construct
   /// <see cref="MutableGenericParameter"/> instances before the declaring method is available.
   /// </summary>
-  public class GenericParameterCompatibleMethodSignatureStringBuilderHelper : MethodSignatureStringBuilderHelper
+  public class MethodSignatureStringBuilderHelperForGenericMethod : MethodSignatureStringBuilderHelper
   {
-    // TODO Review: This is ambigious when we support generic proxy types. Rename this class to express that it's only for generic methods.
+    // TODO: 5461
     // Later, when we add support for generic type definitions, we can adapt this class so that the concrete usage can specify whether a generic 
     // method or a generic type is defined.
     public override void AppendTypeString (StringBuilder sb, Type type)
