@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       bodyProvider = bodyProvider ?? (ctx => Expression.Default (template.ReturnType));
       var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
-      return mutableType.AddGenericMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
+      return mutableType.AddMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
     }
 
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<TypeContext>> participantActions)

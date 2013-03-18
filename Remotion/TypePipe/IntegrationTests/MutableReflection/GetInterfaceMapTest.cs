@@ -172,7 +172,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     private MutableMethodInfo AddSimiliarMethod (MutableType mutableType, MethodInfo template, string methodName = null)
     {
       var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
-      return mutableType.AddGenericMethod (
+      return mutableType.AddMethod (
           methodName ?? template.Name,
           MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
           methodDeclaration,
