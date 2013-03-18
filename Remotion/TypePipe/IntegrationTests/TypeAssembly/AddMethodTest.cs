@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           p =>
           {
             var method = p.AddMethod ("Method", parameters: new[] { new ParameterDeclaration (typeof (int)) }, bodyProvider: ctx => Expression.Empty());
-            Assert.That (method.MutableParameters.Single().Name, Is.Empty);
+            Assert.That (method.MutableParameters.Single().Name, Is.Null);
           });
 
       var parameter = type.GetMethod ("Method").GetParameters().Single();

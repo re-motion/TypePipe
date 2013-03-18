@@ -36,10 +36,10 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly ParameterAttributes _attributes;
     private readonly ParameterExpression _expression;
 
-    public ParameterDeclaration (Type type, string name = "", ParameterAttributes attributes = ParameterAttributes.None)
+    public ParameterDeclaration (Type type, string name = null, ParameterAttributes attributes = ParameterAttributes.None)
     {
       ArgumentUtility.CheckNotNull ("type", type);
-      ArgumentUtility.CheckNotNull ("name", name);
+      // Name may be null.
 
       if (type == typeof (void))
         throw new ArgumentException ("Parameter cannot be of type void.", "type");

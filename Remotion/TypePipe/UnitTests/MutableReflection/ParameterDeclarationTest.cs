@@ -60,8 +60,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var declaration = new ParameterDeclaration (typeof (object));
 
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.None));
-      Assert.That (declaration.Name, Is.Empty);
-      Assert.That (declaration.Expression.Name, Is.Empty);
+      Assert.That (declaration.Name, Is.Null);
+      Assert.That (declaration.Expression.Name, Is.Null);
+    }
+
+    [Test]
+    public void Initialization_NullName ()
+    {
+      var type = ReflectionObjectMother.GetSomeType();
+      var declaration = new ParameterDeclaration (type, name: null);
+
+      Assert.That (declaration.Name, Is.Null);
+      Assert.That (declaration.Expression.Name, Is.Null);
     }
 
     [Test]
@@ -69,15 +79,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public void Initialization_VoidType ()
     {
       Dev.Null = new ParameterDeclaration (typeof (void), "foo");
-    }
-
-    private abstract class DomainType
-    {
-      public void Method (int i, out string s)
-      {
-        Dev.Null = i;
-        s = "no";
-      }
     }
   }
 }
