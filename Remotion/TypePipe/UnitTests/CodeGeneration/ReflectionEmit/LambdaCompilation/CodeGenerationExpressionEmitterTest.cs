@@ -48,6 +48,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "All non-primitive TypePipe expressions must be reduced before code generation.")]
+    public void VisitExtension_Throws ()
+    {
+      _emitter.VisitExtension (null);
+    }
+
+    [Test]
     public void VisitThis ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeThisExpression();

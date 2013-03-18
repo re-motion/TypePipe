@@ -49,24 +49,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     public void Accept_PrimitiveTypePipeExpressionVisitor ()
     {
       var expressionVisitorMock = MockRepository.GenerateStrictMock<IPrimitiveTypePipeExpressionVisitor>();
+      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      expressionVisitorMock.Expect (mock => mock.VisitExtension (_expressionPartialMock)).Return (fakeExpression);
 
       var result = _expressionPartialMock.Accept (expressionVisitorMock);
 
       _expressionPartialMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (_expressionPartialMock));
+      Assert.That (result, Is.SameAs (fakeExpression));
     }
 
     [Test]
     public void Accept_CodeGenerationExpressionVisitor ()
     {
       var expressionVisitorMock = MockRepository.GenerateStrictMock<IPrimitiveTypePipeExpressionVisitor, ICodeGenerationExpressionVisitor>();
-      var expectedResult = ExpressionTreeObjectMother.GetSomeExpression();
-      _expressionPartialMock.Expect (mock => mock.Accept (expressionVisitorMock)).Return (expectedResult);
+      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _expressionPartialMock.Expect (mock => mock.Accept (expressionVisitorMock)).Return (fakeExpression);
 
       var result = _expressionPartialMock.Accept (expressionVisitorMock);
 
       _expressionPartialMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (expectedResult));
+      Assert.That (result, Is.SameAs (fakeExpression));
     }
   }
 }

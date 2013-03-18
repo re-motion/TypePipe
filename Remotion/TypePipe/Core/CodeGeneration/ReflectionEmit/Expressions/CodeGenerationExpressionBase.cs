@@ -43,11 +43,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       var codeGenerationExpressionVisitor = visitor as ICodeGenerationExpressionVisitor;
       if (codeGenerationExpressionVisitor != null)
         return Accept (codeGenerationExpressionVisitor);
-      
-      // TODO Review: Add VisitExtension to IPrimitiveTypePipeExpressionVisitor. Call VisitExtension here. For symmetry, do the same in the base class.
-      //return base.Accept ((ExpressionVisitor) visitor);
-      // OR: Throw exception: code generation expressions cannot be handled by "just IPrimitiveTypePipeExpressionVisitor".
-      return this;
+
+      return visitor.VisitExtension (this);
     }
   }
 }

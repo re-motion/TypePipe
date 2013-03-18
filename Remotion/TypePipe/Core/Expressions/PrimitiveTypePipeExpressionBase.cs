@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.Expressions
       if (typePipeExpressionVisitor != null)
         return Accept (typePipeExpressionVisitor);
 
-      return base.Accept (visitor);
+      return visitor.VisitExtension (this);
     }
   }
 }

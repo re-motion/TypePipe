@@ -46,6 +46,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _childExpressionEmitter = childExpressionEmitter;
     }
 
+    public Expression VisitExtension (Expression node)
+    {
+      throw new NotSupportedException("All non-primitive TypePipe expressions must be reduced before code generation.");
+    }
+
     public Expression VisitThis (ThisExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
