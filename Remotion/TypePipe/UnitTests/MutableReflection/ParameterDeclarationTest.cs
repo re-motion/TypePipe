@@ -57,19 +57,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization_Defaults ()
     {
-      var declaration = new ParameterDeclaration (typeof (object), "foo");
+      var declaration = new ParameterDeclaration (typeof (object));
 
       Assert.That (declaration.Attributes, Is.EqualTo (ParameterAttributes.None));
-    }
-
-    [Test]
-    public void Initialization_NullName ()
-    {
-      var type = ReflectionObjectMother.GetSomeType();
-      var declaration = new ParameterDeclaration (type, name: null);
-
-      Assert.That (declaration.Name, Is.Null);
-      Assert.That (declaration.Expression.Name, Is.Null);
+      Assert.That (declaration.Name, Is.Empty);
+      Assert.That (declaration.Expression.Name, Is.Empty);
     }
 
     [Test]

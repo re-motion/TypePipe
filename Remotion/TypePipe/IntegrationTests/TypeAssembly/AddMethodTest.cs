@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (addedMethod.Attributes, Is.EqualTo (MethodAttributes.Public));
       Assert.That (addedMethod.ReturnType, Is.SameAs (typeof (void)));
 
-      var singleParameter = addedMethod.GetParameters ().Single ();
+      var singleParameter = addedMethod.GetParameters().Single();
       Assert.That (singleParameter.ParameterType, Is.SameAs (typeof (string)));
       Assert.That (singleParameter.Name, Is.EqualTo ("parameterName"));
       Assert.That (singleParameter.Attributes, Is.EqualTo (ParameterAttributes.None));
@@ -107,6 +107,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       addedMethod.Invoke (instance, arguments);
 
       Assert.That (instance.SettableProperty, Is.EqualTo ("test string"));
+    }
+
+    [Test]
+    public void MethodWithUnnamedParameters ()
+    {
+      var type = AssembleType<DomainType> (
+          p =>
+          {
+            var method = p.AddMethod ("Method", parameters: new[] { new ParameterDeclaration (typeof (int)) }, bodyProvider: ctx => Expression.Empty());
+            Assert.That (method.MutableParameters.Single().Name, Is.Empty);
+          });
+
+      var parameter = type.GetMethod ("Method").GetParameters().Single();
+      Assert.That (parameter.Name, Is.Empty);
     }
 
     [Test]
