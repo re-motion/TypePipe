@@ -62,7 +62,6 @@
     </Compile>
     <Compile Include="CachingTest.cs" />
     <Compile Include="FlushGeneratedCodeTest.cs" />
-    <Compile Include="MutableReflection\ExpressionFactoriesTest.cs" />
     <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="MutableReflection\IsAssignableFromTest.cs" />
     <Compile Include="MutableReflection\MakeTypePipeGenericMethodTest.cs" />
@@ -92,7 +91,7 @@
     <Compile Include="TypeAssembly\GenerateAdditionalTypesTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="TypeAssembly\GenericParameterAssignmentTest.cs" />
+    <Compile Include="TypeAssembly\GenericParameterConversionsTest.cs" />
     <Compile Include="TypeAssembly\GenericParameterMemberAccessTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />

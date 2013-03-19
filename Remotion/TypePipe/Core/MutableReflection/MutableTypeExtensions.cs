@@ -49,15 +49,16 @@ namespace Remotion.TypePipe.MutableReflection
     public static MutableMethodInfo AddMethod (
         this MutableType mutableType,
         string name,
-        MethodAttributes attributes = MethodAttributes.Public,
-        MethodDeclaration methodDeclaration = null,
-        Func<MethodBodyCreationContext, Expression> bodyProvider = null)
+        MethodAttributes attributes,
+        MethodDeclaration methodDeclaration,
+        Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      var md = methodDeclaration ?? new MethodDeclaration (GenericParameterDeclaration.None, ctx => typeof (void), ctx => ParameterDeclaration.None);
+      ArgumentUtility.CheckNotNull ("methodDeclaration", methodDeclaration);
       // Body provider may be null (for abstract methods).
 
+      var md = methodDeclaration;
       return mutableType.AddMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
     }
 
