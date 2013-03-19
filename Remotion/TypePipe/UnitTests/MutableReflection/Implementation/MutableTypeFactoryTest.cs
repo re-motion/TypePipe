@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateType ()
+    public void CreateType_Class ()
     {
       var name = "MyName";
       var @namespace = "MyNamespace";
@@ -85,22 +85,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateType_ThrowsIfClassAndBaseTypeCannotBeSubclassed ()
+    public void CreateType_Class_SpecialBaseType ()
+    {
+      CheckCreateType (typeof (Enum));
+      CheckCreateType (typeof (Delegate));
+      CheckCreateType (typeof (MulticastDelegate));
+      CheckCreateType (typeof (ValueType));
+      CheckCreateType (typeof (List<int>));
+    }
+
+    [Test]
+    public void CreateType_Class_ThrowsIfBaseTypeCannotBeSubclassed ()
     {
       CheckThrowsForInvalidBaseType (typeof (string));
       CheckThrowsForInvalidBaseType (typeof (int));
       CheckThrowsForInvalidBaseType (typeof (IDisposable));
       CheckThrowsForInvalidBaseType (typeof (ExpressionType));
-      CheckThrowsForInvalidBaseType (typeof (Delegate));
-      CheckThrowsForInvalidBaseType (typeof (MulticastDelegate));
       CheckThrowsForInvalidBaseType (typeof (List<>));
       CheckThrowsForInvalidBaseType (typeof (List<>).GetGenericArguments().Single());
       CheckThrowsForInvalidBaseType (typeof (int).MakeArrayType());
       CheckThrowsForInvalidBaseType (typeof (int).MakeByRefType());
       CheckThrowsForInvalidBaseType (typeof (int).MakePointerType());
       CheckThrowsForInvalidBaseType (typeof (TypeWithoutAccessibleConstructor));
-
-      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, typeof (List<int>)), Throws.Nothing);
     }
 
     [Test]
@@ -152,9 +158,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, ctor.Body);
     }
 
+    private void CheckCreateType (Type validBaseType)
+    {
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, validBaseType), Throws.Nothing);
+    }
+
     private void CheckThrowsForInvalidBaseType (Type invalidBaseType)
     {
-      var message = "Base type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+      var message = "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
                     + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
       Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType), Throws.ArgumentException.With.Message.EqualTo (message));
     }

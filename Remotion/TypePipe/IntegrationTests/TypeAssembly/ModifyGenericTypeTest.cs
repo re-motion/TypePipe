@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Base type must not be sealed, an interface, a value type, an enum, a delegate, an array, a byref type, a pointer, "
+        "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
         + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType")]
     public void OpenGenericType_Throws ()
     {
