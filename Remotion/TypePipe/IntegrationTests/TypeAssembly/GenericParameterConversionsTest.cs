@@ -46,17 +46,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       CheckAssignability (_t1, _t1);
 
-      CheckConversion (_t1, _t2);
+      CheckConversion (_t1, _t2); // TODO 5480: Should be implicitly convertible.
       CheckConversion (_t2, _t1);
     }
 
-    [Ignore("TODO 5445")]
     [Test]
     public void ToReferenceType_FromGenericParameter ()
     {
-      CheckAssignability (typeof (object), _t1);
-      CheckConversion (typeof (A), _t1);
-      CheckConversion (typeof (B), _t1);
+      CheckConversion (typeof (object), _t1);// TODO 5480: Should be implicitly convertible.
+      CheckConversion (typeof (A), _t1);// TODO 5480: Should be implicitly convertible.
+      CheckConversion (typeof (B), _t1);// TODO 5480: Should be implicitly convertible.
 
       CheckInvalidConversion (typeof (C), _t1);
       CheckInvalidConversion (typeof (D), _t1);
