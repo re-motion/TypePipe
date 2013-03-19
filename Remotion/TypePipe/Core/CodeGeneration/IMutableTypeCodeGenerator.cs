@@ -18,7 +18,7 @@
 using System;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
   /// Defines an interfaces for classes building subclass proxies from a <see cref="MutableType"/>.

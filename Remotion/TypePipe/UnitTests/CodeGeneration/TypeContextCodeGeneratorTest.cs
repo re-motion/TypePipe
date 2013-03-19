@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
   public class TypeContextCodeGeneratorTest

@@ -17,10 +17,11 @@
 
 using System;
 using System.Linq;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
   /// Generates types for the classes in the specified <see cref="TypeContext"/> by creating a list of <see cref="IMutableTypeCodeGenerator"/>
