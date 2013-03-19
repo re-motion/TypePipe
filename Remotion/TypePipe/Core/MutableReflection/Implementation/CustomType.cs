@@ -417,6 +417,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type GetNestedType (string name, BindingFlags bindingAttr)
     {
+      // TODO 4744
+      // When we implement this we need to use a "NestedTypeOnTypeInstantiation" similiar to othe other MemberXXXOnTypeInstantiation.
+      // Note that a generic type definition is not instantiated (at least not fully) and should "stay" a generic type definition.
+      // See MethodOnTypeInstantiation constructor and GetGenericMethodDefinition. (Should work similiar for NestedTypeOnTypeInstantiation).
+      // Create an integration test for this!
+
       throw new NotImplementedException ();
     }
 
