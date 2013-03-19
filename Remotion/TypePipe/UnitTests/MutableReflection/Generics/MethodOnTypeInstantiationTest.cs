@@ -90,8 +90,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var instantiation = new MethodOnTypeInstantiation (_declaringType, method);
 
       Assert.That (instantiation.IsGenericMethod, Is.True);
-      Assert.That (instantiation.IsGenericMethodDefinition, Is.False);
-      Assert.That (instantiation.GetGenericMethodDefinition(), Is.SameAs (method));
+      Assert.That (instantiation.IsGenericMethodDefinition, Is.True);
+      Assert.That (instantiation.GetGenericMethodDefinition(), Is.SameAs (instantiation));
       Assert.That (instantiation.GetGenericArguments(), Is.EqualTo (typeArguments));
     }
 

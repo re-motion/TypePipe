@@ -30,6 +30,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class MethodOnTypeInstantiation : CustomMethodInfo
   {
+    private static MethodInfo GetGenericMethodDefinition (MethodInfo method)
+    {
+      return method.IsGenericMethodInstantiation () ? method.GetGenericMethodDefinition () : null;
+    }
+
     private readonly MethodInfo _method;
     private readonly ParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<ParameterInfo> _parameters;
@@ -39,8 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             declaringType,
             ArgumentUtility.CheckNotNull ("method", method).Name,
             method.Attributes,
-        // TODO 5445 : don't supply a generic method definition if method itself is a generic method definition
-            method.IsGenericMethod ? method.GetGenericMethodDefinition() : null,
+            GetGenericMethodDefinition(method),
             method.GetGenericArguments())
       // TODO 5450: also wrap generic parameter constraints.
     {

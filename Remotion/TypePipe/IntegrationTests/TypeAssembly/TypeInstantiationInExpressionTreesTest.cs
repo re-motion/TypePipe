@@ -92,7 +92,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo (2));
     }
 
-    [Ignore ("TODO 5445")]
     [Test]
     public void MethodInstantiationOnTypeInstantiation ()
     {
