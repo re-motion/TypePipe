@@ -161,7 +161,7 @@ namespace System.Dynamic.Utils {
             if (AreEquivalent(dest, src)) {
                 return true;
             }
-            if (!dest.IsValueType && !src.IsValueType && (!dest.IsGenericParameter || !src.IsGenericParameter) && dest.IsTypePipeAssignableFrom(src)) {
+            if (!dest.IsValueType && !src.IsValueType && !dest.IsGenericParameter && !src.IsGenericParameter && dest.IsTypePipeAssignableFrom(src)) {
                 return true;
             }
             return false;

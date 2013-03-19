@@ -134,8 +134,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 Assert.That (genericParameter.GenericParameterAttributes, Is.EqualTo (GenericParameterAttributes.None));
                 Assert.That (genericParameter.GetInterfaces(), Is.EqualTo (new[] { typeof (IDomainInterface) }));
                 Assert.That (genericParameter.GetGenericParameterConstraints(), Is.EqualTo (new[] { typeof (IDomainInterface) }));
-                
-                return Expression.Call (ctx.Parameters[0], ifcMethod); }));
+
+                // TODO 5480: Remove conversion and inline.
+                var castedInstance = Expression.Convert (ctx.Parameters[0], typeof (IDomainInterface));
+                return Expression.Call (castedInstance, ifcMethod); }));
 
       var genericMethod = type.GetMethod ("GenericMethod");
       var instance = Activator.CreateInstance (type);
@@ -181,7 +183,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                     ctx.GenericParameters[0].GetConstructors(),
                     Has.Length.EqualTo (1).And.All.Matches<ConstructorInfo> (c => c.GetParameters().Length == 0));
 
-                return Expression.Call (Expression.New (ctx.GenericParameters[0]), "BaseMethod", Type.EmptyTypes); 
+                // TODO 5480: Remove conversion and inline.
+                var newInstance = Expression.New (ctx.GenericParameters[0]);
+                var castedInstance = Expression.Convert (newInstance, typeof (BaseType));
+                return Expression.Call (castedInstance, "BaseMethod", Type.EmptyTypes); 
               }));
 
       var genericMethod = type.GetMethod ("GenericMethod");
@@ -228,7 +233,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 Assert.That (paramTypes[0], Is.SameAs (paramTypes[1]).And.SameAs (genericParam));
 
                 var compareMethod = typeof (IComparable<>).MakeTypePipeGenericType (ctx.GenericParameters[0]).GetMethod ("CompareTo");
-                return Expression.Equal (Expression.Call (ctx.Parameters[0], compareMethod, ctx.Parameters[1]), Expression.Constant (0));
+                // TODO 5480: Remove conversion and inline.
+                var constraintType = typeof (IComparable<>).MakeTypePipeGenericType (ctx.GenericParameters[0]);
+                var castedInstance = Expression.Convert (ctx.Parameters[0], constraintType);
+                return Expression.Equal (Expression.Call (castedInstance, compareMethod, ctx.Parameters[1]), Expression.Constant (0));
               }));
 
       var genericMethod = type.GetMethod ("GenericEquals");

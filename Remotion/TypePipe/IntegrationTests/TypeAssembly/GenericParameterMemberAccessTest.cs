@@ -40,12 +40,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
         var parameter = ctx.Parameters[0];
         var variable = Expression.Variable (typeof (string));
 
+        // TODO 5480: Remove conversion and inline.
+        var castedParameter = Expression.Convert (parameter, typeof (Constraint));
+
         return Expression.Block (
             new[] { variable },
-            Expression.Assign (variable, Expression.Call (parameter, method, ctx.Parameters[1])),
-            Expression.Assign (Expression.Field (parameter, field), variable),
-            Expression.Assign (Expression.Property (parameter, property), Expression.Field (parameter, field)),
-            Expression.Property (parameter, property));
+            Expression.Assign (variable, Expression.Call (castedParameter, method, ctx.Parameters[1])),
+            Expression.Assign (Expression.Field (castedParameter, field), variable),
+            Expression.Assign (Expression.Property (castedParameter, property), Expression.Field (castedParameter, field)),
+            Expression.Property (castedParameter, property));
       }));
 
       var instance = (DomainType) Activator.CreateInstance (type);
@@ -66,7 +69,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var virtualMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Constraint o) => o.VirtualMethod (""));
 
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx => Expression.Call (ctx.Parameters[0], virtualMethod, ctx.Parameters[1])));
+          p => p.GetOrAddOverride (overriddenMethod).SetBody (ctx =>
+          {
+            var castedParameter = Expression.Convert (ctx.Parameters[0], typeof (Constraint));
+            return Expression.Call (castedParameter, virtualMethod, ctx.Parameters[1]);
+          }));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
@@ -83,9 +90,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var type = AssembleType<DomainType> (
           p => p.GetOrAddOverride (overriddenMethod).SetBody (
-              ctx => Expression.Block (
-                  Expression.Assign (Expression.Field (ctx.Parameters[0], "Field"), ctx.Parameters[1]),
-                  Expression.Field (ctx.Parameters[0], "Field"))));
+              ctx =>
+              {
+                // TODO 5480: Remove conversion and inline.
+                var castedInstance = Expression.Convert (ctx.Parameters[0], typeof (Constraint));
+                return Expression.Block (
+                    Expression.Assign (Expression.Field (castedInstance, "Field"), ctx.Parameters[1]),
+                    Expression.Field (castedInstance, "Field"));
+              }));
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var arg = new Constraint();
