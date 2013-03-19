@@ -157,27 +157,39 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     [Test]
     public void VisitUnary_Convert_ToGenericParameter_FromReferenceType_UnboxAny ()
     {
-      var fromReferenceType = ReflectionObjectMother.GetSomeClassType();
-      var toGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { fromReferenceType });
-      var expression = Expression.Convert (Expression.Default (fromReferenceType), toGenericParameter);
+      var fromReferenceType1 = ReflectionObjectMother.GetSomeClassType();
+      var fromReferenceType2 = ReflectionObjectMother.GetSomeInterfaceType();
+      var toGenericParameter1 = MutableGenericParameterObjectMother.Create (constraints: new[] { fromReferenceType1 });
+      var toGenericParameter2 = MutableGenericParameterObjectMother.Create (constraints: new[] { fromReferenceType2 });
+      var expression1 = Expression.Convert (Expression.Default (fromReferenceType1), toGenericParameter1);
+      var expression2 = Expression.Convert (Expression.Default (fromReferenceType2), toGenericParameter2);
 
-      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
+      var result1 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression1);
+      var result2 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression2);
 
-      var expectedExpression = new UnboxExpression (expression.Operand, toGenericParameter);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
+      var expectedExpression1 = new UnboxExpression (expression1.Operand, toGenericParameter1);
+      var expectedExpression2 = new UnboxExpression (expression2.Operand, toGenericParameter2);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression1, result1);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression2, result2);
     }
 
     [Test]
     public void VisitUnary_Convert_ToReferenceType_FromGenericParameter_Box ()
     {
-      var toReferenceType = ReflectionObjectMother.GetSomeClassType();
-      var fromGenericParameter = MutableGenericParameterObjectMother.Create (constraints: new[] { toReferenceType });
-      var expression = Expression.Convert (Expression.Default (fromGenericParameter), toReferenceType);
+      var toReferenceType1 = ReflectionObjectMother.GetSomeClassType();
+      var toReferenceType2 = ReflectionObjectMother.GetSomeInterfaceType();
+      var fromGenericParameter1 = MutableGenericParameterObjectMother.Create (constraints: new[] { toReferenceType1 });
+      var fromGenericParameter2 = MutableGenericParameterObjectMother.Create (constraints: new[] { toReferenceType2 });
+      var expression1 = Expression.Convert (Expression.Default (fromGenericParameter1), toReferenceType1);
+      var expression2 = Expression.Convert (Expression.Default (fromGenericParameter2), toReferenceType2);
 
-      var result = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression);
+      var result1 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression1);
+      var result2 = _visitorPartialMock.Invoke<Expression> ("VisitUnary", expression2);
 
-      var expectedExpression = new BoxAndCastExpression (expression.Operand, toReferenceType);
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression, result);
+      var expectedExpression1 = new BoxAndCastExpression (expression1.Operand, toReferenceType1);
+      var expectedExpression2 = new BoxAndCastExpression (expression2.Operand, toReferenceType2);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression1, result1);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedExpression2, result2);
     }
 
     [Test]

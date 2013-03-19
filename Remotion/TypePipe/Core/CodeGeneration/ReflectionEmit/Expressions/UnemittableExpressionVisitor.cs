@@ -187,9 +187,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
       if (toType.IsGenericParameter && fromType.IsGenericParameter)
         return BoxThenUnbox (operand, toType);
-      if (toType.IsGenericParameter && fromType.IsClass)
+      if (toType.IsGenericParameter && IsReferenceType (fromType))
         return new UnboxExpression (operand, toType);
-      if (toType.IsClass && fromType.IsGenericParameter)
+      if (IsReferenceType (toType) && fromType.IsGenericParameter)
         return new BoxAndCastExpression (operand, toType);
       if (toType.IsGenericParameter && fromType.IsValueType)
         Debug.Fail ("Convert expression that converts from value type to generic parameter is not valid (must convert via object).");
@@ -197,6 +197,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
         Debug.Fail ("Convert expression that converts from generic parameter to value type is not valid (must convert via object).");
 
       return node;
+    }
+
+    private bool IsReferenceType (Type type)
+    {
+      return type.IsClass || type.IsInterface;
     }
 
     private UnboxExpression BoxThenUnbox (Expression operand, Type toType)
