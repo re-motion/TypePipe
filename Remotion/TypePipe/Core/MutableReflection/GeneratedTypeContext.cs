@@ -15,11 +15,8 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -29,36 +26,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class GeneratedTypeContext
   {
-    private readonly Type _requestedType;
-    private readonly Type _proxyType;
-    private readonly ReadOnlyCollection<Type> _additionalTypes;
-
-    public GeneratedTypeContext (Type requestedType, Type proxyType, IEnumerable<Type> additionalTypes)
-    {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
-      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
-
-      _requestedType = requestedType;
-      _proxyType = proxyType;
-      _additionalTypes = additionalTypes.ToList().AsReadOnly();
-    }
-
-    public Type RequestedType
-    {
-      get { return _requestedType; }
-    }
-
-    public Type ProxyType
-    {
-      get { return _proxyType; }
-    }
-
-    public ReadOnlyCollection<Type> AdditionalTypes
-    {
-      get { return _additionalTypes; }
-    }
-
     public MemberInfo GetGeneratedMember (IMutableMember mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
