@@ -451,6 +451,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var interfaceType = typeof (IDomainInterface);
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
+      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
       _interfaceMappingComputerMock
           .Expect (mock => mock.ComputeMapping (_mutableType, typeof (DomainType).GetInterfaceMap, interfaceType, false))
           .Return (fakeResult);
@@ -467,6 +468,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var interfaceType = typeof (IDomainInterface);
       var allowPartial = BooleanObjectMother.GetRandomBoolean();
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
+      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
       _interfaceMappingComputerMock
           .Expect (mock => mock.ComputeMapping (_mutableType, typeof (DomainType).GetInterfaceMap, interfaceType, allowPartial))
           .Return (fakeResult);
@@ -475,6 +477,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       _interfaceMappingComputerMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Method GetInterfaceMap is not supported by interface types.")]
+    public void GetInterfaceMap_Interface_Throws ()
+    {
+      _mutableInterfaceType.GetInterfaceMap (ReflectionObjectMother.GetSomeType());
     }
 
     [Test]
@@ -523,6 +532,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assertion.IsNotNull (proxyType.BaseType);
       Assert.That (proxyType.BaseType.IsAbstract, Is.True);
       Assert.That (proxyType.Attributes & TypeAttributes.Abstract, Is.Not.EqualTo (TypeAttributes.Abstract));
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_Interface ()
+    {
+      Assert.That (_mutableInterfaceType.Attributes.IsSet (TypeAttributes.Interface | TypeAttributes.Abstract), Is.True);
     }
 
     [Test]

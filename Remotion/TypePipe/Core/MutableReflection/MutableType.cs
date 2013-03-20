@@ -183,7 +183,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
 
-      // TODO : check that interface is visible
+      // TODO 4744: Check that interface is visible.
 
       if (_addedInterfaces.Contains (interfaceType))
       {
@@ -396,8 +396,11 @@ namespace Remotion.TypePipe.MutableReflection
     public InterfaceMapping GetInterfaceMap (Type interfaceType, bool allowPartialInterfaceMapping)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
-      Assertion.IsNotNull (BaseType);
 
+      if (IsInterface)
+        throw new NotSupportedException ("Method GetInterfaceMap is not supported by interface types.");
+
+      Assertion.IsNotNull (BaseType);
       return _interfaceMappingComputer.ComputeMapping (this, BaseType.GetInterfaceMap, interfaceType, allowPartialInterfaceMapping);
     }
 
@@ -409,7 +412,6 @@ namespace Remotion.TypePipe.MutableReflection
       if (isSerializable)
         attributes |= TypeAttributes.Serializable;
 
-      // tODO test
       if (attributes.IsSet (TypeAttributes.Interface))
         return attributes | TypeAttributes.Abstract;
 
@@ -438,8 +440,13 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
-      return GetAllMembers (_addedMethods, b => b.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition())));
+      return GetAllMembers (
+          _addedMethods,
+          baseType =>
+          {
+            var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
+            return baseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
+          });
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
