@@ -60,16 +60,16 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="CachingTest.cs" />
-    <Compile Include="FlushGeneratedCodeTest.cs" />
+    <Compile Include="ObjectFactory\CachingTest.cs" />
+    <Compile Include="ObjectFactory\FlushGeneratedCodeTest.cs" />
     <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="MutableReflection\IsAssignableFromTest.cs" />
     <Compile Include="MutableReflection\MakeTypePipeGenericMethodTest.cs" />
     <Compile Include="MutableReflection\MakeTypePipeGenericTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberSelectionTest.cs" />
-    <Compile Include="ObjectCreationTest.cs" />
-    <Compile Include="ObjectFactoryIntegrationTestBase.cs" />
-    <Compile Include="ObjectInitializationTest.cs" />
+    <Compile Include="ObjectFactory\ObjectCreationTest.cs" />
+    <Compile Include="ObjectFactory\ObjectFactoryIntegrationTestBase.cs" />
+    <Compile Include="ObjectFactory\ObjectInitializationTest.cs" />
     <Compile Include="ParticipantStub.cs" />
     <Compile Include="Serialization\ComplexSerializationTest.cs">
       <SubType>Code</SubType>
@@ -96,7 +96,7 @@
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
     <Compile Include="TypeAssembly\MutableTypeInSignaturesTest.cs" />
-    <Compile Include="ParticipantStateTest.cs" />
+    <Compile Include="ObjectFactory\ParticipantStateTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\TypeInitializerTest.cs" />

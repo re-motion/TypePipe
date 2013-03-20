@@ -23,7 +23,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
   public class ObjectInitializationTest : ObjectFactoryIntegrationTestBase

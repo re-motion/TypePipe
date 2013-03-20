@@ -18,7 +18,7 @@
 using System;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
   public class ParticipantStateTest : ObjectFactoryIntegrationTestBase

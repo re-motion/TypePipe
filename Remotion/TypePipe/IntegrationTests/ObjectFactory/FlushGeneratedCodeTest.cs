@@ -24,7 +24,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
   public class FlushGeneratedCodeTest : ObjectFactoryIntegrationTestBase

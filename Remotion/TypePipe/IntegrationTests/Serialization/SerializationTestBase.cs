@@ -25,6 +25,7 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.IntegrationTests.ObjectFactory;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 using Remotion.TypePipe.MutableReflection;
 

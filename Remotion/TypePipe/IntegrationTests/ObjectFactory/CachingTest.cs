@@ -22,7 +22,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
   public class CachingTest : ObjectFactoryIntegrationTestBase

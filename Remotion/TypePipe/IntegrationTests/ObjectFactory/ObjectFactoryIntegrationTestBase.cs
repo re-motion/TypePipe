@@ -23,7 +23,7 @@ using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 using System.Linq;
 
-namespace Remotion.TypePipe.IntegrationTests
+namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   public abstract class ObjectFactoryIntegrationTestBase : IntegrationTestBase
   {
