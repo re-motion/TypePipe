@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -135,30 +134,23 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.Invoke (proxyInstance, new[] { newClassInstance, -8 }), Is.EqualTo (-8));
     }
 
-    [Ignore ("TODO 5475")]
     [Test]
-    public void EnumType_DelegateType_ValueType ()
+    public void ValueType ()
     {
       var type = AssembleType<DomainType> (
-          typeContext =>
+          ctx =>
           {
-            typeContext.CreateType ("MyEnumType", null, TypeAttributes.Public, typeof (Enum));
-            typeContext.CreateType ("MyDelegateType", null, TypeAttributes.Public, typeof (Delegate));
-            typeContext.CreateType ("MyValueType", null, TypeAttributes.Public, typeof (ValueType));
+            var newValueType = ctx.CreateType ("MyValueType", null, TypeAttributes.Sealed, typeof (ValueType));
+            newValueType.AddField ("dummy", FieldAttributes.Private, typeof (int));
           });
       var assembly = type.Assembly;
 
-      var enumType = assembly.GetType ("MyEnumType", throwOnError: true);
-      var delegateType = assembly.GetType ("MyDelegateType", true);
-      var valueType = assembly.GetType ("MyValueType", true);
-
-      Assert.That (enumType.IsEnum, Is.True);
-      Assert.That (enumType.BaseType, Is.SameAs (typeof (Enum)));
-
-      Assert.That (delegateType.BaseType, Is.SameAs (typeof (Delegate)));
+      var valueType = assembly.GetType ("MyValueType", throwOnError: true);
 
       Assert.That (valueType.IsValueType, Is.True);
       Assert.That (valueType.BaseType, Is.SameAs (typeof (ValueType)));
+      Assert.That (valueType.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), Is.Empty);
+      Assert.That (Activator.CreateInstance (valueType), Is.Not.Null);
     }
 
     public class DomainType
