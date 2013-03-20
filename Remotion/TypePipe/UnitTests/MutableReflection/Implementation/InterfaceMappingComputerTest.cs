@@ -116,6 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       var proxyType = MutableTypeObjectMother.Create (baseType: typeof (DomainType), memberSelector: memberSelectorMock);
+      memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]).Repeat.Once();
       AddMethod (proxyType, "Method21", MethodAttributes.Public | MethodAttributes.Virtual);
 
       // TODO 5059: fix (use simple GetMethods with name)

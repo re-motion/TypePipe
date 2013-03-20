@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      _relatedMethodFinderMock = MockRepository.GenerateMock<IRelatedMethodFinder> ();
+      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
 
       _factory = new MethodFactory (_relatedMethodFinderMock);
 
@@ -151,6 +151,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var method = CallCreateMethod (_mutableType, name, attributes, returnType, parameterDeclarations, bodyProvider);
 
       Assert.That (method.IsStatic, Is.True);
+    }
+
+    [Test]
+    public void CreateMethod_OnInterface ()
+    {
+      var mutableType = MutableTypeObjectMother.CreateInterface();
+      var name = "name";
+      var attributes = MethodAttributes.Virtual | MethodAttributes.ReuseSlot;
+
+      CallCreateMethod (mutableType, name, attributes, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
+
+      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      _relatedMethodFinderMock.AssertWasNotCalled (mock => mock.GetMostDerivedVirtualMethod (name, signature, null));
     }
 
     [Test]

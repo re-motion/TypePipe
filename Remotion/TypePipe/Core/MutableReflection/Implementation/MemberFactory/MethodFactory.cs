@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,7 +134,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     private MethodInfo GetBaseMethod (MutableType declaringType, string name, MethodSignature signature, bool isVirtual, bool isNewSlot)
     {
-      if (!isVirtual || isNewSlot)
+      if (declaringType.IsInterface || !isVirtual || isNewSlot)
         return null;
 
       var baseMethod = _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType);
