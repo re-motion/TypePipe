@@ -14,9 +14,13 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
+using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -26,11 +30,18 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class GeneratedTypeContext
   {
+    private readonly Dictionary<MutableType, Type> _typeDictionary;
+
+    public GeneratedTypeContext (IEnumerable<MutableType> mutableTypes, IEnumerable<Type> generatedTypes)
+    {
+      _typeDictionary = mutableTypes.Zip (generatedTypes).ToDictionary (i => i.Item1, i => i.Item2);
+    }
+
     public MemberInfo GetGeneratedMember (IMutableMember mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
 
-      return null;
+      return _typeDictionary[(MutableType) mutableMember];
     }
   }
 }
