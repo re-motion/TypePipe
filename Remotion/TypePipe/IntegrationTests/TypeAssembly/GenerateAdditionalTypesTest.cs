@@ -52,7 +52,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo ("new interface implemented"));
     }
 
-    [Ignore ("TODO 5475")]
     [Test]
     public void ProxyIsBaseTypeOfNewClass ()
     {
@@ -72,16 +71,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             proxy.GetOrAddOverride (method).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" Proxy")));
 
             var proxyProxy = typeContext.CreateProxy (proxy);
-            //proxyProxy.GetOrAddOverride (method).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" ProxyProxy")));
+            proxyProxy.GetOrAddOverride (method).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" ProxyProxy")));
             newClassName = proxyProxy.FullName;
           });
 
       var proxyProxyType = type.Assembly.GetType (newClassName, throwOnError: true);
       var proxyInstance = (DomainType) Activator.CreateInstance (type);
-      //var proxyProxyInstance = (DomainType) Activator.CreateInstance (proxyProxyType);
+      var proxyProxyInstance = (DomainType) Activator.CreateInstance (proxyProxyType);
 
       Assert.That (proxyInstance.Method(), Is.EqualTo ("DomainType Proxy"));
-      //Assert.That (proxyProxyInstance.Method(), Is.EqualTo ("DomainType Proxy ProxyProxy"));
+      Assert.That (proxyProxyInstance.Method(), Is.EqualTo ("DomainType Proxy ProxyProxy"));
     }
 
     [Ignore ("TODO 5475")]
