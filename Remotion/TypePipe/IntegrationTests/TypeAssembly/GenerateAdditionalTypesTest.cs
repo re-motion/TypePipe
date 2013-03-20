@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var ifc = typeContext.CreateType ("INewInterface", "MyNamespace", TypeAttributes.Interface, null);
+            var ifc = typeContext.CreateInterface ("INewInterface", "MyNamespace");
             var ifcMethod = ifc.AddAbstractMethod ("InterfaceMethod", returnType: typeof (string));
 
             typeContext.ProxyType.AddInterface (ifc);
@@ -73,7 +73,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var proxy = typeContext.ProxyType;
             proxy.GetOrAddOverride (method).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" Proxy")));
 
-            var proxyProxy = typeContext.CreateProxyType (proxy);
+            var proxyProxy = typeContext.CreateProxy (proxy);
             //proxyProxy.GetOrAddOverride (method).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" ProxyProxy")));
             newClassName = proxyProxy.FullName;
           });

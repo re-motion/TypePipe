@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   public interface IMutableTypeFactory
   {
     MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
-
-    MutableType CreateProxyType (Type baseType);
+    MutableType CreateInterface (string name, string @namespace);
+    MutableType CreateProxy (Type baseType);
   }
 }

@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _requestedType = ReflectionObjectMother.GetSomeType();
       _proxyType = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxyType (_requestedType)).Return (_proxyType);
+      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (_proxyType);
 
       _typeContext = new TypeContext (_mutableTypeFactoryMock, _requestedType, _state);
     }
@@ -72,13 +72,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void CreateProxyType ()
+    public void CreateInterface ()
+    {
+      var name = "name";
+      var @namespace = "namespace";
+      var fakeResult = MutableTypeObjectMother.Create();
+      _mutableTypeFactoryMock.Expect (mock => mock.CreateInterface (name, @namespace)).Return (fakeResult);
+
+      var result = _typeContext.CreateInterface (name, @namespace);
+
+      _mutableTypeFactoryMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeResult));
+      Assert.That (_typeContext.AdditionalTypes, Is.EqualTo (new[] { result }));
+    }
+
+    [Test]
+    public void CreateProxy ()
     {
       var baseType = ReflectionObjectMother.GetSomeType();
       var fakeResult = MutableTypeObjectMother.Create();
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxyType (baseType)).Return (fakeResult);
+      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (baseType)).Return (fakeResult);
 
-      var result = _typeContext.CreateProxyType (baseType);
+      var result = _typeContext.CreateProxy (baseType);
 
       _mutableTypeFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));

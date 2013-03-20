@@ -62,29 +62,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateType_Interface ()
-    {
-      var result = _factory.CreateType ("IAbc", null, TypeAttributes.Interface, baseType: null);
-
-      Assert.That (result.Namespace, Is.Null);
-      Assert.That (result.BaseType, Is.Null);
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Value cannot be null.\r\nParameter name: baseType")]
-    public void CreateType_Class_BaseTypeCannotBeNull ()
-    {
-      _factory.CreateType ("t", "ns", TypeAttributes.Class, baseType: null);
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Interfaces cannot have a base type.\r\nParameter name: baseType")]
-    public void CreateType_Interface_BaseTypeMustBeNull ()
-    {
-      _factory.CreateType ("i", "ns", TypeAttributes.Interface, baseType: ReflectionObjectMother.GetSomeSubclassableType());
-    }
-
-    [Test]
     public void CreateType_Class_SpecialBaseType ()
     {
       CheckCreateType (typeof (Enum));
@@ -110,9 +87,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProxyType ()
+    public void CreateInterface ()
     {
-      var result = _factory.CreateProxyType (_domainType);
+      var result = _factory.CreateInterface ("IAbc", "MyNs");
+
+      Assert.That (result.IsInterface, Is.True);
+      Assert.That (result.BaseType, Is.Null);
+      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract));
+      Assert.That (result.Name, Is.EqualTo ("IAbc"));
+      Assert.That (result.Namespace, Is.EqualTo ("MyNs"));
+    }
+
+    [Test]
+    public void CreateProxy ()
+    {
+      var result = _factory.CreateProxy (_domainType);
 
       Assert.That (result.BaseType, Is.SameAs (_domainType));
       Assert.That (result.Name, Is.EqualTo (@"DomainType_Proxy1"));
@@ -121,26 +110,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProxyType_UniqueNames ()
+    public void CreateProxy_UniqueNames ()
     {
-      var result1 = _factory.CreateProxyType (_domainType);
-      var result2 = _factory.CreateProxyType (_domainType);
+      var result1 = _factory.CreateProxy (_domainType);
+      var result2 = _factory.CreateProxy (_domainType);
 
       Assert.That (result1.Name, Is.Not.EqualTo (result2.Name));
     }
 
     [Test]
-    public void CreateProxyType_Serializable ()
+    public void CreateProxy_Serializable ()
     {
-      var result = _factory.CreateProxyType (typeof (SerializableType));
+      var result = _factory.CreateProxy (typeof (SerializableType));
 
       Assert.That (result.IsSerializable, Is.True);
     }
 
     [Test]
-    public void CreateProxyType_CopiesAccessibleInstanceConstructors ()
+    public void CreateProxy_CopiesAccessibleInstanceConstructors ()
     {
-      var result = _factory.CreateProxyType (_domainType);
+      var result = _factory.CreateProxy (_domainType);
 
       Assert.That (result.AddedConstructors, Has.Count.EqualTo (1));
 

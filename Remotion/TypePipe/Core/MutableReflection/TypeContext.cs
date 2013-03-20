@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       _mutableTypeFactory = mutableTypeFactory;
       _requestedType = requestedType;
-      _proxyType = _mutableTypeFactory.CreateProxyType (requestedType);
+      _proxyType = _mutableTypeFactory.CreateProxy (requestedType);
       _state = state;
     }
 
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Creates an additional <see cref="ProxyType"/> that should be generated.
+    /// Creates an additional <see cref="MutableType"/> that should be generated.
     /// </summary>
     /// <param name="name">The type name.</param>
     /// <param name="namespace">The namespace of the type.</param>
@@ -94,9 +94,26 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
-      // Base type may be null (for interfaces).
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
 
       var type = _mutableTypeFactory.CreateType (name, @namespace, attributes, baseType);
+      _additionalTypes.Add (type);
+
+      return type;
+    }
+
+    /// <summary>
+    /// Creates an additional <see cref="MutableType"/> representing an interface.
+    /// </summary>
+    /// <param name="name">The interface name.</param>
+    /// <param name="namespace">The namespace of the interface.</param>
+    /// <returns>A new mutable type representing an interface.</returns>
+    public MutableType CreateInterface (string name, string @namespace)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Namespace may be null.
+
+      var type = _mutableTypeFactory.CreateInterface (name, @namespace);
       _additionalTypes.Add (type);
 
       return type;
@@ -108,11 +125,11 @@ namespace Remotion.TypePipe.MutableReflection
     /// </summary>
     /// <param name="baseType">The proxied type.</param>
     /// <returns>A new mutable proxy type.</returns>
-    public MutableType CreateProxyType (Type baseType)
+    public MutableType CreateProxy (Type baseType)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      var type = _mutableTypeFactory.CreateProxyType (baseType);
+      var type = _mutableTypeFactory.CreateProxy (baseType);
       _additionalTypes.Add (type);
 
       return type;

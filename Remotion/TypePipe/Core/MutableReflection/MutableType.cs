@@ -403,18 +403,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override TypeAttributes GetAttributeFlagsImpl ()
     {
-      var hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-          .Where (m => m.IsAbstract)
-          .Select (m => m.GetBaseDefinition())
-          .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
-          .Any();
-      var isSerializable = _customAttributes.AddedCustomAttributes.Any (a => a.Type == typeof (SerializableAttribute));
-
       var attributes = base.GetAttributeFlagsImpl();
+
+      var isSerializable = _customAttributes.AddedCustomAttributes.Any (a => a.Type == typeof (SerializableAttribute));
       if (isSerializable)
         attributes |= TypeAttributes.Serializable;
 
-      if (hasAbstractMethods)
+      // tODO test
+      if (attributes.IsSet (TypeAttributes.Interface))
+        return attributes | TypeAttributes.Abstract;
+
+      if (HasAbstractMethods())
         return attributes | TypeAttributes.Abstract;
       else
         return attributes & ~TypeAttributes.Abstract;
@@ -443,10 +442,11 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      Assertion.IsNotNull (BaseType);
+      // TODO: Test
 
       var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
-      var filteredBaseMethods = BaseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
+      var baseMethods = BaseType != null ? BaseType.GetMethods (c_allMembers) : new MethodInfo[0];
+      var filteredBaseMethods = baseMethods.Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
 
       return _addedMethods.Cast<MethodInfo>().Concat (filteredBaseMethods);
     }
@@ -463,6 +463,15 @@ namespace Remotion.TypePipe.MutableReflection
       Assertion.IsNotNull (BaseType);
 
       return _addedEvents.Cast<EventInfo>().Concat (BaseType.GetEvents (c_allMembers));
+    }
+
+    private bool HasAbstractMethods ()
+    {
+      return GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+          .Where (m => m.IsAbstract)
+          .Select (m => m.GetBaseDefinition())
+          .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
+          .Any();
     }
   } 
 }

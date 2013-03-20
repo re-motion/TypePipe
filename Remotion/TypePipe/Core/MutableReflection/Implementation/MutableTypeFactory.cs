@@ -37,19 +37,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
-      // Base type may be null (for interfaces).
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      var isClass = attributes.IsSet (TypeAttributes.ClassSemanticsMask, TypeAttributes.Class);
-      if (isClass && baseType == null)
-        throw new ArgumentNullException ("baseType");
-      if (!isClass && baseType != null)
-        throw new ArgumentException ("Interfaces cannot have a base type.", "baseType");
+      //if (attributes.IsSet (TypeAttributes.Interface))
+      // todo throw
 
-      // TODO 5471: argument checks (for example):
-      // attributes and base type must be correct.
       // TODO (maybe): check that baseType.IsVisible
-
-      if (baseType != null && CanNotBeSubclassed (baseType))
+      if (CanNotBeSubclassed (baseType))
       {
         throw new ArgumentException (
             "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
@@ -57,14 +51,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             "baseType");
       }
 
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      var interfaceMappingComputer = new InterfaceMappingComputer();
-      var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
-
-      return new MutableType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return CreateMutableType (name, @namespace, attributes, baseType);
     }
 
-    public MutableType CreateProxyType (Type baseType)
+    public MutableType CreateInterface (string name, string @namespace)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Name space may be null.
+
+      var attributes = TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract;
+      return CreateMutableType (name, @namespace, attributes, null);
+    }
+
+    public MutableType CreateProxy (Type baseType)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
@@ -76,6 +75,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       CopyConstructors (baseType, proxyType);
 
       return proxyType;
+    }
+
+    private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType)
+    {
+      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+      var interfaceMappingComputer = new InterfaceMappingComputer();
+      var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
+
+      return new MutableType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private void CopyConstructors (Type baseType, MutableType proxyType)

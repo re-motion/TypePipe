@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         var fakeProxyType = MutableTypeObjectMother.Create();
-        mutableTypeFactoryMock.Expect (mock => mock.CreateProxyType (_requestedType)).Return (fakeProxyType);
+        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (fakeProxyType);
 
         TypeContext typeContext = null;
         participantMock1.Expect (mock => mock.Modify (Arg<TypeContext>.Is.Anything)).WhenCalled (
@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
-      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxyType (_requestedType)).Return (MutableTypeObjectMother.Create());
+      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxy (_requestedType)).Return (MutableTypeObjectMother.Create());
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
