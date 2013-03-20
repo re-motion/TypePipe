@@ -78,11 +78,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       EnsureState (1);
 
-      _context.TypeBuilder.SetParent (_mutableType.BaseType);
-
-      foreach (var customAttribute in _mutableType.AddedCustomAttributes)
-        _context.TypeBuilder.SetCustomAttribute (customAttribute);
-
+      if (_mutableType.BaseType != null)
+        _context.TypeBuilder.SetParent (_mutableType.BaseType);
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
 
@@ -91,6 +88,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
       _proxySerializationEnabler.MakeSerializable (_mutableType, initializationMethod);
 
+      foreach (var attribute in _mutableType.AddedCustomAttributes)
+        _context.TypeBuilder.SetCustomAttribute (attribute);
       foreach (var ifc in _mutableType.AddedInterfaces)
         _context.TypeBuilder.AddInterfaceImplementation (ifc);
       foreach (var field in _mutableType.AddedFields)

@@ -121,21 +121,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var property = _mutableType.AddProperty();
       var event_ = _mutableType.AddEvent();
 
-      var context = PopulateContext (_generator, 1);
-
       using (_mockRepository.Ordered())
       {
-        _typeBuilderMock.Expect (mock => mock.SetParent (_mutableType.BaseType));
-        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
+        var context = PopulateContext (_generator, 1);
 
+        _typeBuilderMock.Expect (mock => mock.SetParent (_mutableType.BaseType));
         _memberEmitterMock.Expect (mock => mock.AddConstructor (context, typeInitializer));
+
         _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_mutableType)).Return (_fakeInitializationMembers);
         _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
 
+        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
         _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
         _memberEmitterMock.Expect (mock => mock.AddField (context, field));
-        _initializationBuilderMock
-            .Expect (mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));
+        _initializationBuilderMock.Expect (
+            mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));
         _memberEmitterMock.Expect (mock => mock.AddConstructor (context, constructor));
         _memberEmitterMock.Expect (mock => mock.AddMethod (context, method));
         SetupExpectationsForAccessors (_memberEmitterMock, _mutableType.AddedMethods.Except (new[] { method }));
@@ -150,18 +150,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void DefineTypeFacet_NoTypeInitializer_NoInitializations ()
+    public void DefineTypeFacet_NoParent_NoTypeInitializer_NoInitializations ()
     {
-      PopulateContext (_generator, 1);
-      Assert.That (_mutableType.MutableTypeInitializer, Is.Null);
+      var mutableType = MutableTypeObjectMother.CreateInterface();
+      Assert.That (mutableType.BaseType, Is.Null);
+      Assert.That (mutableType.MutableTypeInitializer, Is.Null);
+      Assert.That (mutableType.Initializations, Is.Empty);
 
-      _typeBuilderMock.SetParent (_mutableType.BaseType);
-      // No call to AddConstructor because of null type initializer.
-      _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_mutableType)).Return (null);
-      _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, null));
+      var generator = new MutableTypeCodeGenerator (
+          mutableType, _codeGeneratorMock, _memberEmitterMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+      PopulateContext (generator, 1);
+
+      // No call to SetParent because of null BaseType.
+      // No call to AddConstructor because of null TypeInitializer.
+      _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (mutableType)).Return (null);
+      _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (mutableType, null));
       _mockRepository.ReplayAll();
 
-      _generator.DefineTypeFacet();
+      generator.DefineTypeFacet();
 
       _mockRepository.VerifyAll();
     }
