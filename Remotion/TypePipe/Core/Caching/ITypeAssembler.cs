@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.Caching
   {
     ICodeGenerator CodeGenerator { get; }
 
-    Type AssembleType (Type requestedType);
+    Type AssembleType (Type requestedType, IDictionary<string, object> participantState);
 
     /// <summary>
     /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s and the

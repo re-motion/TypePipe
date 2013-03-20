@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lockObject))
           .Return (new object[] { "other key" });
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (_requestedType))
+          .Expect (mock => mock.AssembleType (_requestedType, GetParticipantState (_cache)))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_generatedType2);
 
@@ -184,7 +184,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_fakeSignature);
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (_requestedType))
+          .Expect (mock => mock.AssembleType (_requestedType, GetParticipantState (_cache)))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_generatedType2);
       _constructorFinderMock
@@ -202,6 +202,11 @@ namespace Remotion.TypePipe.UnitTests.Caching
       Assert.That (result, Is.SameAs (_delegate2));
       Assert.That (_types[new object[] { "other type key" }], Is.SameAs (_generatedType2));
       Assert.That (_constructorCalls[new object[] { _delegateType, _allowNonPublic, "other type key" }], Is.SameAs (_delegate2));
+    }
+
+    private IDictionary<string, object> GetParticipantState (TypeCache typeCache)
+    {
+      return (IDictionary<string, object>) PrivateInvoke.GetNonPublicField (typeCache, "_participantState");
     }
 
     private class GeneratedType1 { }

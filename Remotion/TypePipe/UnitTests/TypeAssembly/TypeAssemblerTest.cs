@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     private ITypeContextCodeGenerator _typeContextCodeGeneratorMock;
     
     private Type _requestedType;
+    private IDictionary<string, object> _participantState;
 
     [SetUp]
     public void SetUp ()
@@ -43,6 +45,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       _typeContextCodeGeneratorMock = MockRepository.GenerateStrictMock<ITypeContextCodeGenerator> ();
 
       _requestedType = CustomTypeObjectMother.Create (name: "RequestedType");
+      _participantState = new Dictionary<string, object>();
     }
 
     [Test]
@@ -93,6 +96,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
             {
               typeContext = mi.Arguments[0].As<TypeContext>();
               Assert.That (typeContext.ProxyType, Is.SameAs (fakeProxyType));
+              Assert.That (typeContext.State, Is.SameAs (_participantState));
             });
         participantMock2.Expect (mock => mock.Modify (Arg<TypeContext>.Matches (ctx => ctx == typeContext)));
 
@@ -103,7 +107,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var typeAssembler = CreateTypeAssembler (
           mutableTypeFactoryMock, subclassProxyCreatorMock, participants: new[] { participantMock1, participantMock2 });
 
-      var result = typeAssembler.AssembleType (_requestedType);
+      var result = typeAssembler.AssembleType (_requestedType, _participantState);
 
       mockRepository.VerifyAll();
       Assert.That (result, Is.SameAs (fakeResult));
@@ -124,12 +128,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var expectedMessageRegex = "An error occurred during code generation for 'RequestedType':\r\nblub\r\n"
                                  + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
       Assert.That (
-          () => typeAssembler.AssembleType (_requestedType),
+          () => typeAssembler.AssembleType (_requestedType, _participantState),
           Throws.InvalidOperationException.With.InnerException.SameAs (exception1).And.With.Message.Matches (expectedMessageRegex));
       Assert.That (
-          () => typeAssembler.AssembleType (_requestedType),
+          () => typeAssembler.AssembleType (_requestedType, _participantState),
           Throws.TypeOf<NotSupportedException>().With.InnerException.SameAs (exception2).And.With.Message.Matches (expectedMessageRegex));
-      Assert.That (() => typeAssembler.AssembleType (_requestedType), Throws.Exception.SameAs (exception3));
+      Assert.That (() => typeAssembler.AssembleType (_requestedType, _participantState), Throws.Exception.SameAs (exception3));
     }
 
     [Test]

@@ -37,8 +37,9 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly Type _requestedType;
     private readonly MutableType _proxyType;
+    private readonly IDictionary<string, object> _state;
 
-    public TypeContext (IMutableTypeFactory mutableTypeFactory, Type requestedType)
+    public TypeContext (IMutableTypeFactory mutableTypeFactory, Type requestedType, IDictionary<string, object> state)
     {
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
@@ -46,6 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
       _mutableTypeFactory = mutableTypeFactory;
       _requestedType = requestedType;
       _proxyType = _mutableTypeFactory.CreateProxyType (requestedType);
+      _state = state;
     }
 
     /// <summary>
@@ -62,6 +64,14 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableType ProxyType
     {
       get { return _proxyType; }
+    }
+
+    /// <summary>
+    /// A global cache that is intended to hold the state of the <see cref="IParticipant"/>s.
+    /// </summary>
+    public IDictionary<string, object> State
+    {
+      get { return _state; }
     }
 
     /// <summary>

@@ -33,6 +33,10 @@ namespace Remotion.TypePipe
   /// The <see cref="MutableType"/> is a representation of the type to be generated for the requested type.
   /// In addition, it contains all modifications applied by preceding participants in the pipeline.
   /// </para>
+  /// <para>
+  /// Implementations of this interface should hold no state directly.
+  /// If there is the need to hold state a participant should use <see cref="TypeContext.State"/>.
+  /// </para>
   /// </remarks>
   [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
                            + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true)]

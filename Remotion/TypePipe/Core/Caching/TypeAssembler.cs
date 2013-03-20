@@ -64,9 +64,9 @@ namespace Remotion.TypePipe.Caching
       get { return _typeContextCodeGenerator.CodeGenerator; }
     }
 
-    public Type AssembleType (Type requestedType)
+    public Type AssembleType (Type requestedType, IDictionary<string, object> participantState)
     {
-      var typeContext = new TypeContext (_mutableTypeFactory, requestedType);
+      var typeContext = new TypeContext (_mutableTypeFactory, requestedType, participantState);
 
       foreach (var participant in _participants)
         participant.Modify (typeContext);

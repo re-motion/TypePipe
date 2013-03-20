@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     private Type _requestedType;
     private MutableType _proxyType;
     private IMutableTypeFactory _mutableTypeFactoryMock;
+    private IDictionary<string, object> _state;
 
     private TypeContext _typeContext;
 
@@ -40,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _mutableTypeFactoryMock.Expect (mock => mock.CreateProxyType (_requestedType)).Return (_proxyType);
 
-      _typeContext = new TypeContext (_mutableTypeFactoryMock, _requestedType);
+      _typeContext = new TypeContext (_mutableTypeFactoryMock, _requestedType, _state);
     }
 
     [Test]
@@ -49,6 +51,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (_typeContext.RequestedType, Is.SameAs (_requestedType));
       Assert.That (_typeContext.ProxyType, Is.SameAs (_proxyType));
       Assert.That (_typeContext.AdditionalTypes, Is.Empty);
+      Assert.That (_typeContext.State, Is.SameAs (_state));
     }
 
     [Test]

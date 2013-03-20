@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var subclassProxyBuilder = CreateSubclassProxyCreator (testName);
       var typeAssembler = new TypeAssembler (participants, mutableTypeFactory, subclassProxyBuilder);
 
-      return typeAssembler.AssembleType (requestedType);
+      return typeAssembler.AssembleType (requestedType, participantState: new Dictionary<string, object>());
     }
   }
 }

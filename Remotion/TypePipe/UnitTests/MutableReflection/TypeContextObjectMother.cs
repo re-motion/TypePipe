@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
@@ -25,12 +26,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   public static class TypeContextObjectMother
   {
-    public static TypeContext Create (Type requestedType = null, IMutableTypeFactory mutableTypeFactory = null)
+    public static TypeContext Create (Type requestedType = null, IMutableTypeFactory mutableTypeFactory = null, IDictionary<string, object> state = null)
     {
       requestedType = requestedType ?? typeof (UnspecifiedType);
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
+      state = state ?? new Dictionary<string, object>();
 
-      return new TypeContext (mutableTypeFactory, requestedType);
+      return new TypeContext (mutableTypeFactory, requestedType, state);
     }
 
     public static TypeContext Create (MutableType proxyType)

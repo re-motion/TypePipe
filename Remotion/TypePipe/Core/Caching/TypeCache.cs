@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.Caching
     private readonly object _lock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
+    private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorFinder _constructorFinder;
@@ -101,7 +102,7 @@ namespace Remotion.TypePipe.Caching
       {
         if (!_types.TryGetValue (key, out generatedType))
         {
-          generatedType = _typeAssembler.AssembleType (requestedType);
+          generatedType = _typeAssembler.AssembleType (requestedType, _participantState);
           _types.Add (key, generatedType);
         }
       }
