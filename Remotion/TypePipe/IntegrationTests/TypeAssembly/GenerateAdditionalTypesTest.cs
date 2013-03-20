@@ -28,31 +28,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class GenerateAdditionalTypesTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("TODO 5475")]
-    [Test]
-    public void EnumType_DelegateType_ValueType ()
-    {
-      var type = AssembleType<DomainType> (
-          typeContext =>
-          {
-            typeContext.CreateType ("MyEnumType", null, TypeAttributes.Public, typeof (Enum));
-            typeContext.CreateType ("MyDelegateType", null, TypeAttributes.Public, typeof (Delegate));
-            typeContext.CreateType ("MyValueType", null, TypeAttributes.Public, typeof (ValueType));
-          });
-      var assembly = type.Assembly;
-
-      var enumType = assembly.GetType ("MyEnumType", throwOnError: true);
-      var delegateType = assembly.GetType ("MyDelegateType", true);
-      var valueType = assembly.GetType ("MyValueType", true);
-
-      Assert.That (enumType.IsEnum, Is.True);
-      Assert.That (enumType.BaseType, Is.SameAs (typeof (Enum)));
-
-      Assert.That (delegateType.BaseType, Is.SameAs (typeof (Delegate)));
-
-      Assert.That (valueType.IsValueType, Is.True);
-      Assert.That (valueType.BaseType, Is.SameAs (typeof (ValueType)));
-    }
 
     [Ignore ("TODO 5475")]
     [Test]
@@ -159,6 +134,32 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       Assert.That (method.Invoke (proxyInstance, new[] { newClassInstance, 7 }), Is.EqualTo (0));
       Assert.That (method.Invoke (proxyInstance, new[] { newClassInstance, -8 }), Is.EqualTo (-8));
+    }
+
+    [Ignore ("TODO 5475")]
+    [Test]
+    public void EnumType_DelegateType_ValueType ()
+    {
+      var type = AssembleType<DomainType> (
+          typeContext =>
+          {
+            typeContext.CreateType ("MyEnumType", null, TypeAttributes.Public, typeof (Enum));
+            typeContext.CreateType ("MyDelegateType", null, TypeAttributes.Public, typeof (Delegate));
+            typeContext.CreateType ("MyValueType", null, TypeAttributes.Public, typeof (ValueType));
+          });
+      var assembly = type.Assembly;
+
+      var enumType = assembly.GetType ("MyEnumType", throwOnError: true);
+      var delegateType = assembly.GetType ("MyDelegateType", true);
+      var valueType = assembly.GetType ("MyValueType", true);
+
+      Assert.That (enumType.IsEnum, Is.True);
+      Assert.That (enumType.BaseType, Is.SameAs (typeof (Enum)));
+
+      Assert.That (delegateType.BaseType, Is.SameAs (typeof (Delegate)));
+
+      Assert.That (valueType.IsValueType, Is.True);
+      Assert.That (valueType.BaseType, Is.SameAs (typeof (ValueType)));
     }
 
     public class DomainType
