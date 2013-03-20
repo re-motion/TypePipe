@@ -16,7 +16,10 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -26,9 +29,34 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class DependentTypeSorter : IDependentTypeSorter
   {
+    private const string c_cyclicDependency =
+        "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types returned by "
+        + "Type.BaseType and Type.GetInterfaces must terminate.";
+
     public IEnumerable<MutableType> Sort (IEnumerable<MutableType> types)
     {
-      return types;
+      ArgumentUtility.CheckNotNull ("types", types);
+
+      var remainingTypes = new HashSet<MutableType> (types);
+
+      while (remainingTypes.Count > 0)
+      {
+        var independenType = remainingTypes.First (t => IsIndependent (t, remainingTypes), () => new InvalidOperationException (c_cyclicDependency));
+        remainingTypes.Remove (independenType);
+
+        yield return independenType;
+      }
+    }
+
+    private bool IsIndependent (MutableType type, HashSet<MutableType> types)
+    {
+      return !Contains (types, type.BaseType) && !type.GetInterfaces().Any (t => Contains (types, t));
+    }
+
+    private bool Contains (HashSet<MutableType> types, Type type)
+    {
+      var mutableType = type as MutableType;
+      return mutableType != null && types.Contains (mutableType);
     }
   }
 }
