@@ -91,6 +91,7 @@
     <Compile Include="TypeAssembly\GenerateAdditionalTypesTest.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeAssembly\GenerationCompletedEventTest.cs" />
     <Compile Include="TypeAssembly\GenericParameterConversionsTest.cs" />
     <Compile Include="TypeAssembly\GenericParameterMemberAccessTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
