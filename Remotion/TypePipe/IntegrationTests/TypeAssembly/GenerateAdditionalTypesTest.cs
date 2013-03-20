@@ -27,7 +27,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class GenerateAdditionalTypesTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("TODO 5475")]
     [Test]
     public void ProxyImplementsGeneratedInterface ()
     {
@@ -83,7 +82,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (proxyProxyInstance.Method(), Is.EqualTo ("DomainType Proxy ProxyProxy"));
     }
 
-    [Ignore ("TODO 5475")]
     [Test]
     public void TypesRequiringForwardDeclarations ()
     {
@@ -138,9 +136,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ValueType ()
     {
       var type = AssembleType<DomainType> (
-          ctx =>
+          typeContext =>
           {
-            var newValueType = ctx.CreateType ("MyValueType", null, TypeAttributes.Sealed, typeof (ValueType));
+            var newValueType = typeContext.CreateType ("MyValueType", null, TypeAttributes.Sealed, typeof (ValueType));
             newValueType.AddField ("dummy", FieldAttributes.Private, typeof (int));
           });
       var assembly = type.Assembly;
