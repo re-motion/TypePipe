@@ -50,6 +50,16 @@ namespace Remotion.TypePipe.MutableReflection
       _state = state;
     }
 
+    // TODO 5482: docs
+    public event Action<GeneratedTypeContext> GenerationCompleted;
+
+    public void OnGenerationCompleted ()
+    {
+      var handler = GenerationCompleted;
+      if (handler != null)
+        handler (null);
+    }
+
     /// <summary>
     /// The original <see cref="Type"/> that was requested by the user through an instance of <see cref="IObjectFactory"/>.
     /// </summary>
