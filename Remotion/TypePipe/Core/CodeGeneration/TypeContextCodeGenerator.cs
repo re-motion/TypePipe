@@ -20,6 +20,7 @@ using System.Linq;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -30,13 +31,16 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class TypeContextCodeGenerator : ITypeContextCodeGenerator
   {
+    private readonly IDependentTypeSorter _dependentTypeSorter;
     private readonly IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactory;
 
     [CLSCompliant (false)]
-    public TypeContextCodeGenerator (IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
+    public TypeContextCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
     {
+      ArgumentUtility.CheckNotNull ("dependentTypeSorter", dependentTypeSorter);
       ArgumentUtility.CheckNotNull ("mutableTypeCodeGeneratorFactory", mutableTypeCodeGeneratorFactory);
 
+      _dependentTypeSorter = dependentTypeSorter;
       _mutableTypeCodeGeneratorFactory = mutableTypeCodeGeneratorFactory;
     }
 
@@ -49,17 +53,18 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
-      var mutableTypes = new[] { typeContext.ProxyType }.Concat (typeContext.AdditionalTypes);
-      var generators = mutableTypes.Select (_mutableTypeCodeGeneratorFactory.Create).ToList();
+      var mutableTypes = typeContext.AdditionalTypes.Concat (typeContext.ProxyType).ToArray();
+      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
+      var generators = sortedTypes.Select (_mutableTypeCodeGeneratorFactory.Create).ToList();
 
       foreach (var g in generators)
         g.DeclareType();
       foreach (var g in generators)
         g.DefineTypeFacet();
-      foreach (var g in generators.Skip (1))
-        g.CreateType();
 
-      return generators[0].CreateType();
+      var createdTypes = generators.Select (g => g.CreateType()).ToList();
+
+      return createdTypes.First();
     }
   }
 }

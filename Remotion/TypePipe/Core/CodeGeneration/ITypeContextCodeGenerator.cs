@@ -17,7 +17,6 @@
 
 using System;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration

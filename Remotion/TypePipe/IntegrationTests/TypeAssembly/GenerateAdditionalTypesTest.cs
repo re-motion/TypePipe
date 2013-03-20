@@ -27,6 +27,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class GenerateAdditionalTypesTest : TypeAssemblerIntegrationTestBase
   {
+    [Ignore ("TODO 5475")]
     [Test]
     public void ProxyImplementsGeneratedInterface ()
     {
@@ -83,6 +84,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       //Assert.That (proxyProxyInstance.Method(), Is.EqualTo ("DomainType Proxy ProxyProxy"));
     }
 
+    [Ignore ("TODO 5475")]
     [Test]
     public void TypesRequiringForwardDeclarations ()
     {
