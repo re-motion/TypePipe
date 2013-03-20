@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateType_Class ()
+    public void CreateType ()
     {
       var name = "MyName";
       var @namespace = "MyNamespace";
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateType_Class_SpecialBaseType ()
+    public void CreateType_SpecialBaseType ()
     {
       CheckCreateType (typeof (Enum));
       CheckCreateType (typeof (Delegate));
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateType_Class_ThrowsIfBaseTypeCannotBeSubclassed ()
+    public void CreateType_ThrowsIfBaseTypeCannotBeSubclassed ()
     {
       CheckThrowsForInvalidBaseType (typeof (string));
       CheckThrowsForInvalidBaseType (typeof (int));
@@ -84,6 +84,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       CheckThrowsForInvalidBaseType (typeof (int).MakeByRefType());
       CheckThrowsForInvalidBaseType (typeof (int).MakePointerType());
       CheckThrowsForInvalidBaseType (typeof (TypeWithoutAccessibleConstructor));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException),
+        ExpectedMessage = "Cannot create interface type. Use CreateInterface instead.\r\nParameter name: attributes")]
+    public void CreateType_InterfaceAttributes ()
+    {
+      _factory.CreateType ("name", null, TypeAttributes.Interface, typeof (object));
     }
 
     [Test]

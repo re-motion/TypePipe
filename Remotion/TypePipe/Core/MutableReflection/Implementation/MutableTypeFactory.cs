@@ -39,10 +39,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Name space may be null.
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      //if (attributes.IsSet (TypeAttributes.Interface))
-      // todo throw
+      if (attributes.IsSet (TypeAttributes.Interface))
+        throw new ArgumentException ("Cannot create interface type. Use CreateInterface instead.", "attributes");
 
-      // TODO (maybe): check that baseType.IsVisible
+      // TODO 4744: check that baseType.IsVisible
       if (CanNotBeSubclassed (baseType))
       {
         throw new ArgumentException (
