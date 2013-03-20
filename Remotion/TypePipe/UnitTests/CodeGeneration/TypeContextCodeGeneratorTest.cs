@@ -63,17 +63,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var proxyType = typeContext.ProxyType;
       var additionalType = typeContext.CreateType ("AdditionalType", null, TypeAttributes.Class, typeof (object));
 
-      var fakeProxyType = ReflectionObjectMother.GetSomeType ();
+      var fakeProxyType = ReflectionObjectMother.GetSomeType();
       using (_mockRepository.Ordered())
       {
-        var sortedType1 = MutableTypeObjectMother.Create ();
-        var sortedType2 = MutableTypeObjectMother.Create ();
-        _dependentTypeSorterMock.Expect (mock => mock.Sort (new[] { additionalType, proxyType })).Return (new[] { sortedType1, sortedType2 });
+        _dependentTypeSorterMock.Expect (mock => mock.Sort (new[] { additionalType, proxyType })).Return (new[] { proxyType, additionalType });
 
         var generatorMock1 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
         var generatorMock2 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
-        _mutableTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (sortedType1)).Return (generatorMock1);
-        _mutableTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (sortedType2)).Return (generatorMock2);
+        _mutableTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (proxyType)).Return (generatorMock1);
+        _mutableTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (additionalType)).Return (generatorMock2);
 
         generatorMock1.Expect (mock => mock.DeclareType());
         generatorMock2.Expect (mock => mock.DeclareType());

@@ -53,8 +53,9 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
+      // TODO : rework this code.
       var mutableTypes = typeContext.AdditionalTypes.Concat (typeContext.ProxyType).ToArray();
-      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
+      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes).ToList();
       var generators = sortedTypes.Select (_mutableTypeCodeGeneratorFactory.Create).ToList();
 
       foreach (var g in generators)
@@ -64,7 +65,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       var createdTypes = generators.Select (g => g.CreateType()).ToList();
 
-      return createdTypes.First();
+      return sortedTypes.Zip (createdTypes).Single (t => ReferenceEquals (t.Item1, typeContext.ProxyType)).Item2;
     }
   }
 }
