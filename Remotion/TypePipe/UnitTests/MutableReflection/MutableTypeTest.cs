@@ -44,6 +44,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableType _mutableType;
     private MutableType _mutableTypeWithoutMocks;
+    private MutableType _mutableInterfaceType;
 
     [SetUp]
     public void SetUp ()
@@ -60,6 +61,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           mutableMemberFactory: _mutableMemberFactoryMock);
 
       _mutableTypeWithoutMocks = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
+
+      _mutableInterfaceType = MutableTypeObjectMother.CreateInterface();
     }
 
     [Test]
@@ -545,6 +548,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetAllInterfaces_Interface ()
+    {
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      _mutableInterfaceType.AddInterface (addedInterface);
+
+      var result = _mutableInterfaceType.Invoke ("GetAllInterfaces");
+
+      Assert.That (result, Is.EqualTo (new[] { addedInterface }));
+    }
+
+    [Test]
     public void GetAllFields ()
     {
       var baseFields = typeof (DomainType).GetFields (c_all);
@@ -554,6 +568,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllFields");
 
       Assert.That (result, Is.EquivalentTo (new[] { addedField }.Concat (baseFields)));
+    }
+
+    [Test]
+    public void GetAllFields_Interface ()
+    {
+      var addedField = _mutableInterfaceType.AddField ();
+
+      var result = _mutableInterfaceType.Invoke ("GetAllFields");
+
+      Assert.That (result, Is.EqualTo (new[] { addedField }));
     }
 
     [Test]
@@ -614,6 +638,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetAllMethods_Interface ()
+    {
+      var addedMethod = _mutableInterfaceType.AddMethod();
+
+      var result = _mutableInterfaceType.Invoke ("GetAllMethods");
+
+      Assert.That (result, Is.EqualTo (new[] { addedMethod }));
+    }
+    
+    [Test]
     public void GetAllProperties ()
     {
       var baseProperties = typeof (DomainType).GetProperties (c_all);
@@ -626,6 +660,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetAllProperties_Interface ()
+    {
+      var addedProperty = _mutableInterfaceType.AddProperty ();
+
+      var result = _mutableInterfaceType.Invoke ("GetAllProperties");
+
+      Assert.That (result, Is.EqualTo (new[] { addedProperty }));
+    }
+
+    [Test]
     public void GetAllEvents ()
     {
       var baseEvents = typeof (DomainType).GetEvents (c_all);
@@ -635,6 +679,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllEvents");
 
       Assert.That (result, Is.EquivalentTo (new[] { addedEvent }.Concat (baseEvents)));
+    }
+
+    [Test]
+    public void GetAllEvents_Interface ()
+    {
+      var addedEvent = _mutableInterfaceType.AddEvent ();
+
+      var result = _mutableInterfaceType.Invoke ("GetAllEvents");
+
+      Assert.That (result, Is.EqualTo (new[] { addedEvent }));
     }
 
     [Test]

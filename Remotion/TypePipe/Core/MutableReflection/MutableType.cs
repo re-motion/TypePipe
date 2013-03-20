@@ -421,16 +421,12 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      Assertion.IsNotNull (BaseType);
-
-      return _addedInterfaces.Concat (BaseType.GetInterfaces()).Distinct();
+      return GetAllMembers (_addedInterfaces, b => b.GetInterfaces()).Distinct();
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      Assertion.IsNotNull (BaseType);
-
-      return _addedFields.Cast<FieldInfo>().Concat (BaseType.GetFields (c_allMembers));
+      return GetAllMembers (_addedFields, b => b.GetFields (c_allMembers));
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
@@ -442,27 +438,18 @@ namespace Remotion.TypePipe.MutableReflection
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      // TODO: Test
-
       var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
-      var baseMethods = BaseType != null ? BaseType.GetMethods (c_allMembers) : new MethodInfo[0];
-      var filteredBaseMethods = baseMethods.Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
-
-      return _addedMethods.Cast<MethodInfo>().Concat (filteredBaseMethods);
+      return GetAllMembers (_addedMethods, b => b.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition())));
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      Assertion.IsNotNull (BaseType);
-
-      return _addedProperties.Cast<PropertyInfo>().Concat (BaseType.GetProperties (c_allMembers));
+      return GetAllMembers (_addedProperties, b => b.GetProperties (c_allMembers));
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
-      Assertion.IsNotNull (BaseType);
-
-      return _addedEvents.Cast<EventInfo>().Concat (BaseType.GetEvents (c_allMembers));
+      return GetAllMembers (_addedEvents, b => b.GetEvents (c_allMembers));
     }
 
     private bool HasAbstractMethods ()
@@ -472,6 +459,15 @@ namespace Remotion.TypePipe.MutableReflection
           .Select (m => m.GetBaseDefinition())
           .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
           .Any();
+    }
+
+    private IEnumerable<T> GetAllMembers<T, TMutable> (List<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
+        where TMutable : T
+    {
+      if (BaseType == null)
+        return addedMembers.Cast<T>();
+
+      return addedMembers.Cast<T>().Concat (baseMemberProvider (BaseType));
     }
   } 
 }
