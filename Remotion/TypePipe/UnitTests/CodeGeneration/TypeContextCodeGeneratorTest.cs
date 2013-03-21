@@ -16,11 +16,13 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -56,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GenerateProxy ()
+    public void GenerateTypes ()
     {
       var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       var typeContext = TypeContextObjectMother.Create (requestedType);
@@ -64,9 +66,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var additionalType = typeContext.CreateType ("AdditionalType", null, TypeAttributes.Class, typeof (object));
 
       var fakeProxyType = ReflectionObjectMother.GetSomeType();
+      var fakeAdditionalType = ReflectionObjectMother.GetSomeOtherType();
       using (_mockRepository.Ordered())
       {
-        _dependentTypeSorterMock.Expect (mock => mock.Sort (new[] { additionalType, proxyType })).Return (new[] { proxyType, additionalType });
+        _dependentTypeSorterMock
+            .Expect (mock => mock.Sort (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
+            .Return (new[] { proxyType, additionalType });
 
         var generatorMock1 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
         var generatorMock2 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
@@ -78,14 +83,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
         generatorMock1.Expect (mock => mock.DefineTypeFacet());
         generatorMock2.Expect (mock => mock.DefineTypeFacet());
         generatorMock1.Expect (mock => mock.CreateType()).Return (fakeProxyType);
-        generatorMock2.Expect (mock => mock.CreateType()).Return (MutableTypeObjectMother.Create());
+        generatorMock2.Expect (mock => mock.CreateType()).Return (fakeAdditionalType);
       }
       _mockRepository.ReplayAll();
 
-      var result = _generator.GenerateProxy (typeContext);
+      var result = _generator.GenerateTypes (typeContext);
 
       _mockRepository.VerifyAll();
-      Assert.That (result, Is.SameAs (fakeProxyType));
+      Assert.That (result.GetGeneratedMember (proxyType), Is.SameAs (fakeProxyType));
+      Assert.That (result.GetGeneratedMember (additionalType), Is.SameAs (fakeAdditionalType));
     }
   }
 }

@@ -16,27 +16,39 @@
 // using System;
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
   [TestFixture]
   public class GeneratedTypeContextTest
   {
-    [Test]
-    public void name ()
+    private Dictionary<MutableType, Type> _mapping;
+
+    private GeneratedTypeContext _context;
+
+    [SetUp]
+    public void SetUp ()
     {
-      var mutableType1 = MutableTypeObjectMother.Create();
-      var mutableType2 = MutableTypeObjectMother.Create();
-      var generatedType1 = ReflectionObjectMother.GetSomeType();
-      var generatedType2 = ReflectionObjectMother.GetSomeOtherType();
+      _mapping = new Dictionary<MutableType, Type>();
 
-      var result = new GeneratedTypeContext (new[] { mutableType1, mutableType2 }, new[] { generatedType1, generatedType2 });
+      _context = new GeneratedTypeContext (_mapping.AsReadOnly());
+    }
 
-      Assert.That (result.GetGeneratedMember (mutableType1), Is.SameAs (generatedType1));
-      Assert.That (result.GetGeneratedMember (mutableType2), Is.SameAs (generatedType2));
+    [Test]
+    public void GetGeneratedMember ()
+    {
+      var mutableType = MutableTypeObjectMother.Create();
+      var generatedType = ReflectionObjectMother.GetSomeType();
+      _mapping.Add (mutableType, generatedType);
+
+      var result = _context.GetGeneratedMember (mutableType);
+
+      Assert.That (result, Is.SameAs (generatedType));
     }
   }
 }

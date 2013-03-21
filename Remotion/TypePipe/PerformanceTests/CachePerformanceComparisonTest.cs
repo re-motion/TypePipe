@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using NUnit.Framework;
 using Remotion.Data.DomainObjects;
@@ -30,6 +31,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
 using System.Linq;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.PerformanceTests
 {
@@ -48,7 +50,8 @@ namespace Remotion.TypePipe.PerformanceTests
       var participants = new[] { restoreParticipantStub, remixParticipantStub };
 
       var typeModifierStub = MockRepository.GenerateStub<ITypeContextCodeGenerator>();
-      typeModifierStub.Stub (stub => stub.GenerateProxy (Arg<TypeContext>.Is.Anything)).Return (typeof (DomainType));
+      typeModifierStub.Stub (stub => stub.GenerateTypes (Arg<TypeContext>.Is.Anything))
+                      .Do (new Func<TypeContext, GeneratedTypeContext> (CreateGeneratedTypeContext));
       typeModifierStub.Stub (stub => stub.CodeGenerator).Return (MockRepository.GenerateStub<ICodeGenerator>());
 
       var serviceLocator = new DefaultServiceLocator();
@@ -75,6 +78,12 @@ namespace Remotion.TypePipe.PerformanceTests
 
       TimeThis ("Remotion_Types", typeCacheFunc);
       TimeThis ("Remotion_ConstructorDelegates", constructorDelegateCacheFunc);
+    }
+
+    private GeneratedTypeContext CreateGeneratedTypeContext (TypeContext typeContext)
+    {
+      var mapping = new Dictionary<MutableType, Type> { { typeContext.ProxyType, typeof (DomainType) } };
+      return new GeneratedTypeContext (mapping.AsReadOnly());
     }
 
     private static void TimeThis<T> (string testName, Func<T> func)

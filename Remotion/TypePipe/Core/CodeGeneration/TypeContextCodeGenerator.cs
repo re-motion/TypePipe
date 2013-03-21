@@ -21,6 +21,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -49,23 +50,22 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _mutableTypeCodeGeneratorFactory.CodeGenerator; }
     }
 
-    public Type GenerateProxy (TypeContext typeContext)
+    public GeneratedTypeContext GenerateTypes (TypeContext typeContext)
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
-      // TODO : rework this code.
       var mutableTypes = typeContext.AdditionalTypes.Concat (typeContext.ProxyType).ToArray();
-      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes).ToList();
-      var generators = sortedTypes.Select (_mutableTypeCodeGeneratorFactory.Create).ToList();
+      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
+      var typesAndGenerators = sortedTypes.Select (t => new { MutableType = t, Generator = _mutableTypeCodeGeneratorFactory.Create (t) }).ToList();
 
-      foreach (var g in generators)
-        g.DeclareType();
-      foreach (var g in generators)
-        g.DefineTypeFacet();
+      foreach (var pair in typesAndGenerators)
+        pair.Generator.DeclareType();
+      foreach (var pair in typesAndGenerators)
+        pair.Generator.DefineTypeFacet();
 
-      var createdTypes = generators.Select (g => g.CreateType()).ToList();
+      var mutableToGeneratedTypes = typesAndGenerators.ToDictionary (p => p.MutableType, p => p.Generator.CreateType());
 
-      return sortedTypes.Zip (createdTypes).Single (t => ReferenceEquals (t.Item1, typeContext.ProxyType)).Item2;
+      return new GeneratedTypeContext (mutableToGeneratedTypes.AsReadOnly());
     }
   }
 }

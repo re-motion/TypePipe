@@ -16,11 +16,9 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
-using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -30,18 +28,20 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class GeneratedTypeContext
   {
-    private readonly Dictionary<MutableType, Type> _typeDictionary;
+    private readonly ReadOnlyDictionary<MutableType, Type> _mutableTypesToGeneratedTypes;
 
-    public GeneratedTypeContext (IEnumerable<MutableType> mutableTypes, IEnumerable<Type> generatedTypes)
+    public GeneratedTypeContext (ReadOnlyDictionary<MutableType, Type> mutableTypesToGeneratedTypes)
     {
-      _typeDictionary = mutableTypes.Zip (generatedTypes).ToDictionary (i => i.Item1, i => i.Item2);
+      ArgumentUtility.CheckNotNull ("mutableTypesToGeneratedTypes", mutableTypesToGeneratedTypes);
+        
+        _mutableTypesToGeneratedTypes = mutableTypesToGeneratedTypes;
     }
 
     public MemberInfo GetGeneratedMember (IMutableMember mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
 
-      return _typeDictionary[(MutableType) mutableMember];
+      return _mutableTypesToGeneratedTypes[(MutableType) mutableMember];
     }
   }
 }

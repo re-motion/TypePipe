@@ -71,7 +71,10 @@ namespace Remotion.TypePipe.Caching
       foreach (var participant in _participants)
         participant.Modify (typeContext);
 
-      return ApplyModificationsWithDiagnostics (typeContext);
+      var generatedTypeContext = GenerateTypesWithDiagnostics (typeContext);
+      //typeContext.OnGenerationCompleted();
+
+      return (Type) generatedTypeContext.GetGeneratedMember (typeContext.ProxyType);
     }
 
     public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
@@ -89,11 +92,11 @@ namespace Remotion.TypePipe.Caching
       return compoundKey;
     }
 
-    private Type ApplyModificationsWithDiagnostics (TypeContext typeContext)
+    private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeContext typeContext)
     {
       try
       {
-        return _typeContextCodeGenerator.GenerateProxy (typeContext);
+        return _typeContextCodeGenerator.GenerateTypes (typeContext);
       }
       catch (InvalidOperationException ex)
       {

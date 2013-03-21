@@ -34,9 +34,9 @@ namespace Remotion.TypePipe.CodeGeneration
     /// </summary>
     /// <remarks>This method may throw instances of <see cref="InvalidOperationException"/> and <see cref="NotSupportedException"/>.</remarks>
     /// <param name="typeContext">The type context to generate code for.</param>
-    /// <returns>The generated proxy type.</returns>
+    /// <returns>A context that can be used to retrieve the generated types and members.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    Type GenerateProxy (TypeContext typeContext);
+    GeneratedTypeContext GenerateTypes (TypeContext typeContext);
   }
 }
