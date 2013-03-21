@@ -57,6 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void GetGeneratedMember_Members_OnProxyType ()
     {
+      // TODO 5461: MutableGenericParameters on MutableType.
       ConstructorInfo typeInitializer = null;
       FieldInfo field = null;
       ConstructorInfo ctor = null;

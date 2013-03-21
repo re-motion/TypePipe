@@ -43,7 +43,11 @@ namespace Remotion.TypePipe.MutableReflection
       _mapping = mutableAndGeneratedTypes.ToDictionary (t => (IMutableMember) t.Item1, t => (MemberInfo) t.Item2);
     }
     
-    // TODO 5482: docs
+    /// <summary>
+    /// Retrieves the generated <see cref="MemberInfo"/> for the specified <see cref="IMutableMember"/>.
+    /// </summary>
+    /// <param name="mutableMember">The mutable member.</param>
+    /// <returns>The generated member.</returns>
     public MemberInfo GetGeneratedMember (IMutableMember mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
