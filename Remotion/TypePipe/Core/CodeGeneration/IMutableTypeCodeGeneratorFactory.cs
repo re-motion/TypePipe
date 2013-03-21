@@ -14,11 +14,13 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
   /// Defines an interface for classes creating instances of <see cref="IMutableTypeCodeGenerator"/>.
