@@ -40,6 +40,8 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     private Type _unsignedType;
     private Type _signedInterfaceType;
     private Type _unsignedInterfaceType;
+    private Type _signedDelegateType;
+    private Type _unsignedDelegateType;
     private CustomAttributeDeclaration _signedAttribute;
     private CustomAttributeDeclaration _unsignedAttribute;
 
@@ -57,10 +59,13 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       base.SetUp ();
 
       _signedType = typeof (int);
-      _unsignedType = CreateUnsignedType();
+      _unsignedType = CreateUnsignedType(TypeAttributes.Class, typeof (object));
 
       _signedInterfaceType = typeof (IMarkerInterface);
-      _unsignedInterfaceType = CreateUnsignedType (TypeAttributes.Interface | TypeAttributes.Abstract);
+      _unsignedInterfaceType = CreateUnsignedType (TypeAttributes.Interface | TypeAttributes.Abstract, baseType: null);
+
+      _signedDelegateType = typeof (Action);
+      _unsignedDelegateType = typeof (Action<>).MakeGenericType (_unsignedType);
 
       var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AbcAttribute (null));
       _signedAttribute = new CustomAttributeDeclaration (attributeCtor, new object[] { _signedType });
@@ -121,10 +126,9 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNaming (p => p.AddInterface (_signedInterfaceType));
       CheckStrongNaming (p => p.AddField ("f", FieldAttributes.Private, _signedType));
       CheckStrongNaming (p => p.AddConstructor (0, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => ctx.CallThisConstructor()));
-      CheckStrongNaming (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType)));
-      // Properties and Events: event type, property type, property index parameter
-      // TODO 4675
-      // TODO 4676
+      CheckStrongNaming (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType) }, ctx => Expression.Default (_signedType)));
+      CheckStrongNaming (p => p.AddProperty ("p", _signedType, new[] { new ParameterDeclaration (_signedType) }, 0, ctx => Expression.Default (_signedType), ctx => Expression.Empty()));
+      CheckStrongNaming (p => p.AddEvent ("e", _signedDelegateType, 0, ctx => Expression.Empty(), ctx => Expression.Empty()));
 
       // Attributes
       CheckStrongNaming (p => p.AddCustomAttribute (_signedAttribute));
@@ -139,9 +143,10 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
             method.MutableReturnParameter.AddCustomAttribute (_signedAttribute);
             method.MutableParameters.Single().AddCustomAttribute (_signedAttribute);
           });
-      // Attributes on properties and events.
-      // TODO 4675
-      // TODO 4676
+      CheckStrongNaming (p => p.AddProperty (
+          "p", _signedType, new[] { new ParameterDeclaration (_signedType) }, 0, null, ctx => Expression.Empty()).AddCustomAttribute (_signedAttribute));
+      CheckStrongNaming (p => p.AddEvent (
+          "e", _signedDelegateType, 0, ctx => Expression.Empty (), ctx => Expression.Empty ()).AddCustomAttribute (_signedAttribute));
     }
 
     [Test]
@@ -155,9 +160,9 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNamingException (p => p.AddConstructor (0, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => ctx.CallThisConstructor()));
       CheckStrongNamingException (p => p.AddMethod ("m", 0, _unsignedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_unsignedType)));
       CheckStrongNamingException (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_unsignedType, "p") }, ctx => Expression.Default (_signedType)));
-      // Properties and Events: event type, property type, property index parameter
-      // TODO 4675
-      // TODO 4676
+      CheckStrongNamingException (p => p.AddProperty ("p", _unsignedType, new[] { new ParameterDeclaration (_signedType) }, 0, ctx => Expression.Default (_unsignedType), ctx => Expression.Empty()));
+      CheckStrongNamingException (p => p.AddProperty ("p", _signedType, new[] { new ParameterDeclaration (_unsignedType) }, 0, ctx => Expression.Default (_signedType), ctx => Expression.Empty()));
+      CheckStrongNamingException (p => p.AddEvent ("e", _unsignedDelegateType, 0, ctx => Expression.Empty(), ctx => Expression.Empty()), unsignedType: _unsignedDelegateType);
 
       // Attributes
       CheckStrongNamingException (p => p.AddCustomAttribute (_unsignedAttribute));
@@ -176,9 +181,12 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
           p =>
           p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType, "p") }, ctx => Expression.Default (_signedType))
             .MutableParameters.Single().AddCustomAttribute (_unsignedAttribute));
-      // Attributes on properties and events.
-      // TODO 4675
-      // TODO 4676
+      CheckStrongNamingException (
+          p => p.AddProperty ("p", _signedType, new[] { new ParameterDeclaration (_signedType) }, 0, null, ctx => Expression.Empty ())
+            .AddCustomAttribute (_unsignedAttribute));
+      CheckStrongNamingException (
+          p => p.AddEvent ("e", _signedDelegateType, 0, ctx => Expression.Empty (), ctx => Expression.Empty ())
+            .AddCustomAttribute (_unsignedAttribute));
     }
 
     [Test]
@@ -267,17 +275,20 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNamingException (Action<MutableType> participantAction, Type requestedType = null, int stackFramesToSkip = 0)
+    private void CheckStrongNamingException (
+        Action<MutableType> participantAction, Type requestedType = null, Type unsignedType = null, int stackFramesToSkip = 0)
     {
       requestedType = requestedType ?? typeof (DomainType);
+      unsignedType = unsignedType ?? _unsignedType;
       var participant = CreateParticipant (participantAction);
       var objectFactory = CreateObjectFactoryForStrongNaming (participant, stackFramesToSkip + 1, forceStrongNaming: true);
 
-      var messageRegex =
+      var message =
           "An error occurred during code generation for '" + requestedType.Name + "':\r\n"
-          + "Strong-naming is enabled but a participant used the type 'UnsignedType' which comes from the unsigned assembly 'testAssembly'.\r\n"
-          + @"The following participants are currently configured and may have caused the error: 'ParticipantStub'\.";
-      Assert.That (() => objectFactory.GetAssembledType (requestedType), Throws.InvalidOperationException.With.Message.Matches (messageRegex));
+          + "Strong-naming is enabled but a participant used the type '" + unsignedType.FullName + "' which comes from the unsigned assembly "
+          + "'" + unsignedType.Assembly.GetName().Name + "'.\r\n"
+          + @"The following participants are currently configured and may have caused the error: 'ParticipantStub'.";
+      Assert.That (() => objectFactory.GetAssembledType (requestedType), Throws.InvalidOperationException.With.Message.EqualTo (message));
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
@@ -302,12 +313,12 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
         return CreateObjectFactory (new[] { participant }, stackFramesToSkip: stackFramesToSkip + 1);
     }
 
-    private Type CreateUnsignedType (TypeAttributes attributes = TypeAttributes.Class)
+    private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)
     {
       var assemblyName = "testAssembly";
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
-      var typeBuilder = moduleBuilder.DefineType ("UnsignedType", attributes | TypeAttributes.Public);
+      var typeBuilder = moduleBuilder.DefineType ("UnsignedType", attributes | TypeAttributes.Public, baseType);
 
       if (attributes == TypeAttributes.Class)
       {
