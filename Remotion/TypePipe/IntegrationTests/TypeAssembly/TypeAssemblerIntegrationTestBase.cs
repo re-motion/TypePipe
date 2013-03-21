@@ -39,24 +39,24 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
-      var actions = participantActions.Select (a => (Action<TypeContext>) (ctx => a (ctx.ProxyType)));
+      var actions = participantActions.Select (a => (Action<ITypeContext>) (ctx => a (ctx.ProxyType)));
       return AssembleType (typeof (T), actions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType<T> (params Action<TypeContext>[] participantActions)
+    protected Type AssembleType<T> (params Action<ITypeContext>[] participantActions)
     {
       return AssembleType (typeof (T), participantActions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType (Type requestedType, params Action<TypeContext>[] participantActions)
+    protected Type AssembleType (Type requestedType, params Action<ITypeContext>[] participantActions)
     {
       return AssembleType (requestedType, participantActions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType (Type requestedType, IEnumerable<Action<TypeContext>> participantActions, int stackFramesToSkip)
+    protected Type AssembleType (Type requestedType, IEnumerable<Action<ITypeContext>> participantActions, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       return AssembleType (testName, requestedType, participantActions);
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       return mutableType.AddMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
     }
 
-    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<TypeContext>> participantActions)
+    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ITypeContext>> participantActions)
     {
       var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
       var mutableTypeFactory = SafeServiceLocator.Current.GetInstance<IMutableTypeFactory>();

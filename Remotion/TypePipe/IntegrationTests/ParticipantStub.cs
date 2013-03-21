@@ -24,10 +24,10 @@ namespace Remotion.TypePipe.IntegrationTests
 {
   public class ParticipantStub : IParticipant
   {
-    private readonly Action<TypeContext> _typeContextModification;
+    private readonly Action<ITypeContext> _typeContextModification;
     private readonly ICacheKeyProvider _cacheKeyProvider;
 
-    public ParticipantStub (Action<TypeContext> typeContextModification, ICacheKeyProvider cacheKeyProvider)
+    public ParticipantStub (Action<ITypeContext> typeContextModification, ICacheKeyProvider cacheKeyProvider)
     {
       ArgumentUtility.CheckNotNull ("typeContextModification", typeContextModification);
       // Cache key provider may be null.
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.IntegrationTests
       get { return _cacheKeyProvider; }
     }
 
-    public void Modify (TypeContext typeContext)
+    public void Modify (ITypeContext typeContext)
     {
       _typeContextModification (typeContext);
     }

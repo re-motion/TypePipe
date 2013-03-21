@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.IntegrationTests
       return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider);
     }
 
-    protected static IParticipant CreateParticipant (Action<TypeContext> typeContextModification, ICacheKeyProvider cacheKeyProvider = null)
+    protected static IParticipant CreateParticipant (Action<ITypeContext> typeContextModification, ICacheKeyProvider cacheKeyProvider = null)
     {
       return new ParticipantStub (typeContextModification, cacheKeyProvider);
     }

@@ -54,10 +54,10 @@ namespace Remotion.TypePipe
 
     /// <summary>
     /// This method allows framework authors to specify their code generation needs.
-    /// The provided <see cref="TypeContext"/> contains the type requested by the user and the mutable proxy type that was created for it by
+    /// The provided <see cref="ITypeContext"/> contains the type requested by the user and the mutable proxy type that was created for it by
     /// the pipeline.
     /// </summary>
     /// <param name="typeContext">The type context.</param>
-    void Modify (TypeContext typeContext);
+    void Modify (ITypeContext typeContext);
   }
 }

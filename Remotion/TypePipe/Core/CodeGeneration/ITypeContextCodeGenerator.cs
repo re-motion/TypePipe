@@ -37,6 +37,6 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <returns>A context that can be used to retrieve the generated types and members.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    GeneratedTypeContext GenerateTypes (TypeContext typeContext);
+    GeneratedTypeContext GenerateTypes (ITypeContext typeContext);
   }
 }

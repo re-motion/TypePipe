@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _mutableTypeCodeGeneratorFactory.CodeGenerator; }
     }
 
-    public GeneratedTypeContext GenerateTypes (TypeContext typeContext)
+    public GeneratedTypeContext GenerateTypes (ITypeContext typeContext)
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
