@@ -88,8 +88,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               MethodAttributes.Public,
               typeof (void),
               new[] { new ParameterDeclaration (typeof (string), "parameterName") },
-              // TODO 4744: Use Expression.Property (ctx.This, "SettableProperty")
-              ctx => Expression.Assign (Expression.Property (ctx.This, typeof (DomainType).GetProperty ("SettableProperty")), ctx.Parameters[0])));
+              ctx => Expression.Assign (Expression.Property (ctx.This, "SettableProperty"), ctx.Parameters[0])));
 
       var addedMethod = type.GetMethod (name);
 

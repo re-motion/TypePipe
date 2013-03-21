@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     private ConstructorInfo _ctor;
     private MethodInfo _method;
     private ParameterInfo _returnParameter;
-    private ParameterInfo _parameters;
+    private ParameterInfo _parameter;
     private PropertyInfo _property;
     private MethodInfo _getter;
     private ParameterInfo _getterReturnParameter;
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       _ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
       _method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method (7));
       _returnParameter = _method.ReturnParameter;
-      _parameters = _method.GetParameters().Single();
+      _parameter = _method.GetParameters().Single();
       _property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
       _getter = _property.GetGetMethod();
       _getterReturnParameter = _getter.ReturnParameter;
@@ -117,7 +117,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_ctor), CustomAttributeData.GetCustomAttributes (_ctor));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_method), CustomAttributeData.GetCustomAttributes (_method));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_returnParameter), CustomAttributeData.GetCustomAttributes (_returnParameter));
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_parameters), CustomAttributeData.GetCustomAttributes (_parameters));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_parameter), CustomAttributeData.GetCustomAttributes (_parameter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_property), CustomAttributeData.GetCustomAttributes (_property));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_getter), CustomAttributeData.GetCustomAttributes (_getter));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_getterReturnParameter), CustomAttributeData.GetCustomAttributes (_getterReturnParameter));
@@ -142,56 +142,41 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void MutableReflection ()
     {
-      var proxyType = MutableTypeObjectMother.Create (typeof (DomainType));
-      var typeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
-      var field = proxyType.AddField ("_field", FieldAttributes.Private, typeof (int));
-      var ctor = proxyType.AddedConstructors.Single();
-      var method = proxyType.AddMethod (
-          "Method", MethodAttributes.Public, typeof (int), new[] { new ParameterDeclaration (typeof (int), "i") }, ctx => Expression.Constant (7));
+      var mutableType = MutableTypeObjectMother.Create (typeof (DomainType));
+      var typeInitializer = mutableType.AddTypeInitializer (ctx => Expression.Empty());
+      var field = mutableType.AddField ("_field", FieldAttributes.Private, typeof (int));
+      var ctor = mutableType.AddedConstructors.Single();
+      var method = mutableType.AddMethod (
+          "Method", MethodAttributes.Public, typeof (int), new[] { new ParameterDeclaration (typeof (int)) }, ctx => Expression.Constant (7));
       var returnParameter = method.MutableReturnParameter;
-      var parameters = method.MutableParameters.Single();
+      var parameter = method.MutableParameters.Single();
+      var property = mutableType.AddProperty (
+          "Property", typeof (int), new[] { new ParameterDeclaration (typeof (int)) }, MethodAttributes.Public, ctx => Expression.Default (typeof (int)), ctx => Expression.Empty());
+      var event_ = mutableType.AddEvent ("Event", typeof (Action), MethodAttributes.Public, ctx => Expression.Empty(), ctx => Expression.Empty());
       // TODO 4791
-      //var property = MutableType.GetProperties().Single();
-      // TODO 4791
-      //var getter = property.GetGetMethod();
-      // TODO 4791
-      //var getterReturnParameter = getter.ReturnParameter;
-      // TODO 4791
-      //var setter = property.GetGetMethod();
-      // TODO 4791
-      //var @event = MutableType.GetEvents().Single();
-      // TODO 4791
+      // var genericParmaeter = proxyType.MutableGenericParameter.Single();
       //var nestedType = MutableType.GetNestedTypes().Single();
-      // TODO 4791
-      // setter value parameter, Adder (+ parameter), Remover (+ parameter), generic type, Invoker?
 
-      AddAbcAttribute (proxyType, "class");
+      AddAbcAttribute (mutableType, "class");
       AddAbcAttribute (typeInitializer, "type initializer");
       AddAbcAttribute (field, "field");
       AddAbcAttribute (ctor, "constructor");
       AddAbcAttribute (method, "method");
       AddAbcAttribute (returnParameter, "return value");
-      AddAbcAttribute (parameters, "parameter");
+      AddAbcAttribute (parameter, "parameter");
+      AddAbcAttribute (property, "property");
+      AddAbcAttribute (event_, "event");
 
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (proxyType), CustomAttributeData.GetCustomAttributes (_type));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (mutableType), CustomAttributeData.GetCustomAttributes (_type));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (field), CustomAttributeData.GetCustomAttributes (_field));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (ctor),CustomAttributeData.GetCustomAttributes (_ctor));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (method), CustomAttributeData.GetCustomAttributes (_method));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (returnParameter), CustomAttributeData.GetCustomAttributes (_returnParameter));
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (parameters), CustomAttributeData.GetCustomAttributes (_parameters));
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (property), "property");    
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getter), "getter");
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (getterReturnParameter), "getter return value");
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (setter), "setter");
-      // setter value parameter
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (@event), "event");
-      // Event Adder
-      // Event Adder Parameter
-      // Event Remover
-      // Event Remover Parameter
-      // Invoker?
-      //CheckEquals (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), "nested type");
-      // Generic Type
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (parameter), CustomAttributeData.GetCustomAttributes (_parameter));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (property), CustomAttributeData.GetCustomAttributes (_property));
+      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (event_), CustomAttributeData.GetCustomAttributes (_event));
+      //CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (nestedType), "nested type");
+      // Generic Parameters
     }
 
     [Test]
