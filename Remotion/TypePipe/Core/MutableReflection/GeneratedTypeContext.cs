@@ -63,10 +63,9 @@ namespace Remotion.TypePipe.MutableReflection
       var generatedMembers = generatedType.GetMembers (c_allDeclared);
       var generatedMembersByNameAndSig = generatedMembers.ToDictionary (m => Tuple.Create (m.Name, MemberSignatureProvider.GetMemberSignature (m)));
 
-      // TODO 5482: typeInitilizer
-      // TODO 5482: added generic parameters
-      var addedMembers = mutableType
-          .AddedFields.Cast<IMutableMember>()
+      var addedMembers = 
+          new IMutableMember[] { mutableType.MutableTypeInitializer }.Where(m => m != null)
+          .Concat (mutableType.AddedFields.Cast<IMutableMember>())
           .Concat (mutableType.AddedConstructors.Cast<IMutableMember>())
           .Concat (mutableType.AddedMethods.Cast<IMutableMember>())
           .Concat (mutableType.AddedProperties.Cast<IMutableMember>())
