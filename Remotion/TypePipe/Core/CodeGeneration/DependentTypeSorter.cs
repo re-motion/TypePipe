@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration

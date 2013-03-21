@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
         if (ctx.RequestedType == typeof (RequestedType1))
         {
           Assert.That (ctx.State, Is.Empty);
-          ctx.State["key"] = 7;
+          ctx.State.Add ("key", 7);
         }
         else
         {

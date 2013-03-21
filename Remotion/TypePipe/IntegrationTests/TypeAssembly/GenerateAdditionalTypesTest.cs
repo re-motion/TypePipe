@@ -83,6 +83,27 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    public void TypesRequiringDependencySorting ()
+    {
+      // public class interface IInterface1 : IComparable<IInterface2> {}
+      // public class interface IInterface2 {}
+      var type = AssembleType<DomainType> (
+          typeContext =>
+          {
+            var addedInterface1 = typeContext.CreateInterface ("IInterface1", "ns");
+            var addedInterface2 = typeContext.CreateInterface ("IInterface2", "ns");
+            addedInterface1.AddInterface (typeof (IComparable<>).MakeTypePipeGenericType (addedInterface2));
+
+            Assert.That (typeContext.AdditionalTypes, Is.EqualTo (new[] { addedInterface1, addedInterface2 }));
+          });
+      var assembly = type.Assembly;
+      var interface1 = assembly.GetType ("ns.IInterface1");
+      var interface2 = assembly.GetType ("ns.IInterface2");
+
+      Assert.That (interface1.GetInterfaces().Single(), Is.SameAs (typeof (IComparable<>).MakeGenericType (interface2)));
+    }
+
+    [Test]
     public void TypesRequiringForwardDeclarations ()
     {
       // public class Proxy : DomainType {
@@ -149,6 +170,27 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (valueType.BaseType, Is.SameAs (typeof (ValueType)));
       Assert.That (valueType.GetConstructors (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), Is.Empty);
       Assert.That (Activator.CreateInstance (valueType), Is.Not.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException),
+        ExpectedMessage = "An error occurred during code generation for 'DomainType':\r\n"
+                          + "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types "
+                          + "returned by Type.BaseType and Type.GetInterfaces must terminate.\r\n"
+                          + "The following participants are currently configured and may have caused the error: 'ParticipantStub'.")]
+    public void CircularDependency_Throws ()
+    {
+      // public interface IInterface1 : IInterface2 { }
+      // public interface IInterface2 : IInterface1 { }
+      AssembleType<DomainType> (
+          typeContext =>
+          {
+            var interface1 = typeContext.CreateInterface ("IInterface1", "ns");
+            var interface2 = typeContext.CreateInterface ("IInterface2", "ns");
+
+            interface1.AddInterface (interface2);
+            interface2.AddInterface (interface1);
+          });
     }
 
     public class DomainType
