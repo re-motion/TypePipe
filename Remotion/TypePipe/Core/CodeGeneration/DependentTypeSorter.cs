@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -50,13 +51,20 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private bool IsIndependent (MutableType type, HashSet<MutableType> types)
     {
-      return !Contains (types, type.BaseType) && !type.GetInterfaces().Any (t => Contains (types, t));
+      return !ContainsCycle (types, type.BaseType) && !type.GetInterfaces().Any (t => ContainsCycle (types, t));
     }
 
-    private bool Contains (HashSet<MutableType> types, Type type)
+    private bool ContainsCycle (HashSet<MutableType> types, Type type)
     {
+      // This short-circuit is based on the fact that RuntimeTypes can never contain CustomTypes as their type arguments.
+      if (type == null || type.IsRuntimeType())
+        return false;
+
       var mutableType = type as MutableType;
-      return mutableType != null && types.Contains (mutableType);
+      if (mutableType != null)
+        return types.Contains (mutableType);
+      else
+        return type.GetGenericArguments().Any (a => ContainsCycle (types, a));
     }
   }
 }

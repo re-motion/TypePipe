@@ -15,10 +15,12 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
@@ -45,6 +47,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
+    public void Sort_BaseType_MutableTypeArgument ()
+    {
+      var typeArg = MutableTypeObjectMother.Create();
+      var baseType = CustomTypeObjectMother.Create (typeArguments: new[] { typeArg });
+      var derivedType = MutableTypeObjectMother.Create (baseType: baseType);
+
+      var result = _sorter.Sort (new[] { derivedType, typeArg }.AsOneTime());
+
+      Assert.That (result, Is.EqualTo (new[] { typeArg, derivedType }));
+    }
+
+    [Test]
     public void Sort_GetInterfaces ()
     {
       var interface_ = MutableTypeObjectMother.CreateInterface();
@@ -54,6 +68,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var result = _sorter.Sort (new[] { type, interface_ });
 
       Assert.That (result, Is.EqualTo (new[] { interface_, type }));
+    }
+
+    [Test]
+    public void Sort_GetInterfaces_MutableTypeArgument ()
+    {
+      var typeArg = MutableTypeObjectMother.Create();
+      var interface_ = CustomTypeObjectMother.Create (attributes: TypeAttributes.Interface, typeArguments: new[] { typeArg });
+      var type = MutableTypeObjectMother.Create();
+      type.AddInterface (interface_);
+
+      var result = _sorter.Sort (new[] { type, typeArg });
+
+      Assert.That (result, Is.EqualTo (new[] { typeArg, type }));
     }
 
     [Test]
