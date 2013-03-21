@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Linq;
 using System.Reflection;
@@ -66,11 +65,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addedEvent = _mutableType.AddEvent ("Event");
 
       var typeInitializer = _generatedType.TypeInitializer;
-      var field = _generatedType.GetField ("_field", c_all);
-      var constructor = _generatedType.GetConstructors (c_all).Single(c => !c.IsStatic);
-      var method = _generatedType.GetMethod ("Method", c_all);
-      var property = _generatedType.GetProperty ("Property", c_all);
-      var event_ = _generatedType.GetEvent ("Event", c_all);
+      var field = _generatedType.GetFields (c_all).Single (f => f.Name == "_field");
+      var constructor = _generatedType.GetConstructors().Single();
+      var method = _generatedType.GetMethods (c_all).Single (m => m.Name == "Method");
+      var property = _generatedType.GetProperties (c_all).Single (p => p.Name == "Property");
+      var event_ = _generatedType.GetEvents (c_all).Single (e => e.Name == "Event");
 
       Assert.That (_context.GetGeneratedMember (addedTypeInitializer), Is.SameAs (typeInitializer));
       Assert.That (_context.GetGeneratedMember (addedField), Is.SameAs (field));

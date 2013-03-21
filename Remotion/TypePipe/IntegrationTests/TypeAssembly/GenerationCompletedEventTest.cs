@@ -54,10 +54,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (additionalType, Is.SameAs (expectedAdditionalType));
     }
 
-    [Ignore ("TODO 5482")]
     [Test]
-    public void GetGeneratedMember_Members ()
+    public void GetGeneratedMember_Members_OnProxyType ()
     {
+      ConstructorInfo typeInitializer = null;
       FieldInfo field = null;
       ConstructorInfo ctor = null;
       MethodInfo method = null;
@@ -69,6 +69,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var proxyType = typeContext.ProxyType;
 
+            var addedTypeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
             var addedField = proxyType.AddField ("MyField", FieldAttributes.Public, typeof (int));
             var addedCtor = proxyType.AddedConstructors.Single();
             var addedMethod = proxyType.AddMethod (
@@ -81,6 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             typeContext.GenerationCompleted +=
                 ctx =>
                 {
+                  typeInitializer = (ConstructorInfo) ctx.GetGeneratedMember (addedTypeInitializer);
                   field = (FieldInfo) ctx.GetGeneratedMember (addedField);
                   ctor = (ConstructorInfo) ctx.GetGeneratedMember (addedCtor);
                   method = (MethodInfo) ctx.GetGeneratedMember (addedMethod);
@@ -89,11 +91,39 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 };
           });
 
+      Assert.That (typeInitializer, Is.SameAs (type.TypeInitializer));
       Assert.That (field, Is.SameAs (type.GetFields().Single()));
       Assert.That (method, Is.SameAs (type.GetMethods().Single (m => m.Name == "MyMethod")));
       Assert.That (ctor, Is.SameAs (type.GetConstructors().Single()));
       Assert.That (property, Is.SameAs (type.GetProperties().Single()));
       Assert.That (event_, Is.SameAs (type.GetEvents().Single()));
+    }
+
+    [Test]
+    public void GetGeneratedMember_Members_OnAdditionalType ()
+    {
+      FieldInfo field = null;
+      MethodInfo method = null;
+
+      var type = AssembleType<DomainType> (
+          typeContext =>
+          {
+            var newType = typeContext.CreateType ("MyType", null, TypeAttributes.Public, typeof (object));
+            var addedField = newType.AddField ("MyField", FieldAttributes.Public, typeof (int));
+            var addedMethod = newType.AddMethod (
+                "MyMethod", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty ());
+
+            typeContext.GenerationCompleted +=
+                ctx =>
+                {
+                  field = (FieldInfo) ctx.GetGeneratedMember (addedField);
+                  method = (MethodInfo) ctx.GetGeneratedMember (addedMethod);
+                };
+          });
+      var additionalType = type.Assembly.GetType ("MyType", true);
+
+      Assert.That (field, Is.SameAs (additionalType.GetFields().Single()));
+      Assert.That (method, Is.SameAs (additionalType.GetMethods().Single (m => m.Name == "MyMethod")));
     }
 
     public class DomainType {}
