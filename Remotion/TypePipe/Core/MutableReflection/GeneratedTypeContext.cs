@@ -16,8 +16,11 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.Collections;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -28,13 +31,16 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class GeneratedTypeContext
   {
-    private readonly ReadOnlyDictionary<MutableType, Type> _mutableTypesToGeneratedTypes;
+    private const BindingFlags c_allDeclared =
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
-    public GeneratedTypeContext (ReadOnlyDictionary<MutableType, Type> mutableTypesToGeneratedTypes)
+    private readonly Dictionary<IMutableMember, MemberInfo> _mapping;
+
+    public GeneratedTypeContext (IEnumerable<Tuple<MutableType, Type>> mutableAndGeneratedTypes)
     {
-      ArgumentUtility.CheckNotNull ("mutableTypesToGeneratedTypes", mutableTypesToGeneratedTypes);
-        
-        _mutableTypesToGeneratedTypes = mutableTypesToGeneratedTypes;
+      ArgumentUtility.CheckNotNull ("mutableAndGeneratedTypes", mutableAndGeneratedTypes);
+
+      _mapping = mutableAndGeneratedTypes.ToDictionary (t => (IMutableMember) t.Item1, t => (MemberInfo) t.Item2);
     }
     
     // TODO 5482: docs
@@ -42,7 +48,38 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
 
-      return _mutableTypesToGeneratedTypes[(MutableType) mutableMember];
+      MemberInfo generatedMember;
+      if (_mapping.TryGetValue (mutableMember, out generatedMember))
+        return generatedMember;
+
+      BuildMapping (mutableMember.MutableDeclaringType);
+
+      return _mapping[mutableMember];
+    }
+
+    private void BuildMapping (MutableType mutableType)
+    {
+      var generatedType = (Type) _mapping[mutableType];
+      var generatedMembers = generatedType.GetMembers (c_allDeclared);
+      var generatedMembersByNameAndSig = generatedMembers.ToDictionary (m => Tuple.Create (m.Name, MemberSignatureProvider.GetMemberSignature (m)));
+
+      // TODO 5482: typeInitilizer
+      // TODO 5482: added generic parameters
+      var addedMembers = mutableType
+          .AddedFields.Cast<IMutableMember>()
+          .Concat (mutableType.AddedConstructors.Cast<IMutableMember>())
+          .Concat (mutableType.AddedMethods.Cast<IMutableMember>())
+          .Concat (mutableType.AddedProperties.Cast<IMutableMember>())
+          .Concat (mutableType.AddedEvents.Cast<IMutableMember>());
+
+      foreach (var addedMember in addedMembers)
+      {
+        var member = (MemberInfo) addedMember;
+        var nameAndSig = Tuple.Create(member.Name, MemberSignatureProvider.GetMemberSignature (member));
+        var generatedMember = generatedMembersByNameAndSig[nameAndSig];
+
+        _mapping.Add (addedMember, generatedMember);
+      }
     }
   }
 }

@@ -13,12 +13,12 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
 // License for the specific language governing permissions and limitations
 // under the License.
-// using System;
+// 
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Collections;
 
@@ -27,28 +27,59 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   [TestFixture]
   public class GeneratedTypeContextTest
   {
-    private Dictionary<MutableType, Type> _mapping;
+    private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
+    private MutableType _mutableType;
+    private Type _generatedType;
 
     private GeneratedTypeContext _context;
+
 
     [SetUp]
     public void SetUp ()
     {
-      _mapping = new Dictionary<MutableType, Type>();
+      _mutableType = MutableTypeObjectMother.Create();
+      _generatedType = typeof (GeneratedType);
 
-      _context = new GeneratedTypeContext (_mapping.AsReadOnly());
+      _context = new GeneratedTypeContext (new[] { Tuple.Create (_mutableType, _generatedType) });
     }
 
     [Test]
-    public void GetGeneratedMember ()
+    public void GetGeneratedMember_Type ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
-      var generatedType = ReflectionObjectMother.GetSomeType();
-      _mapping.Add (mutableType, generatedType);
+      var result = _context.GetGeneratedMember (_mutableType);
 
-      var result = _context.GetGeneratedMember (mutableType);
+      Assert.That (result, Is.SameAs (_generatedType));
+    }
 
-      Assert.That (result, Is.SameAs (generatedType));
+    [Test]
+    public void GetGeneratedMember_Member ()
+    {
+      var addedField = _mutableType.AddField ("_field");
+      var addedCtor = _mutableType.AddConstructor();
+      var addedMethod = _mutableType.AddMethod ("Method");
+      var addedProperty = _mutableType.AddProperty ("Property");
+      var addedEvent = _mutableType.AddEvent ("Event");
+
+      var field = _generatedType.GetField ("_field", c_all);
+      var ctor = _generatedType.GetConstructors (c_all).Single();
+      var method = _generatedType.GetMethod ("Method", c_all);
+      var property = _generatedType.GetProperty ("Property", c_all);
+      var event_ = _generatedType.GetEvent ("Event", c_all);
+
+      Assert.That (_context.GetGeneratedMember (addedField), Is.SameAs (field));
+      Assert.That (_context.GetGeneratedMember (addedCtor), Is.SameAs (ctor));
+      Assert.That (_context.GetGeneratedMember (addedMethod), Is.SameAs (method));
+      Assert.That (_context.GetGeneratedMember (addedProperty), Is.SameAs (property));
+      Assert.That (_context.GetGeneratedMember (addedEvent), Is.SameAs (event_));
+    }
+
+    private class GeneratedType
+    {
+      private int _field;
+      public static void Method () {}
+      internal int Property { get; set; }
+      public event Action Event;
     }
   }
 }

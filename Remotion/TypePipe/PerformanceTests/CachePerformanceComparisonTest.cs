@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using NUnit.Framework;
 using Remotion.Data.DomainObjects;
@@ -80,10 +79,10 @@ namespace Remotion.TypePipe.PerformanceTests
       TimeThis ("Remotion_ConstructorDelegates", constructorDelegateCacheFunc);
     }
 
-    private GeneratedTypeContext CreateGeneratedTypeContext (TypeContext typeContext)
+    private GeneratedTypeContext CreateGeneratedTypeContext (ITypeContext typeContext)
     {
-      var mapping = new Dictionary<MutableType, Type> { { typeContext.ProxyType, typeof (DomainType) } };
-      return new GeneratedTypeContext (mapping.AsReadOnly());
+      var mutableAndGeneratedTypes = new[] { Tuple.Create (typeContext.ProxyType, typeof (DomainType)) };
+      return new GeneratedTypeContext (mutableAndGeneratedTypes);
     }
 
     private static void TimeThis<T> (string testName, Func<T> func)

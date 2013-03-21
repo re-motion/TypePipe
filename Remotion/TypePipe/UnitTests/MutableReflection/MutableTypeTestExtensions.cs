@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider = null)
     {
       name = name ?? "Event_" + ++s_counter;
-      handlerType = handlerType ?? typeof (Func<string, int>);
+      handlerType = handlerType ?? typeof (Action);
 
       if (addBodyProvider == null)
         addBodyProvider = ctx => Expression.Empty();

@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         var fakeProxyType = MutableTypeObjectMother.Create();
-        var fakeContext = new GeneratedTypeContext (new Dictionary<MutableType, Type> { { fakeProxyType, fakeGeneratedType } }.AsReadOnly());
+        var fakeContext = new GeneratedTypeContext (new[] { Tuple.Create (fakeProxyType, fakeGeneratedType) }.AsReadOnly());
 
         mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (fakeProxyType);
 

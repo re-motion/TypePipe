@@ -62,9 +62,9 @@ namespace Remotion.TypePipe.CodeGeneration
       foreach (var pair in typesAndGenerators)
         pair.Generator.DefineTypeFacet();
 
-      var mutableToGeneratedTypes = typesAndGenerators.ToDictionary (p => p.MutableType, p => p.Generator.CreateType());
+      var mutableToGeneratedTypes = typesAndGenerators.Select (pair => Tuple.Create (pair.MutableType, pair.Generator.CreateType()));
 
-      return new GeneratedTypeContext (mutableToGeneratedTypes.AsReadOnly());
+      return new GeneratedTypeContext (mutableToGeneratedTypes);
     }
   }
 }
