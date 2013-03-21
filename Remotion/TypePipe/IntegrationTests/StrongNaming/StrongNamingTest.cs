@@ -129,6 +129,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNaming (p => p.AddMethod ("m", 0, _signedType, new[] { new ParameterDeclaration (_signedType) }, ctx => Expression.Default (_signedType)));
       CheckStrongNaming (p => p.AddProperty ("p", _signedType, new[] { new ParameterDeclaration (_signedType) }, 0, ctx => Expression.Default (_signedType), ctx => Expression.Empty()));
       CheckStrongNaming (p => p.AddEvent ("e", _signedDelegateType, 0, ctx => Expression.Empty(), ctx => Expression.Empty()));
+      // TODO 4791: nested types
 
       // Attributes
       CheckStrongNaming (p => p.AddCustomAttribute (_signedAttribute));
@@ -147,6 +148,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
           "p", _signedType, new[] { new ParameterDeclaration (_signedType) }, 0, null, ctx => Expression.Empty()).AddCustomAttribute (_signedAttribute));
       CheckStrongNaming (p => p.AddEvent (
           "e", _signedDelegateType, 0, ctx => Expression.Empty (), ctx => Expression.Empty ()).AddCustomAttribute (_signedAttribute));
+      // TODO 4791: Attributes on nested types?
     }
 
     [Test]
@@ -163,6 +165,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNamingException (p => p.AddProperty ("p", _unsignedType, new[] { new ParameterDeclaration (_signedType) }, 0, ctx => Expression.Default (_unsignedType), ctx => Expression.Empty()));
       CheckStrongNamingException (p => p.AddProperty ("p", _signedType, new[] { new ParameterDeclaration (_unsignedType) }, 0, ctx => Expression.Default (_signedType), ctx => Expression.Empty()));
       CheckStrongNamingException (p => p.AddEvent ("e", _unsignedDelegateType, 0, ctx => Expression.Empty(), ctx => Expression.Empty()), unsignedType: _unsignedDelegateType);
+      // TODO 4791: nested types
 
       // Attributes
       CheckStrongNamingException (p => p.AddCustomAttribute (_unsignedAttribute));
@@ -187,6 +190,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNamingException (
           p => p.AddEvent ("e", _signedDelegateType, 0, ctx => Expression.Empty (), ctx => Expression.Empty ())
             .AddCustomAttribute (_unsignedAttribute));
+      // TODO 4791: Attributes on nested types?
     }
 
     [Test]
