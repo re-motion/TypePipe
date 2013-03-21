@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// applied by preceding participants.
   /// Its mutating members (e.g. <see cref="MutableType.AddMethod"/>) can be used to specify the needed modifications.
   /// </remarks>
-  public class TypeContext : IMutableTypeFactory
+  public class TypeContext
   {
     private readonly List<MutableType> _additionalTypes = new List<MutableType>();
     private readonly IMutableTypeFactory _mutableTypeFactory;

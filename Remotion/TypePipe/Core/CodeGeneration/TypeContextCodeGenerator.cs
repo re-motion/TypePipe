@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("typeContext", typeContext);
 
-      var mutableTypes = typeContext.AdditionalTypes.Concat (typeContext.ProxyType).ToArray();
+      var mutableTypes = typeContext.AdditionalTypes.Concat (typeContext.ProxyType);
       var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
       var typesAndGenerators = sortedTypes.Select (t => new { MutableType = t, Generator = _mutableTypeCodeGeneratorFactory.Create (t) }).ToList();
 

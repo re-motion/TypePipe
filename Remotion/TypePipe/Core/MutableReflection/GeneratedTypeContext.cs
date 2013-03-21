@@ -36,7 +36,8 @@ namespace Remotion.TypePipe.MutableReflection
         
         _mutableTypesToGeneratedTypes = mutableTypesToGeneratedTypes;
     }
-
+    
+    // TODO docs
     public MemberInfo GetGeneratedMember (IMutableMember mutableMember)
     {
       ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
