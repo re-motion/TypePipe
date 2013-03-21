@@ -53,11 +53,12 @@ namespace Remotion.TypePipe.MutableReflection
     // TODO 5482: docs
     public event Action<GeneratedTypeContext> GenerationCompleted;
 
-    public void OnGenerationCompleted ()
+    // TODO Review: public or internal? callable via injected func?
+    public void OnGenerationCompleted (GeneratedTypeContext generatedTypeContext)
     {
       var handler = GenerationCompleted;
       if (handler != null)
-        handler (null);
+        handler (generatedTypeContext);
     }
 
     /// <summary>

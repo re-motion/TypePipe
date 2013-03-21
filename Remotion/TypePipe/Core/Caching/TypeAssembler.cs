@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.Caching
         participant.Modify (typeContext);
 
       var generatedTypeContext = GenerateTypesWithDiagnostics (typeContext);
-      //typeContext.OnGenerationCompleted();
+      typeContext.OnGenerationCompleted (generatedTypeContext);
 
       return (Type) generatedTypeContext.GetGeneratedMember (typeContext.ProxyType);
     }

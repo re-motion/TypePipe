@@ -81,6 +81,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
       var subclassProxyCreatorMock = mockRepository.StrictMock<ITypeContextCodeGenerator>();
 
+      bool generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
       {
@@ -88,6 +89,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         var fakeProxyType = MutableTypeObjectMother.Create();
+        var fakeContext = new GeneratedTypeContext (new Dictionary<MutableType, Type> { { fakeProxyType, fakeGeneratedType } }.AsReadOnly());
+
         mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (fakeProxyType);
 
         TypeContext typeContext = null;
@@ -97,11 +100,18 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
               typeContext = (TypeContext) mi.Arguments[0];
               Assert.That (typeContext.ProxyType, Is.SameAs (fakeProxyType));
               Assert.That (typeContext.State, Is.SameAs (_participantState));
+              typeContext.GenerationCompleted += ctx =>
+              {
+                Assert.That (ctx, Is.SameAs (fakeContext));
+                generationCompletedEventRaised = true;
+              };
             });
         participantMock2.Expect (mock => mock.Modify (Arg<TypeContext>.Matches (ctx => ctx == typeContext)));
 
-        var fakeContext = new GeneratedTypeContext (new Dictionary<MutableType, Type> { { fakeProxyType, fakeGeneratedType } }.AsReadOnly());
-        subclassProxyCreatorMock.Expect (mock => mock.GenerateTypes (Arg<TypeContext>.Matches (ctx => ctx == typeContext))).Return (fakeContext);
+        subclassProxyCreatorMock
+            .Expect (mock => mock.GenerateTypes (Arg<TypeContext>.Matches (ctx => ctx == typeContext)))
+            .Return (fakeContext)
+            .WhenCalled (mi => Assert.That (generationCompletedEventRaised, Is.False));
       }
       mockRepository.ReplayAll();
 
@@ -111,6 +121,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var result = typeAssembler.AssembleType (_requestedType, _participantState);
 
       mockRepository.VerifyAll();
+      Assert.That (generationCompletedEventRaised, Is.True);
       Assert.That (result, Is.SameAs (fakeGeneratedType));
     }
 
