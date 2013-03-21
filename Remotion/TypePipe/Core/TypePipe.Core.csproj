@@ -210,6 +210,7 @@
     <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
+    <Compile Include="MutableReflection\ITypeContext.cs" />
     <Compile Include="MutableReflection\MethodDeclaration.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensions.cs" />
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
