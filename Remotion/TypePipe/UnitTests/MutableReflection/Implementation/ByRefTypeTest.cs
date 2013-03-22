@@ -33,7 +33,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _elementType = CustomTypeObjectMother.Create (name: "Abc", @namespace: "MyNs", fullName: "Full", typeArguments: new[] { typeof (int) });
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      _elementType = CustomTypeObjectMother.Create (
+          name: "Abc", @namespace: "MyNs", fullName: "Full", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
 
       _byRefType = ByRefTypeObjectMother.Create (_elementType);
     }
@@ -51,15 +53,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void IsByRef ()
-    {
-      Assert.That (_byRefType.IsByRef, Is.True);
-    }
-
-    [Test]
     public void GetElementType ()
     {
       Assert.That (_byRefType.GetElementType(), Is.SameAs (_elementType));
+    }
+
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      Assert.That (_byRefType.GetCustomAttributeData(), Is.Empty);
+    }
+
+    [Test]
+    public void IsByRef ()
+    {
+      Assert.That (_byRefType.IsByRef, Is.True);
     }
 
     [Test]

@@ -48,6 +48,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _elementType;
     }
 
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
+    {
+      return Enumerable.Empty<ICustomAttributeData>();
+    }
+
     protected override bool IsByRefImpl ()
     {
       return true;
@@ -81,11 +86,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
       return Enumerable.Empty<EventInfo>();
-    }
-
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      throw new NotImplementedException ();
     }
   }
 }

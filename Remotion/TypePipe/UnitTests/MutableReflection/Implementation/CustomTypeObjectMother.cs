@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -33,6 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         string @namespace = "My",
         string fullName = "My.CustomType",
         TypeAttributes attributes = (TypeAttributes) 7,
+        IEnumerable<ICustomAttributeData> customAttributeDatas = null,
         IEnumerable<Type> interfaces = null,
         IEnumerable<FieldInfo> fields = null,
         IEnumerable<ConstructorInfo> constructors = null,
@@ -58,6 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               genericTypeDefinition,
               typeArgs)
           {
+              CustomAttributeDatas = customAttributeDatas ?? new ICustomAttributeData[0],
               Interfaces = interfaces ?? Type.EmptyTypes,
               Fields = fields ?? new FieldInfo[0],
               Constructors = constructors ?? new ConstructorInfo[0],
