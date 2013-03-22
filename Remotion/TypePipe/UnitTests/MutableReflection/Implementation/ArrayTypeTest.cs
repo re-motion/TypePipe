@@ -15,16 +15,23 @@
 // under the License.
 // 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Collections;
+using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
+using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
   public class ArrayTypeTest
   {
+    private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
     private CustomType _elementType;
 
     private ArrayType _type;
@@ -67,10 +74,75 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_type.GetElementType (), Is.SameAs (_elementType));
     }
 
+    // TODO 5409
+    // t.GetArrayRank
+
+    [Test]
+    public void GetCustomAttributeData ()
+    {
+      Assert.That (_type.GetCustomAttributeData(), Is.Empty);
+    }
+
     [Test]
     public void IsArrayImpl ()
     {
       Assert.That (_type.IsArray, Is.True);
+    }
+
+    [Ignore ("TODO 5409")]
+    [Test]
+    public void GetAllInterfaces ()
+    {
+      var result = _type.GetInterfaces();
+
+      var expectedInterfaces =
+          new[]
+          {
+              typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable),
+              typeof (IList<>).MakeGenericType (_elementType),
+              typeof (ICollection<>).MakeGenericType (_elementType),
+              typeof (IEnumerable<>).MakeGenericType (_elementType)
+          };
+      Assert.That (result, Is.EqualTo (expectedInterfaces));
+    }
+
+    [Ignore ("TODO 5409")]
+    [Test]
+    public void GetAllFields ()
+    {
+      Assert.That (_type.Invoke ("GetAllFields"), Is.Empty);
+    }
+
+    [Ignore ("TODO 5409")]
+    [Test]
+    public void GetAllMethods ()
+    {
+      var expectedBaseMethods = typeof (Array).GetMethods (c_all).Select (m => new { m.Name, Signature = MethodSignature.Create (m) });
+      var expectedDeclaredMethods =
+          new[]
+          {
+              new { Name = "Set", Signature = new MethodSignature (typeof (void), new[] { typeof (int), _elementType }, 0) },
+              new { Name = "Address", Signature = new MethodSignature (_elementType.MakeByRefType(), new[] { typeof (int) }, 0) },
+              new { Name = "Get", Signature = new MethodSignature (_elementType, new[] { typeof (int) }, 0) },
+              new { Name = "ToString", Signature = new MethodSignature (typeof (string), Type.EmptyTypes, 0) },
+              new { Name = "Equals", Signature = new MethodSignature (typeof (bool), new[] { typeof (object) }, 0) },
+              new { Name = "GetHashCode", Signature = new MethodSignature (typeof (int), Type.EmptyTypes, 0) },
+              new { Name = "GetType", Signature = new MethodSignature (typeof (Type), Type.EmptyTypes, 0) },
+              new { Name = "Finalize", Signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0) },
+              new { Name = "MemberwiseClone", Signature = new MethodSignature (typeof (object), Type.EmptyTypes, 0) },
+          };
+      var expectedMethods = expectedDeclaredMethods.Concat (expectedBaseMethods);
+
+      var result = _type.GetMethods (c_all).Select (m => new { m.Name, Signature = MethodSignature.Create (m) });
+
+      Assert.That (result, Is.EquivalentTo (expectedMethods));
+    }
+
+    [Ignore ("TODO 5409")]
+    [Test]
+    public void GetAllEvents ()
+    {
+      Assert.That (_type.Invoke ("GetAllEvents"), Is.Empty);
     }
   }
 }

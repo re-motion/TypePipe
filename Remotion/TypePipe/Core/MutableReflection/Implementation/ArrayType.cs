@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
 
@@ -56,7 +57,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      throw new NotImplementedException();
+      return Enumerable.Empty<ICustomAttributeData>();
     }
 
     protected override bool IsArrayImpl ()
@@ -73,6 +74,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       throw new NotImplementedException();
     }
+
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
