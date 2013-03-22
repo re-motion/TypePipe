@@ -71,6 +71,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return type;
 
       Assertion.IsFalse (type.IsArray, "Not yet supported, TODO 5409");
+      Assertion.IsFalse (type.IsByRef, "Not yet supported, TODO 5424");
 
       var oldTypeArguments = type.GetGenericArguments();
       var newTypeArguments = oldTypeArguments.Select (t => SubstituteGenericParameters (t, parametersToArguments)).ToList();
