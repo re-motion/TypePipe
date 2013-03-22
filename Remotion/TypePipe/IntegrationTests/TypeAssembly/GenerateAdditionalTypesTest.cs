@@ -172,13 +172,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (Activator.CreateInstance (valueType), Is.Not.Null);
     }
 
-    // TODO Review: Add remaining types that cannot be sorted to the exception message.
     [Test]
-    [ExpectedException (typeof (InvalidOperationException),
-        ExpectedMessage = "An error occurred during code generation for 'DomainType':\r\n"
-                          + "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types "
-                          + "returned by Type.BaseType and Type.GetInterfaces must terminate.\r\n"
-                          + "The following participants are currently configured and may have caused the error: 'ParticipantStub'.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "An error occurred during code generation for 'DomainType':\r\n"
+        + "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types "
+        + "returned by Type.BaseType and Type.GetInterfaces must terminate.\r\n"
+        + "At least one of the following types is causing the dependency cycle: 'IInterface1', 'IInterface2'.\r\n"
+        + "The following participants are currently configured and may have caused the error: 'ParticipantStub'.")]
     public void CircularDependency_Throws ()
     {
       // public interface IInterface1 : IInterface2 { }

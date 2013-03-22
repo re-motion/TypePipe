@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.FunctionalProgramming;
+using Remotion.Text;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -29,10 +30,6 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class DependentTypeSorter : IDependentTypeSorter
   {
-    private const string c_cyclicDependencyMessage =
-        "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types returned by "
-        + "Type.BaseType and Type.GetInterfaces must terminate.";
-
     public IEnumerable<MutableType> Sort (IEnumerable<MutableType> types)
     {
       ArgumentUtility.CheckNotNull ("types", types);
@@ -41,7 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       while (remainingTypes.Count > 0)
       {
-        var independenType = remainingTypes.First (t => IsIndependent (t, remainingTypes), () => new InvalidOperationException (c_cyclicDependencyMessage));
+        var independenType = remainingTypes.First (t => IsIndependent (t, remainingTypes), () => CreateDependencyCycleException (remainingTypes));
         remainingTypes.Remove (independenType);
 
         yield return independenType;
@@ -64,6 +61,17 @@ namespace Remotion.TypePipe.CodeGeneration
         return types.Contains (mutableType);
       else
         return type.GetGenericArguments().Any (a => ContainsCycle (types, a));
+    }
+
+    private InvalidOperationException CreateDependencyCycleException (HashSet<MutableType> remainingTypes)
+    {
+      var remainingTypeNames = SeparatedStringBuilder.Build (", ", remainingTypes, t => "'" + t.Name + "'");
+      var message =
+          "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types returned by "
+          + "Type.BaseType and Type.GetInterfaces must terminate." + Environment.NewLine
+          + "At least one of the following types is causing the dependency cycle: " + remainingTypeNames + ".";
+
+      return new InvalidOperationException (message);
     }
   }
 }
