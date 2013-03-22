@@ -87,7 +87,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetEmittableOperand (_mappedTypes, type, IsEmittable, t => GetEmittableTypeInstantiation ((TypeInstantiation) t));
+      Func<Type, Type> emittableInstantiationProvider = t =>
+      {
+        var typeInstantiation = t as TypeInstantiation;
+        if (typeInstantiation != null)
+          return GetEmittableTypeInstantiation (typeInstantiation);
+        else
+          return GetEmittableType (t.GetElementType()).MakeByRefType();
+      };
+      return GetEmittableOperand (_mappedTypes, type, IsEmittable, emittableInstantiationProvider);
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)

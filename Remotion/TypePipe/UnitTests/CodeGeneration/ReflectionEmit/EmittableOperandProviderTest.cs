@@ -26,6 +26,7 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -159,6 +160,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.Not.InstanceOf<CustomType>());
       var emittableGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
       Assert.That (emittableGenericArgument, Is.SameAs (emittableType));
+    }
+
+    [Test]
+    public void GetEmittableType_ByRefType ()
+    {
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      _provider.AddMapping (_mutableType, emittableType);
+      var byRefType = ByRefTypeObjectMother.Create (_mutableType);
+
+      var result = _provider.GetEmittableType (byRefType);
+
+      Assert.That (result, Is.SameAs (emittableType.MakeByRefType()));
     }
 
     [Test]
