@@ -24,7 +24,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
-  public class ByRefTypeTest : TypeAssemblerIntegrationTestBase
+  public class ByReferenceTypeTest : TypeAssemblerIntegrationTestBase
   {
     [Ignore ("TOOD 5417")]
     [Test]

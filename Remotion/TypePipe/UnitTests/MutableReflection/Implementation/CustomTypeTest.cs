@@ -596,13 +596,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.StructLayoutAttribute, "StructLayoutAttribute");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.TypeHandle, "TypeHandle");
 
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetDefaultMembers(), "GetDefaultMembers");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.InvokeMember (null, 0, null, null, null, null, null, null), "InvokeMember");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakePointerType(), "MakePointerType");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeByRefType(), "MakeByRefType");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType(), "MakeArrayType");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.MakeArrayType (7), "MakeArrayType");
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _customType.GetArrayRank(), "GetArrayRank");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetDefaultMembers(), "GetDefaultMembers");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.InvokeMember (null, 0, null, null, null, null, null, null), "InvokeMember");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakePointerType(), "MakePointerType");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeByRefType(), "MakeByRefType");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeArrayType(), "MakeArrayType");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeArrayType (7), "MakeArrayType");
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetArrayRank(), "GetArrayRank");
     }
 
     // This exists for GetInterface method with ignore case parameter.
