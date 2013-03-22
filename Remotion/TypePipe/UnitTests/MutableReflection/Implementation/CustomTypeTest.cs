@@ -169,8 +169,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void FullName_NestedType ()
     {
-      _customType.CallSetDeclaringType (typeof (object));
-      Assert.That (_customType.FullName, Is.EqualTo ("MyNamespace.Object+TypeName"));
+      var enclosingType = CustomTypeObjectMother.Create (declaringType: typeof (object), name: "EnclosingType");
+      _customType.CallSetDeclaringType (enclosingType);
+      Assert.That (_customType.FullName, Is.EqualTo ("MyNamespace.Object+EnclosingType+TypeName"));
     }
 
     [Test]

@@ -138,12 +138,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           name.Append (_namespace);
           name.Append ('.');
         }
-        if (_declaringType != null)
-        {
-          name.Append (_declaringType.Name);
-          name.Append ('+');
-        }
-        name.Append (_name);
+
+        name.Append (SeparatedStringBuilder.Build ("+", this.CreateSequence<Type> (x => x.DeclaringType).Reverse(), t => t.Name));
+
         if (IsGenericType)
         {
           name.Append ('[');
