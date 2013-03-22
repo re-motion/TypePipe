@@ -48,6 +48,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_type.Name, Is.EqualTo ("Abc&"));
       Assert.That (_type.Namespace, Is.EqualTo ("MyNs"));
       Assert.That (_type.Attributes, Is.EqualTo (TypeAttributes.NotPublic));
+      Assert.That (_type.BaseType, Is.Null);
+      Assert.That (_type.DeclaringType, Is.Null);
       Assert.That (_type.IsGenericType, Is.False);
       Assert.That (_type.IsGenericTypeDefinition, Is.False);
       Assert.That (_type.GetGenericArguments(), Is.Empty);

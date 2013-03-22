@@ -45,6 +45,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             EmptyTypes)
     {
       _elementType = elementType;
+
+      SetBaseType (typeof (Array));
     }
 
     public override Type GetElementType ()
