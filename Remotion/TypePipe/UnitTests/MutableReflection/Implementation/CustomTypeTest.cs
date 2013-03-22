@@ -37,7 +37,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private string _name;
     private string _namespace;
-    private string _fullName;
     private TypeAttributes _attributes;
 
     private TestableCustomType _customType;
@@ -54,16 +53,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _name = "type name";
-      _namespace = "namespace";
-      _fullName = "MyNameSpace.MyTypeName";
+      _name = "TypeName";
+      _namespace = "MyNamespace";
       _attributes = (TypeAttributes) 7;
 
       _customType = new TestableCustomType (
           _memberSelectorMock,
           _name,
           _namespace,
-          _fullName,
           _attributes,
           genericTypeDefinition: null,
           typeArguments: Type.EmptyTypes)
@@ -76,12 +73,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
                         Events = new[] { ReflectionObjectMother.GetSomeEvent() }
                     };
 
-      _typeParameter = ReflectionObjectMother.GetSomeGenericParameter();
-      _genericTypeDefinition = CustomTypeObjectMother.Create (typeArguments: new[] { _typeParameter });
-
-      _typeArgument = ReflectionObjectMother.GetSomeType ();
+      _typeArgument = ReflectionObjectMother.GetSomeType();
       _genericTypeUnderlyingDefinition = typeof (IList<>);
-      _genericType = CustomTypeObjectMother.Create (genericTypeDefinition: _genericTypeUnderlyingDefinition, typeArguments: new[] { _typeArgument });
+      _genericType = CustomTypeObjectMother.Create (
+          name: "GenericType`1", genericTypeDefinition: _genericTypeUnderlyingDefinition, typeArguments: new[] { _typeArgument });
+
+      _typeParameter = ReflectionObjectMother.GetSomeGenericParameter();
+      _genericTypeDefinition = CustomTypeObjectMother.Create (name: "GenericTypeDefinition`1", typeArguments: new[] { _typeParameter });
     }
 
     [Test]
@@ -91,7 +89,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.BaseType, Is.Null);
       Assert.That (_customType.Name, Is.EqualTo (_name));
       Assert.That (_customType.Namespace, Is.EqualTo (_namespace));
-      Assert.That (_customType.FullName, Is.EqualTo (_fullName));
       Assert.That (_customType.Attributes, Is.EqualTo (_attributes));
       Assert.That (_customType.IsGenericType, Is.False);
       Assert.That (_customType.IsGenericTypeDefinition, Is.False);
@@ -155,9 +152,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void FullName ()
+    {
+      Assert.That (_customType.FullName, Is.EqualTo ("MyNamespace.TypeName"));
+      Assert.That (_genericType.FullName, Is.EqualTo ("GenericType`1[[" + _typeArgument.AssemblyQualifiedName + "]]"));
+      Assert.That (_genericTypeDefinition.FullName, Is.EqualTo ("GenericTypeDefinition`1[[" + _typeParameter.AssemblyQualifiedName + "]]"));
+    }
+
+    [Test]
+    public void FullName_NullNamespace ()
+    {
+      var customType = CustomTypeObjectMother.Create (name: "MyName", @namespace: null);
+      Assert.That (customType.FullName, Is.EqualTo ("MyName"));
+    }
+
+    [Test]
+    public void FullName_NestedType ()
+    {
+      _customType.CallSetDeclaringType (typeof (object));
+      Assert.That (_customType.FullName, Is.EqualTo ("MyNamespace.Object+TypeName"));
+    }
+
+    [Test]
     public void AssemblyQualifiedName ()
     {
-      Assert.That (_customType.AssemblyQualifiedName, Is.EqualTo ("MyNameSpace.MyTypeName, TypePipe_GeneratedAssembly"));
+      Assert.That (_customType.AssemblyQualifiedName, Is.EqualTo ("MyNamespace.TypeName, TypePipe_GeneratedAssembly"));
     }
 
     [Test]
@@ -509,14 +528,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public new void ToString ()
     {
-
-      Assert.That (_customType.ToString(), Is.EqualTo ("type name"));
+      Assert.That (_customType.ToString(), Is.EqualTo ("TypeName"));
     }
 
     [Test]
     public void ToDebugString ()
     {
-      Assert.That (_customType.ToDebugString(), Is.EqualTo ("TestableCustomType = \"type name\""));
+      Assert.That (_customType.ToDebugString(), Is.EqualTo ("TestableCustomType = \"TypeName\""));
     }
 
     [Test]

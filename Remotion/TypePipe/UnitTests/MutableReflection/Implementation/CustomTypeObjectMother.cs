@@ -31,8 +31,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         Type baseType = null,
         Type declaringType = null,
         string name = "CustomType",
-        string @namespace = "My",
-        string fullName = "My.CustomType",
+        string @namespace = null,
         TypeAttributes attributes = (TypeAttributes) 7,
         IEnumerable<ICustomAttributeData> customAttributeDatas = null,
         IEnumerable<Type> interfaces = null,
@@ -55,7 +54,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               memberSelector,
               name,
               @namespace,
-              fullName,
               attributes,
               genericTypeDefinition,
               typeArgs)

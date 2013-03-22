@@ -24,6 +24,8 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
+using Remotion.Text;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -41,7 +43,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private readonly string _name;
     private readonly string _namespace;
-    private readonly string _fullName;
     private readonly TypeAttributes _attributes;
     private readonly Type _genericTypeDefinition;
     private readonly ReadOnlyCollection<Type> _typeArguments;
@@ -53,7 +54,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         IMemberSelector memberSelector,
         string name,
         string @namespace,
-        string fullName,
         TypeAttributes attributes,
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
@@ -61,7 +61,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
-      // Fullname may be null (for generic parameters).
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       // Generic type definition may be null (for non-generic types and generic type definitions).
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
@@ -69,7 +68,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _memberSelector = memberSelector;
       _name = name;
       _namespace = @namespace;
-      _fullName = fullName;
       _attributes = attributes;
       _genericTypeDefinition = genericTypeDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
@@ -131,12 +129,35 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override string FullName
     {
-      get { return _fullName; }
+      get
+      {
+        var name = new StringBuilder();
+
+        if (!string.IsNullOrEmpty (_namespace))
+        {
+          name.Append (_namespace);
+          name.Append ('.');
+        }
+        if (_declaringType != null)
+        {
+          name.Append (_declaringType.Name);
+          name.Append ('+');
+        }
+        name.Append (_name);
+        if (IsGenericType)
+        {
+          name.Append ('[');
+          name.Append (SeparatedStringBuilder.Build (",", _typeArguments, t => '[' + t.AssemblyQualifiedName + ']'));
+          name.Append (']');
+        }
+
+        return name.ToString();
+      }
     }
 
     public override string AssemblyQualifiedName
     {
-      get { return _fullName + ", TypePipe_GeneratedAssembly"; }
+      get { return FullName + ", TypePipe_GeneratedAssembly"; }
     }
 
     public override bool IsGenericType

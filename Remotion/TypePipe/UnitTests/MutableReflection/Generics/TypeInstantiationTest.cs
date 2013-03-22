@@ -49,8 +49,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       _memberSelector = new MemberSelector (new BindingFlagsEvaluator());
 
       _genericTypeDefinition = typeof (DeclaringType<>.GenericType<>);
-      _outerCustomType = CustomTypeObjectMother.Create (fullName: "MyNs.OuterTypeArg");
-      _customType = CustomTypeObjectMother.Create (fullName: "MyNs.InnerTypeArg");
+      _outerCustomType = CustomTypeObjectMother.Create();
+      _customType = CustomTypeObjectMother.Create();
       _typeArguments = new Type[] { _outerCustomType, _customType };
       _instantiationInfo = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
 
@@ -88,16 +88,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (baseType, Is.TypeOf<TypeInstantiation>());
       Assert.That (baseType.GetGenericTypeDefinition(), Is.SameAs (typeof (BaseType<>)));
       Assert.That (baseType.GetGenericArguments(), Is.EqualTo (new[] { _customType }));
-    }
-
-    [Test]
-    public void Initialization_NameAndFullName ()
-    {
-      Assert.That (_instantiation.Name, Is.EqualTo ("GenericType`1"));
-      Assert.That (
-          _instantiation.FullName,
-          Is.EqualTo (
-              "Remotion.TypePipe.UnitTests.MutableReflection.Generics.TypeInstantiationTest+DeclaringType`1+GenericType`1[[MyNs.OuterTypeArg, TypePipe_GeneratedAssembly],[MyNs.InnerTypeArg, TypePipe_GeneratedAssembly]]"));
     }
 
     [Test]

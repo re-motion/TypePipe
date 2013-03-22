@@ -70,7 +70,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_parameter.GenericParameterPosition, Is.EqualTo (_position));
       Assert.That (_parameter.Name, Is.EqualTo (_name));
       Assert.That (_parameter.Namespace, Is.EqualTo (_namespace));
-      Assert.That (_parameter.FullName, Is.Null);
       Assert.That (_parameter.Attributes, Is.EqualTo (TypeAttributes.AutoLayout | TypeAttributes.AnsiClass | TypeAttributes.Class | TypeAttributes.Public));
       Assert.That (_parameter.IsGenericType, Is.False);
       Assert.That (_parameter.GenericParameterAttributes, Is.EqualTo (_genericParameterAttributes));
@@ -83,6 +82,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     {
       var parameter = MutableGenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.NotNullableValueTypeConstraint);
       Assert.That (parameter.BaseType, Is.SameAs (typeof (ValueType)));
+    }
+
+    [Test]
+    public void FullName ()
+    {
+      Assert.That (_parameter.FullName, Is.Null);
     }
 
     [Test]

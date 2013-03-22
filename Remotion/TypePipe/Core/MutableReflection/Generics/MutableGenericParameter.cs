@@ -46,14 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         string name,
         string @namespace,
         GenericParameterAttributes genericParameterAttributes)
-        : base (
-            memberSelector,
-            name,
-            @namespace,
-            fullName: null,
-            attributes: TypeAttributes.Public,
-            genericTypeDefinition: null,
-            typeArguments: EmptyTypes)
+        : base (memberSelector, name, @namespace, attributes: TypeAttributes.Public, genericTypeDefinition: null, typeArguments: EmptyTypes)
     {
       ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -75,6 +68,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
+    }
+
+    public override string FullName
+    {
+      get { return null; }
     }
 
     public override bool IsGenericParameter

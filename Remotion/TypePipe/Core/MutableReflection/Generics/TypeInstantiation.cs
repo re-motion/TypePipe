@@ -22,7 +22,6 @@ using System.Linq;
 using System.Reflection;
 using Remotion.Collections;
 using Remotion.FunctionalProgramming;
-using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -36,12 +35,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   public class TypeInstantiation : CustomType
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
-
-    private static string GetFullName (TypeInstantiationInfo info)
-    {
-      var typeArgumentString = SeparatedStringBuilder.Build (",", info.TypeArguments, t => "[" + t.AssemblyQualifiedName + "]");
-      return string.Format ("{0}[{1}]", info.GenericTypeDefinition.FullName, typeArgumentString);
-    }
 
     private readonly TypeInstantiationInfo _instantiationInfo;
     private readonly TypeInstantiationContext _instantiationContext;
@@ -59,7 +52,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             memberSelector,
             ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
-            GetFullName (instantiationInfo),
             instantiationInfo.GenericTypeDefinition.Attributes,
             genericTypeDefinition: instantiationInfo.GenericTypeDefinition,
             typeArguments: instantiationInfo.TypeArguments)

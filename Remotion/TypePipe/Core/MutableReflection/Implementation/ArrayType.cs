@@ -40,7 +40,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             memberSelector,
             GetArrayTypeName (ArgumentUtility.CheckNotNull ("elementType", elementType).Name, rank),
             elementType.Namespace,
-            GetArrayTypeName (elementType.FullName, rank),
             TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.Serializable,
             null,
             EmptyTypes)

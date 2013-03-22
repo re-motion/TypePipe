@@ -35,7 +35,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             memberSelector,
             ArgumentUtility.CheckNotNull ("elementType", elementType).Name + "&",
             elementType.Namespace,
-            elementType.FullName + "&",
             TypeAttributes.NotPublic,
             null,
             EmptyTypes)

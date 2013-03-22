@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
       _elementType = CustomTypeObjectMother.Create (
-          name: "Abc", @namespace: "MyNs", fullName: "Full", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
+          name: "Abc", @namespace: "MyNs", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
 
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _type = new ArrayType (_elementType, 1, memberSelectorMock);
@@ -45,7 +45,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Assert.That (_type.Name, Is.EqualTo ("Abc[]"));
       Assert.That (_type.Namespace, Is.EqualTo ("MyNs"));
-      Assert.That (_type.FullName, Is.EqualTo ("Full[]"));
       Assert.That (_type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.Serializable));
       Assert.That (_type.IsGenericType, Is.False);
       Assert.That (_type.IsGenericTypeDefinition, Is.False);
@@ -58,7 +57,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var type = ArrayTypeObjectMother.Create (_elementType, 3);
 
       Assert.That (type.Name, Is.EqualTo ("Abc[,,]"));
-      Assert.That (type.FullName, Is.EqualTo ("Full[,,]"));
     }
 
     [Test]

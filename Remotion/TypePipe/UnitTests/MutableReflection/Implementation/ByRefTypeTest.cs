@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
       _elementType = CustomTypeObjectMother.Create (
-          name: "Abc", @namespace: "MyNs", fullName: "Full", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
+          name: "Abc", @namespace: "MyNs", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
 
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _type = new ByRefType (_elementType, memberSelectorMock);
@@ -47,7 +47,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Assert.That (_type.Name, Is.EqualTo ("Abc&"));
       Assert.That (_type.Namespace, Is.EqualTo ("MyNs"));
-      Assert.That (_type.FullName, Is.EqualTo ("Full&"));
       Assert.That (_type.Attributes, Is.EqualTo (TypeAttributes.NotPublic));
       Assert.That (_type.IsGenericType, Is.False);
       Assert.That (_type.IsGenericTypeDefinition, Is.False);

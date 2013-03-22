@@ -36,11 +36,6 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-    private static string GetFullName (string name, string @namespace)
-    {
-      return string.IsNullOrEmpty (@namespace) ? name : string.Format ("{0}.{1}", @namespace, name);
-    }
-
     private readonly IInterfaceMappingComputer _interfaceMappingComputer;
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
@@ -63,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, name, @namespace, GetFullName (name, @namespace), attributes, null, EmptyTypes)
+        : base (memberSelector, name, @namespace, attributes, null, EmptyTypes)
     {
       // Base type may be null (for interfaces).
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);

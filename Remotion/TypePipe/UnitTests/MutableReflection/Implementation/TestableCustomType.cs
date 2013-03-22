@@ -29,18 +29,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
         IMemberSelector memberSelector,
         string name,
         string @namespace,
-        string fullName,
         TypeAttributes attributes,
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
-        : base (
-            memberSelector,
-            name,
-            @namespace,
-            fullName,
-            attributes,
-            genericTypeDefinition,
-            typeArguments)
+        : base (memberSelector, name, @namespace, attributes, genericTypeDefinition, typeArguments)
     {
     }
 
