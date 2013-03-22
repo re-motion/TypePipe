@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class ByReferenceTypeTest : TypeAssemblerIntegrationTestBase
   {
-    [Ignore ("TOOD 5417")]
+    [Ignore ("TOOD 5424")]
     [Test]
     public void MutableByRefTypeAsMethodParameter ()
     {
