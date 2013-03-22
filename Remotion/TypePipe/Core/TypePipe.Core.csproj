@@ -173,6 +173,7 @@
     <Compile Include="MutableReflection\Generics\TypeInstantiationContext.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\ArrayType.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefType.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
     <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethod.cs" />

@@ -24,7 +24,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 

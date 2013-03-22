@@ -14,80 +14,63 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
-  public class ByRefTypeTest
+  public class ArrayTypeTest
   {
     private CustomType _elementType;
 
-    private ByRefType _type;
+    private ArrayType _type;
 
     [SetUp]
     public void SetUp ()
     {
-      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create() };
+      var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
       _elementType = CustomTypeObjectMother.Create (
           name: "Abc", @namespace: "MyNs", fullName: "Full", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
 
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _type = new ByRefType (_elementType, memberSelectorMock);
+      _type = new ArrayType (_elementType, 1, memberSelectorMock);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_type.Name, Is.EqualTo ("Abc&"));
+      Assert.That (_type.Name, Is.EqualTo ("Abc[]"));
       Assert.That (_type.Namespace, Is.EqualTo ("MyNs"));
-      Assert.That (_type.FullName, Is.EqualTo ("Full&"));
-      Assert.That (_type.Attributes, Is.EqualTo (TypeAttributes.NotPublic));
+      Assert.That (_type.FullName, Is.EqualTo ("Full[]"));
+      Assert.That (_type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.Serializable));
       Assert.That (_type.IsGenericType, Is.False);
       Assert.That (_type.IsGenericTypeDefinition, Is.False);
       Assert.That (_type.GetGenericArguments(), Is.Empty);
     }
 
     [Test]
+    public void Initialization_Rank ()
+    {
+      var type = ArrayTypeObjectMother.Create (_elementType, 3);
+
+      Assert.That (type.Name, Is.EqualTo ("Abc[,,]"));
+      Assert.That (type.FullName, Is.EqualTo ("Full[,,]"));
+    }
+
+    [Test]
     public void GetElementType ()
     {
-      Assert.That (_type.GetElementType(), Is.SameAs (_elementType));
+      Assert.That (_type.GetElementType (), Is.SameAs (_elementType));
     }
 
     [Test]
-    public void GetCustomAttributeData ()
+    public void IsArrayImpl ()
     {
-      Assert.That (_type.GetCustomAttributeData(), Is.Empty);
-    }
-
-    [Test]
-    public void IsByRef ()
-    {
-      Assert.That (_type.IsByRef, Is.True);
-    }
-
-    [Test]
-    public void GetAllXXX ()
-    {
-      Assert.That (_type.Invoke ("GetAllInterfaces"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllFields"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllConstructors"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllMethods"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllProperties"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllEvents"), Is.Empty);
-    }
-
-    [Test]
-    public void UnsupportedMembers ()
-    {
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.MakeByRefType(), "MakeByRefType");
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.MakeArrayType(), "MakeArrayType");
+      Assert.That (_type.IsArray, Is.True);
     }
   }
 }
