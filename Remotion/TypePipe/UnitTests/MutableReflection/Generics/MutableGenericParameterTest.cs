@@ -305,12 +305,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       baseMemberSelectorMock.VerifyAllExpectations();
     }
 
-    [Test]
-    public void NotSupportedMembers ()
-    {
-      UnsupportedMemberTestHelper.CheckMethod (() => Dev.Null = _parameter.GetInterfaceMap (null), "GetInterfaceMap");
-    }
-
     class DomainType : IDomainInterface
     {
       public int Field;

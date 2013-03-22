@@ -138,11 +138,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return TypePipeCustomAttributeData.GetCustomAttributes (GetGenericTypeDefinition());
     }
 
-    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      throw new NotImplementedException();
-    }
-
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       return _interfaces;

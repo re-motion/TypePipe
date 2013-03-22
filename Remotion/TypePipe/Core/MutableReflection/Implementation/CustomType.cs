@@ -78,7 +78,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
-    public abstract override InterfaceMapping GetInterfaceMap (Type interfaceType);
 
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
@@ -479,6 +478,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override RuntimeTypeHandle TypeHandle
     {
       get { throw new NotSupportedException ("Property TypeHandle is not supported."); }
+    }
+
+    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
+    {
+      throw new NotSupportedException ("Method GetInterfaceMap is not supported.");
     }
 
     public override MemberInfo[] GetDefaultMembers ()

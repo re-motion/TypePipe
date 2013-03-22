@@ -87,13 +87,5 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       throw new NotImplementedException ();
     }
-
-    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      // tODO not supported in customType 
-      // MutableType is the only type which implements this.
-
-      throw new NotImplementedException ();
-    }
   }
 }

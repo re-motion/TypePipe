@@ -67,11 +67,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       return CustomAttributeDatas;
     }
 
-    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      throw new NotImplementedException();
-    }
-
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       return Interfaces;

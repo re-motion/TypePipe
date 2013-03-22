@@ -596,6 +596,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.StructLayoutAttribute, "StructLayoutAttribute");
       UnsupportedMemberTestHelper.CheckProperty (() => Dev.Null = _customType.TypeHandle, "TypeHandle");
 
+      UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetInterfaceMap (null), "GetInterfaceMap");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetDefaultMembers(), "GetDefaultMembers");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.InvokeMember (null, 0, null, null, null, null, null, null), "InvokeMember");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakePointerType(), "MakePointerType");

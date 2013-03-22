@@ -150,11 +150,6 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
-    public override InterfaceMapping GetInterfaceMap (Type interfaceType)
-    {
-      throw new NotSupportedException ("Method GetInterfaceMap is not supported.");
-    }
-
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       Assertion.IsNotNull (BaseType);
