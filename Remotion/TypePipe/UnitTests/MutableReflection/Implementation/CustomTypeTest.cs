@@ -179,14 +179,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Dev.Null = _genericType.MakeGenericType();
     }
 
-    [Ignore ("TODO 5417")]
     [Test]
     public void MakeByRefType ()
     {
       var result = _customType.MakeByRefType();
 
-      // TODO 5417
-      //Assert.That (result, Is.TypeOf<CustomByRefType>());
+      Assert.That (result, Is.TypeOf<ByRefType>());
       Assert.That (result.IsByRef, Is.True);
       Assert.That (result.GetElementType(), Is.SameAs (_customType));
     }
@@ -600,7 +598,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetDefaultMembers(), "GetDefaultMembers");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.InvokeMember (null, 0, null, null, null, null, null, null), "InvokeMember");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakePointerType(), "MakePointerType");
-      UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeByRefType(), "MakeByRefType");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeArrayType(), "MakeArrayType");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeArrayType (7), "MakeArrayType");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetArrayRank(), "GetArrayRank");

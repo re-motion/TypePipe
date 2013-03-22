@@ -24,6 +24,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -207,7 +208,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type MakeByRefType ()
     {
-      throw new NotSupportedException ("Method MakeByRefType is not supported.");
+      return new ByRefType (this, _memberSelector);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

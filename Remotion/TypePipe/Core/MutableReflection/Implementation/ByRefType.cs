@@ -48,6 +48,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _elementType;
     }
 
+    public override Type MakeByRefType ()
+    {
+      throw new NotSupportedException ("Method MakeByRefType is not supported.");
+    }
+
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return Enumerable.Empty<ICustomAttributeData>();
