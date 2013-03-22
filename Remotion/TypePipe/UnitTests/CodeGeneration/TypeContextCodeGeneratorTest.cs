@@ -79,8 +79,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
         generatorMock1.Expect (mock => mock.DeclareType());
         generatorMock2.Expect (mock => mock.DeclareType());
-        generatorMock1.Expect (mock => mock.DefineTypeFacet());
-        generatorMock2.Expect (mock => mock.DefineTypeFacet());
+        generatorMock1.Expect (mock => mock.DefineTypeFacets());
+        generatorMock2.Expect (mock => mock.DefineTypeFacets());
         generatorMock1.Expect (mock => mock.CreateType()).Return (fakeProxyType);
         generatorMock2.Expect (mock => mock.CreateType()).Return (fakeAdditionalType);
       }

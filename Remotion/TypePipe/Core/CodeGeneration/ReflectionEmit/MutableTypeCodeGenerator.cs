@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Remotion.Collections;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
@@ -74,7 +75,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _context = new CodeGenerationContext (_mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider);
     }
 
-    public void DefineTypeFacet ()
+    public void DefineTypeFacets ()
     {
       EnsureState (1);
 
@@ -121,11 +122,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       member.AddConstructor (context, constructor);
     }
 
+    [AssertionMethod]
     private void EnsureState (int expectedState)
     {
       if (_state != expectedState)
         throw new InvalidOperationException (
-            "Methods DeclareType, DefineTypeFacet and CreateType must be called exactly once and in the correct order.");
+            "Methods DeclareType, DefineTypeFacets and CreateType must be called exactly once and in the correct order.");
 
       _state++;
     }

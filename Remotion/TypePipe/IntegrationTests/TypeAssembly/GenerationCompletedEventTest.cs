@@ -87,17 +87,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   field = (FieldInfo) ctx.GetGeneratedMember (addedField);
                   ctor = (ConstructorInfo) ctx.GetGeneratedMember (addedCtor);
                   method = (MethodInfo) ctx.GetGeneratedMember (addedMethod);
-                  event_ = (EventInfo) ctx.GetGeneratedMember (addedEvent);
                   property = (PropertyInfo) ctx.GetGeneratedMember (addedProperty);
+                  event_ = (EventInfo) ctx.GetGeneratedMember (addedEvent);
                 };
           });
 
-      Assert.That (typeInitializer, Is.SameAs (type.TypeInitializer));
-      Assert.That (field, Is.SameAs (type.GetFields().Single()));
-      Assert.That (method, Is.SameAs (type.GetMethods().Single (m => m.Name == "MyMethod")));
-      Assert.That (ctor, Is.SameAs (type.GetConstructors().Single()));
-      Assert.That (property, Is.SameAs (type.GetProperties().Single()));
-      Assert.That (event_, Is.SameAs (type.GetEvents().Single()));
+      Assert.That (typeInitializer, Is.Not.Null.And.EqualTo (type.TypeInitializer));
+      Assert.That (field, Is.EqualTo (type.GetFields().Single()));
+      Assert.That (method, Is.EqualTo (type.GetMethods().Single (m => m.Name == "MyMethod")));
+      Assert.That (ctor, Is.EqualTo (type.GetConstructors().Single()));
+      Assert.That (property, Is.EqualTo (type.GetProperties().Single()));
+      Assert.That (event_, Is.EqualTo (type.GetEvents().Single()));
     }
 
     [Test]
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var newType = typeContext.CreateType ("MyType", null, TypeAttributes.Public, typeof (object));
             var addedField = newType.AddField ("MyField", FieldAttributes.Public, typeof (int));
             var addedMethod = newType.AddMethod (
-                "MyMethod", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty ());
+                "MyMethod", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
 
             typeContext.GenerationCompleted +=
                 ctx =>
@@ -123,8 +123,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           });
       var additionalType = type.Assembly.GetType ("MyType", true);
 
-      Assert.That (field, Is.SameAs (additionalType.GetFields().Single()));
-      Assert.That (method, Is.SameAs (additionalType.GetMethods().Single (m => m.Name == "MyMethod")));
+      Assert.That (field, Is.EqualTo (additionalType.GetFields().Single()));
+      Assert.That (method, Is.EqualTo (additionalType.GetMethods ().Single (m => m.Name == "MyMethod")));
     }
 
     public class DomainType {}

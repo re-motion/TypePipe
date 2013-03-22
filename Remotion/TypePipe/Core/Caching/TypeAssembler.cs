@@ -26,6 +26,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
 {
+  // TODO Review: Move TypeAssembler, ITypeAssembler, TypeContext, ITypeContext, and GeneratedTypeContext to the CodeGeneration namespace.
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
   /// <see cref="ITypeContextCodeGenerator"/>.
@@ -108,7 +109,7 @@ namespace Remotion.TypePipe.Caching
       }
     }
 
-    private string BuildExceptionMessage (Type requestedType, SystemException exception)
+    private string BuildExceptionMessage (Type requestedType, Exception exception)
     {
       var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
       return string.Format (

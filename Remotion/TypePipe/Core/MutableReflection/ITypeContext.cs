@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -48,7 +49,8 @@ namespace Remotion.TypePipe.MutableReflection
     MutableType ProxyType { get; }
 
     /// <summary>
-    /// A global cache that is intended to hold the state of the <see cref="IParticipant"/>s.
+    /// A cache stored in the scope of the respective <see cref="TypeCache"/> that is intended to hold state of the <see cref="IParticipant"/>s that
+    /// should have the same cache lifetime as the generated types.
     /// </summary>
     IDictionary<string, object> State { get; }
 

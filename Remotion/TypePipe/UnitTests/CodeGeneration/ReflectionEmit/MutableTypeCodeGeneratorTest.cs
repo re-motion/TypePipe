@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void DefineTypeFacet ()
+    public void DefineTypeFacets ()
     {
       var typeInitializer = _mutableType.AddTypeInitializer (ctx => Expression.Empty());
 
@@ -144,7 +144,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       }
       _mockRepository.ReplayAll();
 
-      _generator.DefineTypeFacet();
+      _generator.DefineTypeFacets();
 
       _mockRepository.VerifyAll();
     }
@@ -167,7 +167,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (mutableType, null));
       _mockRepository.ReplayAll();
 
-      generator.DefineTypeFacet();
+      generator.DefineTypeFacets();
 
       _mockRepository.VerifyAll();
     }
@@ -203,16 +203,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var generator = new MutableTypeCodeGenerator (
           _mutableType, codeGeneratorStub, memberEmitterStub, initializationBuilderStub, proxySerializationEnablerStub);
 
-      CheckThrowsForInvalidOperation (generator.DefineTypeFacet);
+      CheckThrowsForInvalidOperation (generator.DefineTypeFacets);
       CheckThrowsForInvalidOperation (() => generator.CreateType());
       Assert.That (() => generator.DeclareType(), Throws.Nothing);
 
       CheckThrowsForInvalidOperation (generator.DeclareType);
       CheckThrowsForInvalidOperation (() => generator.CreateType());
-      Assert.That (() => generator.DefineTypeFacet(), Throws.Nothing);
+      Assert.That (() => generator.DefineTypeFacets(), Throws.Nothing);
 
       CheckThrowsForInvalidOperation (generator.DeclareType);
-      CheckThrowsForInvalidOperation (generator.DefineTypeFacet);
+      CheckThrowsForInvalidOperation (generator.DefineTypeFacets);
       Assert.That (() => generator.CreateType(), Throws.Nothing);
     }
 
@@ -239,7 +239,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (
           () => action(),
           Throws.InvalidOperationException.With.Message.EqualTo (
-              "Methods DeclareType, DefineTypeFacet and CreateType must be called exactly once and in the correct order."));
+              "Methods DeclareType, DefineTypeFacets and CreateType must be called exactly once and in the correct order."));
     }
   }
 }

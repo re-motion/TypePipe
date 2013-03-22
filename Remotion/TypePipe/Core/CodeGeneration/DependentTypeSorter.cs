@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class DependentTypeSorter : IDependentTypeSorter
   {
-    private const string c_cyclicDependency =
+    private const string c_cyclicDependencyMessage =
         "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types returned by "
         + "Type.BaseType and Type.GetInterfaces must terminate.";
 
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       while (remainingTypes.Count > 0)
       {
-        var independenType = remainingTypes.First (t => IsIndependent (t, remainingTypes), () => new InvalidOperationException (c_cyclicDependency));
+        var independenType = remainingTypes.First (t => IsIndependent (t, remainingTypes), () => new InvalidOperationException (c_cyclicDependencyMessage));
         remainingTypes.Remove (independenType);
 
         yield return independenType;

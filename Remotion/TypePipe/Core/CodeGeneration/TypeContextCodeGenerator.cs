@@ -57,10 +57,13 @@ namespace Remotion.TypePipe.CodeGeneration
       var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
       var typesAndGenerators = sortedTypes.Select (t => new { MutableType = t, Generator = _mutableTypeCodeGeneratorFactory.Create (t) }).ToList();
 
+      // For all types, declare the types first, then declare the members/base type/interfaces/etc., then finish the type (including bodies, etc.).
+      // That way, it is ensured that types can reference each other.
+
       foreach (var pair in typesAndGenerators)
         pair.Generator.DeclareType();
       foreach (var pair in typesAndGenerators)
-        pair.Generator.DefineTypeFacet();
+        pair.Generator.DefineTypeFacets();
 
       var mutableToGeneratedTypes = typesAndGenerators.Select (pair => Tuple.Create (pair.MutableType, pair.Generator.CreateType()));
 

@@ -58,6 +58,7 @@ namespace Remotion.TypePipe
     /// the pipeline.
     /// </summary>
     /// <param name="typeContext">The type context.</param>
+    // TODO Review: Participate
     void Modify (ITypeContext typeContext);
   }
 }

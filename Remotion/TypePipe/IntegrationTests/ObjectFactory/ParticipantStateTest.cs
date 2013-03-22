@@ -26,6 +26,8 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [Test]
     public void GlobalState ()
     {
+      bool stateWasRead = false;
+
       var participant1 = CreateParticipant (ctx =>
       {
         if (ctx.RequestedType == typeof (RequestedType1))
@@ -36,6 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
         else
         {
           Assert.That (ctx.State["key"], Is.EqualTo (7), "Participant sees state even when requsted types differ.");
+          stateWasRead = true;
         }
       });
       var participant2 = CreateParticipant (ctx => Assert.That (ctx.State["key"], Is.EqualTo (7), "Participant 2 sees state of participant 1."));
@@ -44,6 +47,8 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 
       Assert.That (() => factory.CreateObject<RequestedType1>(), Throws.Nothing);
       Assert.That (() => factory.CreateObject<RequestedType2>(), Throws.Nothing);
+
+      Assert.That (stateWasRead, Is.True);
     }
 
     public class RequestedType1 {}

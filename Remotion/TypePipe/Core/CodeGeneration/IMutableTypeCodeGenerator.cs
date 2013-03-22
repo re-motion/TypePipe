@@ -28,14 +28,14 @@ namespace Remotion.TypePipe.CodeGeneration
   /// Note that the methods must be called in the following order.
   /// <list type="number">
   ///   <item><see cref="DeclareType"/></item>
-  ///   <item><see cref="DefineTypeFacet"/></item>
+  ///   <item><see cref="DefineTypeFacets"/></item>
   ///   <item><see cref="CreateType"/></item>
   /// </list>
   /// </remarks>
   public interface IMutableTypeCodeGenerator
   {
     void DeclareType ();
-    void DefineTypeFacet ();
+    void DefineTypeFacets ();
     Type CreateType ();
   }
 }

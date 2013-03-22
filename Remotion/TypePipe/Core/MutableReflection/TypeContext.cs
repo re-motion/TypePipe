@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Implements <see cref="ITypeContext"/> and provides the possibility to raise the <see cref="GenerationCompleted"/> event.
   /// </summary>
+  // TODO Review: TypeAssemblyContext
   public class TypeContext : ITypeContext
   {
     private readonly List<MutableType> _additionalTypes = new List<MutableType>();

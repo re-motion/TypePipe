@@ -172,6 +172,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (Activator.CreateInstance (valueType), Is.Not.Null);
     }
 
+    // TODO Review: Add remaining types that cannot be sorted to the exception message.
     [Test]
     [ExpectedException (typeof (InvalidOperationException),
         ExpectedMessage = "An error occurred during code generation for 'DomainType':\r\n"
