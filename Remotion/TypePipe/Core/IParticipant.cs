@@ -18,6 +18,7 @@
 using System;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe
@@ -35,7 +36,7 @@ namespace Remotion.TypePipe
   /// </para>
   /// <para>
   /// Implementations of this interface should hold no state directly.
-  /// If there is the need to hold state a participant should use <see cref="TypeContext.State"/>.
+  /// If there is the need to hold state a participant should use <see cref="TypeAssemblyContext.State"/>.
   /// </para>
   /// </remarks>
   [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
@@ -54,11 +55,10 @@ namespace Remotion.TypePipe
 
     /// <summary>
     /// This method allows framework authors to specify their code generation needs.
-    /// The provided <see cref="ITypeContext"/> contains the type requested by the user and the mutable proxy type that was created for it by
+    /// The provided <see cref="ITypeAssemblyContext"/> contains the type requested by the user and the mutable proxy type that was created for it by
     /// the pipeline.
     /// </summary>
-    /// <param name="typeContext">The type context.</param>
-    // TODO Review: Participate
-    void Modify (ITypeContext typeContext);
+    /// <param name="typeAssemblyContext">The type context.</param>
+    void Participate (ITypeAssemblyContext typeAssemblyContext);
   }
 }

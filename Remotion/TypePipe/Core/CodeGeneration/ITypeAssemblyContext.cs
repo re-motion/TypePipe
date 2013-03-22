@@ -14,13 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
   /// Holds the <see cref="RequestedType"/> and <see cref="ProxyType"/> and allows generation of additional types.
@@ -30,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// applied by preceding participants.
   /// Its mutating members (e.g. <see cref="MutableType.AddMethod"/>) can be used to specify the needed modifications.
   /// </remarks>
-  public interface ITypeContext
+  public interface ITypeAssemblyContext
   {
     /// <summary>
     /// An event that is raised when the generation of types was completed. The generated members can be accessed

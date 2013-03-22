@@ -48,14 +48,14 @@ namespace Remotion.TypePipe.PerformanceTests
       remixParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RemixCacheKeyProvider());
       var participants = new[] { restoreParticipantStub, remixParticipantStub };
 
-      var typeModifierStub = MockRepository.GenerateStub<ITypeContextCodeGenerator>();
-      typeModifierStub.Stub (stub => stub.GenerateTypes (Arg<TypeContext>.Is.Anything))
-                      .Do (new Func<TypeContext, GeneratedTypeContext> (CreateGeneratedTypeContext));
+      var typeModifierStub = MockRepository.GenerateStub<ITypeAssemblyContextCodeGenerator>();
+      typeModifierStub.Stub (stub => stub.GenerateTypes (Arg<TypeAssemblyContext>.Is.Anything))
+                      .Do (new Func<TypeAssemblyContext, GeneratedTypeContext> (CreateGeneratedTypeContext));
       typeModifierStub.Stub (stub => stub.CodeGenerator).Return (MockRepository.GenerateStub<ICodeGenerator>());
 
       var serviceLocator = new DefaultServiceLocator();
       serviceLocator.Register (typeof (IParticipant), participants.Select (p => (Func<object>) (() => p)));
-      serviceLocator.Register (typeof (ITypeContextCodeGenerator), () => typeModifierStub);
+      serviceLocator.Register (typeof (ITypeAssemblyContextCodeGenerator), () => typeModifierStub);
 
       ITypeCache typeCache;
       using (new ServiceLocatorScope (serviceLocator))
@@ -79,9 +79,9 @@ namespace Remotion.TypePipe.PerformanceTests
       TimeThis ("Remotion_ConstructorDelegates", constructorDelegateCacheFunc);
     }
 
-    private GeneratedTypeContext CreateGeneratedTypeContext (ITypeContext typeContext)
+    private GeneratedTypeContext CreateGeneratedTypeContext (ITypeAssemblyContext typeAssemblyContext)
     {
-      var mutableAndGeneratedTypes = new[] { Tuple.Create (typeContext.ProxyType, typeof (DomainType)) };
+      var mutableAndGeneratedTypes = new[] { Tuple.Create (typeAssemblyContext.ProxyType, typeof (DomainType)) };
       return new GeneratedTypeContext (mutableAndGeneratedTypes);
     }
 

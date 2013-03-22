@@ -19,15 +19,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Implements <see cref="ITypeContext"/> and provides the possibility to raise the <see cref="GenerationCompleted"/> event.
+  /// Implements <see cref="ITypeAssemblyContext"/> and provides the possibility to raise the <see cref="GenerationCompleted"/> event.
   /// </summary>
-  // TODO Review: TypeAssemblyContext
-  public class TypeContext : ITypeContext
+  public class TypeAssemblyContext : ITypeAssemblyContext
   {
     private readonly List<MutableType> _additionalTypes = new List<MutableType>();
     private readonly IMutableTypeFactory _mutableTypeFactory;
@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableType _proxyType;
     private readonly IDictionary<string, object> _state;
 
-    public TypeContext (IMutableTypeFactory mutableTypeFactory, Type requestedType, IDictionary<string, object> state)
+    public TypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, Type requestedType, IDictionary<string, object> state)
     {
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);

@@ -17,7 +17,6 @@
 
 using System;
 using System.Linq;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 using Remotion.Collections;
@@ -25,17 +24,17 @@ using Remotion.Collections;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Generates types for the classes in the specified <see cref="TypeContext"/> by creating a list of <see cref="IMutableTypeCodeGenerator"/>
+  /// Generates types for the classes in the specified <see cref="TypeAssemblyContext"/> by creating a list of <see cref="IMutableTypeCodeGenerator"/>
   /// and calling their staged Define***- interleaved and in the correct order.
   /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
-  public class TypeContextCodeGenerator : ITypeContextCodeGenerator
+  public class TypeAssemblyAssemblyContextCodeGenerator : ITypeAssemblyContextCodeGenerator
   {
     private readonly IDependentTypeSorter _dependentTypeSorter;
     private readonly IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactory;
 
     [CLSCompliant (false)]
-    public TypeContextCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
+    public TypeAssemblyAssemblyContextCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
     {
       ArgumentUtility.CheckNotNull ("dependentTypeSorter", dependentTypeSorter);
       ArgumentUtility.CheckNotNull ("mutableTypeCodeGeneratorFactory", mutableTypeCodeGeneratorFactory);
@@ -49,11 +48,11 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _mutableTypeCodeGeneratorFactory.CodeGenerator; }
     }
 
-    public GeneratedTypeContext GenerateTypes (ITypeContext typeContext)
+    public GeneratedTypeContext GenerateTypes (ITypeAssemblyContext typeAssemblyContext)
     {
-      ArgumentUtility.CheckNotNull ("typeContext", typeContext);
+      ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);
 
-      var mutableTypes = typeContext.AdditionalTypes.Concat (typeContext.ProxyType);
+      var mutableTypes = typeAssemblyContext.AdditionalTypes.Concat (typeAssemblyContext.ProxyType);
       var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
       var typesAndGenerators = sortedTypes.Select (t => new { MutableType = t, Generator = _mutableTypeCodeGeneratorFactory.Create (t) }).ToList();
 

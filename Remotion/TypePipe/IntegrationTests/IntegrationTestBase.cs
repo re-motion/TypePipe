@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.IntegrationTests
       return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider);
     }
 
-    protected static IParticipant CreateParticipant (Action<ITypeContext> typeContextModification, ICacheKeyProvider cacheKeyProvider = null)
+    protected static IParticipant CreateParticipant (Action<ITypeAssemblyContext> typeContextModification, ICacheKeyProvider cacheKeyProvider = null)
     {
       return new ParticipantStub (typeContextModification, cacheKeyProvider);
     }
@@ -111,9 +111,9 @@ namespace Remotion.TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
-    protected ITypeContextCodeGenerator CreateSubclassProxyCreator (string assemblyName)
+    protected ITypeAssemblyContextCodeGenerator CreateSubclassProxyCreator (string assemblyName)
     {
-      var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<ITypeContextCodeGenerator>();
+      var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<ITypeAssemblyContextCodeGenerator>();
 
       _codeGenerator = subclassProxyBuilder.CodeGenerator;
       _codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);

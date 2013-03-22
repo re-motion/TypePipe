@@ -110,7 +110,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />
-    <Compile Include="CodeGeneration\ITypeContextCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\ITypeAssemblyContextCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitterFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMethodTrampolineProvider.cs" />
@@ -162,14 +162,14 @@
     <Compile Include="Expressions\ReflectionAdapters\DelegatingMethodInfoBase.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
-    <Compile Include="CodeGeneration\TypeContextCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyAssemblyContextCodeGenerator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
     <Compile Include="Caching\IConstructorFinder.cs" />
     <Compile Include="IObjectFactory.cs" />
-    <Compile Include="Caching\ITypeAssembler.cs" />
+    <Compile Include="CodeGeneration\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
-    <Compile Include="MutableReflection\GeneratedTypeContext.cs" />
+    <Compile Include="CodeGeneration\GeneratedTypeContext.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiationContext.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
@@ -210,7 +210,7 @@
     <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
-    <Compile Include="MutableReflection\ITypeContext.cs" />
+    <Compile Include="CodeGeneration\ITypeAssemblyContext.cs" />
     <Compile Include="MutableReflection\MethodDeclaration.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensions.cs" />
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
@@ -395,7 +395,7 @@
     <Compile Include="IParticipant.cs" />
     <Compile Include="ObjectFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Caching\TypeAssembler.cs" />
+    <Compile Include="CodeGeneration\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
@@ -405,7 +405,7 @@
     <Compile Include="StrongNaming\ITypeAnalyzer.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
-    <Compile Include="MutableReflection\TypeContext.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

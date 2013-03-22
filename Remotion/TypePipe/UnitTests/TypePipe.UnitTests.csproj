@@ -93,7 +93,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
     <Compile Include="Caching\ConstructorFinderTest.cs" />
-    <Compile Include="CodeGeneration\TypeContextCodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyContextCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
     <Compile Include="Configuration\TypePipeConfigurationProviderTest.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSectionTest.cs" />
@@ -118,7 +118,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBaseBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
-    <Compile Include="MutableReflection\GeneratedTypeContextTest.cs" />
+    <Compile Include="CodeGeneration\GeneratedTypeContextTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfoTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
@@ -198,8 +198,8 @@
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
-    <Compile Include="MutableReflection\TypeContextObjectMother.cs" />
-    <Compile Include="MutableReflection\TypeContextTest.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyContextObjectMother.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyContextTest.cs" />
     <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeFinderTest.cs" />

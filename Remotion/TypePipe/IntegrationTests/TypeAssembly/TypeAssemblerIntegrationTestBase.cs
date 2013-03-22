@@ -25,6 +25,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -39,24 +40,24 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
-      var actions = participantActions.Select (a => (Action<ITypeContext>) (ctx => a (ctx.ProxyType)));
+      var actions = participantActions.Select (a => (Action<ITypeAssemblyContext>) (ctx => a (ctx.ProxyType)));
       return AssembleType (typeof (T), actions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType<T> (params Action<ITypeContext>[] participantActions)
+    protected Type AssembleType<T> (params Action<ITypeAssemblyContext>[] participantActions)
     {
       return AssembleType (typeof (T), participantActions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType (Type requestedType, params Action<ITypeContext>[] participantActions)
+    protected Type AssembleType (Type requestedType, params Action<ITypeAssemblyContext>[] participantActions)
     {
       return AssembleType (requestedType, participantActions, 1);
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected Type AssembleType (Type requestedType, IEnumerable<Action<ITypeContext>> participantActions, int stackFramesToSkip)
+    protected Type AssembleType (Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions, int stackFramesToSkip)
     {
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
       return AssembleType (testName, requestedType, participantActions);
@@ -87,7 +88,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       return mutableType.AddMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
     }
 
-    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ITypeContext>> participantActions)
+    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions)
     {
       var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
       var mutableTypeFactory = SafeServiceLocator.Current.GetInstance<IMutableTypeFactory>();

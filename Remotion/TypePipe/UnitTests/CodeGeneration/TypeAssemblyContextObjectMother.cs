@@ -19,25 +19,26 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
-  public static class TypeContextObjectMother
+  public static class TypeAssemblyContextObjectMother
   {
-    public static TypeContext Create (Type requestedType = null, IMutableTypeFactory mutableTypeFactory = null, IDictionary<string, object> state = null)
+    public static TypeAssemblyContext Create (Type requestedType = null, IMutableTypeFactory mutableTypeFactory = null, IDictionary<string, object> state = null)
     {
       requestedType = requestedType ?? typeof (UnspecifiedType);
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new TypeContext (mutableTypeFactory, requestedType, state);
+      return new TypeAssemblyContext (mutableTypeFactory, requestedType, state);
     }
 
-    public static TypeContext Create (MutableType proxyType)
+    public static TypeAssemblyContext Create (MutableType proxyType)
     {
-      var typeContext = (TypeContext) FormatterServices.GetUninitializedObject (typeof (TypeContext));
+      var typeContext = (TypeAssemblyContext) FormatterServices.GetUninitializedObject (typeof (TypeAssemblyContext));
       PrivateInvoke.SetNonPublicField (typeContext, "_proxyType", proxyType);
 
       return typeContext;

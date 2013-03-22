@@ -14,25 +14,28 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class TypeContextTest
+  public class TypeAssemblyContextTest
   {
     private Type _requestedType;
     private MutableType _proxyType;
     private IMutableTypeFactory _mutableTypeFactoryMock;
     private IDictionary<string, object> _state;
 
-    private TypeContext _typeContext;
+    private TypeAssemblyContext _typeAssemblyContext;
 
     [SetUp]
     public void SetUp ()
@@ -42,16 +45,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (_proxyType);
 
-      _typeContext = new TypeContext (_mutableTypeFactoryMock, _requestedType, _state);
+      _typeAssemblyContext = new TypeAssemblyContext (_mutableTypeFactoryMock, _requestedType, _state);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_typeContext.RequestedType, Is.SameAs (_requestedType));
-      Assert.That (_typeContext.ProxyType, Is.SameAs (_proxyType));
-      Assert.That (_typeContext.AdditionalTypes, Is.Empty);
-      Assert.That (_typeContext.State, Is.SameAs (_state));
+      Assert.That (_typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
+      Assert.That (_typeAssemblyContext.ProxyType, Is.SameAs (_proxyType));
+      Assert.That (_typeAssemblyContext.AdditionalTypes, Is.Empty);
+      Assert.That (_typeAssemblyContext.State, Is.SameAs (_state));
     }
 
     [Test]
@@ -64,11 +67,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeResult = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock.Expect (mock => mock.CreateType (name, @namespace, attributes, baseType)).Return (fakeResult);
 
-      var result = _typeContext.CreateType (name, @namespace, attributes, baseType);
+      var result = _typeAssemblyContext.CreateType (name, @namespace, attributes, baseType);
 
       _mutableTypeFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
-      Assert.That (_typeContext.AdditionalTypes, Is.EqualTo (new[] { result }));
+      Assert.That (_typeAssemblyContext.AdditionalTypes, Is.EqualTo (new[] { result }));
     }
 
     [Test]
@@ -79,11 +82,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeResult = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock.Expect (mock => mock.CreateInterface (name, @namespace)).Return (fakeResult);
 
-      var result = _typeContext.CreateInterface (name, @namespace);
+      var result = _typeAssemblyContext.CreateInterface (name, @namespace);
 
       _mutableTypeFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
-      Assert.That (_typeContext.AdditionalTypes, Is.EqualTo (new[] { result }));
+      Assert.That (_typeAssemblyContext.AdditionalTypes, Is.EqualTo (new[] { result }));
     }
 
     [Test]
@@ -93,11 +96,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeResult = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (baseType)).Return (fakeResult);
 
-      var result = _typeContext.CreateProxy (baseType);
+      var result = _typeAssemblyContext.CreateProxy (baseType);
 
       _mutableTypeFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
-      Assert.That (_typeContext.AdditionalTypes, Is.EqualTo (new[] { result }));
+      Assert.That (_typeAssemblyContext.AdditionalTypes, Is.EqualTo (new[] { result }));
     }
   }
 }

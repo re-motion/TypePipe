@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       var subclassProxyBuilder = CreateSubclassProxyCreator (testName);
 
       var serviceLocator = new DefaultServiceLocator();
-      serviceLocator.Register (typeof (ITypeContextCodeGenerator), () => subclassProxyBuilder);
+      serviceLocator.Register (typeof (ITypeAssemblyContextCodeGenerator), () => subclassProxyBuilder);
       serviceLocator.Register (typeof (IParticipant), participantProviders);
 
       using (new ServiceLocatorScope (serviceLocator))

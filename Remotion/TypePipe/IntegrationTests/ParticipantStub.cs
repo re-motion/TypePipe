@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -24,10 +25,10 @@ namespace Remotion.TypePipe.IntegrationTests
 {
   public class ParticipantStub : IParticipant
   {
-    private readonly Action<ITypeContext> _typeContextModification;
+    private readonly Action<ITypeAssemblyContext> _typeContextModification;
     private readonly ICacheKeyProvider _cacheKeyProvider;
 
-    public ParticipantStub (Action<ITypeContext> typeContextModification, ICacheKeyProvider cacheKeyProvider)
+    public ParticipantStub (Action<ITypeAssemblyContext> typeContextModification, ICacheKeyProvider cacheKeyProvider)
     {
       ArgumentUtility.CheckNotNull ("typeContextModification", typeContextModification);
       // Cache key provider may be null.
@@ -41,9 +42,9 @@ namespace Remotion.TypePipe.IntegrationTests
       get { return _cacheKeyProvider; }
     }
 
-    public void Modify (ITypeContext typeContext)
+    public void Participate (ITypeAssemblyContext typeAssemblyContext)
     {
-      _typeContextModification (typeContext);
+      _typeContextModification (typeAssemblyContext);
     }
   }
 }

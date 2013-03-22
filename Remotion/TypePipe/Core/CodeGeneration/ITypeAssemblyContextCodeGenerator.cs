@@ -17,15 +17,14 @@
 
 using System;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Defines an interface for classes generating code from a <see cref="TypeContext"/>.
+  /// Defines an interface for classes generating code from a <see cref="TypeAssemblyContext"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (TypeContextCodeGenerator))]
-  public interface ITypeContextCodeGenerator
+  [ConcreteImplementation (typeof (TypeAssemblyAssemblyContextCodeGenerator))]
+  public interface ITypeAssemblyContextCodeGenerator
   {
     ICodeGenerator CodeGenerator { get; }
 
@@ -33,10 +32,10 @@ namespace Remotion.TypePipe.CodeGeneration
     /// Generates a proxy and additional types based on the data specified by the participants.
     /// </summary>
     /// <remarks>This method may throw instances of <see cref="InvalidOperationException"/> and <see cref="NotSupportedException"/>.</remarks>
-    /// <param name="typeContext">The type context to generate code for.</param>
+    /// <param name="typeAssemblyContext">The type context to generate code for.</param>
     /// <returns>A context that can be used to retrieve the generated types and members.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    GeneratedTypeContext GenerateTypes (ITypeContext typeContext);
+    GeneratedTypeContext GenerateTypes (ITypeAssemblyContext typeAssemblyContext);
   }
 }

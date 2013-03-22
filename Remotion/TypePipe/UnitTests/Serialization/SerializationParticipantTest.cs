@@ -25,6 +25,7 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.UnitTests.CodeGeneration;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 
@@ -50,12 +51,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    public void ModifyType_SerializableType ()
+    public void Participate_SerializableType ()
     {
       var proxyType = MutableTypeObjectMother.Create (baseType: typeof (SomeType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeContextObjectMother.Create (proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
 
-      _participant.Modify (typeContext);
+      _participant.Participate (typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (proxyType.AddedConstructors, Is.Empty);
@@ -80,12 +81,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    public void ModifyType_SerializableInterfaceType ()
+    public void Participate_SerializableInterfaceType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeContextObjectMother.Create (proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
 
-      _participant.Modify (typeContext);
+      _participant.Participate (typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Has.Count.EqualTo (1));
@@ -109,12 +110,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    public void ModifyType_SomeType ()
+    public void Participate_SomeType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType));
-      var typeContext = TypeContextObjectMother.Create (proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
 
-      _participant.Modify (typeContext);
+      _participant.Participate (typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
@@ -124,12 +125,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [ExpectedException (typeof (NotSupportedException),
         ExpectedMessage = "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
                           + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void ModifyType_CannotOverrideGetObjectData ()
+    public void Participate_CannotOverrideGetObjectData ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeContextObjectMother.Create (proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
 
-      _participant.Modify (typeContext);
+      _participant.Participate (typeContext);
     }
 
     public class SomeType { }

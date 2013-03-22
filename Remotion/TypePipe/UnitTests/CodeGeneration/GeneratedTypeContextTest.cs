@@ -14,15 +14,18 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Collections;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
   public class GeneratedTypeContextTest
@@ -60,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var addedTypeInitializer = _mutableType.AddTypeInitializer (ctx => Expression.Empty());
       var addedField = _mutableType.AddField ("_field");
       var addedConstructor = _mutableType.AddConstructor();
-      var addedMethod = _mutableType.AddMethod ("Method");
+      var addedMethod = MutableTypeTestExtensions.AddMethod (_mutableType, "Method");
       var addedProperty = _mutableType.AddProperty ("Property");
       var addedEvent = _mutableType.AddEvent ("Event");
 

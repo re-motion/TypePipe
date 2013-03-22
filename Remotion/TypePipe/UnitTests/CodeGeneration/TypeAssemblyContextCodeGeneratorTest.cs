@@ -28,13 +28,13 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class TypeContextCodeGeneratorTest
+  public class TypeAssemblyContextCodeGeneratorTest
   {
     private MockRepository _mockRepository;
     private IDependentTypeSorter _dependentTypeSorterMock;
     private IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactoryMock;
 
-    private TypeContextCodeGenerator _generator;
+    private TypeAssemblyAssemblyContextCodeGenerator _generator;
 
     [SetUp]
     public void SetUp ()
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _dependentTypeSorterMock = _mockRepository.StrictMock<IDependentTypeSorter>();
       _mutableTypeCodeGeneratorFactoryMock = _mockRepository.StrictMock<IMutableTypeCodeGeneratorFactory>();
 
-      _generator = new TypeContextCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
+      _generator = new TypeAssemblyAssemblyContextCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
     }
 
     [Test]
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GenerateTypes ()
     {
       var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
-      var typeContext = TypeContextObjectMother.Create (requestedType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (requestedType);
       var proxyType = typeContext.ProxyType;
       var additionalType = typeContext.CreateType ("AdditionalType", null, TypeAttributes.Class, typeof (object));
 

@@ -21,9 +21,10 @@ using System.Linq;
 using System.Reflection;
 using Remotion.Collections;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
   /// A context that holds the completed types after code generation. This class can be used to retrieve a generated <see cref="MemberInfo"/>

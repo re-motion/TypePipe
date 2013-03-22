@@ -20,16 +20,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Remotion.Text;
-using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.CodeGeneration
 {
-  // TODO Review: Move TypeAssembler, ITypeAssembler, TypeContext, ITypeContext, and GeneratedTypeContext to the CodeGeneration namespace.
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
-  /// <see cref="ITypeContextCodeGenerator"/>.
+  /// <see cref="ITypeAssemblyContextCodeGenerator"/>.
   /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
   /// <see cref="ICacheKeyProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
@@ -37,20 +36,20 @@ namespace Remotion.TypePipe.Caching
   {
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
-    private readonly ITypeContextCodeGenerator _typeContextCodeGenerator;
+    private readonly ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGenerator;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
     public TypeAssembler (
-        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, ITypeContextCodeGenerator typeContextCodeGenerator)
+        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
-      ArgumentUtility.CheckNotNull ("typeContextCodeGenerator", typeContextCodeGenerator);
+      ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
 
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
-      _typeContextCodeGenerator = typeContextCodeGenerator;
+      _typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
@@ -62,20 +61,20 @@ namespace Remotion.TypePipe.Caching
 
     public ICodeGenerator CodeGenerator
     {
-      get { return _typeContextCodeGenerator.CodeGenerator; }
+      get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }
     }
 
     public Type AssembleType (Type requestedType, IDictionary<string, object> participantState)
     {
-      var typeContext = new TypeContext (_mutableTypeFactory, requestedType, participantState);
+      var typeAssemblyContext = new TypeAssemblyContext (_mutableTypeFactory, requestedType, participantState);
 
       foreach (var participant in _participants)
-        participant.Modify (typeContext);
+        participant.Participate (typeAssemblyContext);
 
-      var generatedTypeContext = GenerateTypesWithDiagnostics (typeContext);
-      typeContext.OnGenerationCompleted (generatedTypeContext);
+      var generatedTypeContext = GenerateTypesWithDiagnostics (typeAssemblyContext);
+      typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
-      return (Type) generatedTypeContext.GetGeneratedMember (typeContext.ProxyType);
+      return (Type) generatedTypeContext.GetGeneratedMember (typeAssemblyContext.ProxyType);
     }
 
     public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
@@ -93,19 +92,19 @@ namespace Remotion.TypePipe.Caching
       return compoundKey;
     }
 
-    private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeContext typeContext)
+    private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeAssemblyContext typeAssemblyContext)
     {
       try
       {
-        return _typeContextCodeGenerator.GenerateTypes (typeContext);
+        return _typeAssemblyContextCodeGenerator.GenerateTypes (typeAssemblyContext);
       }
       catch (InvalidOperationException ex)
       {
-        throw new InvalidOperationException (BuildExceptionMessage (typeContext.RequestedType, ex), ex);
+        throw new InvalidOperationException (BuildExceptionMessage (typeAssemblyContext.RequestedType, ex), ex);
       }
       catch (NotSupportedException ex)
       {
-        throw new NotSupportedException (BuildExceptionMessage (typeContext.RequestedType, ex), ex);
+        throw new NotSupportedException (BuildExceptionMessage (typeAssemblyContext.RequestedType, ex), ex);
       }
     }
 

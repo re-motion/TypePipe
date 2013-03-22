@@ -23,6 +23,7 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.Serialization.Implementation;
@@ -68,10 +69,10 @@ namespace Remotion.TypePipe.Serialization
       get { return null; }
     }
 
-    public void Modify (ITypeContext typeContext)
+    public void Participate (ITypeAssemblyContext typeAssemblyContext)
     {
-      ArgumentUtility.CheckNotNull ("typeContext", typeContext);
-      var proxyType = typeContext.ProxyType;
+      ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);
+      var proxyType = typeAssemblyContext.ProxyType;
 
       if (!proxyType.IsTypePipeSerializable())
         return;

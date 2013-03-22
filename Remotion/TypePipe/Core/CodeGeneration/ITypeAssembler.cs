@@ -18,9 +18,9 @@
 using System;
 using System.Collections.Generic;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Caching;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
   /// Generates types for requested types and computes compound cache keys to enabled efficient caching of generated types.
