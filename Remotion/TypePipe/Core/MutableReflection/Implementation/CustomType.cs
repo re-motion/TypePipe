@@ -206,6 +206,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return null;
     }
 
+    public override Type MakeByRefType ()
+    {
+      throw new NotSupportedException ("Method MakeByRefType is not supported.");
+    }
+
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
     {
       return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
@@ -489,11 +494,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type MakePointerType ()
     {
       throw new NotSupportedException ("Method MakePointerType is not supported.");
-    }
-
-    public override Type MakeByRefType ()
-    {
-      throw new NotSupportedException ("Method MakeByRefType is not supported.");
     }
 
     public override Type MakeArrayType ()

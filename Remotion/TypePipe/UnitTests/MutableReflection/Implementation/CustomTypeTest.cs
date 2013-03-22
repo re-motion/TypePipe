@@ -24,6 +24,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
@@ -164,6 +165,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var result = _genericTypeDefinition.MakeGenericType (_typeParameter);
 
+      Assert.That (result, Is.TypeOf<TypeInstantiation>());
       Assert.That (result.IsGenericType, Is.True);
       Assert.That (result.IsGenericTypeDefinition, Is.False);
       Assert.That (result.GetGenericTypeDefinition (), Is.SameAs (_genericTypeDefinition));
@@ -175,6 +177,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void MakeGenericType_NoGenericMethodDefinition ()
     {
       Dev.Null = _genericType.MakeGenericType();
+    }
+
+    [Ignore ("TODO 5417")]
+    [Test]
+    public void MakeByRefType ()
+    {
+      var result = _customType.MakeByRefType();
+
+      // TODO 5417
+      //Assert.That (result, Is.TypeOf<CustomByRefType>());
+      Assert.That (result.IsByRef, Is.True);
+      Assert.That (result.GetElementType(), Is.SameAs (_customType));
     }
 
     [Test]
