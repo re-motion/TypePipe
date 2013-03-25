@@ -129,6 +129,7 @@
     <Compile Include="MutableReflection\Implementation\ByRefTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ConstructorOnCustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodOnCustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethodTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactoryTest.cs" />
