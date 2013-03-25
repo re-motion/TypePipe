@@ -20,15 +20,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
   /// Represents an array <see cref="Type"/>.
   /// </summary>
-  public class ArrayType : CustomType
+  public class MultiDimensionalArrayType : CustomType
   {
     private static string GetArrayTypeName (string elementTypeName, int rank)
     {
@@ -39,10 +39,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private readonly CustomType _elementType;
+    private readonly int _rank;
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
+    private readonly ReadOnlyCollection<MethodInfo> _methods;
 
-    public ArrayType (CustomType elementType, int rank, IMemberSelector memberSelector)
+    public MultiDimensionalArrayType (CustomType elementType, int rank, IMemberSelector memberSelector)
         : base (
             memberSelector,
             GetArrayTypeName (ArgumentUtility.CheckNotNull ("elementType", elementType).Name, rank),
@@ -52,11 +54,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             EmptyTypes)
     {
       _elementType = elementType;
+      _rank = rank;
 
       SetBaseType (typeof (Array));
 
       _interfaces = CreateInterfaces (elementType).ToList().AsReadOnly();
       _constructors = CreateConstructors().ToList().AsReadOnly();
+      _methods = CreateMethods (elementType).ToList().AsReadOnly();
     }
 
     public override Type GetElementType ()
@@ -67,6 +71,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return Enumerable.Empty<ICustomAttributeData>();
+    }
+
+    public override int GetArrayRank ()
+    {
+      return _rank;
     }
 
     protected override bool IsArrayImpl ()
@@ -91,18 +100,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      var attributes = MethodAttributes.Public;
-
-      var indexParameter = new ParameterDeclaration (typeof (int), "index");
-      var valueParameter = new ParameterDeclaration (_elementType, "value");
-
-      yield return new MethodOnCustomType (this, "Address", attributes, EmptyTypes, _elementType.MakeByRefType(), new[] { indexParameter });
-      yield return new MethodOnCustomType (this, "Get", attributes, EmptyTypes, _elementType, new[] { indexParameter });
-      yield return new MethodOnCustomType (this, "Set", attributes, EmptyTypes, typeof (void), new[] { indexParameter, valueParameter });
-
-
-      foreach (var baseMethods in typeof (Array).GetMethods(c_all))
-        yield return baseMethods;
+      return _methods;
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
@@ -121,16 +119,49 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       yield return typeof (ICollection<>).MakeTypePipeGenericType (elementType);
       yield return typeof (IList<>).MakeTypePipeGenericType (elementType);
 
-      foreach (var baseInterface in typeof (Array).GetInterfaces ())
+      foreach (var baseInterface in typeof (Array).GetInterfaces())
         yield return baseInterface;
     }
 
     private IEnumerable<ConstructorInfo> CreateConstructors ()
     {
-      var parameters = new[] { new ParameterDeclaration (typeof (int), "rank") };
       var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+      var lengthParameters = Enumerable.Range (0, _rank).Select (i => new ParameterDeclaration (typeof (int), "length" + i)).ToList();
+      var lowerBoundParameters = Enumerable.Range (0, _rank).Select (i => new ParameterDeclaration (typeof (int), "lowerBound" + i));
 
-      yield return new ConstructorOnCustomType (this, attributes, parameters);
+      yield return new ConstructorOnCustomType (this, attributes, lengthParameters);
+      yield return new ConstructorOnCustomType (this, attributes, Interleave (lowerBoundParameters, lengthParameters));
+    }
+
+    private IEnumerable<MethodInfo> CreateMethods (CustomType elementType)
+    {
+      var attributes = MethodAttributes.Public;
+      var indexParameters = Enumerable.Range (0, _rank).Select (i => new ParameterDeclaration (typeof (int), "index" + i)).ToList();
+      var valueParameter = new ParameterDeclaration (elementType, "value");
+
+      yield return new MethodOnCustomType (this, "Address", attributes, EmptyTypes, elementType.MakeByRefType(), indexParameters);
+      yield return new MethodOnCustomType (this, "Get", attributes, EmptyTypes, elementType, indexParameters);
+      yield return new MethodOnCustomType (this, "Set", attributes, EmptyTypes, typeof (void), indexParameters.Concat (valueParameter));
+
+      foreach (var baseMethods in typeof (Array).GetMethods (c_all))
+        yield return baseMethods;
+    }
+
+    private static IEnumerable<T> Interleave<T> (
+        IEnumerable<T> first,
+        IEnumerable<T> second)
+    {
+      using (IEnumerator<T>
+                 enumerator1 = first.GetEnumerator(),
+                 enumerator2 = second.GetEnumerator())
+      {
+        while (enumerator1.MoveNext())
+        {
+          yield return enumerator1.Current;
+          if (enumerator2.MoveNext())
+            yield return enumerator2.Current;
+        }
+      }
     }
   }
 }

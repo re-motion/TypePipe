@@ -124,7 +124,7 @@
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiationContextTest.cs" />
     <Compile Include="MutableReflection\Implementation\ArrayTypeObjectMother.cs" />
-    <Compile Include="MutableReflection\Implementation\ArrayTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ConstructorOnCustomTypeTest.cs" />
