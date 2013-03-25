@@ -113,7 +113,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_type.Invoke ("GetAllFields"), Is.Empty);
     }
 
-    [Ignore ("TODO 5409")]
     [Test]
     public void GetAllConstructors ()
     {

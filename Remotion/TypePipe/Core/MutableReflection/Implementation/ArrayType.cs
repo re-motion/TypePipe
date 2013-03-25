@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private readonly CustomType _elementType;
     private readonly ReadOnlyCollection<Type> _interfaces;
+    private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
 
     public ArrayType (CustomType elementType, int rank, IMemberSelector memberSelector)
         : base (
@@ -52,6 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       SetBaseType (typeof (Array));
 
       _interfaces = CreateInterfaces (elementType).ToList().AsReadOnly();
+      _constructors = CreateConstructors().ToList().AsReadOnly();
     }
 
     public override Type GetElementType ()
@@ -81,7 +83,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      throw new NotImplementedException();
+      return _constructors;
     }
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
@@ -107,6 +109,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       foreach (var baseInterface in typeof (Array).GetInterfaces ())
         yield return baseInterface;
+    }
+
+    private IEnumerable<ConstructorInfo> CreateConstructors ()
+    {
+      var parameters = new[] { new ParameterDeclaration (typeof (int), "rank") };
+      var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
+
+      yield return new ConstructorOnCustomType (this, attributes, parameters);
     }
   }
 }
