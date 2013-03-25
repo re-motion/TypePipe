@@ -20,8 +20,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Collections;
 using Remotion.Reflection.MemberSignatures;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting;
@@ -32,6 +32,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   public class ArrayTypeTest
   {
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+    private static readonly Func<MethodBase, string> s_nameAndSignatureProvider = m => string.Format ("{0}, {1}", m.Name, MethodSignature.Create (m));
+
     private CustomType _elementType;
 
     private ArrayType _type;
@@ -89,7 +91,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_type.IsArray, Is.True);
     }
 
-    [Ignore ("TODO 5409")]
     [Test]
     public void GetAllInterfaces ()
     {
@@ -99,14 +100,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           new[]
           {
               typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable),
-              typeof (IList<>).MakeGenericType (_elementType),
-              typeof (ICollection<>).MakeGenericType (_elementType),
-              typeof (IEnumerable<>).MakeGenericType (_elementType)
+              typeof (IList<>).MakeTypePipeGenericType (_elementType),
+              typeof (ICollection<>).MakeTypePipeGenericType (_elementType),
+              typeof (IEnumerable<>).MakeTypePipeGenericType (_elementType)
           };
-      Assert.That (result, Is.EqualTo (expectedInterfaces));
+      Assert.That (result, Is.EquivalentTo (expectedInterfaces));
     }
 
-    [Ignore ("TODO 5409")]
     [Test]
     public void GetAllFields ()
     {
@@ -115,30 +115,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     [Ignore ("TODO 5409")]
     [Test]
+    public void GetAllConstructors ()
+    {
+      var expectedConstructors = new[] { ".ctor, System.Void(System.Int32)" };
+
+      var result = _type.Invoke<IEnumerable<ConstructorInfo>> ("GetAllConstructors").Select (c => s_nameAndSignatureProvider (c));
+
+      Assert.That (result, Is.EquivalentTo (expectedConstructors));
+    }
+
+    [Ignore ("TODO 5409")]
+    [Test]
     public void GetAllMethods ()
     {
-      var expectedBaseMethods = typeof (Array).GetMethods (c_all).Select (m => new { m.Name, Signature = MethodSignature.Create (m) });
+      var expectedBaseMethods = typeof (Array).GetMethods (c_all).Select (s_nameAndSignatureProvider);
       var expectedDeclaredMethods =
           new[]
           {
-              new { Name = "Set", Signature = new MethodSignature (typeof (void), new[] { typeof (int), _elementType }, 0) },
-              new { Name = "Address", Signature = new MethodSignature (_elementType.MakeByRefType(), new[] { typeof (int) }, 0) },
-              new { Name = "Get", Signature = new MethodSignature (_elementType, new[] { typeof (int) }, 0) },
-              new { Name = "ToString", Signature = new MethodSignature (typeof (string), Type.EmptyTypes, 0) },
-              new { Name = "Equals", Signature = new MethodSignature (typeof (bool), new[] { typeof (object) }, 0) },
-              new { Name = "GetHashCode", Signature = new MethodSignature (typeof (int), Type.EmptyTypes, 0) },
-              new { Name = "GetType", Signature = new MethodSignature (typeof (Type), Type.EmptyTypes, 0) },
-              new { Name = "Finalize", Signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0) },
-              new { Name = "MemberwiseClone", Signature = new MethodSignature (typeof (object), Type.EmptyTypes, 0) },
+              "Address, MyNs.Abc&(System.Int32)",
+              "Get, MyNs.Abc(System.Int32)",
+              "Set, System.Void(System.Int32,MyNs.Abc)"
           };
       var expectedMethods = expectedDeclaredMethods.Concat (expectedBaseMethods);
 
-      var result = _type.GetMethods (c_all).Select (m => new { m.Name, Signature = MethodSignature.Create (m) });
+      var result = _type.Invoke<IEnumerable<MethodInfo>> ("GetAllProperties").Select (m => s_nameAndSignatureProvider (m));
 
       Assert.That (result, Is.EquivalentTo (expectedMethods));
     }
 
-    [Ignore ("TODO 5409")]
+    [Test]
+    public void GetAllProperties ()
+    {
+      Assert.That (_type.Invoke ("GetAllProperties"), Is.Empty);
+    }
+
     [Test]
     public void GetAllEvents ()
     {

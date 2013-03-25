@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     private readonly CustomType _elementType;
+    private readonly ReadOnlyCollection<Type> _interfaces;
 
     public ArrayType (CustomType elementType, int rank, IMemberSelector memberSelector)
         : base (
@@ -48,6 +50,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _elementType = elementType;
 
       SetBaseType (typeof (Array));
+
+      _interfaces = CreateInterfaces (elementType).ToList().AsReadOnly();
     }
 
     public override Type GetElementType ()
@@ -67,14 +71,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      throw new NotImplementedException();
+      return _interfaces;
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      throw new NotImplementedException();
+      return Enumerable.Empty<FieldInfo>();
     }
-
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
@@ -88,12 +91,22 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      throw new NotImplementedException();
+      return Enumerable.Empty<PropertyInfo>();
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
-      throw new NotImplementedException();
+      return Enumerable.Empty<EventInfo>();
+    }
+
+    private IEnumerable<Type> CreateInterfaces (Type elementType)
+    {
+      yield return typeof (IEnumerable<>).MakeTypePipeGenericType (elementType);
+      yield return typeof (ICollection<>).MakeTypePipeGenericType (elementType);
+      yield return typeof (IList<>).MakeTypePipeGenericType (elementType);
+
+      foreach (var baseInterface in typeof (Array).GetInterfaces ())
+        yield return baseInterface;
     }
   }
 }
