@@ -200,13 +200,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void MakeByRefType ()
+    public void MakeArrayType ()
     {
-      var result = _customType.MakeByRefType();
+      var result = _customType.MakeArrayType();
 
-      Assert.That (result, Is.TypeOf<ByRefType>());
-      Assert.That (result.IsByRef, Is.True);
+      Assert.That (result, Is.TypeOf<VectorType>());
       Assert.That (result.GetElementType(), Is.SameAs (_customType));
+    }
+
+    [Test]
+    public void MakeArrayType_Rank ()
+    {
+      var rank = 7;
+
+      var result = _customType.MakeArrayType (rank);
+
+      Assert.That (result, Is.TypeOf<MultiDimensionalArrayType>());
+      Assert.That (result.GetElementType(), Is.SameAs (_customType));
+      Assert.That (result.GetArrayRank(), Is.EqualTo (7));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentOutOfRangeException), ExpectedMessage = "Array rank must be greater than zero.\r\nParameter name: rank")]
+    public void MakeArrayType_ThrowsForInvalidRank ()
+    {
+      Dev.Null = _customType.MakeArrayType (0);
     }
 
     [Test]
@@ -617,8 +635,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetDefaultMembers(), "GetDefaultMembers");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.InvokeMember (null, 0, null, null, null, null, null, null), "InvokeMember");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakePointerType(), "MakePointerType");
-      UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeArrayType(), "MakeArrayType");
-      UnsupportedMemberTestHelper.CheckMethod (() => _customType.MakeArrayType (7), "MakeArrayType");
       UnsupportedMemberTestHelper.CheckMethod (() => _customType.GetArrayRank(), "GetArrayRank");
     }
 

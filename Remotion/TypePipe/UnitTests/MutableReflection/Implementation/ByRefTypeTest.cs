@@ -89,6 +89,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       UnsupportedMemberTestHelper.CheckMethod (() => _type.MakeByRefType(), "MakeByRefType");
       UnsupportedMemberTestHelper.CheckMethod (() => _type.MakeArrayType(), "MakeArrayType");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.MakeArrayType (7), "MakeArrayType");
     }
   }
 }

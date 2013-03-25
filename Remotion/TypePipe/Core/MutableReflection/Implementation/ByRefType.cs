@@ -52,6 +52,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       throw new NotSupportedException ("Method MakeByRefType is not supported.");
     }
 
+    public override Type MakeArrayType ()
+    {
+      throw new NotSupportedException ("Method MakeArrayType is not supported.");
+    }
+
+    public override Type MakeArrayType (int rank)
+    {
+      throw new NotSupportedException ("Method MakeArrayType is not supported.");
+    }
+
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return Enumerable.Empty<ICustomAttributeData>();

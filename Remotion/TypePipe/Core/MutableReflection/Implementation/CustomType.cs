@@ -228,6 +228,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return new ByRefType (this, _memberSelector);
     }
 
+    public override Type MakeArrayType ()
+    {
+      return new VectorType (this, _memberSelector);
+    }
+
+    public override Type MakeArrayType (int rank)
+    {
+      if (rank <= 0)
+        throw new ArgumentOutOfRangeException ("rank", "Array rank must be greater than zero.");
+
+      return new MultiDimensionalArrayType (this, rank, _memberSelector);
+    }
+
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
     {
       return TypePipeCustomAttributeData.GetCustomAttributes (this, inherit);
@@ -516,16 +529,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type MakePointerType ()
     {
       throw new NotSupportedException ("Method MakePointerType is not supported.");
-    }
-
-    public override Type MakeArrayType ()
-    {
-      throw new NotSupportedException ("Method MakeArrayType is not supported.");
-    }
-
-    public override Type MakeArrayType (int rank)
-    {
-      throw new NotSupportedException ("Method MakeArrayType is not supported.");
     }
 
     public override int GetArrayRank ()
