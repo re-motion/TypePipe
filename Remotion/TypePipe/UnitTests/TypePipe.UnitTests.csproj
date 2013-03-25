@@ -127,6 +127,7 @@
     <Compile Include="MutableReflection\Implementation\ArrayTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ConstructorOnCustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethodTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />
@@ -136,6 +137,8 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\PropertyFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberObjectMother.cs" />
+    <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />

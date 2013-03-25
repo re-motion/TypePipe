@@ -175,6 +175,7 @@
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
     <Compile Include="MutableReflection\Implementation\ArrayType.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefType.cs" />
+    <Compile Include="MutableReflection\Implementation\ConstructorOnCustomType.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
     <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethod.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactory.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\MemberAttributesUtility.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\ParameterOnCustomMember.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtility.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclaration.cs" />
     <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiation.cs" />
