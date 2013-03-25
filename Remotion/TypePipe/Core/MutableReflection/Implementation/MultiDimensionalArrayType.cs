@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var lowerBoundParameters = Enumerable.Range (0, _rank).Select (i => new ParameterDeclaration (typeof (int), "lowerBound" + i));
 
       yield return new ConstructorOnCustomType (this, attributes, lengthParameters);
-      yield return new ConstructorOnCustomType (this, attributes, Interleave (lowerBoundParameters, lengthParameters));
+      yield return new ConstructorOnCustomType (this, attributes, lowerBoundParameters.Interleave (lengthParameters));
     }
 
     private IEnumerable<MethodInfo> CreateMethods (CustomType elementType)
@@ -146,23 +146,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       foreach (var baseMethods in typeof (Array).GetMethods (c_all))
         yield return baseMethods;
-    }
-
-    private static IEnumerable<T> Interleave<T> (
-        IEnumerable<T> first,
-        IEnumerable<T> second)
-    {
-      using (IEnumerator<T>
-                 enumerator1 = first.GetEnumerator(),
-                 enumerator2 = second.GetEnumerator())
-      {
-        while (enumerator1.MoveNext())
-        {
-          yield return enumerator1.Current;
-          if (enumerator2.MoveNext())
-            yield return enumerator2.Current;
-        }
-      }
     }
   }
 }
