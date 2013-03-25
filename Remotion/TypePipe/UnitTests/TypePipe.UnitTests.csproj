@@ -123,8 +123,8 @@
     <Compile Include="MutableReflection\Generics\MethodInstantiationObjectMother.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiationContextTest.cs" />
-    <Compile Include="MutableReflection\Implementation\ArrayTypeObjectMother.cs" />
-    <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ArrayTypeBaseObjectMother.cs" />
+    <Compile Include="MutableReflection\Implementation\ArrayTypeBaseTest.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ConstructorOnCustomTypeTest.cs" />
@@ -138,6 +138,7 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\PropertyFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
@@ -182,6 +183,7 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataAdapterTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeNamedArgumentAdapterTest.cs" />
     <Compile Include="MutableReflection\Implementation\RelatedPropertyFinderTest.cs" />
+    <Compile Include="MutableReflection\Implementation\TestableArrayTypeBase.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomConstructorInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomEventInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomFieldInfo.cs" />

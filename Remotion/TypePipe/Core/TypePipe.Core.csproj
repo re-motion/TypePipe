@@ -173,7 +173,7 @@
     <Compile Include="MutableReflection\Generics\TypeInstantiationContext.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />
-    <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayType.cs" />
+    <Compile Include="MutableReflection\Implementation\ArrayTypeBase.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefType.cs" />
     <Compile Include="MutableReflection\Implementation\ConstructorOnCustomType.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
@@ -188,6 +188,7 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\MemberAttributesUtility.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactory.cs" />
+    <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayType.cs" />
     <Compile Include="MutableReflection\Implementation\ParameterOnCustomMember.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtility.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclaration.cs" />

@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,20 +14,22 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
-  public static class ArrayTypeObjectMother
+  public class TestableArrayTypeBase : ArrayTypeBase
   {
-    public static MultiDimensionalArrayType Create (CustomType elementType = null, int rank = 1, IMemberSelector memberSelector = null)
-    {
-      elementType = elementType ?? CustomTypeObjectMother.Create (name: "UnspecifiedType");
-      memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
+    public TestableArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelectorMock)
+        : base (elementType, rank, memberSelectorMock) {}
 
-      return new MultiDimensionalArrayType (elementType, rank, memberSelector);
+    protected override IEnumerable<ConstructorInfo> CreateConstructors (int rank)
+    {
+      return Enumerable.Empty<ConstructorInfo>();
     }
   }
 }
