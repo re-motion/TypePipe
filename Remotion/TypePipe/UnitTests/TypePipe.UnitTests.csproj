@@ -138,6 +138,7 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\PropertyFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberTest.cs" />
@@ -195,6 +196,7 @@
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
+    <Compile Include="MutableReflection\Implementation\VectorTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\VectorTypeTest.cs" />
     <Compile Include="MutableReflection\MethodDeclarationTest.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensionsTest.cs" />

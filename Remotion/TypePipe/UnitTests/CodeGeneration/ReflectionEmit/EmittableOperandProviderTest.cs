@@ -175,6 +175,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void GetEmittableType_VectorType ()
+    {
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      _provider.AddMapping (_mutableType, emittableType);
+      var vectorType = VectorTypeObjectMother.Create (_mutableType);
+
+      var result = _provider.GetEmittableType (vectorType);
+
+      Assert.That (result, Is.SameAs (emittableType.MakeArrayType()));
+    }
+
+    [Test]
+    public void GetEmittableType_MultiDimensionalArrayType ()
+    {
+      var emittableType = ReflectionObjectMother.GetSomeType ();
+      _provider.AddMapping (_mutableType, emittableType);
+      var rank = 7;
+      var multiDimensionalArrayType = MultiDimensionalArrayTypeObjectMother.Create (_mutableType, rank);
+
+      var result = _provider.GetEmittableType (multiDimensionalArrayType);
+
+      Assert.That (result, Is.SameAs (emittableType.MakeArrayType (rank)));
+    }
+
+    [Test]
     public void GetEmittableMethod_MethodInstantiation_OnRuntimeType ()
     {
       var emittableType = ReflectionObjectMother.GetSomeType();

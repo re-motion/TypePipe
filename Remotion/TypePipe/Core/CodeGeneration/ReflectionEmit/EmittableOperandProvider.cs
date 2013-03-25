@@ -92,9 +92,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var typeInstantiation = t as TypeInstantiation;
         if (typeInstantiation != null)
           return GetEmittableTypeInstantiation (typeInstantiation);
-        else
-          return GetEmittableType (t.GetElementType()).MakeByRefType();
+
+        var emittableElementType = GetEmittableType (t.GetElementType());
+        if (t is ByRefType)
+          return emittableElementType.MakeByRefType();
+        if (t is VectorType)
+          return emittableElementType.MakeArrayType();
+        else // (t is MultiDimensionalArrayType)
+          return emittableElementType.MakeArrayType (t.GetArrayRank());
       };
+
       return GetEmittableOperand (_mappedTypes, type, IsEmittable, emittableInstantiationProvider);
     }
 
@@ -132,6 +139,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         else
           return GetEmittableMemberInstantiation (m, mi => ((MethodOnTypeInstantiation) mi).MethodOnGenericType, TypeBuilder.GetMethod);
       };
+
       return GetEmittableOperand (_mappedMethods, method, IsEmittable, emittableInstantiationProvider);
     }
 
