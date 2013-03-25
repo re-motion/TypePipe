@@ -210,6 +210,7 @@
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
     <Compile Include="MutableReflection\Implementation\CustomPropertyInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\VectorType.cs" />
     <Compile Include="MutableReflection\IMutableTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapper.cs" />
     <Compile Include="MutableReflection\Implementation\MutableTypeFactory.cs" />
