@@ -144,7 +144,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAllProperties ()
     {
-      Assert.That (_type.Invoke ("GetAllProperties"), Is.Empty);
+      Func<PropertyInfo, string> nameAndTypeProvider = p => string.Format ("{0}, {1}", p.Name, PropertySignature.Create (p));
+      var expectedBaseProperties = typeof (Array).GetProperties (c_all).Select (nameAndTypeProvider);
+
+      var result = _type.Invoke<IEnumerable<PropertyInfo>> ("GetAllProperties").Select (nameAndTypeProvider);
+
+      Assert.That (result, Is.EquivalentTo (expectedBaseProperties));
     }
 
     [Test]

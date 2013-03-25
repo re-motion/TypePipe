@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
     private readonly ReadOnlyCollection<MethodInfo> _methods;
+    private readonly ReadOnlyCollection<PropertyInfo> _properties;
 
     protected ArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelector)
         : base (
@@ -64,6 +65,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _constructors = CreateConstructors (rank).ToList().AsReadOnly();
       // ReSharper restore DoNotCallOverridableMethodsInConstructor
       _methods = CreateMethods (elementType, rank).ToList().AsReadOnly();
+      _properties = CreateProperties().ToList().AsReadOnly();
     }
 
     protected abstract IEnumerable<ConstructorInfo> CreateConstructors (int rank);
@@ -110,7 +112,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      return Enumerable.Empty<PropertyInfo>();
+      return _properties;
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
@@ -140,6 +142,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       foreach (var baseMethods in typeof (Array).GetMethods (c_all))
         yield return baseMethods;
+    }
+
+    private IEnumerable<PropertyInfo> CreateProperties ()
+    {
+      return typeof (Array).GetProperties (c_all);
     }
   }
 }
