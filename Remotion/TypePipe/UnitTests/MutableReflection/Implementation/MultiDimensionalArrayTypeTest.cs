@@ -76,14 +76,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void Initialization_Rank ()
-    {
-      var type = ArrayTypeObjectMother.Create (_elementType, 3);
-
-      Assert.That (type.Name, Is.EqualTo ("Abc[,,]"));
-    }
-
-    [Test]
     public void GetElementType ()
     {
       Assert.That (_type.GetElementType (), Is.SameAs (_elementType));

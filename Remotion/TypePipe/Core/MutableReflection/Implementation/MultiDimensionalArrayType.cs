@@ -53,6 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             null,
             EmptyTypes)
     {
+      Assertion.IsTrue (rank > 0);
       _elementType = elementType;
       _rank = rank;
 
