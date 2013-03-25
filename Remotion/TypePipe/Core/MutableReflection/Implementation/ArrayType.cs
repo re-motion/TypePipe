@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -34,6 +35,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var rankNotation = new string (',', rank - 1);
       return string.Format ("{0}[{1}]", elementTypeName, rankNotation);
     }
+
+    private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private readonly CustomType _elementType;
     private readonly ReadOnlyCollection<Type> _interfaces;
@@ -88,7 +91,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      throw new NotImplementedException();
+      var attributes = MethodAttributes.Public;
+
+      var indexParameter = new ParameterDeclaration (typeof (int), "index");
+      var valueParameter = new ParameterDeclaration (_elementType, "value");
+
+      yield return new MethodOnCustomType (this, "Address", attributes, EmptyTypes, _elementType.MakeByRefType(), new[] { indexParameter });
+      yield return new MethodOnCustomType (this, "Get", attributes, EmptyTypes, _elementType, new[] { indexParameter });
+      yield return new MethodOnCustomType (this, "Set", attributes, EmptyTypes, typeof (void), new[] { indexParameter, valueParameter });
+
+
+      foreach (var baseMethods in typeof (Array).GetMethods(c_all))
+        yield return baseMethods;
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()

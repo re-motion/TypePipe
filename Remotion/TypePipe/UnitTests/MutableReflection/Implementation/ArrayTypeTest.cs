@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -42,8 +43,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void SetUp ()
     {
       var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
-      _elementType = CustomTypeObjectMother.Create (
-          name: "Abc", @namespace: "MyNs", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
+      _elementType = CustomTypeObjectMother.Create (name: "Abc", @namespace: "MyNs", customAttributeDatas: customAttributes);
 
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _type = new ArrayType (_elementType, 1, memberSelectorMock);
@@ -59,7 +59,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_type.DeclaringType, Is.Null);
       Assert.That (_type.IsGenericType, Is.False);
       Assert.That (_type.IsGenericTypeDefinition, Is.False);
-      Assert.That (_type.GetGenericArguments(), Is.Empty);
+    }
+
+    [Test]
+    public void Initialization_TypeArguments ()
+    {
+      var elementType = CustomTypeObjectMother.Create (typeArguments: new[] { ReflectionObjectMother.GetSomeType() });
+      var type = ArrayTypeObjectMother.Create (elementType);
+
+      Assert.That (type.GetGenericArguments (), Is.Empty);
     }
 
     [Test]
@@ -123,7 +131,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result, Is.EquivalentTo (expectedConstructors));
     }
 
-    [Ignore ("TODO 5409")]
     [Test]
     public void GetAllMethods ()
     {
@@ -136,12 +143,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               "Set, System.Void(System.Int32,MyNs.Abc)"
           };
       var expectedMethods = expectedDeclaredMethods.Concat (expectedBaseMethods);
-
-      var result = _type.Invoke<IEnumerable<MethodInfo>> ("GetAllProperties").Select (m => s_nameAndSignatureProvider (m));
+      
+      var result = _type.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods").Select (m => s_nameAndSignatureProvider (m));
 
       Assert.That (result, Is.EquivalentTo (expectedMethods));
     }
-
+    
     [Test]
     public void GetAllProperties ()
     {

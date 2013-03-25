@@ -177,7 +177,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type[] GetGenericArguments ()
     {
-      return _typeArguments.ToArray ();
+      return _typeArguments.ToArray();
     }
 
     public override Type MakeGenericType (params Type[] typeArguments)
