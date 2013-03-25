@@ -87,6 +87,7 @@
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
     <Compile Include="TypeAssembly\AddExplicitOverrideTest.cs" />
     <Compile Include="TypeAssembly\AddPropertyTest.cs" />
+    <Compile Include="TypeAssembly\ArrayTypeTest.cs" />
     <Compile Include="TypeAssembly\ByReferenceTypeTest.cs" />
     <Compile Include="TypeAssembly\DefaultExpressionTest.cs" />
     <Compile Include="TypeAssembly\GenerateAdditionalTypesTest.cs">
