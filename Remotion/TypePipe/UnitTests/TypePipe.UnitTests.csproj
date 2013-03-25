@@ -127,8 +127,10 @@
     <Compile Include="MutableReflection\Implementation\ArrayTypeBaseTest.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\ByRefTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ConstructorOnCustomTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\ConstructorOnCustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodOnCustomTypeObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOnCustomTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethodTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />

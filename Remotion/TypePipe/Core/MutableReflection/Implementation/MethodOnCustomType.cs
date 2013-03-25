@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly ReadOnlyCollection<ParameterOnCustomMember> _parameters;
 
     public MethodOnCustomType (
-        Type declaringType,
+        CustomType declaringType,
         string name,
         MethodAttributes attributes,
         IEnumerable<Type> typeArguments,
