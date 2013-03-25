@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -31,19 +32,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private MethodAttributes _attributes;
     private IEnumerable<Type> _typeArguments;
     private Type _returnType;
-    private IEnumerable<ParameterOnCustomMember> _parameters;
+    private ParameterDeclaration[] _parameters;
 
     private MethodOnCustomType _method;
 
     [SetUp]
     public void SetUp ()
     {
-      _declaringType = CustomTypeObjectMother.Create ();
+      _declaringType = CustomTypeObjectMother.Create();
       _name = "Method";
       _attributes = (MethodAttributes) 7;
       _typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
       _returnType = ReflectionObjectMother.GetSomeType();
-      _parameters = new[] { ParameterOnCustomMemberObjectMother.Create() };
+      _parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
 
       _method = new MethodOnCustomType (_declaringType, _name, _attributes, _typeArguments, _returnType, _parameters);
     }
@@ -56,7 +57,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_method.Attributes, Is.EqualTo (_attributes));
       Assert.That (_method.GetGenericArguments(), Is.EqualTo (_typeArguments));
       CustomParameterInfoTest.CheckParameter (_method.ReturnParameter, _method, -1, null, _returnType, ParameterAttributes.None);
-      Assert.That (_method.GetParameters(), Is.EqualTo (_parameters));
+      var parameters = _method.GetParameters();
+      Assert.That (parameters, Has.Length.EqualTo (2));
+      CustomParameterInfoTest.CheckParameter (parameters[0], _method, 0, _parameters[0].Name, _parameters[0].Type, _parameters[0].Attributes);
+      CustomParameterInfoTest.CheckParameter (parameters[1], _method, 1, _parameters[1].Name, _parameters[1].Type, _parameters[1].Attributes);
     }
 
     [Test]

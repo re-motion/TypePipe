@@ -15,9 +15,9 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   {
     private CustomType _declaringType;
     private MethodAttributes _attributes;
-    private IEnumerable<ParameterOnCustomMember> _parameters;
+    private ParameterDeclaration[] _parameters;
 
     private ConstructorOnCustomType _constructor;
 
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _declaringType = CustomTypeObjectMother.Create();
       _attributes = (MethodAttributes) 7 | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-      _parameters = new[] { ParameterOnCustomMemberObjectMother.Create() };
+      _parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
 
       _constructor = new ConstructorOnCustomType (_declaringType, _attributes, _parameters);
     }
@@ -46,7 +46,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Assert.That (_constructor.DeclaringType, Is.SameAs (_declaringType));
       Assert.That (_constructor.Attributes, Is.EqualTo (_attributes));
-      Assert.That (_constructor.GetParameters(), Is.EqualTo (_parameters));
+      var parameters = _constructor.GetParameters();
+      Assert.That (parameters, Has.Length.EqualTo (2));
+      CustomParameterInfoTest.CheckParameter (parameters[0], _constructor, 0, _parameters[0].Name, _parameters[0].Type, _parameters[0].Attributes);
+      CustomParameterInfoTest.CheckParameter (parameters[1], _constructor, 1, _parameters[1].Name, _parameters[1].Type, _parameters[1].Attributes);
     }
 
     [Test]

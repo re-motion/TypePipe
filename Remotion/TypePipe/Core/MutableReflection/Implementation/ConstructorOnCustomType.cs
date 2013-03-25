@@ -32,12 +32,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private readonly ReadOnlyCollection<ParameterOnCustomMember> _parameters;
 
-    public ConstructorOnCustomType (CustomType declaringType, MethodAttributes attributes, IEnumerable<ParameterOnCustomMember> parameters)
+    public ConstructorOnCustomType (CustomType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters)
         : base (declaringType, attributes)
     {
       ArgumentUtility.CheckNotNull ("parameters", parameters);
 
-      _parameters = parameters.ToList().AsReadOnly();
+      _parameters = parameters.Select ((p, i) => new ParameterOnCustomMember (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()

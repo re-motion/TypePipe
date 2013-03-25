@@ -24,6 +24,10 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
+  /// <summary>
+  /// Represents a <see cref="MethodInfo"/> on a descendent of a <see cref="CustomType"/>.
+  /// This class can be configured with constant values.
+  /// </summary>
   public class MethodOnCustomType : CustomMethodInfo
   {
     private readonly ParameterInfo _returnParameter;
@@ -35,14 +39,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         MethodAttributes attributes,
         IEnumerable<Type> typeArguments,
         Type returnType,
-        IEnumerable<ParameterOnCustomMember> parameters)
+        IEnumerable<ParameterDeclaration> parameters)
         : base (declaringType, name, attributes, null, typeArguments)
     {
       ArgumentUtility.CheckNotNull ("parameters", parameters);
       ArgumentUtility.CheckNotNull ("returnType", returnType);
 
       _returnParameter = new ParameterOnCustomMember (this, -1, null, returnType, ParameterAttributes.None);
-      _parameters = parameters.ToList().AsReadOnly();
+      _parameters = parameters.Select ((p, i) => new ParameterOnCustomMember (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
     }
 
     public override ParameterInfo ReturnParameter
