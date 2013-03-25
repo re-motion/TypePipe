@@ -209,7 +209,6 @@
     <Compile Include="MutableReflection\IMutableTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapper.cs" />
     <Compile Include="MutableReflection\Implementation\MutableTypeFactory.cs" />
-    <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
     <Compile Include="CodeGeneration\ITypeAssemblyContext.cs" />

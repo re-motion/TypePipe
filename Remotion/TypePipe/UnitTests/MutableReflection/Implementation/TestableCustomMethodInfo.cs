@@ -18,8 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.TypePipe.MutableReflection.Implementation
+namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   public class TestableCustomMethodInfo : CustomMethodInfo
   {

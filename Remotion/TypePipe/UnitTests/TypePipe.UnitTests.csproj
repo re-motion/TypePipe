@@ -181,6 +181,7 @@
     <Compile Include="MutableReflection\Implementation\TestableCustomConstructorInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomEventInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomFieldInfo.cs" />
+    <Compile Include="MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomParameterInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomPropertyInfo.cs" />
     <Compile Include="MutableReflection\Implementation\TestableCustomType.cs" />
