@@ -40,9 +40,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private readonly CustomType _elementType;
     private readonly int _rank;
-    private readonly ReadOnlyCollection<Type> _interfaces;
-    private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
-    private readonly ReadOnlyCollection<MethodInfo> _methods;
+
+    // TODO 5452 Make eager again
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _interfaces;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<MethodInfo>> _methods;
 
     protected ArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelector)
         : base (
@@ -60,10 +62,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       SetBaseType (typeof (Array));
 
       // ReSharper disable DoNotCallOverridableMethodsInConstructor
-      _interfaces = CreateInterfaces (elementType).ToList().AsReadOnly();
-      _constructors = CreateConstructors (rank).ToList().AsReadOnly();
+      _interfaces = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateInterfaces (elementType).ToList().AsReadOnly());
+      _constructors = new DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors (rank).ToList().AsReadOnly());
       // ReSharper restore DoNotCallOverridableMethodsInConstructor
-      _methods = CreateMethods (elementType, rank).ToList().AsReadOnly();
+      _methods = new DoubleCheckedLockingContainer<ReadOnlyCollection<MethodInfo>> (() => CreateMethods (elementType, rank).ToList().AsReadOnly());
     }
 
     protected abstract IEnumerable<Type> CreateInterfaces (CustomType elementType);
@@ -110,7 +112,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      return _interfaces;
+      return _interfaces.Value;
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
@@ -120,12 +122,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      return _constructors;
+      return _constructors.Value;
     }
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      return _methods;
+      return _methods.Value;
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
