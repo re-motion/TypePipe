@@ -23,6 +23,7 @@ using Microsoft.Scripting.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Remotion.TypePipe.MutableReflection;
 
@@ -68,11 +69,39 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       return base.VisitConstant (node);
     }
 
+    protected internal override Expression VisitMethodCall (MethodCallExpression node)
+    {
+      return base.VisitMethodCall (node);
+    }
+
+    protected internal override Expression VisitNewArray (NewArrayExpression node)
+    {
+      if (node.Type is ArrayTypeBase && node.NodeType == ExpressionType.NewArrayBounds && node.Expressions.Count > 1)
+      {
+        var message =
+            "The expression factories NewArrayBounds and NewArrayInit are not supported for multi-dimensional arrays. "
+            + "To create a multi-dimensional array call the static method Array.CreateInstance and cast the result to the specific array type.";
+        throw new NotSupportedException (message);
+      }
+
+      return base.VisitNewArray (node);
+    }
+
     protected internal override Expression VisitNew (NewExpression node)
     {
       ArgumentUtility.CheckNotNull ("node", node);
 
-      if (node.Constructor is GenericParameterDefaultConstructor)
+      var constructor = node.Constructor;
+      if (constructor != null && constructor.DeclaringType is ArrayTypeBase)
+      {
+        var message =
+            "Array constructors cannot be used directly in expression trees. For one-dimensional arrays use the NewArrayBounds or NewArrayInit "
+            + "expression factories. For multi-dimensional arrays call the static method Array.CreateInstance and cast the result to "
+            + "the specific array type.";
+        throw new NotSupportedException (message);
+      }
+
+      if (constructor is GenericParameterDefaultConstructor)
       {
         var createInstance = s_createInstanceMethod.MakeTypePipeGenericMethod (node.Type);
         return Expression.Call (createInstance);

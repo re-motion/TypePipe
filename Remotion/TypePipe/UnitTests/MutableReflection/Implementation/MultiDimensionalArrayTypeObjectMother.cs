@@ -21,7 +21,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   public static class MultiDimensionalArrayTypeObjectMother
   {
-    public static MultiDimensionalArrayType Create (CustomType elementType = null, int rank = 1, IMemberSelector memberSelector = null)
+    public static MultiDimensionalArrayType Create (CustomType elementType = null, int rank = 2, IMemberSelector memberSelector = null)
     {
       elementType = elementType ?? CustomTypeObjectMother.Create (name: "UnspecifiedType");
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());

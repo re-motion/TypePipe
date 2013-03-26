@@ -30,6 +30,7 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
@@ -104,6 +105,51 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       var result = _visitorPartialMock.Invoke ("VisitConstant", expression);
 
       Assert.That (result, Is.SameAs (expression));
+    }
+
+    [Test]
+    public void VisitMethodCall ()
+    {
+      // TODO
+    }
+
+    [Test]
+    public void VisitNewArray_MultiDimensionalArray ()
+    {
+      var customElementType = CustomTypeObjectMother.Create();
+      var customElement = Expression.Constant (null, customElementType);
+
+      var expression1 = Expression.NewArrayInit (customElementType, customElement, customElement);
+      var expression2 = Expression.NewArrayBounds (customElementType, Expression.Constant (7));
+      var expression3 = Expression.NewArrayBounds (typeof (int), Expression.Constant (7), Expression.Constant (7));
+      var expression4 = Expression.NewArrayBounds (customElementType, Expression.Constant (7), Expression.Constant (7));
+
+      Assert.That (() => _visitorPartialMock.Invoke ("VisitNewArray", expression1), Throws.Nothing);
+      Assert.That (() => _visitorPartialMock.Invoke ("VisitNewArray", expression2), Throws.Nothing);
+      Assert.That (() => _visitorPartialMock.Invoke ("VisitNewArray", expression3), Throws.Nothing);
+
+      var message =
+            "The expression factories NewArrayBounds and NewArrayInit are not supported for multi-dimensional arrays. "
+            + "To create a multi-dimensional array call the static method Array.CreateInstance and cast the result to the specific array type.";
+      Assert.That (
+          () => _visitorPartialMock.Invoke ("VisitNewArray", expression4), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+    }
+
+    [Test]
+    public void VisitNew_ArrayConstructor ()
+    {
+      var vectorType = VectorTypeObjectMother.Create();
+      var multiDimensionalArrayType = MultiDimensionalArrayTypeObjectMother.Create (rank: 1);
+
+      var expression1 = Expression.New (vectorType.GetConstructor (new[] { typeof (int) }), Expression.Constant (7));
+      var expression2 = Expression.New (multiDimensionalArrayType.GetConstructor (new[] { typeof (int) }), Expression.Constant (7));
+
+      var message =
+          "Array constructors cannot be used directly in expression trees. For one-dimensional arrays use the NewArrayBounds or NewArrayInit "
+          + "expression factories. For multi-dimensional arrays call the static method Array.CreateInstance and cast the result to "
+          + "the specific array type.";
+      Assert.That (() => _visitorPartialMock.Invoke ("VisitNew", expression1), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+      Assert.That (() => _visitorPartialMock.Invoke ("VisitNew", expression2), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
 
     [Test]
