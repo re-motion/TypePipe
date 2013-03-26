@@ -147,6 +147,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result.GetValue (1).As<Array>().Length, Is.EqualTo (8));
     }
 
+    [Ignore ("TODO 5409")]
+    [Test]
+    public void CreateVectorOfGenericParameter ()
+    {
+      var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericVector<Dev.T>());
+      var type = AssembleType<DomainType> (
+          p => p.GetOrAddOverride (method).SetBody (ctx => Expression.NewArrayBounds (ctx.GenericParameters[0], Expression.Constant (7))));
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      var valueArray = instance.GenericVector<int>();
+      var refArray = instance.GenericVector<int>();
+
+      var valueArrayType = valueArray.GetType();
+      Assert.That (valueArrayType.GetElementType(), Is.SameAs (typeof (int)));
+      Assert.That (valueArrayType.GetArrayRank(), Is.EqualTo (1));
+      Assert.That (valueArray.Length, Is.EqualTo (7));
+      Assert.That (refArray.GetType().GetElementType(), Is.SameAs (typeof (string)));
+    }
+
     [Test]
     public void UnsupportedArrayMembers ()
     {
@@ -186,6 +205,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           Throws.TypeOf<NotSupportedException>().With.Message.Contains (messagePart));
     }
 
-    public class DomainType {}
+    public class DomainType
+    {
+      public virtual T[] GenericVector<T> () { throw new NotImplementedException(); }
+    }
   }
 }
