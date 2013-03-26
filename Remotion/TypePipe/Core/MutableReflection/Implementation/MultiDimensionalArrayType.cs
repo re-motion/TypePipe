@@ -23,7 +23,7 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Represents a multidimensional array <see cref="Type"/>.
+  /// Represents a multi-dimensional array <see cref="Type"/>.
   /// </summary>
   public class MultiDimensionalArrayType : ArrayTypeBase
   {

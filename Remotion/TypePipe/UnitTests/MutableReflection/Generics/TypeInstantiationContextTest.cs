@@ -116,9 +116,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void SubstituteGenericParameters_GenericParameter ()
     {
-      var genericParameter = typeof (GenericType<>).GetField ("Field").FieldType;
-
-      var result = _context.SubstituteGenericParameters (genericParameter, _parametersToArguments);
+      var result = _context.SubstituteGenericParameters (_parameter, _parametersToArguments);
 
       Assert.That (result, Is.SameAs (_argument));
     }
@@ -126,12 +124,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void SubstituteGenericParameters_GenericParameter_NoMatch ()
     {
-      var parametersToArguments = new Dictionary<Type, Type> ();
-      var genericParameter = typeof (GenericType<>).GetField ("Field").FieldType;
+      var parametersToArguments = new Dictionary<Type, Type>();
 
-      var result = _context.SubstituteGenericParameters (genericParameter, parametersToArguments);
+      var result = _context.SubstituteGenericParameters (_parameter, parametersToArguments);
 
-      Assert.That (result, Is.SameAs (genericParameter));
+      Assert.That (result, Is.SameAs (_parameter));
     }
 
     [Test]
@@ -146,6 +143,32 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (func.GetGenericTypeDefinition (), Is.SameAs (typeof (Func<>)));
       var typeArgument = func.GetGenericArguments ().Single ();
       Assert.That (typeArgument, Is.SameAs (_argument));
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_VectorType ()
+    {
+      var vectorType = _parameter.MakeArrayType();
+
+      var result = _context.SubstituteGenericParameters (vectorType, _parametersToArguments);
+
+      Assert.That (result.IsArray, Is.True);
+      Assert.That (result.GetElementType(), Is.SameAs (_argument));
+      Assert.That (result.GetArrayRank(), Is.EqualTo (1));
+      Assert.That (result.GetConstructors().Length, Is.EqualTo (1), "Vectors have a single constructor.");
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_MultiDimensionalArrayType ()
+    {
+      var multiDimensionalArrayType = _parameter.MakeArrayType (2);
+
+      var result = _context.SubstituteGenericParameters (multiDimensionalArrayType, _parametersToArguments);
+
+      Assert.That (result.IsArray, Is.True);
+      Assert.That (result.GetElementType(), Is.SameAs (_argument));
+      Assert.That (result.GetArrayRank(), Is.EqualTo (2));
+      Assert.That (result.GetConstructors().Length, Is.EqualTo (2), "Multi-dimensional arrays have two constructors.");
     }
 
     [Test]

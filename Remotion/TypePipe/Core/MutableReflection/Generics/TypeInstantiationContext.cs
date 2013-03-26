@@ -67,10 +67,15 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (typeArgument != null)
         return typeArgument;
 
+      if (type.IsArray)
+      {
+        var elementType = SubstituteGenericParameters (type.GetElementType(), parametersToArguments);
+        return type.GetConstructors().Length == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType (type.GetArrayRank());
+      }
+
       if (!type.IsGenericType)
         return type;
 
-      Assertion.IsFalse (type.IsArray, "Not yet supported, TODO 5409");
       Assertion.IsFalse (type.IsByRef, "Not yet supported, TODO 5424");
 
       var oldTypeArguments = type.GetGenericArguments();
