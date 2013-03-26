@@ -147,7 +147,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result.GetValue (1).As<Array>().Length, Is.EqualTo (8));
     }
 
-    [Ignore ("TODO 5409")]
     [Test]
     public void CreateVectorOfGenericParameter ()
     {
@@ -157,7 +156,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var instance = (DomainType) Activator.CreateInstance (type);
       var valueArray = instance.GenericVector<int>();
-      var refArray = instance.GenericVector<int>();
+      var refArray = instance.GenericVector<string>();
 
       var valueArrayType = valueArray.GetType();
       Assert.That (valueArrayType.GetElementType(), Is.SameAs (typeof (int)));
