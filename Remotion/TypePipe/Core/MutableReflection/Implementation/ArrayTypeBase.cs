@@ -43,7 +43,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly ReadOnlyCollection<Type> _interfaces;
     private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
     private readonly ReadOnlyCollection<MethodInfo> _methods;
-    private readonly ReadOnlyCollection<PropertyInfo> _properties;
 
     protected ArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelector)
         : base (
@@ -65,7 +64,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _constructors = CreateConstructors (rank).ToList().AsReadOnly();
       // ReSharper restore DoNotCallOverridableMethodsInConstructor
       _methods = CreateMethods (elementType, rank).ToList().AsReadOnly();
-      _properties = CreateProperties().ToList().AsReadOnly();
     }
 
     protected abstract IEnumerable<Type> CreateInterfaces (CustomType elementType);
@@ -117,7 +115,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<FieldInfo> GetAllFields ()
     {
-      return Enumerable.Empty<FieldInfo>();
+      return typeof (Array).GetFields (c_all);
     }
 
     protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
@@ -132,12 +130,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      return _properties;
+      return typeof (Array).GetProperties (c_all);
     }
 
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
-      return Enumerable.Empty<EventInfo>();
+      return typeof (Array).GetEvents (c_all);
     }
 
     private IEnumerable<MethodInfo> CreateMethods (CustomType elementType, int rank)
@@ -152,11 +150,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       foreach (var baseMethods in typeof (Array).GetMethods (c_all))
         yield return baseMethods;
-    }
-
-    private IEnumerable<PropertyInfo> CreateProperties ()
-    {
-      return typeof (Array).GetProperties (c_all);
     }
   }
 }

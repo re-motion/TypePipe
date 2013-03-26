@@ -160,16 +160,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (result, Is.EquivalentTo (expectedMethods));
     }
-    
+
     [Test]
     public void GetAllProperties ()
     {
-      Func<PropertyInfo, string> nameAndTypeProvider = p => string.Format ("{0}, {1}", p.Name, PropertySignature.Create (p));
-      var expectedBaseProperties = typeof (Array).GetProperties (c_all).Select (nameAndTypeProvider);
+      var expectedProperties = typeof (Array).GetProperties (c_all);
 
-      var result = _type.Invoke<IEnumerable<PropertyInfo>> ("GetAllProperties").Select (nameAndTypeProvider);
+      var result = _type.Invoke<IEnumerable<PropertyInfo>> ("GetAllProperties");
 
-      Assert.That (result, Is.EquivalentTo (expectedBaseProperties));
+      Assert.That (result, Is.Not.Empty.And.EquivalentTo (expectedProperties));
     }
 
     [Test]
