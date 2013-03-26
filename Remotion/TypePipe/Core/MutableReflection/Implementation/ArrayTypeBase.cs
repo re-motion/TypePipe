@@ -60,14 +60,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       SetBaseType (typeof (Array));
 
-      _interfaces = CreateInterfaces (elementType).ToList().AsReadOnly();
       // ReSharper disable DoNotCallOverridableMethodsInConstructor
+      _interfaces = CreateInterfaces (elementType).ToList().AsReadOnly();
       _constructors = CreateConstructors (rank).ToList().AsReadOnly();
       // ReSharper restore DoNotCallOverridableMethodsInConstructor
       _methods = CreateMethods (elementType, rank).ToList().AsReadOnly();
       _properties = CreateProperties().ToList().AsReadOnly();
     }
 
+    protected abstract IEnumerable<Type> CreateInterfaces (CustomType elementType);
     protected abstract IEnumerable<ConstructorInfo> CreateConstructors (int rank);
 
     public override Type GetElementType ()
@@ -137,16 +138,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected override IEnumerable<EventInfo> GetAllEvents ()
     {
       return Enumerable.Empty<EventInfo>();
-    }
-
-    private IEnumerable<Type> CreateInterfaces (Type elementType)
-    {
-      yield return typeof (IEnumerable<>).MakeTypePipeGenericType (elementType);
-      yield return typeof (ICollection<>).MakeTypePipeGenericType (elementType);
-      yield return typeof (IList<>).MakeTypePipeGenericType (elementType);
-
-      foreach (var baseInterface in typeof (Array).GetInterfaces())
-        yield return baseInterface;
     }
 
     private IEnumerable<MethodInfo> CreateMethods (CustomType elementType, int rank)

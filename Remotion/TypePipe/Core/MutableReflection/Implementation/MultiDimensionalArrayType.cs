@@ -32,6 +32,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
     }
 
+    protected override IEnumerable<Type> CreateInterfaces (CustomType elementType)
+    {
+      return typeof (Array).GetInterfaces();
+    }
+
     protected override IEnumerable<ConstructorInfo> CreateConstructors (int rank)
     {
       var attributes = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;

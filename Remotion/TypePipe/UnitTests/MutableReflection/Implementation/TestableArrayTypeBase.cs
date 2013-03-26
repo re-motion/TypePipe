@@ -27,6 +27,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public TestableArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelectorMock)
         : base (elementType, rank, memberSelectorMock) {}
 
+    protected override IEnumerable<Type> CreateInterfaces (CustomType elementType)
+    {
+      return Type.EmptyTypes;
+    }
+
     protected override IEnumerable<ConstructorInfo> CreateConstructors (int rank)
     {
       return Enumerable.Empty<ConstructorInfo>();

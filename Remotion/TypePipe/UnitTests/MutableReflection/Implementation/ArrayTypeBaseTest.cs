@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -23,7 +22,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.Text;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting;
@@ -137,22 +135,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void IsArrayImpl ()
     {
       Assert.That (_type.IsArray, Is.True);
-    }
-
-    [Test]
-    public void GetAllInterfaces ()
-    {
-      var result = _type.GetInterfaces();
-
-      var expectedInterfaces =
-          new[]
-          {
-              typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable),
-              typeof (IList<>).MakeTypePipeGenericType (_elementType),
-              typeof (ICollection<>).MakeTypePipeGenericType (_elementType),
-              typeof (IEnumerable<>).MakeTypePipeGenericType (_elementType)
-          };
-      Assert.That (result, Is.EquivalentTo (expectedInterfaces));
     }
 
     [Test]

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -48,6 +49,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Assert.That (_type.GetElementType(), Is.SameAs (_elementType));
       Assert.That (_type.GetArrayRank(), Is.EqualTo (2));
+    }
+
+    [Test]
+    public void GetAllInterfaces ()
+    {
+      var expectedInterfaces = new[] { typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable) };
+
+      var result = _type.GetInterfaces();
+
+      Assert.That (result, Is.EquivalentTo (expectedInterfaces));
     }
 
     [Test]

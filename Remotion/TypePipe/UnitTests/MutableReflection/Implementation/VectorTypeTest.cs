@@ -15,11 +15,13 @@
 // under the License.
 // 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
@@ -46,6 +48,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Assert.That (_type.GetElementType(), Is.SameAs (_elementType));
       Assert.That (_type.GetArrayRank(), Is.EqualTo (1));
+    }
+
+    [Test]
+    public void GetAllInterfaces ()
+    {
+      var result = _type.GetInterfaces ();
+
+      var expectedInterfaces =
+          new[]
+          {
+              typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable),
+              typeof (IList<>).MakeTypePipeGenericType (_elementType),
+              typeof (ICollection<>).MakeTypePipeGenericType (_elementType),
+              typeof (IEnumerable<>).MakeTypePipeGenericType (_elementType)
+          };
+      Assert.That (result, Is.EquivalentTo (expectedInterfaces));
     }
 
     [Test]
