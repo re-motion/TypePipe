@@ -85,6 +85,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return _rank;
     }
 
+    public override bool Equals (object obj)
+    {
+      return Equals (obj as Type);
+    }
+
+    public override bool Equals (Type type)
+    {
+      var other = type as ArrayTypeBase;
+      if (other == null)
+        return false;
+
+      return Equals (_elementType, other._elementType) && _rank == other._rank;
+    }
+
+    public override int GetHashCode ()
+    {
+      return EqualityUtility.GetRotatedHashCode (_elementType, _rank);
+    }
+
     protected override bool IsArrayImpl ()
     {
       return true;

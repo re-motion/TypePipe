@@ -232,7 +232,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_instantiation.Equals (new object()), Is.False);
       Assert.That (_instantiation.Equals ((object) instantiation1), Is.False);
       Assert.That (_instantiation.Equals ((object) instantiation2), Is.True);
-      Assert.That (_instantiation.Equals ((object) _instantiation), Is.True);
     }
 
     [Test]
@@ -251,7 +250,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       // ReSharper restore CheckForReferenceEqualityInstead.1
       Assert.That (_instantiation.Equals (instantiation1), Is.False);
       Assert.That (_instantiation.Equals (instantiation2), Is.True);
-      Assert.That (_instantiation.Equals (_instantiation), Is.True);
     }
 
     [Test]
