@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -32,7 +33,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var vectorType = typeContext.ProxyType.MakeArrayType();
+            var elementType = typeContext.ProxyType;
+            var vectorType = elementType.MakeArrayType();
 
             typeContext.ProxyType.AddMethod (
                 "Method",
@@ -47,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
                   return Expression.Block (
                       new[] { newVector, index },
-                      Expression.Assign (newVector, Expression.NewArrayBounds (typeContext.ProxyType, Expression.Property (ctx.Parameters[0], "Length"))),
+                      Expression.Assign (newVector, Expression.NewArrayBounds (elementType, Expression.Property (ctx.Parameters[0], "Length"))),
                       Expression.Assign (index, Expression.Constant (0)),
                       Expression.Loop (
                           Expression.Block (
@@ -71,24 +73,29 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo (array));
     }
 
-    [Ignore ("TODO 5409")]
     [Test]
     public void CreateMultiDimensionalArray ()
     {
       // public static ProxyType[,] Method (int l1, int l2) {
       //  return new ProxyType[l1,l2];
       // }
+      var createArray = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Array.CreateInstance (null, 0, 0));
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var multiDimensionalArrayType = typeContext.ProxyType.MakeArrayType (2);
+            var elementType = typeContext.ProxyType;
+            var multiDimensionalArrayType = elementType.MakeArrayType (2);
 
             typeContext.ProxyType.AddMethod (
                 "Method",
                 MethodAttributes.Public | MethodAttributes.Static,
                 multiDimensionalArrayType,
                 new[] { new ParameterDeclaration (typeof (int), "l1"), new ParameterDeclaration (typeof (int), "l1") },
-                ctx => Expression.NewArrayBounds (typeContext.ProxyType, ctx.Parameters[0], ctx.Parameters[1]));
+                ctx =>
+                {
+                  var array = Expression.Call (createArray, Expression.Constant (elementType, typeof (Type)), ctx.Parameters[0], ctx.Parameters[1]);
+                  return Expression.Convert (array, multiDimensionalArrayType);
+                });
           });
       var method = type.GetMethod ("Method", BindingFlags.Static | BindingFlags.Public);
 
