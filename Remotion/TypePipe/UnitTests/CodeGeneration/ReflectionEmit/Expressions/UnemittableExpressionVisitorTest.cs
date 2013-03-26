@@ -145,7 +145,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       Assert.That (() => _visitorPartialMock.Invoke ("VisitNewArray", expression3), Throws.Nothing);
 
       var message =
-            "The expression factories NewArrayBounds and NewArrayInit are not supported for multi-dimensional arrays. "
+            "The expression factory NewArrayBounds is not supported for multi-dimensional arrays. "
             + "To create a multi-dimensional array call the static method Array.CreateInstance and cast the result to the specific array type.";
       Assert.That (
           () => _visitorPartialMock.Invoke ("VisitNewArray", expression4), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));

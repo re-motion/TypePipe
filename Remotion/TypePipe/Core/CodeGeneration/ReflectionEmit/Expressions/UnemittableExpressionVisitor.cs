@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       if (node.Type is ArrayTypeBase && node.NodeType == ExpressionType.NewArrayBounds && node.Expressions.Count > 1)
       {
         var message =
-            "The expression factories NewArrayBounds and NewArrayInit are not supported for multi-dimensional arrays. "
+            "The expression factory NewArrayBounds is not supported for multi-dimensional arrays. "
             + "To create a multi-dimensional array call the static method Array.CreateInstance and cast the result to the specific array type.";
         throw new NotSupportedException (message);
       }
