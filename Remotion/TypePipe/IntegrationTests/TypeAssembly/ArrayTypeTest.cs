@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
@@ -24,10 +23,11 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  [Ignore ("TODO 5409")]
   [TestFixture]
   public class ArrayTypeTest : TypeAssemblerIntegrationTestBase
   {
+    private static readonly MethodInfo s_createVector = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Array.CreateInstance (null, 0));
+
     [Test]
     public void CopyVector ()
     {
@@ -43,22 +43,28 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 new[] { new ParameterDeclaration (vectorType) },
                 ctx =>
                 {
-                  var arrayConstructor = vectorType.GetConstructors().Single();
-                  var newArray = Expression.Variable (vectorType, "arr");
+                  var newVector = Expression.Variable (vectorType, "newVector");
                   var index = Expression.Variable (typeof (int), "i");
                   var breakLabel = Expression.Label();
 
+                  var createAndConvertArray =
+                      Expression.Convert (
+                          Expression.Call (
+                              s_createVector,
+                              Expression.Constant (typeContext.ProxyType, typeof (Type)),
+                              Expression.Property (ctx.Parameters[0], "Length")),
+                          vectorType);
                   return Expression.Block (
-                      new[] { newArray, index },
-                      Expression.Assign (newArray, Expression.New (arrayConstructor, Expression.Property (ctx.Parameters[0], "Length"))),
+                      new[] { newVector, index },
+                      Expression.Assign (newVector, createAndConvertArray),
                       Expression.Assign (index, Expression.Constant (0)),
                       Expression.Loop (
                           Expression.Block (
                               Expression.IfThen (Expression.Equal (index, Expression.ArrayLength (ctx.Parameters[0])), Expression.Goto (breakLabel)),
-                              Expression.Assign (Expression.ArrayAccess (newArray, index), Expression.ArrayAccess (ctx.Parameters[0], index)),
-                              Expression.Increment (index)),
+                              Expression.Assign (Expression.ArrayAccess (newVector, index), Expression.ArrayAccess (ctx.Parameters[0], index)),
+                              Expression.PostIncrementAssign (index)),
                           breakLabel),
-                      newArray);
+                      newVector);
                 });
           });
 
@@ -74,6 +80,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.EqualTo (array));
     }
 
+    [Ignore ("TODO 5409")]
     [Test]
     public void CreateMultiDimensionalArray ()
     {
@@ -104,11 +111,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result.GetLength (1), Is.EqualTo (0));
     }
 
+    [Ignore ("TODO 5409")]
     [Test]
-    public void CreateJaggedArray ()
+    public void CreateJaggedVector ()
     {
-      var createArray = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Array.CreateInstance (null, 0));
-
       // public static ProxyType[][] Method (int l1, int l2) {
       //   return new ProxyType[][] { new ProxyType[l1], new ProxyType[l2] };
       // }
@@ -127,8 +133,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 ctx =>
                 Expression.NewArrayInit (
                     vectorType,
-                    Expression.Call (createArray, Expression.Constant (elementType), ctx.Parameters[0]),
-                    Expression.Call (createArray, Expression.Constant (elementType), ctx.Parameters[1])));
+                    Expression.Call (s_createVector, Expression.Constant (elementType), ctx.Parameters[0]),
+                    Expression.Call (s_createVector, Expression.Constant (elementType), ctx.Parameters[1])));
           });
 
       var method = type.GetMethod ("Method", BindingFlags.Static | BindingFlags.Public);
