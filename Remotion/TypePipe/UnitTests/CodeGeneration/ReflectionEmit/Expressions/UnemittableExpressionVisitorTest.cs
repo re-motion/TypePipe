@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       var arrayType = ArrayTypeBaseObjectMother.Create();
       var instance = ExpressionTreeObjectMother.GetSomeExpression (arrayType);
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Array obj) => obj.GetValue (0));
-      var method2 = arrayType.GetMethod ("Get", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+      var method2 = arrayType.GetMethod ("Get");
 
       var expression1 = Expression.Call (instance, method1, Expression.Constant (7));
       var expression2 = Expression.Call (instance, method2, Expression.Constant (7));
