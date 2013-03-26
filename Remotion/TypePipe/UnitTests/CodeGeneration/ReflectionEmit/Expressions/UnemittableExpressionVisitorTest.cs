@@ -17,7 +17,6 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -160,10 +159,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       var expression1 = Expression.New (vectorType.GetConstructor (new[] { typeof (int) }), Expression.Constant (7));
       var expression2 = Expression.New (multiDimensionalArrayType.GetConstructor (new[] { typeof (int) }), Expression.Constant (7));
 
-      var message =
-          "Array constructors cannot be used directly in expression trees. For one-dimensional arrays use the NewArrayBounds or NewArrayInit "
-          + "expression factories. For multi-dimensional arrays call the static method Array.CreateInstance and cast the result to "
-          + "the specific array type.";
+      var message = "Array constructors of array types containing a custom element type cannot be used directly in expression trees. "
+                    + "For one-dimensional arrays use the NewArrayBounds or NewArrayInit expression factories. "
+                    + "For multi-dimensional arrays call the static method Array.CreateInstance and cast the result to the specific array type.";
       Assert.That (() => _visitorPartialMock.Invoke ("VisitNew", expression1), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
       Assert.That (() => _visitorPartialMock.Invoke ("VisitNew", expression2), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }

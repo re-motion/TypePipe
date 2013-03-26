@@ -21,6 +21,8 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using System.Linq;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -143,6 +145,45 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result.Length, Is.EqualTo (2));
       Assert.That (result.GetValue (0).As<Array>().Length, Is.EqualTo (7));
       Assert.That (result.GetValue (1).As<Array>().Length, Is.EqualTo (8));
+    }
+
+    [Test]
+    public void UnsupportedArrayMembers ()
+    {
+      SkipSavingAndPeVerification();
+
+      CheckThrowsNotSupportedException (
+          ctx =>
+          {
+            var arrayConstructor = ctx.DeclaringType.MakeArrayType().GetConstructors().Single();
+            return Expression.New (arrayConstructor, Expression.Constant (7));
+          },
+          "Array constructors of array types containing a custom element type cannot be used directly in expression trees. For one-dimensional "
+          + "arrays use the NewArrayBounds or NewArrayInit expression factories. For multi-dimensional arrays call the static method "
+          + "Array.CreateInstance and cast the result to the specific array type.");
+
+      CheckThrowsNotSupportedException (
+          ctx =>
+          {
+            var arrayType = ctx.DeclaringType.MakeArrayType();
+            var arrayMethod = arrayType.GetMethod ("Get");
+            return Expression.Call (Expression.Default (arrayType), arrayMethod, Expression.Constant (7));
+          },
+          "Methods on array types containing a custom element type cannot be used in expression trees. For one-dimensional arrays use the "
+          + "specialized expression factories ArrayAccess and ArrayLength.For multi-dimensional arrays call Array.GetValue, Array.SetValue, "
+          + "Array.Length and related base members.");
+
+      CheckThrowsNotSupportedException (
+          ctx => Expression.NewArrayBounds (ctx.DeclaringType, Expression.Constant (7), Expression.Constant (7)),
+          "The expression factory NewArrayBounds is not supported for multi-dimensional arrays. To create a multi-dimensional array call the "
+          + "static method Array.CreateInstance and cast the result to the specific array type.");
+    }
+
+    private void CheckThrowsNotSupportedException (Func<MethodBodyCreationContext, Expression> bodyProvider, string messagePart)
+    {
+      Assert.That (
+          () => AssembleType<DomainType> (p => p.AddMethod ("M", bodyProvider: bodyProvider)),
+          Throws.TypeOf<NotSupportedException>().With.Message.Contains (messagePart));
     }
 
     public class DomainType {}

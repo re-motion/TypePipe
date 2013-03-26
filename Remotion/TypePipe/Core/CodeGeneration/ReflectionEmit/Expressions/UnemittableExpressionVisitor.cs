@@ -102,10 +102,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       var constructor = node.Constructor;
       if (constructor != null && constructor.DeclaringType is ArrayTypeBase)
       {
-        var message =
-            "Array constructors cannot be used directly in expression trees. For one-dimensional arrays use the NewArrayBounds or NewArrayInit "
-            + "expression factories. For multi-dimensional arrays call the static method Array.CreateInstance and cast the result to "
-            + "the specific array type.";
+        var message = "Array constructors of array types containing a custom element type cannot be used directly in expression trees. "
+                      + "For one-dimensional arrays use the NewArrayBounds or NewArrayInit expression factories. "
+                      + "For multi-dimensional arrays call the static method Array.CreateInstance and cast the result to the specific array type.";
         throw new NotSupportedException (message);
       }
 
