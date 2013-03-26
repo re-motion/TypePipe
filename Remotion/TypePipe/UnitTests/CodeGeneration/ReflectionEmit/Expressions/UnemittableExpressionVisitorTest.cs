@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -110,7 +111,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     [Test]
     public void VisitMethodCall ()
     {
-      // TODO
+      var arrayType = ArrayTypeBaseObjectMother.Create();
+      var instance = ExpressionTreeObjectMother.GetSomeExpression (arrayType);
+      var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((Array obj) => obj.GetValue (0));
+      var method2 = arrayType.GetMethod ("Get", BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance);
+
+      var expression1 = Expression.Call (instance, method1, Expression.Constant (7));
+      var expression2 = Expression.Call (instance, method2, Expression.Constant (7));
+
+      Assert.That (() => _visitorPartialMock.Invoke ("VisitMethodCall", expression1), Throws.Nothing);
+
+      var message = "Methods on array types containing a custom element type cannot be used in expression trees. "
+                    + "For one-dimensional arrays use the specialized expression factories ArrayAccess and ArrayLength."
+                    + "For multi-dimensional arrays call Array.GetValue, Array.SetValue, Array.Length and related base members.";
+      Assert.That (
+          () => _visitorPartialMock.Invoke ("VisitMethodCall", expression2),
+          Throws.Exception.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
 
     [Test]

@@ -71,6 +71,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     protected internal override Expression VisitMethodCall (MethodCallExpression node)
     {
+      if (node.Method.DeclaringType is ArrayTypeBase)
+      {
+        var message = "Methods on array types containing a custom element type cannot be used in expression trees. "
+                      + "For one-dimensional arrays use the specialized expression factories ArrayAccess and ArrayLength."
+                      + "For multi-dimensional arrays call Array.GetValue, Array.SetValue, Array.Length and related base members.";
+        throw new NotSupportedException (message);
+      }
+
       return base.VisitMethodCall (node);
     }
 
