@@ -146,7 +146,7 @@ namespace System.Linq.Expressions {
         public static NewArrayExpression NewArrayInit(Type type, IEnumerable<Expression> initializers) {
             ContractUtils.RequiresNotNull(type, "type");
             ContractUtils.RequiresNotNull(initializers, "initializers");
-            if (type.Equals(typeof(void))) {
+            if (type == typeof(void)) {
                 throw Error.ArgumentCannotBeOfTypeVoid();
             }
 
@@ -205,7 +205,7 @@ namespace System.Linq.Expressions {
             ContractUtils.RequiresNotNull(type, "type");
             ContractUtils.RequiresNotNull(bounds, "bounds");
 
-            if (type.Equals(typeof(void))) {
+            if (type == typeof(void)) {
                 throw Error.ArgumentCannotBeOfTypeVoid();
             }
 
