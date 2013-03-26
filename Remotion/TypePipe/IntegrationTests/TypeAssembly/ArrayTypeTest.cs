@@ -18,7 +18,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -26,8 +26,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   [TestFixture]
   public class ArrayTypeTest : TypeAssemblerIntegrationTestBase
   {
-    private static readonly MethodInfo s_createVector = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Array.CreateInstance (null, 0));
-
     [Test]
     public void CopyVector ()
     {
@@ -47,16 +45,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                   var index = Expression.Variable (typeof (int), "i");
                   var breakLabel = Expression.Label();
 
-                  var createAndConvertArray =
-                      Expression.Convert (
-                          Expression.Call (
-                              s_createVector,
-                              Expression.Constant (typeContext.ProxyType, typeof (Type)),
-                              Expression.Property (ctx.Parameters[0], "Length")),
-                          vectorType);
                   return Expression.Block (
                       new[] { newVector, index },
-                      Expression.Assign (newVector, createAndConvertArray),
+                      Expression.Assign (newVector, Expression.NewArrayBounds (typeContext.ProxyType, Expression.Property (ctx.Parameters[0], "Length"))),
                       Expression.Assign (index, Expression.Constant (0)),
                       Expression.Loop (
                           Expression.Block (
@@ -75,8 +66,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var result = method.Invoke (null, new object[] { array });
 
-      Assert.That (result, Is.Not.SameAs (array));
       Assert.That (result.GetType().GetElementType(), Is.EqualTo (type));
+      Assert.That (result, Is.Not.SameAs (array));
       Assert.That (result, Is.EqualTo (array));
     }
 
@@ -84,8 +75,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void CreateMultiDimensionalArray ()
     {
-      // public static ProxyType[,] Method (int l) {
-      //  return new ProxyType[l,l];
+      // public static ProxyType[,] Method (int l1, int l2) {
+      //  return new ProxyType[l1,l2];
       // }
       var type = AssembleType<DomainType> (
           typeContext =>
@@ -96,22 +87,21 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "Method",
                 MethodAttributes.Public | MethodAttributes.Static,
                 multiDimensionalArrayType,
-                new[] { new ParameterDeclaration (typeof (int), "l") },
-                ctx => Expression.NewArrayBounds (typeContext.ProxyType, ctx.Parameters[0], ctx.Parameters[0]));
+                new[] { new ParameterDeclaration (typeof (int), "l1"), new ParameterDeclaration (typeof (int), "l1") },
+                ctx => Expression.NewArrayBounds (typeContext.ProxyType, ctx.Parameters[0], ctx.Parameters[1]));
           });
       var method = type.GetMethod ("Method", BindingFlags.Static | BindingFlags.Public);
 
-      var result = (Array) method.Invoke (null, new object[] { 7 });
+      var result = (Array) method.Invoke (null, new object[] { 7, 8 });
 
       Assert.That (result.GetType().GetElementType(), Is.EqualTo (type));
       Assert.That (result.Rank, Is.EqualTo (2));
       Assert.That (result.GetLength (0), Is.EqualTo (7));
-      Assert.That (result.GetLength (1), Is.EqualTo (7));
+      Assert.That (result.GetLength (1), Is.EqualTo (8));
       Assert.That (result.GetLowerBound (0), Is.EqualTo (0));
-      Assert.That (result.GetLength (1), Is.EqualTo (0));
+      Assert.That (result.GetLowerBound (1), Is.EqualTo (0));
     }
 
-    [Ignore ("TODO 5409")]
     [Test]
     public void CreateJaggedVector ()
     {
@@ -123,18 +113,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var elementType = typeContext.ProxyType;
             var vectorType = elementType.MakeArrayType();
-            var jaggedVectorType = vectorType.MakeArrayType();
+            var vectorVectorType = vectorType.MakeArrayType();
 
             typeContext.ProxyType.AddMethod (
                 "Method",
                 MethodAttributes.Public | MethodAttributes.Static,
-                jaggedVectorType,
+                vectorVectorType,
                 new[] { new ParameterDeclaration (typeof (int), "l1"), new ParameterDeclaration (typeof (int), "l2") },
                 ctx =>
                 Expression.NewArrayInit (
                     vectorType,
-                    Expression.Call (s_createVector, Expression.Constant (elementType), ctx.Parameters[0]),
-                    Expression.Call (s_createVector, Expression.Constant (elementType), ctx.Parameters[1])));
+                    Expression.NewArrayBounds (elementType, ctx.Parameters[0]),
+                    Expression.NewArrayBounds (elementType, ctx.Parameters[1])));
           });
 
       var method = type.GetMethod ("Method", BindingFlags.Static | BindingFlags.Public);
@@ -143,10 +133,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       Assert.That (result.GetType().GetElementType(), Is.EqualTo (type.MakeArrayType()));
       Assert.That (result.Rank, Is.EqualTo (1));
-      Assert.That (result.GetLength (0), Is.EqualTo (7));
-      Assert.That (result.GetLength (1), Is.EqualTo (8));
+      Assert.That (result.Length, Is.EqualTo (2));
+      Assert.That (result.GetValue (0).As<Array>().Length, Is.EqualTo (7));
+      Assert.That (result.GetValue (1).As<Array>().Length, Is.EqualTo (8));
     }
 
-    public class DomainType { }
+    public class DomainType {}
   }
 }
