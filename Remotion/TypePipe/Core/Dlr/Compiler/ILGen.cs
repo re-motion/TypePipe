@@ -123,6 +123,8 @@ namespace System.Linq.Expressions.Compiler {
                 } else {
                     il.Emit(OpCodes.Ldobj, type);
                 }
+            } else if (type.IsGenericParameter) {
+                il.Emit(OpCodes.Ldobj, type);
             } else {
                 il.Emit(OpCodes.Ldind_Ref);
             }
@@ -153,6 +155,8 @@ namespace System.Linq.Expressions.Compiler {
                 } else {
                     il.Emit(OpCodes.Stobj, type);
                 }
+            } else if (type.IsGenericParameter) {
+                il.Emit(OpCodes.Stobj, type);
             } else {
                 il.Emit(OpCodes.Stind_Ref);
             }
