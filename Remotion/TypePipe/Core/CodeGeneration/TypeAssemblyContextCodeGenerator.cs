@@ -53,8 +53,9 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);
 
       var mutableTypes = typeAssemblyContext.AdditionalTypes.Concat (typeAssemblyContext.ProxyType);
-      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
-      var typesAndGenerators = sortedTypes.Select (t => new { MutableType = t, Generator = _mutableTypeCodeGeneratorFactory.Create (t) }).ToList();
+      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes).ToList();
+      var generators = _mutableTypeCodeGeneratorFactory.Create (sortedTypes);
+      var typesAndGenerators = sortedTypes.Zip (generators, (t, g) => new { MutableType = t, Generator = g }).ToList();
 
       // For all types, declare the types first, then declare the members/base type/interfaces/etc., then finish the type (including bodies, etc.).
       // That way, it is ensured that types can reference each other.

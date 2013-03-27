@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
@@ -30,6 +31,7 @@ namespace Remotion.TypePipe.CodeGeneration
   public interface IMutableTypeCodeGeneratorFactory
   {
     ICodeGenerator CodeGenerator { get; }
-    IMutableTypeCodeGenerator Create (MutableType mutableType);
+
+    IEnumerable<IMutableTypeCodeGenerator> Create (IEnumerable<MutableType> mutableTypes);
   }
 }

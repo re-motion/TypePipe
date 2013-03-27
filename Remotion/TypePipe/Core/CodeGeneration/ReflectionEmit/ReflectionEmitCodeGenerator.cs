@@ -155,6 +155,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return assemblyPath;
     }
 
+    public IEmittableOperandProvider CreateEmittableOperandProvider ()
+    {
+      return EmittableOperandProvider;
+    }
+
     [CLSCompliant (false)]
     public ITypeBuilder DefineType (string name, TypeAttributes attributes)
     {

@@ -15,8 +15,10 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using System.Dynamic.Utils;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -54,11 +56,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public IMutableTypeCodeGenerator Create (MutableType mutableType)
+    public IEnumerable<IMutableTypeCodeGenerator> Create (IEnumerable<MutableType> mutableTypes)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("mutableTypes", mutableTypes);
 
-      var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (_codeGenerator.EmittableOperandProvider);
+      var emittableOperandProvider = _codeGenerator.CreateEmittableOperandProvider();
+      var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (emittableOperandProvider);
+
+      return mutableTypes.Select (mt => MutableTypeCodeGenerator (mt, memberEmitter));
+    }
+
+    private IMutableTypeCodeGenerator MutableTypeCodeGenerator (MutableType mutableType, IMemberEmitter memberEmitter)
+    {
       return new MutableTypeCodeGenerator (mutableType, _codeGenerator, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
     }
   }

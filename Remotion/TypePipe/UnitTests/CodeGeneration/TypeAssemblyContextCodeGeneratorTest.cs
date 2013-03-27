@@ -73,8 +73,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
         var generatorMock1 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
         var generatorMock2 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
-        _mutableTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (proxyType)).Return (generatorMock1);
-        _mutableTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (additionalType)).Return (generatorMock2);
+        _mutableTypeCodeGeneratorFactoryMock
+            .Expect (mock => mock.Create (new[] { proxyType, additionalType }))
+            .Return (new[] { generatorMock1, generatorMock2 });
 
         generatorMock1.Expect (mock => mock.DeclareType());
         generatorMock2.Expect (mock => mock.DeclareType());

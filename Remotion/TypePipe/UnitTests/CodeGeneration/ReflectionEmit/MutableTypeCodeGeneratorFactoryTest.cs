@@ -20,6 +20,8 @@ using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using Remotion.Development.UnitTesting.Enumerables;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -54,20 +56,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Create ()
     {
-      var mutableType = MutableTypeObjectMother.Create();
       var fakeEmittableOperandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
       var fakeMemberEmitter = MockRepository.GenerateStrictMock<IMemberEmitter>();
-      _codeGeneratorMock.Expect (mock => mock.EmittableOperandProvider).Return (fakeEmittableOperandProvider);
+      _codeGeneratorMock.Expect (mock => mock.CreateEmittableOperandProvider()).Return (fakeEmittableOperandProvider);
       _memberEmitterFactoryMock.Expect (mock => mock.CreateMemberEmitter (fakeEmittableOperandProvider)).Return (fakeMemberEmitter);
+      var mutableType1 = MutableTypeObjectMother.Create();
+      var mutableType2 = MutableTypeObjectMother.Create();
 
-      var result = _factory.Create (mutableType);
+      var result = _factory.Create (new[] { mutableType1, mutableType2 }.AsOneTime()).ToList();
 
-      Assert.That (result, Is.TypeOf<MutableTypeCodeGenerator>());
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_mutableType"), Is.SameAs (mutableType));
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_codeGenerator"), Is.SameAs (_codeGeneratorMock));
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_memberEmitter"), Is.SameAs (fakeMemberEmitter));
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_initializationBuilder"), Is.SameAs (_initializationBuilderMock));
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_proxySerializationEnabler"), Is.SameAs (_proxySerializationEnablerMock));
+      Assert.That (result, Has.Count.EqualTo (2));
+      Assert.That (result[0], Is.TypeOf<MutableTypeCodeGenerator>());
+      Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_mutableType"), Is.SameAs (mutableType1));
+      Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_codeGenerator"), Is.SameAs (_codeGeneratorMock));
+      Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_memberEmitter"), Is.SameAs (fakeMemberEmitter));
+      Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_initializationBuilder"), Is.SameAs (_initializationBuilderMock));
+      Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_proxySerializationEnabler"), Is.SameAs (_proxySerializationEnablerMock));
+
+      Assert.That (PrivateInvoke.GetNonPublicField (result[1], "_mutableType"), Is.SameAs (mutableType2));
+      Assert.That (
+          PrivateInvoke.GetNonPublicField (result[1], "_memberEmitter"),
+          Is.SameAs (fakeMemberEmitter),
+          "Generators share the MemberEmitter (and therefore also the EmittableOperandProvider).");
     }
   }
 }
