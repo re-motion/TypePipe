@@ -19,6 +19,7 @@ using System;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -27,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   public class ByReferenceTypeTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void MutableByRefTypeAsMethodParameter ()
+    public void MutableByRefType ()
     {
       var type = AssembleType<DomainType> (
           typeContext =>
@@ -48,6 +49,51 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (arguments[0], Is.Not.Null.And.TypeOf (type));
     }
 
-    public class DomainType {}
+    [Ignore ("TODO 5424")]
+    [Test]
+    public void GenericParameterByRefType ()
+    {
+      var mutatingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.MutatingMethod());
+      var method = typeof (DomainType).GetMethod ("GenericMethod");
+
+      var type = AssembleType<DomainType> (
+          p => p.GetOrAddOverride (method).SetBody (
+              ctx => Expression.Block (
+                  Expression.Call (Expression.Convert (ctx.Parameters[0], typeof (IMyInterface)), mutatingMethod),
+                  Expression.Call (Expression.Convert (ctx.Parameters[1], typeof (IMyInterface)), mutatingMethod),
+                  Expression.Assign (ctx.Parameters[2], Expression.Default (ctx.GenericParameters[1])))));
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+
+      var byValue = new MyStruct();
+      var byRef = new MyStruct();
+      // ReSharper disable RedundantAssignment
+      var obj = new object();
+      // ReSharper restore RedundantAssignment
+      instance.GenericMethod (byValue, ref byRef, out obj);
+
+      Assert.That (byValue.Field, Is.EqualTo (0));
+      Assert.That (byRef.Field, Is.EqualTo (1));
+      Assert.That (obj, Is.Null);
+    }
+
+    public class DomainType
+    {
+      public virtual void GenericMethod<TRef, TOut> (TRef arg0, ref TRef arg1, out TOut arg2)
+          where TRef : IMyInterface
+      {
+        throw new NotImplementedException();
+      }
+    }
+
+    public interface IMyInterface
+    {
+      void MutatingMethod ();
+    }
+    public struct MyStruct : IMyInterface
+    {
+      public int Field;
+      public void MutatingMethod () { Field++; }
+    }
   }
 }
