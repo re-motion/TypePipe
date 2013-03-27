@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mutableType1 = MutableTypeObjectMother.Create();
       var mutableType2 = MutableTypeObjectMother.Create();
 
-      var result = _factory.Create (new[] { mutableType1, mutableType2 }.AsOneTime()).ToList();
+      var result = _factory.CreateGenerators (new[] { mutableType1, mutableType2 }.AsOneTime()).ToList();
 
       Assert.That (result, Has.Count.EqualTo (2));
       Assert.That (result[0], Is.TypeOf<MutableTypeCodeGenerator>());

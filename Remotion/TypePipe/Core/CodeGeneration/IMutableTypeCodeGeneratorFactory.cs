@@ -32,6 +32,6 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     ICodeGenerator CodeGenerator { get; }
 
-    IEnumerable<IMutableTypeCodeGenerator> Create (IEnumerable<MutableType> mutableTypes);
+    IEnumerable<IMutableTypeCodeGenerator> CreateGenerators (IEnumerable<MutableType> mutableTypes);
   }
 }

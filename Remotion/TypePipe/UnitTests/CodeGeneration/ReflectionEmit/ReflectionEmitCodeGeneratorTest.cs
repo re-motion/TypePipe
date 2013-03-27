@@ -132,6 +132,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var result = _generator.CreateEmittableOperandProvider ();
 
+      _configurationProviderMock.VerifyAllExpectations ();
       Assert.That (result, Is.TypeOf<EmittableOperandProvider> ());
     }
 
@@ -142,9 +143,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       var result = _generator.CreateEmittableOperandProvider ();
 
+      _configurationProviderMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator> ());
       var strongNamingDecorator = (StrongNameCheckingEmittableOperandProviderDecorator) result;
       Assert.That (strongNamingDecorator.InnerEmittableOperandProvider, Is.TypeOf<EmittableOperandProvider> ());
+    }
+
+    [Test]
+    public void CreateEmittableOperandProvider_ConfigurationScopedViaModuleContext ()
+    {
+      _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (false).Repeat.Once();
+
+      _generator.CreateEmittableOperandProvider ();
+
+      _configurationProviderMock.VerifyAllExpectations();
     }
 
     [Test]

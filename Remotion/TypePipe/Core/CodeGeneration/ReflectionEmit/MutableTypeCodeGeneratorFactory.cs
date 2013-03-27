@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public IEnumerable<IMutableTypeCodeGenerator> Create (IEnumerable<MutableType> mutableTypes)
+    public IEnumerable<IMutableTypeCodeGenerator> CreateGenerators (IEnumerable<MutableType> mutableTypes)
     {
       ArgumentUtility.CheckNotNull ("mutableTypes", mutableTypes);
 
