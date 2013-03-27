@@ -68,7 +68,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       if (type.IsArray)
         return SubstituteArrayElementType (type, parametersToArguments);
-
+      if (type.IsByRef)
+        return SubstituteByRefElementType (type, parametersToArguments);
       if (!type.IsGenericType)
         return type;
 
@@ -93,6 +94,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var elementType = SubstituteGenericParameters (arrayType.GetElementType(), parametersToArguments);
 
       return isVector ? elementType.MakeArrayType() : elementType.MakeArrayType (arrayType.GetArrayRank());
+    }
+
+    private Type SubstituteByRefElementType (Type byRefType, IDictionary<Type, Type> parametersToArguments)
+    {
+      return SubstituteGenericParameters (byRefType.GetElementType(), parametersToArguments).MakeByRefType();
     }
   }
 }

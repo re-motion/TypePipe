@@ -172,6 +172,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
+    public void SubstituteGenericParameters_ByRefType ()
+    {
+      var byRefType = _parameter.MakeByRefType();
+
+      var result = _context.SubstituteGenericParameters (byRefType, _parametersToArguments);
+
+      Assert.That (result.IsByRef, Is.True);
+      Assert.That (result.GetElementType(), Is.SameAs (_argument));
+    }
+
+    [Test]
     public void SubstituteGenericParameters_NonGenericType ()
     {
       var nonGeneric = ReflectionObjectMother.GetSomeNonGenericType ();
