@@ -28,15 +28,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
   public class ILGeneratorDecoratorFactoryTest
   {
     private IILGeneratorFactory _innerFactoryStub;
-    private EmittableOperandProvider _emittableOperandProvider;
+    private IEmittableOperandProvider _emittableOperandProviderMock;
     private ILGeneratorDecoratorFactory _decoratorFactory;
 
     [SetUp]
     public void SetUp ()
     {
       _innerFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
-      _emittableOperandProvider = new EmittableOperandProvider();
-      _decoratorFactory = new ILGeneratorDecoratorFactory (_innerFactoryStub, _emittableOperandProvider);
+      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _decoratorFactory = new ILGeneratorDecoratorFactory (_innerFactoryStub, _emittableOperandProviderMock);
     }
 
     [Test]
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       Assert.That (ilGenerator, Is.TypeOf<ILGeneratorDecorator>());
       var ilGeneratorDecorator = (ILGeneratorDecorator) ilGenerator;
       Assert.That (ilGeneratorDecorator.InnerILGenerator, Is.SameAs (fakeInnerResult));
-      Assert.That (ilGeneratorDecorator.EmittableOperandProvider, Is.SameAs (_emittableOperandProvider));
+      Assert.That (ilGeneratorDecorator.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
     }
   }
 }

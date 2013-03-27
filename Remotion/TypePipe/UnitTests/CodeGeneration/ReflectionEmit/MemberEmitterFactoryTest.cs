@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateMemberEmitter ()
     {
-      var emittableOperandProvider = new EmittableOperandProvider();
+      var emittableOperandProvider = new EmittableOperandProvider (new DelegateProvider());
 
       var result = _factory.CreateMemberEmitter (emittableOperandProvider);
 

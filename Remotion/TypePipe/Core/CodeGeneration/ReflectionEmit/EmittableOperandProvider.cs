@@ -45,6 +45,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly Dictionary<ConstructorInfo, ConstructorInfo> _mappedConstructors = new Dictionary<ConstructorInfo, ConstructorInfo>();
     private readonly Dictionary<MethodInfo, MethodInfo> _mappedMethods = new Dictionary<MethodInfo, MethodInfo>();
 
+    private readonly IDelegateProvider _delegateProvider;
+
+    public EmittableOperandProvider (IDelegateProvider delegateProvider)
+    {
+      ArgumentUtility.CheckNotNull ("delegateProvider", delegateProvider);
+
+      _delegateProvider = delegateProvider;
+    }
+
     public void AddMapping (MutableType mappedType, Type emittableType)
     {
       ArgumentUtility.CheckNotNull ("mappedType", mappedType);
@@ -95,15 +104,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         if (typeInstantiation != null)
           return GetEmittableTypeInstantiation (typeInstantiation);
 
-        // TODO refine
-        var delegateType = t as DelegateTypePlaceholder;
-        if (delegateType != null)
-        {
-          var returnType = GetEmittableType (delegateType.ReturnType);
-          var parameterTypes = delegateType.ParameterTypes.Select (GetEmittableType);
-
-          return DelegateHelpers.MakeDelegateType (parameterTypes.Concat (returnType).ToArray());
-        }
+        var delegateTypePlaceholder = t as DelegateTypePlaceholder;
+        if (delegateTypePlaceholder != null)
+          return _delegateProvider.GetDelegateType (delegateTypePlaceholder.ReturnType, delegateTypePlaceholder.ParameterTypes);
 
         var emittableElementType = GetEmittableType (t.GetElementType());
         if (t is ByRefType)

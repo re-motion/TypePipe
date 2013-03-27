@@ -51,6 +51,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +94,8 @@
     <Compile Include="CodeGeneration\LockingCodeGeneratorDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilder.cs" />
     <Compile Include="CodeGeneration\IMutableTypeCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IDelegateProvider.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\DelegateProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\NullExpressionPreparer.cs" />

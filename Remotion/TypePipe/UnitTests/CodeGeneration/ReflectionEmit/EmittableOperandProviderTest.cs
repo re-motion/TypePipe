@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
@@ -37,6 +36,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class EmittableOperandProviderTest
   {
+    private IDelegateProvider _delegateProviderMock;
+
     private EmittableOperandProvider _provider;
 
     private MutableType _mutableType;
@@ -50,7 +51,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _provider = new EmittableOperandProvider();
+      _delegateProviderMock = MockRepository.GenerateStrictMock<IDelegateProvider>();
+
+      _provider = new EmittableOperandProvider (_delegateProviderMock);
 
       _mutableType = MutableTypeObjectMother.Create();
       _mutableGenericParameter = MutableGenericParameterObjectMother.Create();
@@ -169,9 +172,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _provider.AddMapping (_mutableType, _emittableType);
       var delegateTypePlaceholder = new DelegateTypePlaceholder (mutableReturnType, new[] { _mutableType });
 
+      var fakeResult = ReflectionObjectMother.GetSomeDelegateType();
+      _delegateProviderMock.Expect (mock => mock.GetDelegateType (mutableReturnType, new[] { _mutableType })).Return (fakeResult);
+
       var result = _provider.GetEmittableType (delegateTypePlaceholder);
 
-      Assert.That (result, Is.SameAs (Expression.GetDelegateType (_emittableType, emittableReturnType)));
+      Assert.That (result, Is.SameAs (fakeResult));
     }
 
     [Test]

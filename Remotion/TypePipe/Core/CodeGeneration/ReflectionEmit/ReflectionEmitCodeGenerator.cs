@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Configuration;
 using Remotion.Utilities;
 
@@ -118,7 +119,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       {
         if (_moduleContext.EmittableOperandProvider == null)
         {
-          IEmittableOperandProvider provider = new EmittableOperandProvider();
+          IEmittableOperandProvider provider = new EmittableOperandProvider (new DelegateProvider());
           _moduleContext.EmittableOperandProvider =
               _moduleContext.ForceStrongNaming ? new StrongNameCheckingEmittableOperandProviderDecorator (provider) : provider;
         }
