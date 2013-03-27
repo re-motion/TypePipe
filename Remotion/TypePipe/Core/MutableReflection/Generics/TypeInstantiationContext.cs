@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,10 +67,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
         return typeArgument;
 
       if (type.IsArray)
-      {
-        var elementType = SubstituteGenericParameters (type.GetElementType(), parametersToArguments);
-        return type.GetConstructors().Length == 1 ? elementType.MakeArrayType() : elementType.MakeArrayType (type.GetArrayRank());
-      }
+        return SubstituteArrayElementType (type, parametersToArguments);
 
       if (!type.IsGenericType)
         return type;
@@ -89,6 +85,14 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var instantiationInfo = new TypeInstantiationInfo (genericTypeDefinition, newTypeArguments);
 
       return Instantiate (instantiationInfo);
+    }
+
+    private Type SubstituteArrayElementType (Type arrayType, IDictionary<Type, Type> parametersToArguments)
+    {
+      var isVector = arrayType.GetConstructors().Length == 1;
+      var elementType = SubstituteGenericParameters (arrayType.GetElementType(), parametersToArguments);
+
+      return isVector ? elementType.MakeArrayType() : elementType.MakeArrayType (arrayType.GetArrayRank());
     }
   }
 }
