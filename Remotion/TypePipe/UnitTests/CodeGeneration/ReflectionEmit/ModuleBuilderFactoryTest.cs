@@ -22,7 +22,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -36,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private ModuleBuilderFactory _factory;
 
     private string _currentDirectory;
-    private IEmittableOperandProvider _operandProviderStub;
 
     [SetUp]
     public void SetUp ()
@@ -44,38 +42,34 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _factory = new ModuleBuilderFactory();
 
       _currentDirectory = Environment.CurrentDirectory;
-      _operandProviderStub = MockRepository.GenerateStub<IEmittableOperandProvider>();
     }
 
     [Test]
     public void CreateModuleBuilder ()
     {
-      var result = _factory.CreateModuleBuilder (
-          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null, emittableOperandProvider: _operandProviderStub);
+      var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
 
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory);
+      CheckAdapterAndSaveToDiskBehavior (result, _currentDirectory);
     }
 
     [Test]
     public void CreateModuleBuilder_CustomDirectory ()
     {
       var tempDirectory = Path.GetTempPath();
-      var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null, _operandProviderStub);
+      var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null);
 
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result, tempDirectory);
+      CheckAdapterAndSaveToDiskBehavior (result, tempDirectory);
     }
 
     [Test]
     public void CreateModuleBuilder_StrongNamed_FallbackKey ()
     {
-      var result1 = _factory.CreateModuleBuilder (
-          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null, emittableOperandProvider: _operandProviderStub);
-      var result2 = _factory.CreateModuleBuilder (
-          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty, emittableOperandProvider: _operandProviderStub);
+      var result1 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
+      var result2 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty);
 
       var publicKey = FallbackKey.KeyPair.PublicKey;
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result1, _currentDirectory, expectedPublicKey: publicKey);
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result2, _currentDirectory, expectedPublicKey: publicKey);
+      CheckAdapterAndSaveToDiskBehavior (result1, _currentDirectory, expectedPublicKey: publicKey);
+      CheckAdapterAndSaveToDiskBehavior (result2, _currentDirectory, expectedPublicKey: publicKey);
     }
 
     [Test]
@@ -83,19 +77,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var otherKeyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"CodeGeneration\ReflectionEmit\OtherKey.snk");
       var result = _factory.CreateModuleBuilder (
-          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath, emittableOperandProvider: _operandProviderStub);
+          c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath);
 
       var publicKey = new StrongNameKeyPair (File.ReadAllBytes (otherKeyPath)).PublicKey;
-      CheckDecoratedAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedPublicKey: publicKey);
+      CheckAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedPublicKey: publicKey);
     }
 
-    private void CheckDecoratedAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory, byte[] expectedPublicKey = null)
+    private void CheckAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory, byte[] expectedPublicKey = null)
     {
-      Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderDecorator>());
-      var decorator = (ModuleBuilderDecorator) moduleBuilder;
-
-      Assert.That (decorator.InnerModuleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
-      var adapter = (ModuleBuilderAdapter) decorator.InnerModuleBuilder;
+      Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
+      var adapter = (ModuleBuilderAdapter) moduleBuilder;
       Assert.That (adapter.AssemblyName, Is.EqualTo (c_assemblyName));
       Assert.That (adapter.ScopeName, Is.EqualTo (c_assemblyFileName));
       Assert.That (adapter.PublicKey, Is.EqualTo (expectedPublicKey ?? new byte[0]));

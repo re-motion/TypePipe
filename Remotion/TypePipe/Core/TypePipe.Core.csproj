@@ -76,7 +76,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IPropertyBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecorator.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ModuleBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ParameterBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ParameterBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderAdapter.cs" />

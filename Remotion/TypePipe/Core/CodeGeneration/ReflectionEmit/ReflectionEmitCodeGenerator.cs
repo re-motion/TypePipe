@@ -58,7 +58,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
 
       public IModuleBuilder ModuleBuilder { get; set; }
-      public IEmittableOperandProvider EmittableOperandProvider { get; set; }
       public string AssemblyName { get; set; }
     }
 
@@ -113,21 +112,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _debugInfoGenerator; }
     }
 
-    public IEmittableOperandProvider EmittableOperandProvider
-    {
-      get
-      {
-        if (_moduleContext.EmittableOperandProvider == null)
-        {
-          IEmittableOperandProvider provider = new EmittableOperandProvider (new DelegateProvider());
-          _moduleContext.EmittableOperandProvider =
-              _moduleContext.ForceStrongNaming ? new StrongNameCheckingEmittableOperandProviderDecorator (provider) : provider;
-        }
-
-        return _moduleContext.EmittableOperandProvider;
-      }
-    }
-
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
     {
       // assemblyDirectory may be null.
@@ -157,11 +141,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public IEmittableOperandProvider CreateEmittableOperandProvider ()
     {
-      return EmittableOperandProvider;
+      IEmittableOperandProvider provider = new EmittableOperandProvider (new DelegateProvider());
+      return _moduleContext.ForceStrongNaming ? new StrongNameCheckingEmittableOperandProviderDecorator (provider) : provider;
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attributes)
+    public ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
@@ -170,11 +155,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var strongName = _moduleContext.ForceStrongNaming;
         var keyFilePathOrNull = _configurationProvider.KeyFilePath;
 
-        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (
-            AssemblyName, _assemblyDirectory, strongName, keyFilePathOrNull, EmittableOperandProvider);
+        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory, strongName, keyFilePathOrNull);
       }
 
-      return _moduleContext.ModuleBuilder.DefineType (name, attributes);
+      var typeBuilder = _moduleContext.ModuleBuilder.DefineType (name, attributes);
+      var typeBuilderDecorator = new TypeBuilderDecorator (typeBuilder, emittableOperandProvider);
+
+      return typeBuilderDecorator;
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)

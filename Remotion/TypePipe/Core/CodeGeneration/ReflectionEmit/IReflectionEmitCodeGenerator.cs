@@ -33,6 +33,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     DebugInfoGenerator DebugInfoGenerator { get; }
 
     IEmittableOperandProvider CreateEmittableOperandProvider ();
-    ITypeBuilder DefineType (string name, TypeAttributes attributes);
+    ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider);
   }
 }

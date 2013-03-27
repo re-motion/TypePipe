@@ -83,7 +83,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       using (_mockRepository.Ordered())
       {
-        _codeGeneratorMock.Expect (mock => mock.DefineType (_mutableType.FullName, _mutableType.Attributes)).Return (_typeBuilderMock);
+        _codeGeneratorMock
+            .Expect (mock => mock.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProviderMock))
+            .Return (_typeBuilderMock);
         _typeBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, _mutableType));
         _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
       }
@@ -196,7 +198,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var memberEmitterStub = MockRepository.GenerateStub<IMemberEmitter>();
       var initializationBuilderStub = MockRepository.GenerateStub<IInitializationBuilder>();
       var proxySerializationEnablerStub = MockRepository.GenerateStub<IProxySerializationEnabler>();
-      codeGeneratorStub.Stub (stub => stub.DefineType (null, 0)).IgnoreArguments().Return (_typeBuilderMock);
+      codeGeneratorStub.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments().Return (_typeBuilderMock);
       codeGeneratorStub.Stub (stub => stub.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
 
       var generator = new MutableTypeCodeGenerator (

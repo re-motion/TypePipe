@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Remotion.Collections;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
@@ -71,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       EnsureState (0);
 
-      var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes);
+      var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProvider);
       typeBuilder.RegisterWith (_emittableOperandProvider, _mutableType);
 
       _context = new CodeGenerationContext (_mutableType, typeBuilder, _codeGenerator.DebugInfoGenerator, _emittableOperandProvider);
