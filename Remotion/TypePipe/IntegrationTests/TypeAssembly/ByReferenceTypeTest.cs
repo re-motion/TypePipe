@@ -14,9 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -49,40 +49,52 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (arguments[0], Is.Not.Null.And.TypeOf (type));
     }
 
-    [Ignore ("TODO 5424")]
     [Test]
     public void GenericParameterByRefType ()
     {
-      var mutatingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.MutatingMethod());
       var method = typeof (DomainType).GetMethod ("GenericMethod");
+      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType o) => o.WasCalled);
 
       var type = AssembleType<DomainType> (
           p => p.GetOrAddOverride (method).SetBody (
-              ctx => Expression.Block (
-                  Expression.Call (Expression.Convert (ctx.Parameters[0], typeof (IMyInterface)), mutatingMethod),
-                  Expression.Call (Expression.Convert (ctx.Parameters[1], typeof (IMyInterface)), mutatingMethod),
-                  Expression.Assign (ctx.Parameters[2], Expression.Default (ctx.GenericParameters[1])))));
+              ctx => Expression.Block (ctx.PreviousBody, Expression.Assign (Expression.Field (ctx.This, field), Expression.Constant (true)))));
 
-      var instance = (DomainType) Activator.CreateInstance (type);
+      var instance1 = (DomainType) Activator.CreateInstance (type);
+      var instance2 = (DomainType) Activator.CreateInstance (type);
 
-      var byValue = new MyStruct();
-      var byRef = new MyStruct();
       // ReSharper disable RedundantAssignment
-      var obj = new object();
+      var byValue1 = new MyStruct();
+      var byRef1 = new MyStruct();
+      var outValue1 = 7;
+      IMyInterface byValue2 = new MyStruct();
+      IMyInterface byRef2 = new MyStruct();
+      var outValue2 = new object();
       // ReSharper restore RedundantAssignment
-      instance.GenericMethod (byValue, ref byRef, out obj);
 
-      Assert.That (byValue.Field, Is.EqualTo (0));
-      Assert.That (byRef.Field, Is.EqualTo (1));
-      Assert.That (obj, Is.Null);
+      instance1.GenericMethod (byValue1, ref byRef1, out outValue1);
+      instance2.GenericMethod (byValue2, ref byRef2, out outValue2);
+
+      Assert.That (instance1.WasCalled, Is.True);
+      Assert.That (byValue1.Field, Is.EqualTo (0));
+      Assert.That (byRef1.Field, Is.EqualTo (1));
+      Assert.That (outValue1, Is.EqualTo (0));
+
+      Assert.That (instance2.WasCalled, Is.True);
+      Assert.That (((MyStruct) byValue2).Field, Is.EqualTo (1));
+      Assert.That (((MyStruct) byRef2).Field, Is.EqualTo (1));
+      Assert.That (outValue2, Is.Null);
     }
 
     public class DomainType
     {
-      public virtual void GenericMethod<TRef, TOut> (TRef arg0, ref TRef arg1, out TOut arg2)
+      [UsedImplicitly] public bool WasCalled;
+
+      public virtual void GenericMethod<TRef, TOut> (TRef arg1, ref TRef arg2, out TOut arg3)
           where TRef : IMyInterface
       {
-        throw new NotImplementedException();
+        arg1.MutatingMethod();
+        arg2.MutatingMethod();
+        arg3 = default (TOut);
       }
     }
 
