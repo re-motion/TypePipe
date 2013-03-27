@@ -30,8 +30,6 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     ICodeGenerator CodeGenerator { get; }
 
-    Type AssembleType (Type requestedType, IDictionary<string, object> participantState);
-
     /// <summary>
     /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s and the
     /// <paramref name="requestedType"/>. The return value of this method is an object array for performance reasons.
@@ -40,5 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <param name="freeSlotsAtStart">Number of slots beginning at the start of the array which are reserved for use by the caller.</param>
     /// <returns>The compound cache key.</returns>
     object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart);
+
+    Type AssembleType (Type requestedType, IDictionary<string, object> participantState);
   }
 }

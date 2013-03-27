@@ -64,19 +64,6 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }
     }
 
-    public Type AssembleType (Type requestedType, IDictionary<string, object> participantState)
-    {
-      var typeAssemblyContext = new TypeAssemblyContext (_mutableTypeFactory, requestedType, participantState);
-
-      foreach (var participant in _participants)
-        participant.Participate (typeAssemblyContext);
-
-      var generatedTypeContext = GenerateTypesWithDiagnostics (typeAssemblyContext);
-      typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
-
-      return (Type) generatedTypeContext.GetGeneratedMember (typeAssemblyContext.ProxyType);
-    }
-
     public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
@@ -90,6 +77,19 @@ namespace Remotion.TypePipe.CodeGeneration
         compoundKey[i + offset] = _cacheKeyProviders[i].GetCacheKey (requestedType);
 
       return compoundKey;
+    }
+
+    public Type AssembleType (Type requestedType, IDictionary<string, object> participantState)
+    {
+      var typeAssemblyContext = new TypeAssemblyContext (_mutableTypeFactory, requestedType, participantState);
+
+      foreach (var participant in _participants)
+        participant.Participate (typeAssemblyContext);
+
+      var generatedTypeContext = GenerateTypesWithDiagnostics (typeAssemblyContext);
+      typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
+
+      return (Type) generatedTypeContext.GetGeneratedMember (typeAssemblyContext.ProxyType);
     }
 
     private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeAssemblyContext typeAssemblyContext)

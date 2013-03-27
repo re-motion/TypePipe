@@ -73,6 +73,19 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
+    public void GetCompoundCacheKey ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
+      var participantMock1 = CreateCacheKeyReturningParticipantMock (requestedType, 1);
+      var participantMock2 = CreateCacheKeyReturningParticipantMock (requestedType, "2");
+      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
+
+      var result = typeAssembler.GetCompoundCacheKey (requestedType, 3);
+
+      Assert.That (result, Is.EqualTo (new object[] { null, null, null, requestedType, 1, "2" }));
+    }
+
+    [Test]
     public void AssembleType ()
     {
       var mockRepository = new MockRepository();
@@ -146,19 +159,6 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
           () => typeAssembler.AssembleType (_requestedType, _participantState),
           Throws.TypeOf<NotSupportedException>().With.InnerException.SameAs (exception2).And.With.Message.Matches (expectedMessageRegex));
       Assert.That (() => typeAssembler.AssembleType (_requestedType, _participantState), Throws.Exception.SameAs (exception3));
-    }
-
-    [Test]
-    public void GetCompoundCacheKey ()
-    {
-      var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
-      var participantMock1 = CreateCacheKeyReturningParticipantMock (requestedType, 1);
-      var participantMock2 = CreateCacheKeyReturningParticipantMock (requestedType, "2");
-      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
-
-      var result = typeAssembler.GetCompoundCacheKey (requestedType, 3);
-
-      Assert.That (result, Is.EqualTo (new object[] { null, null, null, requestedType, 1, "2" }));
     }
 
     private TypeAssembler CreateTypeAssembler (
