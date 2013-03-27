@@ -22,7 +22,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
@@ -34,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     private IDependentTypeSorter _dependentTypeSorterMock;
     private IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactoryMock;
 
-    private TypeAssemblyAssemblyContextCodeGenerator _generator;
+    private TypeAssemblyContextCodeGenerator _generator;
 
     [SetUp]
     public void SetUp ()
@@ -43,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _dependentTypeSorterMock = _mockRepository.StrictMock<IDependentTypeSorter>();
       _mutableTypeCodeGeneratorFactoryMock = _mockRepository.StrictMock<IMutableTypeCodeGeneratorFactory>();
 
-      _generator = new TypeAssemblyAssemblyContextCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
+      _generator = new TypeAssemblyContextCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
     }
 
     [Test]

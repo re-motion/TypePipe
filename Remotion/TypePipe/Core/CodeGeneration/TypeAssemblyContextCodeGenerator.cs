@@ -28,13 +28,13 @@ namespace Remotion.TypePipe.CodeGeneration
   /// and calling their staged Define***- interleaved and in the correct order.
   /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
-  public class TypeAssemblyAssemblyContextCodeGenerator : ITypeAssemblyContextCodeGenerator
+  public class TypeAssemblyContextCodeGenerator : ITypeAssemblyContextCodeGenerator
   {
     private readonly IDependentTypeSorter _dependentTypeSorter;
     private readonly IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactory;
 
     [CLSCompliant (false)]
-    public TypeAssemblyAssemblyContextCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
+    public TypeAssemblyContextCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
     {
       ArgumentUtility.CheckNotNull ("dependentTypeSorter", dependentTypeSorter);
       ArgumentUtility.CheckNotNull ("mutableTypeCodeGeneratorFactory", mutableTypeCodeGeneratorFactory);

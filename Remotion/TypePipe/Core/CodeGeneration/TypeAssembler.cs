@@ -81,6 +81,9 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public Type AssembleType (Type requestedType, IDictionary<string, object> participantState)
     {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull ("participantState", participantState);
+
       var typeAssemblyContext = new TypeAssemblyContext (_mutableTypeFactory, requestedType, participantState);
 
       foreach (var participant in _participants)

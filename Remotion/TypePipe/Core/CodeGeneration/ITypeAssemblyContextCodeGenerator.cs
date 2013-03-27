@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Defines an interface for classes generating code from a <see cref="TypeAssemblyContext"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (TypeAssemblyAssemblyContextCodeGenerator))]
+  [ConcreteImplementation (typeof (TypeAssemblyContextCodeGenerator))]
   public interface ITypeAssemblyContextCodeGenerator
   {
     ICodeGenerator CodeGenerator { get; }

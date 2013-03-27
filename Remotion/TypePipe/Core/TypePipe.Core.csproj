@@ -166,7 +166,7 @@
     <Compile Include="Expressions\ReflectionAdapters\DelegatingMethodInfoBase.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyAssemblyContextCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyContextCodeGenerator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
     <Compile Include="Caching\IConstructorFinder.cs" />
