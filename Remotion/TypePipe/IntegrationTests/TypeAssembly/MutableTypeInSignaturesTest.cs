@@ -115,7 +115,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (method.GetParameters().Single().ParameterType, Is.SameAs (type));
     }
 
-    [Ignore ("TODO 5424")]
     [Test]
     public void Method_RefAndOutParameters ()
     {
