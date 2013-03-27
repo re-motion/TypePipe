@@ -33,6 +33,9 @@ namespace System.Linq.Expressions.Compiler {
             Type returnType = types[types.Length - 1];
             Type[] parameters = types.RemoveLast();
 
+            if (types.Any (t => t is Remotion.TypePipe.MutableReflection.Implementation.CustomType))
+                return new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.DelegateTypePlaceholder (returnType, parameters);
+
             TypeBuilder builder = AssemblyGen.DefineDelegateType("Delegate" + types.Length);
             builder.DefineConstructor(CtorAttributes, CallingConventions.Standard, _DelegateCtorSignature).SetImplementationFlags(ImplAttributes);
             builder.DefineMethod("Invoke", InvokeAttributes, returnType, parameters).SetImplementationFlags(ImplAttributes);
