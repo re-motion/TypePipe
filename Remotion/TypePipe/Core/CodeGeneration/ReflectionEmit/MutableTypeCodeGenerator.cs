@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Remotion.Collections;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
@@ -34,6 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private readonly MutableType _mutableType;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
+    private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
@@ -45,18 +47,21 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public MutableTypeCodeGenerator (
         MutableType mutableType,
         IReflectionEmitCodeGenerator codeGenerator,
+        IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter,
         IInitializationBuilder initializationBuilder,
         IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _mutableType = mutableType;
       _codeGenerator = codeGenerator;
+      _emittableOperandProvider = emittableOperandProvider;
       _memberEmitter = memberEmitter;
       _initializationBuilder = initializationBuilder;
       _proxySerializationEnabler = proxySerializationEnabler;
@@ -66,13 +71,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       EnsureState (0);
 
-      var emittableOperandProvider = _codeGenerator.EmittableOperandProvider;
-      var debugInfoGeneratorOrNull = _codeGenerator.DebugInfoGenerator;
-
       var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes);
-      typeBuilder.RegisterWith (emittableOperandProvider, _mutableType);
+      typeBuilder.RegisterWith (_emittableOperandProvider, _mutableType);
 
-      _context = new CodeGenerationContext (_mutableType, typeBuilder, debugInfoGeneratorOrNull, emittableOperandProvider);
+      _context = new CodeGenerationContext (_mutableType, typeBuilder, _codeGenerator.DebugInfoGenerator, _emittableOperandProvider);
     }
 
     public void DefineTypeFacets ()
