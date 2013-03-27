@@ -18,9 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -43,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private MutableConstructorInfo _mutableConstructor;
     private MutableMethodInfo _mutableMethod;
 
-    private Type _listInstantiation;
+    private Type _emittableType;
 
     [SetUp]
     public void SetUp ()
@@ -56,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _mutableConstructor = MutableConstructorInfoObjectMother.Create();
       _mutableMethod = MutableMethodInfoObjectMother.Create();
 
-      _listInstantiation = typeof (List<>).MakeTypePipeGenericType (_mutableType);
+      _emittableType = ReflectionObjectMother.GetSomeType();
     }
 
     [Test]
@@ -87,23 +89,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void GetEmittableXXX_Mutable ()
     {
-      var typeBuilder = ReflectionEmitObjectMother.GetSomeTypeBuilder();
-      var genericParameterBuilder = ReflectionEmitObjectMother.GetSomeGenericTypeParameterBuilder();
-      var fieldBuilder = ReflectionEmitObjectMother.GetSomeFieldBuilder();
-      var constructorBuilder = ReflectionEmitObjectMother.GetSomeConstructorBuilder();
-      var methodBuilder = ReflectionEmitObjectMother.GetSomeMethodBuilder();
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      var emittableGenericParameter = ReflectionObjectMother.GetSomeGenericParameter();
+      var emittableField = ReflectionObjectMother.GetSomeField();
+      var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
+      var emittableMethod = ReflectionObjectMother.GetSomeMethod();
 
-      _provider.AddMapping (_mutableType, typeBuilder);
-      _provider.AddMapping (_mutableGenericParameter, genericParameterBuilder);
-      _provider.AddMapping (_mutableField, fieldBuilder);
-      _provider.AddMapping (_mutableConstructor, constructorBuilder);
-      _provider.AddMapping (_mutableMethod, methodBuilder);
+      _provider.AddMapping (_mutableType, emittableType);
+      _provider.AddMapping (_mutableGenericParameter, emittableGenericParameter);
+      _provider.AddMapping (_mutableField, emittableField);
+      _provider.AddMapping (_mutableConstructor, emittableConstructor);
+      _provider.AddMapping (_mutableMethod, emittableMethod);
 
-      Assert.That (_provider.GetEmittableType (_mutableType), Is.SameAs (typeBuilder));
-      Assert.That (_provider.GetEmittableType (_mutableGenericParameter), Is.SameAs (genericParameterBuilder));
-      Assert.That (_provider.GetEmittableField (_mutableField), Is.SameAs (fieldBuilder));
-      Assert.That (_provider.GetEmittableConstructor (_mutableConstructor), Is.SameAs (constructorBuilder));
-      Assert.That (_provider.GetEmittableMethod (_mutableMethod), Is.SameAs (methodBuilder));
+      Assert.That (_provider.GetEmittableType (_mutableType), Is.SameAs (emittableType));
+      Assert.That (_provider.GetEmittableType (_mutableGenericParameter), Is.SameAs (emittableGenericParameter));
+      Assert.That (_provider.GetEmittableField (_mutableField), Is.SameAs (emittableField));
+      Assert.That (_provider.GetEmittableConstructor (_mutableConstructor), Is.SameAs (emittableConstructor));
+      Assert.That (_provider.GetEmittableMethod (_mutableMethod), Is.SameAs (emittableMethod));
     }
 
     [Test]
@@ -133,87 +135,92 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void GetEmittableType ()
-    {
-      var proxyType = MutableTypeObjectMother.Create();
-      _provider.AddMapping (proxyType, ReflectionObjectMother.GetSomeType());
-
-      var constructedType = typeof (List<>).MakeTypePipeGenericType (proxyType);
-      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
-
-      _provider.GetEmittableType (constructedType);
-
-      Assert.That (constructedType.GetGenericArguments(), Is.EqualTo (new[] { proxyType }));
-    }
-
-    [Test]
     public void GetEmittableType_TypeInstantiation ()
     {
-      var emittableType = ReflectionObjectMother.GetSomeType();
-      _provider.AddMapping (_mutableType, emittableType);
-
-      var instantiation = typeof (List<>).MakeTypePipeGenericType (typeof (Func<>).MakeTypePipeGenericType (_mutableType));
+      _provider.AddMapping (_mutableType, _emittableType);
+      var instantiation = typeof (List<>).MakeTypePipeGenericType (_mutableType);
       Assert.That (instantiation, Is.TypeOf<TypeInstantiation>());
 
       var result = _provider.GetEmittableType (instantiation);
 
-      Assert.That (result, Is.Not.InstanceOf<CustomType>());
+      Assert.That (result.IsRuntimeType(), Is.True);
+      Assert.That (result.GetGenericTypeDefinition(), Is.SameAs (typeof (List<>)));
+      Assert.That (result.GetGenericArguments(), Is.EqualTo (new[] { _emittableType }));
+    }
+
+    [Test]
+    public void GetEmittableType_TypeInstantiation_Recursive ()
+    {
+      _provider.AddMapping (_mutableType, _emittableType);
+      var instantiation = typeof (List<>).MakeTypePipeGenericType (typeof (Func<>).MakeTypePipeGenericType (_mutableType));
+
+      var result = _provider.GetEmittableType (instantiation);
+
       var emittableGenericArgument = result.GetGenericArguments().Single().GetGenericArguments().Single();
-      Assert.That (emittableGenericArgument, Is.SameAs (emittableType));
+      Assert.That (emittableGenericArgument, Is.SameAs (_emittableType));
+    }
+    
+    [Test]
+    public void GetEmittableType_DelegateTypePlaceholder ()
+    {
+      var mutableReturnType = MutableTypeObjectMother.Create();
+      var emittableReturnType = ReflectionObjectMother.GetSomeOtherType();
+      _provider.AddMapping (mutableReturnType, emittableReturnType);
+      _provider.AddMapping (_mutableType, _emittableType);
+      var delegateTypePlaceholder = new DelegateTypePlaceholder (mutableReturnType, new[] { _mutableType });
+
+      var result = _provider.GetEmittableType (delegateTypePlaceholder);
+
+      Assert.That (result, Is.SameAs (Expression.GetDelegateType (_emittableType, emittableReturnType)));
     }
 
     [Test]
     public void GetEmittableType_ByRefType ()
     {
-      var emittableType = ReflectionObjectMother.GetSomeType();
-      _provider.AddMapping (_mutableType, emittableType);
+      _provider.AddMapping (_mutableType, _emittableType);
       var byRefType = ByRefTypeObjectMother.Create (_mutableType);
 
       var result = _provider.GetEmittableType (byRefType);
 
-      Assert.That (result, Is.SameAs (emittableType.MakeByRefType()));
+      Assert.That (result, Is.SameAs (_emittableType.MakeByRefType()));
     }
 
     [Test]
     public void GetEmittableType_VectorType ()
     {
-      var emittableType = ReflectionObjectMother.GetSomeType();
-      _provider.AddMapping (_mutableType, emittableType);
+      _provider.AddMapping (_mutableType, _emittableType);
       var vectorType = VectorTypeObjectMother.Create (_mutableType);
 
       var result = _provider.GetEmittableType (vectorType);
 
-      Assert.That (result, Is.SameAs (emittableType.MakeArrayType()));
+      Assert.That (result, Is.SameAs (_emittableType.MakeArrayType()));
     }
 
     [Test]
     public void GetEmittableType_MultiDimensionalArrayType ()
     {
-      var emittableType = ReflectionObjectMother.GetSomeType ();
-      _provider.AddMapping (_mutableType, emittableType);
+      _provider.AddMapping (_mutableType, _emittableType);
       var rank = 7;
       var multiDimensionalArrayType = MultiDimensionalArrayTypeObjectMother.Create (_mutableType, rank);
 
       var result = _provider.GetEmittableType (multiDimensionalArrayType);
 
-      Assert.That (result, Is.SameAs (emittableType.MakeArrayType (rank)));
+      Assert.That (result, Is.SameAs (_emittableType.MakeArrayType (rank)));
     }
 
     [Test]
     public void GetEmittableMethod_MethodInstantiation_OnRuntimeType ()
     {
-      var emittableType = ReflectionObjectMother.GetSomeType();
-      _provider.AddMapping (_mutableType, emittableType);
-
       var genericMethodDefinition = typeof (Enumerable).GetMethod ("Empty");
       var instantiation = genericMethodDefinition.MakeTypePipeGenericMethod (_mutableType);
       Assert.That (instantiation, Is.TypeOf<MethodInstantiation>());
+      _provider.AddMapping (_mutableType, _emittableType);
 
       var result = _provider.GetEmittableMethod (instantiation);
 
       Assert.That (result, Is.Not.InstanceOf<CustomMethodInfo>());
       var emittableGenericArgument = result.GetGenericArguments().Single();
-      Assert.That (emittableGenericArgument, Is.SameAs (emittableType));
+      Assert.That (emittableGenericArgument, Is.SameAs (_emittableType));
     }
 
     [Test]
@@ -223,23 +230,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var emittableGenericMethodDefinition = typeof (Enumerable).GetMethod ("Empty");
       _provider.AddMapping (genericMethodDefinition, emittableGenericMethodDefinition);
 
-      var emittableType = ReflectionObjectMother.GetSomeType();
-      var instantiation = genericMethodDefinition.MakeTypePipeGenericMethod (emittableType);
+      var instantiation = genericMethodDefinition.MakeTypePipeGenericMethod (_emittableType);
       Assert.That (instantiation, Is.TypeOf<MethodInstantiation>());
 
       var result = _provider.GetEmittableMethod (instantiation);
 
       Assert.That (result, Is.Not.InstanceOf<CustomMethodInfo>());
       var emittableGenericArgument = result.GetGenericArguments().Single();
-      Assert.That (emittableGenericArgument, Is.SameAs (emittableType));
+      Assert.That (emittableGenericArgument, Is.SameAs (_emittableType));
     }
 
     [Test]
     public void GetEmittableXXX_MembersFromTypeInstantiation ()
     {
-      var field = _listInstantiation.GetField ("_size", BindingFlags.NonPublic | BindingFlags.Instance);
-      var ctor = _listInstantiation.GetConstructor (Type.EmptyTypes);
-      var method = _listInstantiation.GetMethod ("Add");
+      var instantiation = typeof (List<>).MakeTypePipeGenericType (_mutableType);
+      var field = instantiation.GetField ("_size", BindingFlags.NonPublic | BindingFlags.Instance);
+      var ctor = instantiation.GetConstructor (Type.EmptyTypes);
+      var method = instantiation.GetMethod ("Add");
 
       var emittableType = ReflectionEmitObjectMother.GetSomeTypeBuilder();
       _provider.AddMapping (_mutableType, emittableType);

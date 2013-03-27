@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Scripting.Ast.Compiler;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
@@ -92,6 +94,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         var typeInstantiation = t as TypeInstantiation;
         if (typeInstantiation != null)
           return GetEmittableTypeInstantiation (typeInstantiation);
+
+        // TODO refine
+        var delegateType = t as DelegateTypePlaceholder;
+        if (delegateType != null)
+        {
+          var returnType = GetEmittableType (delegateType.ReturnType);
+          var parameterTypes = delegateType.ParameterTypes.Select (GetEmittableType);
+
+          return DelegateHelpers.MakeDelegateType (parameterTypes.Concat (returnType).ToArray());
+        }
 
         var emittableElementType = GetEmittableType (t.GetElementType());
         if (t is ByRefType)
