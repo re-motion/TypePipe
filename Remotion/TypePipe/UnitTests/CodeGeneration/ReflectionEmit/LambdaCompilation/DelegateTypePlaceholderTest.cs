@@ -59,18 +59,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       Assert.That (_type.ParameterTypes, Is.EqualTo (new[] { _parameterType }));
     }
 
-    [Ignore ("TODO")]
     [Test]
     public void GetAllMethods ()
     {
       var result = _type.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods").ToList();
 
-      Assert.That (result, Has.Length.EqualTo (1));
+      Assert.That (result, Has.Count.EqualTo (1));
       var invokeMethod = result.Single();
       Assert.That (invokeMethod.Name, Is.EqualTo ("Invoke"));
-      Assert.That (invokeMethod.Attributes, Is.EqualTo (MethodAttributes.Public));
+      Assert.That (invokeMethod.Attributes, Is.EqualTo (MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig));
       Assert.That (invokeMethod.ReturnType, Is.SameAs (_returnType));
-      Assert.That (invokeMethod.GetParameters ().Single ().ParameterType, Is.SameAs (_parameterType));
+      Assert.That (invokeMethod.GetParameters().Single().ParameterType, Is.SameAs (_parameterType));
     }
 
     [Test]

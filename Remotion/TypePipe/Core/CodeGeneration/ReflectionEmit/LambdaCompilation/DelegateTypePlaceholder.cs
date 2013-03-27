@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     private readonly Type _returnType;
     private readonly ReadOnlyCollection<Type> _parameterTypes;
+    private readonly ReadOnlyCollection<MethodInfo> _methods;
 
     public DelegateTypePlaceholder (Type returnType, IEnumerable<Type> parameterTypes)
         : base (
@@ -47,10 +48,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
+      SetBaseType (typeof (MulticastDelegate));
+
       _returnType = returnType;
       _parameterTypes = parameterTypes.ToList().AsReadOnly();
-
-      SetBaseType (typeof (MulticastDelegate));
+      _methods = CreateMethods (returnType, _parameterTypes).ToList().AsReadOnly();
     }
 
     public Type ReturnType
@@ -61,6 +63,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     public ReadOnlyCollection<Type> ParameterTypes
     {
       get { return _parameterTypes; }
+    }
+
+    private IEnumerable<MethodInfo> CreateMethods (Type returnType, IEnumerable<Type> parameterTypes)
+    {
+      // The following implementation is not complete. We skip 'BeginInvoke', 'EndInvoke' and methods from 'MulticastDelegate' base type.
+      // This is OK because the only purpose of this class is to be a placeholder within the LambdaCompiler, which only queries for the 'Invoke' method.
+
+      var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+      var parameters = parameterTypes.Select (t => new ParameterDeclaration (t));
+
+      yield return new MethodOnCustomType (this, "Invoke", attributes, EmptyTypes, returnType, parameters);
     }
 
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
@@ -85,10 +98,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     protected override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      throw new NotSupportedException ("OIdaXXXXX");
-
-      //var parameters = _parameterTypes.Take (_parameterTypes.Count - 1).Select (t => new ParameterDeclaration (t));
-      //yield return new MethodOnCustomType (this, "Invoke", MethodAttributes.Public, EmptyTypes, _parameterTypes.Last(), parameters);
+      return _methods;
     }
 
     protected override IEnumerable<PropertyInfo> GetAllProperties ()
