@@ -96,6 +96,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\NullExpressionPreparer.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\DelegateTypePlaceholder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ICodeGenerator.cs" />
