@@ -85,6 +85,29 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (outValue2, Is.Null);
     }
 
+    [Ignore ("TODO 5497")]
+    [Test]
+    public void GenericParameterByRefType_NoBoxing ()
+    {
+      var mutatingMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.MutatingMethod());
+      var type = AssembleType<DomainType> (
+          p => p.AddMethod (
+              "Method",
+              MethodAttributes.Public,
+              new[] { new GenericParameterDeclaration ("T", constraintProvider: ctx => new[] { typeof (IMyInterface) }) },
+              ctx => typeof (void),
+              ctx => new[] { new ParameterDeclaration (ctx.GenericParameters[0].MakeByRefType()) },
+              ctx => Expression.Call (ctx.Parameters[0], mutatingMethod)));
+
+      var method = type.GetMethod ("Method").MakeGenericMethod (typeof (MyStruct));
+      var instance = Activator.CreateInstance (type);
+
+      var byRef = new MyStruct();
+      method.Invoke (instance, new object[] { byRef });
+
+      Assert.That (byRef.Field, Is.EqualTo (1));
+    }
+
     public class DomainType
     {
       [UsedImplicitly] public bool WasCalled;
