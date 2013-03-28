@@ -20,7 +20,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 
@@ -154,19 +153,11 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       Assert.That (File.Exists (assemblyPath), Is.True);
 
-      AppDomainRunner.Run (
-          args =>
-          {
-            var path = (string) args[0];
-            var typeName = (string) args[1];
+      // Load via raw bytes so that the file is not locked and can be deleted.
+      var assembly = Assembly.Load (File.ReadAllBytes (assemblyPath));
+      var typeNames = assembly.GetExportedTypes().Select (t => t.FullName);
 
-            var assembly = Assembly.LoadFrom (path);
-            var typeNames = assembly.GetExportedTypes().Select (t => t.FullName);
-
-            Assert.That (typeNames, Is.EqualTo (new[] { typeName }));
-          },
-          assemblyPath,
-          assembledTypeFullName);
+      Assert.That (typeNames, Is.EqualTo (new[] { assembledTypeFullName }));
     }
 
     public class RequestedType { }
