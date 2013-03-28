@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -73,6 +74,11 @@ namespace Remotion.TypePipe
       var initializableInstance = instance as IInitializableObject;
       if (initializableInstance != null)
         initializableInstance.Initialize();
+    }
+
+    public void LoadFlushedCode (Assembly assembly)
+    {
+      throw new NotImplementedException();
     }
   }
 }

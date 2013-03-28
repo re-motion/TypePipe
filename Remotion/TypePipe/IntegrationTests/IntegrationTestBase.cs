@@ -113,13 +113,13 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected ITypeAssemblyContextCodeGenerator CreateTypeAssemblyContextCodeGenerator (string assemblyName)
     {
-      var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<ITypeAssemblyContextCodeGenerator>();
+      var typeAssemblyContextCodeGenerator = SafeServiceLocator.Current.GetInstance<ITypeAssemblyContextCodeGenerator>();
 
-      _codeGenerator = subclassProxyBuilder.CodeGenerator;
+      _codeGenerator = typeAssemblyContextCodeGenerator.CodeGenerator;
       _codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
       _codeGenerator.SetAssemblyName (assemblyName);
 
-      return subclassProxyBuilder;
+      return typeAssemblyContextCodeGenerator;
     }
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)

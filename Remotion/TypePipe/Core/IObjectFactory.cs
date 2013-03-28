@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.ServiceLocation;
@@ -47,5 +48,7 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="instance">The assembled type instance which should be prepared.</param>
     void PrepareExternalUninitializedObject (object instance);
+
+    void LoadFlushedCode (Assembly assembly);
   }
 }
