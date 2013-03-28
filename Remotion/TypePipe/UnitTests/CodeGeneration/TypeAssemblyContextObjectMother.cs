@@ -17,33 +17,29 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   public static class TypeAssemblyContextObjectMother
   {
-    public static TypeAssemblyContext Create (Type requestedType = null, IMutableTypeFactory mutableTypeFactory = null, IDictionary<string, object> state = null)
+    public static TypeAssemblyContext Create (
+        Type requestedType = null,
+        MutableType proxyType = null,
+        IMutableTypeFactory mutableTypeFactory = null,
+        IDictionary<string, object> state = null)
     {
-      requestedType = requestedType ?? typeof (UnspecifiedType);
+      requestedType = requestedType ?? typeof (UnspecifiedRequestedType);
+      proxyType = proxyType ?? MutableTypeObjectMother.Create (name: "UnspecifiedProxyType");
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new TypeAssemblyContext (mutableTypeFactory, requestedType, state);
+      return new TypeAssemblyContext (requestedType, proxyType, mutableTypeFactory, state);
     }
 
-    public static TypeAssemblyContext Create (MutableType proxyType)
-    {
-      var typeContext = (TypeAssemblyContext) FormatterServices.GetUninitializedObject (typeof (TypeAssemblyContext));
-      PrivateInvoke.SetNonPublicField (typeContext, "_proxyType", proxyType);
-
-      return typeContext;
-    }
-
-    public class UnspecifiedType {}
+    public class UnspecifiedRequestedType {}
   }
 }

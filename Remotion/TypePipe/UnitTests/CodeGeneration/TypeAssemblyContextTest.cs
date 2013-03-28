@@ -43,9 +43,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _requestedType = ReflectionObjectMother.GetSomeType();
       _proxyType = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (_proxyType);
+      _state = new Dictionary<string, object>();
 
-      _typeAssemblyContext = new TypeAssemblyContext (_mutableTypeFactoryMock, _requestedType, _state);
+      _typeAssemblyContext = new TypeAssemblyContext (_requestedType, _proxyType, _mutableTypeFactoryMock, _state);
     }
 
     [Test]

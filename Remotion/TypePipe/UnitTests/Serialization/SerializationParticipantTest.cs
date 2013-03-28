@@ -53,8 +53,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void Participate_SerializableType ()
     {
-      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (SomeType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
+      var proxyType = MutableTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
       _participant.Participate (typeContext);
 
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void Participate_SerializableInterfaceType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
       _participant.Participate (typeContext);
 
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void Participate_CannotOverrideGetObjectData ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
       _participant.Participate (typeContext);
     }

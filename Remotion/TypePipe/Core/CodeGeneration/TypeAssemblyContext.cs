@@ -30,20 +30,21 @@ namespace Remotion.TypePipe.CodeGeneration
   public class TypeAssemblyContext : ITypeAssemblyContext
   {
     private readonly List<MutableType> _additionalTypes = new List<MutableType>();
-    private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly Type _requestedType;
+    private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly MutableType _proxyType;
     private readonly IDictionary<string, object> _state;
 
-    public TypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, Type requestedType, IDictionary<string, object> state)
+    public TypeAssemblyContext (Type requestedType, MutableType proxyType, IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
     {
-      ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
+      ArgumentUtility.CheckNotNull ("state", state);
 
       _mutableTypeFactory = mutableTypeFactory;
       _requestedType = requestedType;
-      // TODO Review: Move to caller.
-      _proxyType = _mutableTypeFactory.CreateProxy (requestedType);
+      _proxyType = proxyType;
       _state = state;
     }
 
