@@ -96,72 +96,64 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      Func<Type, Type> emittableTypeProvider = t =>
-      {
-        var typeInstantiation = t as TypeInstantiation;
-        if (typeInstantiation != null)
-          return GetEmittableTypeInstantiation (typeInstantiation);
+      var emittable = GetDirectlyEmittableOperand (_mappedTypes, type);
+      if (emittable != null)
+        return emittable;
 
-        var delegateTypePlaceholder = t as DelegateTypePlaceholder;
-        if (delegateTypePlaceholder != null)
-          return _delegateProvider.GetDelegateType (delegateTypePlaceholder.ReturnType, delegateTypePlaceholder.ParameterTypes);
+      var typeInstantiation = type as TypeInstantiation;
+      if (typeInstantiation != null)
+        return GetEmittableTypeInstantiation (typeInstantiation);
 
-        Assertion.IsTrue (t is ByRefType || t is VectorType || t is MultiDimensionalArrayType);
+      var delegateTypePlaceholder = type as DelegateTypePlaceholder;
+      if (delegateTypePlaceholder != null)
+        return _delegateProvider.GetDelegateType (delegateTypePlaceholder.ReturnType, delegateTypePlaceholder.ParameterTypes);
 
-        var emittableElementType = GetEmittableType (t.GetElementType());
-        if (t is ByRefType)
-          return emittableElementType.MakeByRefType();
-        if (t is VectorType)
-          return emittableElementType.MakeArrayType();
-        else // MultiDimensionalArrayType
-          return emittableElementType.MakeArrayType (t.GetArrayRank());
-      };
+      Assertion.IsTrue (type is ByRefType || type is VectorType || type is MultiDimensionalArrayType);
 
-      return GetEmittableOperand (_mappedTypes, type, emittableTypeProvider);
+      var emittableElementType = GetEmittableType (type.GetElementType());
+      if (type is ByRefType)
+        return emittableElementType.MakeByRefType();
+      if (type is VectorType)
+        return emittableElementType.MakeArrayType();
+      else // MultiDimensionalArrayType
+        return emittableElementType.MakeArrayType (type.GetArrayRank());
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      // TODO Review: Like this:
-      //var emittableOperand = GetEmittableOperand (_mappedFields, field, null);
-      //if (emittableOperand != null)
-      //  return emittableOperand;
-      //
-      //Assertion.IsTrue (field is FieldOnTypeInstantiation);
-      //return GetEmittableMemberInstantiation ((FieldOnTypeInstantiation) field, fi => fi.FieldOnGenericType, TypeBuilder.GetField);
+      var emittable = GetDirectlyEmittableOperand (_mappedFields, field);
+      if (emittable != null)
+        return emittable;
 
-      return GetEmittableOperand (
-          _mappedFields,
-          field,
-          f => GetEmittableMemberInstantiation (f, fi => ((FieldOnTypeInstantiation) fi).FieldOnGenericType, TypeBuilder.GetField));
+      return GetEmittableMemberInstantiation ((FieldOnTypeInstantiation) field, fi => fi.FieldOnGenericType, TypeBuilder.GetField);
     }
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return GetEmittableOperand (
-          _mappedConstructors,
-          constructor,
-          c => GetEmittableMemberInstantiation (c, ci => ((ConstructorOnTypeInstantiation) ci).ConstructorOnGenericType, TypeBuilder.GetConstructor));
+      var emittable = GetDirectlyEmittableOperand (_mappedConstructors, constructor);
+      if (emittable != null)
+        return emittable;
+
+      return GetEmittableMemberInstantiation ((ConstructorOnTypeInstantiation) constructor, ci => ci.ConstructorOnGenericType, TypeBuilder.GetConstructor);
     }
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      Func<MethodInfo, MethodInfo> emittableInstantiationProvider = m =>
-      {
-        var methodInstantiation = m as MethodInstantiation;
-        if (methodInstantiation != null)
-          return GetEmittableMethodInstantiation (methodInstantiation);
-        else
-          return GetEmittableMemberInstantiation (m, mi => ((MethodOnTypeInstantiation) mi).MethodOnGenericType, TypeBuilder.GetMethod);
-      };
+      var emittable = GetDirectlyEmittableOperand (_mappedMethods, method);
+      if (emittable != null)
+        return emittable;
 
-      return GetEmittableOperand (_mappedMethods, method, emittableInstantiationProvider);
+      var methodInstantiation = method as MethodInstantiation;
+      if (methodInstantiation != null)
+        return GetEmittableMethodInstantiation (methodInstantiation);
+      else
+        return GetEmittableMemberInstantiation ((MethodOnTypeInstantiation) method, mi => mi.MethodOnGenericType, TypeBuilder.GetMethod);
     }
 
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
@@ -179,7 +171,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mapping.Add (key, value);
     }
 
-    private T GetEmittableOperand<T> (Dictionary<T, T> mapping, T operand, Func<T, T> complexEmittableOperandTranslator)
+    private T GetDirectlyEmittableOperand<T> (Dictionary<T, T> mapping, T operand)
         where T : MemberInfo
     {
       if (IsEmittable (operand))
@@ -187,9 +179,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (operand is IMutableInfo)
         return mapping[operand];
-      // TODO Review: Return null here, move and inline lambda invocation to caller.
-      else
-        return complexEmittableOperandTranslator (operand);
+
+      return null;
     }
 
     private bool IsEmittable (MemberInfo member)
@@ -211,7 +202,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private MethodInfo GetEmittableMethodInstantiation (MethodInstantiation methodInstantiation)
     {
-      var emittableGenericMethodDefinition = GetEmittableMethod (methodInstantiation.GetGenericMethodDefinition ());
+      var emittableGenericMethodDefinition = GetEmittableMethod (methodInstantiation.GetGenericMethodDefinition());
       var emittableTypeArguments = methodInstantiation.GetGenericArguments().Select (GetEmittableType).ToArray();
 
       // Should *not* be MakeTypePipeGenericMethod.
@@ -219,14 +210,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     private T GetEmittableMemberInstantiation<T, TInstantiation> (
-        TInstantiation memberInstantiation, Func<TInstantiation, T> genericMemberAccessor, Func<Type, T, T> emittableMemberProvider)
+        TInstantiation memberInstantiation, Func<TInstantiation, T> genericMemberProvider, Func<Type, T, T> emittableMemberInstantiationProvider)
         where T : MemberInfo
         where TInstantiation : T
     {
       var emittableDeclaringType = GetEmittableTypeInstantiation ((TypeInstantiation) memberInstantiation.DeclaringType);
-      var genericMember = genericMemberAccessor (memberInstantiation);
+      var genericMember = genericMemberProvider (memberInstantiation);
 
-      return emittableMemberProvider (emittableDeclaringType, genericMember);
+      return emittableMemberInstantiationProvider (emittableDeclaringType, genericMember);
     }
   }
 }
