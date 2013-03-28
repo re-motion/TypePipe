@@ -66,6 +66,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
+    public MutableType MutableType
+    {
+      get { return _mutableType; }
+    }
+
     public void DeclareType ()
     {
       EnsureState (0);

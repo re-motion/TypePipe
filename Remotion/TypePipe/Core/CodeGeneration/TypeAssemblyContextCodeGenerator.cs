@@ -53,20 +53,18 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);
 
       var mutableTypes = typeAssemblyContext.AdditionalTypes.Concat (typeAssemblyContext.ProxyType);
-      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes).ToList();
-      var generators = _mutableTypeCodeGeneratorFactory.CreateGenerators (sortedTypes);
-      // TODO Review: IMutableTypeCodeGenerator should expose MutableType; this would avoid having to Zip the two lists.
-      var typesAndGenerators = sortedTypes.Zip (generators, (t, g) => new { MutableType = t, Generator = g }).ToList();
+      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
+      var generators = _mutableTypeCodeGeneratorFactory.CreateGenerators (sortedTypes).ToList();
 
       // For all types, declare the types first, then declare the members/base type/interfaces/etc., then finish the type (including bodies, etc.).
       // That way, it is ensured that types can reference each other.
 
-      foreach (var pair in typesAndGenerators)
-        pair.Generator.DeclareType();
-      foreach (var pair in typesAndGenerators)
-        pair.Generator.DefineTypeFacets();
+      foreach (var g in generators)
+        g.DeclareType();
+      foreach (var g in generators)
+        g.DefineTypeFacets();
 
-      var mutableToGeneratedTypes = typesAndGenerators.Select (pair => Tuple.Create (pair.MutableType, pair.Generator.CreateType()));
+      var mutableToGeneratedTypes = generators.Select (g => Tuple.Create (g.MutableType, g.CreateType()));
 
       return new GeneratedTypeContext (mutableToGeneratedTypes);
     }

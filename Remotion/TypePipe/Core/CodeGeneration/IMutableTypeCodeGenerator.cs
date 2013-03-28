@@ -34,6 +34,8 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </remarks>
   public interface IMutableTypeCodeGenerator
   {
+    MutableType MutableType { get; }
+
     void DeclareType ();
     void DefineTypeFacets ();
     Type CreateType ();

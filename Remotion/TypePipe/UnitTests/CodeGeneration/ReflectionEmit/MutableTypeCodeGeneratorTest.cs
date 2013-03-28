@@ -79,6 +79,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void Initialization ()
+    {
+      Assert.That (_generator.MutableType, Is.SameAs (_mutableType));
+    }
+
+    [Test]
     public void DeclareType ()
     {
       using (_mockRepository.Ordered())

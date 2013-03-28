@@ -63,10 +63,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var emittableOperandProvider = _codeGenerator.CreateEmittableOperandProvider();
       var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (emittableOperandProvider);
 
-      return mutableTypes.Select (mt => CreateMutableTypeCodeGenerator (mt, emittableOperandProvider, memberEmitter));
+      return mutableTypes.Select (mt => CreateGenerator (mt, emittableOperandProvider, memberEmitter));
     }
 
-    private IMutableTypeCodeGenerator CreateMutableTypeCodeGenerator (
+    private IMutableTypeCodeGenerator CreateGenerator (
         MutableType mutableType, IEmittableOperandProvider emittableOperandProvider, IMemberEmitter memberEmitter)
     {
       return new MutableTypeCodeGenerator (
