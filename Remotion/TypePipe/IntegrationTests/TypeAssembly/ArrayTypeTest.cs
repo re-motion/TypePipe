@@ -32,7 +32,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void CopyVector ()
     {
-      // TODO Review: C# representation of generated code here
+      // public static ProxyType[] Method (ProxyType[] vector) {
+      //   var newVector = new ProxyType[vector.Length];
+      //   int i = 0;
+      //   while (true) {
+      //     if (i == vector.Length)
+      //       break;
+      //     newVector[i] = vector[i];
+      //     i++;
+      //   }
+      //   return newVector;
+      // }
       var type = AssembleType<DomainType> (
           typeContext =>
           {
@@ -43,7 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "Method",
                 MethodAttributes.Public | MethodAttributes.Static,
                 vectorType,
-                new[] { new ParameterDeclaration (vectorType) },
+                new[] { new ParameterDeclaration (vectorType, "vector") },
                 ctx =>
                 {
                   var newVector = Expression.Variable (vectorType, "newVector");
@@ -52,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
                   return Expression.Block (
                       new[] { newVector, index },
-                      Expression.Assign (newVector, Expression.NewArrayBounds (elementType, Expression.Property (ctx.Parameters[0], "Length"))),
+                      Expression.Assign (newVector, Expression.NewArrayBounds (elementType, Expression.ArrayLength (ctx.Parameters[0]))),
                       Expression.Assign (index, Expression.Constant (0)),
                       Expression.Loop (
                           Expression.Block (
@@ -80,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void CreateMultiDimensionalArray ()
     {
       // public static ProxyType[,] Method (int l1, int l2) {
-      //  return new ProxyType[l1,l2];
+      //   return new ProxyType[l1,l2];
       // }
       var createArray = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => Array.CreateInstance (null, 0, 0));
       var type = AssembleType<DomainType> (
