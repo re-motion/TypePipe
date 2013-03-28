@@ -34,13 +34,16 @@ namespace Remotion.TypePipe.Serialization.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
       ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
 
-      if (_objectFactories.ContainsKey (factoryIdentifier))
+      // Cannot use ContainsKey/Add combination as this would introduce a race condition.
+      try
+      {
+        _objectFactories.Add (factoryIdentifier, objectFactory);
+      }
+      catch (ArgumentException)
       {
         var message = string.Format ("Another factory is already registered for identifier '{0}'.", factoryIdentifier);
         throw new InvalidOperationException (message);
       }
-
-      _objectFactories.Add (factoryIdentifier, objectFactory);
     }
 
     public void Unregister (string factoryIdentifier)
