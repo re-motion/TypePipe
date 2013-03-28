@@ -42,6 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       _mutableTypeFactory = mutableTypeFactory;
       _requestedType = requestedType;
+      // TODO Review: Move to caller.
       _proxyType = _mutableTypeFactory.CreateProxy (requestedType);
       _state = state;
     }

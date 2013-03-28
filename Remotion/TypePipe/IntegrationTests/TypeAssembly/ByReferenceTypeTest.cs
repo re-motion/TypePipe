@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void MutableByRefType ()
     {
+      // TODO Review: C# rep
       var type = AssembleType<DomainType> (
           typeContext =>
           {
@@ -52,6 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void GenericParameterByRefType ()
     {
+      // TODO Review: C# rep
       var method = typeof (DomainType).GetMethod ("GenericMethod");
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType o) => o.WasCalled);
 
@@ -63,26 +65,27 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var instance2 = (DomainType) Activator.CreateInstance (type);
 
       // ReSharper disable RedundantAssignment
-      var byValue1 = new MyStruct();
-      var byRef1 = new MyStruct();
-      var outValue1 = 7;
-      IMyInterface byValue2 = new MyStruct();
-      IMyInterface byRef2 = new MyStruct();
-      var outValue2 = new object();
+      var structIn = new MyStruct();
+      var structRef = new MyStruct();
+      var structOut = 7;
+
+      IMyInterface ifcIn = new MyStruct();
+      IMyInterface ifcRef = new MyStruct();
+      var ifcOut = new object();
       // ReSharper restore RedundantAssignment
 
-      instance1.GenericMethod (byValue1, ref byRef1, out outValue1);
-      instance2.GenericMethod (byValue2, ref byRef2, out outValue2);
+      instance1.GenericMethod (structIn, ref structRef, out structOut);
+      instance2.GenericMethod (ifcIn, ref ifcRef, out ifcOut);
 
       Assert.That (instance1.WasCalled, Is.True);
-      Assert.That (byValue1.Field, Is.EqualTo (0));
-      Assert.That (byRef1.Field, Is.EqualTo (1));
-      Assert.That (outValue1, Is.EqualTo (0));
+      Assert.That (structIn.Field, Is.EqualTo (0));
+      Assert.That (structRef.Field, Is.EqualTo (1));
+      Assert.That (structOut, Is.EqualTo (0));
 
       Assert.That (instance2.WasCalled, Is.True);
-      Assert.That (((MyStruct) byValue2).Field, Is.EqualTo (1));
-      Assert.That (((MyStruct) byRef2).Field, Is.EqualTo (1));
-      Assert.That (outValue2, Is.Null);
+      Assert.That (((MyStruct) ifcIn).Field, Is.EqualTo (1));
+      Assert.That (((MyStruct) ifcRef).Field, Is.EqualTo (1));
+      Assert.That (ifcOut, Is.Null);
     }
 
     [Ignore ("TODO 5497")]

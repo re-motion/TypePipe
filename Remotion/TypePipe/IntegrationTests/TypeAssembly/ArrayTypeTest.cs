@@ -32,6 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void CopyVector ()
     {
+      // TODO Review: C# representation of generated code here
       var type = AssembleType<DomainType> (
           typeContext =>
           {
@@ -70,7 +71,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var result = method.Invoke (null, new object[] { array });
 
-      Assert.That (result.GetType().GetElementType(), Is.EqualTo (type));
+      Assert.That (result.GetType().GetElementType(), Is.SameAs (type));
       Assert.That (result, Is.Not.SameAs (array));
       Assert.That (result, Is.EqualTo (array));
     }
@@ -92,7 +93,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 "Method",
                 MethodAttributes.Public | MethodAttributes.Static,
                 multiDimensionalArrayType,
-                new[] { new ParameterDeclaration (typeof (int), "l1"), new ParameterDeclaration (typeof (int), "l1") },
+                new[] { new ParameterDeclaration (typeof (int), "l1"), new ParameterDeclaration (typeof (int), "l2") },
                 ctx =>
                 {
                   var array = Expression.Call (createArray, Expression.Constant (elementType, typeof (Type)), ctx.Parameters[0], ctx.Parameters[1]);
@@ -103,7 +104,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var result = (Array) method.Invoke (null, new object[] { 7, 8 });
 
-      Assert.That (result.GetType().GetElementType(), Is.EqualTo (type));
+      Assert.That (result.GetType().GetElementType(), Is.SameAs (type));
       Assert.That (result.Rank, Is.EqualTo (2));
       Assert.That (result.GetLength (0), Is.EqualTo (7));
       Assert.That (result.GetLength (1), Is.EqualTo (8));
@@ -140,7 +141,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var result = (Array) method.Invoke (null, new object[] { 7, 8 });
 
-      Assert.That (result.GetType().GetElementType(), Is.EqualTo (type.MakeArrayType()));
+      Assert.That (result.GetType().GetElementType(), Is.SameAs (type.MakeArrayType()));
       Assert.That (result.Rank, Is.EqualTo (1));
       Assert.That (result.Length, Is.EqualTo (2));
       Assert.That (result.GetValue (0).As<Array>().Length, Is.EqualTo (7));
@@ -168,7 +169,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void UnsupportedArrayMembers ()
     {
-      SkipSavingAndPeVerification();
+      SkipSavingAndPeVerification ();
 
       CheckThrowsNotSupportedException (
           ctx =>
@@ -206,6 +207,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType
     {
+      // TODO Review: Integration test with GetOrAddOverride and T[] parameter, List<T[]>
       public virtual T[] GenericVector<T> () { throw new NotImplementedException(); }
     }
   }

@@ -41,7 +41,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly CustomType _elementType;
     private readonly int _rank;
 
-    // TODO 5452 Make eager again
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _interfaces;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<MethodInfo>> _methods;
@@ -61,7 +60,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       SetBaseType (typeof (Array));
 
+      // TODO Review: Comment why laziness is required.
+
       // ReSharper disable DoNotCallOverridableMethodsInConstructor
+      // TODO 5057: Use Lazy<>
       _interfaces = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateInterfaces (elementType).ToList().AsReadOnly());
       _constructors = new DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors (rank).ToList().AsReadOnly());
       // ReSharper restore DoNotCallOverridableMethodsInConstructor

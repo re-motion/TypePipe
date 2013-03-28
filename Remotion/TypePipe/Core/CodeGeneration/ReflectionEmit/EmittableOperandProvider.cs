@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      Func<Type, Type> emittableInstantiationProvider = t =>
+      Func<Type, Type> emittableTypeProvider = t =>
       {
         var typeInstantiation = t as TypeInstantiation;
         if (typeInstantiation != null)
@@ -106,26 +106,35 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         if (delegateTypePlaceholder != null)
           return _delegateProvider.GetDelegateType (delegateTypePlaceholder.ReturnType, delegateTypePlaceholder.ParameterTypes);
 
+        Assertion.IsTrue (t is ByRefType || t is VectorType || t is MultiDimensionalArrayType);
+
         var emittableElementType = GetEmittableType (t.GetElementType());
         if (t is ByRefType)
           return emittableElementType.MakeByRefType();
         if (t is VectorType)
           return emittableElementType.MakeArrayType();
-        else // (t is MultiDimensionalArrayType)
+        else // MultiDimensionalArrayType
           return emittableElementType.MakeArrayType (t.GetArrayRank());
       };
 
-      return GetEmittableOperand (_mappedTypes, type, IsEmittable, emittableInstantiationProvider);
+      return GetEmittableOperand (_mappedTypes, type, emittableTypeProvider);
     }
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
+      // TODO Review: Like this:
+      //var emittableOperand = GetEmittableOperand (_mappedFields, field, null);
+      //if (emittableOperand != null)
+      //  return emittableOperand;
+      //
+      //Assertion.IsTrue (field is FieldOnTypeInstantiation);
+      //return GetEmittableMemberInstantiation ((FieldOnTypeInstantiation) field, fi => fi.FieldOnGenericType, TypeBuilder.GetField);
+
       return GetEmittableOperand (
           _mappedFields,
           field,
-          IsEmittable,
           f => GetEmittableMemberInstantiation (f, fi => ((FieldOnTypeInstantiation) fi).FieldOnGenericType, TypeBuilder.GetField));
     }
 
@@ -136,7 +145,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return GetEmittableOperand (
           _mappedConstructors,
           constructor,
-          IsEmittable,
           c => GetEmittableMemberInstantiation (c, ci => ((ConstructorOnTypeInstantiation) ci).ConstructorOnGenericType, TypeBuilder.GetConstructor));
     }
 
@@ -153,7 +161,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           return GetEmittableMemberInstantiation (m, mi => ((MethodOnTypeInstantiation) mi).MethodOnGenericType, TypeBuilder.GetMethod);
       };
 
-      return GetEmittableOperand (_mappedMethods, method, IsEmittable, emittableInstantiationProvider);
+      return GetEmittableOperand (_mappedMethods, method, emittableInstantiationProvider);
     }
 
     private static void AddMapping<TMutable, T> (Dictionary<TMutable, T> mapping, TMutable key, T value)
@@ -171,27 +179,24 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mapping.Add (key, value);
     }
 
-    private bool IsEmittable (Type type)
+    private T GetEmittableOperand<T> (Dictionary<T, T> mapping, T operand, Func<T, T> complexEmittableOperandTranslator)
+        where T : MemberInfo
     {
-      return !(type is CustomType);
-    }
-
-    private bool IsEmittable (MemberInfo member)
-    {
-      Debug.Assert (member is FieldInfo || member is ConstructorInfo || member is MethodInfo);
-
-      return !(member is CustomFieldInfo) && !(member is CustomConstructorInfo) && !(member is CustomMethodInfo);
-    }
-
-    private T GetEmittableOperand<T> (Dictionary<T, T> mapping, T operand, Predicate<T> isAlreadyEmittable, Func<T, T> emittableInstantiationProvider)
-    {
-      if (isAlreadyEmittable (operand))
+      if (IsEmittable (operand))
         return operand;
 
       if (operand is IMutableInfo)
         return mapping[operand];
+      // TODO Review: Return null here, move and inline lambda invocation to caller.
       else
-        return emittableInstantiationProvider (operand);
+        return complexEmittableOperandTranslator (operand);
+    }
+
+    private bool IsEmittable (MemberInfo member)
+    {
+      Debug.Assert (member is Type || member is FieldInfo || member is ConstructorInfo || member is MethodInfo);
+
+      return !(member is CustomType) && !(member is CustomFieldInfo) && !(member is CustomConstructorInfo) && !(member is CustomMethodInfo);
     }
 
     private Type GetEmittableTypeInstantiation (TypeInstantiation typeInstantiation)
