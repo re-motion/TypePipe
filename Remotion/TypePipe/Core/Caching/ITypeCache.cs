@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 
@@ -32,5 +33,7 @@ namespace Remotion.TypePipe.Caching
 
     Type GetOrCreateType (Type requestedType);
     Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
+
+    void LoadTypes (IEnumerable<Type> types);
   }
 }

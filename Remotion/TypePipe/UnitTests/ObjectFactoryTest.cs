@@ -16,11 +16,13 @@
 // 
 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests
@@ -125,12 +127,6 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
-    public void PrepareAssembledTypeInstance ()
-    {
-      Assert.That (() => _factory.PrepareExternalUninitializedObject (new object()), Throws.Nothing);
-    }
-
-    [Test]
     public void PrepareAssembledTypeInstance_Initializable ()
     {
       var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
@@ -138,6 +134,25 @@ namespace Remotion.TypePipe.UnitTests
       _factory.PrepareExternalUninitializedObject (initializableObjectMock);
 
       initializableObjectMock.AssertWasCalled (mock => mock.Initialize());
+    }
+
+    [Test]
+    public void PrepareAssembledTypeInstance_NonInitializable ()
+    {
+      Assert.That (() => _factory.PrepareExternalUninitializedObject (new object()), Throws.Nothing);
+    }
+
+    [Test]
+    public void LoadFlushedCode ()
+    {
+      var moduleBuilder = ReflectionEmitObjectMother.CreateModuleBuilder();
+      var type1 = moduleBuilder.DefineType ("Type1", TypeAttributes.Public).CreateType();
+      var type2 = moduleBuilder.DefineType ("Type2", TypeAttributes.NotPublic).CreateType();
+      _typeCacheMock.Expect (mock => mock.LoadTypes (new[] { type1, type2 }));
+
+      _factory.LoadFlushedCode (moduleBuilder.Assembly);
+
+      _typeCacheMock.VerifyAllExpectations();
     }
 
     class RequestedType { }

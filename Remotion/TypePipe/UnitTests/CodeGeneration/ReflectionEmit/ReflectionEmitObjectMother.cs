@@ -26,13 +26,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   public static class ReflectionEmitObjectMother
   {
-    public static TypeBuilder CreateTypeBuilder ()
+    public static ModuleBuilder CreateModuleBuilder ()
     {
       var assemblyName = "test";
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
 
-      return moduleBuilder.DefineType ("myType");
+      return moduleBuilder;
+    }
+
+    public static TypeBuilder CreateTypeBuilder ()
+    {
+      return CreateModuleBuilder().DefineType ("myType");
     }
 
     public static MethodBuilder CreateMethodBuilder ()

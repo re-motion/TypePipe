@@ -95,6 +95,12 @@ namespace Remotion.TypePipe.Caching
       return constructorCall;
     }
 
+    public void LoadTypes (IEnumerable<Type> types)
+    {
+      // TODO: lock!
+      throw new NotImplementedException();
+    }
+
     private Type GetOrCreateType (Type requestedType, object[] key)
     {
       Type generatedType;
