@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
-    protected ITypeAssemblyContextCodeGenerator CreateSubclassProxyCreator (string assemblyName)
+    protected ITypeAssemblyContextCodeGenerator CreateTypeAssemblyContextCodeGenerator (string assemblyName)
     {
       var subclassProxyBuilder = SafeServiceLocator.Current.GetInstance<ITypeAssemblyContextCodeGenerator>();
 
@@ -124,7 +124,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateSubclassProxyCreator");
+      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateTypeAssemblyContextCodeGenerator");
 
       var assemblyPath = _codeGenerator.FlushCodeToDisk();
       if (assemblyPath == null)
