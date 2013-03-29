@@ -21,7 +21,6 @@ using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Implementation;
@@ -73,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { initMethod }));
       Assert.That (initMethod.DeclaringType, Is.SameAs (_mutableType));
-      Assert.That (initMethod.Name, Is.EqualTo ("Remotion.TypePipe.Caching.IInitializableObject.Initialize"));
+      Assert.That (initMethod.Name, Is.EqualTo ("Remotion.TypePipe.Implementation.IInitializableObject.Initialize"));
       Assert.That (initMethod.Attributes, Is.EqualTo (methodAttributes));
       Assert.That (initMethod.ReturnType, Is.SameAs (typeof (void)));
       Assert.That (initMethod.GetParameters (), Is.Empty);
