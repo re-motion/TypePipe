@@ -60,7 +60,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       SetBaseType (typeof (Array));
 
-      // TODO Review: Comment why laziness is required.
+      // The lazy initialization of members is not only a performance optimization, but is needed to prevent eager evaluation of endless recursions.
+      // Example: typeof (T[]).GetInterface ("ICollection`1").GetMethod ("CopyTo").GetParameters()[0] --> T[]
 
       // ReSharper disable DoNotCallOverridableMethodsInConstructor
       // TODO 5057: Use Lazy<>
