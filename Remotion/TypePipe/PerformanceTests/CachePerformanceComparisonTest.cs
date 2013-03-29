@@ -130,6 +130,11 @@ namespace Remotion.TypePipe.PerformanceTests
         var mappingConfiguration = MappingConfiguration.Current;
         return mappingConfiguration.ContainsTypeDefinition (requestedType) ? mappingConfiguration.GetTypeDefinition (requestedType) : null;
       }
+
+      public object RebuildCacheKey (Type generatedType)
+      {
+        throw new NotImplementedException();
+      }
     }
 
     public class RemixCacheKeyProvider : ICacheKeyProvider
@@ -137,6 +142,11 @@ namespace Remotion.TypePipe.PerformanceTests
       public object GetCacheKey (Type requestedType)
       {
         return MixinConfiguration.ActiveConfiguration.GetContext (requestedType); // may be null
+      }
+
+      public object RebuildCacheKey (Type generatedType)
+      {
+        throw new NotImplementedException();
       }
     }
 

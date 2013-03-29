@@ -42,5 +42,9 @@ namespace Remotion.TypePipe.Caching
     /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
     /// </returns>
     object GetCacheKey (Type requestedType);
+
+    // TODO 5503: docs.
+    object RebuildCacheKey (Type generatedType);
+
   }
 }
