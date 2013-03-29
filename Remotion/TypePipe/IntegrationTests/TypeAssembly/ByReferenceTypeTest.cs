@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -30,18 +29,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void MutableByRefType ()
     {
-      // TODO Review: C# rep
+      // public static void Method (ProxyType& ptRef) {
+      //   ptRef = new ProxyType();
+      // }
       var type = AssembleType<DomainType> (
-          typeContext =>
-          {
-            var byRefType = typeContext.ProxyType.MakeByRefType();
-            typeContext.ProxyType.AddMethod (
-                "Method",
-                MethodAttributes.Public | MethodAttributes.Static,
-                typeof (void),
-                new[] { new ParameterDeclaration (byRefType) },
-                ctx => Expression.Assign (ctx.Parameters[0], Expression.New (typeContext.ProxyType)));
-          });
+          p => p.AddMethod (
+              "Method",
+              MethodAttributes.Public | MethodAttributes.Static,
+              typeof (void),
+              new[] { new ParameterDeclaration (p.MakeByRefType(), "ptRef") },
+              ctx => Expression.Assign (ctx.Parameters[0], Expression.New (p))));
 
       var method = type.GetMethod ("Method");
       var arguments = new object[] { null };
@@ -53,13 +50,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void GenericParameterByRefType ()
     {
-      // TODO Review: C# rep
+      // public class ProxyType : DomainType {
+      //   public virtual void GenericMethod<TRef', TOut'> (TRef' arg1, ref TRef' arg2, out TOut' arg3)
+      //       where TRef : IMyInterface
+      //   {
+      //     base.GenericMethod<TRef', TOut'> (arg1, ref arg2, out arg3);
+      //   }
+      // }
       var method = typeof (DomainType).GetMethod ("GenericMethod");
-      var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType o) => o.WasCalled);
+      var type = AssembleType<DomainType> (p => p.GetOrAddOverride (method));
 
-      var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (method).SetBody (
-              ctx => Expression.Block (ctx.PreviousBody, Expression.Assign (Expression.Field (ctx.This, field), Expression.Constant (true)))));
+      var methodOverride = type.GetMethod ("GenericMethod", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+      Assert.That (methodOverride, Is.Not.Null);
 
       var instance1 = (DomainType) Activator.CreateInstance (type);
       var instance2 = (DomainType) Activator.CreateInstance (type);
@@ -77,12 +79,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       instance1.GenericMethod (structIn, ref structRef, out structOut);
       instance2.GenericMethod (ifcIn, ref ifcRef, out ifcOut);
 
-      Assert.That (instance1.WasCalled, Is.True);
       Assert.That (structIn.Field, Is.EqualTo (0));
       Assert.That (structRef.Field, Is.EqualTo (1));
       Assert.That (structOut, Is.EqualTo (0));
 
-      Assert.That (instance2.WasCalled, Is.True);
       Assert.That (((MyStruct) ifcIn).Field, Is.EqualTo (1));
       Assert.That (((MyStruct) ifcRef).Field, Is.EqualTo (1));
       Assert.That (ifcOut, Is.Null);
@@ -113,8 +113,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType
     {
-      [UsedImplicitly] public bool WasCalled;
-
       public virtual void GenericMethod<TRef, TOut> (TRef arg1, ref TRef arg2, out TOut arg3)
           where TRef : IMyInterface
       {
