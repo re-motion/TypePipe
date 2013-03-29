@@ -22,10 +22,11 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests
+namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
   public class ObjectFactoryTest

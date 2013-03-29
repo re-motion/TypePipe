@@ -58,7 +58,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="Caching\IInitializableObject.cs" />
+    <Compile Include="Implementation\IInitializableObject.cs" />
     <Compile Include="CodeGeneration\DependentTypeSorter.cs" />
     <Compile Include="CodeGeneration\IDependentTypeSorter.cs" />
     <Compile Include="CodeGeneration\ProxyTypeAttribute.cs" />
@@ -403,7 +403,7 @@
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
     <Compile Include="IParticipant.cs" />
-    <Compile Include="ObjectFactory.cs" />
+    <Compile Include="Implementation\ObjectFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CodeGeneration\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />

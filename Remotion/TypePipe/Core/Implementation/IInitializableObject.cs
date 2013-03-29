@@ -15,9 +15,10 @@
 // under the License.
 // 
 
+using System;
 using System.Runtime.Serialization;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// This is an infastructure interface and not meant to be used outside of TypePipe code.

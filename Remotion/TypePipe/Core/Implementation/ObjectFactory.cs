@@ -22,7 +22,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe
+namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// Implements <see cref="IObjectFactory"/> to act as a main entry point into the pipeline for generating types and instantiating them.

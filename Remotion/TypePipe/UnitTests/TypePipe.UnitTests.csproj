@@ -240,7 +240,7 @@
     <Compile Include="MutableReflection\ParameterDeclarationObjectMother.cs" />
     <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
     <Compile Include="MutableReflection\UnsupportedMemberTestHelper.cs" />
-    <Compile Include="ObjectFactoryTest.cs" />
+    <Compile Include="Implementation\ObjectFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxyTest.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxyTest.cs" />

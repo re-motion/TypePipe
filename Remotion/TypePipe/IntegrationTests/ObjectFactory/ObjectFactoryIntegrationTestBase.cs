@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       var typeAssembler = new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, typeAssemblyContextCodeGenerator);
       var typeCache = new TypeCache (typeAssembler, new ConstructorFinder(), new DelegateFactory());
 
-      return new TypePipe.ObjectFactory (typeCache);
+      return new Implementation.ObjectFactory (typeCache);
     }
   }
 }

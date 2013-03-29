@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe
 {
