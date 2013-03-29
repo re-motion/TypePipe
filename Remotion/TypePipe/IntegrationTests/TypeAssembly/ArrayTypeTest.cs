@@ -170,45 +170,35 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           p => p.GetOrAddOverride (method).SetBody (ctx => Expression.NewArrayBounds (ctx.GenericParameters[0], Expression.Constant (7))));
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      var valueArray = instance.CreateGenericVector<int>();
-      var refArray = instance.CreateGenericVector<string>();
+      var valueVector = instance.CreateGenericVector<int>();
+      var refVector = instance.CreateGenericVector<string>();
 
-      var valueArrayType = valueArray.GetType();
+      var valueArrayType = valueVector.GetType();
       Assert.That (valueArrayType.GetElementType(), Is.SameAs (typeof (int)));
       Assert.That (valueArrayType.GetArrayRank(), Is.EqualTo (1));
-      Assert.That (valueArray.Length, Is.EqualTo (7));
-      Assert.That (refArray.GetType().GetElementType(), Is.SameAs (typeof (string)));
+      Assert.That (valueVector.Length, Is.EqualTo (7));
+      Assert.That (refVector.GetType().GetElementType(), Is.SameAs (typeof (string)));
     }
 
     [Test]
     public void CopyGenericListToVector ()
     {
-      // public T'[] CopyGenericListToArray<T'> (List<T'> list) () {
-      //   T'[] vector = new T'[list.Count];
-      //   return list.CopyTo (vector, 0);
+      // public T'[] CopyGenericListToArray<T'> (List<T[]'> list) () {
+      //   return list[0];
       // }
       var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.CopyGenericListToArray<Dev.T> (null));
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (method).SetBody (
-              ctx =>
-              {
-                var array = Expression.Variable (ctx.GenericParameters[0].MakeArrayType(), "vector");
-                return Expression.Block (
-                    new[] { array },
-                    Expression.Assign (array, Expression.NewArrayBounds(ctx.GenericParameters[0], Expression.Property(ctx.Parameters[0], "Count"))),
-                    Expression.Call (ctx.Parameters[0], "CopyTo", Type.EmptyTypes, array, Expression.Constant (0)),
-                    array);
-              }));
+          p => p.GetOrAddOverride (method).SetBody (ctx => Expression.Property (ctx.Parameters[0], "Item", Expression.Constant (0))));
 
       var instance = (DomainType) Activator.CreateInstance (type);
-      var valueList = new List<int> { 1, 2, 3 };
-      var refList = new List<string> { "1", "2", "3" };
+      var valVector = new int[0];
+      var refVector = new string[0];
 
-      var result1 = instance.CopyGenericListToArray (valueList);
-      var result2 = instance.CopyGenericListToArray (refList);
+      var result1 = instance.CopyGenericListToArray (new List<int[]> { valVector });
+      var result2 = instance.CopyGenericListToArray (new List<string[]> { refVector });
 
-      Assert.That (result1, Is.EqualTo (valueList));
-      Assert.That (result2, Is.EqualTo (refList));
+      Assert.That (result1, Is.SameAs (valVector));
+      Assert.That (result2, Is.SameAs (refVector));
     }
 
     [Test]
@@ -252,9 +242,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType
     {
-      // TODO Review: Integration test with GetOrAddOverride and T[] parameter, List<T[]>
       public virtual T[] CreateGenericVector<T> () { return null; }
-      public virtual T[] CopyGenericListToArray<T> (List<T> list) { return null; }
+      public virtual T[] CopyGenericListToArray<T> (List<T[]> list) { return null; }
     }
   }
 }
