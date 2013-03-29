@@ -33,6 +33,7 @@ using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
+  [Ignore ("TODO 5500")]
   [TestFixture]
   public class StrongNamingTest : ObjectFactoryIntegrationTestBase
   {

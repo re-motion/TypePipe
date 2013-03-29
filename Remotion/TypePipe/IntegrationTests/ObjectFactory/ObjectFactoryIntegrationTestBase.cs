@@ -19,10 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Remotion.Reflection;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -37,11 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
-      var participantConfigurationID = GetType().Name;
-      var testName = GetNameForThisTest (stackFramesToSkip + 1);
-      var mutableTypeFactory = SafeServiceLocator.Current.GetInstance<IMutableTypeFactory>();
-      var typeAssemblyContextCodeGenerator = CreateTypeAssemblyContextCodeGenerator (testName);
-      var typeAssembler = new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, typeAssemblyContextCodeGenerator);
+      var typeAssembler = CreateTypeAssembler (participants, stackFramesToSkip + 1);
       var typeCache = new TypeCache (typeAssembler, new ConstructorFinder(), new DelegateFactory());
 
       return new Implementation.ObjectFactory (typeCache);

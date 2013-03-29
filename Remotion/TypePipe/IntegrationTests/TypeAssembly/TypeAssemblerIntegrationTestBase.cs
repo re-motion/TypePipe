@@ -23,7 +23,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -58,8 +57,10 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType (Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions, int stackFramesToSkip)
     {
-      var testName = GetNameForThisTest (stackFramesToSkip + 1);
-      return AssembleType (testName, requestedType, participantActions);
+      var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
+      var typeAssembler = CreateTypeAssembler (participants, stackFramesToSkip);
+
+      return typeAssembler.AssembleType (requestedType, participantState: new Dictionary<string, object>());
     }
 
     protected MethodInfo GetDeclaredMethod (Type type, string name)
@@ -85,17 +86,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       bodyProvider = bodyProvider ?? (ctx => Expression.Default (template.ReturnType));
       var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
       return mutableType.AddMethod (template.Name, adjustedAttributes, methodDeclaration, bodyProvider);
-    }
-
-    private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions)
-    {
-      var participantConfigurationID = GetType().Name;
-      var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
-      var mutableTypeFactory = SafeServiceLocator.Current.GetInstance<IMutableTypeFactory>();
-      var typeAssemblyContextCodeGenerator = CreateTypeAssemblyContextCodeGenerator (testName);
-      var typeAssembler = new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, typeAssemblyContextCodeGenerator);
-
-      return typeAssembler.AssembleType (requestedType, participantState: new Dictionary<string, object>());
     }
   }
 }
