@@ -28,6 +28,7 @@ using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.Caching
 {
@@ -47,6 +48,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorFinder _constructorFinderMock;
     private IDelegateFactory _delegateFactoryMock;
+    private ICodeGenerator _fakeCodeGenerator;
 
     private TypeCache _cache;
 
@@ -56,8 +58,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     private object _lockObject;
     private Dictionary<object[], Type> _types;
     private Dictionary<object[], Delegate> _constructorCalls;
-
-    private ICodeGenerator _fakeCodeGenerator;
+    private IDictionary<string, object> _participantState;
 
     [SetUp]
     public void SetUp ()
@@ -77,6 +78,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _lockObject = PrivateInvoke.GetNonPublicField (_cache, "_lock");
       _types = (Dictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (Dictionary<object[], Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
+      _participantState = (IDictionary<string, object>) PrivateInvoke.GetNonPublicField (_cache, "_participantState");
 
       _requestedType = ReflectionObjectMother.GetSomeType();
       _delegateType = ReflectionObjectMother.GetSomeDelegateType();
@@ -125,7 +127,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lockObject))
           .Return (new object[] { null, "other key" });
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (_requestedType, GetParticipantState (_cache)))
+          .Expect (mock => mock.AssembleType (_requestedType, _participantState))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_generatedType2);
 
@@ -192,7 +194,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_fakeSignature);
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (_requestedType, GetParticipantState (_cache)))
+          .Expect (mock => mock.AssembleType (_requestedType, _participantState))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_generatedType2);
       _constructorFinderMock
@@ -212,12 +214,36 @@ namespace Remotion.TypePipe.UnitTests.Caching
       Assert.That (_constructorCalls[new object[] { _requestedType, _delegateType, _allowNonPublic, "other type key" }], Is.SameAs (_delegate2));
     }
 
-    private IDictionary<string, object> GetParticipantState (TypeCache typeCache)
+    [Test]
+    public void LoadTypes ()
     {
-      return (IDictionary<string, object>) PrivateInvoke.GetNonPublicField (typeCache, "_participantState");
+      _typeAssemblerMock
+          .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
+          .Return (new object[] { null, "type key" });
+
+      _cache.LoadTypes (new[] { _generatedType1, _generatedType2 }.AsOneTime());
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
     }
 
+    [Test]
+    [ExpectedException (typeof (ArgumentException))]
+    public void LoadTypes_SameKey ()
+    {
+      _typeAssemblerMock
+          .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
+          .Return (new object[] { null, "type key" })
+          .Repeat.Twice();
+
+      _cache.LoadTypes (new[] { _generatedType1, _generatedType1 });
+    }
+
+    [ProxyType]
     private class GeneratedType1 { }
-    private class GeneratedType2 { }
+    private class GeneratedType2 : ProxyBaseType { }
+    [ProxyType]
+    private class ProxyBaseType {}
   }
 }

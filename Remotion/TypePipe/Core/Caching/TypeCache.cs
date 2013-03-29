@@ -68,10 +68,8 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      var key = _typeAssembler.GetCompoundCacheKey (s_fromRequestedType, requestedType, freeSlotsAtStart: 1);
-      key[0] = requestedType;
-
-      return GetOrCreateType (requestedType, key);
+      var key = GetTypeKey (requestedType, s_fromRequestedType, requestedType);
+      return GetOrCreateType (key, requestedType);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -79,20 +77,15 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      var key = _typeAssembler.GetCompoundCacheKey (s_fromRequestedType, requestedType, freeSlotsAtStart: 3);
-      key[0] = requestedType;
-      key[1] = delegateType;
-      key[2] = allowNonPublic;
+      var key = GetConstructorKey (requestedType, delegateType, allowNonPublic);
 
       Delegate constructorCall;
       lock (_lock)
       {
         if (!_constructorCalls.TryGetValue (key, out constructorCall))
         {
-          // Translate constructor key to type key.
-          var typeKey = key.Where ((k, i) => i != 1 && i != 2).ToArray();
-
-          var generatedType = GetOrCreateType (requestedType, typeKey);
+          var typeKey = GetTypeKeyFromConstructorKey (key);
+          var generatedType = GetOrCreateType (typeKey, requestedType);
           var ctorSignature = _delegateFactory.GetSignature (delegateType);
           var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
 
@@ -104,25 +97,56 @@ namespace Remotion.TypePipe.Caching
       return constructorCall;
     }
 
-    public void LoadTypes (IEnumerable<Type> types)
+    public void LoadTypes (IEnumerable<Type> generatedTypes)
     {
-      // TODO: lock!
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
+
+      var proxyTypes = generatedTypes.Where (t => t.IsDefined (typeof (ProxyTypeAttribute), inherit: false));
+      var keysAndTypes = proxyTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t });
+
+      lock (_lock)
+      {
+        foreach (var pair in keysAndTypes)
+          _types.Add (pair.Key, pair.Type);
+      }
     }
 
-    private Type GetOrCreateType (Type requestedType, object[] key)
+    private Type GetOrCreateType (object[] typeKey, Type requestedType)
     {
       Type generatedType;
       lock (_lock)
       {
-        if (!_types.TryGetValue (key, out generatedType))
+        if (!_types.TryGetValue (typeKey, out generatedType))
         {
           generatedType = _typeAssembler.AssembleType (requestedType, _participantState);
-          _types.Add (key, generatedType);
+          _types.Add (typeKey, generatedType);
         }
       }
 
       return generatedType;
+    }
+
+    private object[] GetTypeKey (Type requestedType, Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type fromType)
+    {
+      var key = _typeAssembler.GetCompoundCacheKey (cacheKeyProviderMethod, fromType, freeSlotsAtStart: 1);
+      key[0] = requestedType;
+
+      return key;
+    }
+
+    private object[] GetConstructorKey (Type requestedType, Type delegateType, bool allowNonPublic)
+    {
+      var key = _typeAssembler.GetCompoundCacheKey (s_fromRequestedType, requestedType, freeSlotsAtStart: 3);
+      key[0] = requestedType;
+      key[1] = delegateType;
+      key[2] = allowNonPublic;
+
+      return key;
+    }
+
+    private object[] GetTypeKeyFromConstructorKey (object[] constructorKey)
+    {
+      return constructorKey.Where ((keyPart, i) => i != 1 && i != 2).ToArray();
     }
   }
 }

@@ -61,6 +61,7 @@
     <Compile Include="Caching\IInitializableObject.cs" />
     <Compile Include="CodeGeneration\DependentTypeSorter.cs" />
     <Compile Include="CodeGeneration\IDependentTypeSorter.cs" />
+    <Compile Include="CodeGeneration\ProxyTypeAttribute.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBase.cs" />
