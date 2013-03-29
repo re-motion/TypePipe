@@ -26,7 +26,6 @@ using Remotion.Mixins;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Rhino.Mocks;
 using System.Linq;
