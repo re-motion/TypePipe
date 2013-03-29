@@ -146,7 +146,11 @@ namespace Remotion.TypePipe.Caching
 
     private object[] GetTypeKeyFromConstructorKey (object[] constructorKey)
     {
-      return constructorKey.Where ((keyPart, i) => i != 1 && i != 2).ToArray();
+      var typeKey = new object[constructorKey.Length - 2];
+      typeKey[0] = constructorKey[0];
+      Array.Copy (constructorKey, 3, typeKey, 1, constructorKey.Length - 3);
+
+      return typeKey;
     }
   }
 }
