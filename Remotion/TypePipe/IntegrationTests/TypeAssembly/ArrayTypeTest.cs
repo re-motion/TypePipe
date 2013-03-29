@@ -181,7 +181,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void CopyGenericListToVector ()
+    public void GenericVectorInTypeInstantiation ()
     {
       // public T'[] CopyGenericListToArray<T'> (List<T[]'> list) () {
       //   return list[0];

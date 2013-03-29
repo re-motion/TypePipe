@@ -27,7 +27,6 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
-  // TODO Review: Check that no cache entry is created for CustomTypes.
   /// <summary>
   /// Acts as a placeholder for delegate <see cref="Type"/>s in the <see cref="LambdaCompiler"/> and must be replaced during code generation.
   /// </summary>
