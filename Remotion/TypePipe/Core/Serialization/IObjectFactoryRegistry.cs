@@ -22,36 +22,34 @@ using Remotion.TypePipe.Serialization.Implementation;
 namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
-  /// Allows the registration of an <see cref="IObjectFactory"/> under a given factory identifier. The object factory is used during the .NET 
-  /// deserialization process of objects which were created from another factory with the same identifier. Therefore the two object
-  /// factory instances should use the same participants and participant configurations, in order to generate equivalent types for the requested
-  /// type. This allows the serialization of object instances without saving the generated assemblies to disk.
+  /// Allows the registration of an <see cref="IObjectFactory"/> under a given participant configuration identifier.
+  /// The object factory is used during the .NET deserialization process of objects which were created from another factory with the same identifier.
+  /// Therefore the two object factory instances should use the same participants and participant configurations, in order to generate equivalent
+  /// types for the requested type. This allows the serialization of object instances without saving the generated assemblies to disk.
   /// </summary>
-  /// 
   [ConcreteImplementation (typeof (ObjectFactoryRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IObjectFactoryRegistry
   {
     /// <summary>
-    /// Registers an <see cref="IObjectFactory"/> under the specified identifier.
+    /// Registers an <see cref="IObjectFactory"/> under the specified participant configuration identifier.
     /// </summary>
     /// <exception cref="InvalidOperationException">If a factory is already registered under the specified identifier.</exception>
-    /// <param name="factoryIdentifier">The factory identifier.</param>
     /// <param name="objectFactory">The object factory to register.</param>
-    void Register (string factoryIdentifier, IObjectFactory objectFactory);
+    void Register (IObjectFactory objectFactory);
 
     /// <summary>
-    /// Unregisters the <see cref="IObjectFactory"/> instance that is currently registered under the specified identifier.
+    /// Unregisters the <see cref="IObjectFactory"/> instance that is currently registered under the specified participant configuration identifier.
     /// No exception is thrown if no factory is registered under the given identifier.
     /// </summary>
-    /// <param name="factoryIdentifier">The factory identifier.</param>
-    void Unregister (string factoryIdentifier);
+    /// <param name="participantConfigurationID">The participant configuration identifier.</param>
+    void Unregister (string participantConfigurationID);
 
     /// <summary>
-    /// Retrieves the <see cref="IObjectFactory"/> instance that is registered under the specified identifier.
+    /// Retrieves the <see cref="IObjectFactory"/> instance that is registered under the specified participant configuration identifier.
     /// </summary>
     /// <exception cref="InvalidOperationException">If no factory is registered under the specified identifier.</exception>
-    /// <param name="factoryIdentifier">The factory identifier.</param>
+    /// <param name="participantConfigurationID">The participant configuration identifier.</param>
     /// <returns>The registered object factory.</returns>
-    IObjectFactory Get (string factoryIdentifier);
+    IObjectFactory Get (string participantConfigurationID);
   }
 }

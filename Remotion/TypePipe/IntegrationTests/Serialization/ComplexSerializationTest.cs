@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       {
         var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
         // Register a factory for deserialization in current (new) app domain.
-        registry.Register (c_factoryIdentifier, factory);
+        registry.Register (factory);
       }
     }
 

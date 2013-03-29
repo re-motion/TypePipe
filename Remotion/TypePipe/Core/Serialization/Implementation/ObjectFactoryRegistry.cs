@@ -16,52 +16,51 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IObjectFactoryRegistry"/> by using a simple <see cref="Dictionary{TKey,TValue}"/>.
+  /// Implements <see cref="IObjectFactoryRegistry"/> by using a thread-safe <see cref="IDataStore{TKey,TValue}"/>.
   /// </summary>
   public class ObjectFactoryRegistry : IObjectFactoryRegistry
   {
     private readonly IDataStore<string, IObjectFactory> _objectFactories = DataStoreFactory.CreateWithLocking<string, IObjectFactory>();
 
-    public void Register (string factoryIdentifier, IObjectFactory objectFactory)
+    public void Register (IObjectFactory objectFactory)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
       ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
+      Assertion.IsNotNull (objectFactory.ParticipantConfigurationID);
 
       // Cannot use ContainsKey/Add combination as this would introduce a race condition.
       try
       {
-        _objectFactories.Add (factoryIdentifier, objectFactory);
+        _objectFactories.Add (objectFactory.ParticipantConfigurationID, objectFactory);
       }
       catch (ArgumentException)
       {
-        var message = string.Format ("Another factory is already registered for identifier '{0}'.", factoryIdentifier);
+        var message = string.Format ("Another factory is already registered for identifier '{0}'.", objectFactory.ParticipantConfigurationID);
         throw new InvalidOperationException (message);
       }
     }
 
-    public void Unregister (string factoryIdentifier)
+    public void Unregister (string participantConfigurationID)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      _objectFactories.Remove (factoryIdentifier);
+      _objectFactories.Remove (participantConfigurationID);
     }
 
-    public IObjectFactory Get (string factoryIdentifier)
+    public IObjectFactory Get (string participantConfigurationID)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      var objectFactory = _objectFactories.GetValueOrDefault (factoryIdentifier);
+      var objectFactory = _objectFactories.GetValueOrDefault (participantConfigurationID);
 
       if (objectFactory == null)
       {
-        var message = string.Format ("No factory registered for identifier '{0}'.", factoryIdentifier);
+        var message = string.Format ("No factory registered for identifier '{0}'.", participantConfigurationID);
         throw new InvalidOperationException (message);
       }
 

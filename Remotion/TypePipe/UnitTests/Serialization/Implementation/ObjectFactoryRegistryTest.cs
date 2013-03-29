@@ -28,14 +28,15 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
   {
     private ObjectFactoryRegistry _registry;
 
-    private IObjectFactory _fakeObjectFactory;
+    private IObjectFactory _objectFactoryStub;
 
     [SetUp]
     public void SetUp ()
     {
       _registry = new ObjectFactoryRegistry();
 
-      _fakeObjectFactory = MockRepository.GenerateStub<IObjectFactory> ();
+      _objectFactoryStub = MockRepository.GenerateStub<IObjectFactory>();
+      _objectFactoryStub.Stub (stub => stub.ParticipantConfigurationID).Return ("configId");
     }
 
     [Test]
@@ -49,29 +50,29 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     [Test]
     public void RegisterAndGet ()
     {
-      _registry.Register ("factory1", _fakeObjectFactory);
+      _registry.Register (_objectFactoryStub);
 
-      Assert.That (_registry.Get ("factory1"), Is.SameAs (_fakeObjectFactory));
+      Assert.That (_registry.Get ("configId"), Is.SameAs (_objectFactoryStub));
     }
 
     [Test]
     public void RegisterAndUnregister ()
     {
-      _registry.Register ("factory1", _fakeObjectFactory);
-      Assert.That (_registry.Get ("factory1"), Is.Not.Null);
+      _registry.Register (_objectFactoryStub);
+      Assert.That (_registry.Get ("configId"), Is.Not.Null);
 
-      _registry.Unregister ("factory1");
+      _registry.Unregister ("configId");
 
-      Assert.That (() => _registry.Get ("factory1"), Throws.InvalidOperationException);
-      Assert.That (() => _registry.Unregister ("factory1"), Throws.Nothing);
+      Assert.That (() => _registry.Get ("configId"), Throws.InvalidOperationException);
+      Assert.That (() => _registry.Unregister ("configId"), Throws.Nothing);
     }
 
     [Test]
-    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "Another factory is already registered for identifier 'existingFactory'.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another factory is already registered for identifier 'configId'.")]
     public void Register_ExistingFactory ()
     {
-      Assert.That (() => _registry.Register ("existingFactory", MockRepository.GenerateStub<IObjectFactory>()), Throws.Nothing);
-      _registry.Register ("existingFactory", MockRepository.GenerateStub<IObjectFactory> ());
+      Assert.That (() => _registry.Register (_objectFactoryStub), Throws.Nothing);
+      _registry.Register (_objectFactoryStub);
     }
 
     [Test]
