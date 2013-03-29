@@ -31,6 +31,12 @@ namespace Remotion.TypePipe.Caching
   /// <remarks>This class ensures a single threaded-environment for all downstream implementation classes.</remarks>
   public class TypeCache : ITypeCache
   {
+    // Storing the delegates as static readonly fields has two advantages for performance:
+    // 1) It ensures that no closure is implicilty created.
+    // 2) We do not create new delegate instances every time a cache key is computed.
+    private static readonly Func<ICacheKeyProvider, Type, object> s_fromRequestedType = (ckp, t) => ckp.GetCacheKey (t);
+    private static readonly Func<ICacheKeyProvider, Type, object> s_fromGeneratedType = (ckp, t) => ckp.RebuildCacheKey (t);
+
     private readonly object _lock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
@@ -62,9 +68,10 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      var cacheKey = _typeAssembler.GetCompoundCacheKey (requestedType, freeSlotsAtStart: 0);
+      var key = _typeAssembler.GetCompoundCacheKey (s_fromRequestedType, requestedType, freeSlotsAtStart: 1);
+      key[0] = requestedType;
 
-      return GetOrCreateType (requestedType, cacheKey);
+      return GetOrCreateType (requestedType, key);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -72,17 +79,19 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      const int additionalCacheKeyElements = 2;
-      var key = _typeAssembler.GetCompoundCacheKey (requestedType, freeSlotsAtStart: additionalCacheKeyElements);
-      key[0] = delegateType;
-      key[1] = allowNonPublic;
+      var key = _typeAssembler.GetCompoundCacheKey (s_fromRequestedType, requestedType, freeSlotsAtStart: 3);
+      key[0] = requestedType;
+      key[1] = delegateType;
+      key[2] = allowNonPublic;
 
       Delegate constructorCall;
       lock (_lock)
       {
         if (!_constructorCalls.TryGetValue (key, out constructorCall))
         {
-          var typeKey = key.Skip (additionalCacheKeyElements).ToArray ();
+          // Translate constructor key to type key.
+          var typeKey = key.Where ((k, i) => i != 1 && i != 2).ToArray();
+
           var generatedType = GetOrCreateType (requestedType, typeKey);
           var ctorSignature = _delegateFactory.GetSignature (delegateType);
           var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);

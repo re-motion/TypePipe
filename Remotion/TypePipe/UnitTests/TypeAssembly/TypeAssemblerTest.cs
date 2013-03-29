@@ -24,7 +24,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
@@ -32,9 +31,14 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   [TestFixture]
   public class TypeAssemblerTest
   {
+    public interface ICachKeyProviderMethod
+    {
+      object M (ICacheKeyProvider cacheKeyProvider, Type type);
+    }
+
     private IMutableTypeFactory _mutableTypeFactoryMock;
     private ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGeneratorMock;
-    
+
     private Type _requestedType;
     private IDictionary<string, object> _participantState;
 
@@ -44,7 +48,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<ITypeAssemblyContextCodeGenerator> ();
 
-      _requestedType = CustomTypeObjectMother.Create (name: "RequestedType");
+      _requestedType = ReflectionObjectMother.GetSomeType();
       _participantState = new Dictionary<string, object>();
     }
 
@@ -75,14 +79,21 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void GetCompoundCacheKey ()
     {
-      var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
-      var participantMock1 = CreateCacheKeyReturningParticipantMock (requestedType, 1);
-      var participantMock2 = CreateCacheKeyReturningParticipantMock (requestedType, "2");
+      var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
+      var participantMock2 = MockRepository.GenerateStrictMock<IParticipant>();
+      var partialCacheKeyProviderMock1 = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
+      var partialCacheKeyProviderMock2 = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
+      participantMock1.Expect (mock => mock.PartialCacheKeyProvider).Return (partialCacheKeyProviderMock1);
+      participantMock2.Expect (mock => mock.PartialCacheKeyProvider).Return (partialCacheKeyProviderMock2);
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
-      var result = typeAssembler.GetCompoundCacheKey (requestedType, 3);
+      var cachKeyProviderMethod = MockRepository.GenerateStrictMock<ICachKeyProviderMethod>();
+      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock1, _requestedType)).Return (1);
+      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock2, _requestedType)).Return ("2");
 
-      Assert.That (result, Is.EqualTo (new object[] { null, null, null, requestedType, 1, "2" }));
+      var result = typeAssembler.GetCompoundCacheKey (cachKeyProviderMethod.M, _requestedType, 2);
+
+      Assert.That (result, Is.EqualTo (new object[] { null, null, 1, "2" }));
     }
 
     [Test]
@@ -150,7 +161,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       _typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.GenerateTypes (Arg<TypeAssemblyContext>.Is.Anything)).Throw (exception3);
       var typeAssembler = CreateTypeAssembler (participants: MockRepository.GenerateStub<IParticipant>());
 
-      var expectedMessageRegex = "An error occurred during code generation for 'RequestedType':\r\nblub\r\n"
+      var expectedMessageRegex = "An error occurred during code generation for '" + _requestedType.Name + "':\r\nblub\r\n"
                                  + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
       Assert.That (
           () => typeAssembler.AssembleType (_requestedType, _participantState),
@@ -168,17 +179,6 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator ?? _typeAssemblyContextCodeGeneratorMock;
 
       return new TypeAssembler (participants.AsOneTime(), mutableTypeFactory, typeAssemblyContextCodeGenerator);
-    }
-
-    private IParticipant CreateCacheKeyReturningParticipantMock (Type requestedType, object cacheKey)
-    {
-      var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
-      var cacheKeyProviderMock = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
-
-      participantMock.Expect (mock => mock.PartialCacheKeyProvider).Return (cacheKeyProviderMock);
-      cacheKeyProviderMock.Expect (mock => mock.GetCacheKey (requestedType)).Return (cacheKey);
-
-      return participantMock;
     }
   }
 }

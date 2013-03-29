@@ -31,13 +31,16 @@ namespace Remotion.TypePipe.CodeGeneration
     ICodeGenerator CodeGenerator { get; }
 
     /// <summary>
-    /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s and the
-    /// <paramref name="requestedType"/>. The return value of this method is an object array for performance reasons.
+    /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s of the participants.
+    /// The return value of this method is an object array for performance reasons.
     /// </summary>
-    /// <param name="requestedType">The requested type.</param>
+    /// <param name="cacheKeyProviderMethod">
+    ///   A function delegate that computes one part of the cache key by calling the appropriate method on <see cref="ICacheKeyProvider"/>.
+    /// </param>
+    /// <param name="type">The requested or generated type.</param>
     /// <param name="freeSlotsAtStart">Number of slots beginning at the start of the array which are reserved for use by the caller.</param>
     /// <returns>The compound cache key.</returns>
-    object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart);
+    object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
 
     Type AssembleType (Type requestedType, IDictionary<string, object> participantState);
   }

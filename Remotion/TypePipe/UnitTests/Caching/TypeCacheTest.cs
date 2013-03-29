@@ -50,6 +50,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     private TypeCache _cache;
 
+    private Func<ICacheKeyProvider, Type, object> _fromRequestedTypeFunc;
+    private Func<ICacheKeyProvider, Type, object> _fromGeneratedTypeFunc;
+
     private object _lockObject;
     private Dictionary<object[], Type> _types;
     private Dictionary<object[], Delegate> _constructorCalls;
@@ -67,6 +70,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeAssemblerMock.Expect (mock => mock.CodeGenerator).Return (_fakeCodeGenerator);
 
       _cache = new TypeCache (_typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock);
+
+      _fromRequestedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
+      _fromGeneratedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromGeneratedType");
 
       _lockObject = PrivateInvoke.GetNonPublicField (_cache, "_lock");
       _types = (Dictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
@@ -100,8 +106,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void GetOrCreateType_CacheHit ()
     {
-      _types.Add (new object[] { "key" }, _generatedType1);
-      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType, 0)).Return (new object[] { "key" });
+      _types.Add (new object[] { _requestedType, "key" }, _generatedType1);
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 1))
+                        .Return (new object[] { null, "key" });
 
       var result = _cache.GetOrCreateType (_requestedType);
 
@@ -112,11 +119,11 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void GetOrCreateType_CacheMiss ()
     {
-      _types.Add (new object[] { "key" }, _generatedType1);
+      _types.Add (new object[] { _requestedType, "key" }, _generatedType1);
       _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 0))
+          .Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 1))
           .WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lockObject))
-          .Return (new object[] { "other key" });
+          .Return (new object[] { null, "other key" });
       _typeAssemblerMock
           .Expect (mock => mock.AssembleType (_requestedType, GetParticipantState (_cache)))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
@@ -126,14 +133,15 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_generatedType2));
-      Assert.That (_types[new object[] { "other key" }], Is.SameAs (_generatedType2));
+      Assert.That (_types[new object[] { _requestedType, "other key" }], Is.SameAs (_generatedType2));
     }
 
     [Test]
     public void GetOrCreateConstructorCall_CacheHit ()
     {
-      _constructorCalls.Add (new object[] { _delegateType, _allowNonPublic, "key" }, _delegate1);
-      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2)).Return (new object[] { null, null, "key" });
+      _constructorCalls.Add (new object[] { _requestedType, _delegateType, _allowNonPublic, "key" }, _delegate1);
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 3))
+                        .Return (new object[] { null, null, null, "key" });
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
@@ -144,12 +152,12 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void GetOrCreateConstructorCall_CacheMissDelegates_CacheHitTypes ()
     {
-      _constructorCalls.Add (new object[] { _delegateType, _allowNonPublic, "key" }, _delegate1);
-      _types.Add (new object[] { "type key" }, _generatedType1);
+      _constructorCalls.Add (new object[] { _requestedType, _delegateType, _allowNonPublic, "ctor key" }, _delegate1);
+      _types.Add (new object[] { _requestedType, "type key" }, _generatedType1);
       _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2))
+          .Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 3))
           .WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
-          .Return (new object[] { null, null, "type key" });
+          .Return (new object[] { null, null, null, "type key" });
       _delegateFactoryMock
           .Expect (mock => mock.GetSignature (_delegateType))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
@@ -167,18 +175,18 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_delegate2));
-      Assert.That (_constructorCalls[new object[] { _delegateType, _allowNonPublic, "type key" }], Is.SameAs (_delegate2));
+      Assert.That (_constructorCalls[new object[] { _requestedType, _delegateType, _allowNonPublic, "type key" }], Is.SameAs (_delegate2));
     }
 
     [Test]
     public void GetOrCreateConstructorCall_CacheMissDelegates_CacheMissTypes ()
     {
-      _constructorCalls.Add (new object[] { _delegateType, _allowNonPublic, "key" }, _delegate1);
-      _types.Add (new object[] { "type key" }, _generatedType1);
+      _constructorCalls.Add (new object[] { _requestedType, _delegateType, _allowNonPublic, "ctor key" }, _delegate1);
+      _types.Add (new object[] { _requestedType, "type key" }, _generatedType1);
       _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (_requestedType, 2))
+          .Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 3))
           .WhenCalled (mi => LockTestHelper.CheckLockIsNotHeld (_lockObject))
-          .Return (new object[] { null, null, "other type key" });
+          .Return (new object[] { null, null, null, "other type key" });
       _delegateFactoryMock
           .Expect (mock => mock.GetSignature (_delegateType))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
@@ -200,8 +208,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_delegate2));
-      Assert.That (_types[new object[] { "other type key" }], Is.SameAs (_generatedType2));
-      Assert.That (_constructorCalls[new object[] { _delegateType, _allowNonPublic, "other type key" }], Is.SameAs (_delegate2));
+      Assert.That (_types[new object[] { _requestedType, "other type key" }], Is.SameAs (_generatedType2));
+      Assert.That (_constructorCalls[new object[] { _requestedType, _delegateType, _allowNonPublic, "other type key" }], Is.SameAs (_delegate2));
     }
 
     private IDictionary<string, object> GetParticipantState (TypeCache typeCache)

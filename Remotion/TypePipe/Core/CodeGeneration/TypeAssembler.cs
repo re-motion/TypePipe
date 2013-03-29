@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -64,17 +63,15 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }
     }
 
-    public object[] GetCompoundCacheKey (Type requestedType, int freeSlotsAtStart)
+    public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      var compoundKey = new object[_cacheKeyProviders.Length + freeSlotsAtStart];
 
       // No LINQ for performance reasons.
-      var offset = freeSlotsAtStart + 1;
-      var compoundKey = new object[_cacheKeyProviders.Length + offset];
-      compoundKey[freeSlotsAtStart] = requestedType;
-
       for (int i = 0; i < _cacheKeyProviders.Length; ++i)
-        compoundKey[i + offset] = _cacheKeyProviders[i].GetCacheKey (requestedType);
+        compoundKey[freeSlotsAtStart + i] = cacheKeyProviderMethod (_cacheKeyProviders[i], type);
 
       return compoundKey;
     }
