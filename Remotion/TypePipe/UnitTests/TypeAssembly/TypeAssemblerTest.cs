@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -59,11 +60,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantWithCacheProviderStub = MockRepository.GenerateStub<IParticipant>();
       var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
       participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
-
       var participants = new[] { participantStub, participantWithCacheProviderStub };
-      var typeAssembler = new TypeAssembler (participants.AsOneTime (), _mutableTypeFactoryMock, _typeAssemblyContextCodeGeneratorMock);
 
-      Assert.That (typeAssembler.CacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
+      var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock, _typeAssemblyContextCodeGeneratorMock);
+
+      Assert.That (typeAssembler.ParticipantConfigurationID, Is.EqualTo ("configId"));
+      var cacheKeyProviders = PrivateInvoke.GetNonPublicField (typeAssembler, "_cacheKeyProviders");
+      Assert.That (cacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
     }
 
     [Test]
@@ -178,7 +181,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       mutableTypeFactory = mutableTypeFactory ?? _mutableTypeFactoryMock;
       typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator ?? _typeAssemblyContextCodeGeneratorMock;
 
-      return new TypeAssembler (participants.AsOneTime(), mutableTypeFactory, typeAssemblyContextCodeGenerator);
+      return new TypeAssembler ("id", participants.AsOneTime(), mutableTypeFactory, typeAssemblyContextCodeGenerator);
     }
   }
 }

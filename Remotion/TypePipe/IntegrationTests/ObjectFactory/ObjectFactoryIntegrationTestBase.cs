@@ -18,10 +18,11 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Remotion.Development.UnitTesting;
+using Remotion.Reflection;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using System.Linq;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -36,16 +37,14 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
-      var participantProviders = participants.Select (p => (Func<object>) (() => p));
+      var participantConfigurationID = GetType().Name;
       var testName = GetNameForThisTest (stackFramesToSkip + 1);
-      var subclassProxyBuilder = CreateTypeAssemblyContextCodeGenerator (testName);
+      var mutableTypeFactory = SafeServiceLocator.Current.GetInstance<IMutableTypeFactory>();
+      var typeAssemblyContextCodeGenerator = CreateTypeAssemblyContextCodeGenerator (testName);
+      var typeAssembler = new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, typeAssemblyContextCodeGenerator);
+      var typeCache = new TypeCache (typeAssembler, new ConstructorFinder(), new DelegateFactory());
 
-      var serviceLocator = new DefaultServiceLocator();
-      serviceLocator.Register (typeof (ITypeAssemblyContextCodeGenerator), () => subclassProxyBuilder);
-      serviceLocator.Register (typeof (IParticipant), participantProviders);
-
-      using (new ServiceLocatorScope (serviceLocator))
-        return SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      return new TypePipe.ObjectFactory (typeCache);
     }
   }
 }

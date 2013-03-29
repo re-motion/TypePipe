@@ -66,6 +66,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (_codeGenerator.FlushCodeToDisk(), Is.Null);
     }
 
+    [Ignore ("TODO 5500")]
     [Test]
     public void StandardNameAndDirectory_Initial ()
     {

@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class TypeAssembler : ITypeAssembler
   {
+    private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGenerator;
@@ -40,12 +41,17 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
     public TypeAssembler (
-        IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator)
+        string participantConfigurationID,
+        IEnumerable<IParticipant> participants,
+        IMutableTypeFactory mutableTypeFactory,
+        ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
 
+      _participantConfigurationID = participantConfigurationID;
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
       _typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator;
@@ -53,9 +59,9 @@ namespace Remotion.TypePipe.CodeGeneration
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
 
-    public ReadOnlyCollection<ICacheKeyProvider> CacheKeyProviders
+    public string ParticipantConfigurationID
     {
-      get { return _cacheKeyProviders.ToList().AsReadOnly(); }
+      get { return _participantConfigurationID; }
     }
 
     public ICodeGenerator CodeGenerator

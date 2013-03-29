@@ -111,6 +111,7 @@ namespace Remotion.TypePipe.IntegrationTests
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
     }
 
+    [MethodImpl (MethodImplOptions.NoInlining)]
     protected ITypeAssemblyContextCodeGenerator CreateTypeAssemblyContextCodeGenerator (string assemblyName)
     {
       var typeAssemblyContextCodeGenerator = SafeServiceLocator.Current.GetInstance<ITypeAssemblyContextCodeGenerator>();

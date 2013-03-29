@@ -59,6 +59,11 @@ namespace Remotion.TypePipe.Caching
       _codeGenerator = new LockingCodeGeneratorDecorator (_typeAssembler.CodeGenerator, _lock);
     }
 
+    public string ParticipantConfigurationID
+    {
+      get { return _typeAssembler.ParticipantConfigurationID; }
+    }
+
     public ICodeGenerator CodeGenerator
     {
       get { return _codeGenerator; }

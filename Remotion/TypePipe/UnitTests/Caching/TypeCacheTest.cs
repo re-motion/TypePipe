@@ -90,6 +90,17 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
+    public void ParticipantConfigurationID ()
+    {
+      _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return ("configId");
+
+      var result = _cache.ParticipantConfigurationID;
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo ("configId"));
+    }
+
+    [Test]
     public void CodeGenerator ()
     {
       var result = _cache.CodeGenerator;

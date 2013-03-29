@@ -47,6 +47,14 @@ namespace Remotion.TypePipe.UnitTests
     }
 
     [Test]
+    public void ParticipantConfigurationID ()
+    {
+      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return ("configId");
+
+      Assert.That (_factory.ParticipantConfigurationID, Is.EqualTo ("configId"));
+    }
+
+    [Test]
     public void CodeGenerator ()
     {
       var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();

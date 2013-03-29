@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
@@ -37,6 +36,11 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
 
       _typeCache = typeCache;
+    }
+
+    public string ParticipantConfigurationID
+    {
+      get { return _typeCache.ParticipantConfigurationID; }
     }
 
     public ICodeGenerator CodeGenerator

@@ -29,6 +29,7 @@ namespace Remotion.TypePipe.Caching
   [ConcreteImplementation (typeof (TypeCache))]
   public interface ITypeCache
   {
+    string ParticipantConfigurationID { get; }
     ICodeGenerator CodeGenerator { get; }
 
     Type GetOrCreateType (Type requestedType);

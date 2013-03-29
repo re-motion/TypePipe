@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration
   [ConcreteImplementation (typeof (TypeAssembler))]
   public interface ITypeAssembler
   {
+    string ParticipantConfigurationID { get; }
     ICodeGenerator CodeGenerator { get; }
 
     /// <summary>

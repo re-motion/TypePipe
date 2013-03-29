@@ -30,6 +30,8 @@ namespace Remotion.TypePipe
   [ConcreteImplementation (typeof (ObjectFactory))]
   public interface IObjectFactory
   {
+    // TODO 5500: docs
+    string ParticipantConfigurationID { get; }
     ICodeGenerator CodeGenerator { get; }
 
     T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;

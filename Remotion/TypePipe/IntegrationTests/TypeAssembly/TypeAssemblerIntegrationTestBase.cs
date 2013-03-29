@@ -89,10 +89,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     private Type AssembleType (string testName, Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions)
     {
+      var participantConfigurationID = GetType().Name;
       var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
       var mutableTypeFactory = SafeServiceLocator.Current.GetInstance<IMutableTypeFactory>();
-      var subclassProxyBuilder = CreateTypeAssemblyContextCodeGenerator (testName);
-      var typeAssembler = new TypeAssembler (participants, mutableTypeFactory, subclassProxyBuilder);
+      var typeAssemblyContextCodeGenerator = CreateTypeAssemblyContextCodeGenerator (testName);
+      var typeAssembler = new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, typeAssemblyContextCodeGenerator);
 
       return typeAssembler.AssembleType (requestedType, participantState: new Dictionary<string, object>());
     }
