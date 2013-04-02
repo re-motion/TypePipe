@@ -22,7 +22,6 @@ using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
-  [Ignore ("TODO 5500")]
   [TestFixture]
   public class SimpleSerializationTest : SerializationTestBase
   {

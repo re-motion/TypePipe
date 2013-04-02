@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -27,11 +26,11 @@ using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
-  [Ignore ("TODO 5500")]
   [TestFixture]
   public class ComplexSerializationTest : SerializationTestBase
   {
-    private const string c_factoryIdentifier = "abc";
+    // TODO remove
+    private const string c_factoryIdentifier = "complex deserialization";
 
     private static IParticipant CreateSerializationParticipant ()
     {
@@ -79,14 +78,11 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     private static void SetUpDeserialization (IObjectFactoryRegistry registry, IEnumerable<Func<IParticipant>> participantProviders)
     {
-      var participantCreators = participantProviders.Select<Func<IParticipant>, Func<object>> (pp => () => pp()).ToArray();
+      var participants = participantProviders.Select (pp => pp());
+      var factory = Pipeline.Create ("complex deserialization", participants);
 
-      using (new ServiceLocatorScope (typeof (IParticipant), participantCreators))
-      {
-        var factory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
-        // Register a factory for deserialization in current (new) app domain.
-        registry.Register (factory);
-      }
+      // Register a factory for deserialization in current (new) app domain.
+      registry.Register (factory);
     }
 
     private static void TearDownDeserialization (IObjectFactoryRegistry registry)
