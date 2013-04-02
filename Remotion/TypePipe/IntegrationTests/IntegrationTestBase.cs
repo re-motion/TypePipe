@@ -24,12 +24,9 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -105,25 +102,22 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     [MethodImpl (MethodImplOptions.NoInlining)]
-    protected ITypeAssembler CreateTypeAssembler (IEnumerable<IParticipant> participants, int stackFramesToSkip)
+    protected IObjectFactory CreatePipeline (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
-      var mutableTypeFactory = new MutableTypeFactory();
-      var codeGenerator = new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), new TypePipeConfigurationProvider());
-      var mutableTypeCodeGeneratorFactory = new MutableTypeCodeGeneratorFactory (
-          new MemberEmitterFactory(), codeGenerator, new InitializationBuilder(), new ProxySerializationEnabler (new SerializableFieldFinder()));
-      var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
-
       var nameOfRunningTest = GetNameOfRunningTest (stackFramesToSkip + 1);
-      codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      codeGenerator.SetAssemblyName (nameOfRunningTest);
-      _codeGenerator = codeGenerator;
+      var nonEmptyParticipants = GetNonEmptyParticipants (participants);
+      var objectFactory = Pipeline.Create (nameOfRunningTest, nonEmptyParticipants);
 
-      return new TypeAssembler (nameOfRunningTest, participants, mutableTypeFactory, typeAssemblyContextCodeGenerator);
+      _codeGenerator = objectFactory.CodeGenerator;
+      _codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
+      _codeGenerator.SetAssemblyName (nameOfRunningTest);
+
+      return objectFactory;
     }
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateTypeAssembler");
+      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreatePipeline");
 
       var assemblyPath = _codeGenerator.FlushCodeToDisk();
       if (assemblyPath == null)
@@ -161,6 +155,15 @@ namespace Remotion.TypePipe.IntegrationTests
       Assertion.IsNotNull (method.DeclaringType);
 
       return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
+    }
+
+    private List<IParticipant> GetNonEmptyParticipants (IEnumerable<IParticipant> participants)
+    {
+      var participantList = participants.ToList();
+      if (participantList.Count == 0)
+        participantList.Add (CreateParticipant ((MutableType proxy) => { }));
+
+      return participantList;
     }
   }
 }

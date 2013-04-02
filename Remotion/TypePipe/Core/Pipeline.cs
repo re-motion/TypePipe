@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System.Collections.Generic;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -24,6 +25,7 @@ using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe
 {
@@ -34,7 +36,19 @@ namespace Remotion.TypePipe
     public static IObjectFactory Create (string participantConfigurationID, params IParticipant[] participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNullOrEmpty ("participants", participants);
+      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participants);
+
+      return Create (participantConfigurationID, (IEnumerable<IParticipant>) participants);
+    }
+
+    // TODO 5500: docs
+    public static IObjectFactory Create (string participantConfigurationID, IEnumerable<IParticipant> participants)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNull ("participants", participants);
+
+      var participantsCollection = participants.ConvertToCollection();
+      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participantsCollection);
 
       var mutableTypeFactory = new MutableTypeFactory();
       var memberEmitterFactory = new MemberEmitterFactory();
@@ -42,7 +56,7 @@ namespace Remotion.TypePipe
       var mutableTypeCodeGeneratorFactory = new MutableTypeCodeGeneratorFactory (
           memberEmitterFactory, codeGenerator, new InitializationBuilder(), new ProxySerializationEnabler (new SerializableFieldFinder()));
       var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
-      var typeAssembler = new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, typeAssemblyContextCodeGenerator);
+      var typeAssembler = new TypeAssembler (participantConfigurationID, participantsCollection, mutableTypeFactory, typeAssemblyContextCodeGenerator);
       var typeCache = new TypeCache (typeAssembler, new ConstructorFinder(), new DelegateFactory());
 
       return new ObjectFactory (typeCache);

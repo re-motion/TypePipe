@@ -58,9 +58,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     protected Type AssembleType (Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions, int stackFramesToSkip)
     {
       var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
-      var typeAssembler = CreateTypeAssembler (participants, stackFramesToSkip);
+      var objectFactory = CreatePipeline (participants, stackFramesToSkip);
 
-      return typeAssembler.AssembleType (requestedType, participantState: new Dictionary<string, object>());
+      return objectFactory.GetAssembledType (requestedType);
     }
 
     protected MethodInfo GetDeclaredMethod (Type type, string name)

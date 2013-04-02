@@ -18,11 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Remotion.Reflection;
-using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
+  // TODO 5500: Remove
   public abstract class ObjectFactoryIntegrationTestBase : IntegrationTestBase
   {
     [MethodImpl (MethodImplOptions.NoInlining)]
@@ -34,10 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [MethodImpl (MethodImplOptions.NoInlining)]
     protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
     {
-      var typeAssembler = CreateTypeAssembler (participants, stackFramesToSkip + 1);
-      var typeCache = new TypeCache (typeAssembler, new ConstructorFinder(), new DelegateFactory());
-
-      return new Implementation.ObjectFactory (typeCache);
+      return CreatePipeline(participants, stackFramesToSkip);
     }
   }
 }
