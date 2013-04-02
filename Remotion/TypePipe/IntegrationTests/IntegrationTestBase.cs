@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
@@ -158,16 +159,13 @@ namespace Remotion.TypePipe.IntegrationTests
 
     private static string GetNameOfRunningTest ()
     {
-      // The following might perform very poorly.
+      // The following might have poor performance.
       var stackTrace = new StackTrace();
 
       for (int i = 0; i < stackTrace.FrameCount; i++)
       {
         var method = stackTrace.GetFrame (i).GetMethod();
-        var isTestMethod = method.IsDefined (typeof (TestAttribute), inherit: true);
-        var isSetupMethod = method.IsDefined (typeof (SetUpAttribute), inherit: true);
-
-        if (isTestMethod || isSetupMethod)
+        if (IsTestMethod (method))
         {
           Assertion.IsNotNull (method.DeclaringType);
           return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
@@ -175,6 +173,13 @@ namespace Remotion.TypePipe.IntegrationTests
       }
 
       throw new Exception ("Should be called by test method.");
+    }
+
+    private static bool IsTestMethod (MethodBase method)
+    {
+      return method.IsDefined (typeof (TestAttribute), inherit: true)
+          || method.IsDefined (typeof (SetUpAttribute), inherit: true)
+          || method.IsDefined (typeof (TestFixtureSetUpAttribute), inherit: true);
     }
 
     private IEnumerable<IParticipant> GetNonEmptyParticipants (IEnumerable<IParticipant> participants)

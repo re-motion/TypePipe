@@ -22,7 +22,6 @@ using NUnit.Framework;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
-  [Ignore ("TODO 5501")]
   [TestFixture]
   public class LoadFlushedCodeTest : IntegrationTestBase
   {
@@ -75,6 +74,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (Flush(), Is.Not.Null);
     }
 
+    [Ignore ("TODO 5501")]
     [Test]
     public void LoadAlreadyCachedType_DoesNothing ()
     {
