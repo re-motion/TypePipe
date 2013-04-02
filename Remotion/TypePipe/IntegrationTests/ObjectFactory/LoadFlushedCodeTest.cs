@@ -74,7 +74,6 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (Flush(), Is.Not.Null);
     }
 
-    [Ignore ("TODO 5501")]
     [Test]
     public void LoadAlreadyCachedType_DoesNothing ()
     {
