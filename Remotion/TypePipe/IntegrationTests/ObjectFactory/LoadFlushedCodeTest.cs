@@ -75,6 +75,22 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (Flush(), Is.Not.Null);
     }
 
+    [Test]
+    public void LoadingAnAlreadyCachedtype_DoesNothing ()
+    {
+      // Load and get type 1.
+      _objectFactory.LoadFlushedCode (_assembly1);
+      var assembledType1 = _objectFactory.GetAssembledType (typeof (DomainType1));
+      // Generate and get type 2.
+      var assembledType2 = _objectFactory.GetAssembledType (typeof (DomainType2));
+
+      _objectFactory.LoadFlushedCode (_assembly1);
+      _objectFactory.LoadFlushedCode (_assembly2);
+
+      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType1)), Is.SameAs (assembledType1));
+      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType2)), Is.SameAs (assembledType2));
+    }
+
     private void PreGenerateAssemblies ()
     {
       var objectFactory = CreateObjectFactory();
