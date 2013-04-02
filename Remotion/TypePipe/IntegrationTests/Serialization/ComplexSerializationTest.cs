@@ -29,21 +29,16 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   [TestFixture]
   public class ComplexSerializationTest : SerializationTestBase
   {
-    // TODO remove
-    private const string c_factoryIdentifier = "complex deserialization";
-
-    private static IParticipant CreateSerializationParticipant ()
-    {
-      return new SerializationParticipant (c_factoryIdentifier);
-    }
-
     private Func<IParticipant>[] _participantProviders;
+    private string _participantConfigurationID;
 
     protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      _participantProviders = participantProviders.Concat (CreateSerializationParticipant).ToArray();
+      _participantProviders = participantProviders.Concat (() => new SerializationParticipant()).ToArray();
       var allParticipants = _participantProviders.Select (pp => pp());
       var factory = CreateObjectFactory (allParticipants);
+
+      _participantConfigurationID = factory.ParticipantConfigurationID;
 
       return factory;
     }
@@ -53,13 +48,14 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       // Do not flush generated assembly to disk to force complex serialization strategy.
 
       context.ParticipantProviders = _participantProviders;
+      context.ParticipantConfigurationID = _participantConfigurationID;
       return ctx =>
       {
         var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
 
-        SetUpDeserialization (registry, ctx.ParticipantProviders);
+        SetUpDeserialization (registry, ctx.ParticipantConfigurationID, ctx.ParticipantProviders);
         var deserializedInstance = (T) Serializer.Deserialize (ctx.SerializedData);
-        TearDownDeserialization (registry);
+        TearDownDeserialization (registry, ctx.ParticipantConfigurationID);
 
         // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
         var type = deserializedInstance.GetType();
@@ -76,18 +72,19 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       };
     }
 
-    private static void SetUpDeserialization (IObjectFactoryRegistry registry, IEnumerable<Func<IParticipant>> participantProviders)
+    private static void SetUpDeserialization (
+        IObjectFactoryRegistry registry, string participantConfigurationID, IEnumerable<Func<IParticipant>> participantProviders)
     {
       var participants = participantProviders.Select (pp => pp());
-      var factory = Pipeline.Create ("complex deserialization", participants);
+      var factory = Pipeline.Create (participantConfigurationID, participants);
 
       // Register a factory for deserialization in current (new) app domain.
       registry.Register (factory);
     }
 
-    private static void TearDownDeserialization (IObjectFactoryRegistry registry)
+    private static void TearDownDeserialization (IObjectFactoryRegistry registry, string participantConfigurationID)
     {
-      registry.Unregister (c_factoryIdentifier);
+      registry.Unregister (participantConfigurationID);
     }
   }
 }

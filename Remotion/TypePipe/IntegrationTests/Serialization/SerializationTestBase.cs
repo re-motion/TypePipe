@@ -279,6 +279,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     protected class SerializationTestContext<T>
     {
       public IEnumerable<Func<IParticipant>> ParticipantProviders { get; set; }
+      public string ParticipantConfigurationID { get; set; }
       public byte[] SerializedData { get; set; }
       public Action<T, SerializationTestContext<T>> Assertions { get; set; }
 

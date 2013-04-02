@@ -34,14 +34,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   [TestFixture]
   public class SerializationParticipantTest
   {
-    private const string c_factoryIdentifier = "expectedObjectFactory identifier";
-
     private SerializationParticipant _participant;
 
     [SetUp]
     public void SetUp ()
     {
-      _participant = new SerializationParticipant (c_factoryIdentifier);
+      _participant = new SerializationParticipant();
     }
 
     [Test]
@@ -54,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void Participate_SerializableType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create ("config id", proxyType: proxyType);
 
       _participant.Participate (typeContext);
 
@@ -74,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               Expression.Constant ("<tp>baseType"),
               Expression.Constant (typeof (SomeType).AssemblyQualifiedName)),
           Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)),
+              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant ("config id")),
           Expression.Call (
               typeof (ReflectionSerializationHelper), "AddFieldValues", Type.EmptyTypes, serializationInfo, new ThisExpression (proxyType)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, method.Body);
@@ -84,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void Participate_SerializableInterfaceType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create ("config id", proxyType: proxyType);
 
       _participant.Participate (typeContext);
 
@@ -105,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               Expression.Constant ("<tp>baseType"),
               Expression.Constant (typeof (SerializableInterfaceType).AssemblyQualifiedName)),
           Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant (c_factoryIdentifier)));
+              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant ("config id")));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 

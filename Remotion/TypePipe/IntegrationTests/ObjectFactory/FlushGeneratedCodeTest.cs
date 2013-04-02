@@ -21,7 +21,6 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {

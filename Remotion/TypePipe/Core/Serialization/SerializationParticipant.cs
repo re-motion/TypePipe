@@ -55,15 +55,6 @@ namespace Remotion.TypePipe.Serialization
     private static readonly MethodInfo s_addFieldValuesMethod =
         MemberInfoFromExpressionUtility.GetMethod (() => ReflectionSerializationHelper.AddFieldValues (null, null));
 
-    private readonly string _factoryIdentifier;
-
-    public SerializationParticipant (string factoryIdentifier)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("factoryIdentifier", factoryIdentifier);
-
-      _factoryIdentifier = factoryIdentifier;
-    }
-
     public ICacheKeyProvider PartialCacheKeyProvider
     {
       get { return null; }
@@ -88,7 +79,9 @@ namespace Remotion.TypePipe.Serialization
               .GetOrAddOverride (s_getObjectDataMethod)
               .SetBody (
                   ctx => Expression.Block (
-                      new[] { ctx.PreviousBody }.Concat (CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithDeserializationConstructorProxy)))));
+                      new[] { ctx.PreviousBody }.Concat (
+                          CreateMetaDataSerializationExpressions (
+                              ctx, typeof (ObjectWithDeserializationConstructorProxy), typeAssemblyContext.ParticipnatConfigurationID))));
         }
         catch (NotSupportedException exception)
         {
@@ -111,19 +104,21 @@ namespace Remotion.TypePipe.Serialization
             s_getObjectDataMethod,
             ctx => Expression.Block (
                 typeof (void),
-                CreateMetaDataSerializationExpressions (ctx, typeof (ObjectWithoutDeserializationConstructorProxy))
+                CreateMetaDataSerializationExpressions (
+                    ctx, typeof (ObjectWithoutDeserializationConstructorProxy), typeAssemblyContext.ParticipnatConfigurationID)
                     .Concat (Expression.Call (s_addFieldValuesMethod, ctx.Parameters[0], ctx.This))));
       }
     }
 
-    private IEnumerable<Expression> CreateMetaDataSerializationExpressions (MethodBodyContextBase context, Type serializationSurrogateType)
+    private IEnumerable<Expression> CreateMetaDataSerializationExpressions (
+        MethodBodyContextBase context, Type serializationSurrogateType, string participantConfigurationID)
     {
       var serializationInfo = context.Parameters[0];
       return new Expression[]
              {
                  Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (serializationSurrogateType)),
                  CreateAddValueExpression (serializationInfo, BaseTypeKey, context.DeclaringType.BaseType.AssemblyQualifiedName),
-                 CreateAddValueExpression (serializationInfo, FactoryIdentifierKey, _factoryIdentifier)
+                 CreateAddValueExpression (serializationInfo, FactoryIdentifierKey, participantConfigurationID)
              };
     }
 
