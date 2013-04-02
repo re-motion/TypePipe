@@ -21,7 +21,7 @@ using NUnit.Framework;
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
-  public class ParticipantStateTest : ObjectFactoryIntegrationTestBase
+  public class ParticipantStateTest : IntegrationTestBase
   {
     [Test]
     public void GlobalState ()

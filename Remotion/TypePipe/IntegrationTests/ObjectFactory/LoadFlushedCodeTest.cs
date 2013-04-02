@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [Ignore ("TODO 5501")]
   [TestFixture]
-  public class LoadFlushedCodeTest : ObjectFactoryIntegrationTestBase
+  public class LoadFlushedCodeTest : IntegrationTestBase
   {
     private Assembly _assembly1;
     private Assembly _assembly2;

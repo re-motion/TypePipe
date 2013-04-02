@@ -19,13 +19,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -100,7 +100,12 @@ namespace Remotion.TypePipe.IntegrationTests
       return new ParticipantStub (typeContextModification, cacheKeyProvider);
     }
 
-    protected IObjectFactory CreatePipeline (IEnumerable<IParticipant> participants)
+    protected IObjectFactory CreateObjectFactory (params IParticipant[] participants)
+    {
+      return CreateObjectFactory ((IEnumerable<IParticipant>) participants);
+    }
+
+    protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants)
     {
       var nameOfRunningTest = GetNameOfRunningTest();
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
@@ -115,7 +120,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreatePipeline");
+      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateObjectFactory");
 
       var assemblyPath = _codeGenerator.FlushCodeToDisk();
       if (assemblyPath == null)
@@ -166,7 +171,7 @@ namespace Remotion.TypePipe.IntegrationTests
       throw new Exception ("Should be called by test method.");
     }
 
-    private List<IParticipant> GetNonEmptyParticipants (IEnumerable<IParticipant> participants)
+    private IEnumerable<IParticipant> GetNonEmptyParticipants (IEnumerable<IParticipant> participants)
     {
       var participantList = participants.ToList();
       if (participantList.Count == 0)

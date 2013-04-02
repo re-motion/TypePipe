@@ -26,7 +26,7 @@ using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
-  public class ObjectInitializationTest : ObjectFactoryIntegrationTestBase
+  public class ObjectInitializationTest : IntegrationTestBase
   {
     private IObjectFactory _factory;
 

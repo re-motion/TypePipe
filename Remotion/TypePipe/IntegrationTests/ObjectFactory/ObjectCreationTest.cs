@@ -23,7 +23,7 @@ using Remotion.Reflection;
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
-  public class ObjectCreationTest : ObjectFactoryIntegrationTestBase
+  public class ObjectCreationTest : IntegrationTestBase
   {
     [Test]
     public void ConstructorArguments_Generic ()

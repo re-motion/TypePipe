@@ -26,7 +26,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
-  public class FlushGeneratedCodeTest : ObjectFactoryIntegrationTestBase
+  public class FlushGeneratedCodeTest : IntegrationTestBase
   {
     private IObjectFactory _objectFactory;
     private ICodeGenerator _codeGenerator;

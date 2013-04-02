@@ -26,7 +26,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Configuration;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Configuration;
-using Remotion.TypePipe.IntegrationTests.ObjectFactory;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
 
@@ -34,7 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
   [Ignore ("TODO 5500")]
   [TestFixture]
-  public class StrongNamingTest : ObjectFactoryIntegrationTestBase
+  public class StrongNamingTest : IntegrationTestBase
   {
     private Type _signedType;
     private Type _unsignedType;

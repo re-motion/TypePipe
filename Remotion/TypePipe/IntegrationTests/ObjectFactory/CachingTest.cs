@@ -25,7 +25,7 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   [TestFixture]
-  public class CachingTest : ObjectFactoryIntegrationTestBase
+  public class CachingTest : IntegrationTestBase
   {
     private readonly Type _type1 = typeof (DomainType1);
     private readonly Type _type2 = typeof (DomainType2);
