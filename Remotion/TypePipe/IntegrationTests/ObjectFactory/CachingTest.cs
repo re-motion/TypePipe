@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Action<MutableType> typeModification = pt => { };
       var participantStubs = cacheKeyProviderStubs.Select (ckp => CreateParticipant (typeModification, ckp));
 
-      return CreateObjectFactory (participantStubs, stackFramesToSkip: 1);
+      return CreateObjectFactory (participantStubs);
     }
 
     public class DomainType1 {}

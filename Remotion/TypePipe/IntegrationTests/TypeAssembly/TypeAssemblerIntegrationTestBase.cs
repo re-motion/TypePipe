@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -35,30 +34,26 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     private const BindingFlags c_allDeclared =
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
       var actions = participantActions.Select (a => (Action<ITypeAssemblyContext>) (ctx => a (ctx.ProxyType)));
       return AssembleType (typeof (T), actions, 1);
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType<T> (params Action<ITypeAssemblyContext>[] participantActions)
     {
       return AssembleType (typeof (T), participantActions, 1);
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType (Type requestedType, params Action<ITypeAssemblyContext>[] participantActions)
     {
       return AssembleType (requestedType, participantActions, 1);
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected Type AssembleType (Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions, int stackFramesToSkip)
     {
       var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
-      var objectFactory = CreatePipeline (participants, stackFramesToSkip);
+      var objectFactory = CreatePipeline (participants);
 
       return objectFactory.GetAssembledType (requestedType);
     }

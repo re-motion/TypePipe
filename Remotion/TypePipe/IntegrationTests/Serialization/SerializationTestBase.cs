@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
@@ -236,7 +235,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return instance;
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected abstract IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders);
 
     protected abstract Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context);

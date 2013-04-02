@@ -17,23 +17,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   // TODO 5500: Remove
   public abstract class ObjectFactoryIntegrationTestBase : IntegrationTestBase
   {
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected IObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
-      return CreateObjectFactory (participants, 1);
+      return CreateObjectFactory ((IEnumerable<IParticipant>) participants);
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants, int stackFramesToSkip)
+    protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants)
     {
-      return CreatePipeline(participants, stackFramesToSkip);
+      return CreatePipeline(participants);
     }
   }
 }

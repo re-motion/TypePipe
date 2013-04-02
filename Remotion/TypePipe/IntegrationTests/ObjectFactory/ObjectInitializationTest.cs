@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
             Assert.That (proxyType.Initializations, Is.Not.Empty);
           });
 
-      return CreateObjectFactory (new[] { participant }, stackFramesToSkip: 1);
+      return CreateObjectFactory (new[] { participant });
     }
   }
 }

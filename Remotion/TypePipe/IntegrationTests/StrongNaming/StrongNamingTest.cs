@@ -20,7 +20,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -248,7 +247,6 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNaming (action, forceStrongNaming: true);
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNaming (
         Action<MutableType> participantAction,
         bool forceStrongNaming = true,
@@ -257,7 +255,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
         int stackFramesToSkip = 0)
     {
       var participant = CreateParticipant (participantAction);
-      var objectFactory = CreateObjectFactoryForStrongNaming (participant, stackFramesToSkip + 1, forceStrongNaming, keyFilePath);
+      var objectFactory = CreateObjectFactoryForStrongNaming (participant, forceStrongNaming, keyFilePath);
 
       var type = objectFactory.GetAssembledType (typeof (DomainType));
       var assemblyName = type.Assembly.GetName();
@@ -273,20 +271,17 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       }
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpression (Expression methodBody)
     {
       CheckStrongNaming (p => p.AddMethod ("m", 0, typeof (void), ParameterDeclaration.None, ctx => methodBody), forceStrongNaming: true);
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    private void CheckStrongNamingException (
-        Action<MutableType> participantAction, Type requestedType = null, Type unsignedType = null, int stackFramesToSkip = 0)
+    private void CheckStrongNamingException (Action<MutableType> participantAction, Type requestedType = null, Type unsignedType = null)
     {
       requestedType = requestedType ?? typeof (DomainType);
       unsignedType = unsignedType ?? _unsignedType;
       var participant = CreateParticipant (participantAction);
-      var objectFactory = CreateObjectFactoryForStrongNaming (participant, stackFramesToSkip + 1, forceStrongNaming: true);
+      var objectFactory = CreateObjectFactoryForStrongNaming (participant, forceStrongNaming: true);
 
       var message =
           "An error occurred during code generation for '" + requestedType.Name + "':\r\n"
@@ -296,15 +291,12 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       Assert.That (() => objectFactory.GetAssembledType (requestedType), Throws.InvalidOperationException.With.Message.EqualTo (message));
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     private void CheckStrongNamingExpressionException (Expression methodBody)
     {
       CheckStrongNamingException (p => p.AddMethod ("m", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => methodBody));
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    private IObjectFactory CreateObjectFactoryForStrongNaming (
-        IParticipant participant, int stackFramesToSkip, bool forceStrongNaming, string keyFilePath = null)
+    private IObjectFactory CreateObjectFactoryForStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null)
     {
       var configurationProvider = new TypePipeConfigurationProvider();
       var configSection = new TypePipeConfigurationSection();
@@ -315,7 +307,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       PrivateInvoke.SetNonPublicField (configurationProvider, "_section", configSection);
 
       using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => configurationProvider))
-        return CreateObjectFactory (new[] { participant }, stackFramesToSkip: stackFramesToSkip + 1);
+        return CreateObjectFactory (new[] { participant });
     }
 
     private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)

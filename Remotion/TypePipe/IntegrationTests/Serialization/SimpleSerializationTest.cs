@@ -17,7 +17,6 @@
 
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 
@@ -27,11 +26,10 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   [TestFixture]
   public class SimpleSerializationTest : SerializationTestBase
   {
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
       var participants = participantProviders.Select (pp => pp());
-      var factory = CreateObjectFactory (participants, stackFramesToSkip: 1);
+      var factory = CreateObjectFactory (participants);
       factory.CodeGenerator.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
 
       return factory;

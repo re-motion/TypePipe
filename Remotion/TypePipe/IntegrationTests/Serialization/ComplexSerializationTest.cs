@@ -40,12 +40,11 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     private Func<IParticipant>[] _participantProviders;
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
     protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
       _participantProviders = participantProviders.Concat (CreateSerializationParticipant).ToArray();
       var allParticipants = _participantProviders.Select (pp => pp());
-      var factory = CreateObjectFactory (allParticipants, stackFramesToSkip: 1);
+      var factory = CreateObjectFactory (allParticipants);
 
       return factory;
     }

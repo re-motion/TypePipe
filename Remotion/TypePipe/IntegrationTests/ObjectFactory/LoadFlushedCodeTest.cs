@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 
     private void PreGenerateAssemblies ()
     {
-      var objectFactory = CreateObjectFactory (new IParticipant[0], stackFramesToSkip: 1);
+      var objectFactory = CreateObjectFactory();
 
       var assembledType1 = objectFactory.GetAssembledType (typeof (DomainType1));
       var assemblyPath1 = Flush();

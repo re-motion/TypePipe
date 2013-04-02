@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
@@ -101,10 +100,9 @@ namespace Remotion.TypePipe.IntegrationTests
       return new ParticipantStub (typeContextModification, cacheKeyProvider);
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    protected IObjectFactory CreatePipeline (IEnumerable<IParticipant> participants, int stackFramesToSkip)
+    protected IObjectFactory CreatePipeline (IEnumerable<IParticipant> participants)
     {
-      var nameOfRunningTest = GetNameOfRunningTest (stackFramesToSkip + 1);
+      var nameOfRunningTest = GetNameOfRunningTest();
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
       var objectFactory = Pipeline.Create (nameOfRunningTest, nonEmptyParticipants);
 
@@ -147,14 +145,25 @@ namespace Remotion.TypePipe.IntegrationTests
       }
     }
 
-    [MethodImpl (MethodImplOptions.NoInlining)]
-    private static string GetNameOfRunningTest (int stackFramesToSkip)
+    private static string GetNameOfRunningTest ()
     {
-      var stackFrame = new StackFrame (stackFramesToSkip + 1, false);
-      var method = stackFrame.GetMethod();
-      Assertion.IsNotNull (method.DeclaringType);
+      // The following might perform very poorly.
+      var stackTrace = new StackTrace();
 
-      return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
+      for (int i = 0; i < stackTrace.FrameCount; i++)
+      {
+        var method = stackTrace.GetFrame (i).GetMethod();
+        var isTestMethod = method.IsDefined (typeof (TestAttribute), inherit: true);
+        var isSetupMethod = method.IsDefined (typeof (SetUpAttribute), inherit: true);
+
+        if (isTestMethod || isSetupMethod)
+        {
+          Assertion.IsNotNull (method.DeclaringType);
+          return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
+        }
+      }
+
+      throw new Exception ("Should be called by test method.");
     }
 
     private List<IParticipant> GetNonEmptyParticipants (IEnumerable<IParticipant> participants)
