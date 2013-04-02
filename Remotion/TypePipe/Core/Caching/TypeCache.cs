@@ -44,20 +44,27 @@ namespace Remotion.TypePipe.Caching
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
+    private readonly ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGenerator;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
     private readonly ICodeGenerator _codeGenerator;
 
-    public TypeCache (ITypeAssembler typeAssembler, IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
+    public TypeCache (
+        ITypeAssembler typeAssembler,
+        ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator,
+        IConstructorFinder constructorFinder,
+        IDelegateFactory delegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
       ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
 
       _typeAssembler = typeAssembler;
+      _typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
-      _codeGenerator = new LockingCodeGeneratorDecorator (_typeAssembler.CodeGenerator, _lock);
+      _codeGenerator = new LockingCodeGeneratorDecorator (typeAssemblyContextCodeGenerator.CodeGenerator, _lock);
     }
 
     public string ParticipantConfigurationID
@@ -127,7 +134,7 @@ namespace Remotion.TypePipe.Caching
       {
         if (!_types.TryGetValue (typeKey, out generatedType))
         {
-          generatedType = _typeAssembler.AssembleType (requestedType, _participantState);
+          generatedType = _typeAssembler.AssembleType (requestedType, _participantState, _typeAssemblyContextCodeGenerator);
           _types.Add (typeKey, generatedType);
         }
       }

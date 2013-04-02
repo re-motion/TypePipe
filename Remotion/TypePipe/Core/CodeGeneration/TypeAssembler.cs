@@ -40,25 +40,18 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
-    private readonly ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGenerator;
     // Array for performance reasons.
     private readonly ICacheKeyProvider[] _cacheKeyProviders;
 
-    public TypeAssembler (
-        string participantConfigurationID,
-        IEnumerable<IParticipant> participants,
-        IMutableTypeFactory mutableTypeFactory,
-        ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator)
+    public TypeAssembler (string participantConfigurationID, IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
-      ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
 
       _participantConfigurationID = participantConfigurationID;
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
-      _typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator;
 
       _cacheKeyProviders = _participants.Select (p => p.PartialCacheKeyProvider).Where (ckp => ckp != null).ToArray();
     }
@@ -66,11 +59,6 @@ namespace Remotion.TypePipe.CodeGeneration
     public string ParticipantConfigurationID
     {
       get { return _participantConfigurationID; }
-    }
-
-    public ICodeGenerator CodeGenerator
-    {
-      get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }
     }
 
     public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
@@ -86,17 +74,19 @@ namespace Remotion.TypePipe.CodeGeneration
       return compoundKey;
     }
 
-    public Type AssembleType (Type requestedType, IDictionary<string, object> participantState)
+    public Type AssembleType (
+        Type requestedType, IDictionary<string, object> participantState, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
 
       var typeAssemblyContext = CreateTypeAssemblyContext (requestedType, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);
 
-      var generatedTypeContext = GenerateTypesWithDiagnostics (typeAssemblyContext);
+      var generatedTypeContext = GenerateTypesWithDiagnostics (typeAssemblyContextCodeGenerator, typeAssemblyContext);
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
@@ -111,19 +101,19 @@ namespace Remotion.TypePipe.CodeGeneration
       return new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
-    private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeAssemblyContext typeAssemblyContext)
+    private GeneratedTypeContext GenerateTypesWithDiagnostics (ITypeAssemblyContextCodeGenerator codeGenerator, TypeAssemblyContext context)
     {
       try
       {
-        return _typeAssemblyContextCodeGenerator.GenerateTypes (typeAssemblyContext);
+        return codeGenerator.GenerateTypes (context);
       }
       catch (InvalidOperationException ex)
       {
-        throw new InvalidOperationException (BuildExceptionMessage (typeAssemblyContext.RequestedType, ex), ex);
+        throw new InvalidOperationException (BuildExceptionMessage (context.RequestedType, ex), ex);
       }
       catch (NotSupportedException ex)
       {
-        throw new NotSupportedException (BuildExceptionMessage (typeAssemblyContext.RequestedType, ex), ex);
+        throw new NotSupportedException (BuildExceptionMessage (context.RequestedType, ex), ex);
       }
     }
 

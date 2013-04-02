@@ -51,13 +51,13 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participantsCollection);
 
       var mutableTypeFactory = new MutableTypeFactory();
+      var typeAssembler = new TypeAssembler (participantConfigurationID, participantsCollection, mutableTypeFactory);
       var memberEmitterFactory = new MemberEmitterFactory();
       var codeGenerator = new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), new TypePipeConfigurationProvider());
       var mutableTypeCodeGeneratorFactory = new MutableTypeCodeGeneratorFactory (
           memberEmitterFactory, codeGenerator, new InitializationBuilder(), new ProxySerializationEnabler (new SerializableFieldFinder()));
       var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
-      var typeAssembler = new TypeAssembler (participantConfigurationID, participantsCollection, mutableTypeFactory, typeAssemblyContextCodeGenerator);
-      var typeCache = new TypeCache (typeAssembler, new ConstructorFinder(), new DelegateFactory());
+      var typeCache = new TypeCache (typeAssembler, typeAssemblyContextCodeGenerator, new ConstructorFinder(), new DelegateFactory());
 
       return new ObjectFactory (typeCache);
     }

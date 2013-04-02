@@ -47,6 +47,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     private ConstructorInfo _fakeConstructor;
 
     private ITypeAssembler _typeAssemblerMock;
+    private ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGeneratorMock;
     private IConstructorFinder _constructorFinderMock;
     private IDelegateFactory _delegateFactoryMock;
     private ICodeGenerator _fakeCodeGenerator;
@@ -65,13 +66,14 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void SetUp ()
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
+      _typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<ITypeAssemblyContextCodeGenerator>();
       _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
       _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
       _fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
-      _typeAssemblerMock.Expect (mock => mock.CodeGenerator).Return (_fakeCodeGenerator);
+      _typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.CodeGenerator).Return (_fakeCodeGenerator);
 
-      _cache = new TypeCache (_typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock);
+      _cache = new TypeCache (_typeAssemblerMock, _typeAssemblyContextCodeGeneratorMock, _constructorFinderMock, _delegateFactoryMock);
 
       _fromRequestedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
       _fromGeneratedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromGeneratedType");
@@ -139,7 +141,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lockObject))
           .Return (new object[] { null, "other key" });
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (_requestedType, _participantState))
+          .Expect (mock => mock.AssembleType (_requestedType, _participantState, _typeAssemblyContextCodeGeneratorMock))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_generatedType2);
 
@@ -206,7 +208,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_fakeSignature);
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (_requestedType, _participantState))
+          .Expect (mock => mock.AssembleType (_requestedType, _participantState, _typeAssemblyContextCodeGeneratorMock))
           .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lockObject))
           .Return (_generatedType2);
       _constructorFinderMock

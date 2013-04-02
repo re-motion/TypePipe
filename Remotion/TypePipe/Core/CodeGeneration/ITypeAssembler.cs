@@ -29,7 +29,6 @@ namespace Remotion.TypePipe.CodeGeneration
   public interface ITypeAssembler
   {
     string ParticipantConfigurationID { get; }
-    ICodeGenerator CodeGenerator { get; }
 
     /// <summary>
     /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s of the participants.
@@ -43,6 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <returns>The compound cache key.</returns>
     object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
 
-    Type AssembleType (Type requestedType, IDictionary<string, object> participantState);
+    Type AssembleType (
+        Type requestedType, IDictionary<string, object> participantState, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator);
   }
 }
