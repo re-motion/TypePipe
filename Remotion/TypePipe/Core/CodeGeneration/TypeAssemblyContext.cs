@@ -50,6 +50,11 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public event Action<GeneratedTypeContext> GenerationCompleted;
 
+    public string ParticipnatConfigurationID
+    {
+      get { return null; }
+    }
+
     public Type RequestedType
     {
       get { return _requestedType; }

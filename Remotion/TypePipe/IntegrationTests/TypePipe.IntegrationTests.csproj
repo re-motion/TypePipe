@@ -70,6 +70,7 @@
     <Compile Include="ObjectFactory\LoadFlushedCodeTest.cs" />
     <Compile Include="ObjectFactory\ObjectCreationTest.cs" />
     <Compile Include="ObjectFactory\ObjectInitializationTest.cs" />
+    <Compile Include="ObjectFactory\ParticipantConfigurationTest.cs" />
     <Compile Include="ParticipantStub.cs" />
     <Compile Include="Serialization\ComplexSerializationTest.cs">
       <SubType>Code</SubType>

@@ -40,6 +40,9 @@ namespace Remotion.TypePipe.CodeGeneration
     /// </summary>
     event Action<GeneratedTypeContext> GenerationCompleted;
 
+    // TODO 5500: docs
+    string ParticipnatConfigurationID { get; }
+
     /// <summary>
     /// The original <see cref="Type"/> that was requested by the user through an instance of <see cref="IObjectFactory"/>.
     /// </summary>
