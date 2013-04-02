@@ -240,21 +240,26 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException))]
-    public void LoadTypes_SameKey ()
+    public void LoadTypes_SameKey_Nop ()
     {
       _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
+          .Expect (mock => mock.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
           .Return (new object[] { null, "type key" })
           .Repeat.Twice();
 
-      _cache.LoadTypes (new[] { _generatedType1, _generatedType1 });
+      var otherGeneratedType = typeof (OtherGeneratedType1);
+      Assert.That (otherGeneratedType.BaseType, Is.SameAs (_generatedType1.BaseType));
+      _cache.LoadTypes (new[] { _generatedType1 });
+
+      // Does not throw exception or overwrite previously cached type.
+      _cache.LoadTypes (new[] { otherGeneratedType });
+
+      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
     }
 
-    [ProxyType]
-    private class GeneratedType1 { }
+    [ProxyType] private class GeneratedType1 { }
     private class GeneratedType2 : ProxyBaseType { }
-    [ProxyType]
-    private class ProxyBaseType {}
+    [ProxyType] private class ProxyBaseType {}
+    [ProxyType] private class OtherGeneratedType1 { }
   }
 }

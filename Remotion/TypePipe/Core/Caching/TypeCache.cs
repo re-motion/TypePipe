@@ -112,7 +112,10 @@ namespace Remotion.TypePipe.Caching
       lock (_lock)
       {
         foreach (var pair in keysAndTypes)
-          _types.Add (pair.Key, pair.Type);
+        {
+          if (!_types.ContainsKey (pair.Key))
+            _types.Add (pair.Key, pair.Type);
+        }
       }
     }
 
