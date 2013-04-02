@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     public void StandardNameAndDirectory_Initial ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
-      var objectFactory = Pipeline.Create ("standard", CreateParticipant ((MutableType proxy) => { }));
+      var objectFactory = Pipeline.Create ("standard", CreateNopParticipant());
       var codeGenerator = objectFactory.CodeGenerator;
 
       var assemblyName = codeGenerator.AssemblyName;

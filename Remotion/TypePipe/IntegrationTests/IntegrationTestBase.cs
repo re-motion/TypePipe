@@ -31,6 +31,22 @@ namespace Remotion.TypePipe.IntegrationTests
 {
   public abstract class IntegrationTestBase
   {
+    protected static IParticipant CreateParticipant (Action<MutableType> typeModification, ICacheKeyProvider cacheKeyProvider = null)
+    {
+      return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider);
+    }
+
+    protected static IParticipant CreateParticipant (Action<ITypeAssemblyContext> typeContextModification, ICacheKeyProvider cacheKeyProvider = null)
+    {
+      return new ParticipantStub (typeContextModification, cacheKeyProvider);
+    }
+
+    protected static IParticipant CreateNopParticipant ()
+    {
+      return CreateParticipant ((MutableType proxy) => { });
+    }
+
+
     private List<string> _assembliesToDelete;
 
     private bool _skipSavingAndVerification;
@@ -88,16 +104,6 @@ namespace Remotion.TypePipe.IntegrationTests
     protected void SkipDeletion ()
     {
       _skipDeletion = true;
-    }
-
-    protected static IParticipant CreateParticipant (Action<MutableType> typeModification, ICacheKeyProvider cacheKeyProvider = null)
-    {
-      return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider);
-    }
-
-    protected static IParticipant CreateParticipant (Action<ITypeAssemblyContext> typeContextModification, ICacheKeyProvider cacheKeyProvider = null)
-    {
-      return new ParticipantStub (typeContextModification, cacheKeyProvider);
     }
 
     protected IObjectFactory CreateObjectFactory (params IParticipant[] participants)

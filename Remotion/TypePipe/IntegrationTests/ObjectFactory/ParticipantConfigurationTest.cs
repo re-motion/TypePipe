@@ -22,13 +22,15 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
   [TestFixture]
   public class ParticipantConfigurationTest : IntegrationTestBase
   {
-    [Ignore("TODO 5500")]
     [Test]
     public void ParticipantHasAccessToParticipantConfigurationID ()
     {
-      var configurationID = "configuration id";
+      SkipSavingAndPeVerification();
+      const string configurationID = "configuration id";
       var particpant = CreateParticipant (ctx => Assert.That (ctx.ParticipnatConfigurationID, Is.EqualTo (configurationID)));
-      var objectFactory = CreateObjectFactory (particpant);
+
+      // Create object factory directly in order to be able to specify the participant configuration id.
+      var objectFactory = Pipeline.Create (configurationID, particpant);
 
       Assert.That (() => objectFactory.CreateObject<RequestedType>(), Throws.Nothing);
     }
