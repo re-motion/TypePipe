@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// Defines an interface for <see cref="ModuleBuilder"/>.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IModuleBuilder
+  public interface IModuleBuilder : ICustomAttributeTargetBuilder
   {
     ITypeBuilder DefineType (string name, TypeAttributes attr);
 

@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   /// <summary>
   /// Adapts <see cref="ModuleBuilder"/> with the <see cref="IModuleBuilder"/> interface.
   /// </summary>
-  public class ModuleBuilderAdapter : IModuleBuilder
+  public class ModuleBuilderAdapter : BuilderAdapterBase, IModuleBuilder
   {
     private readonly ModuleBuilder _moduleBuilder;
     private readonly string _moduleName;
@@ -46,8 +46,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder, string moduleName)
+        : base (ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
       ArgumentUtility.CheckNotNullOrEmpty ("moduleName", moduleName);
       Assertion.IsTrue (moduleBuilder.Assembly is AssemblyBuilder);
 
