@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     }
 
     [Test]
-    public void LoadingAnAlreadyCachedtype_DoesNothing ()
+    public void LoadAlreadyCachedType_DoesNothing ()
     {
       // Load and get type 1.
       _objectFactory.LoadFlushedCode (_assembly1);

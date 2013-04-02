@@ -21,6 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
@@ -89,7 +90,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     private void CheckAddedCustomAttributes (ICustomAttributeProvider attributeProvider)
     {
-      var attributes = attributeProvider.GetCustomAttributes (false);
+      var attributes = attributeProvider.GetCustomAttributes (false).Where (a => a.GetType() != typeof (ProxyTypeAttribute)).ToList();
 
       var expectedAttributeTypes = new[] { typeof (SingleAttribute), typeof (MultipleAttribute), typeof (MultipleAttribute) };
       Assert.That (attributes.Select (a => a.GetType()), Is.EquivalentTo (expectedAttributeTypes));

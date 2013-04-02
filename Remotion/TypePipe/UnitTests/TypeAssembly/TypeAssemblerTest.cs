@@ -26,6 +26,7 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
 {
@@ -135,6 +136,11 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
                 Assert.That (ctx, Is.SameAs (fakeContext));
                 generationCompletedEventRaised = true;
               };
+
+              var proxyAttribute = fakeProxyType.AddedCustomAttributes.Single();
+              Assert.That (proxyAttribute.Type, Is.SameAs (typeof (ProxyTypeAttribute)));
+              Assert.That (proxyAttribute.ConstructorArguments, Is.Empty);
+              Assert.That (proxyAttribute.NamedArguments, Is.Empty);
             });
         participantMock2.Expect (mock => mock.Participate (Arg<TypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
 
@@ -158,7 +164,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
-      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxy (_requestedType)).Return (MutableTypeObjectMother.Create());
+      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxy (_requestedType)).Do (new Func<Type, MutableType> (t => MutableTypeObjectMother.Create()));
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();

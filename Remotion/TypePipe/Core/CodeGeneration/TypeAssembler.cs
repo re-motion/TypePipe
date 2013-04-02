@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using Remotion.Text;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
@@ -33,6 +34,8 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class TypeAssembler : ITypeAssembler
   {
+    private static ConstructorInfo s_proxyTypeAttributeConstructor = MemberInfoFromExpressionUtility.GetConstructor (() => new ProxyTypeAttribute());
+
     private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
@@ -87,8 +90,7 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
 
-      var proxyType = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);
+      var typeAssemblyContext = CreateTypeAssemblyContext (requestedType, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);
@@ -97,6 +99,15 @@ namespace Remotion.TypePipe.CodeGeneration
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
+    }
+
+    private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)
+    {
+      var proxyType = _mutableTypeFactory.CreateProxy (requestedType);
+      var proxyTypeAttribute = new CustomAttributeDeclaration (s_proxyTypeAttributeConstructor, new object[0]);
+      proxyType.AddCustomAttribute (proxyTypeAttribute);
+
+      return new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
     private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeAssemblyContext typeAssemblyContext)
