@@ -125,8 +125,11 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
             mi =>
             {
               typeAssemblyContext = (TypeAssemblyContext) mi.Arguments[0];
+              Assert.That (typeAssemblyContext.ParticipnatConfigurationID, Is.EqualTo ("participant configuration id"));
+              Assert.That (typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
               Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (fakeProxyType));
               Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));
+
               typeAssemblyContext.GenerationCompleted += ctx =>
               {
                 Assert.That (ctx, Is.SameAs (fakeContext));
@@ -143,7 +146,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       mockRepository.ReplayAll();
 
       var typeAssembler = CreateTypeAssembler (
-          mutableTypeFactoryMock, subclassProxyCreatorMock, participants: new[] { participantMock1, participantMock2 });
+          mutableTypeFactoryMock, subclassProxyCreatorMock, "participant configuration id", new[] { participantMock1, participantMock2 });
 
       var result = typeAssembler.AssembleType (_requestedType, _participantState);
 
@@ -172,16 +175,20 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       Assert.That (
           () => typeAssembler.AssembleType (_requestedType, _participantState),
           Throws.TypeOf<NotSupportedException>().With.InnerException.SameAs (exception2).And.With.Message.Matches (expectedMessageRegex));
+
       Assert.That (() => typeAssembler.AssembleType (_requestedType, _participantState), Throws.Exception.SameAs (exception3));
     }
 
     private TypeAssembler CreateTypeAssembler (
-        IMutableTypeFactory mutableTypeFactory = null, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator = null, params IParticipant[] participants)
+        IMutableTypeFactory mutableTypeFactory = null,
+        ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator = null,
+        string configurationId = "id",
+        params IParticipant[] participants)
     {
       mutableTypeFactory = mutableTypeFactory ?? _mutableTypeFactoryMock;
       typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator ?? _typeAssemblyContextCodeGeneratorMock;
 
-      return new TypeAssembler ("id", participants.AsOneTime(), mutableTypeFactory, typeAssemblyContextCodeGenerator);
+      return new TypeAssembler (configurationId, participants.AsOneTime(), mutableTypeFactory, typeAssemblyContextCodeGenerator);
     }
   }
 }

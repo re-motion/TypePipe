@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void Participate_SomeType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType));
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
       _participant.Participate (typeContext);
 

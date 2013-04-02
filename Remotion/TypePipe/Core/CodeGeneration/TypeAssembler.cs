@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("participantState", participantState);
 
       var proxyType = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = new TypeAssemblyContext (requestedType, proxyType, _mutableTypeFactory, participantState);
+      var typeAssemblyContext = new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);

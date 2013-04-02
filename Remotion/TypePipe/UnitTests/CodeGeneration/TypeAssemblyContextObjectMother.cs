@@ -27,6 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
   public static class TypeAssemblyContextObjectMother
   {
     public static TypeAssemblyContext Create (
+        string participantConfigurationID = "unspecified participant configuration id",
         Type requestedType = null,
         MutableType proxyType = null,
         IMutableTypeFactory mutableTypeFactory = null,
@@ -37,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new TypeAssemblyContext (requestedType, proxyType, mutableTypeFactory, state);
+      return new TypeAssemblyContext (participantConfigurationID, requestedType, proxyType, mutableTypeFactory, state);
     }
 
     public class UnspecifiedRequestedType {}

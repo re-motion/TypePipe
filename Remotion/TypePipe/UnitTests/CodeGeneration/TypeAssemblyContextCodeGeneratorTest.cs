@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GenerateTypes ()
     {
       var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
-      var typeContext = TypeAssemblyContextObjectMother.Create (requestedType);
+      var typeContext = TypeAssemblyContextObjectMother.Create (requestedType: requestedType);
       var proxyType = typeContext.ProxyType;
       var additionalType = typeContext.CreateType ("AdditionalType", null, TypeAttributes.Class, typeof (object));
 

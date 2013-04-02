@@ -29,19 +29,27 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class TypeAssemblyContext : ITypeAssemblyContext
   {
-    private readonly List<MutableType> _additionalTypes = new List<MutableType>();
+    private readonly string _participantConfigurationID;
     private readonly Type _requestedType;
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly MutableType _proxyType;
     private readonly IDictionary<string, object> _state;
+    private readonly List<MutableType> _additionalTypes = new List<MutableType>();
 
-    public TypeAssemblyContext (Type requestedType, MutableType proxyType, IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+    public TypeAssemblyContext (
+        string participantConfigurationID,
+        Type requestedType,
+        MutableType proxyType,
+        IMutableTypeFactory mutableTypeFactory,
+        IDictionary<string, object> state)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("state", state);
 
+      _participantConfigurationID = participantConfigurationID;
       _mutableTypeFactory = mutableTypeFactory;
       _requestedType = requestedType;
       _proxyType = proxyType;
@@ -52,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public string ParticipnatConfigurationID
     {
-      get { return null; }
+      get { return _participantConfigurationID; }
     }
 
     public Type RequestedType
