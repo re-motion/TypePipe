@@ -20,8 +20,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -66,19 +66,22 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (_codeGenerator.FlushCodeToDisk(), Is.Null);
     }
 
-    [Ignore ("TODO 5500")]
     [Test]
     public void StandardNameAndDirectory_Initial ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
-      var objectFactory = SafeServiceLocator.Current.GetInstance<IObjectFactory>();
+      var objectFactory = Pipeline.Create ("standard", CreateParticipant ((MutableType proxy) => { }));
       var codeGenerator = objectFactory.CodeGenerator;
 
+      var assemblyName = codeGenerator.AssemblyName;
       Assert.That (codeGenerator.AssemblyDirectory, Is.Null); // Current directory.
-      Assert.That (codeGenerator.AssemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
+      Assert.That (assemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
 
-      var assemblyPath = RequestTypeAndFlush();
-      Assert.That (assemblyPath, Is.StringStarting (Environment.CurrentDirectory));
+      objectFactory.GetAssembledType (typeof (RequestedType));
+      var assemblyPath = objectFactory.CodeGenerator.FlushCodeToDisk();
+
+      var expectedAssemblyPath = Path.Combine (Environment.CurrentDirectory, assemblyName + ".dll");
+      Assert.That (assemblyPath, Is.EqualTo (expectedAssemblyPath));
     }
 
     [Test]
