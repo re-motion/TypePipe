@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   [CLSCompliant (false)]
   public interface IModuleBuilder : ICustomAttributeTargetBuilder
   {
-    ITypeBuilder DefineType (string name, TypeAttributes attr);
+    IAssemblyBuilder AssemblyBuilder { get; }
 
-    string SaveToDisk ();
+    ITypeBuilder DefineType (string name, TypeAttributes attr);
   }
 }

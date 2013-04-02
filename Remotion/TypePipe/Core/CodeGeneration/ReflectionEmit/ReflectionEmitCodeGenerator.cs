@@ -130,10 +130,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public string FlushCodeToDisk ()
     {
-      if (_moduleContext.ModuleBuilder == null)
+      var moduleBuilder = _moduleContext.ModuleBuilder;
+      if (moduleBuilder == null)
         return null;
 
-      var assemblyPath = _moduleContext.ModuleBuilder.SaveToDisk();
+      var assemblyPath = moduleBuilder.AssemblyBuilder.SaveToDisk();
       ResetContext();
 
       return assemblyPath;

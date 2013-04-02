@@ -27,33 +27,25 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public class ModuleBuilderAdapter : BuilderAdapterBase, IModuleBuilder
   {
     private readonly ModuleBuilder _moduleBuilder;
-    private readonly string _moduleName;
-    private readonly AssemblyBuilder _assemblyBuilder;
+    private readonly IAssemblyBuilder _assemblyBuilder;
 
     public string ScopeName
     {
       get { return _moduleBuilder.ScopeName; }
     }
 
-    public string AssemblyName
+    public IAssemblyBuilder AssemblyBuilder
     {
-      get { return _assemblyBuilder.GetName().Name; }
+      get { return _assemblyBuilder; }
     }
 
-    public byte[] PublicKey
-    {
-      get { return _assemblyBuilder.GetName().GetPublicKey(); }
-    }
-
-    public ModuleBuilderAdapter (ModuleBuilder moduleBuilder, string moduleName)
+    public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
         : base (ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("moduleName", moduleName);
       Assertion.IsTrue (moduleBuilder.Assembly is AssemblyBuilder);
 
       _moduleBuilder = moduleBuilder;
-      _moduleName = moduleName;
-      _assemblyBuilder = (AssemblyBuilder) moduleBuilder.Assembly;
+      _assemblyBuilder = new AssemblyBuilderAdapter (((AssemblyBuilder) moduleBuilder.Assembly), moduleBuilder);
     }
 
     [CLSCompliant (false)]
@@ -63,14 +55,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       var typeBuilder = _moduleBuilder.DefineType (name, attr);
       return new TypeBuilderAdapter (typeBuilder);
-    }
-
-    public string SaveToDisk ()
-    {
-      _assemblyBuilder.Save (_moduleName);
-
-      // This is the absolute path to the module, which is also the assembly file path for single-module assemblies.
-      return _moduleBuilder.FullyQualifiedName;
     }
   }
 }

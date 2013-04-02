@@ -37,6 +37,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _moduleBuilder = moduleBuilder;
     }
 
+    public string AssemblyName
+    {
+      get { return _assemblyBuilder.GetName().Name; }
+    }
+
+    public byte[] PublicKey
+    {
+      get { return _assemblyBuilder.GetName ().GetPublicKey (); }
+    }
+
     public string SaveToDisk ()
     {
       // Scope name is the module name or file name, i.e., assembly name + '.dll'.

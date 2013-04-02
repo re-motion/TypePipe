@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// Creates a module builder.
     /// </summary>
     /// <param name="assemblyName">The assembly name (without the file ending '.dll').</param>
-    /// <param name="assemblyDirectoryOrNull">The directory in which the assembly will be saved when <see cref="IModuleBuilder.SaveToDisk" /> is called
-    /// on the returned <see cref="IModuleBuilder" />.</param>
+    /// <param name="assemblyDirectoryOrNull">The directory in which the assembly will be saved when <see cref="IAssemblyBuilder.SaveToDisk" /> is
+    /// called on <see cref="IModuleBuilder.AssemblyBuilder"/> of the returned <see cref="IModuleBuilder" />.</param>
     /// <param name="strongNamed">Whether or not to strong-name the generated assembly.</param>
     /// <param name="keyFilePathOrNull">The file path to the strong-name key, or <see langword="null"/> if the factory should create a temporary key.</param>
     /// <returns>

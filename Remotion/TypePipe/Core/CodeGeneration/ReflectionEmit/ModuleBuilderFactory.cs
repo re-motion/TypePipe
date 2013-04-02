@@ -46,9 +46,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var moduleName = assemblyName + ".dll";
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
-      var adapter = new ModuleBuilderAdapter (moduleBuilder, moduleName);
 
-      return adapter;
+      return new ModuleBuilderAdapter (moduleBuilder);
     }
 
     private StrongNameKeyPair GetKeyPair (string keyFilePathOrNull)

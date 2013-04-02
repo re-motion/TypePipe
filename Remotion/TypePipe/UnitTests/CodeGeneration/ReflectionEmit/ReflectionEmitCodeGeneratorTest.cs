@@ -108,8 +108,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void FlushCodeToDisk ()
     {
       DefineSomeType();
+      var fakeAssemblyBuilder = MockRepository.GenerateStrictMock<IAssemblyBuilder>();
       var fakeAssemblyPath = "fake path";
-      _moduleBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
+      _moduleBuilderMock.Expect (mock => mock.AssemblyBuilder).Return (fakeAssemblyBuilder);
+      fakeAssemblyBuilder.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
       var previousAssemblyName = _generator.AssemblyName;
 
       var result = _generator.FlushCodeToDisk();

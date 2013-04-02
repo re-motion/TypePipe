@@ -86,17 +86,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private void CheckAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory, byte[] expectedPublicKey = null)
     {
       Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
-      var adapter = (ModuleBuilderAdapter) moduleBuilder;
-      Assert.That (adapter.AssemblyName, Is.EqualTo (c_assemblyName));
-      Assert.That (adapter.ScopeName, Is.EqualTo (c_assemblyFileName));
-      Assert.That (adapter.PublicKey, Is.EqualTo (expectedPublicKey ?? new byte[0]));
+      var moduleBuilderAdapter = (ModuleBuilderAdapter) moduleBuilder;
+      Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo (c_assemblyFileName));
+      Assert.That (moduleBuilderAdapter.AssemblyBuilder, Is.TypeOf<AssemblyBuilderAdapter>());
+      var assemblyBuilderAdapter = (AssemblyBuilderAdapter) moduleBuilder.AssemblyBuilder;
+      Assert.That (assemblyBuilderAdapter.AssemblyName, Is.EqualTo (c_assemblyName));
+      Assert.That (assemblyBuilderAdapter.PublicKey, Is.EqualTo (expectedPublicKey ?? new byte[0]));
 
       var assemblyPath = Path.Combine (assemblyDirectory, c_assemblyFileName);
       var pdbPath = Path.Combine (assemblyDirectory, c_pdbFileName);
       Assert.That (File.Exists (assemblyPath), Is.False);
       Assert.That (File.Exists (pdbPath), Is.False);
 
-      var result = adapter.SaveToDisk();
+      var result = assemblyBuilderAdapter.SaveToDisk();
 
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (pdbPath), Is.True);
