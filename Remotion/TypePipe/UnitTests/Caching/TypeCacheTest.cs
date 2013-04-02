@@ -27,6 +27,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 

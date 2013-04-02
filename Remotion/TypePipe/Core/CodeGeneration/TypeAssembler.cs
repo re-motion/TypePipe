@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using Remotion.Text;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -34,7 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class TypeAssembler : ITypeAssembler
   {
-    private static ConstructorInfo s_proxyTypeAttributeConstructor = MemberInfoFromExpressionUtility.GetConstructor (() => new ProxyTypeAttribute());
+    private static readonly ConstructorInfo s_proxyTypeAttributeCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new ProxyTypeAttribute());
 
     private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
@@ -104,7 +105,7 @@ namespace Remotion.TypePipe.CodeGeneration
     private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)
     {
       var proxyType = _mutableTypeFactory.CreateProxy (requestedType);
-      var proxyTypeAttribute = new CustomAttributeDeclaration (s_proxyTypeAttributeConstructor, new object[0]);
+      var proxyTypeAttribute = new CustomAttributeDeclaration (s_proxyTypeAttributeCtor, new object[0]);
       proxyType.AddCustomAttribute (proxyTypeAttribute);
 
       return new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);

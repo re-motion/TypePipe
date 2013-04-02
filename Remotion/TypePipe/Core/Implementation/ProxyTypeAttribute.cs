@@ -17,10 +17,11 @@
 
 using System;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Implementation
 {
   // TODO Review: right name and namespace?
   // TODO docs: 5503
+  [AttributeUsage (AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   public class ProxyTypeAttribute : Attribute
   {
   }
