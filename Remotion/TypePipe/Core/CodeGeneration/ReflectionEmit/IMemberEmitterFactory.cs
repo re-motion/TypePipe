@@ -16,14 +16,12 @@
 // 
 
 using System;
-using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Defines an interface for <see cref="IMemberEmitter"/> factories.
   /// </summary>
-  [ConcreteImplementation (typeof (MemberEmitterFactory))]
   public interface IMemberEmitterFactory
   {
     IMemberEmitter CreateMemberEmitter (IEmittableOperandProvider emittableOperandProvider);

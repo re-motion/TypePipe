@@ -17,15 +17,12 @@
 
 using System;
 using System.Reflection;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>
   /// Defines an interface for classes creating <see cref="MutableType"/> model instances.
   /// </summary>
-  [ConcreteImplementation (typeof (MutableTypeFactory))]
   public interface IMutableTypeFactory
   {
     MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);

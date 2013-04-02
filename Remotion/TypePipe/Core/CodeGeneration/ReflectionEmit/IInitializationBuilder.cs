@@ -17,7 +17,6 @@
 using System;
 using System.Reflection;
 using Remotion.Collections;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -26,7 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Helps with building initializations for a <see cref="MutableType"/>.
   /// </summary>
   /// <remarks>This interface is an implementation detail of <see cref="MutableTypeCodeGenerator"/>.</remarks>
-  [ConcreteImplementation (typeof (InitializationBuilder))]
   public interface IInitializationBuilder
   {
     Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (MutableType mutableType);

@@ -90,7 +90,6 @@ namespace Remotion.TypePipe.Caching
       lock (_lock) _typeAssemblyContextCodeGenerator.CodeGenerator.SetAssemblyName (assemblyName);
     }
 
-    // TODO 5503: remove
     public ICodeGenerator CodeGenerator
     {
       get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }

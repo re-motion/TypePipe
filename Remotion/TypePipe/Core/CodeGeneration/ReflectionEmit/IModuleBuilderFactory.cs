@@ -16,7 +16,6 @@
 // 
 
 using System;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -24,7 +23,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Implementations of this interface create instances of <see cref="IModuleBuilder"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (ModuleBuilderFactory))]
   [CLSCompliant (false)]
   public interface IModuleBuilderFactory
   {

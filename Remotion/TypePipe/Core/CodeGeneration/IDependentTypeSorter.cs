@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -24,7 +23,6 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// An interface for classes that sort types according to their base type and interface dependencies.
   /// </summary>
-  [ConcreteImplementation (typeof (DependentTypeSorter))]
   public interface IDependentTypeSorter
   {
     IEnumerable<MutableType> Sort (IEnumerable<MutableType> types);

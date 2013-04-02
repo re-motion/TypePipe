@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -26,7 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Makes proxies serializable.
   /// </summary>
   /// <remarks>This interface is an implementation detail of <see cref="MutableTypeCodeGenerator"/>.</remarks>
-  [ConcreteImplementation (typeof (ProxySerializationEnabler))]
   public interface IProxySerializationEnabler
   {
     void MakeSerializable (MutableType proxyType, MethodInfo initializationMethod);

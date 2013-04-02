@@ -17,8 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -27,7 +25,6 @@ namespace Remotion.TypePipe.CodeGeneration
   /// Defines an interface for classes creating instances of <see cref="IMutableTypeCodeGenerator"/>.
   /// </summary>
   [CLSCompliant (false)]
-  [ConcreteImplementation (typeof (MutableTypeCodeGeneratorFactory))]
   public interface IMutableTypeCodeGeneratorFactory
   {
     ICodeGenerator CodeGenerator { get; }
