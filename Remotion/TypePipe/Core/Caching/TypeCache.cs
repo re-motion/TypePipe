@@ -47,7 +47,6 @@ namespace Remotion.TypePipe.Caching
     private readonly ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGenerator;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
-    private readonly ICodeGenerator _codeGenerator;
 
     public TypeCache (
         ITypeAssembler typeAssembler,
@@ -64,7 +63,6 @@ namespace Remotion.TypePipe.Caching
       _typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
-      _codeGenerator = new LockingCodeGeneratorDecorator (typeAssemblyContextCodeGenerator.CodeGenerator, _lock);
     }
 
     public string ParticipantConfigurationID
@@ -72,9 +70,30 @@ namespace Remotion.TypePipe.Caching
       get { return _typeAssembler.ParticipantConfigurationID; }
     }
 
+    public string AssemblyDirectory
+    {
+      get { lock (_lock) return _typeAssemblyContextCodeGenerator.CodeGenerator.AssemblyDirectory; }
+    }
+
+    public string AssemblyName
+    {
+      get { lock (_lock) return _typeAssemblyContextCodeGenerator.CodeGenerator.AssemblyName; }
+    }
+
+    public void SetAssemblyDirectory (string assemblyDirectory)
+    {
+      lock (_lock) _typeAssemblyContextCodeGenerator.CodeGenerator.SetAssemblyDirectory (assemblyDirectory);
+    }
+
+    public void SetAssemblyName (string assemblyName)
+    {
+      lock (_lock) _typeAssemblyContextCodeGenerator.CodeGenerator.SetAssemblyName (assemblyName);
+    }
+
+    // TODO 5503: remove
     public ICodeGenerator CodeGenerator
     {
-      get { return _codeGenerator; }
+      get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }
     }
 
     public Type GetOrCreateType (Type requestedType)
