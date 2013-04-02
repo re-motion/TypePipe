@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration
       var generatedTypeContext = GenerateTypesWithDiagnostics (typeAssemblyContext);
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
-      return (Type) generatedTypeContext.GetGeneratedMember (typeAssemblyContext.ProxyType);
+      return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
     }
 
     private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeAssemblyContext typeAssemblyContext)

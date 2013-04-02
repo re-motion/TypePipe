@@ -41,8 +41,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             typeContext.GenerationCompleted += ctx =>
             {
-              proxyType = (Type) ctx.GetGeneratedMember (typeContext.ProxyType);
-              additionalType = (Type) ctx.GetGeneratedMember (addedType);
+              proxyType = ctx.GetGeneratedType (typeContext.ProxyType);
+              additionalType = ctx.GetGeneratedType (addedType);
 
               Assert.That (proxyType.IsRuntimeType(), Is.True);
               Assert.That (additionalType.IsRuntimeType(), Is.True);
@@ -83,12 +83,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             typeContext.GenerationCompleted +=
                 ctx =>
                 {
-                  typeInitializer = (ConstructorInfo) ctx.GetGeneratedMember (addedTypeInitializer);
-                  field = (FieldInfo) ctx.GetGeneratedMember (addedField);
-                  ctor = (ConstructorInfo) ctx.GetGeneratedMember (addedCtor);
-                  method = (MethodInfo) ctx.GetGeneratedMember (addedMethod);
-                  property = (PropertyInfo) ctx.GetGeneratedMember (addedProperty);
-                  event_ = (EventInfo) ctx.GetGeneratedMember (addedEvent);
+                  typeInitializer = ctx.GetGeneratedConstructor (addedTypeInitializer);
+                  field = ctx.GetGeneratedField (addedField);
+                  ctor = ctx.GetGeneratedConstructor (addedCtor);
+                  method = ctx.GetGeneratedMethod (addedMethod);
+                  property = ctx.GetGeneratedProperty (addedProperty);
+                  event_ = ctx.GetGeneratedEvent (addedEvent);
                 };
           });
 
@@ -117,8 +117,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             typeContext.GenerationCompleted +=
                 ctx =>
                 {
-                  field = (FieldInfo) ctx.GetGeneratedMember (addedField);
-                  method = (MethodInfo) ctx.GetGeneratedMember (addedMethod);
+                  field = ctx.GetGeneratedField (addedField);
+                  method = ctx.GetGeneratedMethod (addedMethod);
                 };
           });
       var additionalType = type.Assembly.GetType ("MyType", true);

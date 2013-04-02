@@ -96,8 +96,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var result = _generator.GenerateTypes (typeContext);
 
       _mockRepository.VerifyAll();
-      Assert.That (result.GetGeneratedMember (fakeMutableType1), Is.SameAs (fakeType1));
-      Assert.That (result.GetGeneratedMember (fakeMutableType2), Is.SameAs (fakeType2));
+      Assert.That (result.GetGeneratedType (fakeMutableType1), Is.SameAs (fakeType1));
+      Assert.That (result.GetGeneratedType (fakeMutableType2), Is.SameAs (fakeType2));
     }
   }
 }

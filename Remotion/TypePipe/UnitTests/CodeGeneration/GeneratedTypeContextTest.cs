@@ -48,15 +48,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetGeneratedMember_Type ()
+    public void GetGeneratedType ()
     {
-      var result = _context.GetGeneratedMember (_mutableType);
+      var result = _context.GetGeneratedType (_mutableType);
 
       Assert.That (result, Is.SameAs (_generatedType));
     }
 
     [Test]
-    public void GetGeneratedMember_Member ()
+    public void GetGeneratedXXX_Members ()
     {
       // TODO 5461: MutableGenericParameters on MutableType.
 
@@ -74,16 +74,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var property = _generatedType.GetProperties (c_all).Single (p => p.Name == "Property");
       var event_ = _generatedType.GetEvents (c_all).Single (e => e.Name == "Event");
 
-      Assert.That (_context.GetGeneratedMember (addedTypeInitializer), Is.SameAs (typeInitializer));
-      Assert.That (_context.GetGeneratedMember (addedField), Is.SameAs (field));
-      Assert.That (_context.GetGeneratedMember (addedConstructor), Is.SameAs (constructor));
-      Assert.That (_context.GetGeneratedMember (addedMethod), Is.SameAs (method));
-      Assert.That (_context.GetGeneratedMember (addedProperty), Is.SameAs (property));
-      Assert.That (_context.GetGeneratedMember (addedEvent), Is.SameAs (event_));
+      Assert.That (_context.GetGeneratedConstructor (addedTypeInitializer), Is.SameAs (typeInitializer));
+      Assert.That (_context.GetGeneratedField (addedField), Is.SameAs (field));
+      Assert.That (_context.GetGeneratedConstructor (addedConstructor), Is.SameAs (constructor));
+      Assert.That (_context.GetGeneratedMethod (addedMethod), Is.SameAs (method));
+      Assert.That (_context.GetGeneratedProperty (addedProperty), Is.SameAs (property));
+      Assert.That (_context.GetGeneratedEvent (addedEvent), Is.SameAs (event_));
     }
 
     [Test]
-    public void GetGeneratedMember_Member_NoTypeInitializer ()
+    public void GetGeneratedXXX_Members_NoTypeInitializer ()
     {
       var addedField = _mutableType.AddField ("_field");
       var field = _generatedType.GetField ("_field", c_all);

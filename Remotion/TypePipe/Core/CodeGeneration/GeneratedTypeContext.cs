@@ -62,6 +62,13 @@ namespace Remotion.TypePipe.CodeGeneration
       return _mapping[mutableMember];
     }
 
+    public Type GetGeneratedType (MutableType mutableType) { return (Type) GetGeneratedMember (mutableType); }
+    public FieldInfo GetGeneratedField (MutableFieldInfo mutableField) { return (FieldInfo) GetGeneratedMember (mutableField); }
+    public ConstructorInfo GetGeneratedConstructor (MutableConstructorInfo mutableConstructor) { return (ConstructorInfo) GetGeneratedMember (mutableConstructor); }
+    public MethodInfo GetGeneratedMethod (MutableMethodInfo mutableMethod) { return (MethodInfo) GetGeneratedMember (mutableMethod); }
+    public PropertyInfo GetGeneratedProperty (MutablePropertyInfo mutableProperty) { return (PropertyInfo) GetGeneratedMember (mutableProperty); }
+    public EventInfo GetGeneratedEvent (MutableEventInfo mutableEvent) { return (EventInfo) GetGeneratedMember (mutableEvent); }
+
     private void BuildMapping (MutableType mutableType)
     {
       var generatedType = (Type) _mapping[mutableType];
