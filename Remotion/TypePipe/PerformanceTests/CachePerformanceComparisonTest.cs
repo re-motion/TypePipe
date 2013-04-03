@@ -23,13 +23,9 @@ using Remotion.Data.DomainObjects.Infrastructure;
 using Remotion.Data.DomainObjects.Mapping;
 using Remotion.Development.UnitTesting;
 using Remotion.Mixins;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 using Rhino.Mocks;
-using System.Linq;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.PerformanceTests
 {
@@ -47,19 +43,8 @@ namespace Remotion.TypePipe.PerformanceTests
       remixParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RemixCacheKeyProvider());
       var participants = new[] { restoreParticipantStub, remixParticipantStub };
 
-      var typeModifierStub = MockRepository.GenerateStub<ITypeAssemblyContextCodeGenerator>();
-      typeModifierStub.Stub (stub => stub.GenerateTypes (Arg<TypeAssemblyContext>.Is.Anything))
-                      .Do (new Func<TypeAssemblyContext, GeneratedTypeContext> (CreateGeneratedTypeContext));
-      //typeModifierStub.Stub (stub => stub.CodeGenerator).Return (MockRepository.GenerateStub<ICodeGenerator>());
-
-      var serviceLocator = new DefaultServiceLocator();
-      serviceLocator.Register (typeof (IParticipant), participants.Select (p => (Func<object>) (() => p)));
-      serviceLocator.Register (typeof (ITypeAssemblyContextCodeGenerator), () => typeModifierStub);
-
-      // TODO 5503: Fix!
-      ITypeCache typeCache;
-      using (new ServiceLocatorScope (serviceLocator))
-        typeCache = SafeServiceLocator.Current.GetInstance<ITypeCache>();
+      var objectFactory = Pipeline.Create ("CachePerformanceComparisonTest", participants);
+      var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (objectFactory, "_typeCache");
 
       Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeof (DomainType));
       Func<Delegate> constructorDelegateCacheFunc = () => typeCache.GetOrCreateConstructorCall (typeof (DomainType), typeof (Func<object>), true);
@@ -77,12 +62,6 @@ namespace Remotion.TypePipe.PerformanceTests
 
       TimeThis ("Remotion_Types", typeCacheFunc);
       TimeThis ("Remotion_ConstructorDelegates", constructorDelegateCacheFunc);
-    }
-
-    private GeneratedTypeContext CreateGeneratedTypeContext (ITypeAssemblyContext typeAssemblyContext)
-    {
-      var mutableAndGeneratedTypes = new[] { Tuple.Create (typeAssemblyContext.ProxyType, typeof (DomainType)) };
-      return new GeneratedTypeContext (mutableAndGeneratedTypes);
     }
 
     private static void TimeThis<T> (string testName, Func<T> func)
