@@ -16,13 +16,11 @@
 // 
 
 using System;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
@@ -32,14 +30,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   {
     private Type _requestedType;
     
-    private IInternalTypeCache _typeCacheMock;
+    private ITypeCache _typeCacheMock;
 
     private ObjectFactory _factory;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeCacheMock = MockRepository.GenerateStrictMock<IInternalTypeCache> ();
+      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache> ();
 
       _factory = new ObjectFactory (_typeCacheMock);
 

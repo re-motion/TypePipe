@@ -57,9 +57,9 @@ namespace Remotion.TypePipe.PerformanceTests
       serviceLocator.Register (typeof (ITypeAssemblyContextCodeGenerator), () => typeModifierStub);
 
       // TODO 5503: Fix!
-      IInternalTypeCache typeCache;
+      ITypeCache typeCache;
       using (new ServiceLocatorScope (serviceLocator))
-        typeCache = SafeServiceLocator.Current.GetInstance<IInternalTypeCache>();
+        typeCache = SafeServiceLocator.Current.GetInstance<ITypeCache>();
 
       Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeof (DomainType));
       Func<Delegate> constructorDelegateCacheFunc = () => typeCache.GetOrCreateConstructorCall (typeof (DomainType), typeof (Func<object>), true);

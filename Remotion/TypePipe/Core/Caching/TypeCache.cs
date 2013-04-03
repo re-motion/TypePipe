@@ -31,8 +31,7 @@ namespace Remotion.TypePipe.Caching
   /// Retrieves the generated type or its constructors for the requested type from the cache or delegates to the contained
   /// <see cref="ITypeAssembler"/> instance.
   /// </summary>
-  /// <remarks>This class ensures a single threaded-environment for all downstream implementation classes.</remarks>
-  public class TypeCache : IInternalTypeCache
+  public class TypeCache : ITypeCache
   {
     // Storing the delegates as static readonly fields has two advantages for performance:
     // 1) It ensures that no closure is implicilty created.

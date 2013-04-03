@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
@@ -28,9 +27,9 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class ObjectFactory : IObjectFactory
   {
-    private readonly IInternalTypeCache _typeCache;
+    private readonly ITypeCache _typeCache;
 
-    public ObjectFactory (IInternalTypeCache typeCache)
+    public ObjectFactory (ITypeCache typeCache)
     {
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
 
