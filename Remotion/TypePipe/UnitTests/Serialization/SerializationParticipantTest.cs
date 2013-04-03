@@ -131,6 +131,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _participant.Participate (typeContext);
     }
 
+    [Test]
+    public void RebuildState ()
+    {
+      Assert.That (() => _participant.RebuildState (null), Throws.Nothing);
+    }
+
     public class SomeType { }
 
     public class SerializableInterfaceType : ISerializable

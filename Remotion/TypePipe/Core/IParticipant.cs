@@ -18,6 +18,7 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe
@@ -57,5 +58,8 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="typeAssemblyContext">The type context.</param>
     void Participate (ITypeAssemblyContext typeAssemblyContext);
+
+    // TODO 5504: docs
+    void RebuildState (LoadedTypeContext loadedTypeContext);
   }
 }

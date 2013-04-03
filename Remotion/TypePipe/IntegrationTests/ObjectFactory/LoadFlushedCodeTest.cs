@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [ExpectedException (typeof (ArgumentException),
         ExpectedMessage = "The specified assembly was generated with a different participant configuration: '" + c_participantConfigurationID
                           + "'.\r\nParameter name: assembly")]
-    public void LoadAssemblyGeneratedByDifferentParticipantConfiguration ()
+    public void LoadAssemblyGeneratedWithDifferentParticipantConfiguration ()
     {
       var objectFactory = CreateObjectFactory ("different config");
       objectFactory.CodeManager.LoadFlushedCode (_assembly1);

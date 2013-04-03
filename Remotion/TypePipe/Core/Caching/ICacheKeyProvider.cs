@@ -45,6 +45,5 @@ namespace Remotion.TypePipe.Caching
 
     // TODO 5503: docs.
     object RebuildCacheKey (Type generatedType);
-
   }
 }

@@ -24,6 +24,7 @@ using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.Serialization.Implementation;
@@ -108,6 +109,11 @@ namespace Remotion.TypePipe.Serialization
                     ctx, typeof (ObjectWithoutDeserializationConstructorProxy), typeAssemblyContext.ParticipnatConfigurationID)
                     .Concat (Expression.Call (s_addFieldValuesMethod, ctx.Parameters[0], ctx.This))));
       }
+    }
+
+    public void RebuildState (LoadedTypeContext loadedTypeContext)
+    {
+      // Do nothing.
     }
 
     private IEnumerable<Expression> CreateMetaDataSerializationExpressions (

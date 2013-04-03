@@ -18,22 +18,28 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
   public class ParticipantStub : IParticipant
   {
-    private readonly Action<ITypeAssemblyContext> _typeContextModification;
     private readonly ICacheKeyProvider _cacheKeyProvider;
+    private readonly Action<ITypeAssemblyContext> _participateAction;
+    private readonly Action<LoadedTypeContext> _rebuildStateAction;
 
-    public ParticipantStub (Action<ITypeAssemblyContext> typeContextModification, ICacheKeyProvider cacheKeyProvider)
+    public ParticipantStub (
+        ICacheKeyProvider cacheKeyProvider, Action<ITypeAssemblyContext> participateAction, Action<LoadedTypeContext> rebuildStateAction)
+    
     {
-      ArgumentUtility.CheckNotNull ("typeContextModification", typeContextModification);
       // Cache key provider may be null.
+      ArgumentUtility.CheckNotNull ("participateAction", participateAction);
+      ArgumentUtility.CheckNotNull ("rebuildStateAction", rebuildStateAction);
 
-      _typeContextModification = typeContextModification;
       _cacheKeyProvider = cacheKeyProvider;
+      _participateAction = participateAction;
+      _rebuildStateAction = rebuildStateAction;
     }
 
     public ICacheKeyProvider PartialCacheKeyProvider
@@ -43,7 +49,12 @@ namespace Remotion.TypePipe.IntegrationTests
 
     public void Participate (ITypeAssemblyContext typeAssemblyContext)
     {
-      _typeContextModification (typeAssemblyContext);
+      _participateAction (typeAssemblyContext);
+    }
+
+    public void RebuildState (LoadedTypeContext loadedTypeContext)
+    {
+      _rebuildStateAction (loadedTypeContext);
     }
   }
 }
