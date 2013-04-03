@@ -60,6 +60,6 @@ namespace Remotion.TypePipe
     void Participate (ITypeAssemblyContext typeAssemblyContext);
 
     // TODO 5504: docs
-    void RebuildState (LoadedTypeContext loadedTypeContext);
+    void RebuildState (LoadedTypesContext loadedTypesContext);
   }
 }

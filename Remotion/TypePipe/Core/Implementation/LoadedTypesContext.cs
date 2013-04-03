@@ -17,7 +17,7 @@
 namespace Remotion.TypePipe.Implementation
 {
   // TODO 5504: docs
-  public class LoadedTypeContext
+  public class LoadedTypesContext
   {
      
   }

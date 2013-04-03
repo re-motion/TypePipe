@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests
   public abstract class IntegrationTestBase
   {
     protected static IParticipant CreateParticipant (
-        Action<MutableType> typeModification, ICacheKeyProvider cacheKeyProvider = null, Action<LoadedTypeContext> rebuildStateAction = null)
+        Action<MutableType> typeModification, ICacheKeyProvider cacheKeyProvider = null, Action<LoadedTypesContext> rebuildStateAction = null)
     {
       return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider, rebuildStateAction);
     }
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.IntegrationTests
     protected static IParticipant CreateParticipant (
         Action<ITypeAssemblyContext> participateAction = null,
         ICacheKeyProvider cacheKeyProvider = null,
-        Action<LoadedTypeContext> rebuildStateAction = null)
+        Action<LoadedTypesContext> rebuildStateAction = null)
     {
       return new ParticipantStub (cacheKeyProvider, participateAction ?? (ctx => { }), rebuildStateAction ?? (ctx => { }));
     }

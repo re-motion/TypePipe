@@ -27,10 +27,10 @@ namespace Remotion.TypePipe.IntegrationTests
   {
     private readonly ICacheKeyProvider _cacheKeyProvider;
     private readonly Action<ITypeAssemblyContext> _participateAction;
-    private readonly Action<LoadedTypeContext> _rebuildStateAction;
+    private readonly Action<LoadedTypesContext> _rebuildStateAction;
 
     public ParticipantStub (
-        ICacheKeyProvider cacheKeyProvider, Action<ITypeAssemblyContext> participateAction, Action<LoadedTypeContext> rebuildStateAction)
+        ICacheKeyProvider cacheKeyProvider, Action<ITypeAssemblyContext> participateAction, Action<LoadedTypesContext> rebuildStateAction)
     
     {
       // Cache key provider may be null.
@@ -52,9 +52,9 @@ namespace Remotion.TypePipe.IntegrationTests
       _participateAction (typeAssemblyContext);
     }
 
-    public void RebuildState (LoadedTypeContext loadedTypeContext)
+    public void RebuildState (LoadedTypesContext loadedTypesContext)
     {
-      _rebuildStateAction (loadedTypeContext);
+      _rebuildStateAction (loadedTypesContext);
     }
   }
 }

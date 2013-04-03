@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.Serialization
       }
     }
 
-    public void RebuildState (LoadedTypeContext loadedTypeContext)
+    public void RebuildState (LoadedTypesContext loadedTypesContext)
     {
       // Do nothing.
     }
