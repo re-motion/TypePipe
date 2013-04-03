@@ -97,6 +97,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\IProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IInitializationBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IModuleBuilderFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LockingReflectionEmitCodeGeneratorDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilder.cs" />
     <Compile Include="CodeGeneration\IMutableTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IDelegateProvider.cs" />
