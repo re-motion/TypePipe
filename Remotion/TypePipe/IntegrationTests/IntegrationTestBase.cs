@@ -23,6 +23,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -52,7 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests
     private bool _skipSavingAndVerification;
     private bool _skipDeletion;
 
-    private ITypeCache _typeCache;
+    private ICodeManager _codeManager;
 
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp ()
@@ -116,18 +117,18 @@ namespace Remotion.TypePipe.IntegrationTests
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
       var objectFactory = Pipeline.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime());
 
-      _typeCache = objectFactory.TypeCache;
-      _typeCache.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _typeCache.SetAssemblyName (participantConfigurationID);
+      _codeManager = objectFactory.CodeManager;
+      _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
+      _codeManager.SetAssemblyName (participantConfigurationID);
 
       return objectFactory;
     }
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_typeCache, "Use IntegrationTestBase.CreateObjectFactory");
+      Assertion.IsNotNull (_codeManager, "Use IntegrationTestBase.CreateObjectFactory");
 
-      var assemblyPath = _typeCache.FlushCodeToDisk();
+      var assemblyPath = _codeManager.FlushCodeToDisk();
       if (assemblyPath == null)
         return null;
 

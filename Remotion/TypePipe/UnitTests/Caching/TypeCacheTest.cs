@@ -100,26 +100,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
-    public void DelegatingMembers_CodeGenerator_IsGuardedByLock ()
-    {
-      var codeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
-      _typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.CodeGenerator).Return (codeGeneratorMock).Repeat.Times (4);
-
-      codeGeneratorMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (mi => LockTestHelper.CheckLockIsHeld (_lock));
-      codeGeneratorMock.Expect (mock => mock.AssemblyName).Return ("get name").WhenCalled (mi => LockTestHelper.CheckLockIsHeld (_lock));
-      codeGeneratorMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (mi => LockTestHelper.CheckLockIsHeld (_lock));
-      codeGeneratorMock.Expect (mock => mock.SetAssemblyName ("set name")).WhenCalled (mi => LockTestHelper.CheckLockIsHeld (_lock));
-
-      Assert.That (_cache.AssemblyDirectory, Is.EqualTo ("get dir"));
-      Assert.That (_cache.AssemblyName, Is.EqualTo ("get name"));
-      _cache.SetAssemblyDirectory ("set dir");
-      _cache.SetAssemblyName ("set name");
-
-      _typeAssemblyContextCodeGeneratorMock.VerifyAllExpectations();
-      codeGeneratorMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void FlushCodeToDisk ()
     {
       var configID = "config id";

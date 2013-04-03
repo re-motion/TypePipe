@@ -49,7 +49,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void Initialization ()
     {
-      Assert.That (_factory.TypeCache, Is.SameAs (_typeCacheMock));
       Assert.That (_factory.CodeManager, Is.SameAs (_codeManagerMock));
     }
 
