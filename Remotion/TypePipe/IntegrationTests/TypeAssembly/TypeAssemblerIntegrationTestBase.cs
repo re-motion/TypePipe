@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
@@ -36,23 +35,18 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
-      var actions = participantActions.Select (a => (Action<ITypeAssemblyContext>) (ctx => a (ctx.ProxyType)));
-      return AssembleType (typeof (T), actions, 1);
+      var actions = participantActions.Select (a => (Action<ITypeAssemblyContext>) (ctx => a (ctx.ProxyType))).ToArray();
+      return AssembleType (typeof (T), actions);
     }
 
     protected Type AssembleType<T> (params Action<ITypeAssemblyContext>[] participantActions)
     {
-      return AssembleType (typeof (T), participantActions, 1);
+      return AssembleType (typeof (T), participantActions);
     }
 
     protected Type AssembleType (Type requestedType, params Action<ITypeAssemblyContext>[] participantActions)
     {
-      return AssembleType (requestedType, participantActions, 1);
-    }
-
-    protected Type AssembleType (Type requestedType, IEnumerable<Action<ITypeAssemblyContext>> participantActions, int stackFramesToSkip)
-    {
-      var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime();
+      var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime ();
       var objectFactory = CreateObjectFactory (participants);
 
       return objectFactory.GetAssembledType (requestedType);
