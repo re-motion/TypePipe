@@ -25,6 +25,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -107,18 +108,24 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IObjectFactory CreateObjectFactory (params IParticipant[] participants)
     {
-      return CreateObjectFactory ((IEnumerable<IParticipant>) participants);
+      return CreateObjectFactory (GetNameOfRunningTest(), participants);
     }
 
+    // TODO 5503: remove
     protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants)
     {
       var nameOfRunningTest = GetNameOfRunningTest();
+      return CreateObjectFactory (nameOfRunningTest, participants.ToArray());
+    }
+
+    protected IObjectFactory CreateObjectFactory (string participantConfigurationID, params IParticipant[] participants)
+    {
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
-      var objectFactory = Pipeline.Create (nameOfRunningTest, nonEmptyParticipants);
+      var objectFactory = Pipeline.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime());
 
       _typeCache = objectFactory.TypeCache;
       _typeCache.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _typeCache.SetAssemblyName (nameOfRunningTest);
+      _typeCache.SetAssemblyName (participantConfigurationID);
 
       return objectFactory;
     }
@@ -170,7 +177,7 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var participantList = participants.ToList();
       if (participantList.Count == 0)
-        participantList.Add (CreateParticipant ((MutableType proxy) => { }));
+        participantList.Add (CreateNopParticipant());
 
       return participantList;
     }

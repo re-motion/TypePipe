@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     protected Type AssembleType (Type requestedType, params Action<ITypeAssemblyContext>[] participantActions)
     {
-      var participants = participantActions.Select (a => CreateParticipant (a)).AsOneTime ();
+      var participants = participantActions.Select (a => CreateParticipant (a));
       var objectFactory = CreateObjectFactory (participants);
 
       return objectFactory.GetAssembledType (requestedType);

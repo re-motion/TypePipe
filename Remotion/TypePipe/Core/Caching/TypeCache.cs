@@ -97,23 +97,6 @@ namespace Remotion.TypePipe.Caching
       return _typeAssemblyContextCodeGenerator.CodeGenerator.FlushCodeToDisk (_typeAssembler.ParticipantConfigurationID);
     }
 
-    public void LoadTypes (IEnumerable<Type> generatedTypes)
-    {
-      ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
-
-      var proxyTypes = generatedTypes.Where (t => t.IsDefined (typeof (ProxyTypeAttribute), inherit: false));
-      var keysAndTypes = proxyTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
-
-      lock (_lock)
-      {
-        foreach (var pair in keysAndTypes)
-        {
-          if (!_types.ContainsKey (pair.Key))
-            _types.Add (pair.Key, pair.Type);
-        }
-      }
-    }
-
     public void LoadFlushedCode (Assembly assembly)
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
@@ -137,7 +120,8 @@ namespace Remotion.TypePipe.Caching
         throw new ArgumentException (message, "assembly");
       }
 
-      LoadTypes (assembly.GetTypes());
+      var proxyTypes = assembly.GetTypes().Where (t => t.IsDefined (typeof (ProxyTypeAttribute), inherit: false));
+      LoadProxyTypes (proxyTypes);
     }
 
     public Type GetOrCreateType (Type requestedType)
@@ -171,6 +155,20 @@ namespace Remotion.TypePipe.Caching
       }
 
       return constructorCall;
+    }
+
+    private void LoadProxyTypes (IEnumerable<Type> proxyTypes)
+    {
+      var keysAndTypes = proxyTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
+
+      lock (_lock)
+      {
+        foreach (var pair in keysAndTypes)
+        {
+          if (!_types.ContainsKey (pair.Key))
+            _types.Add (pair.Key, pair.Type);
+        }
+      }
     }
 
     private Type GetOrCreateType (object[] typeKey, Type requestedType)

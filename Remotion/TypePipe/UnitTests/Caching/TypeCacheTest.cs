@@ -30,7 +30,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
-using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.Caching
 {
@@ -136,38 +135,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeAssemblerMock.VerifyAllExpectations();
       codeGeneratorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeAssemblyPath));
-    }
-
-    [Test]
-    public void LoadTypes ()
-    {
-      _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
-          .WhenCalled (x => LockTestHelper.CheckLockIsNotHeld (_lock))
-          .Return (new object[] { null, "type key" });
-
-      _cache.LoadTypes (new[] { _generatedType1, _generatedType2 }.AsOneTime());
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
-    }
-
-    [Test]
-    public void LoadTypes_SameKey_Nop ()
-    {
-      _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
-          .Return (new object[] { null, "type key" })
-          .Repeat.Twice();
-
-      var otherGeneratedType = typeof (OtherGeneratedType1);
-      Assert.That (otherGeneratedType.BaseType, Is.SameAs (_generatedType1.BaseType));
-      _cache.LoadTypes (new[] { _generatedType1 });
-
-      // Does not throw exception or overwrite previously cached type.
-      _cache.LoadTypes (new[] { otherGeneratedType });
-
-      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
     }
 
     [Test]

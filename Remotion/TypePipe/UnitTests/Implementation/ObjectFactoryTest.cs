@@ -147,19 +147,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (() => _factory.PrepareExternalUninitializedObject (new object()), Throws.Nothing);
     }
 
-    [Test]
-    public void LoadFlushedCode ()
-    {
-      var moduleBuilder = ReflectionEmitObjectMother.CreateModuleBuilder();
-      var type1 = moduleBuilder.DefineType ("Type1", TypeAttributes.Public).CreateType();
-      var type2 = moduleBuilder.DefineType ("Type2", TypeAttributes.NotPublic).CreateType();
-      _typeCacheMock.Expect (mock => mock.LoadTypes (new[] { type1, type2 }));
-
-      _factory.LoadFlushedCode (moduleBuilder.Assembly);
-
-      _typeCacheMock.VerifyAllExpectations();
-    }
-
     class RequestedType { }
     class AssembledType : RequestedType { }
   }

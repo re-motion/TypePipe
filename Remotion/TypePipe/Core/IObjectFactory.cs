@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
@@ -50,8 +49,5 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="instance">The assembled type instance which should be prepared.</param>
     void PrepareExternalUninitializedObject (object instance);
-
-    // TODO 5503: Remove
-    void LoadFlushedCode (Assembly assembly);
   }
 }
