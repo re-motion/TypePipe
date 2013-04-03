@@ -17,10 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
@@ -159,27 +157,13 @@ namespace Remotion.TypePipe.IntegrationTests
 
     private static string GetNameOfRunningTest ()
     {
-      // The following might have poor performance.
-      var stackTrace = new StackTrace();
+      // Test.FullName == Type.FullName + "." + MethodInfo.Name.
+      var fullTestName = TestContext.CurrentContext.Test.FullName;
+      var methodName = TestContext.CurrentContext.Test.Name;
+      var fullTypeName = fullTestName.Substring (0, fullTestName.Length - (methodName.Length + 1));
+      var typeName = fullTypeName.Substring (fullTypeName.LastIndexOf ('.') + 1);
 
-      for (int i = 0; i < stackTrace.FrameCount; i++)
-      {
-        var method = stackTrace.GetFrame (i).GetMethod();
-        if (IsTestMethod (method))
-        {
-          Assertion.IsNotNull (method.DeclaringType);
-          return string.Format ("{0}.{1}", method.DeclaringType.Name, method.Name);
-        }
-      }
-
-      throw new Exception ("Should be called by test method.");
-    }
-
-    private static bool IsTestMethod (MethodBase method)
-    {
-      return method.IsDefined (typeof (TestAttribute), inherit: true)
-          || method.IsDefined (typeof (SetUpAttribute), inherit: true)
-          || method.IsDefined (typeof (TestFixtureSetUpAttribute), inherit: true);
+      return typeName + '.' + methodName;
     }
 
     private IEnumerable<IParticipant> GetNonEmptyParticipants (IEnumerable<IParticipant> participants)
