@@ -110,6 +110,7 @@
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
+    <Compile Include="Implementation\LoadedTypesContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />

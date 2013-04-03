@@ -16,38 +16,32 @@
 // 
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
 {
   // TODO 5504: docs
-  public class LoadedTypesContext
+  public struct LoadedProxy
   {
-    private readonly ReadOnlyCollection<LoadedProxy> _proxyTypes;
-    private readonly ReadOnlyCollection<Type> _additionalTypes;
+    private readonly Type _generatedType;
 
-    public LoadedTypesContext (IEnumerable<Type> proxyTypes, IEnumerable<Type> additionalTypes)
+    public LoadedProxy (Type generatedType)
     {
-      ArgumentUtility.CheckNotNull ("proxyTypes", proxyTypes);
-      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
+      ArgumentUtility.CheckNotNull ("generatedType", generatedType);
 
-      _proxyTypes = proxyTypes.Select (p => new LoadedProxy (p)).ToList().AsReadOnly();
-      _additionalTypes = additionalTypes.ToList().AsReadOnly();
+      _generatedType = generatedType;
     }
 
     // TODO 5504: docs
-    public ReadOnlyCollection<LoadedProxy> ProxyTypes
+    public Type RequestedType
     {
-      get { return _proxyTypes; }
+      get { return _generatedType.BaseType; }
     }
 
     // TODO 5504: docs
-    public ReadOnlyCollection<Type> AdditionalTypes
+    public Type GeneratedType
     {
-      get { return _additionalTypes; }
+      get { return _generatedType; }
     }
   }
 }
