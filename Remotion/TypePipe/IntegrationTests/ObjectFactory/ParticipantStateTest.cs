@@ -18,6 +18,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -52,17 +53,32 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (stateWasRead, Is.True);
     }
 
-    //[Test]
-    //public void RebuildFromLoadedTypes ()
-    //{
-    //  var participant1 = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
-    //  var savingFactory = CreateObjectFactory (participant1);
+    [Ignore ("TODO 5504")]
+    [Test]
+    public void RebuildStateFromLoadedTypes ()
+    {
+      var participant1 = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
+      var savingFactory = CreateObjectFactory (participant1);
 
-    //  var participant2 = CreateParticipant (rebuildStateAction: ctx => {
-        
-    //  });
-    //  var loadingFactory = CreateObjectFactory ()
-    //}
+      Type loadedType = null;
+      var participant2 = CreateParticipant (
+          rebuildStateAction: ctx =>
+          {
+            var loadedProxy = ctx.ProxyTypes.Single();
+            var additionalType = ctx.AdditionalTypes.Single();
+            Assert.That (loadedProxy.RequestedType, Is.SameAs (typeof (RequestedType1)));
+            Assert.That (additionalType.FullName, Is.EqualTo ("MyNs.AdditionalType"));
+            loadedType = loadedProxy.GeneratedType;
+          });
+      var loadingFactory = CreateObjectFactory (participant2);
+
+      savingFactory.GetAssembledType (typeof (RequestedType1));
+      var assemblyPath = savingFactory.CodeManager.FlushCodeToDisk();
+      loadingFactory.CodeManager.LoadFlushedCode (Assembly.LoadFrom (assemblyPath));
+
+      Assert.That (loadedType, Is.Not.Null);
+      Assert.That (loadingFactory.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));
+    }
 
     public class RequestedType1 {}
     public class RequestedType2 {}
