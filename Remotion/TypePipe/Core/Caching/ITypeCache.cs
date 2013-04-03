@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -65,8 +66,10 @@ namespace Remotion.TypePipe.Caching
     /// <returns>The absolute path to the saved assembly file, or <see langword="null"/> if no assembly was saved.</returns>
     string FlushCodeToDisk ();
 
-    // TODO 5503: Refactor.
-    // TODO 5503: Docs.
+    // TODO 5503: Remove.
     void LoadTypes (IEnumerable<Type> generatedTypes);
+
+    // TODO 5503: docs
+    void LoadFlushedCode (Assembly assembly);
   }
 }
