@@ -56,6 +56,7 @@ namespace Remotion.TypePipe.PerformanceTests
       serviceLocator.Register (typeof (IParticipant), participants.Select (p => (Func<object>) (() => p)));
       serviceLocator.Register (typeof (ITypeAssemblyContextCodeGenerator), () => typeModifierStub);
 
+      // TODO 5503: Fix!
       IInternalTypeCache typeCache;
       using (new ServiceLocatorScope (serviceLocator))
         typeCache = SafeServiceLocator.Current.GetInstance<IInternalTypeCache>();
