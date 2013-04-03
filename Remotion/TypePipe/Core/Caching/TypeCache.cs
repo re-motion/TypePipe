@@ -95,6 +95,11 @@ namespace Remotion.TypePipe.Caching
       get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }
     }
 
+    public string FlushCodeToDisk ()
+    {
+      return _typeAssemblyContextCodeGenerator.CodeGenerator.FlushCodeToDisk (_typeAssembler.ParticipantConfigurationID);
+    }
+
     public void LoadTypes (IEnumerable<Type> generatedTypes)
     {
       ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
@@ -110,11 +115,6 @@ namespace Remotion.TypePipe.Caching
             _types.Add (pair.Key, pair.Type);
         }
       }
-    }
-
-    public string FlushCodeToDisk ()
-    {
-      throw new NotImplementedException ();
     }
 
     public Type GetOrCreateType (Type requestedType)

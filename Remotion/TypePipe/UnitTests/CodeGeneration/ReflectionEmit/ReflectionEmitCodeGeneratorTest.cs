@@ -22,6 +22,8 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -108,23 +110,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void FlushCodeToDisk ()
     {
       DefineSomeType();
-      var fakeAssemblyBuilder = MockRepository.GenerateStrictMock<IAssemblyBuilder>();
-      var fakeAssemblyPath = "fake path";
-      _moduleBuilderMock.Expect (mock => mock.AssemblyBuilder).Return (fakeAssemblyBuilder);
-      fakeAssemblyBuilder.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
+      var configID = "config id";
+      var assemblyPath = "fake path";
+      var assemblyBuilderMock = MockRepository.GenerateStrictMock<IAssemblyBuilder>();
+      _moduleBuilderMock.Expect (mock => mock.AssemblyBuilder).Return (assemblyBuilderMock);
+      assemblyBuilderMock
+          .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeDeclaration>.Is.Anything))
+          .WhenCalled (
+              mi =>
+              {
+                var attribute = mi.Arguments[0].As<CustomAttributeDeclaration>();
+                Assert.That (attribute.Type, Is.SameAs (typeof (TypePipeAssemblyAttribute)));
+                Assert.That (attribute.ConstructorArguments, Is.EqualTo (new[] { configID }));
+                Assert.That (attribute.NamedArguments, Is.Empty);
+              });
+      assemblyBuilderMock.Expect (mock => mock.SaveToDisk()).Return (assemblyPath);
       var previousAssemblyName = _generator.AssemblyName;
 
-      var result = _generator.FlushCodeToDisk();
+      var result = _generator.FlushCodeToDisk (configID);
 
       _moduleBuilderMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (fakeAssemblyPath));
+      assemblyBuilderMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (assemblyPath));
       Assert.That (_generator.AssemblyName, Is.Not.SameAs (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
     }
 
     [Test]
     public void FlushCodeToDisk_NoTypeDefined ()
     {
-      Assert.That (_generator.FlushCodeToDisk(), Is.Null);
+      Assert.That (_generator.FlushCodeToDisk("config id"), Is.Null);
     }
 
     [Test]

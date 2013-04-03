@@ -43,6 +43,11 @@ namespace Remotion.TypePipe.Implementation
       get { return _typeCache.ParticipantConfigurationID; }
     }
 
+    public ITypeCache TypeCache
+    {
+      get { return _typeCache; }
+    }
+
     public ICodeGenerator CodeGenerator
     {
       get { return _typeCache.CodeGenerator; }

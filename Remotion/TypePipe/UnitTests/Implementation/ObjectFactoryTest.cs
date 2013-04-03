@@ -48,6 +48,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
+    public void Initialization ()
+    {
+      Assert.That (_factory.TypeCache, Is.SameAs (_typeCacheMock));
+    }
+
+    [Test]
     public void ParticipantConfigurationID ()
     {
       _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return ("configId");

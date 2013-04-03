@@ -56,12 +56,13 @@ namespace Remotion.TypePipe.CodeGeneration
     /// The assembly is written to the directory defined by <see cref="AssemblyDirectory"/>.
     /// If <see cref="AssemblyDirectory"/> is <see langword="null"/> the assembly is saved in the current working directory.
     /// </summary>
+    /// <param name="participantConfigurationID">The participant configuration identification.</param>
     /// <remarks>
     /// If no new types have been generated since the last call to <see cref="FlushCodeToDisk"/>, this method does nothing
     /// and returns <see langword="null"/>.
     /// This method also generates a new unique name for the next assembly.
     /// </remarks>
     /// <returns>The absolute path to the saved assembly file, or <see langword="null"/> if no assembly was saved.</returns>
-    string FlushCodeToDisk ();
+    string FlushCodeToDisk (string participantConfigurationID);
   }
 }

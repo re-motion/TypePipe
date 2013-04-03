@@ -20,7 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -28,14 +28,14 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
   public class FlushGeneratedCodeTest : IntegrationTestBase
   {
     private IObjectFactory _objectFactory;
-    private ICodeGenerator _codeGenerator;
+    private ITypeCache _typeCache;
 
     public override void SetUp ()
     {
       base.SetUp();
 
       _objectFactory = CreateObjectFactory();
-      _codeGenerator = _objectFactory.CodeGenerator;
+      _typeCache = _objectFactory.TypeCache;
     }
 
     [Test]
@@ -57,12 +57,12 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [Test]
     public void FlushGeneratedCode_NoNewTypes ()
     {
-      Assert.That (_codeGenerator.FlushCodeToDisk(), Is.Null);
+      Assert.That (_typeCache.FlushCodeToDisk(), Is.Null);
 
       RequestTypeAndFlush (typeof (RequestedType));
       RequestType (typeof (RequestedType));
 
-      Assert.That (_codeGenerator.FlushCodeToDisk(), Is.Null);
+      Assert.That (_typeCache.FlushCodeToDisk(), Is.Null);
     }
 
     [Test]
@@ -70,14 +70,14 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
       var objectFactory = Pipeline.Create ("standard", CreateNopParticipant());
-      var codeGenerator = objectFactory.CodeGenerator;
+      var typeCache = objectFactory.TypeCache;
 
-      var assemblyName = codeGenerator.AssemblyName;
-      Assert.That (codeGenerator.AssemblyDirectory, Is.Null); // Current directory.
+      var assemblyName = typeCache.AssemblyName;
+      Assert.That (typeCache.AssemblyDirectory, Is.Null); // Current directory.
       Assert.That (assemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
 
       objectFactory.GetAssembledType (typeof (RequestedType));
-      var assemblyPath = objectFactory.CodeGenerator.FlushCodeToDisk();
+      var assemblyPath = typeCache.FlushCodeToDisk();
 
       var expectedAssemblyPath = Path.Combine (Environment.CurrentDirectory, assemblyName + ".dll");
       Assert.That (assemblyPath, Is.EqualTo (expectedAssemblyPath));
@@ -86,22 +86,22 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [Test]
     public void StandardName_IsUnique ()
     {
-      var oldAssemblyName = _codeGenerator.AssemblyName;
+      var oldAssemblyName = _typeCache.AssemblyName;
 
       RequestTypeAndFlush();
 
-      Assert.That (_codeGenerator.AssemblyName, Is.Not.EqualTo (oldAssemblyName));
+      Assert.That (_typeCache.AssemblyName, Is.Not.EqualTo (oldAssemblyName));
     }
 
     [Test]
     public void CustomNameAndDirectory ()
     {
       var directory = Path.GetTempPath();
-      _codeGenerator.SetAssemblyDirectory (directory);
-      _codeGenerator.SetAssemblyName ("Abc");
+      _typeCache.SetAssemblyDirectory (directory);
+      _typeCache.SetAssemblyName ("Abc");
 
-      Assert.That (_codeGenerator.AssemblyDirectory, Is.EqualTo (directory));
-      Assert.That (_codeGenerator.AssemblyName, Is.EqualTo ("Abc"));
+      Assert.That (_typeCache.AssemblyDirectory, Is.EqualTo (directory));
+      Assert.That (_typeCache.AssemblyName, Is.EqualTo ("Abc"));
 
       // The assembly will be saved in a directory that lacks the needed references for peverify.
       var path = RequestTypeAndFlush (skipPeVerification: true);
@@ -117,16 +117,16 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 
       var message1 = "Cannot set assembly directory after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
       var message2 = "Cannot set assembly name after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
-      Assert.That (() => _codeGenerator.SetAssemblyDirectory ("Uio"), Throws.InvalidOperationException.With.Message.EqualTo (message1));
-      Assert.That (() => _codeGenerator.SetAssemblyName ("Xyz"), Throws.InvalidOperationException.With.Message.EqualTo (message2));
+      Assert.That (() => _typeCache.SetAssemblyDirectory ("Uio"), Throws.InvalidOperationException.With.Message.EqualTo (message1));
+      Assert.That (() => _typeCache.SetAssemblyName ("Xyz"), Throws.InvalidOperationException.With.Message.EqualTo (message2));
 
       Flush();
 
-      _codeGenerator.SetAssemblyDirectory ("Uio");
-      _codeGenerator.SetAssemblyName ("Xyz");
+      _typeCache.SetAssemblyDirectory ("Uio");
+      _typeCache.SetAssemblyName ("Xyz");
 
-      Assert.That (_codeGenerator.AssemblyDirectory, Is.EqualTo ("Uio"));
-      Assert.That (_codeGenerator.AssemblyName, Is.EqualTo ("Xyz"));
+      Assert.That (_typeCache.AssemblyDirectory, Is.EqualTo ("Uio"));
+      Assert.That (_typeCache.AssemblyName, Is.EqualTo ("Xyz"));
     }
 
     private Type RequestType (Type requestedType = null)

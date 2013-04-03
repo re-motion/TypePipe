@@ -120,6 +120,56 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
+    public void FlushCodeToDisk ()
+    {
+      var configID = "config id";
+      var fakeAssemblyPath = "assembly path";
+      var codeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
+      _typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.CodeGenerator).Return (codeGeneratorMock);
+      _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
+      codeGeneratorMock.Expect (mock => mock.FlushCodeToDisk (configID)).Return (fakeAssemblyPath);
+
+      var result = _cache.FlushCodeToDisk();
+
+      _typeAssemblyContextCodeGeneratorMock.VerifyAllExpectations();
+      _typeAssemblerMock.VerifyAllExpectations();
+      codeGeneratorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeAssemblyPath));
+    }
+
+    [Test]
+    public void LoadTypes ()
+    {
+      _typeAssemblerMock
+          .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
+          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lock))
+          .Return (new object[] { null, "type key" });
+
+      _cache.LoadTypes (new[] { _generatedType1, _generatedType2 }.AsOneTime());
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
+    }
+
+    [Test]
+    public void LoadTypes_SameKey_Nop ()
+    {
+      _typeAssemblerMock
+          .Expect (mock => mock.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
+          .Return (new object[] { null, "type key" })
+          .Repeat.Twice();
+
+      var otherGeneratedType = typeof (OtherGeneratedType1);
+      Assert.That (otherGeneratedType.BaseType, Is.SameAs (_generatedType1.BaseType));
+      _cache.LoadTypes (new[] { _generatedType1 });
+
+      // Does not throw exception or overwrite previously cached type.
+      _cache.LoadTypes (new[] { otherGeneratedType });
+
+      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
+    }
+
+    [Test]
     public void GetOrCreateType_CacheHit ()
     {
       _types.Add (new object[] { _requestedType, "key" }, _generatedType1);
@@ -226,38 +276,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
       Assert.That (result, Is.SameAs (_delegate2));
       Assert.That (_types[new object[] { _requestedType, "other type key" }], Is.SameAs (_generatedType2));
       Assert.That (_constructorCalls[new object[] { _requestedType, _delegateType, _allowNonPublic, "other type key" }], Is.SameAs (_delegate2));
-    }
-
-    [Test]
-    public void LoadTypes ()
-    {
-      _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
-          .WhenCalled (x => LockTestHelper.CheckLockIsHeld (_lock))
-          .Return (new object[] { null, "type key" });
-
-      _cache.LoadTypes (new[] { _generatedType1, _generatedType2 }.AsOneTime());
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
-    }
-
-    [Test]
-    public void LoadTypes_SameKey_Nop ()
-    {
-      _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
-          .Return (new object[] { null, "type key" })
-          .Repeat.Twice();
-
-      var otherGeneratedType = typeof (OtherGeneratedType1);
-      Assert.That (otherGeneratedType.BaseType, Is.SameAs (_generatedType1.BaseType));
-      _cache.LoadTypes (new[] { _generatedType1 });
-
-      // Does not throw exception or overwrite previously cached type.
-      _cache.LoadTypes (new[] { otherGeneratedType });
-
-      Assert.That (_types[new object[] { _generatedType1.BaseType, "type key" }], Is.SameAs (_generatedType1));
     }
 
     [ProxyType] private class GeneratedType1 { }

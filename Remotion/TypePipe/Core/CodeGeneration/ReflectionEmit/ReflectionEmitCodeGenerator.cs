@@ -23,6 +23,8 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -62,6 +64,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}";
+
+    private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new TypePipeAssemblyAttribute ("participantConfigurationID"));
 
     private static int s_counter;
 
@@ -128,13 +133,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _moduleContext.AssemblyName = assemblyName;
     }
 
-    public string FlushCodeToDisk ()
+    public string FlushCodeToDisk (string participantConfiguration)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfiguration", participantConfiguration);
+
       var moduleBuilder = _moduleContext.ModuleBuilder;
       if (moduleBuilder == null)
         return null;
 
-      var assemblyPath = moduleBuilder.AssemblyBuilder.SaveToDisk();
+      var assemblyPath = SaveToDisk (moduleBuilder.AssemblyBuilder, participantConfiguration);
       ResetContext();
 
       return assemblyPath;
@@ -165,11 +172,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return typeBuilderDecorator;
     }
 
+    private string SaveToDisk (IAssemblyBuilder assemblyBuilder, string participantConfigurationID)
+    {
+      var typePipeAssemblyAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { participantConfigurationID });
+      assemblyBuilder.SetCustomAttribute (typePipeAssemblyAttribute);
+
+      return assemblyBuilder.SaveToDisk();
+    }
+
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)
     {
       if (_moduleContext.ModuleBuilder != null)
       {
-        var flushMethod = MemberInfoFromExpressionUtility.GetMethod (() => FlushCodeToDisk());
+        var flushMethod = MemberInfoFromExpressionUtility.GetMethod ((ITypeCache o) => o.FlushCodeToDisk());
         var message = string.Format (
             "Cannot set {0} after a type has been defined (use {1}() to start a new assembly).", propertyDescription, flushMethod.Name);
         throw new InvalidOperationException (message);

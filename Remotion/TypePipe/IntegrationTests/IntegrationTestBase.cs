@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.IntegrationTests
     private bool _skipSavingAndVerification;
     private bool _skipDeletion;
 
-    private ICodeGenerator _codeGenerator;
+    private ITypeCache _typeCache;
 
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp ()
@@ -116,18 +116,18 @@ namespace Remotion.TypePipe.IntegrationTests
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
       var objectFactory = Pipeline.Create (nameOfRunningTest, nonEmptyParticipants);
 
-      _codeGenerator = objectFactory.CodeGenerator;
-      _codeGenerator.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _codeGenerator.SetAssemblyName (nameOfRunningTest);
+      _typeCache = objectFactory.TypeCache;
+      _typeCache.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
+      _typeCache.SetAssemblyName (nameOfRunningTest);
 
       return objectFactory;
     }
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_codeGenerator, "Use IntegrationTestBase.CreateObjectFactory");
+      Assertion.IsNotNull (_typeCache, "Use IntegrationTestBase.CreateObjectFactory");
 
-      var assemblyPath = _codeGenerator.FlushCodeToDisk();
+      var assemblyPath = _typeCache.FlushCodeToDisk();
       if (assemblyPath == null)
         return null;
 
