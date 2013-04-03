@@ -28,18 +28,20 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class ObjectFactoryTest
   {
-    private Type _requestedType;
-    
     private ITypeCache _typeCacheMock;
+    private ICodeManager _codeManagerMock;
 
     private ObjectFactory _factory;
+
+    private Type _requestedType;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache> ();
+      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
+      _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
 
-      _factory = new ObjectFactory (_typeCacheMock);
+      _factory = new ObjectFactory (_typeCacheMock, _codeManagerMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
     }
@@ -48,6 +50,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Initialization ()
     {
       Assert.That (_factory.TypeCache, Is.SameAs (_typeCacheMock));
+      Assert.That (_factory.CodeManager, Is.SameAs (_codeManagerMock));
     }
 
     [Test]

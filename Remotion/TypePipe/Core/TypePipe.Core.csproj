@@ -61,6 +61,7 @@
     <Compile Include="Caching\ICodeCache.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
+    <Compile Include="Implementation\CodeManager.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
     <Compile Include="Implementation\TypePipeAssemblyAttribute.cs" />
     <Compile Include="Implementation\IInitializableObject.cs" />

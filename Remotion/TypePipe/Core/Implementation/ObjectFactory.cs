@@ -28,12 +28,15 @@ namespace Remotion.TypePipe.Implementation
   public class ObjectFactory : IObjectFactory
   {
     private readonly ITypeCache _typeCache;
+    private readonly ICodeManager _codeManager;
 
-    public ObjectFactory (ITypeCache typeCache)
+    public ObjectFactory (ITypeCache typeCache, ICodeManager codeManager)
     {
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
+      ArgumentUtility.CheckNotNull ("codeManager", codeManager);
 
       _typeCache = typeCache;
+      _codeManager = codeManager;
     }
 
     public string ParticipantConfigurationID
@@ -48,7 +51,7 @@ namespace Remotion.TypePipe.Implementation
 
     public ICodeManager CodeManager
     {
-      get { return null; }
+      get { return _codeManager; }
     }
 
     public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
