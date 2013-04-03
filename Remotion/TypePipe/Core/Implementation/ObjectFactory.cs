@@ -46,6 +46,11 @@ namespace Remotion.TypePipe.Implementation
       get { return _typeCache; }
     }
 
+    public ICodeManager CodeManager
+    {
+      get { return null; }
+    }
+
     public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class
     {
