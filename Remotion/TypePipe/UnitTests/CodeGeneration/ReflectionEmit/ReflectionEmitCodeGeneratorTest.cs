@@ -58,10 +58,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       Assert.That (_generator.AssemblyDirectory, Is.Null);
       Assert.That (_generator.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
-
-      var debugInfoGenerator = _generator.DebugInfoGenerator;
-      Assert.That (debugInfoGenerator.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
-      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (debugInfoGenerator));
     }
 
     [Test]
@@ -69,6 +65,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock, _configurationProviderMock);
       Assert.That (generator.AssemblyName, Is.Not.EqualTo (_generator.AssemblyName));
+    }
+
+    [Test]
+    public void DebugInfoGenerator ()
+    {
+      var debugInfoGenerator = _generator.DebugInfoGenerator;
+      Assert.That (debugInfoGenerator.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+      Assert.That (_generator.DebugInfoGenerator, Is.SameAs (debugInfoGenerator));
     }
 
     [Test]
@@ -126,13 +130,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               });
       assemblyBuilderMock.Expect (mock => mock.SaveToDisk()).Return (assemblyPath);
       var previousAssemblyName = _generator.AssemblyName;
+      var previousDebugInfoGenerator = _generator.DebugInfoGenerator;
 
       var result = _generator.FlushCodeToDisk (configID);
 
       _moduleBuilderMock.VerifyAllExpectations();
       assemblyBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (assemblyPath));
-      Assert.That (_generator.AssemblyName, Is.Not.SameAs (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
+      Assert.That (_generator.AssemblyName, Is.Not.EqualTo (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
+      Assert.That (_generator.DebugInfoGenerator, Is.Not.EqualTo (previousDebugInfoGenerator));
     }
 
     [Test]

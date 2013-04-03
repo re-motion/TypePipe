@@ -60,6 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
 
       public IModuleBuilder ModuleBuilder { get; set; }
+      public DebugInfoGenerator DebugInfoGenerator { get; set; }
       public string AssemblyName { get; set; }
     }
 
@@ -72,7 +73,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
     private readonly ITypePipeConfigurationProvider _configurationProvider;
-    private readonly DebugInfoGenerator _debugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
 
     private string _assemblyDirectory;
     private ModuleContext _moduleContext;
@@ -114,7 +114,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public DebugInfoGenerator DebugInfoGenerator
     {
-      get { return _debugInfoGenerator; }
+      get
+      {
+        if (_moduleContext.DebugInfoGenerator == null)
+          _moduleContext.DebugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
+
+        return _moduleContext.DebugInfoGenerator;
+      }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
