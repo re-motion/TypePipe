@@ -39,14 +39,11 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     protected static IParticipant CreateParticipant (
-        Action<ITypeAssemblyContext> participateAction, ICacheKeyProvider cacheKeyProvider = null, Action<LoadedTypeContext> rebuildStateAction = null)
+        Action<ITypeAssemblyContext> participateAction = null,
+        ICacheKeyProvider cacheKeyProvider = null,
+        Action<LoadedTypeContext> rebuildStateAction = null)
     {
-      return new ParticipantStub (cacheKeyProvider, participateAction, rebuildStateAction ?? (ctx => { }));
-    }
-
-    protected static IParticipant CreateNopParticipant ()
-    {
-      return CreateParticipant ((MutableType proxy) => { });
+      return new ParticipantStub (cacheKeyProvider, participateAction ?? (ctx => { }), rebuildStateAction ?? (ctx => { }));
     }
 
 
@@ -173,7 +170,7 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       var participantList = participants.ToList();
       if (participantList.Count == 0)
-        participantList.Add (CreateNopParticipant());
+        participantList.Add (CreateParticipant());
 
       return participantList;
     }
