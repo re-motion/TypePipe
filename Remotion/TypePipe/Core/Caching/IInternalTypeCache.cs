@@ -25,5 +25,9 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public interface IInternalTypeCache : ITypeCache
   {
+    string ParticipantConfigurationID { get; }
+
+    Type GetOrCreateType (Type requestedType);
+    Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
   }
 }

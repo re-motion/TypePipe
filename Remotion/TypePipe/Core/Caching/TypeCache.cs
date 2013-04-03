@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.Caching
   /// <see cref="ITypeAssembler"/> instance.
   /// </summary>
   /// <remarks>This class ensures a single threaded-environment for all downstream implementation classes.</remarks>
-  public class TypeCache : ITypeCache
+  public class TypeCache : IInternalTypeCache
   {
     // Storing the delegates as static readonly fields has two advantages for performance:
     // 1) It ensures that no closure is implicilty created.

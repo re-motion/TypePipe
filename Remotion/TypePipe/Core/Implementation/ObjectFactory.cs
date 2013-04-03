@@ -29,9 +29,9 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class ObjectFactory : IObjectFactory
   {
-    private readonly ITypeCache _typeCache;
+    private readonly IInternalTypeCache _typeCache;
 
-    public ObjectFactory (ITypeCache typeCache)
+    public ObjectFactory (IInternalTypeCache typeCache)
     {
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
 

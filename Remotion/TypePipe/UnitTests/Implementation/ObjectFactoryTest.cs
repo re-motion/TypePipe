@@ -33,14 +33,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   {
     private Type _requestedType;
     
-    private ITypeCache _typeCacheMock;
+    private IInternalTypeCache _typeCacheMock;
 
     private ObjectFactory _factory;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
+      _typeCacheMock = MockRepository.GenerateStrictMock<IInternalTypeCache> ();
 
       _factory = new ObjectFactory (_typeCacheMock);
 
