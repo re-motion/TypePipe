@@ -19,7 +19,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 
 namespace Remotion.TypePipe
 {
@@ -32,10 +31,8 @@ namespace Remotion.TypePipe
     // TODO 5503: docs
     string ParticipantConfigurationID { get; }
 
+    // TODO 5503: docs
     ITypeCache TypeCache { get; }
-
-    // TODO 5503: Remove
-    ICodeGenerator CodeGenerator { get; }
 
     T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
     object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);

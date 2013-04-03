@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     {
       var participants = participantProviders.Select (pp => pp());
       var factory = CreateObjectFactory (participants);
-      factory.CodeGenerator.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
+      factory.TypeCache.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
 
       return factory;
     }

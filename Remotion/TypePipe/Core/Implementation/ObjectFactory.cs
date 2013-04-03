@@ -19,7 +19,6 @@ using System;
 using System.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -46,11 +45,6 @@ namespace Remotion.TypePipe.Implementation
     public ITypeCache TypeCache
     {
       get { return _typeCache; }
-    }
-
-    public ICodeGenerator CodeGenerator
-    {
-      get { return _typeCache.CodeGenerator; }
     }
 
     public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)

@@ -90,11 +90,6 @@ namespace Remotion.TypePipe.Caching
       lock (_lock) _typeAssemblyContextCodeGenerator.CodeGenerator.SetAssemblyName (assemblyName);
     }
 
-    public ICodeGenerator CodeGenerator
-    {
-      get { return _typeAssemblyContextCodeGenerator.CodeGenerator; }
-    }
-
     public string FlushCodeToDisk ()
     {
       return _typeAssemblyContextCodeGenerator.CodeGenerator.FlushCodeToDisk (_typeAssembler.ParticipantConfigurationID);

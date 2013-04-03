@@ -21,7 +21,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
 using Rhino.Mocks;
@@ -59,15 +58,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return ("configId");
 
       Assert.That (_factory.ParticipantConfigurationID, Is.EqualTo ("configId"));
-    }
-
-    [Test]
-    public void CodeGenerator ()
-    {
-      var fakeCodeGenerator = MockRepository.GenerateStub<ICodeGenerator>();
-      _typeCacheMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
-
-      Assert.That (_factory.CodeGenerator, Is.SameAs (fakeCodeGenerator));
     }
 
     [Test]

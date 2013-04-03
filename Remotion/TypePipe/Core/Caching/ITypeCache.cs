@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.CodeGeneration;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -69,8 +68,5 @@ namespace Remotion.TypePipe.Caching
     // TODO 5503: Refactor.
     // TODO 5503: Docs.
     void LoadTypes (IEnumerable<Type> generatedTypes);
-
-    // TODO 5503: Remove
-    ICodeGenerator CodeGenerator { get; }
   }
 }
