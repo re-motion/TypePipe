@@ -57,7 +57,6 @@ namespace Remotion.TypePipe.Implementation
       _codeGenerator.SetAssemblyName (assemblyName);
     }
 
-    // TODO 5503: test (and rest of class)
     public string FlushCodeToDisk ()
     {
       return _codeGenerator.FlushCodeToDisk (_typeCache.ParticipantConfigurationID);
