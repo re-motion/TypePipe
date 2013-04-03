@@ -111,13 +111,6 @@ namespace Remotion.TypePipe.IntegrationTests
       return CreateObjectFactory (GetNameOfRunningTest(), participants);
     }
 
-    // TODO 5503: remove
-    protected IObjectFactory CreateObjectFactory (IEnumerable<IParticipant> participants)
-    {
-      var nameOfRunningTest = GetNameOfRunningTest();
-      return CreateObjectFactory (nameOfRunningTest, participants.ToArray());
-    }
-
     protected IObjectFactory CreateObjectFactory (string participantConfigurationID, params IParticipant[] participants)
     {
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);

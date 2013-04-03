@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
       _participantProviders = participantProviders.Concat (() => new SerializationParticipant()).ToArray();
-      var allParticipants = _participantProviders.Select (pp => pp());
+      var allParticipants = _participantProviders.Select (pp => pp()).ToArray();
       var factory = CreateObjectFactory (allParticipants);
 
       _participantConfigurationID = factory.ParticipantConfigurationID;

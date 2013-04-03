@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   {
     protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      var participants = participantProviders.Select (pp => pp());
+      var participants = participantProviders.Select (pp => pp()).ToArray();
       var factory = CreateObjectFactory (participants);
       factory.TypeCache.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
 

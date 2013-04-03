@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
           });
 
       Action<MutableType> typeModification = pt => { };
-      var participantStubs = cacheKeyProviderStubs.Select (ckp => CreateParticipant (typeModification, ckp));
+      var participantStubs = cacheKeyProviderStubs.Select (ckp => CreateParticipant (typeModification, ckp)).ToArray();
 
       return CreateObjectFactory (participantStubs);
     }
