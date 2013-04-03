@@ -24,8 +24,6 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public interface ITypeAssemblyContextCodeGenerator
   {
-    ICodeGenerator CodeGenerator { get; }
-
     /// <summary>
     /// Generates a proxy and additional types based on the data specified by the participants.
     /// </summary>

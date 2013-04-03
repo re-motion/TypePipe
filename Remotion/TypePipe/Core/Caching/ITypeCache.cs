@@ -31,8 +31,6 @@ namespace Remotion.TypePipe.Caching
     Type GetOrCreateType (Type requestedType);
     Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
 
-    string FlushCodeToDisk ();
-
     // TODO 5503: docs
     void LoadFlushedCode (Assembly assembly);
   }

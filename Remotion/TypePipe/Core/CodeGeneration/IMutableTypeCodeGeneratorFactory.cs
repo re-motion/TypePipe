@@ -27,8 +27,6 @@ namespace Remotion.TypePipe.CodeGeneration
   [CLSCompliant (false)]
   public interface IMutableTypeCodeGeneratorFactory
   {
-    ICodeGenerator CodeGenerator { get; }
-
     IEnumerable<IMutableTypeCodeGenerator> CreateGenerators (IEnumerable<MutableType> mutableTypes);
   }
 }

@@ -184,7 +184,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       if (_moduleContext.ModuleBuilder != null)
       {
-        var flushMethod = MemberInfoFromExpressionUtility.GetMethod ((ITypeCache o) => o.FlushCodeToDisk());
+        var flushMethod = MemberInfoFromExpressionUtility.GetMethod ((ICodeManager o) => o.FlushCodeToDisk());
         var message = string.Format (
             "Cannot set {0} after a type has been defined (use {1}() to start a new assembly).", propertyDescription, flushMethod.Name);
         throw new InvalidOperationException (message);

@@ -48,12 +48,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void Initialization ()
-    {
-      Assert.That (_factory.CodeGenerator, Is.SameAs (_codeGeneratorMock));
-    }
-
-    [Test]
     public void Create ()
     {
       var fakeEmittableOperandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();

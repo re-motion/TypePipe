@@ -43,11 +43,6 @@ namespace Remotion.TypePipe.CodeGeneration
       _mutableTypeCodeGeneratorFactory = mutableTypeCodeGeneratorFactory;
     }
 
-    public ICodeGenerator CodeGenerator
-    {
-      get { return _mutableTypeCodeGeneratorFactory.CodeGenerator; }
-    }
-
     public GeneratedTypeContext GenerateTypes (ITypeAssemblyContext typeAssemblyContext)
     {
       ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);

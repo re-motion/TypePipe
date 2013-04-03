@@ -50,11 +50,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
-    public ICodeGenerator CodeGenerator
-    {
-      get { return _codeGenerator; }
-    }
-
     [CLSCompliant (false)]
     public IEnumerable<IMutableTypeCodeGenerator> CreateGenerators (IEnumerable<MutableType> mutableTypes)
     {

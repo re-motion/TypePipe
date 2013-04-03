@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.PerformanceTests
       var typeModifierStub = MockRepository.GenerateStub<ITypeAssemblyContextCodeGenerator>();
       typeModifierStub.Stub (stub => stub.GenerateTypes (Arg<TypeAssemblyContext>.Is.Anything))
                       .Do (new Func<TypeAssemblyContext, GeneratedTypeContext> (CreateGeneratedTypeContext));
-      typeModifierStub.Stub (stub => stub.CodeGenerator).Return (MockRepository.GenerateStub<ICodeGenerator>());
+      //typeModifierStub.Stub (stub => stub.CodeGenerator).Return (MockRepository.GenerateStub<ICodeGenerator>());
 
       var serviceLocator = new DefaultServiceLocator();
       serviceLocator.Register (typeof (IParticipant), participants.Select (p => (Func<object>) (() => p)));

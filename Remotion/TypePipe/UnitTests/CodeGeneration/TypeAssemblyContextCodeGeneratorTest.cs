@@ -47,16 +47,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void CodeGenerator ()
-    {
-      var fakeCodeGenerator = MockRepository.GenerateStrictMock<ICodeGenerator>();
-      _mutableTypeCodeGeneratorFactoryMock.Expect (mock => mock.CodeGenerator).Return (fakeCodeGenerator);
-      _mockRepository.ReplayAll();
-
-      Assert.That (_generator.CodeGenerator, Is.SameAs (fakeCodeGenerator));
-    }
-
-    [Test]
     public void GenerateTypes ()
     {
       var requestedType = ReflectionObjectMother.GetSomeSubclassableType();

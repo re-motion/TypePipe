@@ -100,24 +100,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
-    public void FlushCodeToDisk ()
-    {
-      var configID = "config id";
-      var fakeAssemblyPath = "assembly path";
-      var codeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
-      _typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.CodeGenerator).Return (codeGeneratorMock);
-      _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
-      codeGeneratorMock.Expect (mock => mock.FlushCodeToDisk (configID)).Return (fakeAssemblyPath);
-
-      var result = _cache.FlushCodeToDisk();
-
-      _typeAssemblyContextCodeGeneratorMock.VerifyAllExpectations();
-      _typeAssemblerMock.VerifyAllExpectations();
-      codeGeneratorMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (fakeAssemblyPath));
-    }
-
-    [Test]
     public void LoadFlushedCode ()
     {
       // GeneratedType2 is not marked with [ProxyType].

@@ -57,11 +57,14 @@ namespace Remotion.TypePipe.Implementation
       _codeGenerator.SetAssemblyName (assemblyName);
     }
 
+    // TODO 5503: test (and rest of class)
     public string FlushCodeToDisk ()
     {
-      return _typeCache.FlushCodeToDisk();
+      return _codeGenerator.FlushCodeToDisk (_typeCache.ParticipantConfigurationID);
     }
 
+    // TODO Review: Nur eine Methode wird an _typeCache delegiert. 'LoadFlushedCode' doch wieder auf IObjectFactory?
+    // und ohne 'ICodeManager'-Objekt arbeiten?
     public void LoadFlushedCode (Assembly assembly)
     {
       _typeCache.LoadFlushedCode (assembly);

@@ -104,11 +104,6 @@ namespace Remotion.TypePipe.Caching
       return constructorCall;
     }
 
-    public string FlushCodeToDisk ()
-    {
-      return _typeAssemblyContextCodeGenerator.CodeGenerator.FlushCodeToDisk (_typeAssembler.ParticipantConfigurationID);
-    }
-
     public void LoadFlushedCode (Assembly assembly)
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
