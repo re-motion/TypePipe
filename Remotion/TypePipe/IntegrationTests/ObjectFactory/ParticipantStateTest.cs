@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using System.Linq;
@@ -28,7 +29,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [Test]
     public void GlobalState ()
     {
-      bool stateWasRead = false;
+      var stateWasRead = false;
 
       var participant1 = CreateParticipant (ctx =>
       {
@@ -58,8 +59,11 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       var participant1 = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
       var savingFactory = CreateObjectFactory (participant1);
+      savingFactory.GetAssembledType (typeof (RequestedType1)); // Trigger generation of types.
+      var assemblyPath = Flush();
 
       Type loadedType = null;
+      var stateWasRead = false;
       var participant2 = CreateParticipant (
           rebuildStateAction: ctx =>
           {
@@ -67,16 +71,25 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
             var additionalType = ctx.AdditionalTypes.Single();
             Assert.That (loadedProxy.RequestedType, Is.SameAs (typeof (RequestedType1)));
             Assert.That (additionalType.FullName, Is.EqualTo ("MyNs.AdditionalType"));
+
             loadedType = loadedProxy.GeneratedType;
+            ctx.State["key"] = "reconstructed state";
+          },
+          participateAction: ctx =>
+          {
+            Assert.That (ctx.State["key"], Is.EqualTo ("reconstructed state"));
+            stateWasRead = true;
           });
       var loadingFactory = CreateObjectFactory (participant2);
 
-      savingFactory.GetAssembledType (typeof (RequestedType1));
-      var assemblyPath = savingFactory.CodeManager.FlushCodeToDisk();
-      loadingFactory.CodeManager.LoadFlushedCode (Assembly.LoadFrom (assemblyPath));
+      loadingFactory.CodeManager.LoadFlushedCode (Assembly.Load (File.ReadAllBytes (assemblyPath)));
 
       Assert.That (loadedType, Is.Not.Null);
       Assert.That (loadingFactory.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));
+      Assert.That (stateWasRead, Is.False);
+
+      loadingFactory.GetAssembledType (typeof (RequestedType2));
+      Assert.That (stateWasRead, Is.True);
     }
 
     public class RequestedType1 {}
