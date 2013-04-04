@@ -33,15 +33,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </remarks>
   public class StrongNameCheckingEmittableOperandProviderDecorator : IEmittableOperandProvider
   {
-    private readonly ITypeAnalyzer _typeAnalyzer = SafeServiceLocator.Current.GetInstance<ITypeAnalyzer>();
-
     private readonly IEmittableOperandProvider _emittableOperandProvider;
+    private readonly ITypeAnalyzer _typeAnalyzer;
 
-    public StrongNameCheckingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider)
+    public StrongNameCheckingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider, ITypeAnalyzer typeAnalyzer)
     {
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("typeAnalyzer", typeAnalyzer);
 
       _emittableOperandProvider = emittableOperandProvider;
+      _typeAnalyzer = typeAnalyzer;
     }
 
     public IEmittableOperandProvider InnerEmittableOperandProvider

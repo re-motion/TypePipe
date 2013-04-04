@@ -16,14 +16,12 @@
 // 
 using System;
 using System.Reflection;
-using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
   /// Defines an interface for classes determining wheter a given <see cref="Assembly"/> is strong-named.
   /// </summary>
-  [ConcreteImplementation (typeof (AssemblyAnalyzer), Lifetime = LifetimeKind.Singleton)]
   public interface IAssemblyAnalyzer
   {
     bool IsStrongNamed (Assembly assembly);

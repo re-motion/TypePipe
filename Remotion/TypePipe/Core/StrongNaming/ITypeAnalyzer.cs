@@ -15,14 +15,12 @@
 // under the License.
 // 
 using System;
-using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.StrongNaming
 {
   /// <summary>
   /// Defines an interface for classes determining wheter a given <see cref="Type"/> resides in a strong-named assembly.
   /// </summary>
-  [ConcreteImplementation (typeof (TypeAnalyzer), Lifetime = LifetimeKind.Singleton)]
   public interface ITypeAnalyzer
   {
     bool IsStrongNamed (Type type);

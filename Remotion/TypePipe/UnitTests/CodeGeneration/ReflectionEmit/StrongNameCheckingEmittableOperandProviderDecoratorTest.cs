@@ -19,10 +19,8 @@ using System;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
@@ -33,8 +31,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class StrongNameCheckingEmittableOperandProviderDecoratorTest
   {
-    private ITypeAnalyzer _typeAnalyzerMock;
     private IEmittableOperandProvider _innerMock;
+    private ITypeAnalyzer _typeAnalyzerMock;
 
     private StrongNameCheckingEmittableOperandProviderDecorator _decorator;
 
@@ -44,8 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeAnalyzerMock = MockRepository.GenerateStrictMock<ITypeAnalyzer>();
       _innerMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
 
-      using (new ServiceLocatorScope (typeof (ITypeAnalyzer), () => _typeAnalyzerMock))
-        _decorator = new StrongNameCheckingEmittableOperandProviderDecorator (_innerMock);
+      _decorator = new StrongNameCheckingEmittableOperandProviderDecorator (_innerMock, _typeAnalyzerMock);
     }
 
     [Test]

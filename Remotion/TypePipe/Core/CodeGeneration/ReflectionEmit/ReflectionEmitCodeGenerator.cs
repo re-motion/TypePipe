@@ -25,6 +25,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -155,8 +156,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public IEmittableOperandProvider CreateEmittableOperandProvider ()
     {
-      IEmittableOperandProvider provider = new EmittableOperandProvider (new DelegateProvider());
-      return _moduleContext.ForceStrongNaming ? new StrongNameCheckingEmittableOperandProviderDecorator (provider) : provider;
+      IEmittableOperandProvider emittableOperandProvider = new EmittableOperandProvider (new DelegateProvider());
+      return _moduleContext.ForceStrongNaming
+                 ? new StrongNameCheckingEmittableOperandProviderDecorator (emittableOperandProvider, new TypeAnalyzer (new AssemblyAnalyzer()))
+                 : emittableOperandProvider;
     }
 
     [CLSCompliant (false)]
