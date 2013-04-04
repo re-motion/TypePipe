@@ -29,10 +29,10 @@ using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe
 {
-  // TODO 5500: docs
+  // TODO 5502: docs
   public static class Pipeline
   {
-    // TODO 5500: docs
+    // TODO 5502: docs
     public static IObjectFactory Create (string participantConfigurationID, params IParticipant[] participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe
       return Create (participantConfigurationID, (IEnumerable<IParticipant>) participants);
     }
 
-    // TODO 5500: docs
+    // TODO 5502: docs
     public static IObjectFactory Create (string participantConfigurationID, IEnumerable<IParticipant> participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);

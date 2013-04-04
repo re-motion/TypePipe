@@ -21,7 +21,7 @@ using Remotion.ServiceLocation;
 namespace Remotion.TypePipe.Configuration
 {
   [ConcreteImplementation (typeof (TypePipeConfigurationProvider), Lifetime = LifetimeKind.Singleton)]
-  // TODO 5500: docs
+  // TODO 5502: docs
   public interface ITypePipeConfigurationProvider
   {
     bool ForceStrongNaming { get; }

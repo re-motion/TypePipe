@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.Implementation
     /// </summary>
     event Action<GeneratedTypeContext> GenerationCompleted;
 
-    // TODO 5500: docs
+    // TODO 5502: docs
     string ParticipnatConfigurationID { get; }
 
     /// <summary>
