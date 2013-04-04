@@ -20,7 +20,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
 {
-  // TODO 5504: docs
+  /// <summary>
+  /// Holds information about a previously generated and now loaded proxy <see cref="Type"/>.
+  /// </summary>
   public struct LoadedProxy
   {
     private readonly Type _generatedType;
@@ -32,13 +34,17 @@ namespace Remotion.TypePipe.Implementation
       _generatedType = generatedType;
     }
 
-    // TODO 5504: docs
+    /// <summary>
+    /// Gets the requested <see cref="Type"/> for which the proxy <see cref="Type"/> was generated.
+    /// </summary>
     public Type RequestedType
     {
       get { return _generatedType.BaseType; }
     }
 
-    // TODO 5504: docs
+    /// <summary>
+    /// Gets the proxy <see cref="Type"/> that was generated for the <see cref="RequestedType"/>.
+    /// </summary>
     public Type GeneratedType
     {
       get { return _generatedType; }

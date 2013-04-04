@@ -23,7 +23,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
 {
-  // TODO 5504: docs
+  /// <summary>
+  /// Holds the types that were loaded from a previously flushed assembly. Allows <see cref="IParticipant"/>s to rebuild their state, if necessary.
+  /// </summary>
   public class LoadedTypesContext
   {
     private readonly ReadOnlyCollection<LoadedProxy> _proxyTypes;
@@ -32,22 +34,27 @@ namespace Remotion.TypePipe.Implementation
 
     public LoadedTypesContext (IEnumerable<Type> proxyTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> state)
     {
-      _state = state;
       ArgumentUtility.CheckNotNull ("proxyTypes", proxyTypes);
       ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
       ArgumentUtility.CheckNotNull ("state", state);
 
       _proxyTypes = proxyTypes.Select (p => new LoadedProxy (p)).ToList().AsReadOnly();
       _additionalTypes = additionalTypes.ToList().AsReadOnly();
+      _state = state;
     }
 
-    // TODO 5504: docs
+    /// <summary>
+    /// Gets the newly loaded proxy <see cref="Type"/>s.
+    /// Note that proxy types that were already present in the cache are not contained in this collection.
+    /// </summary>
     public ReadOnlyCollection<LoadedProxy> ProxyTypes
     {
       get { return _proxyTypes; }
     }
 
-    // TODO 5504: docs
+    /// <summary>
+    /// Gets the loaded additional <see cref="Type"/>s.
+    /// </summary>
     public ReadOnlyCollection<Type> AdditionalTypes
     {
       get { return _additionalTypes; }
