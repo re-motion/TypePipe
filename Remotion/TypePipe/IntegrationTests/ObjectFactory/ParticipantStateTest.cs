@@ -53,7 +53,6 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (stateWasRead, Is.True);
     }
 
-    [Ignore ("TODO 5504")]
     [Test]
     public void RebuildStateFromLoadedTypes ()
     {
