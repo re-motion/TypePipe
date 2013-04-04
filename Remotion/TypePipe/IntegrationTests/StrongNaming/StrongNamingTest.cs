@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using JetBrains.Annotations;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -31,7 +32,6 @@ using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
-  [Ignore ("TODO 5500")]
   [TestFixture]
   public class StrongNamingTest : IntegrationTestBase
   {
@@ -305,8 +305,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       ConfigurationHelper.DeserializeSection (configSection, config);
       PrivateInvoke.SetNonPublicField (configurationProvider, "_section", configSection);
 
-      using (new ServiceLocatorScope (typeof (ITypePipeConfigurationProvider), () => configurationProvider))
-        return CreateObjectFactory (new[] { participant });
+      return CreateObjectFactory (GetType().Name, new[] { participant }, configurationProvider);
     }
 
     private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)
@@ -328,7 +327,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
     public class DomainType
     {
-      public static int Field;
+      [UsedImplicitly] public static int Field;
       public static void Method () { }
       public static void VarArgsMethod (__arglist) { }
     }
