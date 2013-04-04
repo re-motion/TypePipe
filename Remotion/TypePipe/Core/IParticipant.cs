@@ -17,7 +17,6 @@
 
 using System;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
@@ -52,14 +51,17 @@ namespace Remotion.TypePipe
     ICacheKeyProvider PartialCacheKeyProvider { get; }
 
     /// <summary>
-    /// This method allows framework authors to specify their code generation needs.
+    /// This method allows participants to specify their code generation needs.
     /// The provided <see cref="ITypeAssemblyContext"/> contains the type requested by the user and the mutable proxy type that was created for it by
     /// the pipeline.
     /// </summary>
-    /// <param name="typeAssemblyContext">The type context.</param>
+    /// <param name="typeAssemblyContext">The type assembly context.</param>
     void Participate (ITypeAssemblyContext typeAssemblyContext);
 
-    // TODO 5504: docs
+    /// <summary>
+    /// This method allows participants to react when the pipeline loads a set of types from a previously flushed assembly.
+    /// </summary>
+    /// <param name="loadedTypesContext">The loaded types context.</param>
     void RebuildState (LoadedTypesContext loadedTypesContext);
   }
 }
