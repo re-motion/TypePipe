@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Implementation;
@@ -30,15 +31,16 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var proxyType = ReflectionObjectMother.GetSomeType();
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
+      var state = new Dictionary<string, object>();
 
-      var context = new LoadedTypesContext (new[] { proxyType }.AsOneTime(), new[] { additionalType }.AsOneTime());
+      var context = new LoadedTypesContext (new[] { proxyType }.AsOneTime(), new[] { additionalType }.AsOneTime(), state);
 
       Assert.That (context.ProxyTypes, Has.Count.EqualTo (1));
       var loadedProxy = context.ProxyTypes[0];
       Assert.That (loadedProxy.RequestedType, Is.SameAs (proxyType.BaseType));
       Assert.That (loadedProxy.GeneratedType, Is.SameAs (proxyType));
-
       Assert.That (context.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
+      Assert.That (context.State, Is.SameAs (state));
     }
   }
 }

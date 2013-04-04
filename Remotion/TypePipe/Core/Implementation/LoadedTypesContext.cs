@@ -28,11 +28,14 @@ namespace Remotion.TypePipe.Implementation
   {
     private readonly ReadOnlyCollection<LoadedProxy> _proxyTypes;
     private readonly ReadOnlyCollection<Type> _additionalTypes;
+    private readonly IDictionary<string, object> _state;
 
-    public LoadedTypesContext (IEnumerable<Type> proxyTypes, IEnumerable<Type> additionalTypes)
+    public LoadedTypesContext (IEnumerable<Type> proxyTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> state)
     {
+      _state = state;
       ArgumentUtility.CheckNotNull ("proxyTypes", proxyTypes);
       ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
+      ArgumentUtility.CheckNotNull ("state", state);
 
       _proxyTypes = proxyTypes.Select (p => new LoadedProxy (p)).ToList().AsReadOnly();
       _additionalTypes = additionalTypes.ToList().AsReadOnly();
@@ -48,6 +51,14 @@ namespace Remotion.TypePipe.Implementation
     public ReadOnlyCollection<Type> AdditionalTypes
     {
       get { return _additionalTypes; }
+    }
+
+    /// <summary>
+    /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.
+    /// </summary>
+    public IDictionary<string, object> State
+    {
+      get { return _state; }
     }
   }
 }

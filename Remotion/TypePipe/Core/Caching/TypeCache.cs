@@ -155,7 +155,7 @@ namespace Remotion.TypePipe.Caching
             _types.Add (p.Key, p.Type);
         }
 
-        var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes);
+        var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, _participantState);
         _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
     }

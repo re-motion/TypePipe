@@ -54,8 +54,7 @@ namespace Remotion.TypePipe.CodeGeneration
     MutableType ProxyType { get; }
 
     /// <summary>
-    /// A cache stored in the scope of the respective <see cref="TypeCache"/> that is intended to hold state of the <see cref="IParticipant"/>s that
-    /// should have the same cache lifetime as the generated types.
+    /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.
     /// </summary>
     IDictionary<string, object> State { get; }
 

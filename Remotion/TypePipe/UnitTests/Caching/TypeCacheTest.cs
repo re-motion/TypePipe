@@ -228,6 +228,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
                 var ctx = mi.Arguments[0].As<LoadedTypesContext>();
                 Assert.That (ctx.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy(_generatedType1) }));
                 Assert.That (ctx.AdditionalTypes, Is.EqualTo (new[] { _additionalGeneratedType }));
+                Assert.That (ctx.State, Is.SameAs (_participantState));
               });
 
       _cache.LoadFlushedCode (assemblyMock);
@@ -245,24 +246,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .Stub (stub => stub.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
           .Return (new object[] { null, "type key" });
 
-      _typeAssemblerMock
-          .Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var ctx = mi.Arguments[0].As<LoadedTypesContext>();
-                Assert.That (ctx.ProxyTypes, Has.Count.EqualTo (1));
-                Assert.That (ctx.AdditionalTypes, Is.Empty);
-              });
-      _typeAssemblerMock
-          .Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var ctx = mi.Arguments[0].As<LoadedTypesContext>();
-                Assert.That (ctx.ProxyTypes, Is.Empty);
-                Assert.That (ctx.AdditionalTypes, Is.Empty);
-              });
+      _typeAssemblerMock.Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Matches (ctx => ctx.ProxyTypes.Count == 1)));
+      _typeAssemblerMock.Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Matches (ctx => ctx.ProxyTypes.Count == 0)));
 
       Assert.That (_generatedType1.BaseType, Is.SameAs (_generatedType2.BaseType));
       _cache.LoadFlushedCode (CreateAssemblyMock ("config", new[] { _generatedType1 }));
