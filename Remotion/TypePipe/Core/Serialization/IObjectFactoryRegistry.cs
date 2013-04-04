@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.Serialization
   public interface IObjectFactoryRegistry
   {
     /// <summary>
-    /// Registers an <see cref="IObjectFactory"/> under the specified participant configuration identifier.
+    /// Registers an <see cref="IObjectFactory"/> under its <see cref="IObjectFactory.ParticipantConfigurationID"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">If a factory is already registered under the specified identifier.</exception>
     /// <param name="objectFactory">The object factory to register.</param>

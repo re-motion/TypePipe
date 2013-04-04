@@ -27,10 +27,15 @@ namespace Remotion.TypePipe
   /// </summary>
   public interface IObjectFactory
   {
-    // TODO 5503: docs
+    /// <summary>
+    /// Gets the participant configuration ID which describes the participants and their configuration.
+    /// <see cref="IObjectFactory"/> instances with equal <see cref="ParticipantConfigurationID"/>s must generate equivalent types.
+    /// </summary>
     string ParticipantConfigurationID { get; }
 
-    // TODO 5503: docs
+    /// <summary>
+    /// Gets the <see cref="CodeManager"/> which supports saving and loading of generated code.
+    /// </summary>
     ICodeManager CodeManager { get; }
 
     T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
