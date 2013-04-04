@@ -209,7 +209,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
-    public void LoadFlushedCode ()
+    public void LoadTypes ()
     {
       _typeAssemblerMock
           .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
@@ -235,7 +235,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
-    public void LoadFlushedCode_SameKey_Nop ()
+    public void LoadTypes_SameKey_Nop ()
     {
       _typeAssemblerMock
           .Stub (stub => stub.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
