@@ -42,10 +42,12 @@ namespace Remotion.TypePipe
     }
 
     // TODO 5502: docs
-    public static IObjectFactory Create (string participantConfigurationID, IEnumerable<IParticipant> participants)
+    public static IObjectFactory Create (
+        string participantConfigurationID, IEnumerable<IParticipant> participants, ITypePipeConfigurationProvider typePipeConfigurationProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("participants", participants);
+      typePipeConfigurationProvider = typePipeConfigurationProvider ?? new TypePipeConfigurationProvider();
 
       var participantsCollection = participants.ConvertToCollection();
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participantsCollection);
@@ -54,7 +56,7 @@ namespace Remotion.TypePipe
       var typeAssembler = new TypeAssembler (participantConfigurationID, participantsCollection, mutableTypeFactory);
       var memberEmitterFactory = new MemberEmitterFactory();
       var codeGenerator = new LockingReflectionEmitCodeGeneratorDecorator (
-          new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), new TypePipeConfigurationProvider()));
+          new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), typePipeConfigurationProvider));
       var mutableTypeCodeGeneratorFactory = new MutableTypeCodeGeneratorFactory (
           memberEmitterFactory, codeGenerator, new InitializationBuilder(), new ProxySerializationEnabler (new SerializableFieldFinder()));
       var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);

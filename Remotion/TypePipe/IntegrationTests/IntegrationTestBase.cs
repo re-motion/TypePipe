@@ -22,6 +22,7 @@ using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -112,8 +113,14 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IObjectFactory CreateObjectFactory (string participantConfigurationID, params IParticipant[] participants)
     {
+      return CreateObjectFactory (participantConfigurationID, participants, null);
+    }
+
+    protected IObjectFactory CreateObjectFactory (
+        string participantConfigurationID, IEnumerable<IParticipant> participants, ITypePipeConfigurationProvider typePipeConfigurationProvider = null)
+    {
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
-      var objectFactory = Pipeline.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime());
+      var objectFactory = Pipeline.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime(), typePipeConfigurationProvider);
 
       _codeManager = objectFactory.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
