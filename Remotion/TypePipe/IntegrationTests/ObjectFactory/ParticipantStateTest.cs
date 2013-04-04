@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
           });
       var loadingFactory = CreateObjectFactory (participant2);
 
-      /loadingFactory.CodeManager.LoadFlushedCode (Assembly.Load (File.ReadAllBytes (assemblyPath)));
+      loadingFactory.CodeManager.LoadFlushedCode (Assembly.Load (File.ReadAllBytes (assemblyPath)));
 
       Assert.That (loadedType, Is.Not.Null);
       Assert.That (loadingFactory.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));
