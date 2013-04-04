@@ -20,7 +20,10 @@ using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.IO;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
+using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -94,6 +97,28 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 
       Assert.That (_objectFactory.GetAssembledType (typeof (DomainType1)), Is.SameAs (assembledType1));
       Assert.That (_objectFactory.GetAssembledType (typeof (DomainType2)), Is.SameAs (assembledType2));
+    }
+
+    [Test]
+    public void LoadTypes_RespectCacheKeys ()
+    {
+      var generatedType1 = _assembly1.GetTypes().Single();
+      var generatedType2 = _assembly2.GetTypes().Single();
+      var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
+      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (generatedType1)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (generatedType2)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType1))).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("other key");
+      var participant = CreateParticipant (cacheKeyProvider: cachKeyProviderStub);
+      var objectFactory = CreateObjectFactory (c_participantConfigurationID, participant);
+
+      objectFactory.CodeManager.LoadFlushedCode (_assembly1);
+      objectFactory.CodeManager.LoadFlushedCode (_assembly2);
+
+      var type1 = objectFactory.GetAssembledType (typeof (DomainType1));
+      var type2 = objectFactory.GetAssembledType (typeof (DomainType2));
+      Assert.That (type1, Is.SameAs (generatedType1));
+      Assert.That (type2, Is.Not.SameAs (generatedType2));
     }
 
     [Test]

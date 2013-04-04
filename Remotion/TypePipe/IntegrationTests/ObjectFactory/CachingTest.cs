@@ -33,35 +33,35 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [Test]
     public void SameType_EqualCacheKey ()
     {
-      var pipeline = CreateObjectFactory (t => "a", t => "b");
+      var factory = CreateObjectFactory (t => "a", t => "b");
 
-      var instance1 = pipeline.CreateObject (_type1);
-      var instance2 = pipeline.CreateObject (_type1);
+      var type1 = factory.GetAssembledType (_type1);
+      var type2 = factory.GetAssembledType (_type1);
 
-      Assert.That (instance1.GetType(), Is.SameAs (instance2.GetType()));
+      Assert.That (type1, Is.SameAs (type2));
     }
 
     [Test]
     public void SameType_NullCacheKeyProvider ()
     {
-      var pipeline = CreateObjectFactory (t => "a", null);
+      var factory = CreateObjectFactory (t => "a", null);
 
-      var instance1 = pipeline.CreateObject (_type1);
-      var instance2 = pipeline.CreateObject (_type1);
+      var type1 = factory.GetAssembledType (_type1);
+      var type2 = factory.GetAssembledType (_type1);
 
-      Assert.That (instance1.GetType(), Is.SameAs (instance2.GetType()));
+      Assert.That (type1, Is.SameAs (type2));
     }
 
     [Test]
     public void SameType_NonEqualCacheKey ()
     {
       var count = 1;
-      var pipeline = CreateObjectFactory (t => "a", t => "b" + count++);
+      var factory = CreateObjectFactory (t => "a", t => "b" + count++);
 
-      var instance1 = pipeline.CreateObject (_type1);
-      var instance2 = pipeline.CreateObject (_type1);
+      var type1 = factory.GetAssembledType (_type1);
+      var type2 = factory.GetAssembledType (_type1);
 
-      Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
+      Assert.That (type1, Is.Not.SameAs (type2));
     }
 
     [Test]
@@ -69,10 +69,10 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       var factory = CreateObjectFactory (t => "a", t => "b");
 
-      var instance1 = factory.CreateObject (_type1);
-      var instance2 = factory.CreateObject (_type2);
+      var type1 = factory.GetAssembledType (_type1);
+      var type2 = factory.GetAssembledType (_type2);
 
-      Assert.That (instance1.GetType(), Is.Not.SameAs (instance2.GetType()));
+      Assert.That (type1, Is.Not.SameAs (type2));
     }
 
     private IObjectFactory CreateObjectFactory (params Func<Type, object>[] cacheKeyProviders)
