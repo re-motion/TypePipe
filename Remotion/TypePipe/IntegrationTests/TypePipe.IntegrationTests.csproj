@@ -75,7 +75,6 @@
     <Compile Include="Serialization\ComplexSerializationTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ServiceLocatorConfigurationTest.cs" />
     <Compile Include="Serialization\SerializationTestBase.cs" />
     <Compile Include="Serialization\SimpleSerializationTest.cs" />
     <Compile Include="StrongNaming\StrongNamingTest.cs" />
