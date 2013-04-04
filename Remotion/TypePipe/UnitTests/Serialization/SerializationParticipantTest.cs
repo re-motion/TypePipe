@@ -27,6 +27,7 @@ using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.TypePipe.UnitTests.CodeGeneration;
 using Remotion.TypePipe.UnitTests.Expressions;
+using Remotion.TypePipe.UnitTests.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.Serialization

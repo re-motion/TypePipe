@@ -25,6 +25,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using System.Linq;
@@ -174,6 +175,20 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       Assert.That (
           () => typeAssembler.AssembleType (_requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
           Throws.Exception.SameAs (exception3));
+    }
+
+    [Test]
+    public void RebuildParticipantState ()
+    {
+      var loadedTypesContext = LoadedTypesContextObjectMother.Create();
+      var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
+      participantMock.Stub (stub => stub.PartialCacheKeyProvider);
+      participantMock.Expect (mock => mock.RebuildState (loadedTypesContext));
+      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
+
+      typeAssembler.RebuildParticipantState (loadedTypesContext);
+
+      participantMock.VerifyAllExpectations();
     }
 
     private TypeAssembler CreateTypeAssembler (

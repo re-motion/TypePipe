@@ -17,13 +17,12 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration
+namespace Remotion.TypePipe.UnitTests.Implementation
 {
   public static class TypeAssemblyContextObjectMother
   {

@@ -96,7 +96,8 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("loadedTypesContext", loadedTypesContext);
 
-      // TODO 5504
+      foreach (var participant in _participants)
+        participant.RebuildState (loadedTypesContext);
     }
 
     private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)

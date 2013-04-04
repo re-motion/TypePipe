@@ -110,6 +110,7 @@
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
+    <Compile Include="Implementation\LoadedTypesContextObjectMother.cs" />
     <Compile Include="Implementation\LoadedTypesContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
@@ -216,7 +217,7 @@
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyContextObjectMother.cs" />
+    <Compile Include="Implementation\TypeAssemblyContextObjectMother.cs" />
     <Compile Include="Implementation\TypeAssemblyContextTest.cs" />
     <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
