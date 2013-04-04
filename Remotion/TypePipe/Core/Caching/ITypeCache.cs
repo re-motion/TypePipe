@@ -16,7 +16,7 @@
 // 
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -31,6 +31,6 @@ namespace Remotion.TypePipe.Caching
     Type GetOrCreateType (Type requestedType);
     Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
 
-    void LoadFlushedCode (Assembly assembly);
+    void LoadTypes (IEnumerable<Type> generatedTypes);
   }
 }
