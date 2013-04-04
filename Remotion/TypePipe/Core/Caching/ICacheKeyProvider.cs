@@ -33,17 +33,33 @@ namespace Remotion.TypePipe.Caching
   public interface ICacheKeyProvider
   {
     /// <summary>
-    /// Gets a cache key used to identify the generated type for the provided requested type.
-    /// It should include the <see cref="IParticipant"/> configuation and other data that might influence the modifications specified by a 
-    /// participant. Implementations should not encode the requested type itself, as this is already handled by the pipeline.
+    /// Gets a cache key used to identify the generated proxy <see cref="Type"/> for the provided requested <see cref="Type"/>.
     /// </summary>
+    /// <remarks>
+    /// The cache key should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
+    /// specified by the <see cref="IParticipant"/>.
+    /// Implementations should not encode the requested type itself, as this is already handled by the pipeline.
+    /// </remarks>
     /// <param name="requestedType">The requested type.</param>
     /// <returns>
     /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
     /// </returns>
     object GetCacheKey (Type requestedType);
 
-    // TODO 5503: docs.
-    object RebuildCacheKey (Type generatedType);
+    /// <summary>
+    /// Rebuilds a cache key from a generated proxy <see cref="Type"/>.
+    /// This method is the counterpart of <see cref="GetCacheKey"/> and will be invoked before types are loaded from an flushed assembly.
+    /// </summary>
+    /// <remarks>
+    /// The cache key should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
+    /// specified by the <see cref="IParticipant"/>.
+    /// Implementations should not encode the requested type, i.e., the base type of <paramref name="generatedProxyType"/>, as this is already
+    /// handled by the pipeline.
+    /// </remarks>
+    /// <param name="generatedProxyType">The generated proxy type.</param>
+    /// <returns>
+    /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="generatedProxyType"/>.
+    /// </returns>
+    object RebuildCacheKey (Type generatedProxyType);
   }
 }
