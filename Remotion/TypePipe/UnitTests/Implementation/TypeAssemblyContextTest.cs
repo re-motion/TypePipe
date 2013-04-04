@@ -21,11 +21,12 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration
+namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
   public class TypeAssemblyContextTest

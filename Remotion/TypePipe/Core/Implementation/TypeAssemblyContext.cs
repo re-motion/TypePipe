@@ -19,10 +19,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// Implements <see cref="ITypeAssemblyContext"/> and provides the possibility to raise the <see cref="GenerationCompleted"/> event.

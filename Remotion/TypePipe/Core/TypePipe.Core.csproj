@@ -228,7 +228,7 @@
     <Compile Include="MutableReflection\Implementation\MutableTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
-    <Compile Include="CodeGeneration\ITypeAssemblyContext.cs" />
+    <Compile Include="Implementation\ITypeAssemblyContext.cs" />
     <Compile Include="MutableReflection\MethodDeclaration.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensions.cs" />
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
@@ -423,7 +423,7 @@
     <Compile Include="StrongNaming\ITypeAnalyzer.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyContext.cs" />
+    <Compile Include="Implementation\TypeAssemblyContext.cs" />
     <Compile Include="Pipeline.cs" />
   </ItemGroup>
   <ItemGroup>

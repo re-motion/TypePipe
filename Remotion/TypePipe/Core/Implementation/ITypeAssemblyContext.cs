@@ -19,10 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
-using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// Holds the <see cref="RequestedType"/> and <see cref="ProxyType"/> and allows generation of additional types.

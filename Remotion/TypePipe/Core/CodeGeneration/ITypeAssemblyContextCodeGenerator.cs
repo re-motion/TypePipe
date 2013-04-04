@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration
 {

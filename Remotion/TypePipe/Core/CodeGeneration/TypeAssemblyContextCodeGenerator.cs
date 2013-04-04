@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq;
+using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 using Remotion.Collections;
