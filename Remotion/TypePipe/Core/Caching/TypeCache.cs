@@ -127,21 +127,36 @@ namespace Remotion.TypePipe.Caching
         throw new ArgumentException (message, "assembly");
       }
 
-      var proxyTypes = assembly.GetTypes ().Where (t => t.IsDefined (typeof (ProxyTypeAttribute), inherit: false));
-      LoadProxyTypes (proxyTypes);
+      LoadTypes (assembly.GetTypes());
     }
 
-    private void LoadProxyTypes (IEnumerable<Type> proxyTypes)
+    private void LoadTypes (IEnumerable<Type> types)
     {
+      var proxyTypes = new HashSet<Type>();
+      var additionalTypes = new HashSet<Type>();
+
+      foreach (var type in types)
+      {
+        if (type.IsDefined (typeof (ProxyTypeAttribute), inherit: false))
+          proxyTypes.Add (type);
+        else
+          additionalTypes.Add (type);
+      }
+
       var keysAndTypes = proxyTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
 
       lock (_lock)
       {
-        foreach (var pair in keysAndTypes)
+        foreach (var p in keysAndTypes)
         {
-          if (!_types.ContainsKey (pair.Key))
-            _types.Add (pair.Key, pair.Type);
+          if (_types.ContainsKey (p.Key))
+            proxyTypes.Remove (p.Type);
+          else
+            _types.Add (p.Key, p.Type);
         }
+
+        var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes);
+        _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
     }
 

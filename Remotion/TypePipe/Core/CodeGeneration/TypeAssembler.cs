@@ -92,6 +92,13 @@ namespace Remotion.TypePipe.CodeGeneration
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
     }
 
+    public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)
+    {
+      ArgumentUtility.CheckNotNull ("loadedTypesContext", loadedTypesContext);
+
+      // TODO 5504
+    }
+
     private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)
     {
       var proxyType = _mutableTypeFactory.CreateProxy (requestedType);

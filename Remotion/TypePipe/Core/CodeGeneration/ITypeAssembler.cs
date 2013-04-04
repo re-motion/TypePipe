@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -42,5 +43,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     Type AssembleType (
         Type requestedType, IDictionary<string, object> participantState, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator);
+
+    void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
   }
 }
