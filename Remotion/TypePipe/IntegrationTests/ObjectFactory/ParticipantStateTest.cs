@@ -26,6 +26,17 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
   [TestFixture]
   public class ParticipantStateTest : IntegrationTestBase
   {
+    private const string c_participantConfigurationID = "ParticipantStateTest";
+
+    private Assembly _assembly;
+
+    public override void TestFixtureSetUp ()
+    {
+      base.TestFixtureSetUp ();
+
+      _assembly = PreGenerateAssembly();
+    }
+
     [Test]
     public void GlobalState ()
     {
@@ -55,17 +66,11 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     }
 
     [Test]
-    public void RebuildStateFromLoadedTypes ()
+    public void RebuildState_FromLoadedTypes ()
     {
-      var participant1 = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
-      var savingFactory = CreateObjectFactory (participant1);
-      savingFactory.GetAssembledType (typeof (RequestedType1)); // Trigger generation of types.
-      var assemblyPath = Flush();
-      var assembly = AssemblyLoader.LoadWithoutLocking (assemblyPath);
-
       Type loadedType = null;
       var stateWasRead = false;
-      var participant2 = CreateParticipant (
+      var participant = CreateParticipant (
           rebuildStateAction: ctx =>
           {
             var loadedProxy = ctx.ProxyTypes.Single();
@@ -81,16 +86,45 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
             Assert.That (ctx.State["key"], Is.EqualTo ("reconstructed state"));
             stateWasRead = true;
           });
-      var loadingFactory = CreateObjectFactory (participant2);
+      var factory = CreateObjectFactory (c_participantConfigurationID, participant);
 
-      loadingFactory.CodeManager.LoadFlushedCode (assembly);
+      factory.CodeManager.LoadFlushedCode (_assembly);
 
       Assert.That (loadedType, Is.Not.Null);
-      Assert.That (loadingFactory.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));
+      Assert.That (factory.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));
       Assert.That (stateWasRead, Is.False);
 
-      loadingFactory.GetAssembledType (typeof (RequestedType2));
+      factory.GetAssembledType (typeof (RequestedType2));
       Assert.That (stateWasRead, Is.True);
+    }
+
+    [Test]
+    public void RebuildState_ContextOnlyContainsNewlyCachedTypes ()
+    {
+      var rebuildStateWasCalled = false;
+      var participant = CreateParticipant (
+          rebuildStateAction: ctx =>
+          {
+            Assert.That (ctx.ProxyTypes, Is.Empty);
+            Assert.That (ctx.AdditionalTypes, Has.Count.EqualTo (1));
+            rebuildStateWasCalled = true;
+          });
+      var factory = CreateObjectFactory (c_participantConfigurationID, participant);
+      factory.GetAssembledType (typeof (RequestedType1)); // Put type 1 into cache.
+
+      factory.CodeManager.LoadFlushedCode (_assembly);
+
+      Assert.That (rebuildStateWasCalled, Is.True);
+    }
+
+    private Assembly PreGenerateAssembly ()
+    {
+      var participant = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
+      var factory = CreateObjectFactory (c_participantConfigurationID, participant);
+      factory.GetAssembledType (typeof (RequestedType1)); // Trigger generation of types.
+      var assemblyPath = Flush();
+
+      return AssemblyLoader.LoadWithoutLocking (assemblyPath);
     }
 
     public class RequestedType1 {}
