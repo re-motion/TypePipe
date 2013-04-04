@@ -18,8 +18,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
@@ -156,8 +156,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       Assert.That (File.Exists (assemblyPath), Is.True);
 
-      // Load via raw bytes so that the file is not locked and can be deleted.
-      var assembly = Assembly.Load (File.ReadAllBytes (assemblyPath));
+      var assembly = AssemblyLoader.LoadWithoutLocking (assemblyPath);
       var typeNames = assembly.GetExportedTypes().Select (t => t.FullName);
 
       Assert.That (typeNames, Is.EqualTo (new[] { assembledTypeFullName }));

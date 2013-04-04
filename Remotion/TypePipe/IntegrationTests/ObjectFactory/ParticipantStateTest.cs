@@ -16,10 +16,10 @@
 // 
 
 using System;
-using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using System.Linq;
+using Remotion.Development.UnitTesting.IO;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -61,6 +61,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       var savingFactory = CreateObjectFactory (participant1);
       savingFactory.GetAssembledType (typeof (RequestedType1)); // Trigger generation of types.
       var assemblyPath = Flush();
+      var assembly = AssemblyLoader.LoadWithoutLocking (assemblyPath);
 
       Type loadedType = null;
       var stateWasRead = false;
@@ -82,7 +83,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
           });
       var loadingFactory = CreateObjectFactory (participant2);
 
-      loadingFactory.CodeManager.LoadFlushedCode (Assembly.Load (File.ReadAllBytes (assemblyPath)));
+      loadingFactory.CodeManager.LoadFlushedCode (assembly);
 
       Assert.That (loadedType, Is.Not.Null);
       Assert.That (loadingFactory.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));

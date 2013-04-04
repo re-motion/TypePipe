@@ -16,10 +16,10 @@
 // 
 
 using System;
-using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
@@ -126,9 +126,8 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (assembledType1.Assembly, Is.Not.SameAs (assembledType2.Assembly));
       Assert.That (assemblyPath1, Is.Not.Null.And.Not.EqualTo (assemblyPath2));
 
-      // Load via raw bytes so that the file is not locked and can be deleted.
-      _assembly1 = Assembly.Load (File.ReadAllBytes (assemblyPath1));
-      _assembly2 = Assembly.Load (File.ReadAllBytes (assemblyPath2));
+      _assembly1 = AssemblyLoader.LoadWithoutLocking (assemblyPath1);
+      _assembly2 = AssemblyLoader.LoadWithoutLocking (assemblyPath2);
     }
 
     public class DomainType1 {}
