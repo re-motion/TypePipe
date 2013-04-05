@@ -32,12 +32,13 @@ namespace Remotion.TypePipe.Caching
   public class TypeCache : ITypeCache
   {
     // Storing the delegates as static readonly fields has two advantages for performance:
-    // 1) It ensures that no closure is implicilty created.
+    // 1) It ensures that no closure is created.
     // 2) We do not create new delegate instances every time a cache key is computed.
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromRequestedType = (ckp, t) => ckp.GetCacheKey (t);
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromGeneratedType = (ckp, t) => ckp.RebuildCacheKey (t);
 
-    private readonly object _lock = new object();
+    private readonly object _typeLock = new object();
+    private readonly object _ctorLock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
@@ -85,7 +86,7 @@ namespace Remotion.TypePipe.Caching
       var key = GetConstructorKey (requestedType, delegateType, allowNonPublic);
 
       Delegate constructorCall;
-      lock (_lock)
+      lock (_ctorLock)
       {
         if (!_constructorCalls.TryGetValue (key, out constructorCall))
         {
@@ -119,7 +120,7 @@ namespace Remotion.TypePipe.Caching
 
       var keysAndTypes = proxyTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
 
-      lock (_lock)
+      lock (_typeLock)
       {
         foreach (var p in keysAndTypes)
         {
@@ -129,6 +130,7 @@ namespace Remotion.TypePipe.Caching
             _types.Add (p.Key, p.Type);
         }
 
+        // TODO Review: This must be inside _typeLock so that, _participantState is also guarded?!
         var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, _participantState);
         _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
@@ -137,7 +139,7 @@ namespace Remotion.TypePipe.Caching
     private Type GetOrCreateType (object[] typeKey, Type requestedType)
     {
       Type generatedType;
-      lock (_lock)
+      lock (_typeLock)
       {
         if (!_types.TryGetValue (typeKey, out generatedType))
         {
