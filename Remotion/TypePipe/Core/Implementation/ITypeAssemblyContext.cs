@@ -40,8 +40,10 @@ namespace Remotion.TypePipe.Implementation
     /// </summary>
     event Action<GeneratedTypeContext> GenerationCompleted;
 
-    // TODO 5502: docs
-    string ParticipnatConfigurationID { get; }
+    /// <summary>
+    /// Gets the participant configuration ID of the containing <see cref="IObjectFactory"/>.
+    /// </summary>
+    string ParticipantConfigurationID { get; }
 
     /// <summary>
     /// The original <see cref="Type"/> that was requested by the user through an instance of <see cref="IObjectFactory"/>.

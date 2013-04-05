@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.Implementation
 
     public event Action<GeneratedTypeContext> GenerationCompleted;
 
-    public string ParticipnatConfigurationID
+    public string ParticipantConfigurationID
     {
       get { return _participantConfigurationID; }
     }

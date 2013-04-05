@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
             mi =>
             {
               typeAssemblyContext = (TypeAssemblyContext) mi.Arguments[0];
-              Assert.That (typeAssemblyContext.ParticipnatConfigurationID, Is.EqualTo ("participant configuration id"));
+              Assert.That (typeAssemblyContext.ParticipantConfigurationID, Is.EqualTo ("participant configuration id"));
               Assert.That (typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
               Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (fakeProxyType));
               Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));

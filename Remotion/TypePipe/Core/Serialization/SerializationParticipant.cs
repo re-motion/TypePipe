@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.Serialization
                   ctx => Expression.Block (
                       new[] { ctx.PreviousBody }.Concat (
                           CreateMetaDataSerializationExpressions (
-                              ctx, typeof (ObjectWithDeserializationConstructorProxy), typeAssemblyContext.ParticipnatConfigurationID))));
+                              ctx, typeof (ObjectWithDeserializationConstructorProxy), typeAssemblyContext.ParticipantConfigurationID))));
         }
         catch (NotSupportedException exception)
         {
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.Serialization
             ctx => Expression.Block (
                 typeof (void),
                 CreateMetaDataSerializationExpressions (
-                    ctx, typeof (ObjectWithoutDeserializationConstructorProxy), typeAssemblyContext.ParticipnatConfigurationID)
+                    ctx, typeof (ObjectWithoutDeserializationConstructorProxy), typeAssemblyContext.ParticipantConfigurationID)
                     .Concat (Expression.Call (s_addFieldValuesMethod, ctx.Parameters[0], ctx.This))));
       }
     }

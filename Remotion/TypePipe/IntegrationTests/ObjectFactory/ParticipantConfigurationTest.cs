@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       SkipSavingAndPeVerification();
       const string configurationID = "configuration id";
-      var particpant = CreateParticipant (ctx => Assert.That (ctx.ParticipnatConfigurationID, Is.EqualTo (configurationID)));
+      var particpant = CreateParticipant (ctx => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
 
       // Create object factory directly in order to be able to specify the participant configuration id.
       var objectFactory = Pipeline.Create (configurationID, particpant);

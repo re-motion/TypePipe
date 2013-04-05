@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void Initialization ()
     {
-      Assert.That (_context.ParticipnatConfigurationID, Is.EqualTo (_configurationID));
+      Assert.That (_context.ParticipantConfigurationID, Is.EqualTo (_configurationID));
       Assert.That (_context.RequestedType, Is.SameAs (_requestedType));
       Assert.That (_context.ProxyType, Is.SameAs (_proxyType));
       Assert.That (_context.AdditionalTypes, Is.Empty);
