@@ -48,7 +48,8 @@ namespace Remotion.TypePipe.Caching
 
     /// <summary>
     /// Rebuilds a cache key from a generated proxy <see cref="Type"/>.
-    /// This method is the counterpart of <see cref="GetCacheKey"/> and will be invoked before types are loaded from an flushed assembly.
+    /// This method is the counterpart of <see cref="GetCacheKey"/> and will be invoked when types are loaded from an flushed assembly.
+    /// The compound cache key from all participants determines whether or not a proxy type is loaded into the <see cref="IObjectFactory"/>.
     /// </summary>
     /// <remarks>
     /// The cache key should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
