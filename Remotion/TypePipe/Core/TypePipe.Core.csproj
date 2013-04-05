@@ -151,9 +151,9 @@
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
     <Compile Include="Caching\ConstructorFinder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGenerator.cs" />
-    <Compile Include="Configuration\ITypePipeConfigurationProvider.cs" />
+    <Compile Include="Configuration\IConfigurationProvider.cs" />
     <Compile Include="Configuration\ForceStrongNamingConfigurationElement.cs" />
-    <Compile Include="Configuration\TypePipeConfigurationProvider.cs" />
+    <Compile Include="Configuration\AppConfigBasedConfigurationProvider.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
     <Compile Include="Dlr\Ast\LambdaExpression.TypePipe.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxAndCastExpression.cs" />

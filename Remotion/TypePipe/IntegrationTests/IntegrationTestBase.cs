@@ -117,10 +117,10 @@ namespace Remotion.TypePipe.IntegrationTests
     }
 
     protected IObjectFactory CreateObjectFactory (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, ITypePipeConfigurationProvider typePipeConfigurationProvider = null)
+        string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
     {
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
-      var objectFactory = Pipeline.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime(), typePipeConfigurationProvider);
+      var objectFactory = Pipeline.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime(), configurationProvider);
 
       _codeManager = objectFactory.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);

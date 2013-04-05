@@ -24,16 +24,16 @@ using Remotion.TypePipe.Configuration;
 namespace Remotion.TypePipe.UnitTests.Configuration
 {
   [TestFixture]
-  public class TypePipeConfigurationProviderTest
+  public class AppConfigBasedConfigurationProviderTest
   {
-    private TypePipeConfigurationProvider _provider;
+    private AppConfigBasedConfigurationProvider _provider;
     private TypePipeConfigurationSection _section;
 
     [SetUp]
     public void SetUp ()
     {
       _section = new TypePipeConfigurationSection();
-      _provider = new TypePipeConfigurationProvider();
+      _provider = new AppConfigBasedConfigurationProvider();
       PrivateInvoke.SetNonPublicField (_provider, "_section", _section);
     }
 

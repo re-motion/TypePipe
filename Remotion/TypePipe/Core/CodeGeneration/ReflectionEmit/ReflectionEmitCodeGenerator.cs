@@ -73,13 +73,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static int s_counter;
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
-    private readonly ITypePipeConfigurationProvider _configurationProvider;
+    private readonly IConfigurationProvider _configurationProvider;
 
     private string _assemblyDirectory;
     private ModuleContext _moduleContext;
 
     [CLSCompliant (false)]
-    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, ITypePipeConfigurationProvider configurationProvider)
+    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, IConfigurationProvider configurationProvider)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
 

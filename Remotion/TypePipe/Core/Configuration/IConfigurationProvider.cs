@@ -19,10 +19,21 @@ using System;
 
 namespace Remotion.TypePipe.Configuration
 {
-  // TODO 5502: docs
-  public interface ITypePipeConfigurationProvider
+  /// <summary>
+  /// Defines an interface for classes that provide configuration values.
+  /// </summary>
+  public interface IConfigurationProvider
   {
+    /// <summary>
+    /// If <see langword="true"/>, the pipeline signs all generated assemblies or throws an <see cref="InvalidOperationException"/> if that is not
+    /// possible.
+    /// </summary>
     bool ForceStrongNaming { get; }
+
+    /// <summary>
+    /// When <see cref="ForceStrongNaming"/> is enabled, the key file (<c>*.snk</c>) denoted by this property is used to sign generated assemblies.
+    /// If this property is <see langword="null"/> a default key file is used instead.
+    /// </summary>
     string KeyFilePath { get; }
   }
 }

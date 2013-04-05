@@ -297,7 +297,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
     private IObjectFactory CreateObjectFactoryForStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null)
     {
-      var configurationProvider = new TypePipeConfigurationProvider();
+      var configurationProvider = new AppConfigBasedConfigurationProvider();
       var configSection = new TypePipeConfigurationSection();
       var config = forceStrongNaming
                        ? string.Format ("<typePipe><forceStrongNaming keyFilePath=\"{0}\" /></typePipe>", keyFilePath)

@@ -50,21 +50,21 @@ namespace Remotion.TypePipe
 
     /// <summary>
     /// Creates an <see cref="IObjectFactory"/> with the given participant configuration ID containing the specified participants and optionally a
-    /// custom configuration provider. If the configuration provider is omitted, the AppConfig-based configuration provider
-    /// (<see cref="TypePipeConfigurationProvider"/>) will be used.
+    /// custom configuration provider. If the configuration provider is omitted, the <c>App.config</c>-based configuration provider
+    /// (<see cref="AppConfigBasedConfigurationProvider"/>) is used.
     /// </summary>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <param name="participants">The participants that should be used by this object factory.</param>
-    /// <param name="typePipeConfigurationProvider">
+    /// <param name="configurationProvider">
     /// A configuration provider; or <see langword="null"/> for the default, AppConfig-based configuration provider.
     /// </param>
     /// <returns>An new instance of <see cref="IObjectFactory"/>.</returns>
     public static IObjectFactory Create (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, ITypePipeConfigurationProvider typePipeConfigurationProvider = null)
+        string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("participants", participants);
-      typePipeConfigurationProvider = typePipeConfigurationProvider ?? new TypePipeConfigurationProvider();
+      configurationProvider = configurationProvider ?? new AppConfigBasedConfigurationProvider();
 
       var participantsCollection = participants.ConvertToCollection();
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participantsCollection);
@@ -73,7 +73,7 @@ namespace Remotion.TypePipe
       var typeAssembler = new TypeAssembler (participantConfigurationID, participantsCollection, mutableTypeFactory);
       var memberEmitterFactory = new MemberEmitterFactory();
       var codeGenerator = new LockingReflectionEmitCodeGeneratorDecorator (
-          new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), typePipeConfigurationProvider));
+          new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), configurationProvider));
       var mutableTypeCodeGeneratorFactory = new MutableTypeCodeGeneratorFactory (
           memberEmitterFactory, codeGenerator, new InitializationBuilder(), new ProxySerializationEnabler (new SerializableFieldFinder()));
       var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);

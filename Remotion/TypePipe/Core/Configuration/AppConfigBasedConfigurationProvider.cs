@@ -19,12 +19,30 @@ using System.Configuration;
 
 namespace Remotion.TypePipe.Configuration
 {
-  // TODO 5502: docs
-  public class TypePipeConfigurationProvider : ITypePipeConfigurationProvider
+  /// <summary>
+  /// An <c>App.config</c>-based configuration provider.<br/>
+  /// <example>
+  /// Example of an <c>App.config</c> configuration file.
+  /// <code>
+  /// &lt;configuration&gt;
+  ///   &lt;configSections&gt;
+  ///     &lt;section name="typePipe" type="Remotion.TypePipe.Configuration.TypePipeConfigurationSection, Remotion.TypePipe"/&gt;
+  ///     &lt;!-- ... --&gt;
+  ///   &lt;/configSections&gt;
+  ///   
+  ///   &lt;typePipe xmlns="http://typepipe.codeplex.com/configuration"&gt;
+  ///     &lt;forceStrongNaming keyFilePath="keyFile.snk" /&gt;
+  ///   &lt;/typePipe&gt;
+  ///   &lt;!-- ... --&gt;
+  /// &lt;/configuration&gt;
+  /// </code>
+  /// </example>
+  /// </summary>
+  public class AppConfigBasedConfigurationProvider : IConfigurationProvider
   {
     private readonly TypePipeConfigurationSection _section;
 
-    public TypePipeConfigurationProvider ()
+    public AppConfigBasedConfigurationProvider ()
     {
       _section = (TypePipeConfigurationSection) ConfigurationManager.GetSection ("typePipe") ?? new TypePipeConfigurationSection();
     }

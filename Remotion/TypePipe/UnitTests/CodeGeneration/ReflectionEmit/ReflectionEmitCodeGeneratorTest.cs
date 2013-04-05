@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private const string c_assemblyNamePattern = @"TypePipe_GeneratedAssembly_\d+";
 
     private IModuleBuilderFactory _moduleBuilderFactoryMock;
-    private ITypePipeConfigurationProvider _configurationProviderMock;
+    private IConfigurationProvider _configurationProviderMock;
 
     private ReflectionEmitCodeGenerator _generator;
 
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void SetUp ()
     {
       _moduleBuilderFactoryMock = MockRepository.GenerateStrictMock<IModuleBuilderFactory>();
-      _configurationProviderMock = MockRepository.GenerateStrictMock<ITypePipeConfigurationProvider>();
+      _configurationProviderMock = MockRepository.GenerateStrictMock<IConfigurationProvider>();
 
       _generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock, _configurationProviderMock);
 
