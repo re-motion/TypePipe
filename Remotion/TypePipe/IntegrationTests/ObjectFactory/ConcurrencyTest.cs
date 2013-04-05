@@ -18,6 +18,7 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
@@ -45,19 +46,6 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     }
 
     [Test]
-    public void CodeGenerationIsSerialized ()
-    {
-      var t1 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainType1>());
-      var t2 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainType2>());
-
-      // Both threads are now blocked. [t1] is blocked by the mutex, [t2] is blocked by the code generation in [t1].
-      _blockingMutex.ReleaseMutex();
-
-      // Now both threads run to completion (code generation is serialized).
-      WaitUntilCompleted (t1, t2);
-    }
-
-    [Test]
     public void InstancesOfCachedTypesCanBeCreatedDuringCodeGenerationOfAnotherType ()
     {
       // Generate type 2.
@@ -72,13 +60,39 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       WaitUntilCompleted (t);
     }
 
+    [Test]
+    public void CodeGenerationIsSerialized ()
+    {
+      var t1 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainType1>());
+      var t2 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainType2>());
+
+      // Both threads are now blocked. [t1] is blocked by the mutex, [t2] is blocked by the code generation in [t1].
+      _blockingMutex.ReleaseMutex();
+
+      // Now both threads run to completion (code generation is serialized).
+      WaitUntilCompleted (t1, t2);
+    }
+
+    [Test]
+    public void CodeManagerIsGuardedBySameLockAsCodeGenerationInternals ()
+    {
+      var t1 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainType1>());
+      var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _objectFactory.CodeManager.AssemblyName);
+
+      // Both threads are now blocked. [t1] is blocked by the mutex, [t2] is blocked by the code generation in [t1].
+      _blockingMutex.ReleaseMutex();
+
+      // Now both threads run to completion (user APIs do not interfere with code generation).
+      WaitUntilCompleted (t1, t2);
+    }
+
     private Thread StartAndWaitUntilBlocked (ThreadStart action)
     {
       var thread = new Thread (action);
       thread.Start();
 
       while (thread.ThreadState != ThreadState.WaitSleepJoin)
-        Thread.Sleep (10);
+        Thread.Sleep (10); // TODO 5057: Use Thread.Yield instead.
 
       return thread;
     }
