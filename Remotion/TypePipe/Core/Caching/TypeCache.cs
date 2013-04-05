@@ -37,9 +37,9 @@ namespace Remotion.TypePipe.Caching
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromRequestedType = (ckp, t) => ckp.GetCacheKey (t);
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromGeneratedType = (ckp, t) => ckp.RebuildCacheKey (t);
 
+    // TODO 5502: Comment locks.
     private readonly object _typeLock = new object();
     private readonly object _ctorLock = new object();
-    private readonly object _codeLock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
@@ -94,8 +94,6 @@ namespace Remotion.TypePipe.Caching
       }
 
       var typeKey = GetTypeKeyFromConstructorKey (key);
-      // TODO Review2: This potentially redoes a lot of work, maybe better work with
-      // Monitor.Enter() try{ GetOrCreateType() }finally{Monitor.Release()}; ??
       var generatedType = GetOrCreateType (typeKey, requestedType);
       var ctorSignature = _delegateFactory.GetSignature (delegateType);
       var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
@@ -103,6 +101,7 @@ namespace Remotion.TypePipe.Caching
 
       lock (_ctorLock)
       {
+        // TODO 5502: Comment double work.
         if (!_constructorCalls.ContainsKey (key))
           _constructorCalls.Add (key, constructorCall);
       }
@@ -138,6 +137,7 @@ namespace Remotion.TypePipe.Caching
         }
 
         // TODO Review: This must be inside _typeLock so that, _participantState is also guarded?!
+        // TODO 5502: Comment double work.
         var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, _participantState);
         _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
