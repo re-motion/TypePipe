@@ -18,7 +18,6 @@
 using System;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
 
@@ -33,10 +32,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void SetUp ()
     {
       var innerCodeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
+      var lockObject = new object();
 
-      var decorator = new LockingCodeGeneratorDecorator (innerCodeGeneratorMock);
+      var decorator = new LockingCodeGeneratorDecorator (innerCodeGeneratorMock, lockObject);
 
-      var lockObject = PrivateInvoke.GetNonPublicField (decorator, "_lock");
       _helper = new LockingDecoratorTestHelper<ICodeGenerator> (decorator, lockObject, innerCodeGeneratorMock);
     }
 

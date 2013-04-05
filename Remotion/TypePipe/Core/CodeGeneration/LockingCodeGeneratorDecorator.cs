@@ -25,15 +25,16 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class LockingCodeGeneratorDecorator : ICodeGenerator
   {
-    private readonly object _lock = new object();
-
     private readonly ICodeGenerator _innerCodeGenerator;
+    private readonly object _lock;
 
-    public LockingCodeGeneratorDecorator (ICodeGenerator innerCodeGenerator)
+    public LockingCodeGeneratorDecorator (ICodeGenerator innerCodeGenerator, object @lock)
     {
       ArgumentUtility.CheckNotNull ("innerCodeGenerator", innerCodeGenerator);
+      ArgumentUtility.CheckNotNull ("lock", @lock);
 
       _innerCodeGenerator = innerCodeGenerator;
+      _lock = @lock;
     }
 
     public string AssemblyDirectory
