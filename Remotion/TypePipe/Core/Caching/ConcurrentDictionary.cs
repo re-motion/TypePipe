@@ -35,6 +35,17 @@ namespace Remotion.TypePipe.Caching
       _dictionary = new Dictionary<TKey, TValue> (comparer);
     }
 
+    public int Count
+    {
+      get
+      {
+        lock (_lock)
+        {
+          return _dictionary.Count;
+        }
+      }
+    }
+
     public TValue this [TKey key]
     {
       get

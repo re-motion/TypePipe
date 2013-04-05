@@ -37,13 +37,13 @@ namespace Remotion.TypePipe.Caching
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromRequestedType = (ckp, t) => ckp.GetCacheKey (t);
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromGeneratedType = (ckp, t) => ckp.RebuildCacheKey (t);
 
-    /// <summary>Guards <see cref="_types"/> and <see cref="_participantState"/>.</summary>
-    private readonly object _typeLock = new object();
-    /// <summary>Guards <see cref="_constructorCalls"/>.</summary>
-    private readonly object _ctorLock = new object();
+    private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
 
-    private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
-    private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
+    /// <summary>Guards access to<see cref="_participantState"/> and serializes execution of code generation and state rebuilding.</summary>
+    private readonly object _codeGenerationLock = new object();
+
+    private readonly ConcurrentDictionary<object[], Type> _types = new ConcurrentDictionary<object[], Type> (s_comparer);
+    private readonly ConcurrentDictionary<object[], Delegate> _constructorCalls = new ConcurrentDictionary<object[], Delegate> (s_comparer);
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
@@ -87,30 +87,7 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       var key = GetConstructorKey (requestedType, delegateType, allowNonPublic);
-
-      Delegate constructorCall;
-      lock (_ctorLock)
-      {
-        if (_constructorCalls.TryGetValue (key, out constructorCall))
-          return constructorCall;
-      }
-
-      var typeKey = GetTypeKeyFromConstructorKey (key);
-      var generatedType = GetOrCreateType (typeKey, requestedType);
-      var ctorSignature = _delegateFactory.GetSignature (delegateType);
-      var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
-      constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
-
-      lock (_ctorLock)
-      {
-        // It is possible that more than one call to the same constructor is created, but this is cheap and unlikely to happen, so we don't care.
-        if (!_constructorCalls.ContainsKey (key))
-          _constructorCalls.Add (key, constructorCall);
-        else
-          constructorCall = _constructorCalls[key];
-      }
-
-      return constructorCall;
+      return GetOrCreateConstructorCall (key, requestedType, delegateType, allowNonPublic);
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
@@ -130,7 +107,7 @@ namespace Remotion.TypePipe.Caching
 
       var keysAndTypes = proxyTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
 
-      lock (_typeLock)
+      lock (_codeGenerationLock)
       {
         foreach (var p in keysAndTypes)
         {
@@ -145,19 +122,45 @@ namespace Remotion.TypePipe.Caching
       }
     }
 
-    private Type GetOrCreateType (object[] typeKey, Type requestedType)
+    private Type GetOrCreateType (object[] key, Type requestedType)
     {
       Type generatedType;
-      lock (_typeLock)
+      if (_types.TryGetValue (key, out generatedType))
+        return generatedType;
+
+      lock (_codeGenerationLock)
       {
-        if (!_types.TryGetValue (typeKey, out generatedType))
-        {
-          generatedType = _typeAssembler.AssembleType (requestedType, _participantState, _typeAssemblyContextCodeGenerator);
-          _types.Add (typeKey, generatedType);
-        }
+        if (_types.TryGetValue (key, out generatedType))
+          return generatedType;
+
+        generatedType = _typeAssembler.AssembleType (requestedType, _participantState, _typeAssemblyContextCodeGenerator);
+        _types.Add (key, generatedType);
       }
 
       return generatedType;
+    }
+
+    private Delegate GetOrCreateConstructorCall (object[] key, Type requestedType, Type delegateType, bool allowNonPublic)
+    {
+      Delegate constructorCall;
+      if (_constructorCalls.TryGetValue (key, out constructorCall))
+        return constructorCall;
+
+      lock (_codeGenerationLock)
+      {
+        if (_constructorCalls.TryGetValue (key, out constructorCall))
+          return constructorCall;
+
+        var typeKey = GetTypeKeyFromConstructorKey (key);
+        var generatedType = GetOrCreateType (typeKey, requestedType);
+        var ctorSignature = _delegateFactory.GetSignature (delegateType);
+        var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
+
+        constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
+        _constructorCalls.Add (key, constructorCall);
+      }
+
+      return constructorCall;
     }
 
     private object[] GetTypeKey (Type requestedType, Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type fromType)
