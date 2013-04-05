@@ -158,15 +158,15 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .Return (new object[] { null, null, null, "type key" });
       _delegateFactoryMock
           .Expect (mock => mock.GetSignature (_delegateType))
-          .WhenCalled (_ => CheckLocks (ctorLockIsHeld: true))
+          .WhenCalled (_ => CheckLocks())
           .Return (_fakeSignature);
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType1, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
-          .WhenCalled (_ => CheckLocks (ctorLockIsHeld: true))
+          .WhenCalled (_ => CheckLocks())
           .Return (_fakeConstructor);
       _delegateFactoryMock
           .Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType))
-          .WhenCalled (_ => CheckLocks (ctorLockIsHeld: true))
+          .WhenCalled (_ => CheckLocks())
           .Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
@@ -183,23 +183,23 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _types.Add (new object[] { _requestedType, "type key" }, _generatedType1);
       _typeAssemblerMock
           .Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 3))
-          .WhenCalled (_ => CheckLocks ())
+          .WhenCalled (_ => CheckLocks())
           .Return (new object[] { null, null, null, "other type key" });
       _delegateFactoryMock
           .Expect (mock => mock.GetSignature (_delegateType))
-          .WhenCalled (_ => CheckLocks (ctorLockIsHeld: true))
+          .WhenCalled (_ => CheckLocks())
           .Return (_fakeSignature);
       _typeAssemblerMock
           .Expect (mock => mock.AssembleType (_requestedType, _participantState, _typeAssemblyContextCodeGeneratorMock))
-          .WhenCalled (_ => CheckLocks (typeLockIsHeld: true, ctorLockIsHeld: true))
+          .WhenCalled (_ => CheckLocks (typeLockIsHeld: true))
           .Return (_generatedType2);
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (_generatedType2, _fakeSignature.Item1, _allowNonPublic, _requestedType, _fakeSignature.Item1))
-          .WhenCalled (_ => CheckLocks (ctorLockIsHeld: true))
+          .WhenCalled (_ => CheckLocks())
           .Return (_fakeConstructor);
       _delegateFactoryMock
           .Expect (mock => mock.CreateConstructorCall (_fakeConstructor, _delegateType))
-          .WhenCalled (_ => CheckLocks (ctorLockIsHeld: true))
+          .WhenCalled (_ => CheckLocks())
           .Return (_delegate2);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);

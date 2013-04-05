@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.Caching
 
     private readonly object _typeLock = new object();
     private readonly object _ctorLock = new object();
+    private readonly object _codeLock = new object();
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
@@ -88,16 +89,22 @@ namespace Remotion.TypePipe.Caching
       Delegate constructorCall;
       lock (_ctorLock)
       {
-        if (!_constructorCalls.TryGetValue (key, out constructorCall))
-        {
-          var typeKey = GetTypeKeyFromConstructorKey (key);
-          var generatedType = GetOrCreateType (typeKey, requestedType);
-          var ctorSignature = _delegateFactory.GetSignature (delegateType);
-          var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
+        if (_constructorCalls.TryGetValue (key, out constructorCall))
+          return constructorCall;
+      }
 
-          constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
+      var typeKey = GetTypeKeyFromConstructorKey (key);
+      // TODO Review2: This potentially redoes a lot of work, maybe better work with
+      // Monitor.Enter() try{ GetOrCreateType() }finally{Monitor.Release()}; ??
+      var generatedType = GetOrCreateType (typeKey, requestedType);
+      var ctorSignature = _delegateFactory.GetSignature (delegateType);
+      var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
+      constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
+
+      lock (_ctorLock)
+      {
+        if (!_constructorCalls.ContainsKey (key))
           _constructorCalls.Add (key, constructorCall);
-        }
       }
 
       return constructorCall;
