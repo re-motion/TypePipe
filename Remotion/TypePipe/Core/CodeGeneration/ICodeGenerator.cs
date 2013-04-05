@@ -22,6 +22,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Instances of this interface represent the code generator used by the pipeline.
   /// </summary>
+  // //TODO 5502: docs implementations are not allowed to use TypePIpe APIs (threading issues)
   public interface ICodeGenerator
   {
     string AssemblyDirectory { get; }
