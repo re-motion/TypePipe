@@ -16,31 +16,28 @@
 // 
 
 using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class LockingReflectionEmitCodeGeneratorDecoratorTest
+  public class LockingCodeGeneratorDecoratorTest
   {
-    private LockingDecoratorTestHelper<IReflectionEmitCodeGenerator> _helper;
+    private LockingDecoratorTestHelper<ICodeGenerator> _helper;
 
     [SetUp]
     public void SetUp ()
     {
-      var innerCodeGeneratorMock = MockRepository.GenerateStrictMock<IReflectionEmitCodeGenerator>();
+      var innerCodeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
 
-      var decorator = new LockingReflectionEmitCodeGeneratorDecorator (innerCodeGeneratorMock);
+      var decorator = new LockingCodeGeneratorDecorator (innerCodeGeneratorMock);
 
       var lockObject = PrivateInvoke.GetNonPublicField (decorator, "_lock");
-      _helper = new LockingDecoratorTestHelper<IReflectionEmitCodeGenerator> (decorator, lockObject, innerCodeGeneratorMock);
+      _helper = new LockingDecoratorTestHelper<ICodeGenerator> (decorator, lockObject, innerCodeGeneratorMock);
     }
 
     [Test]
@@ -48,12 +45,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _helper.ExpectSynchronizedDelegation (g => g.AssemblyDirectory, "get dir");
       _helper.ExpectSynchronizedDelegation (g => g.AssemblyName, "get name");
-      _helper.ExpectSynchronizedDelegation (g => g.DebugInfoGenerator, DebugInfoGenerator.CreatePdbGenerator());
       _helper.ExpectSynchronizedDelegation (g => g.SetAssemblyDirectory ("set dir"));
       _helper.ExpectSynchronizedDelegation (g => g.SetAssemblyName ("set name"));
       _helper.ExpectSynchronizedDelegation (g => g.FlushCodeToDisk ("config id"), "assembly path");
-      _helper.ExpectSynchronizedDelegation (g => g.CreateEmittableOperandProvider(), MockRepository.GenerateStub<IEmittableOperandProvider>());
-      _helper.ExpectSynchronizedDelegation (g => g.DefineType ("type name", (TypeAttributes) 7, null), MockRepository.GenerateStub<ITypeBuilder>());
     }
   }
 }

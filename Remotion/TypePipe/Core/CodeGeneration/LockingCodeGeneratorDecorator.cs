@@ -16,23 +16,20 @@
 // 
 
 using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Provides a synchronization wrapper around an implementation of <see cref="IReflectionEmitCodeGenerator"/>.
+  /// Provides a synchronization wrapper around an implementation of <see cref="ICodeGenerator"/>.
   /// </summary>
-  public class LockingReflectionEmitCodeGeneratorDecorator : IReflectionEmitCodeGenerator
+  public class LockingCodeGeneratorDecorator : ICodeGenerator
   {
     private readonly object _lock = new object();
-    private readonly IReflectionEmitCodeGenerator _innerCodeGenerator;
 
-    [CLSCompliant (false)]
-    public LockingReflectionEmitCodeGeneratorDecorator (IReflectionEmitCodeGenerator innerCodeGenerator)
+    private readonly ICodeGenerator _innerCodeGenerator;
+
+    public LockingCodeGeneratorDecorator (ICodeGenerator innerCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("innerCodeGenerator", innerCodeGenerator);
 
@@ -49,11 +46,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { lock (_lock) return _innerCodeGenerator.AssemblyName; }
     }
 
-    public DebugInfoGenerator DebugInfoGenerator
-    {
-      get { lock (_lock) return _innerCodeGenerator.DebugInfoGenerator; }
-    }
-
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
       lock (_lock) _innerCodeGenerator.SetAssemblyDirectory (assemblyDirectory);
@@ -67,17 +59,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public string FlushCodeToDisk (string participantConfigurationID)
     {
       lock (_lock) return _innerCodeGenerator.FlushCodeToDisk (participantConfigurationID);
-    }
-
-    public IEmittableOperandProvider CreateEmittableOperandProvider ()
-    {
-      lock (_lock) return _innerCodeGenerator.CreateEmittableOperandProvider();
-    }
-
-    [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
-    {
-      lock (_lock) return _innerCodeGenerator.DefineType (name, attributes, emittableOperandProvider);
     }
   }
 }
