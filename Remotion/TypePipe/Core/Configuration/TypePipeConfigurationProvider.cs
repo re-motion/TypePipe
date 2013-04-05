@@ -19,6 +19,7 @@ using System.Configuration;
 
 namespace Remotion.TypePipe.Configuration
 {
+  // TODO 5502: docs
   public class TypePipeConfigurationProvider : ITypePipeConfigurationProvider
   {
     private readonly TypePipeConfigurationSection _section;

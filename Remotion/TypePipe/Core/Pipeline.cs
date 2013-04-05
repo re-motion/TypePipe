@@ -29,10 +29,17 @@ using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe
 {
-  // TODO 5502: docs
+  /// <summary>
+  /// Creates instances of <see cref="IObjectFactory"/>, which are the main entry point of the pipeline.
+  /// </summary>
   public static class Pipeline
   {
-    // TODO 5502: docs
+    /// <summary>
+    /// Creates an <see cref="IObjectFactory"/> with the given participant configuration ID containing the specified participants.
+    /// </summary>
+    /// <param name="participantConfigurationID">The participant configuration ID.</param>
+    /// <param name="participants">The participants that should be used by this object factory.</param>
+    /// <returns>An new instance of <see cref="IObjectFactory"/>.</returns>
     public static IObjectFactory Create (string participantConfigurationID, params IParticipant[] participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
@@ -41,7 +48,17 @@ namespace Remotion.TypePipe
       return Create (participantConfigurationID, (IEnumerable<IParticipant>) participants);
     }
 
-    // TODO 5502: docs
+    /// <summary>
+    /// Creates an <see cref="IObjectFactory"/> with the given participant configuration ID containing the specified participants and optionally a
+    /// custom configuration provider. If the configuration provider is omitted, the AppConfig-based configuration provider
+    /// (<see cref="TypePipeConfigurationProvider"/>) will be used.
+    /// </summary>
+    /// <param name="participantConfigurationID">The participant configuration ID.</param>
+    /// <param name="participants">The participants that should be used by this object factory.</param>
+    /// <param name="typePipeConfigurationProvider">
+    /// A configuration provider; or <see langword="null"/> for the default, AppConfig-based configuration provider.
+    /// </param>
+    /// <returns>An new instance of <see cref="IObjectFactory"/>.</returns>
     public static IObjectFactory Create (
         string participantConfigurationID, IEnumerable<IParticipant> participants, ITypePipeConfigurationProvider typePipeConfigurationProvider = null)
     {
