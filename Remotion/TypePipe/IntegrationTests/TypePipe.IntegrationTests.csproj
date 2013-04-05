@@ -61,6 +61,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="ObjectFactory\CachingTest.cs" />
+    <Compile Include="ObjectFactory\ConcurrencyTest.cs" />
     <Compile Include="ObjectFactory\FlushGeneratedCodeTest.cs" />
     <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="MutableReflection\IsAssignableFromTest.cs" />
