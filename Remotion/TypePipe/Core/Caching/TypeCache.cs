@@ -37,9 +37,11 @@ namespace Remotion.TypePipe.Caching
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromRequestedType = (ckp, t) => ckp.GetCacheKey (t);
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromGeneratedType = (ckp, t) => ckp.RebuildCacheKey (t);
 
-    // TODO 5502: Comment locks.
+    /// <summary>Guards <see cref="_types"/> and <see cref="_participantState"/>.</summary>
     private readonly object _typeLock = new object();
+    /// <summary>Guards <see cref="_constructorCalls"/>.</summary>
     private readonly object _ctorLock = new object();
+
     private readonly Dictionary<object[], Type> _types = new Dictionary<object[], Type> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<object[], Delegate> _constructorCalls = new Dictionary<object[], Delegate> (new CompoundCacheKeyEqualityComparer());
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
@@ -101,9 +103,11 @@ namespace Remotion.TypePipe.Caching
 
       lock (_ctorLock)
       {
-        // TODO 5502: Comment double work.
+        // It is possible that more than one call to the same constructor is created, but this is cheap and unlikely to happen, so we don't care.
         if (!_constructorCalls.ContainsKey (key))
           _constructorCalls.Add (key, constructorCall);
+        else
+          constructorCall = _constructorCalls[key];
       }
 
       return constructorCall;
@@ -136,8 +140,6 @@ namespace Remotion.TypePipe.Caching
             _types.Add (p.Key, p.Type);
         }
 
-        // TODO Review: This must be inside _typeLock so that, _participantState is also guarded?!
-        // TODO 5502: Comment double work.
         var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, _participantState);
         _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
