@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
   public class TypeCacheTest
   {
     private ITypeAssembler _typeAssemblerMock;
+    private object _codeGenerationLock;
     private ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGeneratorMock;
     private IConstructorFinder _constructorFinderMock;
     private IDelegateFactory _delegateFactoryMock;
@@ -45,7 +46,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
     private Func<ICacheKeyProvider, Type, object> _fromRequestedTypeFunc;
     private Func<ICacheKeyProvider, Type, object> _fromGeneratedTypeFunc;
 
-    private object _codeGenerationLock;
     private ConcurrentDictionary<object[], Type> _types;
     private ConcurrentDictionary<object[], Delegate> _constructorCalls;
     private IDictionary<string, object> _participantState;
@@ -65,16 +65,16 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void SetUp ()
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
+      _codeGenerationLock = new object ();
       _typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<ITypeAssemblyContextCodeGenerator>();
       _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
       _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _typeAssemblyContextCodeGeneratorMock, _constructorFinderMock, _delegateFactoryMock);
+      _cache = new TypeCache (_typeAssemblerMock, _codeGenerationLock, _typeAssemblyContextCodeGeneratorMock, _constructorFinderMock, _delegateFactoryMock);
 
       _fromRequestedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
       _fromGeneratedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromGeneratedType");
 
-      _codeGenerationLock = PrivateInvoke.GetNonPublicField (_cache, "_codeGenerationLock");
       _types = (ConcurrentDictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (ConcurrentDictionary<object[], Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
       _participantState = (IDictionary<string, object>) PrivateInvoke.GetNonPublicField (_cache, "_participantState");

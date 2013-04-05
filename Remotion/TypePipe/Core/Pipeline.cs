@@ -72,6 +72,7 @@ namespace Remotion.TypePipe
       var mutableTypeFactory = new MutableTypeFactory();
       var typeAssembler = new TypeAssembler (participantConfigurationID, participantsCollection, mutableTypeFactory);
       var memberEmitterFactory = new MemberEmitterFactory();
+      var codeGenerationLock = new object();
       var reflectionEmitCodeGenerator = new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), configurationProvider);
       var mutableTypeCodeGeneratorFactory = new MutableTypeCodeGeneratorFactory (
           memberEmitterFactory,
@@ -79,8 +80,9 @@ namespace Remotion.TypePipe
           new InitializationBuilder(),
           new ProxySerializationEnabler (new SerializableFieldFinder()));
       var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
-      var typeCache = new TypeCache (typeAssembler, typeAssemblyContextCodeGenerator, new ConstructorFinder(), new DelegateFactory());
-      var codeManager = new CodeManager (reflectionEmitCodeGenerator, typeCache);
+      var typeCache = new TypeCache (typeAssembler, codeGenerationLock, typeAssemblyContextCodeGenerator, new ConstructorFinder(), new DelegateFactory());
+      var lockingCodeGenerator = new LockingCodeGeneratorDecorator (reflectionEmitCodeGenerator, codeGenerationLock);
+      var codeManager = new CodeManager (lockingCodeGenerator, typeCache);
 
       return new ObjectFactory (typeCache, codeManager);
     }

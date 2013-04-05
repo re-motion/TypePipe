@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.Caching
     private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
 
     /// <summary>Guards access to<see cref="_participantState"/> and serializes execution of code generation and state rebuilding.</summary>
-    private readonly object _codeGenerationLock = new object();
+    private readonly object _codeGenerationLock;
 
     private readonly ConcurrentDictionary<object[], Type> _types = new ConcurrentDictionary<object[], Type> (s_comparer);
     private readonly ConcurrentDictionary<object[], Delegate> _constructorCalls = new ConcurrentDictionary<object[], Delegate> (s_comparer);
@@ -53,16 +53,19 @@ namespace Remotion.TypePipe.Caching
 
     public TypeCache (
         ITypeAssembler typeAssembler,
+        object codeGenerationLock,
         ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator,
         IConstructorFinder constructorFinder,
         IDelegateFactory delegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      ArgumentUtility.CheckNotNull ("codeGenerationLock", codeGenerationLock);
       ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
       ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
 
       _typeAssembler = typeAssembler;
+      _codeGenerationLock = codeGenerationLock;
       _typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
