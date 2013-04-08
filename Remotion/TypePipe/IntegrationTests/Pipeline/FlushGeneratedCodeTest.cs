@@ -18,9 +18,10 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.IO;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -35,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       base.SetUp();
 
-      _pipeline = CreateObjectFactory();
+      _pipeline = CreatePipeline();
       _codeManager = _pipeline.CodeManager;
     }
 
@@ -79,9 +80,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       objectFactory.GetAssembledType (typeof (RequestedType));
       var path = codeManager.FlushCodeToDisk();
 
-      var comparablePath = Regex.Replace (path, @"\d+", "007");
-      var expectedPath = Path.Combine (Environment.CurrentDirectory, @"TypePipe_GeneratedAssembly_007.dll");
-      Assert.That (comparablePath, Is.EqualTo (expectedPath));
+      var counter = (int) PrivateInvoke.GetNonPublicStaticField (typeof (ReflectionEmitCodeGenerator), "s_counter");
+      var filename = string.Format ("TypePipe_GeneratedAssembly_{0}.dll", counter);
+      var expectedPath = Path.Combine (Environment.CurrentDirectory, filename);
+      Assert.That (path, Is.EqualTo (expectedPath));
     }
 
     [Test]

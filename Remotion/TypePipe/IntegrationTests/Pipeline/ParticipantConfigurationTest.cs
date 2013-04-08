@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       var configurationID = "configurationID";
       var particpant = CreateParticipant (ctx => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
-      var objectFactory = CreateObjectFactory (configurationID, particpant);
+      var objectFactory = CreatePipeline (configurationID, particpant);
 
       Assert.That (() => objectFactory.CreateObject<RequestedType>(), Throws.Nothing);
     }

@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void ConstructorArguments_Generic ()
     {
-      var pipeline = CreateObjectFactory();
+      var pipeline = CreatePipeline();
 
       var instance = pipeline.CreateObject<DomainType>();
       Assert.That (instance.String, Is.EqualTo ("default .ctor"));
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void NonGeneric ()
     {
-      var pipeline = CreateObjectFactory();
+      var pipeline = CreatePipeline();
 
       var instance = (DomainType) pipeline.CreateObject (typeof (DomainType));
       Assert.That (instance.String, Is.EqualTo ("default .ctor"));
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void AllowNonPublic ()
     {
-      var pipeline = CreateObjectFactory();
+      var pipeline = CreatePipeline();
 
       var instance1 = pipeline.CreateObject<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
       var instance2 = (DomainType) pipeline.CreateObject (typeof (DomainType), ParamList.Create (8), allowNonPublicConstructor: true);

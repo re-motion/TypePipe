@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       });
       var participant2 = CreateParticipant (ctx => Assert.That (ctx.State["key"], Is.EqualTo (7), "Participant 2 sees state of participant 1."));
 
-      var factory = CreateObjectFactory (participant1, participant2);
+      var factory = CreatePipeline (participant1, participant2);
 
       Assert.That (() => factory.CreateObject<RequestedType1>(), Throws.Nothing);
       Assert.That (() => factory.CreateObject<RequestedType2>(), Throws.Nothing);
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             Assert.That (ctx.State["key"], Is.EqualTo ("reconstructed state"));
             stateWasRead = true;
           });
-      var factory = CreateObjectFactory (c_participantConfigurationID, participant);
+      var factory = CreatePipeline (c_participantConfigurationID, participant);
 
       factory.CodeManager.LoadFlushedCode (_assembly);
 
@@ -109,7 +109,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             Assert.That (ctx.AdditionalTypes, Has.Count.EqualTo (1));
             rebuildStateWasCalled = true;
           });
-      var factory = CreateObjectFactory (c_participantConfigurationID, participant);
+      var factory = CreatePipeline (c_participantConfigurationID, participant);
       factory.GetAssembledType (typeof (RequestedType1)); // Put type 1 into cache.
 
       factory.CodeManager.LoadFlushedCode (_assembly);
@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     private Assembly PreGenerateAssembly ()
     {
       var participant = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
-      var factory = CreateObjectFactory (c_participantConfigurationID, participant);
+      var factory = CreatePipeline (c_participantConfigurationID, participant);
       factory.GetAssembledType (typeof (RequestedType1)); // Trigger generation of types.
       var assemblyPath = Flush();
 

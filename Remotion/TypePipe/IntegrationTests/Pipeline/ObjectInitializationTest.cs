@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             Assert.That (proxyType.Initializations, Is.Not.Empty);
           });
 
-      return CreateObjectFactory (new[] { participant });
+      return CreatePipeline (new[] { participant });
     }
   }
 }

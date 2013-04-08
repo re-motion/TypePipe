@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       base.SetUp ();
 
-      _pipeline = CreateObjectFactory (c_participantConfigurationID);
+      _pipeline = CreatePipeline (c_participantConfigurationID);
       _codeManager = _pipeline.CodeManager;
     }
 
@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType1))).Return ("key");
       cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("runtime key differing from rebuilt key");
       var participant = CreateParticipant (cacheKeyProvider: cachKeyProviderStub);
-      var objectFactory = CreateObjectFactory (c_participantConfigurationID, participant);
+      var objectFactory = CreatePipeline (c_participantConfigurationID, participant);
 
       objectFactory.CodeManager.LoadFlushedCode (_assembly1);
       objectFactory.CodeManager.LoadFlushedCode (_assembly2);
@@ -126,7 +126,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
         + "'.\r\nParameter name: assembly")]
     public void LoadAssemblyGeneratedWithDifferentParticipantConfiguration ()
     {
-      var objectFactory = CreateObjectFactory ("different config");
+      var objectFactory = CreatePipeline ("different config");
       objectFactory.CodeManager.LoadFlushedCode (_assembly1);
     }
 
@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
     private void PreGenerateAssemblies ()
     {
-      var objectFactory = CreateObjectFactory (c_participantConfigurationID);
+      var objectFactory = CreatePipeline (c_participantConfigurationID);
 
       var assembledType1 = objectFactory.GetAssembledType (typeof (DomainType1));
       var assemblyPath1 = Flush();

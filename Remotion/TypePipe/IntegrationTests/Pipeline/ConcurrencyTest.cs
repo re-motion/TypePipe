@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             if (ctx.RequestedType == typeof (DomainTypeCausingParticipantToBlock))
               _blockingMutex.WaitOne();
           });
-      _pipeline = CreateObjectFactory (blockingParticipant);
+      _pipeline = CreatePipeline (blockingParticipant);
     }
 
     [Test]

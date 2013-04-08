@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     {
       _participantProviders = participantProviders.Concat (() => new SerializationParticipant()).ToArray();
       var allParticipants = _participantProviders.Select (pp => pp()).ToArray();
-      var factory = CreateObjectFactory (allParticipants);
+      var factory = CreatePipeline (allParticipants);
 
       _participantConfigurationID = factory.ParticipantConfigurationID;
 

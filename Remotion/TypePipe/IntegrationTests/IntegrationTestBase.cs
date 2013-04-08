@@ -106,17 +106,17 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipDeletion = true;
     }
 
-    protected IPipeline CreateObjectFactory (params IParticipant[] participants)
+    protected IPipeline CreatePipeline (params IParticipant[] participants)
     {
-      return CreateObjectFactory (GetNameOfRunningTest(), participants);
+      return CreatePipeline (GetNameOfRunningTest(), participants);
     }
 
-    protected IPipeline CreateObjectFactory (string participantConfigurationID, params IParticipant[] participants)
+    protected IPipeline CreatePipeline (string participantConfigurationID, params IParticipant[] participants)
     {
-      return CreateObjectFactory (participantConfigurationID, participants, null);
+      return CreatePipeline (participantConfigurationID, participants, null);
     }
 
-    protected IPipeline CreateObjectFactory (
+    protected IPipeline CreatePipeline (
         string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
     {
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
     {
-      Assertion.IsNotNull (_codeManager, "Use IntegrationTestBase.CreateObjectFactory");
+      Assertion.IsNotNull (_codeManager, "Use IntegrationTestBase.CreatePipeline");
 
       var assemblyPath = _codeManager.FlushCodeToDisk();
       if (assemblyPath == null)

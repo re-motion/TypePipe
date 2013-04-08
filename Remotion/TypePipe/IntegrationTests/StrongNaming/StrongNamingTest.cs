@@ -305,7 +305,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       ConfigurationHelper.DeserializeSection (configSection, config);
       PrivateInvoke.SetNonPublicField (configurationProvider, "_section", configSection);
 
-      return CreateObjectFactory (GetType().Name, new[] { participant }, configurationProvider);
+      return CreatePipeline (GetType().Name, new[] { participant }, configurationProvider);
     }
 
     private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)

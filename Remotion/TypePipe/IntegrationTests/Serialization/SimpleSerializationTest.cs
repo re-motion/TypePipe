@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     protected override IPipeline CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
       var participants = participantProviders.Select (pp => pp()).ToArray();
-      var factory = CreateObjectFactory (participants);
+      var factory = CreatePipeline (participants);
       factory.CodeManager.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
 
       return factory;
