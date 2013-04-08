@@ -16,11 +16,10 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -45,11 +44,10 @@ namespace Remotion.TypePipe.CodeGeneration
       _mutableTypeCodeGeneratorFactory = mutableTypeCodeGeneratorFactory;
     }
 
-    public GeneratedTypeContext GenerateTypes (ITypeAssemblyContext typeAssemblyContext)
+    public IEnumerable<KeyValuePair<MutableType, Type>> GenerateTypes (IEnumerable<MutableType> mutableTypes)
     {
-      ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);
+      ArgumentUtility.CheckNotNull ("mutableTypes", mutableTypes);
 
-      var mutableTypes = typeAssemblyContext.AdditionalTypes.Concat (typeAssemblyContext.ProxyType);
       var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
       var generators = _mutableTypeCodeGeneratorFactory.CreateGenerators (sortedTypes).ToList();
 
@@ -61,9 +59,7 @@ namespace Remotion.TypePipe.CodeGeneration
       foreach (var g in generators)
         g.DefineTypeFacets();
 
-      var mutableToGeneratedTypes = generators.Select (g => Tuple.Create (g.MutableType, g.CreateType()));
-
-      return new GeneratedTypeContext (mutableToGeneratedTypes);
+      return generators.Select (g => new KeyValuePair<MutableType, Type> (g.MutableType, g.CreateType()));
     }
   }
 }

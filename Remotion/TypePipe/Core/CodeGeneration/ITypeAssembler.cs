@@ -41,8 +41,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <returns>The compound cache key.</returns>
     object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
 
-    Type AssembleType (
-        Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
+    Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 
     bool IsAssembledType (Type type);
 

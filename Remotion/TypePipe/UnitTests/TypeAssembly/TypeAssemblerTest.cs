@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Remotion.Collections;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
@@ -99,44 +98,46 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
       var typeAssemblyContextCodeGeneratorMock = mockRepository.StrictMock<IMutableTypeBatchCodeGenerator>();
 
-      bool generationCompletedEventRaised = false;
+      var generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
       {
         participantMock1.Expect (mock => mock.PartialCacheKeyProvider);
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
-        var fakeProxyType = MutableTypeObjectMother.Create();
-        var fakeContext = new GeneratedTypeContext (new[] { Tuple.Create (fakeProxyType, fakeGeneratedType) }.AsReadOnly());
+        var proxyType = MutableTypeObjectMother.Create();
+        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (proxyType);
 
-        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (fakeProxyType);
-
-        TypeAssemblyContext typeAssemblyContext = null;
-        participantMock1.Expect (mock => mock.Participate (Arg<TypeAssemblyContext>.Is.Anything)).WhenCalled (
+        var additionalType = MutableTypeObjectMother.Create();
+        ITypeAssemblyContext typeAssemblyContext = null;
+        participantMock1.Expect (mock => mock.Participate (Arg<ITypeAssemblyContext>.Is.Anything)).WhenCalled (
             mi =>
             {
-              typeAssemblyContext = (TypeAssemblyContext) mi.Arguments[0];
+              typeAssemblyContext = (ITypeAssemblyContext) mi.Arguments[0];
               Assert.That (typeAssemblyContext.ParticipantConfigurationID, Is.EqualTo ("participant configuration id"));
               Assert.That (typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
-              Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (fakeProxyType));
+              Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (proxyType));
               Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));
 
-              typeAssemblyContext.GenerationCompleted += ctx =>
-              {
-                Assert.That (ctx, Is.SameAs (fakeContext));
-                generationCompletedEventRaised = true;
-              };
-
-              var proxyAttribute = fakeProxyType.AddedCustomAttributes.Single();
+              var proxyAttribute = proxyType.AddedCustomAttributes.Single();
               Assert.That (proxyAttribute.Type, Is.SameAs (typeof (ProxyTypeAttribute)));
               Assert.That (proxyAttribute.ConstructorArguments, Is.Empty);
               Assert.That (proxyAttribute.NamedArguments, Is.Empty);
+
+              typeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
+
+              typeAssemblyContext.GenerationCompleted += ctx =>
+              {
+                Assert.That (ctx.GetGeneratedType (proxyType), Is.SameAs (fakeGeneratedType));
+                generationCompletedEventRaised = true;
+              };
             });
-        participantMock2.Expect (mock => mock.Participate (Arg<TypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
+        mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int))).Return (additionalType);
+        participantMock2.Expect (mock => mock.Participate (Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
 
         typeAssemblyContextCodeGeneratorMock
-            .Expect (mock => mock.GenerateTypes (Arg<TypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)))
-            .Return (fakeContext)
+            .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
+            .Return (new[] { new KeyValuePair<MutableType, Type> (proxyType, fakeGeneratedType) })
             .WhenCalled (mi => Assert.That (generationCompletedEventRaised, Is.False));
       }
       mockRepository.ReplayAll();
@@ -158,9 +159,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
-      typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.GenerateTypes (Arg<TypeAssemblyContext>.Is.Anything)).Throw (exception1);
-      typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.GenerateTypes (Arg<TypeAssemblyContext>.Is.Anything)).Throw (exception2);
-      typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.GenerateTypes (Arg<TypeAssemblyContext>.Is.Anything)).Throw (exception3);
+      typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.Is.Anything)).Throw (exception1);
+      typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.Is.Anything)).Throw (exception2);
+      typeAssemblyContextCodeGeneratorMock.Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.Is.Anything)).Throw (exception3);
       var typeAssembler = CreateTypeAssembler (participants: MockRepository.GenerateStub<IParticipant>());
 
       var expectedMessageRegex = "An error occurred during code generation for '" + _requestedType.Name + "':\r\nblub\r\n"

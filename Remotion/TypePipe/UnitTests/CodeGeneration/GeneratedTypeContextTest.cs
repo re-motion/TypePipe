@@ -16,13 +16,13 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Collections;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _mutableType = MutableTypeObjectMother.Create();
       _generatedType = typeof (GeneratedType);
 
-      _context = new GeneratedTypeContext (new[] { Tuple.Create (_mutableType, _generatedType) });
+      _context = new GeneratedTypeContext (new[] { new KeyValuePair<MutableType, Type> (_mutableType, _generatedType) });
     }
 
     [Test]

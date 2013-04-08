@@ -17,14 +17,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
@@ -50,27 +49,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void GenerateTypes ()
     {
-      var requestedType = ReflectionObjectMother.GetSomeSubclassableType();
-      var typeContext = TypeAssemblyContextObjectMother.Create (requestedType: requestedType);
-      var proxyType = typeContext.ProxyType;
-      var additionalType = typeContext.CreateType ("AdditionalType", null, TypeAttributes.Class, typeof (object));
-
+      var mutableType1 = MutableTypeObjectMother.Create();
+      var mutableType2 = MutableTypeObjectMother.Create();
       var fakeMutableType1 = MutableTypeObjectMother.Create();
       var fakeMutableType2 = MutableTypeObjectMother.Create();
       var fakeType1 = ReflectionObjectMother.GetSomeType();
       var fakeType2 = ReflectionObjectMother.GetSomeOtherType();
+
       using (_mockRepository.Ordered())
       {
-        var fakeSortedType1 = MutableTypeObjectMother.Create();
-        var fakeSortedType2 = MutableTypeObjectMother.Create();
+        var sortedMutableType1 = MutableTypeObjectMother.Create();
+        var sortedMutableType2 = MutableTypeObjectMother.Create();
         _dependentTypeSorterMock
-            .Expect (mock => mock.Sort (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
-            .Return (new[] { fakeSortedType1, fakeSortedType2 });
+            .Expect (mock => mock.Sort (Arg<IEnumerable<MutableType>>.List.Equal (new[] { mutableType1, mutableType2 })))
+            .Return (new[] { sortedMutableType1, sortedMutableType2 });
 
         var generatorMock1 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
         var generatorMock2 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
         _mutableTypeCodeGeneratorFactoryMock
-            .Expect (mock => mock.CreateGenerators (new[] { fakeSortedType1, fakeSortedType2 }))
+            .Expect (mock => mock.CreateGenerators (new[] { sortedMutableType1, sortedMutableType2 }))
             .Return (new[] { generatorMock1, generatorMock2 });
 
         generatorMock1.Expect (mock => mock.DeclareType());
@@ -84,11 +81,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       }
       _mockRepository.ReplayAll();
 
-      var result = _generator.GenerateTypes (typeContext);
+      var result = _generator.GenerateTypes (new[] { mutableType1, mutableType2 }).ForceEnumeration();
 
       _mockRepository.VerifyAll();
-      Assert.That (result.GetGeneratedType (fakeMutableType1), Is.SameAs (fakeType1));
-      Assert.That (result.GetGeneratedType (fakeMutableType2), Is.SameAs (fakeType2));
+      var expectedMapping =
+          new[]
+          {
+              new KeyValuePair<MutableType, Type> (fakeMutableType1, fakeType1),
+              new KeyValuePair<MutableType, Type> (fakeMutableType2, fakeType2)
+          };
+      Assert.That (result, Is.EqualTo (expectedMapping));
     }
   }
 }

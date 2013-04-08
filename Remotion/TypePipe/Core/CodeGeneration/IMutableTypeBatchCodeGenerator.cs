@@ -16,7 +16,9 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -25,15 +27,12 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public interface IMutableTypeBatchCodeGenerator
   {
-    // TODO Review: Refactor parameter to IEnumerable<MutableType>, return IEnumerable<KeyValuePair<MutableType, Type>>.
     /// <summary>
-    /// Generates a proxy and additional types based on the data specified by the participants.
+    /// Generates <see cref="Type"/>s for a batch of <see cref="MutableType"/> instances based on the data specified by the participants.
     /// </summary>
     /// <remarks>This method may throw instances of <see cref="InvalidOperationException"/> and <see cref="NotSupportedException"/>.</remarks>
-    /// <param name="typeAssemblyContext">The type context to generate code for.</param>
-    /// <returns>A context that can be used to retrieve the generated types and members.</returns>
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
-    GeneratedTypeContext GenerateTypes (ITypeAssemblyContext typeAssemblyContext);
+    IEnumerable<KeyValuePair<MutableType, Type>> GenerateTypes (IEnumerable<MutableType> mutableTypes);
   }
 }

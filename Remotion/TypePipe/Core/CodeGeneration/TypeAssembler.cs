@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.Text;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
@@ -78,19 +79,18 @@ namespace Remotion.TypePipe.CodeGeneration
       return compoundKey;
     }
 
-    public Type AssembleType (
-        Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+    public Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
+      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
       var typeAssemblyContext = CreateTypeAssemblyContext (requestedType, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);
 
-      var generatedTypeContext = GenerateTypesWithDiagnostics (mutableTypeBatchCodeGenerator, typeAssemblyContext);
+      var generatedTypeContext = GenerateTypesWithDiagnostics (codeGenerator, typeAssemblyContext);
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
@@ -124,7 +124,10 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       try
       {
-        return codeGenerator.GenerateTypes (context);
+        var mutableTypes = context.AdditionalTypes.Concat (context.ProxyType);
+        var generatedTypes = codeGenerator.GenerateTypes (mutableTypes);
+
+        return new GeneratedTypeContext (generatedTypes);
       }
       catch (InvalidOperationException ex)
       {

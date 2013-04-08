@@ -37,11 +37,11 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private readonly Dictionary<IMutableMember, MemberInfo> _mapping;
 
-    public GeneratedTypeContext (IEnumerable<Tuple<MutableType, Type>> mutableAndGeneratedTypes)
+    public GeneratedTypeContext (IEnumerable<KeyValuePair<MutableType, Type>> mutableToGeneratedTypeMapping)
     {
-      ArgumentUtility.CheckNotNull ("mutableAndGeneratedTypes", mutableAndGeneratedTypes);
+      ArgumentUtility.CheckNotNull ("mutableToGeneratedTypeMapping", mutableToGeneratedTypeMapping);
 
-      _mapping = mutableAndGeneratedTypes.ToDictionary (t => (IMutableMember) t.Item1, t => (MemberInfo) t.Item2);
+      _mapping = mutableToGeneratedTypeMapping.ToDictionary (t => (IMutableMember) t.Key, t => (MemberInfo) t.Value);
     }
     
     /// <summary>
