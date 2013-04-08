@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Remotion.Text;
@@ -63,7 +64,10 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      // Using Debug.Assert because it will be compiled away.
+      Debug.Assert (cacheKeyProviderMethod != null);
+      Debug.Assert (type != null);
+      Debug.Assert (freeSlotsAtStart >= 0);
 
       var compoundKey = new object[_cacheKeyProviders.Length + freeSlotsAtStart];
 
@@ -90,6 +94,13 @@ namespace Remotion.TypePipe.CodeGeneration
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
+    }
+
+    public bool IsAssembledType (Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return type.IsDefined (typeof (ProxyTypeAttribute), inherit: false);
     }
 
     public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)

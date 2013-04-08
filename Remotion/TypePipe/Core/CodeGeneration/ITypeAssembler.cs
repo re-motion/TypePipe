@@ -44,6 +44,8 @@ namespace Remotion.TypePipe.CodeGeneration
     Type AssembleType (
         Type requestedType, IDictionary<string, object> participantState, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator);
 
+    bool IsAssembledType (Type type);
+
     void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
   }
 }

@@ -178,6 +178,20 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
+    public void IsAssembledType ()
+    {
+      var otherType = ReflectionObjectMother.GetSomeType();
+      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
+      var assembledType = typeof (AssembledType);
+
+      var typeAssembler = CreateTypeAssembler();
+
+      Assert.That (typeAssembler.IsAssembledType (otherType), Is.False);
+      Assert.That (typeAssembler.IsAssembledType (assembledTypeSubclass), Is.False);
+      Assert.That (typeAssembler.IsAssembledType (assembledType), Is.True);
+    }
+
+    [Test]
     public void RebuildParticipantState ()
     {
       var loadedTypesContext = LoadedTypesContextObjectMother.Create();
@@ -198,5 +212,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       return new TypeAssembler (configurationId, participants.AsOneTime(), mutableTypeFactory);
     }
+
+    [ProxyType] private class AssembledType {}
+    private class AssembledTypeSubclass {}
   }
 }

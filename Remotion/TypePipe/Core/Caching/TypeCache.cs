@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration;
@@ -78,7 +79,8 @@ namespace Remotion.TypePipe.Caching
 
     public Type GetOrCreateType (Type requestedType)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      // Using Debug.Assert because it will be compiled away.
+      Debug.Assert (requestedType != null);
 
       var key = GetTypeKey (requestedType, s_fromRequestedType, requestedType);
       return GetOrCreateType (key, requestedType);
@@ -86,8 +88,9 @@ namespace Remotion.TypePipe.Caching
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+      // Using Debug.Assert because it will be compiled away.
+      Debug.Assert (requestedType != null);
+      Debug.Assert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
 
       var key = GetConstructorKey (requestedType, delegateType, allowNonPublic);
       return GetOrCreateConstructorCall (key, requestedType, delegateType, allowNonPublic);
