@@ -122,7 +122,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManager.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IEmittableOperandProvider.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitter.cs" />
-    <Compile Include="CodeGeneration\ITypeAssemblyContextCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\IMutableTypeBatchCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMemberEmitterFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IExpressionPreparer.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMethodTrampolineProvider.cs" />
@@ -174,7 +174,7 @@
     <Compile Include="Expressions\ReflectionAdapters\DelegatingMethodInfoBase.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitor.cs" />
     <Compile Include="Expressions\ThisExpression.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyContextCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\MutableTypeBatchCodeGenerator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
     <Compile Include="Caching\IConstructorFinder.cs" />

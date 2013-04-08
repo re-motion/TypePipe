@@ -29,13 +29,13 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class TypeAssemblyContextCodeGeneratorTest
+  public class MutableTypeBatchCodeGeneratorTest
   {
     private MockRepository _mockRepository;
     private IDependentTypeSorter _dependentTypeSorterMock;
     private IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactoryMock;
 
-    private TypeAssemblyContextCodeGenerator _generator;
+    private MutableTypeBatchCodeGenerator _generator;
 
     [SetUp]
     public void SetUp ()
@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _dependentTypeSorterMock = _mockRepository.StrictMock<IDependentTypeSorter>();
       _mutableTypeCodeGeneratorFactoryMock = _mockRepository.StrictMock<IMutableTypeCodeGeneratorFactory>();
 
-      _generator = new TypeAssemblyContextCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
+      _generator = new MutableTypeBatchCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
     }
 
     [Test]

@@ -20,11 +20,10 @@ using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  // TODO Review: IMutableTypeBatchCodeGenerator
   /// <summary>
   /// Defines an interface for classes generating types from a <see cref="TypeAssemblyContext"/>.
   /// </summary>
-  public interface ITypeAssemblyContextCodeGenerator
+  public interface IMutableTypeBatchCodeGenerator
   {
     // TODO Review: Refactor parameter to IEnumerable<MutableType>, return IEnumerable<KeyValuePair<MutableType, Type>>.
     /// <summary>

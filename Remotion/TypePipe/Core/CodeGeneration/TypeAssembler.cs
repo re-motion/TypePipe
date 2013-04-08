@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
   /// Provides functionality for assembling a type by orchestrating <see cref="IParticipant"/> instances and an instance of 
-  /// <see cref="ITypeAssemblyContextCodeGenerator"/>.
+  /// <see cref="IMutableTypeBatchCodeGenerator"/>.
   /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
   /// <see cref="ICacheKeyProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
@@ -79,18 +79,18 @@ namespace Remotion.TypePipe.CodeGeneration
     }
 
     public Type AssembleType (
-        Type requestedType, IDictionary<string, object> participantState, ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator)
+        Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
+      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
 
       var typeAssemblyContext = CreateTypeAssemblyContext (requestedType, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);
 
-      var generatedTypeContext = GenerateTypesWithDiagnostics (typeAssemblyContextCodeGenerator, typeAssemblyContext);
+      var generatedTypeContext = GenerateTypesWithDiagnostics (mutableTypeBatchCodeGenerator, typeAssemblyContext);
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration
       return new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
-    private GeneratedTypeContext GenerateTypesWithDiagnostics (ITypeAssemblyContextCodeGenerator codeGenerator, TypeAssemblyContext context)
+    private GeneratedTypeContext GenerateTypesWithDiagnostics (IMutableTypeBatchCodeGenerator codeGenerator, TypeAssemblyContext context)
     {
       try
       {

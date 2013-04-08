@@ -80,7 +80,7 @@ namespace Remotion.TypePipe
           reflectionEmitCodeGenerator,
           new InitializationBuilder(),
           new ProxySerializationEnabler (new SerializableFieldFinder()));
-      var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
+      var typeAssemblyContextCodeGenerator = new MutableTypeBatchCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
       var typeCache = new TypeCache (typeAssembler, codeGenerationLock, typeAssemblyContextCodeGenerator, new ConstructorFinder(), new DelegateFactory());
       var codeManager = new CodeManager (reflectionEmitCodeGenerator, codeGenerationLock, typeCache);
 

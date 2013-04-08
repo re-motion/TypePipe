@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
-      var typeAssemblyContextCodeGeneratorMock = mockRepository.StrictMock<ITypeAssemblyContextCodeGenerator>();
+      var typeAssemblyContextCodeGeneratorMock = mockRepository.StrictMock<IMutableTypeBatchCodeGenerator>();
 
       bool generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
@@ -154,7 +154,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
       _mutableTypeFactoryMock.Stub (stub => stub.CreateProxy (_requestedType)).Do (new Func<Type, MutableType> (t => MutableTypeObjectMother.Create()));
-      var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<ITypeAssemblyContextCodeGenerator>();
+      var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();

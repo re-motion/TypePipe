@@ -48,26 +48,26 @@ namespace Remotion.TypePipe.Caching
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly ITypeAssemblyContextCodeGenerator _typeAssemblyContextCodeGenerator;
+    private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
 
     public TypeCache (
         ITypeAssembler typeAssembler,
         object codeGenerationLock,
-        ITypeAssemblyContextCodeGenerator typeAssemblyContextCodeGenerator,
+        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator,
         IConstructorFinder constructorFinder,
         IDelegateFactory delegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("codeGenerationLock", codeGenerationLock);
-      ArgumentUtility.CheckNotNull ("typeAssemblyContextCodeGenerator", typeAssemblyContextCodeGenerator);
+      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
       ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
 
       _typeAssembler = typeAssembler;
       _codeGenerationLock = codeGenerationLock;
-      _typeAssemblyContextCodeGenerator = typeAssemblyContextCodeGenerator;
+      _mutableTypeBatchCodeGenerator = mutableTypeBatchCodeGenerator;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
     }
@@ -135,14 +135,14 @@ namespace Remotion.TypePipe.Caching
         return generatedType;
 
       // TODO Review: Refactor
-      // return _codeManager.GenerateCodeForTypeCache (_types, _typeAssembler, _participantState, _typeAssemblyContextCodeGenerator, requestedType);
+      // return _codeManager.GenerateCodeForTypeCache (_types, _typeAssembler, _participantState, _mutableTypeBatchCodeGenerator, requestedType);
 
       lock (_codeGenerationLock)
       {
         if (_types.TryGetValue (key, out generatedType))
           return generatedType;
 
-        generatedType = _typeAssembler.AssembleType (requestedType, _participantState, _typeAssemblyContextCodeGenerator);
+        generatedType = _typeAssembler.AssembleType (requestedType, _participantState, _mutableTypeBatchCodeGenerator);
         _types.Add (key, generatedType);
       }
 

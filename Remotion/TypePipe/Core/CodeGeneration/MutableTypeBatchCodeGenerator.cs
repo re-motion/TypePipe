@@ -18,6 +18,7 @@
 using System;
 using System.Linq;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 using Remotion.Collections;
@@ -25,17 +26,17 @@ using Remotion.Collections;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Generates types for the classes in the specified <see cref="TypeAssemblyContext"/> by creating a list of <see cref="IMutableTypeCodeGenerator"/>
+  /// Generates <see cref="Type"/>s for the specified <see cref="MutableType"/> instances by creating a set of <see cref="IMutableTypeCodeGenerator"/>
   /// and calling their staged Define***- interleaved and in the correct order.
   /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
-  public class TypeAssemblyContextCodeGenerator : ITypeAssemblyContextCodeGenerator
+  public class MutableTypeBatchCodeGenerator : IMutableTypeBatchCodeGenerator
   {
     private readonly IDependentTypeSorter _dependentTypeSorter;
     private readonly IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactory;
 
     [CLSCompliant (false)]
-    public TypeAssemblyContextCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
+    public MutableTypeBatchCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
     {
       ArgumentUtility.CheckNotNull ("dependentTypeSorter", dependentTypeSorter);
       ArgumentUtility.CheckNotNull ("mutableTypeCodeGeneratorFactory", mutableTypeCodeGeneratorFactory);
