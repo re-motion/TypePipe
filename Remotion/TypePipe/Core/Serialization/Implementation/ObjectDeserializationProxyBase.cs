@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// </remarks>
   public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference, IDeserializationCallback
   {
-    private readonly IObjectFactoryRegistry _registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
+    private readonly IPipelineRegistry _registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
 
     private readonly SerializationInfo _serializationInfo;
 

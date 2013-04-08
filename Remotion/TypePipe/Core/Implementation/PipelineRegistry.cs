@@ -17,14 +17,15 @@
 
 using System;
 using Remotion.Collections;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IObjectFactoryRegistry"/> by using a thread-safe <see cref="IDataStore{TKey,TValue}"/>.
+  /// Implements <see cref="IPipelineRegistry"/> by using a thread-safe <see cref="IDataStore{TKey,TValue}"/>.
   /// </summary>
-  public class ObjectFactoryRegistry : IObjectFactoryRegistry
+  public class PipelineRegistry : IPipelineRegistry
   {
     private readonly IDataStore<string, IPipeline> _objectFactories = DataStoreFactory.CreateWithLocking<string, IPipeline>();
 

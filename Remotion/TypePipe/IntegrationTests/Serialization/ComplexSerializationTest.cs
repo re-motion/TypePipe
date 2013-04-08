@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
@@ -51,7 +52,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       context.ParticipantConfigurationID = _participantConfigurationID;
       return ctx =>
       {
-        var registry = SafeServiceLocator.Current.GetInstance<IObjectFactoryRegistry>();
+        var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
 
         SetUpDeserialization (registry, ctx.ParticipantConfigurationID, ctx.ParticipantProviders);
         var deserializedInstance = (T) Serializer.Deserialize (ctx.SerializedData);
@@ -73,7 +74,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
 
     private static void SetUpDeserialization (
-        IObjectFactoryRegistry registry, string participantConfigurationID, IEnumerable<Func<IParticipant>> participantProviders)
+        IPipelineRegistry registry, string participantConfigurationID, IEnumerable<Func<IParticipant>> participantProviders)
     {
       var participants = participantProviders.Select (pp => pp());
       var factory = PipelineFactory.Create (participantConfigurationID, participants);
@@ -82,7 +83,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       registry.Register (factory);
     }
 
-    private static void TearDownDeserialization (IObjectFactoryRegistry registry, string participantConfigurationID)
+    private static void TearDownDeserialization (IPipelineRegistry registry, string participantConfigurationID)
     {
       registry.Unregister (participantConfigurationID);
     }

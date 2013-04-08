@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 
 namespace Remotion.TypePipe.Serialization
@@ -29,8 +30,8 @@ namespace Remotion.TypePipe.Serialization
   /// Therefore the two object factory instances should use the same participants and participant configurations, in order to generate equivalent
   /// types for the requested type. This allows the serialization of object instances without saving the generated assemblies to disk.
   /// </summary>
-  [ConcreteImplementation (typeof (ObjectFactoryRegistry), Lifetime = LifetimeKind.Singleton)]
-  public interface IObjectFactoryRegistry
+  [ConcreteImplementation (typeof (PipelineRegistry), Lifetime = LifetimeKind.Singleton)]
+  public interface IPipelineRegistry
   {
     /// <summary>
     /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.

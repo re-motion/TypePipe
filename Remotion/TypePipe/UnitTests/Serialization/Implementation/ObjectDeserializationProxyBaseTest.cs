@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
     private ObjectDeserializationProxyBase _objectDeserializationProxyBase;
 
-    private IObjectFactoryRegistry _objectFactoryRegistryMock;
+    private IPipelineRegistry _pipelineRegistryMock;
     private Func<IPipeline, Type, StreamingContext, object> _createRealObjectAssertions;
 
     [SetUp]
@@ -44,10 +44,10 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _info = new SerializationInfo (serializableType, formatterConverter);
       _context = new StreamingContext ((StreamingContextStates) 7);
 
-      _objectFactoryRegistryMock = MockRepository.GenerateStrictMock<IObjectFactoryRegistry>();
+      _pipelineRegistryMock = MockRepository.GenerateStrictMock<IPipelineRegistry>();
       _createRealObjectAssertions = (f, t, c) => { throw new Exception ("Setup assertions and return real object."); };
 
-      using (new ServiceLocatorScope (typeof (IObjectFactoryRegistry), () => _objectFactoryRegistryMock))
+      using (new ServiceLocatorScope (typeof (IPipelineRegistry), () => _pipelineRegistryMock))
       {
         // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
         _objectDeserializationProxyBase = new TestableObjectDeserializationProxyBase (_info, _context, (f, t, c) => _createRealObjectAssertions (f, t, c));
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
       var fakeObjectFactory = MockRepository.GenerateStub<IPipeline>();
       var fakeInstance = MockRepository.GenerateStrictMock<IDeserializationCallback>();
-      _objectFactoryRegistryMock.Expect (mock => mock.Get ("factory1")).Return (fakeObjectFactory);
+      _pipelineRegistryMock.Expect (mock => mock.Get ("factory1")).Return (fakeObjectFactory);
       _createRealObjectAssertions = (factory, type, ctx) =>
       {
         Assert.That (factory, Is.SameAs (fakeObjectFactory));
@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
       var result = _objectDeserializationProxyBase.GetRealObject (context);
 
-      _objectFactoryRegistryMock.VerifyAllExpectations();
+      _pipelineRegistryMock.VerifyAllExpectations();
       fakeInstance.AssertWasNotCalled (mock => mock.OnDeserialization (Arg<object>.Is.Anything));
       Assert.That (result, Is.SameAs (fakeInstance));
       Assert.That (PrivateInvoke.GetNonPublicField (_objectDeserializationProxyBase, "_instance"), Is.SameAs (fakeInstance));

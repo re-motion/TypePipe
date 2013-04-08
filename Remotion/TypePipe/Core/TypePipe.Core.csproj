@@ -240,7 +240,7 @@
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\ObjectDeserializationProxyBase.cs" />
     <Compile Include="Serialization\Implementation\ReflectionSerializationHelper.cs" />
-    <Compile Include="Serialization\IObjectFactoryRegistry.cs" />
+    <Compile Include="IPipelineRegistry.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtility.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\InitializationBodyContext.cs" />
@@ -416,7 +416,7 @@
     <Compile Include="CodeGeneration\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
-    <Compile Include="Serialization\Implementation\ObjectFactoryRegistry.cs" />
+    <Compile Include="Implementation\PipelineRegistry.cs" />
     <Compile Include="Serialization\SerializationParticipant.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
     <Compile Include="StrongNaming\IAssemblyAnalyzer.cs" />

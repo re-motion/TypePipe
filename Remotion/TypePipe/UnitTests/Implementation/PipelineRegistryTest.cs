@@ -14,26 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
+namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
-  public class ObjectFactoryRegistryTest
+  public class PipelineRegistryTest
   {
-    private ObjectFactoryRegistry _registry;
+    private PipelineRegistry _registry;
 
     private IPipeline _pipelineStub;
 
     [SetUp]
     public void SetUp ()
     {
-      _registry = new ObjectFactoryRegistry();
+      _registry = new PipelineRegistry();
 
       _pipelineStub = MockRepository.GenerateStub<IPipeline>();
       _pipelineStub.Stub (stub => stub.ParticipantConfigurationID).Return ("configId");
