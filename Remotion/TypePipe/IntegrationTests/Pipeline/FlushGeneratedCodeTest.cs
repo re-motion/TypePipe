@@ -22,20 +22,20 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Implementation;
 
-namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
+namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   public class FlushGeneratedCodeTest : IntegrationTestBase
   {
-    private IObjectFactory _objectFactory;
+    private IPipeline _pipeline;
     private ICodeManager _codeManager;
 
     public override void SetUp ()
     {
       base.SetUp();
 
-      _objectFactory = CreateObjectFactory();
-      _codeManager = _objectFactory.CodeManager;
+      _pipeline = CreateObjectFactory();
+      _codeManager = _pipeline.CodeManager;
     }
 
     [Test]
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     public void StandardNameAndDirectory_Initial ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
-      var objectFactory = Pipeline.Create ("standard", CreateParticipant());
+      var objectFactory = PipelineFactory.Create ("standard", CreateParticipant());
       var codeManager = objectFactory.CodeManager;
 
       var assemblyName = codeManager.AssemblyName;
@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     private Type RequestType (Type requestedType = null)
     {
       requestedType = requestedType ?? typeof (RequestedType);
-      return _objectFactory.GetAssembledType (requestedType);
+      return _pipeline.GetAssembledType (requestedType);
     }
 
     private string RequestTypeAndFlush (Type requestedType = null, bool skipPeVerification = false)

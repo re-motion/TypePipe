@@ -15,9 +15,10 @@
 // under the License.
 // 
 
+using System;
 using NUnit.Framework;
 
-namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
+namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   public class ParticipantConfigurationTest : IntegrationTestBase

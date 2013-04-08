@@ -60,18 +60,18 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="ObjectFactory\CachingTest.cs" />
-    <Compile Include="ObjectFactory\ConcurrencyTest.cs" />
-    <Compile Include="ObjectFactory\FlushGeneratedCodeTest.cs" />
+    <Compile Include="Pipeline\CachingTest.cs" />
+    <Compile Include="Pipeline\ConcurrencyTest.cs" />
+    <Compile Include="Pipeline\FlushGeneratedCodeTest.cs" />
     <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="MutableReflection\IsAssignableFromTest.cs" />
     <Compile Include="MutableReflection\MakeTypePipeGenericMethodTest.cs" />
     <Compile Include="MutableReflection\MakeTypePipeGenericTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberSelectionTest.cs" />
-    <Compile Include="ObjectFactory\LoadFlushedCodeTest.cs" />
-    <Compile Include="ObjectFactory\ObjectCreationTest.cs" />
-    <Compile Include="ObjectFactory\ObjectInitializationTest.cs" />
-    <Compile Include="ObjectFactory\ParticipantConfigurationTest.cs" />
+    <Compile Include="Pipeline\LoadFlushedCodeTest.cs" />
+    <Compile Include="Pipeline\ObjectCreationTest.cs" />
+    <Compile Include="Pipeline\ObjectInitializationTest.cs" />
+    <Compile Include="Pipeline\ParticipantConfigurationTest.cs" />
     <Compile Include="ParticipantStub.cs" />
     <Compile Include="Serialization\ComplexSerializationTest.cs">
       <SubType>Code</SubType>
@@ -100,7 +100,7 @@
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
     <Compile Include="TypeAssembly\MutableTypeInSignaturesTest.cs" />
-    <Compile Include="ObjectFactory\ParticipantStateTest.cs" />
+    <Compile Include="Pipeline\ParticipantStateTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\TypeInitializerTest.cs" />

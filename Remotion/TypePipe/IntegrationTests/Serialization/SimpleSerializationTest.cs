@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   [TestFixture]
   public class SimpleSerializationTest : SerializationTestBase
   {
-    protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
+    protected override IPipeline CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
       var participants = participantProviders.Select (pp => pp()).ToArray();
       var factory = CreateObjectFactory (participants);

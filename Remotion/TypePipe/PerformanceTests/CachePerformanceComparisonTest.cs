@@ -36,14 +36,14 @@ namespace Remotion.TypePipe.PerformanceTests
     [Test]
     public void TypePipe ()
     {
-      // Pipeline participant configuration is set similar to the current Remotion functionality
+      // Pipeline participant configuration is set similar to the current Remotion functionality.
       var restoreParticipantStub = MockRepository.GenerateStub<IParticipant>();
       var remixParticipantStub = MockRepository.GenerateStub<IParticipant>();
       restoreParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RestoreCacheKeyProvider());
       remixParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RemixCacheKeyProvider());
       var participants = new[] { restoreParticipantStub, remixParticipantStub };
 
-      var objectFactory = Pipeline.Create ("CachePerformanceComparisonTest", participants);
+      var objectFactory = PipelineFactory.Create ("CachePerformanceComparisonTest", participants);
       var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (objectFactory, "_typeCache");
 
       Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeof (DomainType));

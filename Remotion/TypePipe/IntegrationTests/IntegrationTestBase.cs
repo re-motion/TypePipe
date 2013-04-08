@@ -106,21 +106,21 @@ namespace Remotion.TypePipe.IntegrationTests
       _skipDeletion = true;
     }
 
-    protected IObjectFactory CreateObjectFactory (params IParticipant[] participants)
+    protected IPipeline CreateObjectFactory (params IParticipant[] participants)
     {
       return CreateObjectFactory (GetNameOfRunningTest(), participants);
     }
 
-    protected IObjectFactory CreateObjectFactory (string participantConfigurationID, params IParticipant[] participants)
+    protected IPipeline CreateObjectFactory (string participantConfigurationID, params IParticipant[] participants)
     {
       return CreateObjectFactory (participantConfigurationID, participants, null);
     }
 
-    protected IObjectFactory CreateObjectFactory (
+    protected IPipeline CreateObjectFactory (
         string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
     {
       var nonEmptyParticipants = GetNonEmptyParticipants (participants);
-      var objectFactory = Pipeline.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime(), configurationProvider);
+      var objectFactory = PipelineFactory.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime(), configurationProvider);
 
       _codeManager = objectFactory.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);

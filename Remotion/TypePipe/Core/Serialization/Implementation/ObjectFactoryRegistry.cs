@@ -26,21 +26,21 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// </summary>
   public class ObjectFactoryRegistry : IObjectFactoryRegistry
   {
-    private readonly IDataStore<string, IObjectFactory> _objectFactories = DataStoreFactory.CreateWithLocking<string, IObjectFactory>();
+    private readonly IDataStore<string, IPipeline> _objectFactories = DataStoreFactory.CreateWithLocking<string, IPipeline>();
 
-    public void Register (IObjectFactory objectFactory)
+    public void Register (IPipeline pipeline)
     {
-      ArgumentUtility.CheckNotNull ("objectFactory", objectFactory);
-      Assertion.IsNotNull (objectFactory.ParticipantConfigurationID);
+      ArgumentUtility.CheckNotNull ("pipeline", pipeline);
+      Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
       // Cannot use ContainsKey/Add combination as this would introduce a race condition.
       try
       {
-        _objectFactories.Add (objectFactory.ParticipantConfigurationID, objectFactory);
+        _objectFactories.Add (pipeline.ParticipantConfigurationID, pipeline);
       }
       catch (ArgumentException)
       {
-        var message = string.Format ("Another factory is already registered for identifier '{0}'.", objectFactory.ParticipantConfigurationID);
+        var message = string.Format ("Another factory is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
         throw new InvalidOperationException (message);
       }
     }
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
       _objectFactories.Remove (participantConfigurationID);
     }
 
-    public IObjectFactory Get (string participantConfigurationID)
+    public IPipeline Get (string participantConfigurationID)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 

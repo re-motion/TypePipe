@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     public void CreateRealObject ()
     {
       var context = new StreamingContext (StreamingContextStates.Persistence);
-      var objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory>();
+      var objectFactoryMock = MockRepository.GenerateStrictMock<IPipeline>();
       var fakeObject = new object();
       objectFactoryMock
           .Expect (mock => mock.CreateObject (Arg.Is (_underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))

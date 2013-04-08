@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     private ObjectDeserializationProxyBase _objectDeserializationProxyBase;
 
     private IObjectFactoryRegistry _objectFactoryRegistryMock;
-    private Func<IObjectFactory, Type, StreamingContext, object> _createRealObjectAssertions;
+    private Func<IPipeline, Type, StreamingContext, object> _createRealObjectAssertions;
 
     [SetUp]
     public void SetUp ()
@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _info.AddValue ("<tp>baseType", baseType.AssemblyQualifiedName);
       _info.AddValue ("<tp>factoryIdentifier", "factory1");
 
-      var fakeObjectFactory = MockRepository.GenerateStub<IObjectFactory>();
+      var fakeObjectFactory = MockRepository.GenerateStub<IPipeline>();
       var fakeInstance = MockRepository.GenerateStrictMock<IDeserializationCallback>();
       _objectFactoryRegistryMock.Expect (mock => mock.Get ("factory1")).Return (fakeObjectFactory);
       _createRealObjectAssertions = (factory, type, ctx) =>

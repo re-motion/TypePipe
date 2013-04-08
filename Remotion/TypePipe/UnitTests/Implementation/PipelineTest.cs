@@ -26,12 +26,12 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
-  public class ObjectFactoryTest
+  public class PipelineTest
   {
     private ITypeCache _typeCacheMock;
     private ICodeManager _codeManagerMock;
 
-    private ObjectFactory _factory;
+    private TypePipe.Implementation.Pipeline _factory;
 
     private Type _requestedType;
 
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
 
-      _factory = new ObjectFactory (_typeCacheMock, _codeManagerMock);
+      _factory = new TypePipe.Implementation.Pipeline (_typeCacheMock, _codeManagerMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
     }

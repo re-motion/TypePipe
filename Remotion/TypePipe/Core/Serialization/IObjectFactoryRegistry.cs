@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.Serialization
   // TODO Review: IPipelineRegistry, pull up to parent namespace; adapt docs to indicate the user can use this via ServiceLocator/an IoC container
   // to register and resolve global IPipeline instances used throughout an application.
   /// <summary>
-  /// Allows the registration of an <see cref="IObjectFactory"/> under a given participant configuration identifier.
+  /// Allows the registration of an <see cref="IPipeline"/> under a given participant configuration identifier.
   /// The object factory is used during the .NET deserialization process of objects which were created from another factory with the same identifier.
   /// Therefore the two object factory instances should use the same participants and participant configurations, in order to generate equivalent
   /// types for the requested type. This allows the serialization of object instances without saving the generated assemblies to disk.
@@ -33,25 +33,25 @@ namespace Remotion.TypePipe.Serialization
   public interface IObjectFactoryRegistry
   {
     /// <summary>
-    /// Registers an <see cref="IObjectFactory"/> under its <see cref="IObjectFactory.ParticipantConfigurationID"/>.
+    /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">If a factory is already registered under the specified identifier.</exception>
-    /// <param name="objectFactory">The object factory to register.</param>
-    void Register (IObjectFactory objectFactory);
+    /// <param name="pipeline">The object factory to register.</param>
+    void Register (IPipeline pipeline);
 
     /// <summary>
-    /// Unregisters the <see cref="IObjectFactory"/> instance that is currently registered under the specified participant configuration identifier.
+    /// Unregisters the <see cref="IPipeline"/> instance that is currently registered under the specified participant configuration identifier.
     /// No exception is thrown if no factory is registered under the given identifier.
     /// </summary>
     /// <param name="participantConfigurationID">The participant configuration identifier.</param>
     void Unregister (string participantConfigurationID);
 
     /// <summary>
-    /// Retrieves the <see cref="IObjectFactory"/> instance that is registered under the specified participant configuration identifier.
+    /// Retrieves the <see cref="IPipeline"/> instance that is registered under the specified participant configuration identifier.
     /// </summary>
     /// <exception cref="InvalidOperationException">If no factory is registered under the specified identifier.</exception>
     /// <param name="participantConfigurationID">The participant configuration identifier.</param>
     /// <returns>The registered object factory.</returns>
-    IObjectFactory Get (string participantConfigurationID);
+    IPipeline Get (string participantConfigurationID);
   }
 }

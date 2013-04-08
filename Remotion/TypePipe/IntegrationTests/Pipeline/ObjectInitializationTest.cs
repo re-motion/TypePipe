@@ -23,12 +23,12 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 
-namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
+namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   public class ObjectInitializationTest : IntegrationTestBase
   {
-    private IObjectFactory _factory;
+    private IPipeline _factory;
 
     public override void SetUp ()
     {
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       public DomainType () { CtorCalled = true; }
     }
 
-    private IObjectFactory CreateObjectFactory ()
+    private IPipeline CreateObjectFactory ()
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.String);
       var participant = CreateParticipant (

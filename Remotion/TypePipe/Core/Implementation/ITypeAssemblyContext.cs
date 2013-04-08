@@ -41,12 +41,12 @@ namespace Remotion.TypePipe.Implementation
     event Action<GeneratedTypeContext> GenerationCompleted;
 
     /// <summary>
-    /// Gets the participant configuration ID of the containing <see cref="IObjectFactory"/>.
+    /// Gets the participant configuration ID of the containing <see cref="IPipeline"/>.
     /// </summary>
     string ParticipantConfigurationID { get; }
 
     /// <summary>
-    /// The original <see cref="Type"/> that was requested by the user through an instance of <see cref="IObjectFactory"/>.
+    /// The original <see cref="Type"/> that was requested by the user through an instance of <see cref="IPipeline"/>.
     /// </summary>
     Type RequestedType { get; }
 

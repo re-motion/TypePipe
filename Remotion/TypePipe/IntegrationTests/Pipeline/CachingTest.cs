@@ -22,7 +22,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
+namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   public class CachingTest : IntegrationTestBase
@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       Assert.That (type1, Is.Not.SameAs (type2));
     }
 
-    private IObjectFactory CreateObjectFactory (params Func<Type, object>[] cacheKeyProviders)
+    private IPipeline CreateObjectFactory (params Func<Type, object>[] cacheKeyProviders)
     {
       var cacheKeyProviderStubs = cacheKeyProviders.Select (
           providerFunc =>

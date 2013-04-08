@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     private Func<IParticipant>[] _participantProviders;
     private string _participantConfigurationID;
 
-    protected override IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
+    protected override IPipeline CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
     {
       _participantProviders = participantProviders.Concat (() => new SerializationParticipant()).ToArray();
       var allParticipants = _participantProviders.Select (pp => pp()).ToArray();
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
         IObjectFactoryRegistry registry, string participantConfigurationID, IEnumerable<Func<IParticipant>> participantProviders)
     {
       var participants = participantProviders.Select (pp => pp());
-      var factory = Pipeline.Create (participantConfigurationID, participants);
+      var factory = PipelineFactory.Create (participantConfigurationID, participants);
 
       // Register a factory for deserialization in current (new) app domain.
       registry.Register (factory);

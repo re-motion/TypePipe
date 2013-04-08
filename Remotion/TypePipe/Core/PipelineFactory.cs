@@ -29,19 +29,18 @@ using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe
 {
-  // TODO Review: PipelineFactory
   /// <summary>
-  /// Creates instances of <see cref="IObjectFactory"/>, which are the main entry point of the pipeline.
+  /// Creates instances of <see cref="IPipeline"/>, which are the main entry point of the pipeline.
   /// </summary>
-  public static class Pipeline
+  public static class PipelineFactory
   {
     /// <summary>
-    /// Creates an <see cref="IObjectFactory"/> with the given participant configuration ID containing the specified participants.
+    /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants.
     /// </summary>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <param name="participants">The participants that should be used by this object factory.</param>
-    /// <returns>An new instance of <see cref="IObjectFactory"/>.</returns>
-    public static IObjectFactory Create (string participantConfigurationID, params IParticipant[] participants)
+    /// <returns>An new instance of <see cref="IPipeline"/>.</returns>
+    public static IPipeline Create (string participantConfigurationID, params IParticipant[] participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participants);
@@ -50,7 +49,7 @@ namespace Remotion.TypePipe
     }
 
     /// <summary>
-    /// Creates an <see cref="IObjectFactory"/> with the given participant configuration ID containing the specified participants and optionally a
+    /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants and optionally a
     /// custom configuration provider. If the configuration provider is omitted, the <c>App.config</c>-based configuration provider
     /// (<see cref="AppConfigBasedConfigurationProvider"/>) is used.
     /// </summary>
@@ -59,8 +58,8 @@ namespace Remotion.TypePipe
     /// <param name="configurationProvider">
     /// A configuration provider; or <see langword="null"/> for the default, AppConfig-based configuration provider.
     /// </param>
-    /// <returns>An new instance of <see cref="IObjectFactory"/>.</returns>
-    public static IObjectFactory Create (
+    /// <returns>An new instance of <see cref="IPipeline"/>.</returns>
+    public static IPipeline Create (
         string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
@@ -84,7 +83,7 @@ namespace Remotion.TypePipe
       var typeCache = new TypeCache (typeAssembler, codeGenerationLock, typeAssemblyContextCodeGenerator, new ConstructorFinder(), new DelegateFactory());
       var codeManager = new CodeManager (reflectionEmitCodeGenerator, codeGenerationLock, typeCache);
 
-      return new ObjectFactory (typeCache, codeManager);
+      return new Implementation.Pipeline (typeCache, codeManager);
     }
   }
 }

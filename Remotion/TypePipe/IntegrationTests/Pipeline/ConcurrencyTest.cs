@@ -20,7 +20,7 @@ using System.Threading;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 
-namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
+namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   [Timeout (1000)] // Set timeout for all tests.
@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
   {
     private Mutex _blockingMutex;
 
-    private IObjectFactory _objectFactory;
+    private IPipeline _pipeline;
 
     public override void SetUp ()
     {
@@ -42,20 +42,20 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
             if (ctx.RequestedType == typeof (DomainTypeCausingParticipantToBlock))
               _blockingMutex.WaitOne();
           });
-      _objectFactory = CreateObjectFactory (blockingParticipant);
+      _pipeline = CreateObjectFactory (blockingParticipant);
     }
 
     [Test]
     public void CachedTypesCanBeRetrievedAndInstantiated_DuringCodeGenerationOfAnotherType ()
     {
       // Generate type without blocking.
-      _objectFactory.CreateObject<DomainType>();
+      _pipeline.CreateObject<DomainType>();
 
-      var t = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainTypeCausingParticipantToBlock>());
+      var t = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
 
       // Although code is generated in [t], which is blocked by the mutex, we can create instances of and retrieve already generated types.
-      _objectFactory.CreateObject<DomainType> ();
-      _objectFactory.GetAssembledType (typeof (DomainType));
+      _pipeline.CreateObject<DomainType> ();
+      _pipeline.GetAssembledType (typeof (DomainType));
 
       _blockingMutex.ReleaseMutex();
       WaitUntilCompleted (t);
@@ -64,8 +64,8 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [Test]
     public void CodeGenerationIsSerialized ()
     {
-      var t1 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainTypeCausingParticipantToBlock>());
-      var t2 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainType>());
+      var t1 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
+      var t2 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainType>());
 
       // Both threads are now blocked. [t1] is blocked by the mutex, [t2] is blocked by the code generation in [t1].
       Assert.That (t1.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
@@ -80,10 +80,10 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     [Test]
     public void CodeManagerAPIs_CannotRunWhileCodeIsGenerated ()
     {
-      var t1 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainTypeCausingParticipantToBlock>());
-      var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _objectFactory.CodeManager.AssemblyDirectory);
-      var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _objectFactory.CodeManager.AssemblyName);
-      var t4 = StartAndWaitUntilBlocked (() => _objectFactory.CodeManager.FlushCodeToDisk());
+      var t1 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
+      var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyDirectory);
+      var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyName);
+      var t4 = StartAndWaitUntilBlocked (() => _pipeline.CodeManager.FlushCodeToDisk());
 
       // All threads are now blocked. [t1] is blocked by the mutex, [t2, ...] are blocked by the code generation in [t1].
       Assert.That (t1.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));

@@ -23,14 +23,14 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IObjectFactory"/> to act as a main entry point into the pipeline for generating types and instantiating them.
+  /// Implements <see cref="IPipeline"/> to act as a main entry point into the pipeline for generating types and instantiating them.
   /// </summary>
-  public class ObjectFactory : IObjectFactory
+  public class Pipeline : IPipeline
   {
     private readonly ITypeCache _typeCache;
     private readonly ICodeManager _codeManager;
 
-    public ObjectFactory (ITypeCache typeCache, ICodeManager codeManager)
+    public Pipeline (ITypeCache typeCache, ICodeManager codeManager)
     {
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);

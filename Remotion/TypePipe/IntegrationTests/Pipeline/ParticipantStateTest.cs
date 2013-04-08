@@ -21,7 +21,7 @@ using NUnit.Framework;
 using System.Linq;
 using Remotion.Development.UnitTesting.IO;
 
-namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
+namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   public class ParticipantStateTest : IntegrationTestBase

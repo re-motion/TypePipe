@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
     private ObjectWithoutDeserializationConstructorProxy _proxy;
 
-    private IObjectFactory _objectFactoryMock;
+    private IPipeline _pipelineMock;
     private StreamingContext _context;
 
     [SetUp]
@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
 
       _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
 
-      _objectFactoryMock = MockRepository.GenerateStrictMock<IObjectFactory>();
+      _pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
       _context = new StreamingContext (StreamingContextStates.Persistence);
     }
 
@@ -51,11 +51,11 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     public void CreateRealObject ()
     {
       _serializationInfo.AddValue ("<tp>IntField", 7);
-      _objectFactoryMock.Expect (mock => mock.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
+      _pipelineMock.Expect (mock => mock.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", _objectFactoryMock, _underlyingType, _context);
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", _pipelineMock, _underlyingType, _context);
 
-      _objectFactoryMock.VerifyAllExpectations();
+      _pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<DomainType>());
       Assert.That (((DomainType) result).IntField, Is.EqualTo (7));
     }

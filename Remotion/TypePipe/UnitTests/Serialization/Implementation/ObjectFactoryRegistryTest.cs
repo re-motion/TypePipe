@@ -28,15 +28,15 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
   {
     private ObjectFactoryRegistry _registry;
 
-    private IObjectFactory _objectFactoryStub;
+    private IPipeline _pipelineStub;
 
     [SetUp]
     public void SetUp ()
     {
       _registry = new ObjectFactoryRegistry();
 
-      _objectFactoryStub = MockRepository.GenerateStub<IObjectFactory>();
-      _objectFactoryStub.Stub (stub => stub.ParticipantConfigurationID).Return ("configId");
+      _pipelineStub = MockRepository.GenerateStub<IPipeline>();
+      _pipelineStub.Stub (stub => stub.ParticipantConfigurationID).Return ("configId");
     }
 
     [Test]
@@ -44,21 +44,21 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     {
       var objectFactories = PrivateInvoke.GetNonPublicField (_registry, "_objectFactories");
 
-      Assert.That (objectFactories, Is.TypeOf<LockingDataStoreDecorator<string, IObjectFactory>>());
+      Assert.That (objectFactories, Is.TypeOf<LockingDataStoreDecorator<string, IPipeline>>());
     }
 
     [Test]
     public void RegisterAndGet ()
     {
-      _registry.Register (_objectFactoryStub);
+      _registry.Register (_pipelineStub);
 
-      Assert.That (_registry.Get ("configId"), Is.SameAs (_objectFactoryStub));
+      Assert.That (_registry.Get ("configId"), Is.SameAs (_pipelineStub));
     }
 
     [Test]
     public void RegisterAndUnregister ()
     {
-      _registry.Register (_objectFactoryStub);
+      _registry.Register (_pipelineStub);
       Assert.That (_registry.Get ("configId"), Is.Not.Null);
 
       _registry.Unregister ("configId");
@@ -71,8 +71,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another factory is already registered for identifier 'configId'.")]
     public void Register_ExistingFactory ()
     {
-      Assert.That (() => _registry.Register (_objectFactoryStub), Throws.Nothing);
-      _registry.Register (_objectFactoryStub);
+      Assert.That (() => _registry.Register (_pipelineStub), Throws.Nothing);
+      _registry.Register (_pipelineStub);
     }
 
     [Test]

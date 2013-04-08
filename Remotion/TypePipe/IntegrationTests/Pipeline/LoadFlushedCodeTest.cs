@@ -25,7 +25,7 @@ using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 using System.Linq;
 
-namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
+namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   public class LoadFlushedCodeTest : IntegrationTestBase
@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     private Assembly _assembly1;
     private Assembly _assembly2;
 
-    private IObjectFactory _objectFactory;
+    private IPipeline _pipeline;
     private ICodeManager _codeManager;
 
     public override void TestFixtureSetUp ()
@@ -49,8 +49,8 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       base.SetUp ();
 
-      _objectFactory = CreateObjectFactory (c_participantConfigurationID);
-      _codeManager = _objectFactory.CodeManager;
+      _pipeline = CreateObjectFactory (c_participantConfigurationID);
+      _codeManager = _pipeline.CodeManager;
     }
 
     [Test]
@@ -59,8 +59,8 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
       _codeManager.LoadFlushedCode (_assembly1);
       _codeManager.LoadFlushedCode (_assembly2);
 
-      var assembledType1 = _objectFactory.GetAssembledType (typeof (DomainType1));
-      var assembledType2 = _objectFactory.GetAssembledType (typeof (DomainType2));
+      var assembledType1 = _pipeline.GetAssembledType (typeof (DomainType1));
+      var assembledType2 = _pipeline.GetAssembledType (typeof (DomainType2));
 
       Assert.That (assembledType1.Assembly, Is.SameAs (_assembly1));
       Assert.That (assembledType2.Assembly, Is.SameAs (_assembly2));
@@ -72,12 +72,12 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       _codeManager.LoadFlushedCode (_assembly1);
 
-      var assembledType1 = _objectFactory.GetAssembledType (typeof (DomainType1));
+      var assembledType1 = _pipeline.GetAssembledType (typeof (DomainType1));
 
       Assert.That (assembledType1.Assembly, Is.SameAs (_assembly1));
       Assert.That (Flush(), Is.Null, "No new code should be generated.");
 
-      var assembledType2 = _objectFactory.GetAssembledType (typeof (DomainType2));
+      var assembledType2 = _pipeline.GetAssembledType (typeof (DomainType2));
 
       Assert.That (assembledType2.Assembly, Is.TypeOf<AssemblyBuilder>());
       Assert.That (Flush(), Is.Not.Null);
@@ -88,15 +88,15 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       // Load and get type 1.
       _codeManager.LoadFlushedCode (_assembly1);
-      var loadedType = _objectFactory.GetAssembledType (typeof (DomainType1));
+      var loadedType = _pipeline.GetAssembledType (typeof (DomainType1));
       // Generate and get type 2.
-      var generatedType = _objectFactory.GetAssembledType (typeof (DomainType2));
+      var generatedType = _pipeline.GetAssembledType (typeof (DomainType2));
 
       _codeManager.LoadFlushedCode (_assembly1);
       _codeManager.LoadFlushedCode (_assembly2);
 
-      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedType));
-      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType2)), Is.SameAs (generatedType));
+      Assert.That (_pipeline.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedType));
+      Assert.That (_pipeline.GetAssembledType (typeof (DomainType2)), Is.SameAs (generatedType));
     }
 
     [Test]

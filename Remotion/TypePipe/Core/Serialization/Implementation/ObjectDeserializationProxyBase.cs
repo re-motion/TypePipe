@@ -79,6 +79,6 @@ namespace Remotion.TypePipe.Serialization.Implementation
         deserializationCallback.OnDeserialization (sender);
     }
 
-    protected abstract object CreateRealObject (IObjectFactory objectFactory, Type underlyingType, StreamingContext context);
+    protected abstract object CreateRealObject (IPipeline pipeline, Type underlyingType, StreamingContext context);
   }
 }

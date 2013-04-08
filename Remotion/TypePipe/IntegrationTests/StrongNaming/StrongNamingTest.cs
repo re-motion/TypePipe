@@ -295,7 +295,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
       CheckStrongNamingException (p => p.AddMethod ("m", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => methodBody));
     }
 
-    private IObjectFactory CreateObjectFactoryForStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null)
+    private IPipeline CreateObjectFactoryForStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null)
     {
       var configurationProvider = new AppConfigBasedConfigurationProvider();
       var configSection = new TypePipeConfigurationSection();

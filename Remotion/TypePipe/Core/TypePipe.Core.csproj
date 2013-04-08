@@ -178,7 +178,7 @@
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
     <Compile Include="Caching\IConstructorFinder.cs" />
-    <Compile Include="IObjectFactory.cs" />
+    <Compile Include="IPipeline.cs" />
     <Compile Include="CodeGeneration\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
     <Compile Include="CodeGeneration\GeneratedTypeContext.cs" />
@@ -411,7 +411,7 @@
     <Compile Include="MutableReflection\MutableType.cs" />
     <Compile Include="MutableReflection\ParameterDeclaration.cs" />
     <Compile Include="IParticipant.cs" />
-    <Compile Include="Implementation\ObjectFactory.cs" />
+    <Compile Include="Implementation\Pipeline.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CodeGeneration\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
@@ -424,7 +424,7 @@
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
     <Compile Include="Implementation\TypeAssemblyContext.cs" />
-    <Compile Include="Pipeline.cs" />
+    <Compile Include="PipelineFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

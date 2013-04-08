@@ -223,7 +223,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
     }
 
-    private T CreateCyclicInstance<T> (IObjectFactory factory) where T : ReferencingSerializableType
+    private T CreateCyclicInstance<T> (IPipeline factory) where T : ReferencingSerializableType
     {
       var instance = factory.CreateObject<T> ();
       var referenceObject = new ReferencedType ();
@@ -234,7 +234,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       return instance;
     }
 
-    protected abstract IObjectFactory CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders);
+    protected abstract IPipeline CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders);
 
     protected abstract Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context);
 
