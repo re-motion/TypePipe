@@ -105,8 +105,7 @@ namespace Remotion.TypePipe.Caching
 
       foreach (var type in generatedTypes)
       {
-        // TODO Review: Move to ITypeAssembler.IsAssembledType
-        if (type.IsDefined (typeof (ProxyTypeAttribute), inherit: false))
+        if (_typeAssembler.IsAssembledType (type))
           assembledTypes.Add (type);
         else
           additionalTypes.Add (type);

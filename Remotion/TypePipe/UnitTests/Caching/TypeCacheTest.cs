@@ -52,7 +52,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     private readonly Type _generatedType1 = typeof (GeneratedType1);
     private readonly Type _generatedType2 = typeof (GeneratedType2);
-    private readonly Type _additionalGeneratedType = typeof (AdditionalGeneratedType);
     private readonly Delegate _delegate1 = new Func<int> (() => 7);
     private readonly Delegate _delegate2 = new Func<string> (() => "");
     private Type _requestedType;
@@ -211,8 +210,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void LoadTypes ()
     {
-      _typeAssemblerMock
-          .Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
+      var additionalGeneratedType = ReflectionObjectMother.GetSomeType();
+      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_generatedType1)).Return (true);
+      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType1, 1))
           .WhenCalled (_ => CheckLock ())
           .Return (new object[] { null, "proxy key" });
       _typeAssemblerMock
@@ -223,11 +224,11 @@ namespace Remotion.TypePipe.UnitTests.Caching
               {
                 var ctx = mi.Arguments[0].As<LoadedTypesContext>();
                 Assert.That (ctx.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy(_generatedType1) }));
-                Assert.That (ctx.AdditionalTypes, Is.EqualTo (new[] { _additionalGeneratedType }));
+                Assert.That (ctx.AdditionalTypes, Is.EqualTo (new[] { additionalGeneratedType }));
                 Assert.That (ctx.State, Is.SameAs (_participantState));
               });
 
-      _cache.LoadTypes (new[] { _generatedType1, _additionalGeneratedType });
+      _cache.LoadTypes (new[] { _generatedType1, additionalGeneratedType });
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (_types[new object[] { _generatedType1.BaseType, "proxy key" }], Is.SameAs (_generatedType1));
@@ -236,6 +237,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void LoadTypes_SameKey_Nop ()
     {
+      _typeAssemblerMock.Stub (mock => mock.IsAssembledType (Arg<Type>.Is.Anything)).Return (true);
       _typeAssemblerMock
           .Stub (stub => stub.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
           .Return (new object[] { null, "type key" });
@@ -261,8 +263,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
         LockTestHelper.CheckLockIsNotHeld (_codeGenerationLock);
     }
 
-    [ProxyType] private class GeneratedType1 { }
-    [ProxyType] private class GeneratedType2 { }
-    private class AdditionalGeneratedType { }
+    private class GeneratedType1 { }
+    private class GeneratedType2 { }
   }
 }
