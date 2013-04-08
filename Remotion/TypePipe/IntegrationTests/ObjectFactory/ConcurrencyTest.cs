@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
   // TODO Review2: Do such tests make sense?
   [TestFixture]
+  [Timeout (1000)] // Set timeout for all tests.
   public class ConcurrencyTest : IntegrationTestBase
   {
     private Mutex _blockingMutex;
@@ -40,7 +41,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
           ctx =>
           {
             if (ctx.RequestedType == typeof (DomainType1))
-              _blockingMutex.WaitOne ();
+              _blockingMutex.WaitOne();
           });
       _objectFactory = CreateObjectFactory (blockingParticipant);
     }
