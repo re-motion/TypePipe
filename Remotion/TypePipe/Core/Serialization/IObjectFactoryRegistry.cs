@@ -21,6 +21,8 @@ using Remotion.TypePipe.Serialization.Implementation;
 
 namespace Remotion.TypePipe.Serialization
 {
+  // TODO Review: IPipelineRegistry, pull up to parent namespace; adapt docs to indicate the user can use this via ServiceLocator/an IoC container
+  // to register and resolve global IPipeline instances used throughout an application.
   /// <summary>
   /// Allows the registration of an <see cref="IObjectFactory"/> under a given participant configuration identifier.
   /// The object factory is used during the .NET deserialization process of objects which were created from another factory with the same identifier.

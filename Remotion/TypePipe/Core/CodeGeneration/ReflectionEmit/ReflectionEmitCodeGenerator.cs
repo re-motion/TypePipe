@@ -65,6 +65,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       public string AssemblyName { get; set; }
     }
 
+    /// <summary>
+    ///  TODO Review: Should be {counter} rather than {0}
+    /// </summary>
     private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}";
 
     private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
@@ -99,6 +102,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _assemblyDirectory; }
     }
 
+    // TODO Review: Refactor to return the pattern (including the placeholder) to the user. 
     public string AssemblyName
     {
       get
@@ -132,6 +136,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _assemblyDirectory = assemblyDirectoryOrNull;
     }
 
+    // TODO Review: The user should be allowed to include a placeholder ({counter}) in the assembly name, which is then replaced by the s_counter. Document.
+    // TODO Review: Also document that, when the user does not specify a counter, calling Flush will overwrite the first file on second call.
     public void SetAssemblyName (string assemblyName)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
@@ -149,6 +155,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return null;
 
       var assemblyPath = SaveToDisk (moduleBuilder.AssemblyBuilder, participantConfiguration);
+      // TODO Review: Should not reset the name.
       ResetContext();
 
       return assemblyPath;

@@ -19,6 +19,7 @@ using System;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
+  // TODO Review: Rename to IGeneratedCodeFlusher
   /// <summary>
   /// Instances of this interface represent the code generator used by the pipeline.
   /// </summary>

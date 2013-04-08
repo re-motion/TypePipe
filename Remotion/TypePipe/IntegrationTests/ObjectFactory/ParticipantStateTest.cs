@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     }
 
     [Test]
-    public void RebuildState_ContextOnlyContainsNewlyCachedTypes ()
+    public void RebuildState_ContextDoesNotContainProxyTypesAlreadyInCacheWhenLoadingAssembly ()
     {
       var rebuildStateWasCalled = false;
       var participant = CreateParticipant (

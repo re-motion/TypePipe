@@ -97,30 +97,31 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
 
-      var proxyTypes = new HashSet<Type>();
+      var assembledTypes = new HashSet<Type>();
       var additionalTypes = new HashSet<Type>();
 
       foreach (var type in generatedTypes)
       {
+        // TODO Review: Move to ITypeAssembler.IsAssembledType
         if (type.IsDefined (typeof (ProxyTypeAttribute), inherit: false))
-          proxyTypes.Add (type);
+          assembledTypes.Add (type);
         else
           additionalTypes.Add (type);
       }
 
-      var keysAndTypes = proxyTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
+      var keysAndTypes = assembledTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
 
       lock (_codeGenerationLock)
       {
         foreach (var p in keysAndTypes)
         {
           if (_types.ContainsKey (p.Key))
-            proxyTypes.Remove (p.Type);
+            assembledTypes.Remove (p.Type);
           else
             _types.Add (p.Key, p.Type);
         }
 
-        var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, _participantState);
+        var loadedTypesContext = new LoadedTypesContext (assembledTypes, additionalTypes, _participantState);
         _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
     }
@@ -130,6 +131,9 @@ namespace Remotion.TypePipe.Caching
       Type generatedType;
       if (_types.TryGetValue (key, out generatedType))
         return generatedType;
+
+      // TODO Review: Refactor
+      // return _codeManager.GenerateCodeForTypeCache (_types, _typeAssembler, _participantState, _typeAssemblyContextCodeGenerator, requestedType);
 
       lock (_codeGenerationLock)
       {

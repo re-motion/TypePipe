@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 
     public override void SetUp ()
     {
-      base.SetUp();
+      base.SetUp ();
 
       _objectFactory = CreateObjectFactory (c_participantConfigurationID);
       _codeManager = _objectFactory.CodeManager;
@@ -88,43 +88,42 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     {
       // Load and get type 1.
       _codeManager.LoadFlushedCode (_assembly1);
-      var assembledType1 = _objectFactory.GetAssembledType (typeof (DomainType1));
+      var loadedType = _objectFactory.GetAssembledType (typeof (DomainType1));
       // Generate and get type 2.
-      var assembledType2 = _objectFactory.GetAssembledType (typeof (DomainType2));
+      var generatedType = _objectFactory.GetAssembledType (typeof (DomainType2));
 
       _codeManager.LoadFlushedCode (_assembly1);
       _codeManager.LoadFlushedCode (_assembly2);
 
-      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType1)), Is.SameAs (assembledType1));
-      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType2)), Is.SameAs (assembledType2));
+      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedType));
+      Assert.That (_objectFactory.GetAssembledType (typeof (DomainType2)), Is.SameAs (generatedType));
     }
 
     [Test]
-    public void LoadTypes_RespectCacheKeys ()
+    public void LoadTypes_RebuiltCacheKey_MustMatchRequestedCacheKey_ToReturnLoadedType ()
     {
-      var generatedType1 = _assembly1.GetTypes().Single();
-      var generatedType2 = _assembly2.GetTypes().Single();
+      var loadedTypeWithMatchingKeys = _assembly1.GetTypes().Single();
+      var loadedTypeWithNonMatchingKeys = _assembly2.GetTypes().Single();
+
       var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (generatedType1)).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (generatedType2)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithNonMatchingKeys)).Return ("key");
       cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType1))).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("other key");
+      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("runtime key differing from rebuilt key");
       var participant = CreateParticipant (cacheKeyProvider: cachKeyProviderStub);
       var objectFactory = CreateObjectFactory (c_participantConfigurationID, participant);
 
       objectFactory.CodeManager.LoadFlushedCode (_assembly1);
       objectFactory.CodeManager.LoadFlushedCode (_assembly2);
 
-      var type1 = objectFactory.GetAssembledType (typeof (DomainType1));
-      var type2 = objectFactory.GetAssembledType (typeof (DomainType2));
-      Assert.That (type1, Is.SameAs (generatedType1));
-      Assert.That (type2, Is.Not.SameAs (generatedType2));
+      Assert.That (objectFactory.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedTypeWithMatchingKeys));
+      Assert.That (objectFactory.GetAssembledType (typeof (DomainType2)), Is.Not.SameAs (loadedTypeWithNonMatchingKeys));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The specified assembly was generated with a different participant configuration: '" + c_participantConfigurationID
-                          + "'.\r\nParameter name: assembly")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "The specified assembly was generated with a different participant configuration: '" + c_participantConfigurationID
+        + "'.\r\nParameter name: assembly")]
     public void LoadAssemblyGeneratedWithDifferentParticipantConfiguration ()
     {
       var objectFactory = CreateObjectFactory ("different config");

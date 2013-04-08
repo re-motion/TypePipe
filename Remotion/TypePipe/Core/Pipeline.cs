@@ -29,6 +29,7 @@ using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe
 {
+  // TODO Review: PipelineFactory
   /// <summary>
   /// Creates instances of <see cref="IObjectFactory"/>, which are the main entry point of the pipeline.
   /// </summary>

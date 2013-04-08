@@ -71,6 +71,7 @@ namespace Remotion.TypePipe.Implementation
     public string FlushCodeToDisk ()
     {
       var participantConfigurationID = _typeCache.ParticipantConfigurationID;
+      // TODO Review: Refactor to pass in custom attribute declaration.
       lock (_codeGeneratorLock)
         return _codeGenerator.FlushCodeToDisk (participantConfigurationID);
     }
