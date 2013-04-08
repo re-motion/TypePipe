@@ -14,8 +14,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -62,20 +62,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       public IModuleBuilder ModuleBuilder { get; set; }
       public DebugInfoGenerator DebugInfoGenerator { get; set; }
-      public string AssemblyName { get; set; }
     }
 
-    /// <summary>
-    ///  TODO Review: Should be {counter} rather than {0}
-    /// </summary>
-    private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}";
+    private const string c_defaultAssemblyNamePattern = "TypePipe_GeneratedAssembly_{counter}";
 
+    // This field is static to avoid that different pipeline instances override each other's assemblies.
     private static int s_counter;
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
     private readonly IConfigurationProvider _configurationProvider;
 
     private string _assemblyDirectory;
+    private string _assemblyNamePattern = c_defaultAssemblyNamePattern;
     private ModuleContext _moduleContext;
 
     [CLSCompliant (false)]
@@ -99,30 +97,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _assemblyDirectory; }
     }
 
-    // TODO Review: Refactor to return the pattern (including the placeholder) to the user. 
-    public string AssemblyName
+    public string AssemblyNamePattern
     {
-      get
-      {
-        if (_moduleContext.AssemblyName == null)
-        {
-          var uniqueCounterValue = Interlocked.Increment (ref s_counter);
-          _moduleContext.AssemblyName = string.Format (c_assemblyNamePattern, uniqueCounterValue);
-        }
-
-        return _moduleContext.AssemblyName;
-      }
+      get { return _assemblyNamePattern; }
     }
 
     public DebugInfoGenerator DebugInfoGenerator
     {
-      get
-      {
-        if (_moduleContext.DebugInfoGenerator == null)
-          _moduleContext.DebugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator();
-
-        return _moduleContext.DebugInfoGenerator;
-      }
+      get { return _moduleContext.DebugInfoGenerator ?? (_moduleContext.DebugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator()); }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
@@ -135,12 +117,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     // TODO Review: The user should be allowed to include a placeholder ({counter}) in the assembly name, which is then replaced by the s_counter. Document.
     // TODO Review: Also document that, when the user does not specify a counter, calling Flush will overwrite the first file on second call.
-    public void SetAssemblyName (string assemblyName)
+    public void SetAssemblyNamePattern (string assemblyNamePattern)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
-      EnsureNoCurrentModuleBuilder ("assembly name");
+      ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
+      EnsureNoCurrentModuleBuilder ("assembly name pattern");
 
-      _moduleContext.AssemblyName = assemblyName;
+      _assemblyNamePattern = assemblyNamePattern;
     }
 
     public string FlushCodeToDisk (CustomAttributeDeclaration assemblyAttribute)
@@ -174,16 +156,23 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (_moduleContext.ModuleBuilder == null)
       {
+        var assemblyName = GetNextAssemblyName();
         var strongName = _moduleContext.ForceStrongNaming;
         var keyFilePathOrNull = _configurationProvider.KeyFilePath;
 
-        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (AssemblyName, _assemblyDirectory, strongName, keyFilePathOrNull);
+        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (assemblyName, _assemblyDirectory, strongName, keyFilePathOrNull);
       }
 
       var typeBuilder = _moduleContext.ModuleBuilder.DefineType (name, attributes);
       var typeBuilderDecorator = new TypeBuilderDecorator (typeBuilder, emittableOperandProvider);
 
       return typeBuilderDecorator;
+    }
+
+    private string GetNextAssemblyName ()
+    {
+      var uniqueCounterValue = Interlocked.Increment (ref s_counter);
+      return _assemblyNamePattern.Replace ("{counter}", uniqueCounterValue.ToString (CultureInfo.InvariantCulture));
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)

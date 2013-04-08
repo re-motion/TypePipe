@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Implementation;
@@ -44,7 +45,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var assembledType1 = RequestType (typeof (RequestedType));
       var path1 = Flush();
 
-      var assembledType2 = RequestType (typeof (object));
+      var assembledType2 = RequestType (typeof (OtherRequestedType));
       var path2 = Flush();
 
       Assert.That (path1, Is.Not.EqualTo (path2));
@@ -66,42 +67,32 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void StandardNameAndDirectory_Initial ()
+    public void StandardNamePatternAndDirectory ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
       var objectFactory = PipelineFactory.Create ("standard", CreateParticipant());
       var codeManager = objectFactory.CodeManager;
 
-      var assemblyName = codeManager.AssemblyName;
       Assert.That (codeManager.AssemblyDirectory, Is.Null); // Current directory.
-      Assert.That (assemblyName, Is.StringMatching (@"TypePipe_GeneratedAssembly_\d+"));
+      Assert.That (codeManager.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
 
       objectFactory.GetAssembledType (typeof (RequestedType));
       var assemblyPath = codeManager.FlushCodeToDisk();
 
-      var expectedAssemblyPath = Path.Combine (Environment.CurrentDirectory, assemblyName + ".dll");
-      Assert.That (assemblyPath, Is.EqualTo (expectedAssemblyPath));
+      var comparableAssemblyPath = Regex.Replace (assemblyPath, @"\d+", "007");
+      var expectedAssemblyName = Path.Combine (Environment.CurrentDirectory, @"TypePipe_GeneratedAssembly_007.dll");
+      Assert.That (comparableAssemblyPath, Is.EqualTo (expectedAssemblyName));
     }
 
     [Test]
-    public void StandardName_IsUnique ()
-    {
-      var oldAssemblyName = _codeManager.AssemblyName;
-
-      RequestTypeAndFlush();
-
-      Assert.That (_codeManager.AssemblyName, Is.Not.EqualTo (oldAssemblyName));
-    }
-
-    [Test]
-    public void CustomNameAndDirectory ()
+    public void CustomNamePatternAndDirectory ()
     {
       var directory = Path.GetTempPath();
       _codeManager.SetAssemblyDirectory (directory);
-      _codeManager.SetAssemblyName ("Abc");
+      _codeManager.SetAssemblyNamePattern ("Abc");
 
       Assert.That (_codeManager.AssemblyDirectory, Is.EqualTo (directory));
-      Assert.That (_codeManager.AssemblyName, Is.EqualTo ("Abc"));
+      Assert.That (_codeManager.AssemblyNamePattern, Is.EqualTo ("Abc"));
 
       // The assembly will be saved in a directory that lacks the needed references for peverify.
       var path = RequestTypeAndFlush (skipPeVerification: true);
@@ -111,22 +102,44 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void SetNameAndDirectory_AfterFlush ()
+    public void CustomNamePatternWithoutCounter_OverwritesPreviousAssembly ()
+    {
+      _codeManager.SetAssemblyNamePattern ("xxx");
+
+      var assemblyPath1 = RequestTypeAndFlush (typeof (RequestedType));
+      var assemblyPath2 = RequestTypeAndFlush (typeof (OtherRequestedType));
+
+      Assert.That (assemblyPath1, Is.EqualTo (assemblyPath2));
+    }
+
+    [Test]
+    public void CustomNamePatternIncludingCounter_ProducesUniqueAssemblyNames ()
+    {
+      _codeManager.SetAssemblyNamePattern ("xxx_{counter}");
+
+      var assemblyPath1 = RequestTypeAndFlush (typeof (RequestedType));
+      var assemblyPath2 = RequestTypeAndFlush (typeof (OtherRequestedType));
+
+      Assert.That (assemblyPath1, Is.Not.EqualTo (assemblyPath2));
+    }
+
+    [Test]
+    public void SetNamePatternAndDirectory_AfterFlush ()
     {
       RequestType();
 
       var message1 = "Cannot set assembly directory after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
-      var message2 = "Cannot set assembly name after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
+      var message2 = "Cannot set assembly name pattern after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
       Assert.That (() => _codeManager.SetAssemblyDirectory ("Uio"), Throws.InvalidOperationException.With.Message.EqualTo (message1));
-      Assert.That (() => _codeManager.SetAssemblyName ("Xyz"), Throws.InvalidOperationException.With.Message.EqualTo (message2));
+      Assert.That (() => _codeManager.SetAssemblyNamePattern ("Xyz"), Throws.InvalidOperationException.With.Message.EqualTo (message2));
 
       Flush();
 
       _codeManager.SetAssemblyDirectory ("Uio");
-      _codeManager.SetAssemblyName ("Xyz");
+      _codeManager.SetAssemblyNamePattern ("Xyz");
 
       Assert.That (_codeManager.AssemblyDirectory, Is.EqualTo ("Uio"));
-      Assert.That (_codeManager.AssemblyName, Is.EqualTo ("Xyz"));
+      Assert.That (_codeManager.AssemblyNamePattern, Is.EqualTo ("Xyz"));
     }
 
     private Type RequestType (Type requestedType = null)
@@ -163,5 +176,6 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     public class RequestedType { }
+    public class OtherRequestedType { }
   }
 }

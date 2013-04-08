@@ -37,7 +37,10 @@ namespace Remotion.TypePipe.Implementation
     /// Note that <see cref="FlushCodeToDisk"/> assigns a new value to this property to ensure unqiue assembly names.
     /// </summary>
     /// <value>The assembly name (file name without <c>.dll</c> extension).</value>
-    string AssemblyName { get; }
+    //
+    // TODO review: Update docs!!
+    // 
+    string AssemblyNamePattern { get; }
 
     /// <summary>
     /// Sets the directory in that assemblies will be saved, when <see cref="FlushCodeToDisk"/> is called.
@@ -56,15 +59,18 @@ namespace Remotion.TypePipe.Implementation
     /// <remarks>
     /// Note that the provided value is overwritten after every call to <see cref="FlushCodeToDisk"/> to ensure uniqueness.
     /// </remarks>
-    /// <param name="assemblyName">The assembly name (file name without <c>.dll</c> extension).</param>
+    /// <param name="assemblyNamePattern">The assembly name (file name without <c>.dll</c> extension).</param>
     /// <exception cref="InvalidOperationException">
     /// If the pipeline already generated a type (because it was requested) into the new assembly, the assembly name cannot be changed.
     /// </exception>
-    void SetAssemblyName (string assemblyName);
+    //
+    // TODO review: Update docs!!
+    // 
+    void SetAssemblyNamePattern (string assemblyNamePattern);
 
     /// <summary>
     /// Saves all types that have been generated since the last call to this method into a new assembly on disk.
-    /// The file name of the assembly consists of <see cref="AssemblyName"/> plus the file ending <c>.dll</c>.
+    /// The file name of the assembly consists of <see cref="AssemblyNamePattern"/> plus the file ending <c>.dll</c>.
     /// The assembly is written to the directory defined by <see cref="AssemblyDirectory"/>.
     /// If <see cref="AssemblyDirectory"/> is <see langword="null"/> the assembly is saved in the current working directory.
     /// </summary>

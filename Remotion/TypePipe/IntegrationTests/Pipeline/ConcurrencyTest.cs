@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       var t1 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
       var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyDirectory);
-      var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyName);
+      var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyNamePattern);
       var t4 = StartAndWaitUntilBlocked (() => _pipeline.CodeManager.FlushCodeToDisk());
 
       // All threads are now blocked. [t1] is blocked by the mutex, [t2, ...] are blocked by the code generation in [t1].

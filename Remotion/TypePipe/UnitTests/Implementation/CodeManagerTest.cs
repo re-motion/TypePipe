@@ -110,13 +110,13 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _generatedCodeFlusherMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLock (true));
       Assert.That (_manager.AssemblyDirectory, Is.EqualTo ("get dir"));
-      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyName).Return ("get name").WhenCalled (_ => CheckLock (true));
-      Assert.That (_manager.AssemblyName, Is.EqualTo ("get name"));
+      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyNamePattern).Return ("get name pattern").WhenCalled (_ => CheckLock (true));
+      Assert.That (_manager.AssemblyNamePattern, Is.EqualTo ("get name pattern"));
 
       _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (_ => CheckLock (true));
       _manager.SetAssemblyDirectory ("set dir");
-      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyName ("set name")).WhenCalled (_ => CheckLock (true));
-      _manager.SetAssemblyName ("set name");
+      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyNamePattern ("set name pattern")).WhenCalled (_ => CheckLock (true));
+      _manager.SetAssemblyNamePattern ("set name pattern");
 
       _generatedCodeFlusherMock.VerifyAllExpectations();
       _typeCacheMock.VerifyAllExpectations();

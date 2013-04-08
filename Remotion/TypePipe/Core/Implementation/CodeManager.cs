@@ -55,9 +55,9 @@ namespace Remotion.TypePipe.Implementation
       get { lock (_codeGeneratorLock) return _generatedCodeFlusher.AssemblyDirectory; }
     }
 
-    public string AssemblyName
+    public string AssemblyNamePattern
     {
-      get { lock (_codeGeneratorLock) return _generatedCodeFlusher.AssemblyName; }
+      get { lock (_codeGeneratorLock) return _generatedCodeFlusher.AssemblyNamePattern; }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectory)
@@ -66,10 +66,10 @@ namespace Remotion.TypePipe.Implementation
         _generatedCodeFlusher.SetAssemblyDirectory (assemblyDirectory);
     }
 
-    public void SetAssemblyName (string assemblyName)
+    public void SetAssemblyNamePattern (string assemblyNamePattern)
     {
       lock (_codeGeneratorLock)
-        _generatedCodeFlusher.SetAssemblyName (assemblyName);
+        _generatedCodeFlusher.SetAssemblyNamePattern (assemblyNamePattern);
     }
 
     public string FlushCodeToDisk ()

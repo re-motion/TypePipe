@@ -30,8 +30,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class ReflectionEmitCodeGeneratorTest
   {
-    private const string c_assemblyNamePattern = @"TypePipe_GeneratedAssembly_\d+";
-
     private IModuleBuilderFactory _moduleBuilderFactoryMock;
     private IConfigurationProvider _configurationProviderMock;
 
@@ -56,14 +54,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void Initialization ()
     {
       Assert.That (_flusher.AssemblyDirectory, Is.Null);
-      Assert.That (_flusher.AssemblyName, Is.StringMatching (c_assemblyNamePattern));
-    }
-
-    [Test]
-    public void AssemblyName_Unique ()
-    {
-      var generator = new ReflectionEmitCodeGenerator (_moduleBuilderFactoryMock, _configurationProviderMock);
-      Assert.That (generator.AssemblyName, Is.Not.EqualTo (_flusher.AssemblyName));
+      Assert.That (_flusher.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
     }
 
     [Test]
@@ -94,19 +85,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void SetAssemblyName ()
+    public void SetAssemblyNamePattern ()
     {
-      _flusher.SetAssemblyName ("Def");
-      Assert.That (_flusher.AssemblyName, Is.EqualTo ("Def"));
+      _flusher.SetAssemblyNamePattern ("Def");
+      Assert.That (_flusher.AssemblyNamePattern, Is.EqualTo ("Def"));
     }
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException),
-        ExpectedMessage = "Cannot set assembly name after a type has been defined (use FlushCodeToDisk() to start a new assembly).")]
-    public void SetAssemblyName_ThrowsForExistingCurrentModuleBuilder ()
+        ExpectedMessage = "Cannot set assembly name pattern after a type has been defined (use FlushCodeToDisk() to start a new assembly).")]
+    public void SetAssemblyNamePattern_ThrowsForExistingCurrentModuleBuilder ()
     {
       DefineSomeType();
-      _flusher.SetAssemblyName ("Abc");
+      _flusher.SetAssemblyNamePattern ("Abc");
     }
 
     [Test]
@@ -119,7 +110,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock.Expect (mock => mock.AssemblyBuilder).Return (assemblyBuilderMock);
       assemblyBuilderMock.Expect (mock => mock.SetCustomAttribute (assemblyAttribute));
       assemblyBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
-      var previousAssemblyName = _flusher.AssemblyName;
       var previousDebugInfoGenerator = _flusher.DebugInfoGenerator;
 
       var result = _flusher.FlushCodeToDisk (assemblyAttribute);
@@ -127,7 +117,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _moduleBuilderMock.VerifyAllExpectations();
       assemblyBuilderMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeAssemblyPath));
-      Assert.That (_flusher.AssemblyName, Is.Not.EqualTo (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
       Assert.That (_flusher.DebugInfoGenerator, Is.Not.EqualTo (previousDebugInfoGenerator));
     }
 
@@ -154,12 +143,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (true);
 
-      var result = _flusher.CreateEmittableOperandProvider ();
+      var result = _flusher.CreateEmittableOperandProvider();
 
       _configurationProviderMock.VerifyAllExpectations();
-      Assert.That (result, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator> ());
+      Assert.That (result, Is.TypeOf<StrongNameCheckingEmittableOperandProviderDecorator>());
       var strongNamingDecorator = (StrongNameCheckingEmittableOperandProviderDecorator) result;
-      Assert.That (strongNamingDecorator.InnerEmittableOperandProvider, Is.TypeOf<EmittableOperandProvider> ());
+      Assert.That (strongNamingDecorator.InnerEmittableOperandProvider, Is.TypeOf<EmittableOperandProvider>());
     }
 
     [Test]
@@ -167,7 +156,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (false).Repeat.Once();
 
-      _flusher.CreateEmittableOperandProvider ();
+      _flusher.CreateEmittableOperandProvider();
+      _flusher.CreateEmittableOperandProvider();
 
       _configurationProviderMock.VerifyAllExpectations();
     }
@@ -179,11 +169,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var attributes = (TypeAttributes) 7;
       var forceStrongNaming = BooleanObjectMother.GetRandomBoolean();
       var keyFilePath = "key file path";
+      _flusher.SetAssemblyNamePattern ("custom assembly name pattern");
 
       _configurationProviderMock.Expect (mock => mock.ForceStrongNaming).Return (forceStrongNaming);
       _configurationProviderMock.Expect (mock => mock.KeyFilePath).Return (keyFilePath);
       _moduleBuilderFactoryMock
-          .Expect (mock => mock.CreateModuleBuilder (_flusher.AssemblyName, null, forceStrongNaming, keyFilePath))
+          .Expect (mock => mock.CreateModuleBuilder ("custom assembly name pattern", null, forceStrongNaming, keyFilePath))
           .Return (_moduleBuilderMock);
 
       var fakeTypeBuilder1 = MockRepository.GenerateStub<ITypeBuilder>();
@@ -208,9 +199,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _configurationProviderMock.Stub (stub => stub.ForceStrongNaming).Return (false);
       _configurationProviderMock.Stub (stub => stub.KeyFilePath).Return (null);
-      _moduleBuilderFactoryMock
-          .Stub (stub => stub.CreateModuleBuilder (_flusher.AssemblyName, _flusher.AssemblyDirectory, false, null))
-          .Return (_moduleBuilderMock);
+      _moduleBuilderFactoryMock.Stub (stub => stub.CreateModuleBuilder (null, null, false, null)).IgnoreArguments().Return (_moduleBuilderMock);
       _moduleBuilderMock.Stub (stub => stub.DefineType (null, 0)).IgnoreArguments();
 
       _flusher.DefineType ("SomeType", 0, _emittableOperandProviderMock);

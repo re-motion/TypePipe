@@ -124,7 +124,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
       _codeManager = objectFactory.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _codeManager.SetAssemblyName (participantConfigurationID);
+      _codeManager.SetAssemblyNamePattern (participantConfigurationID + "_{counter}");
 
       return objectFactory;
     }
