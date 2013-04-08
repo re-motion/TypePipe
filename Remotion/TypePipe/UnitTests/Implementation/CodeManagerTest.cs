@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
@@ -51,7 +52,18 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var configID = "config";
       var fakeResult = "assembly path";
       _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID).WhenCalled (_ => CheckLock (false));
-      _codeGeneratorMock.Expect (mock => mock.FlushCodeToDisk (configID)).Return (fakeResult).WhenCalled (_ => CheckLock (true));
+      _codeGeneratorMock
+          .Expect (mock => mock.FlushCodeToDisk (Arg<CustomAttributeDeclaration>.Is.Anything))
+          .Return (fakeResult)
+          .WhenCalled (
+              mi =>
+              {
+                var assemblyAttribute = (CustomAttributeDeclaration) mi.Arguments[0];
+                Assert.That (assemblyAttribute.Type, Is.SameAs (typeof (TypePipeAssemblyAttribute)));
+                Assert.That (assemblyAttribute.ConstructorArguments, Is.EqualTo (new[] { configID }));
+                Assert.That (assemblyAttribute.NamedArguments, Is.Empty);
+              })
+          .WhenCalled (_ => CheckLock (true));
 
       var result = _manager.FlushCodeToDisk();
 

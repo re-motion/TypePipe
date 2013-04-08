@@ -22,8 +22,7 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
-using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -114,29 +113,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void FlushCodeToDisk ()
     {
       DefineSomeType();
-      var configID = "config id";
-      var assemblyPath = "fake path";
+      var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
+      var fakeAssemblyPath = "fake path";
       var assemblyBuilderMock = MockRepository.GenerateStrictMock<IAssemblyBuilder>();
       _moduleBuilderMock.Expect (mock => mock.AssemblyBuilder).Return (assemblyBuilderMock);
-      assemblyBuilderMock
-          .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeDeclaration>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var attribute = mi.Arguments[0].As<CustomAttributeDeclaration>();
-                Assert.That (attribute.Type, Is.SameAs (typeof (TypePipeAssemblyAttribute)));
-                Assert.That (attribute.ConstructorArguments, Is.EqualTo (new[] { configID }));
-                Assert.That (attribute.NamedArguments, Is.Empty);
-              });
-      assemblyBuilderMock.Expect (mock => mock.SaveToDisk()).Return (assemblyPath);
+      assemblyBuilderMock.Expect (mock => mock.SetCustomAttribute (assemblyAttribute));
+      assemblyBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
       var previousAssemblyName = _generator.AssemblyName;
       var previousDebugInfoGenerator = _generator.DebugInfoGenerator;
 
-      var result = _generator.FlushCodeToDisk (configID);
+      var result = _generator.FlushCodeToDisk (assemblyAttribute);
 
       _moduleBuilderMock.VerifyAllExpectations();
       assemblyBuilderMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (assemblyPath));
+      Assert.That (result, Is.EqualTo (fakeAssemblyPath));
       Assert.That (_generator.AssemblyName, Is.Not.EqualTo (previousAssemblyName).And.StringMatching (c_assemblyNamePattern));
       Assert.That (_generator.DebugInfoGenerator, Is.Not.EqualTo (previousDebugInfoGenerator));
     }
@@ -144,7 +134,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void FlushCodeToDisk_NoTypeDefined ()
     {
-      Assert.That (_generator.FlushCodeToDisk("config id"), Is.Null);
+      var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
+      Assert.That (_generator.FlushCodeToDisk(assemblyAttribute), Is.Null);
     }
 
     [Test]

@@ -70,9 +70,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// </summary>
     private const string c_assemblyNamePattern = "TypePipe_GeneratedAssembly_{0}";
 
-    private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
-        MemberInfoFromExpressionUtility.GetConstructor (() => new TypePipeAssemblyAttribute ("participantConfigurationID"));
-
     private static int s_counter;
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
@@ -146,19 +143,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _moduleContext.AssemblyName = assemblyName;
     }
 
-    public string FlushCodeToDisk (string participantConfiguration)
+    public string FlushCodeToDisk (CustomAttributeDeclaration assemblyAttribute)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfiguration", participantConfiguration);
+      ArgumentUtility.CheckNotNull ("assemblyAttribute", assemblyAttribute);
 
       var moduleBuilder = _moduleContext.ModuleBuilder;
       if (moduleBuilder == null)
         return null;
 
-      var assemblyPath = SaveToDisk (moduleBuilder.AssemblyBuilder, participantConfiguration);
-      // TODO Review: Should not reset the name.
+      var assemblyBuilder = moduleBuilder.AssemblyBuilder;
+      // TODO Review: Should not reset the name pattern.
       ResetContext();
 
-      return assemblyPath;
+      assemblyBuilder.SetCustomAttribute (assemblyAttribute);
+      return assemblyBuilder.SaveToDisk();
     }
 
     public IEmittableOperandProvider CreateEmittableOperandProvider ()
@@ -186,14 +184,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var typeBuilderDecorator = new TypeBuilderDecorator (typeBuilder, emittableOperandProvider);
 
       return typeBuilderDecorator;
-    }
-
-    private string SaveToDisk (IAssemblyBuilder assemblyBuilder, string participantConfigurationID)
-    {
-      var typePipeAssemblyAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { participantConfigurationID });
-      assemblyBuilder.SetCustomAttribute (typePipeAssemblyAttribute);
-
-      return assemblyBuilder.SaveToDisk();
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)

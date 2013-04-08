@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -31,6 +32,9 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class CodeManager : ICodeManager
   {
+    private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new TypePipeAssemblyAttribute ("participantConfigurationID"));
+
     private readonly ICodeGenerator _codeGenerator;
     private readonly object _codeGeneratorLock;
     private readonly ITypeCache _typeCache;
@@ -71,9 +75,10 @@ namespace Remotion.TypePipe.Implementation
     public string FlushCodeToDisk ()
     {
       var participantConfigurationID = _typeCache.ParticipantConfigurationID;
-      // TODO Review: Refactor to pass in custom attribute declaration.
+      var assemblyAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { participantConfigurationID });
+
       lock (_codeGeneratorLock)
-        return _codeGenerator.FlushCodeToDisk (participantConfigurationID);
+        return _codeGenerator.FlushCodeToDisk (assemblyAttribute);
     }
 
     public void LoadFlushedCode (Assembly assembly)

@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -34,6 +35,6 @@ namespace Remotion.TypePipe.CodeGeneration
     void SetAssemblyDirectory (string assemblyDirectory);
     void SetAssemblyName (string assemblyName);
 
-    string FlushCodeToDisk (string participantConfigurationID);
+    string FlushCodeToDisk (CustomAttributeDeclaration assemblyAttribute);
   }
 }
