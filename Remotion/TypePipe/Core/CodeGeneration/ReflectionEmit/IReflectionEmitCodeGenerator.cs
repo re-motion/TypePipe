@@ -23,10 +23,10 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Extends the <see cref="ICodeGenerator"/> interface with Reflection.Emit-specifc operations.
+  /// Extends the <see cref="IGeneratedCodeFlusher"/> interface with Reflection.Emit-specifc operations.
   /// </summary>
   [CLSCompliant (false)]
-  public interface IReflectionEmitCodeGenerator : ICodeGenerator
+  public interface IReflectionEmitCodeGenerator : IGeneratedCodeFlusher
   {
     DebugInfoGenerator DebugInfoGenerator { get; }
 

@@ -110,7 +110,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\DelegateTypePlaceholder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnabler.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGenerator.cs" />
-    <Compile Include="CodeGeneration\ICodeGenerator.cs" />
+    <Compile Include="CodeGeneration\IGeneratedCodeFlusher.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBaseBuilder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IMethodBuilder.cs" />

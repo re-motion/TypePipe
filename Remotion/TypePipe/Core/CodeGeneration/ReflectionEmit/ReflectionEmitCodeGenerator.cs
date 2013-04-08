@@ -31,7 +31,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// The Reflection.Emit-based <see cref="ICodeGenerator"/> of the pipeline.
+  /// The Reflection.Emit-based <see cref="IGeneratedCodeFlusher"/> of the pipeline.
   /// </summary>
   /// <remarks>
   /// This class is not thread-safe. Thread-safety will be enforced by the <see cref="TypeCache"/>.

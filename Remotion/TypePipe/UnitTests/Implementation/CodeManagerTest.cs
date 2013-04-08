@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class CodeManagerTest
   {
-    private ICodeGenerator _codeGeneratorMock;
+    private IGeneratedCodeFlusher _generatedCodeFlusherMock;
     private object _codeGeneratorLock;
     private ITypeCache _typeCacheMock;
 
@@ -39,11 +39,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _codeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
+      _generatedCodeFlusherMock = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
       _codeGeneratorLock = new object();
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
 
-      _manager = new CodeManager (_codeGeneratorMock, _codeGeneratorLock, _typeCacheMock);
+      _manager = new CodeManager (_generatedCodeFlusherMock, _codeGeneratorLock, _typeCacheMock);
     }
 
     [Test]
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var configID = "config";
       var fakeResult = "assembly path";
       _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID).WhenCalled (_ => CheckLock (false));
-      _codeGeneratorMock
+      _generatedCodeFlusherMock
           .Expect (mock => mock.FlushCodeToDisk (Arg<CustomAttributeDeclaration>.Is.Anything))
           .Return (fakeResult)
           .WhenCalled (
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var result = _manager.FlushCodeToDisk();
 
       _typeCacheMock.VerifyAllExpectations();
-      _codeGeneratorMock.VerifyAllExpectations();
+      _generatedCodeFlusherMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -108,17 +108,17 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void DelegatingMembers_GuardedByLock ()
     {
-      _codeGeneratorMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLock (true));
       Assert.That (_manager.AssemblyDirectory, Is.EqualTo ("get dir"));
-      _codeGeneratorMock.Expect (mock => mock.AssemblyName).Return ("get name").WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyName).Return ("get name").WhenCalled (_ => CheckLock (true));
       Assert.That (_manager.AssemblyName, Is.EqualTo ("get name"));
 
-      _codeGeneratorMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (_ => CheckLock (true));
       _manager.SetAssemblyDirectory ("set dir");
-      _codeGeneratorMock.Expect (mock => mock.SetAssemblyName ("set name")).WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyName ("set name")).WhenCalled (_ => CheckLock (true));
       _manager.SetAssemblyName ("set name");
 
-      _codeGeneratorMock.VerifyAllExpectations();
+      _generatedCodeFlusherMock.VerifyAllExpectations();
       _typeCacheMock.VerifyAllExpectations();
     }
 

@@ -20,14 +20,13 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  // TODO Review: Rename to IGeneratedCodeFlusher
   /// <summary>
-  /// Instances of this interface represent the code generator used by the pipeline.
+  /// Instances of this interface are entities that manage the generated code.
   /// </summary>
   /// <remarks>
-  /// Implementations of this interface must not use other TypePipe APIs themselves as this could cause deadlocks in a multi-threaded environment.
+  /// Implementations of this interface must not use other pipeline APIs themselves as this could cause deadlocks in a multi-threaded environment.
   /// </remarks>
-  public interface ICodeGenerator
+  public interface IGeneratedCodeFlusher
   {
     string AssemblyDirectory { get; }
     string AssemblyName { get; }
