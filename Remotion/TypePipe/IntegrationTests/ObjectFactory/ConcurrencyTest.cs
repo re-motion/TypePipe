@@ -22,7 +22,6 @@ using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
 {
-  // TODO Review2: Do such tests make sense?
   [TestFixture]
   [Timeout (1000)] // Set timeout for all tests.
   public class ConcurrencyTest : IntegrationTestBase
@@ -82,12 +81,15 @@ namespace Remotion.TypePipe.IntegrationTests.ObjectFactory
     public void CodeManagerAPIs_CannotRunWhileCodeIsGenerated ()
     {
       var t1 = StartAndWaitUntilBlocked (() => _objectFactory.CreateObject<DomainTypeCausingParticipantToBlock>());
-      // TODO Review: Add more threads for the different APis
-      var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _objectFactory.CodeManager.AssemblyName);
+      var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _objectFactory.CodeManager.AssemblyDirectory);
+      var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _objectFactory.CodeManager.AssemblyName);
+      var t4 = StartAndWaitUntilBlocked (() => _objectFactory.CodeManager.FlushCodeToDisk());
 
-      // Both threads are now blocked. [t1] is blocked by the mutex, [t2] is blocked by the code generation in [t1].
+      // All threads are now blocked. [t1] is blocked by the mutex, [t2, ...] are blocked by the code generation in [t1].
       Assert.That (t1.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
       Assert.That (t2.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
+      Assert.That (t3.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
+      Assert.That (t4.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
 
       _blockingMutex.ReleaseMutex();
 
