@@ -57,7 +57,6 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="CodeGeneration\DependentTypeSorterTest.cs" />
-    <Compile Include="CodeGeneration\LockingCodeGeneratorDecoratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecoratorTest.cs" />

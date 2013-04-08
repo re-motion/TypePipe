@@ -17,6 +17,7 @@
 using System;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
+using Remotion.Development.RhinoMocks.UnitTesting.Threading;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   public class CodeManagerTest
   {
     private ICodeGenerator _codeGeneratorMock;
+    private object _codeGeneratorLock;
     private ITypeCache _typeCacheMock;
 
     private CodeManager _manager;
@@ -37,9 +39,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void SetUp ()
     {
       _codeGeneratorMock = MockRepository.GenerateStrictMock<ICodeGenerator>();
+      _codeGeneratorLock = new object();
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
 
-      _manager = new CodeManager (_codeGeneratorMock, _typeCacheMock);
+      _manager = new CodeManager (_codeGeneratorMock, _codeGeneratorLock, _typeCacheMock);
     }
 
     [Test]
@@ -47,8 +50,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var configID = "config";
       var fakeResult = "assembly path";
-      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
-      _codeGeneratorMock.Expect (mock => mock.FlushCodeToDisk (configID)).Return (fakeResult);
+      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID).WhenCalled (_ => CheckLock (false));
+      _codeGeneratorMock.Expect (mock => mock.FlushCodeToDisk (configID)).Return (fakeResult).WhenCalled (_ => CheckLock (true));
 
       var result = _manager.FlushCodeToDisk();
 
@@ -62,11 +65,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var type = ReflectionObjectMother.GetSomeType();
       var assemblyMock = CreateAssemblyMock ("config", type);
-      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return ("config");
-      _typeCacheMock.Expect (mock => mock.LoadTypes (new[] { type }));
+      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return ("config").WhenCalled (_ => CheckLock (false));
+      _typeCacheMock.Expect (mock => mock.LoadTypes (new[] { type })).WhenCalled (_ => CheckLock (false));
 
       _manager.LoadFlushedCode (assemblyMock);
 
+      assemblyMock.VerifyAllExpectations();
       _typeCacheMock.VerifyAllExpectations();
     }
 
@@ -90,20 +94,28 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    public void DelegatingMembers ()
+    public void DelegatingMembers_GuardedByLock ()
     {
-      _codeGeneratorMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir");
+      _codeGeneratorMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLock (true));
       Assert.That (_manager.AssemblyDirectory, Is.EqualTo ("get dir"));
-      _codeGeneratorMock.Expect (mock => mock.AssemblyName).Return ("get name");
+      _codeGeneratorMock.Expect (mock => mock.AssemblyName).Return ("get name").WhenCalled (_ => CheckLock (true));
       Assert.That (_manager.AssemblyName, Is.EqualTo ("get name"));
 
-      _codeGeneratorMock.Expect (mock => mock.SetAssemblyDirectory ("set dir"));
+      _codeGeneratorMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (_ => CheckLock (true));
       _manager.SetAssemblyDirectory ("set dir");
-      _codeGeneratorMock.Expect (mock => mock.SetAssemblyName ("set name"));
+      _codeGeneratorMock.Expect (mock => mock.SetAssemblyName ("set name")).WhenCalled (_ => CheckLock (true));
       _manager.SetAssemblyName ("set name");
 
       _codeGeneratorMock.VerifyAllExpectations();
       _typeCacheMock.VerifyAllExpectations();
+    }
+
+    private void CheckLock (bool lockIsHeld)
+    {
+      if (lockIsHeld)
+        LockTestHelper.CheckLockIsHeld (_codeGeneratorLock);
+      else
+        LockTestHelper.CheckLockIsNotHeld (_codeGeneratorLock);
     }
 
     private _Assembly CreateAssemblyMock (string participantConfigurationID, params Type[] types)

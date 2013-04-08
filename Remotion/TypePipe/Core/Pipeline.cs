@@ -81,8 +81,7 @@ namespace Remotion.TypePipe
           new ProxySerializationEnabler (new SerializableFieldFinder()));
       var typeAssemblyContextCodeGenerator = new TypeAssemblyContextCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
       var typeCache = new TypeCache (typeAssembler, codeGenerationLock, typeAssemblyContextCodeGenerator, new ConstructorFinder(), new DelegateFactory());
-      var lockingCodeGenerator = new LockingCodeGeneratorDecorator (reflectionEmitCodeGenerator, codeGenerationLock);
-      var codeManager = new CodeManager (lockingCodeGenerator, typeCache);
+      var codeManager = new CodeManager (reflectionEmitCodeGenerator, codeGenerationLock, typeCache);
 
       return new ObjectFactory (typeCache, codeManager);
     }
