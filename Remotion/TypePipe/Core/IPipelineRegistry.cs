@@ -18,18 +18,21 @@
 using System;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.Serialization.Implementation;
 
-namespace Remotion.TypePipe.Serialization
+namespace Remotion.TypePipe
 {
-  // TODO Review: IPipelineRegistry, pull up to parent namespace; adapt docs to indicate the user can use this via ServiceLocator/an IoC container
-  // to register and resolve global IPipeline instances used throughout an application.
   /// <summary>
-  /// Allows the registration of an <see cref="IPipeline"/> under a given participant configuration identifier.
-  /// The object factory is used during the .NET deserialization process of objects which were created from another factory with the same identifier.
-  /// Therefore the two object factory instances should use the same participants and participant configurations, in order to generate equivalent
-  /// types for the requested type. This allows the serialization of object instances without saving the generated assemblies to disk.
+  /// Allows the registration of an <see cref="IPipeline"/> under a given participant configuration identifier and retrieving that
+  /// <see cref="IPipeline"/> instance later via the same identifier.
+  /// An instance of this interface should be retrievable via the service locator or an IoC container. This allows users to register and
+  /// resolve global <see cref="IPipeline"/> instances used throughout an application.
   /// </summary>
+  /// <remarks>
+  /// This interface also enables serialization of object instances without the need to save the generated types to disk.
+  /// To accomplish this register compatible pipelines under the same participant configuration identifier in the deserializing as well as the
+  /// serializing app domain. <i>Compatible pipelines</i> refers to pipelines with equivalent participant configurations, i.e., pipelines that
+  /// generate  equivalent types for a requested type.
+  /// </remarks>
   [ConcreteImplementation (typeof (PipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IPipelineRegistry
   {

@@ -17,7 +17,6 @@
 
 using System;
 using Remotion.Collections;
-using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
