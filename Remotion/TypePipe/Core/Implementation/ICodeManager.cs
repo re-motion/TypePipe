@@ -33,13 +33,11 @@ namespace Remotion.TypePipe.Implementation
     string AssemblyDirectory { get; }
 
     /// <summary>
-    /// Gets the assembly name, that is, the assembly file name without the extension (<c>.dll</c>) that will be used for flushing the next assembly.
-    /// Note that <see cref="FlushCodeToDisk"/> assigns a new value to this property to ensure unqiue assembly names.
+    /// Gets the current assembly name pattern, that is, a pattern used to determine the assembly name the next time <see cref="FlushCodeToDisk"/> is
+    /// invoked. To ensure unique assembly file names use the placeholder <c>{counter}</c>, which will be replaced with a unique number.
+    /// If the name pattern does not contain the placeholder, calls to <see cref="FlushCodeToDisk"/> will overwrite previously saved assemblies.
     /// </summary>
-    /// <value>The assembly name (file name without <c>.dll</c> extension).</value>
-    //
-    // TODO review: Update docs!!
-    // 
+    /// <value>The assembly name pattern; the default is <c>TypePipe_GeneratedAssembly_{counter}</c>.</value>
     string AssemblyNamePattern { get; }
 
     /// <summary>
@@ -53,31 +51,28 @@ namespace Remotion.TypePipe.Implementation
     void SetAssemblyDirectory (string assemblyDirectory);
 
     /// <summary>
-    /// Sets the name for the next assembly.
-    /// When using this API, the user is responsible for providing unique assembly names.
+    /// Sets the assembly name pattern, that is, a pattern used to determine the assembly name the next time <see cref="FlushCodeToDisk"/> is
+    /// invoked. To ensure unique assembly file names use the placeholder <c>{counter}</c>, which will be replaced with a unique number.
+    /// If the name pattern does not contain the placeholder, calls to <see cref="FlushCodeToDisk"/> will overwrite previously saved assemblies.
     /// </summary>
-    /// <remarks>
-    /// Note that the provided value is overwritten after every call to <see cref="FlushCodeToDisk"/> to ensure uniqueness.
-    /// </remarks>
-    /// <param name="assemblyNamePattern">The assembly name (file name without <c>.dll</c> extension).</param>
+    /// <remarks>Note that the assembly name pattern should not include a file extension (<c>.dll</c>).</remarks>
+    /// <param name="assemblyNamePattern">
+    /// The assembly name pattern (might include <c>{counter}</c> placeholder; should not include the <c>.dll</c> file extension).
+    /// </param>
     /// <exception cref="InvalidOperationException">
-    /// If the pipeline already generated a type (because it was requested) into the new assembly, the assembly name cannot be changed.
+    /// If the pipeline already generated a type (because it was requested) into the new assembly, the assembly name pattern cannot be changed.
     /// </exception>
-    //
-    // TODO review: Update docs!!
-    // 
     void SetAssemblyNamePattern (string assemblyNamePattern);
 
     /// <summary>
     /// Saves all types that have been generated since the last call to this method into a new assembly on disk.
-    /// The file name of the assembly consists of <see cref="AssemblyNamePattern"/> plus the file ending <c>.dll</c>.
+    /// The file name of the assembly is derived from <see cref="AssemblyNamePattern"/> plus the file ending <c>.dll</c>.
     /// The assembly is written to the directory defined by <see cref="AssemblyDirectory"/>.
     /// If <see cref="AssemblyDirectory"/> is <see langword="null"/> the assembly is saved in the current working directory.
     /// </summary>
     /// <remarks>
     /// If no new types have been generated since the last call to <see cref="FlushCodeToDisk"/>, this method does nothing
     /// and returns <see langword="null"/>.
-    /// This method also generates a new unique name for the next assembly.
     /// </remarks>
     /// <returns>The absolute path to the saved assembly file, or <see langword="null"/> if no assembly was saved.</returns>
     string FlushCodeToDisk ();

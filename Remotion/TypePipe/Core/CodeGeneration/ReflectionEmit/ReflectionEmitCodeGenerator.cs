@@ -115,8 +115,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _assemblyDirectory = assemblyDirectoryOrNull;
     }
 
-    // TODO Review: The user should be allowed to include a placeholder ({counter}) in the assembly name, which is then replaced by the s_counter. Document.
-    // TODO Review: Also document that, when the user does not specify a counter, calling Flush will overwrite the first file on second call.
     public void SetAssemblyNamePattern (string assemblyNamePattern)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
@@ -134,7 +132,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return null;
 
       var assemblyBuilder = moduleBuilder.AssemblyBuilder;
-      // TODO Review: Should not reset the name pattern.
       ResetContext();
 
       assemblyBuilder.SetCustomAttribute (assemblyAttribute);

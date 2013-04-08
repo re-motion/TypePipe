@@ -77,11 +77,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (codeManager.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
 
       objectFactory.GetAssembledType (typeof (RequestedType));
-      var assemblyPath = codeManager.FlushCodeToDisk();
+      var path = codeManager.FlushCodeToDisk();
 
-      var comparableAssemblyPath = Regex.Replace (assemblyPath, @"\d+", "007");
-      var expectedAssemblyName = Path.Combine (Environment.CurrentDirectory, @"TypePipe_GeneratedAssembly_007.dll");
-      Assert.That (comparableAssemblyPath, Is.EqualTo (expectedAssemblyName));
+      var comparablePath = Regex.Replace (path, @"\d+", "007");
+      var expectedPath = Path.Combine (Environment.CurrentDirectory, @"TypePipe_GeneratedAssembly_007.dll");
+      Assert.That (comparablePath, Is.EqualTo (expectedPath));
     }
 
     [Test]
