@@ -198,7 +198,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
               new KeyValuePair<object[], Type> (cachedTypeKey, alreadyCachedAssembledType),
               new KeyValuePair<object[], Type> (loadedTypeKey, loadedAssembledType)
           };
-      var assembledTypes = new HashSet<Type> (new[] { alreadyCachedAssembledType, loadedAssembledType });
       var additionalTypes = new[] { additionalType };
 
       _typeAssemblerMock
@@ -211,9 +210,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
                 Assert.That (context.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
                 Assert.That (context.State, Is.SameAs (_participantState));
               })
-          .WhenCalled (_ => CheckLockIsHeld ());
+          .WhenCalled (_ => CheckLockIsHeld());
 
-      _generator.RebuildParticipantState (types, keysToAssembledTypes, assembledTypes, additionalTypes, _typeAssemblerMock, _participantState);
+      _generator.RebuildParticipantState (types, keysToAssembledTypes, additionalTypes, _typeAssemblerMock, _participantState);
 
       _typeAssemblerMock.VerifyAllExpectations();
     }

@@ -82,12 +82,11 @@ namespace Remotion.TypePipe.Caching
       return GetOrCreateConstructorCall (key, requestedType, delegateType, allowNonPublic);
     }
 
-    // TODO Review: Make array and refactor sorting.
     public void LoadTypes (IEnumerable<Type> generatedTypes)
     {
       ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
 
-      var assembledTypes = new HashSet<Type>();
+      var assembledTypes = new List<Type>();
       var additionalTypes = new List<Type>();
 
       foreach (var type in generatedTypes)
@@ -97,9 +96,9 @@ namespace Remotion.TypePipe.Caching
         else
           additionalTypes.Add (type);
       }
+      var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (GetTypeKey (t.BaseType, s_fromGeneratedType, t), t));
 
-      var keysAndTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (GetTypeKey (t.BaseType, s_fromGeneratedType, t), t)).ToArray();
-      _typeCacheCodeGenerator.RebuildParticipantState (_types, keysAndTypes, assembledTypes, additionalTypes, _typeAssembler, _participantState);
+      _typeCacheCodeGenerator.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _typeAssembler, _participantState);
     }
 
     private Type GetOrCreateType (object[] key, Type requestedType)

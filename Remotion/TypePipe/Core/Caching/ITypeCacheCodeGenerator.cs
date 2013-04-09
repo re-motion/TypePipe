@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.Caching
   /// Instances of this interface represent the code generator of the pipeline.
   /// This interface is an implementation detail of <see cref="TypeCache"/> to enable synchronization of code generation functionalities in one place.
   /// </summary>
+  // TODO Review: ITypeCacheSynchronizationPoint
   public interface ITypeCacheCodeGenerator
   {
     Type GetOrGenerateType (
@@ -50,7 +51,6 @@ namespace Remotion.TypePipe.Caching
     void RebuildParticipantState (
         ConcurrentDictionary<object[], Type> types,
         IEnumerable<KeyValuePair<object[], Type>> keysToAssembledTypes,
-        HashSet<Type> assembledTypes,
         IEnumerable<Type> additionalTypes,
         ITypeAssembler typeAssembler,
         IDictionary<string, object> participantState);

@@ -24,6 +24,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.Caching
 {
@@ -163,16 +164,23 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_generatedType)).Return (true);
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType, 1)).Return (new object[] { null, "key" });
-      _typeCacheCodeGenerator.Expect (
-          mock =>
-          mock.RebuildParticipantState (
-              Arg.Is (_types),
-              Arg<IEnumerable<KeyValuePair<object[], Type>>>.Is.Anything,
-              Arg<HashSet<Type>>.List.Equal (new[] { _generatedType }),
-              Arg.Is (new[] { additionalGeneratedType }),
-              Arg.Is (_typeAssemblerMock),
-              Arg.Is (_participantState)));
-      
+      _typeCacheCodeGenerator
+          .Expect (
+              mock => mock.RebuildParticipantState (
+                  Arg.Is (_types),
+                  Arg<IEnumerable<KeyValuePair<object[], Type>>>.Is.Anything,
+                  Arg<IEnumerable<Type>>.List.Equal (new[] { additionalGeneratedType }),
+                  Arg.Is (_typeAssemblerMock),
+                  Arg.Is (_participantState)))
+          .WhenCalled (
+              mi =>
+              {
+                var keysToAssembledTypes = (IEnumerable<KeyValuePair<object[], Type>>) mi.Arguments[1];
+                var pair = keysToAssembledTypes.Single();
+                Assert.That (pair.Key, Is.EqualTo (new object[] { _generatedType.BaseType, "key" }));
+                Assert.That (pair.Value, Is.SameAs (_generatedType));
+              });
+
       _cache.LoadTypes (new[] { _generatedType, additionalGeneratedType });
 
       _typeAssemblerMock.VerifyAllExpectations();
