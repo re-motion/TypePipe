@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -138,6 +139,36 @@ namespace Remotion.TypePipe.CodeGeneration
       }
 
       return constructorCall;
+    }
+
+    public void RebuildParticipantState (
+        ConcurrentDictionary<object[], Type> types,
+        IEnumerable<KeyValuePair<object[], Type>> keysToAssembledTypes,
+        HashSet<Type> assembledTypes,
+        IEnumerable<Type> additionalTypes,
+        ITypeAssembler typeAssembler,
+        IDictionary<string, object> participantState)
+    {
+      ArgumentUtility.CheckNotNull ("types", types);
+      ArgumentUtility.CheckNotNull ("keysToAssembledTypes", keysToAssembledTypes);
+      ArgumentUtility.CheckNotNull ("assembledTypes", assembledTypes);
+      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
+      ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+
+      lock (_codeGenerationLock)
+      {
+        foreach (var p in keysToAssembledTypes)
+        {
+          if (types.ContainsKey (p.Key))
+            assembledTypes.Remove (p.Value);
+          else
+            types.Add (p.Key, p.Value);
+        }
+
+        var loadedTypesContext = new LoadedTypesContext (assembledTypes, additionalTypes, participantState);
+        typeAssembler.RebuildParticipantState (loadedTypesContext);
+      }
     }
   }
 }

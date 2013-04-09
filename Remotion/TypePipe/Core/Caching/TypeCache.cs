@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -83,12 +82,13 @@ namespace Remotion.TypePipe.Caching
       return GetOrCreateConstructorCall (key, requestedType, delegateType, allowNonPublic);
     }
 
+    // TODO Review: Make array and refactor sorting.
     public void LoadTypes (IEnumerable<Type> generatedTypes)
     {
       ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
 
       var assembledTypes = new HashSet<Type>();
-      var additionalTypes = new HashSet<Type>();
+      var additionalTypes = new List<Type>();
 
       foreach (var type in generatedTypes)
       {
@@ -98,22 +98,8 @@ namespace Remotion.TypePipe.Caching
           additionalTypes.Add (type);
       }
 
-      var keysAndTypes = assembledTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
-
-      // TODO review: This msut also be protected by code generation lock, move it there.
-      //lock (_codeGenerationLock)
-      //{
-        foreach (var p in keysAndTypes)
-        {
-          if (_types.ContainsKey (p.Key))
-            assembledTypes.Remove (p.Type);
-          else
-            _types.Add (p.Key, p.Type);
-        }
-
-        var loadedTypesContext = new LoadedTypesContext (assembledTypes, additionalTypes, _participantState);
-        _typeAssembler.RebuildParticipantState (loadedTypesContext);
-      //}
+      var keysAndTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (GetTypeKey (t.BaseType, s_fromGeneratedType, t), t)).ToArray();
+      _typeCacheCodeGenerator.RebuildParticipantState (_types, keysAndTypes, assembledTypes, additionalTypes, _typeAssembler, _participantState);
     }
 
     private Type GetOrCreateType (object[] key, Type requestedType)

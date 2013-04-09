@@ -26,6 +26,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
@@ -42,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
     private object _codeGeneratorLock;
     private ITypeAssembler _typeAssemblerMock;
+    private IDictionary<string, object> _participantState;
     private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGeneratorMock;
 
     [SetUp]
@@ -56,20 +58,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       _codeGeneratorLock = PrivateInvoke.GetNonPublicField (_generator, "_codeGenerationLock");
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
+      _participantState = new Dictionary<string, object>();
       _mutableTypeBatchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
     }
 
     [Test]
     public void DelegatingMembers_GuardedByLock ()
     {
-      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLockIsHeld ());
       Assert.That (_generator.AssemblyDirectory, Is.EqualTo ("get dir"));
-      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyNamePattern).Return ("get name pattern").WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyNamePattern).Return ("get name pattern").WhenCalled (_ => CheckLockIsHeld ());
       Assert.That (_generator.AssemblyNamePattern, Is.EqualTo ("get name pattern"));
 
-      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (_ => CheckLockIsHeld ());
       _generator.SetAssemblyDirectory ("set dir");
-      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyNamePattern ("set name pattern")).WhenCalled (_ => CheckLock (true));
+      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyNamePattern ("set name pattern")).WhenCalled (_ => CheckLockIsHeld ());
       _generator.SetAssemblyNamePattern ("set name pattern");
 
       _generatedCodeFlusherMock.VerifyAllExpectations();
@@ -80,12 +83,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GetOrGenerateType_CacheHit ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      var key = new object[0];
+      var typeKey = new object[] { "key" };
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var types = new ConcurrentDictionary<object[], Type> { { key, assembledType } };
-      var participantState = new Dictionary<string, object>();
+      var types = new ConcurrentDictionary<object[], Type> { { typeKey, assembledType } };
 
-      var result = _generator.GetOrGenerateType (types, key, _typeAssemblerMock, requestedType, participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _generator.GetOrGenerateType (types, typeKey, _typeAssemblerMock, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       Assert.That (result, Is.SameAs (assembledType));
     }
@@ -94,17 +96,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GetOrGenerateType_CacheMiss ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeKey = new object[0];
+      var typeKey = new object[] { "key" };
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
       var types = new ConcurrentDictionary<object[], Type>();
-      var participantState = new Dictionary<string, object>();
 
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (requestedType, participantState, _mutableTypeBatchCodeGeneratorMock))
+          .Expect (mock => mock.AssembleType (requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock))
           .Return (assembledType)
-          .WhenCalled (_ => CheckLock (true));
+          .WhenCalled (_ => CheckLockIsHeld ());
 
-      var result = _generator.GetOrGenerateType (types, typeKey, _typeAssemblerMock, requestedType, participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _generator.GetOrGenerateType (types, typeKey, _typeAssemblerMock, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (assembledType));
@@ -117,12 +118,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var requestedType = ReflectionObjectMother.GetSomeType();
       var delegateType = ReflectionObjectMother.GetSomeDelegateType();
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var constructorKey = new object[0];
-      var typeKey = new object[0];
+      var constructorKey = new object[] { "ctor key" };
+      var typeKey = new object[] { "key" };
       var assembledConstructorCall = (Action) (() => { });
       var constructorCalls = new ConcurrentDictionary<object[], Delegate> { {constructorKey, assembledConstructorCall} };
       var types = new ConcurrentDictionary<object[], Type>();
-      var participantState = new Dictionary<string, object>();
 
       var result = _generator.GetOrGenerateConstructorCall (
           constructorCalls,
@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           requestedType,
           delegateType,
           allowNonPublic,
-          participantState,
+          _participantState,
           _mutableTypeBatchCodeGeneratorMock);
 
       Assert.That (result, Is.SameAs (assembledConstructorCall));
@@ -145,25 +145,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var requestedType = ReflectionObjectMother.GetSomeType();
       var delegateType = ReflectionObjectMother.GetSomeDelegateType();
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var constructorKey = new object[0];
-      var typeKey = new object[0];
+      var constructorKey = new object[] { "ctor key" };
+      var typeKey = new object[] { "key" };
       var assembledConstructorCall = (Action) (() => { });
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
       var constructorCalls = new ConcurrentDictionary<object[], Delegate>();
       var types = new ConcurrentDictionary<object[], Type> { { typeKey, assembledType } };
-      var participantState = new Dictionary<string, object>();
       var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
       var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
 
-      _delegateFactoryMock.Expect (mock => mock.GetSignature (delegateType)).Return (fakeSignature).WhenCalled (_ => CheckLock (true));
+      _delegateFactoryMock.Expect (mock => mock.GetSignature (delegateType)).Return (fakeSignature).WhenCalled (_ => CheckLockIsHeld ());
       _constructorFinderMock
           .Expect (mock => mock.GetConstructor (assembledType, fakeSignature.Item1, allowNonPublic, requestedType, fakeSignature.Item1))
           .Return (fakeConstructor)
-          .WhenCalled (_ => CheckLock (true));
+          .WhenCalled (_ => CheckLockIsHeld ());
       _delegateFactoryMock
           .Expect (mock => mock.CreateConstructorCall (fakeConstructor, delegateType))
           .Return (assembledConstructorCall)
-          .WhenCalled (_ => CheckLock (true));
+          .WhenCalled (_ => CheckLockIsHeld ());
 
       var result = _generator.GetOrGenerateConstructorCall (
           constructorCalls,
@@ -174,7 +173,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           requestedType,
           delegateType,
           allowNonPublic,
-          participantState,
+          _participantState,
           _mutableTypeBatchCodeGeneratorMock);
 
       _delegateFactoryMock.VerifyAllExpectations();
@@ -184,12 +183,44 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       Assert.That (constructorCalls[constructorKey], Is.SameAs (assembledConstructorCall));
     }
 
-    private void CheckLock (bool codeGenerationLockIsHeld)
+    [Test]
+    public void RebuildParticipantState ()
     {
-      if (codeGenerationLockIsHeld)
-        LockTestHelper.CheckLockIsHeld (_codeGeneratorLock);
-      else
-        LockTestHelper.CheckLockIsNotHeld (_codeGeneratorLock);
+      var alreadyCachedAssembledType = ReflectionObjectMother.GetSomeType();
+      var loadedAssembledType = ReflectionObjectMother.GetSomeOtherType();
+      var additionalType = ReflectionObjectMother.GetSomeOtherType();
+      var cachedTypeKey = new object[] { "cached type key" };
+      var loadedTypeKey = new object[] { "loaded type key" };
+      var types = new ConcurrentDictionary<object[], Type> { { cachedTypeKey, alreadyCachedAssembledType } };
+      var keysToAssembledTypes =
+          new[]
+          {
+              new KeyValuePair<object[], Type> (cachedTypeKey, alreadyCachedAssembledType),
+              new KeyValuePair<object[], Type> (loadedTypeKey, loadedAssembledType)
+          };
+      var assembledTypes = new HashSet<Type> (new[] { alreadyCachedAssembledType, loadedAssembledType });
+      var additionalTypes = new[] { additionalType };
+
+      _typeAssemblerMock
+          .Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Is.Anything))
+          .WhenCalled (
+              mi =>
+              {
+                var context = (LoadedTypesContext) mi.Arguments[0];
+                Assert.That (context.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy (loadedAssembledType) }));
+                Assert.That (context.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
+                Assert.That (context.State, Is.SameAs (_participantState));
+              })
+          .WhenCalled (_ => CheckLockIsHeld ());
+
+      _generator.RebuildParticipantState (types, keysToAssembledTypes, assembledTypes, additionalTypes, _typeAssemblerMock, _participantState);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+    }
+
+    private void CheckLockIsHeld ()
+    {
+      LockTestHelper.CheckLockIsHeld (_codeGeneratorLock);
     }
   }
 }

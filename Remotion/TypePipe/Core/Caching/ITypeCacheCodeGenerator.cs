@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Instances of this interface represent the code generator of the pipeline.
-  /// This interface is an implementation detail of <see cref="TypeCache"/> to enable managing a single code generation lock in one place.
+  /// This interface is an implementation detail of <see cref="TypeCache"/> to enable synchronization of code generation functionalities in one place.
   /// </summary>
   public interface ITypeCacheCodeGenerator
   {
@@ -46,5 +46,13 @@ namespace Remotion.TypePipe.Caching
         bool allowNonPublic,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
+
+    void RebuildParticipantState (
+        ConcurrentDictionary<object[], Type> types,
+        IEnumerable<KeyValuePair<object[], Type>> keysToAssembledTypes,
+        HashSet<Type> assembledTypes,
+        IEnumerable<Type> additionalTypes,
+        ITypeAssembler typeAssembler,
+        IDictionary<string, object> participantState);
   }
 }

@@ -23,7 +23,6 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Caching
@@ -160,47 +159,24 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void LoadTypes ()
     {
-      var additionalGeneratedType = ReflectionObjectMother.GetSomeType();
+      var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_generatedType)).Return (true);
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
-      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType, 1)).Return (new object[] { null, "proxy key" });
-      _typeAssemblerMock
-          .Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var ctx = mi.Arguments[0].As<LoadedTypesContext>();
-                Assert.That (ctx.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy(_generatedType) }));
-                Assert.That (ctx.AdditionalTypes, Is.EqualTo (new[] { additionalGeneratedType }));
-                Assert.That (ctx.State, Is.SameAs (_participantState));
-              });
-
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType, 1)).Return (new object[] { null, "key" });
+      _typeCacheCodeGenerator.Expect (
+          mock =>
+          mock.RebuildParticipantState (
+              Arg.Is (_types),
+              Arg<IEnumerable<KeyValuePair<object[], Type>>>.Is.Anything,
+              Arg<HashSet<Type>>.List.Equal (new[] { _generatedType }),
+              Arg.Is (new[] { additionalGeneratedType }),
+              Arg.Is (_typeAssemblerMock),
+              Arg.Is (_participantState)));
+      
       _cache.LoadTypes (new[] { _generatedType, additionalGeneratedType });
 
       _typeAssemblerMock.VerifyAllExpectations();
-      Assert.That (_types[new object[] { _generatedType.BaseType, "proxy key" }], Is.SameAs (_generatedType));
-    }
-
-    [Test]
-    public void LoadTypes_SameKey_Nop ()
-    {
-      _typeAssemblerMock.Stub (mock => mock.IsAssembledType (Arg<Type>.Is.Anything)).Return (true);
-      _typeAssemblerMock
-          .Stub (stub => stub.GetCompoundCacheKey (Arg.Is (_fromGeneratedTypeFunc), Arg<Type>.Is.Anything, Arg.Is (1)))
-          .Return (new object[] { null, "type key" });
-      _typeAssemblerMock.Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Matches (ctx => ctx.ProxyTypes.Count == 1)));
-      _typeAssemblerMock.Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Matches (ctx => ctx.ProxyTypes.Count == 0)));
-
-      var alreadyCachedProxyType = typeof (string);
-      Assert.That (_generatedType.BaseType, Is.SameAs (alreadyCachedProxyType.BaseType));
-      _cache.LoadTypes (new[] { _generatedType });
-
-      // Does not throw exception or overwrite previously cached type.
-      _cache.LoadTypes (new[] { alreadyCachedProxyType });
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      Assert.That (_types[new object[] { _generatedType.BaseType, "type key" }], Is.SameAs (_generatedType));
-      Assert.That (_types.Count, Is.EqualTo (1));
+      _typeCacheCodeGenerator.VerifyAllExpectations();
     }
 
     private class RequestedType {}
