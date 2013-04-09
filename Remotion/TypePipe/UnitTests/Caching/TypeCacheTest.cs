@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 1))
           .Return (key);
       _typeCacheSynchronizationPoint
-          .Expect (mock =>mock.GetOrGenerateType (_types, expectedKey, _typeAssemblerMock, _requestedType, _participantState, _batchCodeGeneratorMock))
+          .Expect (mock => mock.GetOrGenerateType (_types, expectedKey, _requestedType, _participantState, _batchCodeGeneratorMock))
           .Return (_generatedType);
 
       var result = _cache.GetOrCreateType (_requestedType);
@@ -142,7 +142,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
                   expectedConstructorKey,
                   _types,
                   expectedTypeKey,
-                  _typeAssemblerMock,
                   _requestedType,
                   _delegateType,
                   _allowNonPublic,
@@ -170,7 +169,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
                   Arg.Is (_types),
                   Arg<IEnumerable<KeyValuePair<object[], Type>>>.Is.Anything,
                   Arg<IEnumerable<Type>>.List.Equal (new[] { additionalGeneratedType }),
-                  Arg.Is (_typeAssemblerMock),
                   Arg.Is (_participantState)))
           .WhenCalled (
               mi =>

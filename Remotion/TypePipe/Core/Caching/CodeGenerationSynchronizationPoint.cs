@@ -34,17 +34,23 @@ namespace Remotion.TypePipe.Caching
     private readonly object _codeGenerationLock = new object();
 
     private readonly IGeneratedCodeFlusher _generatedCodeFlusher;
+    private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
 
     public CodeGenerationSynchronizationPoint (
-        IGeneratedCodeFlusher generatedCodeFlusher, IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
+        IGeneratedCodeFlusher generatedCodeFlusher,
+        ITypeAssembler typeAssembler,
+        IConstructorFinder constructorFinder,
+        IDelegateFactory delegateFactory)
     {
       ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
       ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
 
       _generatedCodeFlusher = generatedCodeFlusher;
+      _typeAssembler = typeAssembler;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
     }
@@ -80,14 +86,12 @@ namespace Remotion.TypePipe.Caching
     public Type GetOrGenerateType (
         ConcurrentDictionary<object[], Type> types,
         object[] typeKey,
-        ITypeAssembler typeAssembler,
         Type requestedType,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("types", types);
       ArgumentUtility.CheckNotNull ("typeKey", typeKey);
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
@@ -98,7 +102,7 @@ namespace Remotion.TypePipe.Caching
         if (types.TryGetValue (typeKey, out generatedType))
           return generatedType;
 
-        generatedType = typeAssembler.AssembleType (requestedType, participantState, mutableTypeBatchCodeGenerator);
+        generatedType = _typeAssembler.AssembleType (requestedType, participantState, mutableTypeBatchCodeGenerator);
         types.Add (typeKey, generatedType);
       }
 
@@ -110,7 +114,6 @@ namespace Remotion.TypePipe.Caching
         object[] constructorKey,
         ConcurrentDictionary<object[], Type> types,
         object[] typeKey,
-        ITypeAssembler typeAssembler,
         Type requestedType,
         Type delegateType,
         bool allowNonPublic,
@@ -120,7 +123,6 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
       ArgumentUtility.CheckNotNull ("constructorKey", constructorKey);
       ArgumentUtility.CheckNotNull ("typeKey", typeKey);
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
@@ -131,7 +133,7 @@ namespace Remotion.TypePipe.Caching
         if (constructorCalls.TryGetValue (constructorKey, out constructorCall))
           return constructorCall;
 
-        var generatedType = GetOrGenerateType (types, typeKey, typeAssembler, requestedType, participantState, mutableTypeBatchCodeGenerator);
+        var generatedType = GetOrGenerateType (types, typeKey, requestedType, participantState, mutableTypeBatchCodeGenerator);
         var ctorSignature = _delegateFactory.GetSignature (delegateType);
         var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
 
@@ -146,14 +148,12 @@ namespace Remotion.TypePipe.Caching
         ConcurrentDictionary<object[], Type> types,
         IEnumerable<KeyValuePair<object[], Type>> keysToAssembledTypes,
         IEnumerable<Type> additionalTypes,
-        ITypeAssembler typeAssembler,
         IDictionary<string, object> participantState)
     {
       ArgumentUtility.CheckNotNull ("types", types);
       ArgumentUtility.CheckNotNull ("keysToAssembledTypes", keysToAssembledTypes);
       ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
 
       var loadedAssembledTypes = new List<Type>();
 
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.Caching
         }
 
         var loadedTypesContext = new LoadedTypesContext (loadedAssembledTypes, additionalTypes, participantState);
-        typeAssembler.RebuildParticipantState (loadedTypesContext);
+        _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
     }
   }

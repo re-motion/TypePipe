@@ -29,7 +29,6 @@ namespace Remotion.TypePipe.Caching
     Type GetOrGenerateType (
         ConcurrentDictionary<object[], Type> types,
         object[] typeKey,
-        ITypeAssembler typeAssembler,
         Type requestedType,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
@@ -39,7 +38,6 @@ namespace Remotion.TypePipe.Caching
         object[] constructorKey,
         ConcurrentDictionary<object[], Type> types,
         object[] typeKey,
-        ITypeAssembler typeAssembler,
         Type requestedType,
         Type delegateType,
         bool allowNonPublic,
@@ -50,7 +48,6 @@ namespace Remotion.TypePipe.Caching
         ConcurrentDictionary<object[], Type> types,
         IEnumerable<KeyValuePair<object[], Type>> keysToAssembledTypes,
         IEnumerable<Type> additionalTypes,
-        ITypeAssembler typeAssembler,
         IDictionary<string, object> participantState);
   }
 }

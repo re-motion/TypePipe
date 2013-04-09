@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.Caching
       }
       var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (GetTypeKey (t.BaseType, s_fromGeneratedType, t), t));
 
-      _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _typeAssembler, _participantState);
+      _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
     }
 
     private Type GetOrCreateType (object[] key, Type requestedType)
@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.Caching
       if (_types.TryGetValue (key, out generatedType))
         return generatedType;
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, key, _typeAssembler, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
+      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, key, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     private Delegate GetOrCreateConstructorCall (object[] key, Type requestedType, Type delegateType, bool allowNonPublic)
@@ -122,7 +122,6 @@ namespace Remotion.TypePipe.Caching
           key,
           _types,
           typeKey,
-          _typeAssembler,
           requestedType,
           delegateType,
           allowNonPublic,
