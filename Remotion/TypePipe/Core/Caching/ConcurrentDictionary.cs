@@ -22,11 +22,17 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Caching
 {
   // TODO 5057: When updating to 4.0, replace usages with ConcurrentDictionary from .NET framework.
-  public class ConcurrentDictionary<TKey, TValue>
+  public class ConcurrentDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
   {
     private readonly object _lock = new object();
 
     private readonly Dictionary<TKey, TValue> _dictionary;
+
+    // For testing only.
+    public ConcurrentDictionary ()
+        : this (EqualityComparer<TKey>.Default)
+    {
+    }
 
     public ConcurrentDictionary (IEqualityComparer<TKey> comparer)
     {
@@ -79,6 +85,16 @@ namespace Remotion.TypePipe.Caching
       {
         return _dictionary.TryGetValue (key, out value);
       }
+    }
+
+    IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator ()
+    {
+      throw new NotImplementedException ();
+    }
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator ()
+    {
+      throw new NotImplementedException ();
     }
   }
 }

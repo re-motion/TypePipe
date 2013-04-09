@@ -63,6 +63,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
+    <Compile Include="Implementation\ICodeGenerator.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
     <Compile Include="Implementation\LoadedProxy.cs" />
     <Compile Include="Implementation\LoadedTypesContext.cs" />

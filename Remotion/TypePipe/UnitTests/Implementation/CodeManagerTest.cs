@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
@@ -36,6 +37,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
     private CodeManager _manager;
 
+    private ITypeAssembler _typeAssemblerMock;
+    private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGeneratorMock;
+
     [SetUp]
     public void SetUp ()
     {
@@ -44,6 +48,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
 
       _manager = new CodeManager (_generatedCodeFlusherMock, _codeGeneratorLock, _typeCacheMock);
+
+      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
+      _mutableTypeBatchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
     }
 
     [Test]
@@ -120,6 +127,40 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
       _generatedCodeFlusherMock.VerifyAllExpectations();
       _typeCacheMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void GetOrGenerateType_CacheHit ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var key = new object[0];
+      var assembledType = ReflectionObjectMother.GetSomeOtherType();
+      var types = new ConcurrentDictionary<object[], Type> { { key, assembledType } };
+      var participantState = new Dictionary<string, object>();
+
+      var result = _manager.GetOrGenerateType (types, key, _typeAssemblerMock, requestedType, participantState, _mutableTypeBatchCodeGeneratorMock);
+
+      Assert.That (result, Is.SameAs (assembledType));
+    }
+
+    [Test]
+    public void GetOrGenerateType_CacheMiss ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var key = new object[0];
+      var assembledType = ReflectionObjectMother.GetSomeOtherType();
+      var types = new ConcurrentDictionary<object[], Type>();
+      var participantState = new Dictionary<string, object>();
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleType (requestedType, participantState, _mutableTypeBatchCodeGeneratorMock))
+          .Return (assembledType)
+          .WhenCalled (_ => CheckLock (true));
+
+      var result = _manager.GetOrGenerateType (types, key, _typeAssemblerMock, requestedType, participantState, _mutableTypeBatchCodeGeneratorMock);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (assembledType));
+      Assert.That (types[key], Is.SameAs (assembledType));
     }
 
     private void CheckLock (bool lockIsHeld)
