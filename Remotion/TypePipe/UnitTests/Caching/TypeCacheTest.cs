@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
   public class TypeCacheTest
   {
     private ITypeAssembler _typeAssemblerMock;
-    private ITypeCacheCodeGenerator _typeCacheCodeGenerator;
+    private ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
     private IMutableTypeBatchCodeGenerator _batchCodeGeneratorMock;
 
     private TypeCache _cache;
@@ -54,10 +54,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void SetUp ()
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
-      _typeCacheCodeGenerator = MockRepository.GenerateStrictMock<ITypeCacheCodeGenerator>();
+      _typeCacheSynchronizationPoint = MockRepository.GenerateStrictMock<ITypeCacheSynchronizationPoint>();
       _batchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _typeCacheCodeGenerator, _batchCodeGeneratorMock);
+      _cache = new TypeCache (_typeAssemblerMock, _typeCacheSynchronizationPoint, _batchCodeGeneratorMock);
 
       _fromRequestedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
       _fromGeneratedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromGeneratedType");
@@ -103,14 +103,14 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeAssemblerMock
           .Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 1))
           .Return (key);
-      _typeCacheCodeGenerator
+      _typeCacheSynchronizationPoint
           .Expect (mock =>mock.GetOrGenerateType (_types, expectedKey, _typeAssemblerMock, _requestedType, _participantState, _batchCodeGeneratorMock))
           .Return (_generatedType);
 
       var result = _cache.GetOrCreateType (_requestedType);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _typeCacheCodeGenerator.VerifyAllExpectations();
+      _typeCacheSynchronizationPoint.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_generatedType));
     }
 
@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var expectedTypeKey = new object[] { _requestedType, "key" };
 
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 3)).Return (constructorKey);
-      _typeCacheCodeGenerator
+      _typeCacheSynchronizationPoint
           .Expect (
               mock => mock.GetOrGenerateConstructorCall (
                   _constructorCalls,
@@ -153,7 +153,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _typeCacheCodeGenerator.VerifyAllExpectations();
+      _typeCacheSynchronizationPoint.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_generatedCtorCall));
     }
 
@@ -164,7 +164,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_generatedType)).Return (true);
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType, 1)).Return (new object[] { null, "key" });
-      _typeCacheCodeGenerator
+      _typeCacheSynchronizationPoint
           .Expect (
               mock => mock.RebuildParticipantState (
                   Arg.Is (_types),
@@ -184,7 +184,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _cache.LoadTypes (new[] { _generatedType, additionalGeneratedType });
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _typeCacheCodeGenerator.VerifyAllExpectations();
+      _typeCacheSynchronizationPoint.VerifyAllExpectations();
     }
 
     private class RequestedType {}

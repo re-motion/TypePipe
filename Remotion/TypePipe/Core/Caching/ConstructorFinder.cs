@@ -19,7 +19,7 @@ using System;
 using System.Reflection;
 using Remotion.Text;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Caching
 {
   /// <inheritdoc />
   public class ConstructorFinder : IConstructorFinder

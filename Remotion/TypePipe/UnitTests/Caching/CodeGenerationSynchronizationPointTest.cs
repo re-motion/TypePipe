@@ -29,17 +29,17 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration
+namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
-  public class LockingCodeGeneratorTest
+  public class CodeGenerationSynchronizationPointTest
   {
     private IGeneratedCodeFlusher _generatedCodeFlusherMock;
     private ITypeCache _typeCacheMock;
     private IConstructorFinder _constructorFinderMock;
     private IDelegateFactory _delegateFactoryMock;
 
-    private LockingCodeGenerator _generator;
+    private CodeGenerationSynchronizationPoint _generator;
 
     private object _codeGeneratorLock;
     private ITypeAssembler _typeAssemblerMock;
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
       _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
-      _generator = new LockingCodeGenerator (_generatedCodeFlusherMock, _constructorFinderMock, _delegateFactoryMock);
+      _generator = new CodeGenerationSynchronizationPoint (_generatedCodeFlusherMock, _constructorFinderMock, _delegateFactoryMock);
 
       _codeGeneratorLock = PrivateInvoke.GetNonPublicField (_generator, "_codeGenerationLock");
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();

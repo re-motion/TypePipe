@@ -81,7 +81,7 @@ namespace Remotion.TypePipe
       var mutableTypeBatchCodeGenerator = new MutableTypeBatchCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
       var constructorFinder = new ConstructorFinder();
       var delegateFactory = new DelegateFactory();
-      var lockingCodeGenerator = new LockingCodeGenerator (reflectionEmitCodeGenerator, constructorFinder, delegateFactory);
+      var lockingCodeGenerator = new CodeGenerationSynchronizationPoint (reflectionEmitCodeGenerator, constructorFinder, delegateFactory);
       var typeCache = new TypeCache (typeAssembler, lockingCodeGenerator, mutableTypeBatchCodeGenerator);
       var codeManager = new CodeManager (lockingCodeGenerator, typeCache);
 

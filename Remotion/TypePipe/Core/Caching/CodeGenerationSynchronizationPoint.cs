@@ -19,17 +19,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Reflection;
-using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Guards all access to code generation capabilities.
   /// </summary>
-  public class LockingCodeGenerator : IGeneratedCodeFlusher, ITypeCacheCodeGenerator
+  public class CodeGenerationSynchronizationPoint : IGeneratedCodeFlusher, ITypeCacheSynchronizationPoint
   {
     private readonly object _codeGenerationLock = new object();
 
@@ -37,7 +37,8 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
 
-    public LockingCodeGenerator (IGeneratedCodeFlusher generatedCodeFlusher, IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
+    public CodeGenerationSynchronizationPoint (
+        IGeneratedCodeFlusher generatedCodeFlusher, IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
     {
       ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
@@ -104,7 +105,6 @@ namespace Remotion.TypePipe.CodeGeneration
       return generatedType;
     }
 
-    // TODO Review: Design flaw; context parameter?!
     public Delegate GetOrGenerateConstructorCall (
         ConcurrentDictionary<object[], Delegate> constructorCalls,
         object[] constructorKey,

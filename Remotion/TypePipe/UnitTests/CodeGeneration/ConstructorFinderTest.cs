@@ -19,6 +19,7 @@ using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration

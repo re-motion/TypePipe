@@ -22,11 +22,9 @@ using Remotion.TypePipe.CodeGeneration;
 namespace Remotion.TypePipe.Caching
 {
   /// <summary>
-  /// Instances of this interface represent the code generator of the pipeline.
   /// This interface is an implementation detail of <see cref="TypeCache"/> to enable synchronization of code generation functionalities in one place.
   /// </summary>
-  // TODO Review: ITypeCacheSynchronizationPoint
-  public interface ITypeCacheCodeGenerator
+  public interface ITypeCacheSynchronizationPoint
   {
     Type GetOrGenerateType (
         ConcurrentDictionary<object[], Type> types,

@@ -18,7 +18,7 @@
 using System;
 using System.Reflection;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Searches for a constructor and buildes a useful exception message if it cannot be found.
