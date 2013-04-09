@@ -19,9 +19,9 @@ using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 
-namespace Remotion.TypePipe.UnitTests.Caching
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
   public class ConstructorFinderTest
@@ -61,8 +61,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     [Test]
     [ExpectedException (typeof (MissingMethodException), ExpectedMessage =
-        "Type 'Remotion.TypePipe.UnitTests.Caching.ConstructorFinderTest+RequestedType' does not contain a constructor with the following signature: "
-        + "(IDisposable, String).")]
+        "Type 'Remotion.TypePipe.UnitTests.CodeGeneration.ConstructorFinderTest+RequestedType' does not contain a constructor with the following "
+        + "signature: (IDisposable, String).")]
     public void GetConstructor_ThrowsForMissingMember ()
     {
       var generatedType = typeof (GeneratedType);
@@ -73,8 +73,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     [Test]
     [ExpectedException (typeof (MissingMethodException), ExpectedMessage =
-        "Type 'Remotion.TypePipe.UnitTests.Caching.ConstructorFinderTest+RequestedType' contains a constructor with the required signature, but "
-        + "it is not public (and the allowNonPublic flag is not set).")]
+        "Type 'Remotion.TypePipe.UnitTests.CodeGeneration.ConstructorFinderTest+RequestedType' contains a constructor with the required signature, "
+        + "but it is not public (and the allowNonPublic flag is not set).")]
     public void GetConstructor_ThrowsForNonPublic ()
     {
       var generatedType = typeof (GeneratedType);

@@ -17,17 +17,15 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 
-namespace Remotion.TypePipe.Implementation
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
   /// Instances of this interface represent the code generator of the pipeline.
-  /// This interface is an implementation detail of <see cref="TypeCache"/> to enable managing a single code generation lock in one place,
-  /// that is, the <see cref="CodeManager"/>.
+  /// This interface is an implementation detail of <see cref="TypeCache"/> to enable managing a single code generation lock in one place.
   /// </summary>
-  public interface ICodeGenerator
+  public interface ITypeCacheCodeGenerator
   {
     Type GetOrGenerateType (
         ConcurrentDictionary<object[], Type> types,
@@ -37,6 +35,16 @@ namespace Remotion.TypePipe.Implementation
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
 
-    Delegate GetOrGenerateConstructorCall (ConcurrentDictionary<object[], Delegate> constructorCalls, object[] constructorKey, ConcurrentDictionary<object[], Type> types, object[] typeKey, ITypeAssembler typeAssembler, Type requestedType, Type delegateType, bool allowNonPublic, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
+    Delegate GetOrGenerateConstructorCall (
+        ConcurrentDictionary<object[], Delegate> constructorCalls,
+        object[] constructorKey,
+        ConcurrentDictionary<object[], Type> types,
+        object[] typeKey,
+        ITypeAssembler typeAssembler,
+        Type requestedType,
+        Type delegateType,
+        bool allowNonPublic,
+        IDictionary<string, object> participantState,
+        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
   }
 }

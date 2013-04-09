@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
@@ -40,36 +39,24 @@ namespace Remotion.TypePipe.Caching
 
     private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
 
-    /// <summary>Guards access to<see cref="_participantState"/> and serializes execution of code generation and state rebuilding.</summary>
-    private readonly object _codeGenerationLock;
-
     private readonly ConcurrentDictionary<object[], Type> _types = new ConcurrentDictionary<object[], Type> (s_comparer);
     private readonly ConcurrentDictionary<object[], Delegate> _constructorCalls = new ConcurrentDictionary<object[], Delegate> (s_comparer);
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
+    private readonly ITypeCacheCodeGenerator _typeCacheCodeGenerator;
     private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
-    private readonly IConstructorFinder _constructorFinder;
-    private readonly IDelegateFactory _delegateFactory;
 
     public TypeCache (
-        ITypeAssembler typeAssembler,
-        object codeGenerationLock,
-        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator,
-        IConstructorFinder constructorFinder,
-        IDelegateFactory delegateFactory)
+        ITypeAssembler typeAssembler, ITypeCacheCodeGenerator typeCacheCodeGenerator, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("codeGenerationLock", codeGenerationLock);
+      ArgumentUtility.CheckNotNull ("typeCacheCodeGenerator", typeCacheCodeGenerator);
       ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
-      ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
-      ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
 
       _typeAssembler = typeAssembler;
-      _codeGenerationLock = codeGenerationLock;
+      _typeCacheCodeGenerator = typeCacheCodeGenerator;
       _mutableTypeBatchCodeGenerator = mutableTypeBatchCodeGenerator;
-      _constructorFinder = constructorFinder;
-      _delegateFactory = delegateFactory;
     }
 
     public string ParticipantConfigurationID
@@ -113,8 +100,9 @@ namespace Remotion.TypePipe.Caching
 
       var keysAndTypes = assembledTypes.Select (t => new { Key = GetTypeKey (t.BaseType, s_fromGeneratedType, t), Type = t }).ToList();
 
-      lock (_codeGenerationLock)
-      {
+      // TODO review: This msut also be protected by code generation lock, move it there.
+      //lock (_codeGenerationLock)
+      //{
         foreach (var p in keysAndTypes)
         {
           if (_types.ContainsKey (p.Key))
@@ -125,7 +113,7 @@ namespace Remotion.TypePipe.Caching
 
         var loadedTypesContext = new LoadedTypesContext (assembledTypes, additionalTypes, _participantState);
         _typeAssembler.RebuildParticipantState (loadedTypesContext);
-      }
+      //}
     }
 
     private Type GetOrCreateType (object[] key, Type requestedType)
@@ -134,19 +122,7 @@ namespace Remotion.TypePipe.Caching
       if (_types.TryGetValue (key, out generatedType))
         return generatedType;
 
-      // TODO Review: Refactor
-      // return _codeManager.GenerateCodeForTypeCache (_types, _typeAssembler, _participantState, _mutableTypeBatchCodeGenerator, requestedType);
-
-      lock (_codeGenerationLock)
-      {
-        if (_types.TryGetValue (key, out generatedType))
-          return generatedType;
-
-        generatedType = _typeAssembler.AssembleType (requestedType, _participantState, _mutableTypeBatchCodeGenerator);
-        _types.Add (key, generatedType);
-      }
-
-      return generatedType;
+      return _typeCacheCodeGenerator.GetOrGenerateType (_types, key, _typeAssembler, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     private Delegate GetOrCreateConstructorCall (object[] key, Type requestedType, Type delegateType, bool allowNonPublic)
@@ -155,23 +131,18 @@ namespace Remotion.TypePipe.Caching
       if (_constructorCalls.TryGetValue (key, out constructorCall))
         return constructorCall;
 
-
-      // TODO review: refactor
-      lock (_codeGenerationLock)
-      {
-        if (_constructorCalls.TryGetValue (key, out constructorCall))
-          return constructorCall;
-
-        var typeKey = GetTypeKeyFromConstructorKey (key);
-        var generatedType = GetOrCreateType (typeKey, requestedType);
-        var ctorSignature = _delegateFactory.GetSignature (delegateType);
-        var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
-
-        constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
-        _constructorCalls.Add (key, constructorCall);
-      }
-
-      return constructorCall;
+      var typeKey = GetTypeKeyFromConstructorKey (key);
+      return _typeCacheCodeGenerator.GetOrGenerateConstructorCall (
+          _constructorCalls,
+          key,
+          _types,
+          typeKey,
+          _typeAssembler,
+          requestedType,
+          delegateType,
+          allowNonPublic,
+          _participantState,
+          _mutableTypeBatchCodeGenerator);
     }
 
     private object[] GetTypeKey (Type requestedType, Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type fromType)

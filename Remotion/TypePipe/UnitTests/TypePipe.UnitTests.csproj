@@ -91,7 +91,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
-    <Compile Include="Caching\ConstructorFinderTest.cs" />
+    <Compile Include="CodeGeneration\ConstructorFinderTest.cs" />
     <Compile Include="CodeGeneration\MutableTypeBatchCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
     <Compile Include="Configuration\AppConfigBasedConfigurationProviderTest.cs" />
@@ -108,6 +108,7 @@
     <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
+    <Compile Include="CodeGeneration\LockingCodeGeneratorTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
     <Compile Include="Implementation\LoadedTypesContextObjectMother.cs" />
     <Compile Include="Implementation\LoadedTypesContextTest.cs" />

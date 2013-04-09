@@ -59,10 +59,11 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
+    <Compile Include="CodeGeneration\LockingCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
-    <Compile Include="Implementation\ICodeGenerator.cs" />
+    <Compile Include="Caching\ITypeCacheCodeGenerator.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
     <Compile Include="Implementation\LoadedProxy.cs" />
     <Compile Include="Implementation\LoadedTypesContext.cs" />
@@ -149,7 +150,7 @@
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactory.cs" />
     <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
-    <Compile Include="Caching\ConstructorFinder.cs" />
+    <Compile Include="CodeGeneration\ConstructorFinder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGenerator.cs" />
     <Compile Include="Configuration\IConfigurationProvider.cs" />
     <Compile Include="Configuration\ForceStrongNamingConfigurationElement.cs" />
@@ -177,7 +178,7 @@
     <Compile Include="CodeGeneration\MutableTypeBatchCodeGenerator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
     <Compile Include="Caching\ICacheKeyProvider.cs" />
-    <Compile Include="Caching\IConstructorFinder.cs" />
+    <Compile Include="CodeGeneration\IConstructorFinder.cs" />
     <Compile Include="IPipeline.cs" />
     <Compile Include="CodeGeneration\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
