@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var t1 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
       var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyDirectory);
       var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyNamePattern);
-      var t4 = StartAndWaitUntilBlocked (() => _pipeline.CodeManager.FlushCodeToDisk());
+      var t4 = StartAndWaitUntilBlocked (() => Flush());
 
       // All threads are now blocked. [t1] is blocked by the mutex, [t2, ...] are blocked by the code generation in [t1].
       Assert.That (t1.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       _blockingMutex.ReleaseMutex();
 
       // Now both threads run to completion (user APIs do not interfere with code generation).
-      WaitUntilCompleted (t1, t2);
+      WaitUntilCompleted (t1, t2, t3, t4);
     }
 
     private Thread StartAndWaitUntilBlocked (ThreadStart action)
