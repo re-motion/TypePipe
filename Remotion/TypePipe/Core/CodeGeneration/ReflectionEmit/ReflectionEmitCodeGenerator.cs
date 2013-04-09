@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -109,7 +110,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
     {
-      // assemblyDirectory may be null.
+      // Assembly directory may be null (to use the current directory).
       EnsureNoCurrentModuleBuilder ("assembly directory");
 
       _assemblyDirectory = assemblyDirectoryOrNull;
@@ -123,19 +124,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _assemblyNamePattern = assemblyNamePattern;
     }
 
-    public string FlushCodeToDisk (CustomAttributeDeclaration assemblyAttribute)
+    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
-      ArgumentUtility.CheckNotNull ("assemblyAttribute", assemblyAttribute);
+      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
       var moduleBuilder = _moduleContext.ModuleBuilder;
       if (moduleBuilder == null)
         return null;
 
-      var assemblyBuilder = moduleBuilder.AssemblyBuilder;
+      var assemblyPath = SaveToDisk (moduleBuilder.AssemblyBuilder, assemblyAttributes);
       ResetContext();
 
-      assemblyBuilder.SetCustomAttribute (assemblyAttribute);
-      return assemblyBuilder.SaveToDisk();
+      return assemblyPath;
     }
 
     public IEmittableOperandProvider CreateEmittableOperandProvider ()
@@ -170,6 +170,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       var uniqueCounterValue = Interlocked.Increment (ref s_counter);
       return _assemblyNamePattern.Replace ("{counter}", uniqueCounterValue.ToString (CultureInfo.InvariantCulture));
+    }
+
+    private string SaveToDisk (IAssemblyBuilder assemblyBuilder, IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
+    {
+      foreach (var attribute in assemblyAttributes)
+        assemblyBuilder.SetCustomAttribute (attribute);
+
+      return assemblyBuilder.SaveToDisk();
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)

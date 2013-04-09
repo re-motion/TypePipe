@@ -77,10 +77,10 @@ namespace Remotion.TypePipe.Caching
         _generatedCodeFlusher.SetAssemblyNamePattern (assemblyNamePattern);
     }
 
-    public string FlushCodeToDisk (CustomAttributeDeclaration assemblyAttribute)
+    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
       lock (_codeGenerationLock)
-        return _generatedCodeFlusher.FlushCodeToDisk (assemblyAttribute);
+        return _generatedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
     }
 
     public Type GetOrGenerateType (

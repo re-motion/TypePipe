@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
@@ -112,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       assemblyBuilderMock.Expect (mock => mock.SaveToDisk()).Return (fakeAssemblyPath);
       var previousDebugInfoGenerator = _flusher.DebugInfoGenerator;
 
-      var result = _flusher.FlushCodeToDisk (assemblyAttribute);
+      var result = _flusher.FlushCodeToDisk (new[] { assemblyAttribute });
 
       _moduleBuilderMock.VerifyAllExpectations();
       assemblyBuilderMock.VerifyAllExpectations();
@@ -123,8 +124,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void FlushCodeToDisk_NoTypeDefined ()
     {
-      var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
-      Assert.That (_flusher.FlushCodeToDisk(assemblyAttribute), Is.Null);
+      Assert.That (_flusher.FlushCodeToDisk (new CustomAttributeDeclaration[0]), Is.Null);
     }
 
     [Test]

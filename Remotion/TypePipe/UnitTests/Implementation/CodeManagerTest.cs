@@ -16,13 +16,17 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
@@ -47,22 +51,25 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void FlushCodeToDisk ()
     {
+      var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
       var configID = "config";
       var fakeResult = "assembly path";
       _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
       _generatedCodeFlusherMock
-          .Expect (mock => mock.FlushCodeToDisk (Arg<CustomAttributeDeclaration>.Is.Anything))
+          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
           .Return (fakeResult)
           .WhenCalled (
               mi =>
               {
-                var assemblyAttribute = (CustomAttributeDeclaration) mi.Arguments[0];
-                Assert.That (assemblyAttribute.Type, Is.SameAs (typeof (TypePipeAssemblyAttribute)));
-                Assert.That (assemblyAttribute.ConstructorArguments, Is.EqualTo (new[] { configID }));
-                Assert.That (assemblyAttribute.NamedArguments, Is.Empty);
+                var assemblyAttributes = mi.Arguments[0].As<IEnumerable<CustomAttributeDeclaration>>().ToList();
+                Assert.That (assemblyAttributes, Has.Count.EqualTo (2));
+                Assert.That (assemblyAttributes[0], Is.SameAs (assemblyAttribute));
+                Assert.That (assemblyAttributes[1].Type, Is.SameAs (typeof (TypePipeAssemblyAttribute)));
+                Assert.That (assemblyAttributes[1].ConstructorArguments, Is.EqualTo (new[] { configID }));
+                Assert.That (assemblyAttributes[1].NamedArguments, Is.Empty);
               });
 
-      var result = _manager.FlushCodeToDisk ();
+      var result = _manager.FlushCodeToDisk (new[] { assemblyAttribute });
 
       _typeCacheMock.VerifyAllExpectations ();
       _generatedCodeFlusherMock.VerifyAllExpectations ();
