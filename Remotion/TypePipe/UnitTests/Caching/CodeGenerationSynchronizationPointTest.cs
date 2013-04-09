@@ -124,13 +124,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var result = _generator.GetOrGenerateConstructorCall (
           constructorCalls,
           constructorKey,
-          types,
-          typeKey,
-          requestedType,
           delegateType,
           allowNonPublic,
-          _participantState,
-          _mutableTypeBatchCodeGeneratorMock);
+          types,
+          typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       Assert.That (result, Is.SameAs (assembledConstructorCall));
     }
@@ -163,13 +160,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var result = _generator.GetOrGenerateConstructorCall (
           constructorCalls,
           constructorKey,
-          types,
-          typeKey,
-          requestedType,
           delegateType,
           allowNonPublic,
-          _participantState,
-          _mutableTypeBatchCodeGeneratorMock);
+          types,
+          typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       _delegateFactoryMock.VerifyAllExpectations();
       _constructorFinderMock.VerifyAllExpectations();

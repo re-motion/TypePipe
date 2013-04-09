@@ -120,11 +120,11 @@ namespace Remotion.TypePipe.Caching
       return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
           _constructorCalls,
           key,
+          delegateType,
+          allowNonPublic,
           _types,
           typeKey,
           requestedType,
-          delegateType,
-          allowNonPublic,
           _participantState,
           _mutableTypeBatchCodeGenerator);
     }

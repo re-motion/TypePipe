@@ -36,11 +36,11 @@ namespace Remotion.TypePipe.Caching
     Delegate GetOrGenerateConstructorCall (
         ConcurrentDictionary<object[], Delegate> constructorCalls,
         object[] constructorKey,
+        Type delegateType,
+        bool allowNonPublic,
         ConcurrentDictionary<object[], Type> types,
         object[] typeKey,
         Type requestedType,
-        Type delegateType,
-        bool allowNonPublic,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
 

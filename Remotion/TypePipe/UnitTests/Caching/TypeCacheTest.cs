@@ -140,13 +140,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
               mock => mock.GetOrGenerateConstructorCall (
                   _constructorCalls,
                   expectedConstructorKey,
-                  _types,
-                  expectedTypeKey,
-                  _requestedType,
                   _delegateType,
                   _allowNonPublic,
-                  _participantState,
-                  _batchCodeGeneratorMock))
+                  _types,
+                  expectedTypeKey, _requestedType, _participantState, _batchCodeGeneratorMock))
           .Return (_generatedCtorCall);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
