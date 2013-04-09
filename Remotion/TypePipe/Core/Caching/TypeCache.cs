@@ -34,7 +34,8 @@ namespace Remotion.TypePipe.Caching
     // 1) It ensures that no closure is created.
     // 2) We do not create new delegate instances every time a cache key is computed.
     private static readonly Func<ICacheKeyProvider, Type, object> s_fromRequestedType = (ckp, t) => ckp.GetCacheKey (t);
-    private static readonly Func<ICacheKeyProvider, Type, object> s_fromGeneratedType = (ckp, t) => ckp.RebuildCacheKey (t);
+    // TODO 5519: t.Base -> more explicit way to retrieve the requested type.
+    private static readonly Func<ICacheKeyProvider, Type, object> s_fromGeneratedType = (ckp, t) => ckp.RebuildCacheKey (t.BaseType, t);
 
     private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
 
@@ -47,7 +48,9 @@ namespace Remotion.TypePipe.Caching
     private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
 
     public TypeCache (
-        ITypeAssembler typeAssembler, ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+        ITypeAssembler typeAssembler,
+        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
+        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
@@ -96,6 +99,7 @@ namespace Remotion.TypePipe.Caching
         else
           additionalTypes.Add (type);
       }
+      // TODO 5519: t.Base -> more explicit way to retrieve the requested type.
       var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (GetTypeKey (t.BaseType, s_fromGeneratedType, t), t));
 
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);

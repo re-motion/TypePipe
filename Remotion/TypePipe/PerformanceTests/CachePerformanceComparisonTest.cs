@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.PerformanceTests
         return mappingConfiguration.ContainsTypeDefinition (requestedType) ? mappingConfiguration.GetTypeDefinition (requestedType) : null;
       }
 
-      public object RebuildCacheKey (Type generatedProxyType)
+      public object RebuildCacheKey (Type requestedType, Type assembledType)
       {
         throw new NotImplementedException();
       }
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.PerformanceTests
         return MixinConfiguration.ActiveConfiguration.GetContext (requestedType); // may be null
       }
 
-      public object RebuildCacheKey (Type generatedProxyType)
+      public object RebuildCacheKey (Type requestedType, Type assembledType)
       {
         throw new NotImplementedException();
       }

@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.Caching
   public interface ICacheKeyProvider
   {
     /// <summary>
-    /// Gets a cache key used to identify the generated proxy <see cref="Type"/> for the provided requested <see cref="Type"/>.
+    /// Gets a cache key used to identify the assembled <see cref="Type"/> for the provided requested <see cref="Type"/>.
     /// </summary>
     /// <remarks>
     /// The cache key should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
@@ -47,20 +47,21 @@ namespace Remotion.TypePipe.Caching
     object GetCacheKey (Type requestedType);
 
     /// <summary>
-    /// Rebuilds a cache key from a generated proxy <see cref="Type"/>.
+    /// Rebuilds a cache key from an assembled <see cref="Type"/>.
     /// This method is the counterpart of <see cref="GetCacheKey"/> and will be invoked when types are loaded from an flushed assembly.
-    /// The compound cache key from all participants determines whether or not a proxy type is loaded into the <see cref="IPipeline"/>.
+    /// The compound cache key from all participants determines whether or not an assembled type is loaded into the <see cref="IPipeline"/>.
     /// </summary>
     /// <remarks>
     /// The cache key should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
     /// specified by the <see cref="IParticipant"/>.
-    /// Implementations should not encode the requested type, i.e., the base type of <paramref name="generatedProxyType"/>, as this is already
+    /// Implementations should not encode the requested type, i.e., the base type of <paramref name="assembledType"/>, as this is already
     /// handled by the pipeline.
     /// </remarks>
-    /// <param name="generatedProxyType">The generated proxy type.</param>
+    /// <param name="requestedType">The requested type.</param>
+    /// <param name="assembledType">The loaded assembled type.</param>
     /// <returns>
-    /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="generatedProxyType"/>.
+    /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="assembledType"/>.
     /// </returns>
-    object RebuildCacheKey (Type generatedProxyType);
+    object RebuildCacheKey (Type requestedType, Type assembledType);
   }
 }

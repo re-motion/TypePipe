@@ -106,8 +106,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var loadedTypeWithNonMatchingKeys = _assembly2.GetTypes().Single();
 
       var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys)).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithNonMatchingKeys)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithMatchingKeys)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithNonMatchingKeys)).Return ("key");
       cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType1))).Return ("key");
       cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("runtime key differing from rebuilt key");
       var participant = CreateParticipant (cacheKeyProvider: cachKeyProviderStub);
