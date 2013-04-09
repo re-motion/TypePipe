@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// The assembly is written to the directory defined by <see cref="AssemblyDirectory"/>.
     /// If <see cref="AssemblyDirectory"/> is <see langword="null"/> the assembly is saved in the current working directory.
     /// </summary>
-    /// <param name="assemblyAttributes">A number of custom <see cref="Attribute"/>s that should be attached to the saved assembly.</param>
+    /// <param name="assemblyAttributes">A number of custom <see cref="Attribute"/>s that are attached to the assembly.</param>
     /// <remarks>
     /// If no new types have been generated since the last call to <see cref="FlushCodeToDisk"/>, this method does nothing
     /// and returns <see langword="null"/>.
