@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
       try
       {
-        Flush (_skipDeletion);
+        Flush (skipDeletion: _skipDeletion);
       }
       catch
       {
@@ -129,11 +129,11 @@ namespace Remotion.TypePipe.IntegrationTests
       return objectFactory;
     }
 
-    protected string Flush (bool skipDeletion = false, bool skipPeVerification = false)
+    protected string Flush (IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
     {
       Assertion.IsNotNull (_codeManager, "Use IntegrationTestBase.CreatePipeline");
 
-      var assemblyPath = _codeManager.FlushCodeToDisk();
+      var assemblyPath = _codeManager.FlushCodeToDisk (assemblyAttributes ?? new CustomAttributeDeclaration[0]);
       if (assemblyPath == null)
         return null;
 

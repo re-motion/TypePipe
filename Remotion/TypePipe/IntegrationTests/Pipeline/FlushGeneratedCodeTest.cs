@@ -16,13 +16,17 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.IO;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -41,7 +45,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void FlushGeneratedCode ()
+    public void Standard ()
     {
       var assembledType1 = RequestType (typeof (RequestedType));
       var path1 = Flush();
@@ -57,7 +61,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void FlushGeneratedCode_NoNewTypes ()
+    public void NoNewTypes ()
     {
       Assert.That (_codeManager.FlushCodeToDisk(), Is.Null);
 
@@ -65,6 +69,24 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       RequestType (typeof (RequestedType));
 
       Assert.That (_codeManager.FlushCodeToDisk(), Is.Null);
+    }
+
+    [Test]
+    public void AssemblyAttributes ()
+    {
+      var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ObsoleteAttribute ("message"));
+      var assemblyAttribute = new CustomAttributeDeclaration (attributeCtor, new object[] { "abc" });
+
+      var path = RequestTypeAndFlush (assemblyAttributes: new[] { assemblyAttribute });
+
+      var assembly = AssemblyLoader.LoadWithoutLocking (path);
+      var attributes = assembly.GetCustomAttributes (inherit: true);
+      Assert.That (attributes, Has.Length.EqualTo (2));
+
+      var typePipeAttribute = attributes.OfType<TypePipeAssemblyAttribute>().Single();
+      var obsoleteAttribute = attributes.OfType<ObsoleteAttribute>().Single();
+      Assert.That (typePipeAttribute.ParticipantConfigurationID, Is.EqualTo (_pipeline.ParticipantConfigurationID));
+      Assert.That (obsoleteAttribute.Message, Is.EqualTo ("abc"));
     }
 
     [Test]
@@ -84,6 +106,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var filename = string.Format ("TypePipe_GeneratedAssembly_{0}.dll", counter);
       var expectedPath = Path.Combine (Environment.CurrentDirectory, filename);
       Assert.That (path, Is.EqualTo (expectedPath));
+
+      // Delete manually as we circumvented integration test base.
+      FileUtility.DeleteAndWaitForCompletion (path);
+      FileUtility.DeleteAndWaitForCompletion (Path.ChangeExtension (path, "pdb"));
     }
 
     [Test]
@@ -132,15 +158,15 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var message1 = "Cannot set assembly directory after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
       var message2 = "Cannot set assembly name pattern after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
-      Assert.That (() => _codeManager.SetAssemblyDirectory ("Uio"), Throws.InvalidOperationException.With.Message.EqualTo (message1));
+      Assert.That (() => _codeManager.SetAssemblyDirectory ("Abc"), Throws.InvalidOperationException.With.Message.EqualTo (message1));
       Assert.That (() => _codeManager.SetAssemblyNamePattern ("Xyz"), Throws.InvalidOperationException.With.Message.EqualTo (message2));
 
       Flush();
 
-      _codeManager.SetAssemblyDirectory ("Uio");
+      _codeManager.SetAssemblyDirectory ("Abc");
       _codeManager.SetAssemblyNamePattern ("Xyz");
 
-      Assert.That (_codeManager.AssemblyDirectory, Is.EqualTo ("Uio"));
+      Assert.That (_codeManager.AssemblyDirectory, Is.EqualTo ("Abc"));
       Assert.That (_codeManager.AssemblyNamePattern, Is.EqualTo ("Xyz"));
     }
 
@@ -150,15 +176,16 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       return _pipeline.GetAssembledType (requestedType);
     }
 
-    private string RequestTypeAndFlush (Type requestedType = null, bool skipPeVerification = false)
+    private string RequestTypeAndFlush (
+        Type requestedType = null, IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipPeVerification = false)
     {
       RequestType (requestedType);
-      return Flush (skipPeVerification);
+      return Flush (assemblyAttributes, skipPeVerification);
     }
 
-    private string Flush (bool skipPeVerification = false)
+    private string Flush (IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipPeVerification = false)
     {
-      var assemblyPath = base.Flush (skipPeVerification: skipPeVerification);
+      var assemblyPath = base.Flush (assemblyAttributes, skipPeVerification: skipPeVerification);
       Assert.That (assemblyPath, Is.Not.Null);
 
       Assert.That (File.Exists (assemblyPath), Is.True);
