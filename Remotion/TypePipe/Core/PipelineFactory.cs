@@ -80,10 +80,12 @@ namespace Remotion.TypePipe
           new InitializationBuilder(),
           new ProxySerializationEnabler (new SerializableFieldFinder()));
       var typeAssemblyContextCodeGenerator = new MutableTypeBatchCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
-      var typeCache = new TypeCache (typeAssembler, codeGenerationLock, typeAssemblyContextCodeGenerator, new ConstructorFinder(), new DelegateFactory());
-      var codeManager = new CodeManager (reflectionEmitCodeGenerator, codeGenerationLock, typeCache);
+      var constructorFinder = new ConstructorFinder();
+      var delegateFactory = new DelegateFactory();
+      var typeCache = new TypeCache (typeAssembler, codeGenerationLock, typeAssemblyContextCodeGenerator, constructorFinder, delegateFactory);
+      var codeManager = new CodeManager (reflectionEmitCodeGenerator, codeGenerationLock, typeCache, constructorFinder, delegateFactory);
 
-      return new Implementation.Pipeline (typeCache, codeManager);
+      return new Pipeline (typeCache, codeManager);
     }
   }
 }

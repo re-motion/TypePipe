@@ -31,10 +31,12 @@ namespace Remotion.TypePipe.Implementation
   {
     Type GetOrGenerateType (
         ConcurrentDictionary<object[], Type> types,
-        object[] key,
+        object[] typeKey,
         ITypeAssembler typeAssembler,
         Type requestedType,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
+
+    Delegate GetOrGenerateConstructorCall (ConcurrentDictionary<object[], Delegate> constructorCalls, object[] constructorKey, ConcurrentDictionary<object[], Type> types, object[] typeKey, ITypeAssembler typeAssembler, Type requestedType, Type delegateType, bool allowNonPublic, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
   }
 }

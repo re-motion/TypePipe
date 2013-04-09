@@ -155,6 +155,8 @@ namespace Remotion.TypePipe.Caching
       if (_constructorCalls.TryGetValue (key, out constructorCall))
         return constructorCall;
 
+
+      // TODO review: refactor
       lock (_codeGenerationLock)
       {
         if (_constructorCalls.TryGetValue (key, out constructorCall))
