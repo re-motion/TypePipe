@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.CodeGeneration
       return assembledType.BaseType;
     }
 
-    public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
+    public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
     {
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (cacheKeyProviderMethod != null);
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       // No LINQ for performance reasons.
       for (int i = 0; i < _cacheKeyProviders.Length; ++i)
-        compoundKey[freeSlotsAtStart + i] = cacheKeyProviderMethod (_cacheKeyProviders[i], type);
+        compoundKey[freeSlotsAtStart + i] = cacheKeyProviderMethod (_cacheKeyProviders[i], this, type);
 
       return compoundKey;
     }

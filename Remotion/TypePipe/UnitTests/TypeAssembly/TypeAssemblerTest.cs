@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   {
     public interface ICachKeyProviderMethod
     {
-      object M (ICacheKeyProvider cacheKeyProvider, Type type);
+      object M (ICacheKeyProvider cacheKeyProvider, ITypeAssembler typeAssembler, Type fromType);
     }
 
     private IMutableTypeFactory _mutableTypeFactoryMock;
@@ -111,8 +111,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
       var cachKeyProviderMethod = MockRepository.GenerateStrictMock<ICachKeyProviderMethod>();
-      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock1, _requestedType)).Return (1);
-      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock2, _requestedType)).Return ("2");
+      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock1, typeAssembler, _requestedType)).Return (1);
+      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock2, typeAssembler, _requestedType)).Return ("2");
 
       var result = typeAssembler.GetCompoundCacheKey (cachKeyProviderMethod.M, _requestedType, 2);
 

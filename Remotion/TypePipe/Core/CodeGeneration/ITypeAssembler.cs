@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <param name="type">The requested or generated type.</param>
     /// <param name="freeSlotsAtStart">Number of slots beginning at the start of the array which are reserved for use by the caller.</param>
     /// <returns>The compound cache key.</returns>
-    object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
+    object[] GetCompoundCacheKey (Func<ICacheKeyProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
 
     Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 

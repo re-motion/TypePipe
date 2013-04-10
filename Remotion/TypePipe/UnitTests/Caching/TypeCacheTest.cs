@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     private TypeCache _cache;
 
-    private Func<ICacheKeyProvider, Type, object> _fromRequestedTypeFunc;
-    private Func<ICacheKeyProvider, Type, object> _fromGeneratedTypeFunc;
+    private Func<ICacheKeyProvider, ITypeAssembler, Type, object> _fromRequestedTypeFunc;
+    private Func<ICacheKeyProvider, ITypeAssembler, Type, object> _fromGeneratedTypeFunc;
 
     private ConcurrentDictionary<object[], Type> _types;
     private ConcurrentDictionary<object[], Delegate> _constructorCalls;
@@ -60,8 +60,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       _cache = new TypeCache (_typeAssemblerMock, _typeCacheSynchronizationPoint, _batchCodeGeneratorMock);
 
-      _fromRequestedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
-      _fromGeneratedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromAssembledType");
+      _fromRequestedTypeFunc =
+          (Func<ICacheKeyProvider, ITypeAssembler, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
+      _fromGeneratedTypeFunc =
+          (Func<ICacheKeyProvider, ITypeAssembler, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromAssembledType");
 
       _types = (ConcurrentDictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (ConcurrentDictionary<object[], Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
