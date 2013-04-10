@@ -34,7 +34,9 @@ namespace Remotion.TypePipe
     /// </summary>
     string ParticipantConfigurationID { get; }
 
-    // TODO 5515: Docs.
+    /// <summary>
+    /// Gets the participants used by this <see cref="IPipeline"/> instance.
+    /// </summary>
     ReadOnlyCollection<IParticipant> Participants { get; }
 
     /// <summary>

@@ -22,14 +22,14 @@ using Remotion.TypePipe.Implementation;
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Allows the registration of an <see cref="IPipeline"/> under a given participant configuration identifier and retrieving that
+  /// Allows the registration of an <see cref="IPipeline"/> under a given participant configuration ID and retrieving that
   /// <see cref="IPipeline"/> instance later via the same identifier.
   /// An instance of this interface should be retrievable via the service locator or an IoC container. This allows users to register and
   /// resolve global <see cref="IPipeline"/> instances used throughout an application.
   /// </summary>
   /// <remarks>
   /// This interface also enables serialization of object instances without the need to save the generated types to disk.
-  /// To accomplish this register compatible pipelines under the same participant configuration identifier in the deserializing as well as the
+  /// To accomplish this register compatible pipelines under the same participant configuration ID in the deserializing as well as the
   /// serializing app domain. <i>Compatible pipelines</i> refers to pipelines with equivalent participant configurations, i.e., pipelines that
   /// generate  equivalent types for a requested type.
   /// </remarks>
@@ -47,21 +47,24 @@ namespace Remotion.TypePipe
     void Register (IPipeline pipeline);
 
     /// <summary>
-    /// Unregisters the <see cref="IPipeline"/> instance that is currently registered under the specified participant configuration identifier.
+    /// Unregisters the <see cref="IPipeline"/> instance that is currently registered under the specified participant configuration ID.
     /// No exception is thrown if no factory is registered under the given identifier.
     /// </summary>
-    /// <param name="participantConfigurationID">The participant configuration identifier.</param>
+    /// <param name="participantConfigurationID">The participant configuration ID.</param>
     void Unregister (string participantConfigurationID);
 
     /// <summary>
-    /// Retrieves the <see cref="IPipeline"/> instance that is registered under the specified participant configuration identifier.
+    /// Retrieves the <see cref="IPipeline"/> instance that is registered under the specified participant configuration ID.
     /// </summary>
     /// <exception cref="InvalidOperationException">If no factory is registered under the specified identifier.</exception>
-    /// <param name="participantConfigurationID">The participant configuration identifier.</param>
+    /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <returns>The registered object factory.</returns>
     IPipeline Get (string participantConfigurationID);
 
-    // TODO 5515: Docs.
+    /// <summary>
+    /// Sets an already registered pipeline as the <see cref="DefaultPipeline"/>.
+    /// </summary>
+    /// <param name="participantConfigurationID">The participant configuration ID of the new default pipeline.</param>
     void SetDefaultPipeline (string participantConfigurationID);
   }
 }

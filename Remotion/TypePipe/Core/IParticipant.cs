@@ -28,17 +28,17 @@ namespace Remotion.TypePipe
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Instances of this interface can be configured in the pipeline.
+  /// Instances of this interface are used to populate <see cref="IPipeline.Participants"/>.
   /// Every participant has the chance the specify type modifications via the provided <see cref="MutableType"/> instance.
   /// The <see cref="MutableType"/> is a representation of the type to be generated for the requested type.
   /// In addition, it contains all modifications applied by preceding participants in the pipeline.
   /// </para>
   /// <para>
-  /// Implementations of this interface should hold no state directly.
+  /// Note that implementations of this interface may be shared across multiple <see cref="IPipeline"/> instances.
+  /// Participants therefore must not hold any mutable state directly.
   /// If there is the need to hold state a participant should use <see cref="TypeAssemblyContext.State"/>.
   /// </para>
   /// </remarks>
-  // // TODO 5515: Must not hold mutable state and that they can be shared between multiple IPipelines.
   public interface IParticipant
   {
     /// <summary>
