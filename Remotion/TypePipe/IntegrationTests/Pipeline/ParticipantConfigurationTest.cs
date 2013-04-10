@@ -23,14 +23,35 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   [TestFixture]
   public class ParticipantConfigurationTest : IntegrationTestBase
   {
+    public override void SetUp ()
+    {
+      base.SetUp();
+
+      SkipSavingAndPeVerification();
+    }
+
+    [Test]
+    public void PipelineConfiguration ()
+    {
+      var configurationID = "configurationID";
+      var participant1 = CreateParticipant();
+      var participant2 = CreateParticipant();
+
+      var pipeline = PipelineFactory.Create (configurationID, participant1, participant2);
+
+      Assert.That (pipeline.ParticipantConfigurationID, Is.EqualTo (configurationID));
+      Assert.That (pipeline.Participants, Is.EqualTo (new[] { participant1, participant2 }));
+    }
+
     [Test]
     public void ParticipantHasAccessToParticipantConfigurationID ()
     {
       var configurationID = "configurationID";
-      var particpant = CreateParticipant (ctx => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
-      var objectFactory = CreatePipeline (configurationID, particpant);
+      var participant = CreateParticipant (ctx => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
 
-      Assert.That (() => objectFactory.CreateObject<RequestedType>(), Throws.Nothing);
+      var pipeline = PipelineFactory.Create (configurationID, participant);
+
+      Assert.That (() => pipeline.CreateObject<RequestedType>(), Throws.Nothing);
     }
 
     public class RequestedType { }
