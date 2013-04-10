@@ -26,7 +26,14 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
-    private readonly IDataStore<string, IPipeline> _objectFactories = DataStoreFactory.CreateWithLocking<string, IPipeline>();
+    private const string c_defaultPipelineKey = "<default>";
+
+    private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline>();
+
+    public IPipeline DefaultPipeline
+    {
+      get { return _pipelines.GetValueOrDefault (c_defaultPipelineKey); }
+    }
 
     public void Register (IPipeline pipeline)
     {
@@ -36,7 +43,7 @@ namespace Remotion.TypePipe.Implementation
       // Cannot use ContainsKey/Add combination as this would introduce a race condition.
       try
       {
-        _objectFactories.Add (pipeline.ParticipantConfigurationID, pipeline);
+        _pipelines.Add (pipeline.ParticipantConfigurationID, pipeline);
       }
       catch (ArgumentException)
       {
@@ -49,22 +56,31 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      _objectFactories.Remove (participantConfigurationID);
+      _pipelines.Remove (participantConfigurationID);
     }
 
     public IPipeline Get (string participantConfigurationID)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      var objectFactory = _objectFactories.GetValueOrDefault (participantConfigurationID);
+      var pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
 
-      if (objectFactory == null)
+      if (pipeline == null)
       {
         var message = string.Format ("No factory registered for identifier '{0}'.", participantConfigurationID);
         throw new InvalidOperationException (message);
       }
 
-      return objectFactory;
+      return pipeline;
+    }
+
+    public void SetDefaultPipeline (string participantConfigurationID)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+
+      // TODO 5515: Race condition.
+      var defaultPipeline = Get (participantConfigurationID);
+      _pipelines[c_defaultPipelineKey] = defaultPipeline;
     }
   }
 }

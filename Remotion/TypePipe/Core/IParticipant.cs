@@ -38,6 +38,7 @@ namespace Remotion.TypePipe
   /// If there is the need to hold state a participant should use <see cref="TypeAssemblyContext.State"/>.
   /// </para>
   /// </remarks>
+  // // TODO 5515: Must not hold mutable state and that they can be shared between multiple IPipelines.
   public interface IParticipant
   {
     /// <summary>

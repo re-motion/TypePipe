@@ -36,16 +36,16 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _registry = new PipelineRegistry();
 
-      _pipelineStub = MockRepository.GenerateStub<IPipeline>();
-      _pipelineStub.Stub (stub => stub.ParticipantConfigurationID).Return ("configId");
+      _pipelineStub = CreatePipelineStub ("configId");
     }
 
     [Test]
     public void Initialization ()
     {
-      var objectFactories = PrivateInvoke.GetNonPublicField (_registry, "_objectFactories");
+      var pipelines = PrivateInvoke.GetNonPublicField (_registry, "_pipelines");
 
-      Assert.That (objectFactories, Is.TypeOf<LockingDataStoreDecorator<string, IPipeline>>());
+      Assert.That (pipelines, Is.TypeOf<LockingDataStoreDecorator<string, IPipeline>>());
+      Assert.That (_registry.DefaultPipeline, Is.Null);
     }
 
     [Test]
@@ -81,6 +81,26 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Get_MissingFactory ()
     {
       _registry.Get ("missingFactory");
+    }
+
+    [Test]
+    public void SetDefaultPipeline ()
+    {
+      _registry.Register (_pipelineStub);
+
+      _registry.SetDefaultPipeline ("configId");
+
+      Assert.That (_registry.DefaultPipeline, Is.SameAs (_pipelineStub));
+      Assert.That (_registry.Get ("<default>"), Is.SameAs (_pipelineStub));
+      Assert.That (() => _registry.SetDefaultPipeline ("configId"), Throws.Nothing);
+    }
+
+    private IPipeline CreatePipelineStub (string participantConfigurationID)
+    {
+      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
+      pipelineStub.Stub (stub => stub.ParticipantConfigurationID).Return (participantConfigurationID);
+
+      return pipelineStub;
     }
   }
 }

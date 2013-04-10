@@ -36,6 +36,9 @@ namespace Remotion.TypePipe
   [ConcreteImplementation (typeof (PipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IPipelineRegistry
   {
+    // TODO 5515: Docs.
+    IPipeline DefaultPipeline { get; }
+
     /// <summary>
     /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.
     /// </summary>
@@ -57,5 +60,8 @@ namespace Remotion.TypePipe
     /// <param name="participantConfigurationID">The participant configuration identifier.</param>
     /// <returns>The registered object factory.</returns>
     IPipeline Get (string participantConfigurationID);
+
+    // TODO 5515: Docs.
+    void SetDefaultPipeline (string participantConfigurationID);
   }
 }

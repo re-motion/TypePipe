@@ -22,7 +22,6 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
