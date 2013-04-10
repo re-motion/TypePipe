@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
@@ -75,10 +76,16 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return ("configId");
 
-      var result = _cache.ParticipantConfigurationID;
+      Assert.That (_cache.ParticipantConfigurationID, Is.EqualTo ("configId"));
+    }
 
-      _typeAssemblerMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo ("configId"));
+    [Test]
+    public void Participants ()
+    {
+      var participants = new ReadOnlyCollection<IParticipant> (new IParticipant[0]);
+      _typeAssemblerMock.Expect (mock => mock.Participants).Return (participants);
+
+      Assert.That (_cache.Participants, Is.SameAs (participants));
     }
 
     [Test]

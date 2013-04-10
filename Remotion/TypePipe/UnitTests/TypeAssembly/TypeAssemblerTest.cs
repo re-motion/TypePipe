@@ -64,9 +64,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock);
 
-      Assert.That (typeAssembler.ParticipantConfigurationID, Is.EqualTo ("configId"));
       var cacheKeyProviders = PrivateInvoke.GetNonPublicField (typeAssembler, "_cacheKeyProviders");
       Assert.That (cacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
+      Assert.That (typeAssembler.ParticipantConfigurationID, Is.EqualTo ("configId"));
+      Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
     }
 
     [Test]

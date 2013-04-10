@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.TypePipe.Implementation;
@@ -32,6 +33,9 @@ namespace Remotion.TypePipe
     /// <see cref="IPipeline"/> instances with equal <see cref="ParticipantConfigurationID"/>s must generate equivalent types.
     /// </summary>
     string ParticipantConfigurationID { get; }
+
+    // TODO 5515: Docs.
+    ReadOnlyCollection<IParticipant> Participants { get; }
 
     /// <summary>
     /// Gets the <see cref="CodeManager"/> which supports saving and loading of generated code.

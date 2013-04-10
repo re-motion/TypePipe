@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Remotion.TypePipe.CodeGeneration;
@@ -64,6 +65,11 @@ namespace Remotion.TypePipe.Caching
     public string ParticipantConfigurationID
     {
       get { return _typeAssembler.ParticipantConfigurationID; }
+    }
+
+    public ReadOnlyCollection<IParticipant> Participants
+    {
+      get { return _typeAssembler.Participants; }
     }
 
     public Type GetOrCreateType (Type requestedType)

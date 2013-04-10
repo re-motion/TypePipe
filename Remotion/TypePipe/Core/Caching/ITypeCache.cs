@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -27,6 +28,7 @@ namespace Remotion.TypePipe.Caching
   public interface ITypeCache
   {
     string ParticipantConfigurationID { get; }
+    ReadOnlyCollection<IParticipant> Participants { get; }
 
     Type GetOrCreateType (Type requestedType);
     Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);

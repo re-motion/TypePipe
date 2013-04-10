@@ -63,6 +63,11 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _participantConfigurationID; }
     }
 
+    public ReadOnlyCollection<IParticipant> Participants
+    {
+      get { return _participants; }
+    }
+
     public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
     {
       // Using Debug.Assert because it will be compiled away.

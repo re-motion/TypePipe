@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 
@@ -28,6 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration
   public interface ITypeAssembler
   {
     string ParticipantConfigurationID { get; }
+    ReadOnlyCollection<IParticipant> Participants { get; }
 
     /// <summary>
     /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s of the participants.

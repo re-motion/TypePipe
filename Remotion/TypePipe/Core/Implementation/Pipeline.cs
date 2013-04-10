@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.ObjectModel;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
@@ -42,6 +43,11 @@ namespace Remotion.TypePipe.Implementation
     public string ParticipantConfigurationID
     {
       get { return _typeCache.ParticipantConfigurationID; }
+    }
+
+    public ReadOnlyCollection<IParticipant> Participants
+    {
+      get { return _typeCache.Participants; }
     }
 
     public ICodeManager CodeManager
