@@ -22,17 +22,22 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IPipelineRegistry"/> by using a thread-safe <see cref="IDataStore{TKey,TValue}"/>.
+  /// Implements <see cref="IPipelineRegistry"/> by using a lock object and a thread-safe <see cref="IDataStore{TKey,TValue}"/>.
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
-    private const string c_defaultPipelineKey = "<default>";
+    private const string c_defaultPipelineKey = "<default pipeline>";
 
+    private readonly object _lock = new object();
     private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline>();
 
     public IPipeline DefaultPipeline
     {
-      get { return _pipelines.GetValueOrDefault (c_defaultPipelineKey); }
+      get
+      {
+        var notFoundMessage = "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.";
+        return Get (c_defaultPipelineKey, notFoundMessage);
+      }
     }
 
     public void Register (IPipeline pipeline)
@@ -40,15 +45,15 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("pipeline", pipeline);
       Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
-      // Cannot use ContainsKey/Add combination as this would introduce a race condition.
-      try
+      lock (_lock)
       {
+        if (_pipelines.ContainsKey (pipeline.ParticipantConfigurationID))
+        {
+          var message = string.Format ("Another pipeline is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
+          throw new InvalidOperationException (message);
+        }
+
         _pipelines.Add (pipeline.ParticipantConfigurationID, pipeline);
-      }
-      catch (ArgumentException)
-      {
-        var message = string.Format ("Another factory is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
-        throw new InvalidOperationException (message);
       }
     }
 
@@ -63,24 +68,29 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      var pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
-
-      if (pipeline == null)
-      {
-        var message = string.Format ("No factory registered for identifier '{0}'.", participantConfigurationID);
-        throw new InvalidOperationException (message);
-      }
-
-      return pipeline;
+      var notFoundMessage = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
+      return Get (participantConfigurationID, notFoundMessage);
     }
 
     public void SetDefaultPipeline (string participantConfigurationID)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      // TODO 5515: Race condition.
-      var defaultPipeline = Get (participantConfigurationID);
-      _pipelines[c_defaultPipelineKey] = defaultPipeline;
+      lock (_lock)
+      {
+        var newDefaultPipeline = Get (participantConfigurationID);
+        _pipelines[c_defaultPipelineKey] = newDefaultPipeline;
+      }
+    }
+
+    private IPipeline Get (string participantConfigurationID, string notFoundMessage)
+    {
+      var pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
+
+      if (pipeline == null)
+        throw new InvalidOperationException (notFoundMessage);
+
+      return pipeline;
     }
   }
 }

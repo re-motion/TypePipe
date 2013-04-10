@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using NUnit.Framework;
 using Remotion.Collections;
@@ -45,7 +44,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var pipelines = PrivateInvoke.GetNonPublicField (_registry, "_pipelines");
 
       Assert.That (pipelines, Is.TypeOf<LockingDataStoreDecorator<string, IPipeline>>());
-      Assert.That (_registry.DefaultPipeline, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.")]
+    public void DefaultPipeline ()
+    {
+      Dev.Null = _registry.DefaultPipeline;
     }
 
     [Test]
@@ -69,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another factory is already registered for identifier 'configId'.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another pipeline is already registered for identifier 'configId'.")]
     public void Register_ExistingFactory ()
     {
       Assert.That (() => _registry.Register (_pipelineStub), Throws.Nothing);
@@ -77,7 +83,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof(InvalidOperationException), ExpectedMessage = "No factory registered for identifier 'missingFactory'.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "No pipeline registered for identifier 'missingFactory'.")]
     public void Get_MissingFactory ()
     {
       _registry.Get ("missingFactory");
@@ -91,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _registry.SetDefaultPipeline ("configId");
 
       Assert.That (_registry.DefaultPipeline, Is.SameAs (_pipelineStub));
-      Assert.That (_registry.Get ("<default>"), Is.SameAs (_pipelineStub));
+      Assert.That (_registry.Get ("<default pipeline>"), Is.SameAs (_pipelineStub));
       Assert.That (() => _registry.SetDefaultPipeline ("configId"), Throws.Nothing);
     }
 

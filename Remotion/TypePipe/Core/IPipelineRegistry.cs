@@ -36,7 +36,11 @@ namespace Remotion.TypePipe
   [ConcreteImplementation (typeof (PipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IPipelineRegistry
   {
-    // TODO 5515: Docs.
+    /// <summary>
+    /// Gets the default pipeline.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If no default pipeline was specified.</exception>
+    /// <seealso cref="SetDefaultPipeline"/>
     IPipeline DefaultPipeline { get; }
 
     /// <summary>
@@ -62,7 +66,7 @@ namespace Remotion.TypePipe
     IPipeline Get (string participantConfigurationID);
 
     /// <summary>
-    /// Sets an already registered pipeline as the <see cref="DefaultPipeline"/>.
+    /// Sets an already registered pipeline as the <see cref="DefaultPipeline"/> overriding the previous default pipeline. 
     /// </summary>
     /// <param name="participantConfigurationID">The participant configuration ID of the new default pipeline.</param>
     void SetDefaultPipeline (string participantConfigurationID);
