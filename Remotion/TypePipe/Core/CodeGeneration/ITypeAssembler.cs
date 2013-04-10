@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Generates types for requested types and computes compound cache keys to enabled efficient caching of generated types.
   /// </summary>
-  public interface ITypeAssembler
+  public interface ITypeAssembler : IReflectionService
   {
     string ParticipantConfigurationID { get; }
     ReadOnlyCollection<IParticipant> Participants { get; }
@@ -44,8 +44,6 @@ namespace Remotion.TypePipe.CodeGeneration
     object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
 
     Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
-
-    bool IsAssembledType (Type type);
 
     void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
   }
