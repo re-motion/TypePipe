@@ -73,6 +73,7 @@
     <Compile Include="Pipeline\ObjectInitializationTest.cs" />
     <Compile Include="Pipeline\ParticipantConfigurationTest.cs" />
     <Compile Include="ParticipantStub.cs" />
+    <Compile Include="Pipeline\ReflectionServiceTest.cs" />
     <Compile Include="Serialization\ComplexSerializationTest.cs">
       <SubType>Code</SubType>
     </Compile>
