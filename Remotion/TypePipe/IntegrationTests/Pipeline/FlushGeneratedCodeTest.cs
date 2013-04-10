@@ -93,13 +93,13 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void StandardNamePatternAndDirectory ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
-      var objectFactory = PipelineFactory.Create ("standard", CreateParticipant());
-      var codeManager = objectFactory.CodeManager;
+      var pipeline = PipelineFactory.Create ("standard", CreateParticipant());
+      var codeManager = pipeline.CodeManager;
 
       Assert.That (codeManager.AssemblyDirectory, Is.Null); // Current directory.
       Assert.That (codeManager.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
 
-      objectFactory.GetAssembledType (typeof (RequestedType));
+      pipeline.CreateObject<RequestedType>();
       var path = codeManager.FlushCodeToDisk();
 
       var counter = (int) PrivateInvoke.GetNonPublicStaticField (typeof (ReflectionEmitCodeGenerator), "s_counter");
@@ -173,7 +173,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     private Type RequestType (Type requestedType = null)
     {
       requestedType = requestedType ?? typeof (RequestedType);
-      return _pipeline.GetAssembledType (requestedType);
+      return _pipeline.ReflectionService.GetAssembledType (requestedType);
     }
 
     private string RequestTypeAndFlush (

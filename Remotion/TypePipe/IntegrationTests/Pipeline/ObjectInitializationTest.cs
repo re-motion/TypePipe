@@ -28,19 +28,19 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   [TestFixture]
   public class ObjectInitializationTest : IntegrationTestBase
   {
-    private IPipeline _factory;
+    private IPipeline _pipeline;
 
     public override void SetUp ()
     {
       base.SetUp();
 
-      _factory = CreateObjectFactory();
+      _pipeline = CreatePipeline();
     }
 
     [Test]
     public void CreateObject ()
     {
-      var instance = _factory.CreateObject<DomainType>();
+      var instance = _pipeline.CreateObject<DomainType>();
 
       Assert.That (instance.String, Is.EqualTo ("initialized"));
       Assert.That (instance.CtorCalled, Is.True);
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void GetAssembledType_CallWiredCtor ()
     {
-      var type = _factory.GetAssembledType (typeof (DomainType));
+      var type = _pipeline.ReflectionService.GetAssembledType (typeof (DomainType));
       var instance = (DomainType) Activator.CreateInstance (type);
 
       Assert.That (instance.String, Is.EqualTo ("initialized"));
@@ -59,15 +59,15 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void GetAssembledType_PrepareAssembledTypeInstance ()
     {
-      var type = _factory.GetAssembledType (typeof (DomainType));
+      var type = _pipeline.ReflectionService.GetAssembledType (typeof (DomainType));
       var instance = (DomainType) FormatterServices.GetUninitializedObject (type);
 
       Assert.That (instance.CtorCalled, Is.False);
       Assert.That (instance.String, Is.Null);
 
-      _factory.PrepareExternalUninitializedObject (instance);
+      _pipeline.PrepareExternalUninitializedObject (instance);
       Assert.That (instance.String, Is.EqualTo ("initialized"));
-      _factory.PrepareExternalUninitializedObject (instance);
+      _pipeline.PrepareExternalUninitializedObject (instance);
       Assert.That (instance.String, Is.EqualTo ("initializedinitialized"));
     }
 
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       public DomainType () { CtorCalled = true; }
     }
 
-    private IPipeline CreateObjectFactory ()
+    private IPipeline CreatePipeline ()
     {
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.String);
       var participant = CreateParticipant (

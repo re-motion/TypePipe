@@ -19,7 +19,6 @@ using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Rhino.Mocks;
 
@@ -63,19 +62,19 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     [Test]
     public void GetRealObject ()
     {
-      var baseType = ReflectionObjectMother.GetSomeType();
+      var requestedType = ReflectionObjectMother.GetSomeType();
       var context = new StreamingContext ((StreamingContextStates) 8);
 
-      _info.AddValue ("<tp>baseType", baseType.AssemblyQualifiedName);
-      _info.AddValue ("<tp>factoryIdentifier", "factory1");
+      _info.AddValue ("<tp>requestedType", requestedType.AssemblyQualifiedName);
+      _info.AddValue ("<tp>participantConfigurationID", "config1");
 
       var fakeObjectFactory = MockRepository.GenerateStub<IPipeline>();
       var fakeInstance = MockRepository.GenerateStrictMock<IDeserializationCallback>();
-      _pipelineRegistryMock.Expect (mock => mock.Get ("factory1")).Return (fakeObjectFactory);
+      _pipelineRegistryMock.Expect (mock => mock.Get ("config1")).Return (fakeObjectFactory);
       _createRealObjectAssertions = (factory, type, ctx) =>
       {
         Assert.That (factory, Is.SameAs (fakeObjectFactory));
-        Assert.That (type, Is.SameAs (baseType));
+        Assert.That (type, Is.SameAs (requestedType));
         Assert.That (ctx, Is.EqualTo (context).And.Not.EqualTo (_context));
 
         return fakeInstance;
@@ -128,8 +127,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
         ExpectedMessage = "Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, ")]
     public void GetRealObject_UnderlyingTypeNotFound ()
     {
-      _info.AddValue ("<tp>baseType", "UnknownType");
-      _info.AddValue ("<tp>factoryIdentifier", "factory1");
+      _info.AddValue ("<tp>requestedType", "UnknownType");
+      _info.AddValue ("<tp>participantConfigurationID", "factory1");
 
       _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
     }

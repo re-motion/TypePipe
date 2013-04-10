@@ -48,8 +48,8 @@ namespace Remotion.TypePipe.Serialization
   public class SerializationParticipant : IParticipant
   {
     public const string SerializationKeyPrefix = "<tp>";
-    public const string BaseTypeKey = SerializationKeyPrefix + "baseType";
-    public const string FactoryIdentifierKey = SerializationKeyPrefix + "factoryIdentifier";
+    public const string RequestedTypeKey = SerializationKeyPrefix + "requestedType";
+    public const string ParticipantConfigurationID = SerializationKeyPrefix + "participantConfigurationID";
 
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
@@ -123,8 +123,8 @@ namespace Remotion.TypePipe.Serialization
       return new Expression[]
              {
                  Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (serializationSurrogateType)),
-                 CreateAddValueExpression (serializationInfo, BaseTypeKey, context.DeclaringType.BaseType.AssemblyQualifiedName),
-                 CreateAddValueExpression (serializationInfo, FactoryIdentifierKey, participantConfigurationID)
+                 CreateAddValueExpression (serializationInfo, RequestedTypeKey, context.DeclaringType.BaseType.AssemblyQualifiedName),
+                 CreateAddValueExpression (serializationInfo, ParticipantConfigurationID, participantConfigurationID)
              };
     }
 

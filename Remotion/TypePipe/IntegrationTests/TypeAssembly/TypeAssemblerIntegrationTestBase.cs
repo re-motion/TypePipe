@@ -20,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -47,9 +46,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     protected Type AssembleType (Type requestedType, params Action<ITypeAssemblyContext>[] participantActions)
     {
       var participants = participantActions.Select (a => CreateParticipant (a)).ToArray();
-      var objectFactory = CreatePipeline (participants);
+      var pipeline = CreatePipeline (participants);
 
-      return objectFactory.GetAssembledType (requestedType);
+      return pipeline.ReflectionService.GetAssembledType (requestedType);
     }
 
     protected MethodInfo GetDeclaredMethod (Type type, string name)

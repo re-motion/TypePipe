@@ -60,11 +60,11 @@ namespace Remotion.TypePipe.Serialization.Implementation
       if (_instance != null)
         return _instance;
 
-      var underlyingTypeName = (string) SerializationInfo.GetValue (SerializationParticipant.BaseTypeKey, typeof (string));
-      var factoryIdentifier = (string) SerializationInfo.GetValue (SerializationParticipant.FactoryIdentifierKey, typeof (string));
+      var requestedTypeName = (string) SerializationInfo.GetValue (SerializationParticipant.RequestedTypeKey, typeof (string));
+      var participantConfigurationID = (string) SerializationInfo.GetValue (SerializationParticipant.ParticipantConfigurationID, typeof (string));
 
-      var underlyingType = Type.GetType (underlyingTypeName, throwOnError: true);
-      var factory = _registry.Get (factoryIdentifier);
+      var underlyingType = Type.GetType (requestedTypeName, throwOnError: true);
+      var factory = _registry.Get (participantConfigurationID);
       var instance = CreateRealObject (factory, underlyingType, context);
 
       _instance = instance;
@@ -79,6 +79,6 @@ namespace Remotion.TypePipe.Serialization.Implementation
         deserializationCallback.OnDeserialization (sender);
     }
 
-    protected abstract object CreateRealObject (IPipeline pipeline, Type underlyingType, StreamingContext context);
+    protected abstract object CreateRealObject (IPipeline pipeline, Type requestedType, StreamingContext context);
   }
 }

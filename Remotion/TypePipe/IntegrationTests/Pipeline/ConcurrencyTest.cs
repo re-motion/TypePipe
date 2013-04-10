@@ -54,8 +54,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var t = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
 
       // Although code is generated in [t], which is blocked by the mutex, we can create instances of and retrieve already generated types.
-      _pipeline.CreateObject<DomainType> ();
-      _pipeline.GetAssembledType (typeof (DomainType));
+      _pipeline.CreateObject<DomainType>();
+      _pipeline.ReflectionService.GetAssembledType (typeof (DomainType));
 
       _blockingMutex.ReleaseMutex();
       WaitUntilCompleted (t);

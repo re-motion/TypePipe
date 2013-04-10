@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
     public void CreateRealObject ()
     {
       _serializationInfo.AddValue ("<tp>IntField", 7);
-      _pipelineMock.Expect (mock => mock.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
+      _pipelineMock.Expect (mock => mock.ReflectionService.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
 
       var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", _pipelineMock, _underlyingType, _context);
 

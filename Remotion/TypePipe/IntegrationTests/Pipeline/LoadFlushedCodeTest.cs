@@ -35,8 +35,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     private Assembly _assembly1;
     private Assembly _assembly2;
 
-    private IPipeline _pipeline;
     private ICodeManager _codeManager;
+    private IReflectionService _reflectionService;
 
     public override void TestFixtureSetUp ()
     {
@@ -49,8 +49,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       base.SetUp ();
 
-      _pipeline = CreatePipeline (c_participantConfigurationID);
-      _codeManager = _pipeline.CodeManager;
+      var pipeline = CreatePipeline (c_participantConfigurationID);
+      _codeManager = pipeline.CodeManager;
+      _reflectionService = pipeline.ReflectionService;
     }
 
     [Test]
@@ -59,8 +60,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       _codeManager.LoadFlushedCode (_assembly1);
       _codeManager.LoadFlushedCode (_assembly2);
 
-      var assembledType1 = _pipeline.GetAssembledType (typeof (DomainType1));
-      var assembledType2 = _pipeline.GetAssembledType (typeof (DomainType2));
+      var assembledType1 = _reflectionService.GetAssembledType (typeof (DomainType1));
+      var assembledType2 = _reflectionService.GetAssembledType (typeof (DomainType2));
 
       Assert.That (assembledType1.Assembly, Is.SameAs (_assembly1));
       Assert.That (assembledType2.Assembly, Is.SameAs (_assembly2));
@@ -72,12 +73,12 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       _codeManager.LoadFlushedCode (_assembly1);
 
-      var assembledType1 = _pipeline.GetAssembledType (typeof (DomainType1));
+      var assembledType1 = _reflectionService.GetAssembledType (typeof (DomainType1));
 
       Assert.That (assembledType1.Assembly, Is.SameAs (_assembly1));
       Assert.That (Flush(), Is.Null, "No new code should be generated.");
 
-      var assembledType2 = _pipeline.GetAssembledType (typeof (DomainType2));
+      var assembledType2 = _reflectionService.GetAssembledType (typeof (DomainType2));
 
       Assert.That (assembledType2.Assembly, Is.TypeOf<AssemblyBuilder>());
       Assert.That (Flush(), Is.Not.Null);
@@ -88,15 +89,15 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       // Load and get type 1.
       _codeManager.LoadFlushedCode (_assembly1);
-      var loadedType = _pipeline.GetAssembledType (typeof (DomainType1));
+      var loadedType = _reflectionService.GetAssembledType (typeof (DomainType1));
       // Generate and get type 2.
-      var generatedType = _pipeline.GetAssembledType (typeof (DomainType2));
+      var generatedType = _reflectionService.GetAssembledType (typeof (DomainType2));
 
       _codeManager.LoadFlushedCode (_assembly1);
       _codeManager.LoadFlushedCode (_assembly2);
 
-      Assert.That (_pipeline.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedType));
-      Assert.That (_pipeline.GetAssembledType (typeof (DomainType2)), Is.SameAs (generatedType));
+      Assert.That (_reflectionService.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedType));
+      Assert.That (_reflectionService.GetAssembledType (typeof (DomainType2)), Is.SameAs (generatedType));
     }
 
     [Test]
@@ -111,13 +112,13 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType1))).Return ("key");
       cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("runtime key differing from rebuilt key");
       var participant = CreateParticipant (cacheKeyProvider: cachKeyProviderStub);
-      var objectFactory = CreatePipeline (c_participantConfigurationID, participant);
+      var pipeline = CreatePipeline (c_participantConfigurationID, participant);
 
-      objectFactory.CodeManager.LoadFlushedCode (_assembly1);
-      objectFactory.CodeManager.LoadFlushedCode (_assembly2);
+      pipeline.CodeManager.LoadFlushedCode (_assembly1);
+      pipeline.CodeManager.LoadFlushedCode (_assembly2);
 
-      Assert.That (objectFactory.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedTypeWithMatchingKeys));
-      Assert.That (objectFactory.GetAssembledType (typeof (DomainType2)), Is.Not.SameAs (loadedTypeWithNonMatchingKeys));
+      Assert.That (pipeline.ReflectionService.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedTypeWithMatchingKeys));
+      Assert.That (pipeline.ReflectionService.GetAssembledType (typeof (DomainType2)), Is.Not.SameAs (loadedTypeWithNonMatchingKeys));
     }
 
     [Test]
@@ -140,11 +141,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
     private void PreGenerateAssemblies ()
     {
-      var objectFactory = CreatePipeline (c_participantConfigurationID);
+      var pipeline = CreatePipeline (c_participantConfigurationID);
 
-      var assembledType1 = objectFactory.GetAssembledType (typeof (DomainType1));
+      var assembledType1 = pipeline.ReflectionService.GetAssembledType (typeof (DomainType1));
       var assemblyPath1 = Flush();
-      var assembledType2 = objectFactory.GetAssembledType (typeof (DomainType2));
+      var assembledType2 = pipeline.ReflectionService.GetAssembledType (typeof (DomainType2));
       var assemblyPath2 = Flush();
 
       Assert.That (assembledType1.Assembly, Is.Not.SameAs (assembledType2.Assembly));

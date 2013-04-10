@@ -51,14 +51,6 @@ namespace Remotion.TypePipe
     object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
     /// <summary>
-    /// Gets the assembled type for the requested type.
-    /// </summary>
-    /// <param name="requestedType">The requested type.</param>
-    /// <returns>The generated type for the requested type.</returns>
-    // TODO 5519: Remove.
-    Type GetAssembledType (Type requestedType);
-
-    /// <summary>
     /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.
     /// For example, an instance that was created via <see cref="FormatterServices"/>.<see cref="FormatterServices.GetUninitializedObject"/>.
     /// </summary>

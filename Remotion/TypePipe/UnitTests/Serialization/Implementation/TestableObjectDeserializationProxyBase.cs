@@ -34,9 +34,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _createRealObjectAssertions = createRealObjectAssertions;
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, Type underlyingType, StreamingContext context)
+    protected override object CreateRealObject (IPipeline pipeline, Type requestedType, StreamingContext context)
     {
-      return _createRealObjectAssertions (pipeline, underlyingType, context);
+      return _createRealObjectAssertions (pipeline, requestedType, context);
     }
   }
 }

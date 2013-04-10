@@ -72,20 +72,12 @@ namespace Remotion.TypePipe.Implementation
     public object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-
       constructorArguments = constructorArguments ?? ParamList.Empty;
+
       var constructorCall = _typeCache.GetOrCreateConstructorCall (requestedType, constructorArguments.FuncType, allowNonPublicConstructor);
       var instance = constructorArguments.InvokeFunc (constructorCall);
 
       return instance;
-    }
-
-    // TODO 5519: Remove.
-    public Type GetAssembledType (Type requestedType)
-    {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-
-      return _typeCache.GetOrCreateType (requestedType);
     }
 
     public void PrepareExternalUninitializedObject (object instance)

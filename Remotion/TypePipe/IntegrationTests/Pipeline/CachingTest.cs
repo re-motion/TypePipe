@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
@@ -33,10 +34,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void SameType_EqualCacheKey ()
     {
-      var factory = CreateObjectFactory (t => "a", t => "b");
+      var reflectionService = CreateReflectionService (t => "a", t => "b");
 
-      var type1 = factory.GetAssembledType (_type1);
-      var type2 = factory.GetAssembledType (_type1);
+      var type1 = reflectionService.GetAssembledType (_type1);
+      var type2 = reflectionService.GetAssembledType (_type1);
 
       Assert.That (type1, Is.SameAs (type2));
     }
@@ -44,10 +45,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void SameType_NullCacheKeyProvider ()
     {
-      var factory = CreateObjectFactory (t => "a", null);
+      var reflectionService = CreateReflectionService (t => "a", null);
 
-      var type1 = factory.GetAssembledType (_type1);
-      var type2 = factory.GetAssembledType (_type1);
+      var type1 = reflectionService.GetAssembledType (_type1);
+      var type2 = reflectionService.GetAssembledType (_type1);
 
       Assert.That (type1, Is.SameAs (type2));
     }
@@ -56,10 +57,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void SameType_NonEqualCacheKey ()
     {
       var count = 1;
-      var factory = CreateObjectFactory (t => "a", t => "b" + count++);
+      var reflectionService = CreateReflectionService (t => "a", t => "b" + count++);
 
-      var type1 = factory.GetAssembledType (_type1);
-      var type2 = factory.GetAssembledType (_type1);
+      var type1 = reflectionService.GetAssembledType (_type1);
+      var type2 = reflectionService.GetAssembledType (_type1);
 
       Assert.That (type1, Is.Not.SameAs (type2));
     }
@@ -67,15 +68,15 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void DifferentTypes_EqualCacheKey ()
     {
-      var factory = CreateObjectFactory (t => "a", t => "b");
+      var reflectionService = CreateReflectionService (t => "a", t => "b");
 
-      var type1 = factory.GetAssembledType (_type1);
-      var type2 = factory.GetAssembledType (_type2);
+      var type1 = reflectionService.GetAssembledType (_type1);
+      var type2 = reflectionService.GetAssembledType (_type2);
 
       Assert.That (type1, Is.Not.SameAs (type2));
     }
 
-    private IPipeline CreateObjectFactory (params Func<Type, object>[] cacheKeyProviders)
+    private IReflectionService CreateReflectionService (params Func<Type, object>[] cacheKeyProviders)
     {
       var cacheKeyProviderStubs = cacheKeyProviders.Select (
           providerFunc =>
@@ -91,7 +92,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Action<MutableType> typeModification = pt => { };
       var participantStubs = cacheKeyProviderStubs.Select (ckp => CreateParticipant (typeModification, ckp)).ToArray();
 
-      return CreatePipeline (participantStubs);
+      return CreatePipeline (participantStubs).ReflectionService;
     }
 
     public class DomainType1 {}

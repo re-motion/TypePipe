@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     private Func<IParticipant>[] _participantProviders;
     private string _participantConfigurationID;
 
-    protected override IPipeline CreateObjectFactoryForSerialization (params Func<IParticipant>[] participantProviders)
+    protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
     {
       _participantProviders = participantProviders.Concat (() => new SerializationParticipant()).ToArray();
       var allParticipants = _participantProviders.Select (pp => pp()).ToArray();

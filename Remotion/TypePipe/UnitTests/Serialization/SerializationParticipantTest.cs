@@ -25,7 +25,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.UnitTests.CodeGeneration;
 using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.Implementation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
@@ -70,10 +69,10 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               serializationInfo,
               "AddValue",
               Type.EmptyTypes,
-              Expression.Constant ("<tp>baseType"),
+              Expression.Constant ("<tp>requestedType"),
               Expression.Constant (typeof (SomeType).AssemblyQualifiedName)),
           Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant ("config id")),
+              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>participantConfigurationID"), Expression.Constant ("config id")),
           Expression.Call (
               typeof (ReflectionSerializationHelper), "AddFieldValues", Type.EmptyTypes, serializationInfo, new ThisExpression (proxyType)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, method.Body);
@@ -101,10 +100,10 @@ namespace Remotion.TypePipe.UnitTests.Serialization
               serializationInfo,
               "AddValue",
               Type.EmptyTypes,
-              Expression.Constant ("<tp>baseType"),
+              Expression.Constant ("<tp>requestedType"),
               Expression.Constant (typeof (SerializableInterfaceType).AssemblyQualifiedName)),
           Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>factoryIdentifier"), Expression.Constant ("config id")));
+              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>participantConfigurationID"), Expression.Constant ("config id")));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
