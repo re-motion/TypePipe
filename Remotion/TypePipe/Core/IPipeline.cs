@@ -40,11 +40,13 @@ namespace Remotion.TypePipe
     ReadOnlyCollection<IParticipant> Participants { get; }
 
     /// <summary>
-    /// Gets the <see cref="CodeManager"/> which supports saving and loading of generated code.
+    /// Gets the <see cref="ICodeManager"/> which supports saving and loading of generated code.
     /// </summary>
     ICodeManager CodeManager { get; }
 
-    // TODO 5519: Docs
+    /// <summary>
+    /// Gets the <see cref="IReflectionService"/> which supports retrieving and analyzing assembled types.
+    /// </summary>
     IReflectionService ReflectionService { get; }
 
     T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;

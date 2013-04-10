@@ -19,21 +19,34 @@ using System;
 
 namespace Remotion.TypePipe.Implementation
 {
-  // TODO 5519: Docs
+  /// <summary>
+  /// Provides functionality for retrieving assembled types and analyzing them.
+  /// </summary>
   public interface IReflectionService
   {
-    // TODO 5519: Docs
+    /// <summary>
+    /// Determines whether or not a <see cref="Type"/> is an assembled type.
+    /// </summary>
+    /// <param name="type">A type.</param>
+    /// <returns>
+    ///   <c>true</c> if the type is an assembled type; otherwise, <c>false</c>.
+    /// </returns>
     bool IsAssembledType (Type type);
 
-    // TODO 5519: Docs
+    /// <summary>
+    /// Gets the type that triggered the generation of an assembled type.
+    /// </summary>
+    /// <param name="assembledType">An assembled type.</param>
+    /// <returns>The requested type for the assembled type.</returns>
+    /// <exception cref="ArgumentException">If the argument type is not an assembled type.</exception>
     Type GetRequestedType (Type assembledType);
 
-    // TODO 5519: Docs
     /// <summary>
-    /// Gets the assembled type for the requested type.
+    /// Gets a cached or newly generates an assembled type for a requested type.
+    /// Note that this method triggers code generation if the respective assembled type is not yet present in the cache.
     /// </summary>
     /// <param name="requestedType">The requested type.</param>
-    /// <returns>The generated type for the requested type.</returns>
+    /// <returns>The assembled type for the requested type.</returns>
     Type GetAssembledType (Type requestedType);
   }
 }
