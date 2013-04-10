@@ -71,6 +71,20 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
+    public void IsAssembledType ()
+    {
+      var otherType = ReflectionObjectMother.GetSomeType();
+      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
+      var assembledType = typeof (AssembledType);
+
+      var typeAssembler = CreateTypeAssembler();
+
+      Assert.That (typeAssembler.IsAssembledType (otherType), Is.False);
+      Assert.That (typeAssembler.IsAssembledType (assembledTypeSubclass), Is.False);
+      Assert.That (typeAssembler.IsAssembledType (assembledType), Is.True);
+    }
+
+    [Test]
     public void GetCompoundCacheKey ()
     {
       var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
@@ -177,20 +191,6 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       Assert.That (
           () => typeAssembler.AssembleType (_requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
           Throws.Exception.SameAs (exception3));
-    }
-
-    [Test]
-    public void IsAssembledType ()
-    {
-      var otherType = ReflectionObjectMother.GetSomeType();
-      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
-      var assembledType = typeof (AssembledType);
-
-      var typeAssembler = CreateTypeAssembler();
-
-      Assert.That (typeAssembler.IsAssembledType (otherType), Is.False);
-      Assert.That (typeAssembler.IsAssembledType (assembledTypeSubclass), Is.False);
-      Assert.That (typeAssembler.IsAssembledType (assembledType), Is.True);
     }
 
     [Test]

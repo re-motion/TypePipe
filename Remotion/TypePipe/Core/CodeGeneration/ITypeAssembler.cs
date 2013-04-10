@@ -31,6 +31,9 @@ namespace Remotion.TypePipe.CodeGeneration
     string ParticipantConfigurationID { get; }
     ReadOnlyCollection<IParticipant> Participants { get; }
 
+    bool IsAssembledType (Type type);
+    Type GetRequestedType (Type assembledType);
+
     /// <summary>
     /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ICacheKeyProvider"/>s of the participants.
     /// The return value of this method is an object array for performance reasons.
@@ -44,8 +47,6 @@ namespace Remotion.TypePipe.CodeGeneration
     object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
 
     Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
-
-    bool IsAssembledType (Type type);
 
     void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
   }

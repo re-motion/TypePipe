@@ -68,6 +68,20 @@ namespace Remotion.TypePipe.CodeGeneration
       get { return _participants; }
     }
 
+    public bool IsAssembledType (Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return type.IsDefined (typeof (ProxyTypeAttribute), inherit: false);
+    }
+
+    public Type GetRequestedType (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      throw new NotImplementedException();
+    }
+
     public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
     {
       // Using Debug.Assert because it will be compiled away.
@@ -99,13 +113,6 @@ namespace Remotion.TypePipe.CodeGeneration
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
-    }
-
-    public bool IsAssembledType (Type type)
-    {
-      ArgumentUtility.CheckNotNull ("type", type);
-
-      return type.IsDefined (typeof (ProxyTypeAttribute), inherit: false);
     }
 
     public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)

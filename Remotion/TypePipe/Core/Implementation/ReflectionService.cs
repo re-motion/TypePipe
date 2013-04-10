@@ -16,25 +16,48 @@
 // 
 
 using System;
+using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
 {
-  // TODO 5519: Docs
+  /// <summary>
+  /// Implements <see cref="IReflectionService"/> by delegating to the contained <see cref="ITypeAssembler"/> and <see cref="ITypeCache"/> instances.
+  /// </summary>
   public class ReflectionService : IReflectionService
   {
+    private readonly ITypeAssembler _typeAssembler;
+    private readonly ITypeCache _typeCache;
+
+    public ReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache)
+    {
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      ArgumentUtility.CheckNotNull ("typeCache", typeCache);
+
+      _typeAssembler = typeAssembler;
+      _typeCache = typeCache;
+    }
+
     public bool IsAssembledType (Type type)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      return _typeAssembler.IsAssembledType (type);
     }
 
     public Type GetRequestedType (Type assembledType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      return _typeAssembler.GetRequestedType (assembledType);
     }
 
     public Type GetAssembledType (Type requestedType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      return _typeCache.GetOrCreateType (requestedType);
     }
   }
 }

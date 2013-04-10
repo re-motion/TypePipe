@@ -112,6 +112,7 @@
     <Compile Include="Implementation\CodeManagerTest.cs" />
     <Compile Include="Implementation\LoadedTypesContextObjectMother.cs" />
     <Compile Include="Implementation\LoadedTypesContextTest.cs" />
+    <Compile Include="Implementation\ReflectionServiceTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />
