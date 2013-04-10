@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.Implementation
     /// Gets a cached or newly generates an assembled type for a requested type.
     /// Note that this method triggers code generation if the respective assembled type is not yet present in the cache.
     /// </summary>
-    /// <param name="requestedType">The requested type.</param>
+    /// <param name="requestedType">A requested type.</param>
     /// <returns>The assembled type for the requested type.</returns>
     Type GetAssembledType (Type requestedType);
   }
