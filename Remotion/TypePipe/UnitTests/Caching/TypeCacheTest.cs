@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     private ConcurrentDictionary<object[], Delegate> _constructorCalls;
     private IDictionary<string, object> _participantState;
 
-    private readonly Type _generatedType = typeof (GeneratedType);
+    private readonly Type _assembledType = typeof (AssembledType);
     private readonly Delegate _generatedCtorCall = new Func<int> (() => 7);
     private readonly Type _requestedType = typeof (RequestedType);
     private Type _delegateType;
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _cache = new TypeCache (_typeAssemblerMock, _typeCacheSynchronizationPoint, _batchCodeGeneratorMock);
 
       _fromRequestedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
-      _fromGeneratedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromGeneratedType");
+      _fromGeneratedTypeFunc = (Func<ICacheKeyProvider, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromAssembledType");
 
       _types = (ConcurrentDictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (ConcurrentDictionary<object[], Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
@@ -91,14 +91,14 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void GetOrCreateType_CacheHit ()
     {
-      _types.Add (new object[] { _requestedType, "key" }, _generatedType);
+      _types.Add (new object[] { _requestedType, "key" }, _assembledType);
       _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromRequestedTypeFunc, _requestedType, 1))
                         .Return (new object[] { null, "key" });
 
       var result = _cache.GetOrCreateType (_requestedType);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (_generatedType));
+      Assert.That (result, Is.SameAs (_assembledType));
     }
 
     [Test]
@@ -112,13 +112,13 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .Return (key);
       _typeCacheSynchronizationPoint
           .Expect (mock => mock.GetOrGenerateType (_types, expectedKey, _requestedType, _participantState, _batchCodeGeneratorMock))
-          .Return (_generatedType);
+          .Return (_assembledType);
 
       var result = _cache.GetOrCreateType (_requestedType);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _typeCacheSynchronizationPoint.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (_generatedType));
+      Assert.That (result, Is.SameAs (_assembledType));
     }
 
     [Test]
@@ -164,9 +164,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void LoadTypes ()
     {
       var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_generatedType)).Return (true);
+      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_assembledType)).Return (true);
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
-      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _generatedType, 1)).Return (new object[] { null, "key" });
+      _typeAssemblerMock.Expect (mock => mock.GetRequestedType (_assembledType)).Return (_requestedType);
+      _typeAssemblerMock.Expect (mock => mock.GetCompoundCacheKey (_fromGeneratedTypeFunc, _assembledType, 1)).Return (new object[] { null, "key" });
       _typeCacheSynchronizationPoint
           .Expect (
               mock => mock.RebuildParticipantState (
@@ -179,17 +180,17 @@ namespace Remotion.TypePipe.UnitTests.Caching
               {
                 var keysToAssembledTypes = (IEnumerable<KeyValuePair<object[], Type>>) mi.Arguments[1];
                 var pair = keysToAssembledTypes.Single();
-                Assert.That (pair.Key, Is.EqualTo (new object[] { _generatedType.BaseType, "key" }));
-                Assert.That (pair.Value, Is.SameAs (_generatedType));
+                Assert.That (pair.Key, Is.EqualTo (new object[] { _requestedType, "key" }));
+                Assert.That (pair.Value, Is.SameAs (_assembledType));
               });
 
-      _cache.LoadTypes (new[] { _generatedType, additionalGeneratedType });
+      _cache.LoadTypes (new[] { _assembledType, additionalGeneratedType });
 
       _typeAssemblerMock.VerifyAllExpectations();
       _typeCacheSynchronizationPoint.VerifyAllExpectations();
     }
 
     private class RequestedType {}
-    private class GeneratedType {}
+    private class AssembledType {}
   }
 }
