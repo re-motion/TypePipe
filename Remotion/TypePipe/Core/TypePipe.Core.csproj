@@ -65,8 +65,10 @@
     <Compile Include="Implementation\CodeManager.cs" />
     <Compile Include="Caching\ITypeCacheSynchronizationPoint.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
+    <Compile Include="Implementation\IReflectionService.cs" />
     <Compile Include="Implementation\LoadedProxy.cs" />
     <Compile Include="Implementation\LoadedTypesContext.cs" />
+    <Compile Include="Implementation\ReflectionService.cs" />
     <Compile Include="Implementation\TypePipeAssemblyAttribute.cs" />
     <Compile Include="Implementation\IInitializableObject.cs" />
     <Compile Include="CodeGeneration\DependentTypeSorter.cs" />

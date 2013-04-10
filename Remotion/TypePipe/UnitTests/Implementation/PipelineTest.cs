@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   {
     private ITypeCache _typeCacheMock;
     private ICodeManager _codeManagerMock;
+    private IReflectionService _reflectionServiceMock;
 
     private Pipeline _pipeline;
 
@@ -41,8 +42,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
+      _reflectionServiceMock = MockRepository.GenerateStrictMock<IReflectionService>();
 
-      _pipeline = new Pipeline (_typeCacheMock, _codeManagerMock);
+      _pipeline = new Pipeline (_typeCacheMock, _codeManagerMock, _reflectionServiceMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
     }
@@ -51,6 +53,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Initialization ()
     {
       Assert.That (_pipeline.CodeManager, Is.SameAs (_codeManagerMock));
+      Assert.That (_pipeline.ReflectionService, Is.SameAs (_reflectionServiceMock));
     }
 
     [Test]

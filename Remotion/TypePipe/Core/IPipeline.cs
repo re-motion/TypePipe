@@ -44,6 +44,9 @@ namespace Remotion.TypePipe
     /// </summary>
     ICodeManager CodeManager { get; }
 
+    // TODO 5519: Docs
+    IReflectionService ReflectionService { get; }
+
     T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
     object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 

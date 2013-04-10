@@ -30,14 +30,17 @@ namespace Remotion.TypePipe.Implementation
   {
     private readonly ITypeCache _typeCache;
     private readonly ICodeManager _codeManager;
+    private readonly IReflectionService _reflectionService;
 
-    public Pipeline (ITypeCache typeCache, ICodeManager codeManager)
+    public Pipeline (ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
     {
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
+      ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
 
       _typeCache = typeCache;
       _codeManager = codeManager;
+      _reflectionService = reflectionService;
     }
 
     public string ParticipantConfigurationID
@@ -53,6 +56,11 @@ namespace Remotion.TypePipe.Implementation
     public ICodeManager CodeManager
     {
       get { return _codeManager; }
+    }
+
+    public IReflectionService ReflectionService
+    {
+      get { return _reflectionService; }
     }
 
     public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)

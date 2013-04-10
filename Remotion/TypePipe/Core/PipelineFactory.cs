@@ -84,8 +84,9 @@ namespace Remotion.TypePipe
       var lockingCodeGenerator = new CodeGenerationSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler, constructorFinder, delegateFactory);
       var typeCache = new TypeCache (typeAssembler, lockingCodeGenerator, mutableTypeBatchCodeGenerator);
       var codeManager = new CodeManager (lockingCodeGenerator, typeCache);
+      var reflectionService = new ReflectionService();
 
-      return new Pipeline (typeCache, codeManager);
+      return new Pipeline (typeCache, codeManager, reflectionService);
     }
   }
 }
