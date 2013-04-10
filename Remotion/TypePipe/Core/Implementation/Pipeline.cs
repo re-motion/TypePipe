@@ -80,6 +80,7 @@ namespace Remotion.TypePipe.Implementation
       return instance;
     }
 
+    // TODO 5519: Remove.
     public Type GetAssembledType (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);

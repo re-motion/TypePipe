@@ -55,6 +55,7 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="requestedType">The requested type.</param>
     /// <returns>The generated type for the requested type.</returns>
+    // TODO 5519: Remove.
     Type GetAssembledType (Type requestedType);
 
     /// <summary>

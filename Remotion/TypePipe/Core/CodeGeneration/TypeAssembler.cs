@@ -79,7 +79,10 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      throw new NotImplementedException();
+      if (!IsAssembledType (assembledType))
+        throw new ArgumentException ("The argument type is not an assembled type.", "assembledType");
+
+      return assembledType.BaseType;
     }
 
     public object[] GetCompoundCacheKey (Func<ICacheKeyProvider, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)

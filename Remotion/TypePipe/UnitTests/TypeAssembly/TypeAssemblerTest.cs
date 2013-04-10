@@ -73,15 +73,30 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void IsAssembledType ()
     {
-      var otherType = ReflectionObjectMother.GetSomeType();
-      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
       var assembledType = typeof (AssembledType);
+      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
+      var otherType = ReflectionObjectMother.GetSomeType();
 
       var typeAssembler = CreateTypeAssembler();
 
-      Assert.That (typeAssembler.IsAssembledType (otherType), Is.False);
-      Assert.That (typeAssembler.IsAssembledType (assembledTypeSubclass), Is.False);
       Assert.That (typeAssembler.IsAssembledType (assembledType), Is.True);
+      Assert.That (typeAssembler.IsAssembledType (assembledTypeSubclass), Is.False);
+      Assert.That (typeAssembler.IsAssembledType (otherType), Is.False);
+    }
+
+    [Test]
+    public void GetRequestedType ()
+    {
+      var assembledType = typeof (AssembledType);
+      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
+      var otherType = ReflectionObjectMother.GetSomeType();
+
+      var typeAssembler = CreateTypeAssembler();
+
+      Assert.That (typeAssembler.GetRequestedType (assembledType), Is.SameAs (typeof (RequestedType)));
+      var message = "The argument type is not an assembled type.\r\nParameter name: assembledType";
+      Assert.That (() => typeAssembler.GetRequestedType (assembledTypeSubclass), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => typeAssembler.GetRequestedType (otherType), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     [Test]
@@ -215,7 +230,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       return new TypeAssembler (configurationId, participants.AsOneTime(), mutableTypeFactory);
     }
 
-    [ProxyType] private class AssembledType {}
+    private class RequestedType {}
+    [ProxyType] private class AssembledType : RequestedType {}
     private class AssembledTypeSubclass {}
   }
 }
