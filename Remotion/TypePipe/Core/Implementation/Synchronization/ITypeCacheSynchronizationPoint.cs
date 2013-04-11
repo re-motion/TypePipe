@@ -17,9 +17,10 @@
 
 using System;
 using System.Collections.Generic;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.Implementation.Synchronization
 {
   /// <summary>
   /// This interface is an implementation detail of <see cref="TypeCache"/> to enable synchronization of code generation functionalities in one place.

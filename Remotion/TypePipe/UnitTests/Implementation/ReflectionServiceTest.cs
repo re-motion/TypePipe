@@ -19,8 +19,8 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.Implementation.Synchronization;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class ReflectionServiceTest
   {
-    private ITypeAssembler _typeAssemblerMock;
+    private IReflectionServiceSynchronizationPoint _reflectionServiceSynchronizationPointMock;
     private ITypeCache _typeCacheMock;
 
     private ReflectionService _service;
@@ -36,10 +36,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
+      _reflectionServiceSynchronizationPointMock = MockRepository.GenerateStrictMock<IReflectionServiceSynchronizationPoint> ();
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
 
-      _service = new ReflectionService (_typeAssemblerMock, _typeCacheMock);
+      _service = new ReflectionService (_reflectionServiceSynchronizationPointMock, _typeCacheMock);
     }
 
     [Test]
@@ -47,11 +47,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var type = ReflectionObjectMother.GetSomeType();
       var fakeResult = BooleanObjectMother.GetRandomBoolean();
-      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (type)).Return (fakeResult);
+      _reflectionServiceSynchronizationPointMock.Expect (mock => mock.IsAssembledType (type)).Return (fakeResult);
 
       var result = _service.IsAssembledType (type);
 
-      _typeAssemblerMock.VerifyAllExpectations();
+      _reflectionServiceSynchronizationPointMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -60,11 +60,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var assembledType = ReflectionObjectMother.GetSomeType();
       var fakeRequestedType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAssemblerMock.Expect (mock => mock.GetRequestedType (assembledType)).Return (fakeRequestedType);
+      _reflectionServiceSynchronizationPointMock.Expect (mock => mock.GetRequestedType (assembledType)).Return (fakeRequestedType);
 
       var result = _service.GetRequestedType (assembledType);
 
-      _typeAssemblerMock.VerifyAllExpectations();
+      _reflectionServiceSynchronizationPointMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeRequestedType));
     }
 

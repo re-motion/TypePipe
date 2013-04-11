@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.CodeGeneration
 {

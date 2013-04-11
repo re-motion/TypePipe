@@ -59,12 +59,14 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
-    <Compile Include="Caching\CodeGenerationSynchronizationPoint.cs" />
-    <Compile Include="Caching\ICodeGenerationSynchronizationPoint.cs" />
+    <Compile Include="Implementation\Synchronization\ICodeManagerSynchronizationPoint.cs" />
+    <Compile Include="Implementation\Synchronization\SynchronizationPoint.cs" />
+    <Compile Include="Implementation\Synchronization\ISynchronizationPoint.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
-    <Compile Include="Caching\ITypeCacheSynchronizationPoint.cs" />
+    <Compile Include="Implementation\Synchronization\IReflectionServiceSynchronizationPoint.cs" />
+    <Compile Include="Implementation\Synchronization\ITypeCacheSynchronizationPoint.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
     <Compile Include="Implementation\IPipelineFactory.cs" />
     <Compile Include="Implementation\IReflectionService.cs" />
@@ -75,7 +77,7 @@
     <Compile Include="Implementation\IInitializableObject.cs" />
     <Compile Include="CodeGeneration\DependentTypeSorter.cs" />
     <Compile Include="CodeGeneration\IDependentTypeSorter.cs" />
-    <Compile Include="Implementation\ProxyTypeAttribute.cs" />
+    <Compile Include="CodeGeneration\ProxyTypeAttribute.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBase.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBase.cs" />

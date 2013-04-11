@@ -19,17 +19,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.Implementation.Synchronization
 {
   /// <summary>
   /// Guards all access to code generation capabilities.
   /// </summary>
-  public class CodeGenerationSynchronizationPoint : ICodeGenerationSynchronizationPoint
+  public class SynchronizationPoint : ISynchronizationPoint
   {
     private readonly object _codeGenerationLock = new object();
 
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.Caching
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
 
-    public CodeGenerationSynchronizationPoint (
+    public SynchronizationPoint (
         IGeneratedCodeFlusher generatedCodeFlusher,
         ITypeAssembler typeAssembler,
         IConstructorFinder constructorFinder,
@@ -81,6 +81,22 @@ namespace Remotion.TypePipe.Caching
     {
       lock (_codeGenerationLock)
         return _generatedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
+    }
+
+    public bool IsAssembledType (Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+
+      lock (_codeGenerationLock)
+        return _typeAssembler.IsAssembledType (type);
+    }
+
+    public Type GetRequestedType (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      lock (_codeGenerationLock)
+        return _typeAssembler.GetRequestedType (assembledType);
     }
 
     public Type GetOrGenerateType (

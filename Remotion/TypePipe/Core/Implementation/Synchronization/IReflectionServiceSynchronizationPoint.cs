@@ -16,15 +16,16 @@
 // 
 
 using System;
-using Remotion.TypePipe.CodeGeneration;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.Implementation.Synchronization
 {
   /// <summary>
-  /// Defines an interface for classes that act as guards for code generation capabilities.
-  /// This interface is a simple union of existing interfaces and should not define any additional methods.
+  /// This interface is an implementation detail of <see cref="ReflectionService"/> to enable synchronization of code generation functionalities in one place.
   /// </summary>
-  public interface ICodeGenerationSynchronizationPoint : IGeneratedCodeFlusher, ITypeCacheSynchronizationPoint
+  public interface IReflectionServiceSynchronizationPoint
   {
+    bool IsAssembledType (Type type);
+
+    Type GetRequestedType (Type assembledType);
   }
 }

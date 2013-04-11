@@ -24,6 +24,7 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
@@ -84,12 +85,12 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("configurationProvider", configurationProvider);
 
-      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants);
       var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (configurationProvider);
-      var codeGenerationSynchronizationPoint = NewCodeGenerationSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
-      var typeCache = NewTypeCache (typeAssembler, codeGenerationSynchronizationPoint, reflectionEmitCodeGenerator);
-      var codeManager = NewCodeManager (codeGenerationSynchronizationPoint, typeCache);
-      var reflectionService = NewReflectionService (typeAssembler, typeCache);
+      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants);
+      var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
+      var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, reflectionEmitCodeGenerator);
+      var codeManager = NewCodeManager (synchronizationPoint, typeCache);
+      var reflectionService = NewReflectionService (synchronizationPoint, typeCache);
 
       return NewPipeline (typeCache, codeManager, reflectionService);
     }
@@ -99,14 +100,15 @@ namespace Remotion.TypePipe
       return new Pipeline (typeCache, codeManager, reflectionService);
     }
 
-    protected virtual ICodeManager NewCodeManager (IGeneratedCodeFlusher lockingCodeGenerator, ITypeCache typeCache)
+    protected virtual ICodeManager NewCodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
     {
-      return new CodeManager (lockingCodeGenerator, typeCache);
+      return new CodeManager (codeManagerSynchronizationPoint, typeCache);
     }
 
-    protected virtual IReflectionService NewReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache)
+    protected virtual IReflectionService NewReflectionService (
+        IReflectionServiceSynchronizationPoint reflectionServiceSynchronizationPoint, ITypeCache typeCache)
     {
-      return new ReflectionService (typeAssembler, typeCache);
+      return new ReflectionService (reflectionServiceSynchronizationPoint, typeCache);
     }
 
     [CLSCompliant (false)]
@@ -121,13 +123,12 @@ namespace Remotion.TypePipe
     }
 
     [CLSCompliant (false)]
-    protected virtual ICodeGenerationSynchronizationPoint NewCodeGenerationSynchronizationPoint (
-        IReflectionEmitCodeGenerator reflectionEmitCodeGenerator, ITypeAssembler typeAssembler)
+    protected virtual ISynchronizationPoint NewSynchronizationPoint (IGeneratedCodeFlusher generatedCodeFlusher, ITypeAssembler typeAssembler)
     {
       var constructorFinder = NewConstructorFinder();
       var delegateFactory = NewDelegateFactory();
 
-      return new CodeGenerationSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler, constructorFinder, delegateFactory);
+      return new SynchronizationPoint (generatedCodeFlusher, typeAssembler, constructorFinder, delegateFactory);
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (string participantConfigurationID, IEnumerable<IParticipant> participants)

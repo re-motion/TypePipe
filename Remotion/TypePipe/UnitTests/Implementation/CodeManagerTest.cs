@@ -23,8 +23,8 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class CodeManagerTest
   {
-    private IGeneratedCodeFlusher _generatedCodeFlusherMock;
+    private ICodeManagerSynchronizationPoint _codeManagerSynchronizationPoint;
     private ITypeCache _typeCacheMock;
 
     private CodeManager _manager;
@@ -42,10 +42,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _generatedCodeFlusherMock = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
+      _codeManagerSynchronizationPoint = MockRepository.GenerateStrictMock<ICodeManagerSynchronizationPoint>();
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
 
-      _manager = new CodeManager (_generatedCodeFlusherMock, _typeCacheMock);
+      _manager = new CodeManager (_codeManagerSynchronizationPoint, _typeCacheMock);
     }
 
     [Test]
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var configID = "config";
       var fakeResult = "assembly path";
       _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
-      _generatedCodeFlusherMock
+      _codeManagerSynchronizationPoint
           .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
           .Return (fakeResult)
           .WhenCalled (
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var result = _manager.FlushCodeToDisk (new[] { assemblyAttribute });
 
       _typeCacheMock.VerifyAllExpectations ();
-      _generatedCodeFlusherMock.VerifyAllExpectations ();
+      _codeManagerSynchronizationPoint.VerifyAllExpectations ();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 

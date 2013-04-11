@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -37,36 +38,36 @@ namespace Remotion.TypePipe.Implementation
     private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
         MemberInfoFromExpressionUtility.GetConstructor (() => new TypePipeAssemblyAttribute ("participantConfigurationID"));
 
-    private readonly IGeneratedCodeFlusher _generatedCodeFlusher;
+    private readonly ICodeManagerSynchronizationPoint _codeManagerSynchronizationPoint;
     private readonly ITypeCache _typeCache;
 
-    public CodeManager (IGeneratedCodeFlusher generatedCodeFlusher, ITypeCache typeCache)
+    public CodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
     {
-      ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
+      ArgumentUtility.CheckNotNull ("codeManagerSynchronizationPoint", codeManagerSynchronizationPoint);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
 
-      _generatedCodeFlusher = generatedCodeFlusher;
+      _codeManagerSynchronizationPoint = codeManagerSynchronizationPoint;
       _typeCache = typeCache;
     }
 
     public string AssemblyDirectory
     {
-      get { return _generatedCodeFlusher.AssemblyDirectory; }
+      get { return _codeManagerSynchronizationPoint.AssemblyDirectory; }
     }
 
     public string AssemblyNamePattern
     {
-      get { return _generatedCodeFlusher.AssemblyNamePattern; }
+      get { return _codeManagerSynchronizationPoint.AssemblyNamePattern; }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
-      _generatedCodeFlusher.SetAssemblyDirectory (assemblyDirectory);
+      _codeManagerSynchronizationPoint.SetAssemblyDirectory (assemblyDirectory);
     }
 
     public void SetAssemblyNamePattern (string assemblyNamePattern)
     {
-      _generatedCodeFlusher.SetAssemblyNamePattern (assemblyNamePattern);
+      _codeManagerSynchronizationPoint.SetAssemblyNamePattern (assemblyNamePattern);
     }
 
     public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe.Implementation
       var typePipeAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { participantConfigurationID });
       var attributes = assemblyAttributes.Concat (typePipeAttribute);
 
-      return _generatedCodeFlusher.FlushCodeToDisk (attributes);
+      return _codeManagerSynchronizationPoint.FlushCodeToDisk (attributes);
     }
 
     public string FlushCodeToDisk (CustomAttributeDeclaration[] assemblyAttributes)

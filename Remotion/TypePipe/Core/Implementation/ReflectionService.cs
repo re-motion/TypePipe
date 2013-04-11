@@ -18,6 +18,7 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -27,15 +28,15 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class ReflectionService : IReflectionService
   {
-    private readonly ITypeAssembler _typeAssembler;
+    private readonly IReflectionServiceSynchronizationPoint _reflectionServiceSynchronizationPoint;
     private readonly ITypeCache _typeCache;
 
-    public ReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache)
+    public ReflectionService (IReflectionServiceSynchronizationPoint reflectionServiceSynchronizationPoint, ITypeCache typeCache)
     {
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      ArgumentUtility.CheckNotNull ("reflectionServiceSynchronizationPoint", reflectionServiceSynchronizationPoint);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
 
-      _typeAssembler = typeAssembler;
+      _reflectionServiceSynchronizationPoint = reflectionServiceSynchronizationPoint;
       _typeCache = typeCache;
     }
 
@@ -43,14 +44,14 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return _typeAssembler.IsAssembledType (type);
+      return _reflectionServiceSynchronizationPoint.IsAssembledType (type);
     }
 
     public Type GetRequestedType (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return _typeAssembler.GetRequestedType (assembledType);
+      return _reflectionServiceSynchronizationPoint.GetRequestedType (assembledType);
     }
 
     public Type GetAssembledType (Type requestedType)

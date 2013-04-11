@@ -17,14 +17,16 @@
 
 using System;
 
-namespace Remotion.TypePipe.Implementation
+namespace Remotion.TypePipe.Implementation.Synchronization
 {
   /// <summary>
-  /// This is an infastructure <see cref="Attribute"/> and not meant to be used outside of TypePipe code.
-  /// The pipeline attaches this custom attribute to the proxy <see cref="Type"/>s it generates.
+  /// Defines an interface for classes that act as guards for code generation capabilities.
+  /// This interface is a simple union of existing client-specific synchronization point interfaces and should not define any additional members.
   /// </summary>
-  [AttributeUsage (AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public class ProxyTypeAttribute : Attribute
+  public interface ISynchronizationPoint
+      : ICodeManagerSynchronizationPoint,
+        IReflectionServiceSynchronizationPoint,
+        ITypeCacheSynchronizationPoint
   {
   }
 }
