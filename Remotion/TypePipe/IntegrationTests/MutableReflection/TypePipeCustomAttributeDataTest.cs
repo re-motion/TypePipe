@@ -88,22 +88,25 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     [Test]
     public void ExtensionPoint_ICustomAttributeDataRetriever ()
     {
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleAttribute (""));
-      var attribute1 = new CustomAttributeDeclaration (ctor, new object[] { "" });
-      var attribute2 = new CustomAttributeDeclaration (ctor, new object[] { "" });
-
-      var customAttributeDataRetrieverMock = MockRepository.GenerateStrictMock<ICustomAttributeDataRetriever>();
-      customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (DomainType))).Return (new[] { attribute1 });
-      customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (object))).Return (new[] { attribute2 });
-
-      IEnumerable<ICustomAttributeData> result;
-      using (new ServiceLocatorScope (typeof (ICustomAttributeDataRetriever), () => customAttributeDataRetrieverMock))
+      AppDomainRunner.Run (args =>
       {
-        result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType), inherit: true).ForceEnumeration();
-      }
+        var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleAttribute (""));
+        var attribute1 = new CustomAttributeDeclaration (ctor, new object[] { "" });
+        var attribute2 = new CustomAttributeDeclaration (ctor, new object[] { "" });
 
-      customAttributeDataRetrieverMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (new[] { attribute1, attribute2 }));
+        var customAttributeDataRetrieverMock = MockRepository.GenerateStrictMock<ICustomAttributeDataRetriever>();
+        customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (DomainType))).Return (new[] { attribute1 });
+        customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (object))).Return (new[] { attribute2 });
+
+        IEnumerable<ICustomAttributeData> result;
+        using (new ServiceLocatorScope (typeof (ICustomAttributeDataRetriever), () => customAttributeDataRetrieverMock))
+        {
+          result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType), inherit: true).ForceEnumeration();
+        }
+
+        customAttributeDataRetrieverMock.VerifyAllExpectations();
+        Assert.That (result, Is.EqualTo (new[] { attribute1, attribute2 }));
+      });
     }
 
     [Test]
