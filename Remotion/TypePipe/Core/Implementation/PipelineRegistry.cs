@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
-    private const string c_defaultPipelineKey = "<default pipeline>";
+    protected const string DefaultPipelineKey = "<default pipeline>";
 
     private readonly object _lock = new object();
     private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline>();
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.Implementation
       get
       {
         var notFoundMessage = "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.";
-        return Get (c_defaultPipelineKey, notFoundMessage);
+        return Get (DefaultPipelineKey, notFoundMessage);
       }
     }
 
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.Implementation
       lock (_lock)
       {
         var newDefaultPipeline = Get (participantConfigurationID);
-        _pipelines[c_defaultPipelineKey] = newDefaultPipeline;
+        _pipelines[DefaultPipelineKey] = newDefaultPipeline;
       }
     }
 

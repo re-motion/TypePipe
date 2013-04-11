@@ -17,13 +17,13 @@
 
 using System;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Allows the registration of an <see cref="IPipeline"/> under a given participant configuration ID and retrieving that
-  /// <see cref="IPipeline"/> instance later via the same identifier.
+  /// Allows the registration of an <see cref="IPipeline"/> instance under a given participant configuration ID and retrieving that pipeline later
+  /// via the same identifier.
   /// An instance of this interface should be retrievable via the service locator or an IoC container. This allows users to register and
   /// resolve global <see cref="IPipeline"/> instances used throughout an application.
   /// </summary>
@@ -33,7 +33,7 @@ namespace Remotion.TypePipe
   /// serializing app domain. <i>Compatible pipelines</i> refers to pipelines with equivalent participant configurations, i.e., pipelines that
   /// generate  equivalent types for a requested type.
   /// </remarks>
-  [ConcreteImplementation (typeof (PipelineRegistry), Lifetime = LifetimeKind.Singleton)]
+  [ConcreteImplementation (typeof (DefaultPipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IPipelineRegistry
   {
     /// <summary>

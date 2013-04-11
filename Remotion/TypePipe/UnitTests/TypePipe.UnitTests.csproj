@@ -93,6 +93,7 @@
     <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
     <Compile Include="CodeGeneration\ConstructorFinderTest.cs" />
     <Compile Include="CodeGeneration\MutableTypeBatchCodeGeneratorTest.cs" />
+    <Compile Include="Configuration\DefaultPipelineRegistryTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
     <Compile Include="Configuration\AppConfigBasedConfigurationProviderTest.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSectionTest.cs" />

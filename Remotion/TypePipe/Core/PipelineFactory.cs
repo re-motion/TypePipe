@@ -29,7 +29,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe
 {
@@ -49,7 +48,7 @@ namespace Remotion.TypePipe
     public static IPipeline Create (string participantConfigurationID, params IParticipant[] participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participants);
+      ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
 
       return Create (participantConfigurationID, (IEnumerable<IParticipant>) participants);
     }
@@ -72,10 +71,7 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("participants", participants);
       configurationProvider = configurationProvider ?? new AppConfigBasedConfigurationProvider();
 
-      var participantsCollection = participants.ConvertToCollection();
-      ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participantsCollection);
-
-      return s_instance.CreatePipeline (participantConfigurationID, participantsCollection, configurationProvider);
+      return s_instance.CreatePipeline (participantConfigurationID, participants, configurationProvider);
     }
 
     public virtual IPipeline CreatePipeline (
