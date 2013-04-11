@@ -89,12 +89,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ResetModuleContext();
     }
 
-    // Used by DebuggerWorkaroundCodeGenerator.
-    protected void ResetModuleContext ()
-    {
-      _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
-    }
-
     public string AssemblyDirectory
     {
       get { return _assemblyDirectory; }
@@ -180,6 +174,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         assemblyBuilder.SetCustomAttribute (attribute);
 
       return assemblyBuilder.SaveToDisk();
+    }
+
+    private void ResetModuleContext ()
+    {
+      _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)
