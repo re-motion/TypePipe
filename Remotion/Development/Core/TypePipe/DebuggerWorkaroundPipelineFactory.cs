@@ -35,23 +35,26 @@ namespace Remotion.Development.TypePipe
   /// </summary>
   public class DebuggerWorkaroundPipelineFactory : PipelineFactory
   {
-    private readonly int _maximumTypesPerAssembly;
-
-    public DebuggerWorkaroundPipelineFactory (int maximumTypesPerAssembly)
+    public DebuggerWorkaroundPipelineFactory ()
     {
-      _maximumTypesPerAssembly = maximumTypesPerAssembly;
-
       DebuggerInterface = new DebuggerInterface();
+      MaximumTypesPerAssembly = 11;
     }
 
     public IDebuggerInterface DebuggerInterface { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of types that will be generated into a single <see cref="AssemblyBuilder"/> while the debugger is attached.
+    /// </summary>
+    /// <value>The maximum number of types per assembly; the default is 11.</value>
+    public int MaximumTypesPerAssembly { get; set; }
 
     [CLSCompliant (false)]
     protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (IConfigurationProvider configurationProvider)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
-      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, configurationProvider, DebuggerInterface, _maximumTypesPerAssembly);
+      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, configurationProvider, DebuggerInterface, MaximumTypesPerAssembly);
     }
   }
 }
