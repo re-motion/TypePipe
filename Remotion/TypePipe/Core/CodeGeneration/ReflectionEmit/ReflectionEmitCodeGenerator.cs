@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _assemblyNamePattern = assemblyNamePattern;
     }
 
-    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
+    public virtual string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
       ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
@@ -143,9 +143,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
+    public virtual ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
 
       if (_moduleContext.ModuleBuilder == null)
       {
@@ -157,9 +158,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
 
       var typeBuilder = _moduleContext.ModuleBuilder.DefineType (name, attributes);
-      var typeBuilderDecorator = new TypeBuilderDecorator (typeBuilder, emittableOperandProvider);
+      return new TypeBuilderDecorator (typeBuilder, emittableOperandProvider);
+    }
 
-      return typeBuilderDecorator;
+    // Used by DebuggerWorkaroundCodeGenerator.
+    protected void ResetModuleContext ()
+    {
+      _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
     }
 
     private string GetNextAssemblyName ()
@@ -174,11 +179,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         assemblyBuilder.SetCustomAttribute (attribute);
 
       return assemblyBuilder.SaveToDisk();
-    }
-
-    private void ResetModuleContext ()
-    {
-      _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
     }
 
     private void EnsureNoCurrentModuleBuilder (string propertyDescription)
