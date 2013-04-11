@@ -81,14 +81,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, IConfigurationProvider configurationProvider)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
+      ArgumentUtility.CheckNotNull ("configurationProvider", configurationProvider);
 
       _moduleBuilderFactory = moduleBuilderFactory;
       _configurationProvider = configurationProvider;
 
-      ResetContext();
+      ResetModuleContext();
     }
 
-    private void ResetContext ()
+    // Used by DebuggerWorkaroundCodeGenerator.
+    protected void ResetModuleContext ()
     {
       _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
     }
@@ -133,7 +135,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         return null;
 
       var assemblyPath = SaveToDisk (moduleBuilder.AssemblyBuilder, assemblyAttributes);
-      ResetContext();
+      ResetModuleContext();
 
       return assemblyPath;
     }
