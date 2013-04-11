@@ -40,15 +40,18 @@ namespace Remotion.Development.TypePipe
     public DebuggerWorkaroundPipelineFactory (int maximumTypesPerAssembly)
     {
       _maximumTypesPerAssembly = maximumTypesPerAssembly;
+
+      DebuggerInterface = new DebuggerInterface();
     }
+
+    public IDebuggerInterface DebuggerInterface { get; set; }
 
     [CLSCompliant (false)]
     protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (IConfigurationProvider configurationProvider)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory();
-      var debuggerInterface = new DebuggerInterface();
 
-      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, configurationProvider, debuggerInterface, _maximumTypesPerAssembly);
+      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, configurationProvider, DebuggerInterface, _maximumTypesPerAssembly);
     }
   }
 }
