@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.Diagnostics;
+using Remotion.Logging;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
@@ -37,6 +38,8 @@ namespace Remotion.Development.TypePipe
   /// </summary>
   public class DebuggerWorkaroundCodeGenerator : ReflectionEmitCodeGenerator
   {
+    private static readonly ILog s_log = LogManager.GetLogger (typeof (DebuggerWorkaroundCodeGenerator));
+
     private readonly IDebuggerInterface _debuggerInterface;
     private readonly int _maximumTypesPerAssembly;
 
@@ -95,9 +98,12 @@ namespace Remotion.Development.TypePipe
 
       if (_debuggerInterface.IsAttached && _typeCountForCurrentAssembly > _maximumTypesPerAssembly)
       {
-        ResetModuleContext();
-        _typeCountForCurrentAssembly = 1;
         _resetCount++;
+        s_log.InfoFormat ("Type threshold was exceeded (CurrentTypeCount: {0}, TotalTypeCount: {1}).", _typeCountForCurrentAssembly, _totalTypeCount);
+        s_log.InfoFormat ("Started new assembly (ResetCount: {0}).", _resetCount);
+
+        _typeCountForCurrentAssembly = 1;
+        ResetModuleContext();
       }
 
       return base.DefineType (name, attributes, emittableOperandProvider);
