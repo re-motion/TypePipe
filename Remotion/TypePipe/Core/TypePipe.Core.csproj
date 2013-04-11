@@ -60,11 +60,13 @@
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="Caching\CodeGenerationSynchronizationPoint.cs" />
+    <Compile Include="Caching\ICodeGenerationSynchronizationPoint.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
     <Compile Include="Caching\ITypeCacheSynchronizationPoint.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
+    <Compile Include="Implementation\IPipelineFactory.cs" />
     <Compile Include="Implementation\IReflectionService.cs" />
     <Compile Include="Implementation\LoadedProxy.cs" />
     <Compile Include="Implementation\LoadedTypesContext.cs" />

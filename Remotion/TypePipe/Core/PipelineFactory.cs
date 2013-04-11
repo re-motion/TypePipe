@@ -15,13 +15,16 @@
 // under the License.
 // 
 
+using System;
 using System.Collections.Generic;
 using Remotion.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
@@ -30,10 +33,12 @@ using Remotion.FunctionalProgramming;
 namespace Remotion.TypePipe
 {
   /// <summary>
-  /// Creates instances of <see cref="IPipeline"/>, which are the main entry point of the pipeline.
+  /// Provides static methods that create instances of <see cref="IPipeline"/>, which are the main entry point of the pipeline.
   /// </summary>
-  public static class PipelineFactory
+  public class PipelineFactory : IPipelineFactory
   {
+    private static readonly IPipelineFactory s_instance = SafeServiceLocator.Current.GetInstance<IPipelineFactory>();
+
     /// <summary>
     /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants.
     /// </summary>
@@ -69,24 +74,142 @@ namespace Remotion.TypePipe
       var participantsCollection = participants.ConvertToCollection();
       ArgumentUtility.CheckNotNullOrEmptyOrItemsNull ("participants", participantsCollection);
 
-      var mutableTypeFactory = new MutableTypeFactory();
-      var typeAssembler = new TypeAssembler (participantConfigurationID, participantsCollection, mutableTypeFactory);
-      var memberEmitterFactory = new MemberEmitterFactory();
-      var reflectionEmitCodeGenerator = new ReflectionEmitCodeGenerator (new ModuleBuilderFactory(), configurationProvider);
-      var mutableTypeCodeGeneratorFactory = new MutableTypeCodeGeneratorFactory (
-          memberEmitterFactory,
-          reflectionEmitCodeGenerator,
-          new InitializationBuilder(),
-          new ProxySerializationEnabler (new SerializableFieldFinder()));
-      var mutableTypeBatchCodeGenerator = new MutableTypeBatchCodeGenerator (new DependentTypeSorter(), mutableTypeCodeGeneratorFactory);
-      var constructorFinder = new ConstructorFinder();
-      var delegateFactory = new DelegateFactory();
-      var lockingCodeGenerator = new CodeGenerationSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler, constructorFinder, delegateFactory);
-      var typeCache = new TypeCache (typeAssembler, lockingCodeGenerator, mutableTypeBatchCodeGenerator);
-      var codeManager = new CodeManager (lockingCodeGenerator, typeCache);
-      var reflectionService = new ReflectionService (typeAssembler, typeCache);
+      return s_instance.CreatePipeline (participantConfigurationID, participantsCollection, configurationProvider);
+    }
 
+    public virtual IPipeline CreatePipeline (
+        string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNull ("participants", participants);
+      ArgumentUtility.CheckNotNull ("configurationProvider", configurationProvider);
+
+      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants);
+      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (configurationProvider);
+      var codeGenerationSynchronizationPoint = NewCodeGenerationSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
+      var typeCache = NewTypeCache (typeAssembler, codeGenerationSynchronizationPoint, reflectionEmitCodeGenerator);
+      var codeManager = NewCodeManager (codeGenerationSynchronizationPoint, typeCache);
+      var reflectionService = NewReflectionService (typeAssembler, typeCache);
+
+      return NewPipeline (typeCache, codeManager, reflectionService);
+    }
+
+    protected virtual IPipeline NewPipeline (ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+    {
       return new Pipeline (typeCache, codeManager, reflectionService);
+    }
+
+    protected virtual ICodeManager NewCodeManager (IGeneratedCodeFlusher lockingCodeGenerator, ITypeCache typeCache)
+    {
+      return new CodeManager (lockingCodeGenerator, typeCache);
+    }
+
+    protected virtual IReflectionService NewReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache)
+    {
+      return new ReflectionService (typeAssembler, typeCache);
+    }
+
+    [CLSCompliant (false)]
+    protected virtual ITypeCache NewTypeCache (
+        ITypeAssembler typeAssembler,
+        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
+        IReflectionEmitCodeGenerator reflectionEmitCodeGenerator)
+    {
+      var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
+
+      return new TypeCache (typeAssembler, typeCacheSynchronizationPoint, mutableTypeBatchCodeGenerator);
+    }
+
+    [CLSCompliant (false)]
+    protected virtual ICodeGenerationSynchronizationPoint NewCodeGenerationSynchronizationPoint (
+        IReflectionEmitCodeGenerator reflectionEmitCodeGenerator, ITypeAssembler typeAssembler)
+    {
+      var constructorFinder = NewConstructorFinder();
+      var delegateFactory = NewDelegateFactory();
+
+      return new CodeGenerationSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler, constructorFinder, delegateFactory);
+    }
+
+    protected virtual ITypeAssembler NewTypeAssembler (string participantConfigurationID, IEnumerable<IParticipant> participants)
+    {
+      var mutableTypeFactory = NewMutableTypeFactory();
+
+      return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory);
+    }
+
+    [CLSCompliant (false)]
+    protected virtual IMutableTypeCodeGeneratorFactory NewMutableTypeCodeGeneratorFactory (IReflectionEmitCodeGenerator reflectionEmitCodeGenerator)
+    {
+      var memberEmitterFactory = NewMemberEmitterFactory();
+      var initializationBuilder = NewInitializationBuilder();
+      var proxySerializationEnabler = NewProxySerializationEnabler();
+
+      return new MutableTypeCodeGeneratorFactory (memberEmitterFactory, reflectionEmitCodeGenerator, initializationBuilder, proxySerializationEnabler);
+    }
+
+    [CLSCompliant (false)]
+    protected virtual IMutableTypeBatchCodeGenerator NewMutableTypeBatchCodeGenerator (IReflectionEmitCodeGenerator reflectionEmitCodeGenerator)
+    {
+      var dependentTypeSorter = NewDependentTypeSorter();
+      var mutableTypeCodeGeneratorFactory = NewMutableTypeCodeGeneratorFactory (reflectionEmitCodeGenerator);
+
+      return new MutableTypeBatchCodeGenerator (dependentTypeSorter, mutableTypeCodeGeneratorFactory);
+    }
+
+    [CLSCompliant (false)]
+    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (IConfigurationProvider configurationProvider)
+    {
+      var moduleBuilderFactory = NewModuleBuilderFactory();
+
+      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, configurationProvider);
+    }
+
+    protected virtual IDelegateFactory NewDelegateFactory ()
+    {
+      return new DelegateFactory();
+    }
+
+    protected virtual IConstructorFinder NewConstructorFinder ()
+    {
+      return new ConstructorFinder();
+    }
+
+    protected virtual IDependentTypeSorter NewDependentTypeSorter ()
+    {
+      return new DependentTypeSorter();
+    }
+
+    protected virtual IProxySerializationEnabler NewProxySerializationEnabler ()
+    {
+      var serializableFieldFinder = NewSerializableFieldFinder();
+
+      return new ProxySerializationEnabler (serializableFieldFinder);
+    }
+
+    protected virtual ISerializableFieldFinder NewSerializableFieldFinder ()
+    {
+      return new SerializableFieldFinder();
+    }
+
+    protected virtual IInitializationBuilder NewInitializationBuilder ()
+    {
+      return new InitializationBuilder();
+    }
+
+    [CLSCompliant (false)]
+    protected virtual IModuleBuilderFactory NewModuleBuilderFactory ()
+    {
+      return new ModuleBuilderFactory();
+    }
+
+    protected virtual IMemberEmitterFactory NewMemberEmitterFactory ()
+    {
+      return new MemberEmitterFactory();
+    }
+
+    protected virtual IMutableTypeFactory NewMutableTypeFactory ()
+    {
+      return new MutableTypeFactory();
     }
   }
 }

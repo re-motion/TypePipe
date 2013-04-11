@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.Caching
   /// <summary>
   /// Guards all access to code generation capabilities.
   /// </summary>
-  public class CodeGenerationSynchronizationPoint : IGeneratedCodeFlusher, ITypeCacheSynchronizationPoint
+  public class CodeGenerationSynchronizationPoint : ICodeGenerationSynchronizationPoint
   {
     private readonly object _codeGenerationLock = new object();
 
