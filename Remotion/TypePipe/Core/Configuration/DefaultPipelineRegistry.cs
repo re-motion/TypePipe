@@ -21,7 +21,10 @@ using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.Configuration
 {
-  // TODO 5505: Docs.
+  /// <summary>
+  /// An <see cref="IPipelineRegistry"/> implementation that registers a <see cref="PipelineRegistry.DefaultPipeline"/> on creation. 
+  /// The participants contained in this default pipeline are retrieved via the service locator.
+  /// </summary>
   public class DefaultPipelineRegistry : PipelineRegistry
   {
     public DefaultPipelineRegistry ()
