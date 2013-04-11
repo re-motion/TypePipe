@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
     private static readonly IRelatedPropertyFinder s_relatedPropertyFinder = new RelatedPropertyFinder();
     private static readonly IRelatedEventFinder s_relatedEventFinder = new RelatedEventFinder();
 
+    // TODO 5495
     private static ICustomAttributeDataRetriever CustomAttributeDataRetriever
     {
       get { return SafeServiceLocator.Current.GetInstance<ICustomAttributeDataRetriever>(); }

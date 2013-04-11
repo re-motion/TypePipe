@@ -25,16 +25,20 @@ using Remotion.Logging;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.Development.TypePipe
 {
   /// <summary>
-  /// Derives from <see cref="ReflectionEmitCodeGenerator"/> and adapts <see cref="DefineType"/> to count the defined types and reset the
-  /// <see cref="IModuleBuilder"/> when the number of types exceeds the given threshold. This can be used as a workaround for the Reflection.Emit bug
-  /// where calls to  <see cref="TypeBuilder.CreateType"/> take a very long time to complete  when the debugger is attached and a large number of
-  /// types is generated into the same <see cref="AssemblyBuilder"/>.
+  /// Derives from <see cref="ReflectionEmitCodeGenerator"/> and adapts <see cref="DefineType"/> to count the defined types and reset the module
+  /// context when the number of types exceeds the given threshold. This can be used as a workaround for the Reflection.Emit bug where calls to
+  /// <see cref="TypeBuilder.CreateType"/> take a very long time to complete  when the debugger is attached and a large number of types is generated
+  /// into the same <see cref="AssemblyBuilder"/>.
+  /// <para>
+  /// To use this workaround register <see cref="DebuggerWorkaroundPipelineFactory"/> for <see cref="IPipelineFactory"/> in your IoC container.
+  /// </para>
   /// </summary>
   public class DebuggerWorkaroundCodeGenerator : ReflectionEmitCodeGenerator
   {
