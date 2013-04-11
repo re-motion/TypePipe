@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
@@ -26,7 +25,6 @@ using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -119,8 +117,7 @@ namespace Remotion.TypePipe.IntegrationTests
     protected IPipeline CreatePipeline (
         string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
     {
-      var nonEmptyParticipants = GetNonEmptyParticipants (participants);
-      var objectFactory = PipelineFactory.Create (participantConfigurationID, nonEmptyParticipants.AsOneTime(), configurationProvider);
+      var objectFactory = PipelineFactory.Create (participantConfigurationID, participants, configurationProvider);
 
       _codeManager = objectFactory.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
@@ -170,15 +167,6 @@ namespace Remotion.TypePipe.IntegrationTests
       var typeName = fullTypeName.Substring (fullTypeName.LastIndexOf ('.') + 1);
 
       return typeName + '.' + methodName;
-    }
-
-    private IEnumerable<IParticipant> GetNonEmptyParticipants (IEnumerable<IParticipant> participants)
-    {
-      var participantList = participants.ToList();
-      if (participantList.Count == 0)
-        participantList.Add (CreateParticipant());
-
-      return participantList;
     }
   }
 }
