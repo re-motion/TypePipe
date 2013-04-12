@@ -16,28 +16,34 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// Implements <see cref="IPipelineRegistry"/> by using a lock object and a thread-safe <see cref="IDataStore{TKey,TValue}"/>.
+  /// A <see cref="IPipelineRegistry"/> implementation that sets the <see cref="PipelineRegistry.DefaultPipeline"/> on creation containing the
+  /// specified participants.
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
-    protected const string DefaultPipelineKey = "<default pipeline>";
-
     private readonly object _lock = new object();
     private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline>();
 
+    private IPipeline _defaultPipeline;
+
+    public PipelineRegistry (IEnumerable<IParticipant> defaultPipelineParticipants)
+    {
+      ArgumentUtility.CheckNotNull ("defaultPipelineParticipants", defaultPipelineParticipants);
+
+      _defaultPipeline = PipelineFactory.Create ("<default participant configuration>", defaultPipelineParticipants);
+    }
+
     public IPipeline DefaultPipeline
     {
-      get
-      {
-        var notFoundMessage = "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.";
-        return Get (DefaultPipelineKey, notFoundMessage);
-      }
+      get { return _defaultPipeline; }
+      set { _defaultPipeline = ArgumentUtility.CheckNotNull ("value", value); }
     }
 
     public void Register (IPipeline pipeline)
@@ -68,27 +74,10 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      var notFoundMessage = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
-      return Get (participantConfigurationID, notFoundMessage);
-    }
-
-    public void SetDefaultPipeline (string participantConfigurationID)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-
-      lock (_lock)
-      {
-        var newDefaultPipeline = Get (participantConfigurationID);
-        _pipelines[DefaultPipelineKey] = newDefaultPipeline;
-      }
-    }
-
-    private IPipeline Get (string participantConfigurationID, string notFoundMessage)
-    {
       var pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
 
       if (pipeline == null)
-        throw new InvalidOperationException (notFoundMessage);
+        throw new InvalidOperationException (string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID));
 
       return pipeline;
     }

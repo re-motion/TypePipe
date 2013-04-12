@@ -26,6 +26,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class PipelineRegistryTest
   {
+    private IParticipant[] _defaultParticipants;
+
     private PipelineRegistry _registry;
 
     private IPipeline _pipelineStub;
@@ -33,7 +35,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _registry = new PipelineRegistry();
+      _defaultParticipants = new[] { MockRepository.GenerateStub<IParticipant>() };
+
+      _registry = new PipelineRegistry (_defaultParticipants);
 
       _pipelineStub = CreatePipelineStub ("configId");
     }
@@ -42,16 +46,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Initialization ()
     {
       var pipelines = PrivateInvoke.GetNonPublicField (_registry, "_pipelines");
-
       Assert.That (pipelines, Is.TypeOf<LockingDataStoreDecorator<string, IPipeline>>());
-    }
 
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.")]
-    public void DefaultPipeline ()
-    {
-      Dev.Null = _registry.DefaultPipeline;
+      var defaultPipeline = _registry.DefaultPipeline;
+      Assert.That (defaultPipeline, Is.Not.Null);
+      Assert.That (defaultPipeline.ParticipantConfigurationID, Is.EqualTo ("<default participant configuration>"));
+      Assert.That (defaultPipeline.Participants, Is.EqualTo (_defaultParticipants));
     }
 
     [Test]
@@ -87,18 +87,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Get_MissingFactory ()
     {
       _registry.Get ("missingFactory");
-    }
-
-    [Test]
-    public void SetDefaultPipeline ()
-    {
-      _registry.Register (_pipelineStub);
-
-      _registry.SetDefaultPipeline ("configId");
-
-      Assert.That (_registry.DefaultPipeline, Is.SameAs (_pipelineStub));
-      Assert.That (_registry.Get ("<default pipeline>"), Is.SameAs (_pipelineStub));
-      Assert.That (() => _registry.SetDefaultPipeline ("configId"), Throws.Nothing);
     }
 
     private IPipeline CreatePipelineStub (string participantConfigurationID)

@@ -17,7 +17,7 @@
 
 using System;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe
 {
@@ -33,15 +33,13 @@ namespace Remotion.TypePipe
   /// serializing app domain. <i>Compatible pipelines</i> refers to pipelines with equivalent participant configurations, i.e., pipelines that
   /// generate  equivalent types for a requested type.
   /// </remarks>
-  [ConcreteImplementation (typeof (DefaultPipelineRegistry), Lifetime = LifetimeKind.Singleton)]
+  [ConcreteImplementation (typeof (PipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IPipelineRegistry
   {
     /// <summary>
-    /// Gets the default pipeline.
+    /// Gets or sets the default pipeline of the current environment.
     /// </summary>
-    /// <exception cref="InvalidOperationException">If no default pipeline was specified.</exception>
-    /// <seealso cref="SetDefaultPipeline"/>
-    IPipeline DefaultPipeline { get; }
+    IPipeline DefaultPipeline { get; set; }
 
     /// <summary>
     /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.
@@ -64,11 +62,5 @@ namespace Remotion.TypePipe
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <returns>The registered object factory.</returns>
     IPipeline Get (string participantConfigurationID);
-
-    /// <summary>
-    /// Sets an already registered pipeline as the <see cref="DefaultPipeline"/> overriding the previous default pipeline. 
-    /// </summary>
-    /// <param name="participantConfigurationID">The participant configuration ID of the new default pipeline.</param>
-    void SetDefaultPipeline (string participantConfigurationID);
   }
 }
