@@ -28,7 +28,6 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
-    private readonly object _lock = new object();
     private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline>();
 
     private IPipeline _defaultPipeline;
@@ -51,15 +50,15 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("pipeline", pipeline);
       Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
-      lock (_lock)
+      // Cannot use ContainsKey/Add combination as this would introduce a race condition (without locking).
+      try
       {
-        if (_pipelines.ContainsKey (pipeline.ParticipantConfigurationID))
-        {
-          var message = string.Format ("Another pipeline is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
-          throw new InvalidOperationException (message);
-        }
-
         _pipelines.Add (pipeline.ParticipantConfigurationID, pipeline);
+      }
+      catch (ArgumentException)
+      {
+        var message = string.Format ("Another pipeline is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
+        throw new InvalidOperationException (message);
       }
     }
 
