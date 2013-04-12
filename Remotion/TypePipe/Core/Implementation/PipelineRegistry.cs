@@ -23,8 +23,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// A <see cref="IPipelineRegistry"/> implementation that sets the <see cref="PipelineRegistry.DefaultPipeline"/> on creation containing the
-  /// specified participants.
+  /// A <see cref="IPipelineRegistry"/> implementation that populates the <see cref="PipelineRegistry.DefaultPipeline"/> property with a new pipeline
+  /// containing the specified participants.
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
