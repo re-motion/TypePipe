@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
@@ -39,6 +40,8 @@ namespace Remotion.TypePipe
   /// If there is the need to hold state a participant should use <see cref="TypeAssemblyContext.State"/>.
   /// </para>
   /// </remarks>
+  [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
+                           + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true)]
   public interface IParticipant
   {
     /// <summary>
