@@ -37,9 +37,11 @@ namespace Remotion.TypePipe
   public interface IPipelineRegistry
   {
     /// <summary>
-    /// Gets or sets the default pipeline of the current environment.
+    /// Gets the default pipeline.
     /// </summary>
-    IPipeline DefaultPipeline { get; set; }
+    /// <exception cref="InvalidOperationException">If no default pipeline was specified.</exception>
+    /// <seealso cref="SetDefaultPipeline"/>
+    IPipeline DefaultPipeline { get; }
 
     /// <summary>
     /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.
@@ -62,5 +64,11 @@ namespace Remotion.TypePipe
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <returns>The registered object factory.</returns>
     IPipeline Get (string participantConfigurationID);
+
+    /// <summary>
+    /// Sets an already registered pipeline as the <see cref="DefaultPipeline"/> overriding the previous default pipeline. 
+    /// </summary>
+    /// <param name="participantConfigurationID">The participant configuration ID of the new default pipeline.</param>
+    void SetDefaultPipeline (string participantConfigurationID);
   }
 }

@@ -23,26 +23,31 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// A <see cref="IPipelineRegistry"/> implementation that populates the <see cref="PipelineRegistry.DefaultPipeline"/> property with a new pipeline
-  /// containing the specified participants.
+  /// A <see cref="IPipelineRegistry"/> implementation that registers a new pipeline containing the specified participants and sets it as the
+  /// default pipeline. This ensures that the <see cref="PipelineRegistry.DefaultPipeline"/> property is populated.
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
-    private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline>();
+    private const string c_defaultPipelineKey = "<default participant configuration>";
 
-    private IPipeline _defaultPipeline;
+    private readonly object _lock = new object ();
+    private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline> ();
 
     public PipelineRegistry (IEnumerable<IParticipant> defaultPipelineParticipants)
     {
       ArgumentUtility.CheckNotNull ("defaultPipelineParticipants", defaultPipelineParticipants);
 
-      _defaultPipeline = PipelineFactory.Create ("<default participant configuration>", defaultPipelineParticipants);
+      var defaultPipeline = PipelineFactory.Create (c_defaultPipelineKey, defaultPipelineParticipants);
+      Register (defaultPipeline);
     }
 
     public IPipeline DefaultPipeline
     {
-      get { return _defaultPipeline; }
-      set { _defaultPipeline = ArgumentUtility.CheckNotNull ("value", value); }
+      get
+      {
+        var notFoundMessage = "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.";
+        return Get (c_defaultPipelineKey, notFoundMessage);
+      }
     }
 
     public void Register (IPipeline pipeline)
@@ -50,15 +55,15 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("pipeline", pipeline);
       Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
-      // Cannot use ContainsKey/Add combination as this would introduce a race condition (without locking).
-      try
+      lock (_lock)
       {
+        if (_pipelines.ContainsKey (pipeline.ParticipantConfigurationID))
+        {
+          var message = string.Format ("Another pipeline is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
+          throw new InvalidOperationException (message);
+        }
+
         _pipelines.Add (pipeline.ParticipantConfigurationID, pipeline);
-      }
-      catch (ArgumentException)
-      {
-        var message = string.Format ("Another pipeline is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
-        throw new InvalidOperationException (message);
       }
     }
 
@@ -73,10 +78,27 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
+      var notFoundMessage = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
+      return Get (participantConfigurationID, notFoundMessage);
+    }
+
+    public void SetDefaultPipeline (string participantConfigurationID)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+
+      lock (_lock)
+      {
+        var newDefaultPipeline = Get (participantConfigurationID);
+        _pipelines[c_defaultPipelineKey] = newDefaultPipeline;
+      }
+    }
+
+    private IPipeline Get (string participantConfigurationID, string notFoundMessage)
+    {
       var pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
 
       if (pipeline == null)
-        throw new InvalidOperationException (string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID));
+        throw new InvalidOperationException (notFoundMessage);
 
       return pipeline;
     }

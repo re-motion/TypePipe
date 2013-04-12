@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
     private PipelineRegistry _registry;
 
-    private IPipeline _pipelineStub;
+    private IPipeline _somePipeline;
 
     [SetUp]
     public void SetUp ()
@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
       _registry = new PipelineRegistry (_defaultParticipants);
 
-      _pipelineStub = CreatePipelineStub ("configId");
+      _somePipeline = CreatePipelineStub ("configId");
     }
 
     [Test]
@@ -52,20 +52,31 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (defaultPipeline, Is.Not.Null);
       Assert.That (defaultPipeline.ParticipantConfigurationID, Is.EqualTo ("<default participant configuration>"));
       Assert.That (defaultPipeline.Participants, Is.EqualTo (_defaultParticipants));
+      Assert.That (_registry.Get ("<default participant configuration>"), Is.SameAs (defaultPipeline));
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.")]
+    public void DefaultPipeline ()
+    {
+      _registry.Unregister ("<default participant configuration>");
+
+      Dev.Null = _registry.DefaultPipeline;
     }
 
     [Test]
     public void RegisterAndGet ()
     {
-      _registry.Register (_pipelineStub);
+      _registry.Register (_somePipeline);
 
-      Assert.That (_registry.Get ("configId"), Is.SameAs (_pipelineStub));
+      Assert.That (_registry.Get ("configId"), Is.SameAs (_somePipeline));
     }
 
     [Test]
     public void RegisterAndUnregister ()
     {
-      _registry.Register (_pipelineStub);
+      _registry.Register (_somePipeline);
       Assert.That (_registry.Get ("configId"), Is.Not.Null);
 
       _registry.Unregister ("configId");
@@ -76,22 +87,34 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another pipeline is already registered for identifier 'configId'.")]
-    public void Register_ExistingFactory ()
+    public void Register_ExistingPipeline ()
     {
-      Assert.That (() => _registry.Register (_pipelineStub), Throws.Nothing);
-      _registry.Register (_pipelineStub);
+      Assert.That (() => _registry.Register (_somePipeline), Throws.Nothing);
+      _registry.Register (_somePipeline);
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "No pipeline registered for identifier 'missingFactory'.")]
-    public void Get_MissingFactory ()
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "No pipeline registered for identifier 'missingPipeline'.")]
+    public void Get_MissingPipeline ()
     {
-      _registry.Get ("missingFactory");
+      _registry.Get ("missingPipeline");
+    }
+
+    [Test]
+    public void SetDefaultPipeline ()
+    {
+      _registry.Register (_somePipeline);
+
+      _registry.SetDefaultPipeline ("configId");
+
+      Assert.That (_registry.DefaultPipeline, Is.SameAs (_somePipeline));
+      Assert.That (_registry.Get ("<default participant configuration>"), Is.SameAs (_somePipeline));
+      Assert.That (() => _registry.SetDefaultPipeline ("configId"), Throws.Nothing);
     }
 
     private IPipeline CreatePipelineStub (string participantConfigurationID)
     {
-      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
+      var pipelineStub = MockRepository.GenerateStub<IPipeline> ();
       pipelineStub.Stub (stub => stub.ParticipantConfigurationID).Return (participantConfigurationID);
 
       return pipelineStub;
