@@ -17,8 +17,8 @@
 
 using System;
 using System.Reflection;
-using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.Utilities;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
 {
@@ -37,7 +37,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var ctor = attributeType.GetConstructor (bindingFlags, null, Type.EmptyTypes, null);
-      Assert.That (ctor, Is.Not.Null, "Custom attribute type does not define a default ctor.");
+      Assertion.IsNotNull (ctor, "Custom attribute type does not define a default ctor.");
 
       return new CustomAttributeDeclaration (ctor, new object[0]);
     }

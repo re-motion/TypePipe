@@ -43,9 +43,6 @@
     <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -54,6 +51,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTesting\Expressions\Assert.cs" />
     <Compile Include="UnitTesting\Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="UnitTesting\ObjectMothers\Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\Implementation\LoadedTypesContextObjectMother.cs" />

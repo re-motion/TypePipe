@@ -19,7 +19,6 @@ using System;
 using System.Collections;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using NUnit.Framework;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
 
@@ -112,12 +111,12 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
             var elementType2 = list2[i] != null ? list2[i].GetType() : typeof (object);
 
             if (typeof (BlockExpression).IsAssignableFrom (elementType1))
-              Assert.That (typeof (BlockExpression).IsAssignableFrom (elementType2));
+              Assert.IsTrue (typeof (BlockExpression).IsAssignableFrom (elementType2), GetMessage(elementType1, elementType2, "BlockExpression"));
             else if (typeof (MethodCallExpression).IsAssignableFrom (elementType1))
-              Assert.That (typeof (MethodCallExpression).IsAssignableFrom (elementType2));
+              Assert.IsTrue (typeof (MethodCallExpression).IsAssignableFrom (elementType2), GetMessage(elementType1, elementType2, "MethodCallExpression"));
             else
             {
-              Assert.AreSame (
+              Assert.AreEqual (
                   elementType1,
                   elementType2,
                   string.Format (
@@ -140,13 +139,13 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
         var ctorAdapter1 = adapter1.AdaptedMethod as ConstructorAsMethodInfoAdapter;
         var ctorAdapter2 = adapter2.AdaptedMethod as ConstructorAsMethodInfoAdapter;
 
-        Assert.That (
+        Assert.IsTrue (
             adapter1.AdaptedMethod == adapter2.AdaptedMethod
             || (ctorAdapter1 != null && ctorAdapter2 != null && ctorAdapter1.AdaptedConstructor == ctorAdapter2.AdaptedConstructor),
-            Is.True, "Adapted MethodInfo is not equal (non-virtual or ctor).");
+            "Adapted MethodInfo is not equal (non-virtual or ctor).");
       }
       else if (value1 is MemberInfo && value2 is MemberInfo)
-        Assert.That (value1, Is.EqualTo (value2).Using (MemberInfoEqualityComparer<MemberInfo>.Instance), GetMessage (value1, value2, "MemberInfos"));
+        Assert.IsTrue (MemberInfoEqualityComparer<MemberInfo>.Instance.Equals ((MemberInfo) value1, (MemberInfo) value2), GetMessage (value1, value2, "MemberInfos"));
       else
         Assert.AreEqual (value1, value2, GetMessage (expected, actual, "Property " + property.Name));
     }
