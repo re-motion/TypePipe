@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void CallBaseConstructor ()
     {
-      var arguments = new ArgumentTestHelper ("string").Expressions;
+      var arguments = new Expression[] { Expression.Constant ("string") };
 
       var result = _context.CallBaseConstructor (arguments.AsOneTime());
 
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void CallThisConstructor ()
     {
-      var arguments = new ArgumentTestHelper ("string").Expressions;
+      var arguments = new Expression[] { Expression.Constant ("string") };
 
       var result = _context.CallThisConstructor (arguments.AsOneTime());
 
@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void CallXXXConstructor_Exceptions ()
     {
-      var arguments = new ArgumentTestHelper (7, "8").Expressions;
+      var arguments = new Expression[] { Expression.Constant (7), Expression.Constant ("8") };
 
       Assert.That (
           () => _context.CallBaseConstructor (arguments),

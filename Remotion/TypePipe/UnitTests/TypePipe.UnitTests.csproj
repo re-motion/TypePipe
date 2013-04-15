@@ -190,7 +190,6 @@
     <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeFinderTest.cs" />
-    <Compile Include="MutableReflection\ArgumentTestHelper.cs" />
     <Compile Include="MutableReflection\Implementation\BindingFlagsEvaluatorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
     <Compile Include="MutableReflection\MutableConstructorInfoTestHelper.cs" />
