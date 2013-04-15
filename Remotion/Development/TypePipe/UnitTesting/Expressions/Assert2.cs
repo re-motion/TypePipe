@@ -29,7 +29,10 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
       if (expected == actual)
         return;
 
-      if (expected.Equals(actual))
+      if (expected == null)
+        throw Throw (message);
+
+      if (expected.Equals (actual))
         return;
 
       var expectedEnumerable = expected as IEnumerable;
@@ -56,7 +59,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
         Throw (message);
     }
 
-    private static void Throw (string message)
+    private static Exception Throw (string message)
     {
       throw new Exception (message);
     }
