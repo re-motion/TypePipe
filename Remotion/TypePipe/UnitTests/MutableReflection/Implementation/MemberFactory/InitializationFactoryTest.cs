@@ -17,9 +17,9 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {

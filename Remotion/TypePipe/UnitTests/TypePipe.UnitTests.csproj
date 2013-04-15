@@ -99,13 +99,11 @@
     <Compile Include="Expressions\DelegateBasedExpressionVisitorTest.cs" />
     <Compile Include="Expressions\ExpressionExtensionsTest.cs" />
     <Compile Include="Expressions\ExpressionTest.cs" />
-    <Compile Include="Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="Expressions\NewDelegateExpressionTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapterTest.cs" />
     <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
-    <Compile Include="Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
     <Compile Include="Caching\SynchronizationPointTest.cs" />
@@ -283,6 +281,10 @@
     <ProjectReference Include="..\..\Development\RhinoMocks\Development.RhinoMocks.csproj">
       <Project>{2177143e-345f-4faa-9958-1ae2b5eed242}</Project>
       <Name>Development.RhinoMocks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Development\TypePipe\Development.TypePipe.csproj">
+      <Project>{f6faf727-9405-4bcc-9153-803f73853e67}</Project>
+      <Name>Development.TypePipe</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core\TypePipe.Core.csproj">
       <Project>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</Project>
