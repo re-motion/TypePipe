@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
