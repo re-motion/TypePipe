@@ -48,12 +48,12 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
     public void CheckAreEqualNodes (Expression expected, Expression actual)
     {
       if (expected == null)
-        Assert.IsNull (actual, GetMessage (expected, actual, "Null nodes"));
+        Assert2.IsNull (actual, GetMessage (expected, actual, "Null nodes"));
       else
       {
         CheckAreEqualExpressionTypes (expected, actual);
-        Assert.AreEqual (expected.NodeType, actual.NodeType, GetMessage (expected, actual, "NodeType"));
-        Assert.AreEqual (expected.Type, actual.Type, GetMessage (expected, actual, "Type"));
+        Assert2.AreEqual (expected.NodeType, actual.NodeType, GetMessage (expected, actual, "NodeType"));
+        Assert2.AreEqual (expected.Type, actual.Type, GetMessage (expected, actual, "Type"));
         CheckAreEqualObjects (expected, actual);
       }
     }
@@ -62,11 +62,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
     {
       if (expected is Expression)
       {
-        Assert.IsInstanceOf<Expression> (actual, GetMessage (expected, actual, "NodeType"));
+        Assert2.IsInstanceOf<Expression> (actual, GetMessage (expected, actual, "NodeType"));
         CheckAreEqualExpressionTypes ((Expression) expected, (Expression) actual);
       }
       else
-        Assert.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "GetType()"));
+        Assert2.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "GetType()"));
 
       foreach (PropertyInfo property in expected.GetType().GetProperties (BindingFlags.Instance | BindingFlags.Public))
       {
@@ -79,11 +79,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
     private void CheckAreEqualExpressionTypes (Expression expected, Expression actual)
     {
       if (expected is BlockExpression)
-        Assert.IsInstanceOf<BlockExpression> (actual, GetMessage (expected, actual, "NodeType"));
+        Assert2.IsInstanceOf<BlockExpression> (actual, GetMessage (expected, actual, "NodeType"));
       else if (expected is MethodCallExpression)
-        Assert.IsInstanceOf<MethodCallExpression> (actual, GetMessage (expected, actual, "NodeType"));
+        Assert2.IsInstanceOf<MethodCallExpression> (actual, GetMessage (expected, actual, "NodeType"));
       else
-        Assert.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "NodeType"));
+        Assert2.AreEqual (expected.GetType(), actual.GetType(), GetMessage (expected, actual, "NodeType"));
     }
 
     private void CheckAreEqualProperties (PropertyInfo property, Type valueType, object value1, object value2, object expected, object actual)
@@ -101,22 +101,22 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
         IList list1 = (IList) value1;
         IList list2 = (IList) value2;
         if (list1 == null || list2 == null)
-          Assert.AreEqual (list1, list2, "One of the lists in " + property.Name + " is null.");
+          Assert2.AreEqual (list1, list2, "One of the lists in " + property.Name + " is null.");
         else
         {
-          Assert.AreEqual (list1.Count, list2.Count, GetMessage (expected, actual, "Number of elements in " + property.Name));
+          Assert2.AreEqual (list1.Count, list2.Count, GetMessage (expected, actual, "Number of elements in " + property.Name));
           for (int i = 0; i < list1.Count; ++i)
           {
             var elementType1 = list1[i] != null ? list1[i].GetType() : typeof (object);
             var elementType2 = list2[i] != null ? list2[i].GetType() : typeof (object);
 
             if (typeof (BlockExpression).IsAssignableFrom (elementType1))
-              Assert.IsTrue (typeof (BlockExpression).IsAssignableFrom (elementType2), GetMessage(elementType1, elementType2, "BlockExpression"));
+              Assert2.IsTrue (typeof (BlockExpression).IsAssignableFrom (elementType2), GetMessage(elementType1, elementType2, "BlockExpression"));
             else if (typeof (MethodCallExpression).IsAssignableFrom (elementType1))
-              Assert.IsTrue (typeof (MethodCallExpression).IsAssignableFrom (elementType2), GetMessage(elementType1, elementType2, "MethodCallExpression"));
+              Assert2.IsTrue (typeof (MethodCallExpression).IsAssignableFrom (elementType2), GetMessage(elementType1, elementType2, "MethodCallExpression"));
             else
             {
-              Assert.AreEqual (
+              Assert2.AreEqual (
                   elementType1,
                   elementType2,
                   string.Format (
@@ -139,15 +139,15 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
         var ctorAdapter1 = adapter1.AdaptedMethod as ConstructorAsMethodInfoAdapter;
         var ctorAdapter2 = adapter2.AdaptedMethod as ConstructorAsMethodInfoAdapter;
 
-        Assert.IsTrue (
+        Assert2.IsTrue (
             adapter1.AdaptedMethod == adapter2.AdaptedMethod
             || (ctorAdapter1 != null && ctorAdapter2 != null && ctorAdapter1.AdaptedConstructor == ctorAdapter2.AdaptedConstructor),
             "Adapted MethodInfo is not equal (non-virtual or ctor).");
       }
       else if (value1 is MemberInfo && value2 is MemberInfo)
-        Assert.IsTrue (MemberInfoEqualityComparer<MemberInfo>.Instance.Equals ((MemberInfo) value1, (MemberInfo) value2), GetMessage (value1, value2, "MemberInfos"));
+        Assert2.IsTrue (MemberInfoEqualityComparer<MemberInfo>.Instance.Equals ((MemberInfo) value1, (MemberInfo) value2), GetMessage (value1, value2, "MemberInfos"));
       else
-        Assert.AreEqual (value1, value2, GetMessage (expected, actual, "Property " + property.Name));
+        Assert2.AreEqual (value1, value2, GetMessage (expected, actual, "Property " + property.Name));
     }
 
     private string GetMessage (object expected, object actual, string context)

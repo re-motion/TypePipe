@@ -20,7 +20,7 @@ using Microsoft.Scripting.Ast;
 
 namespace Remotion.Development.TypePipe.UnitTesting.Expressions
 {
-  public static class Assert
+  public static class Assert2
   {
     public static void AreEqual (object expected, object actual, string message)
     {
