@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Collections;
+using System.Linq;
 using Microsoft.Scripting.Ast;
 
 namespace Remotion.Development.TypePipe.UnitTesting.Expressions
@@ -24,8 +26,18 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
   {
     public static void AreEqual (object expected, object actual, string message)
     {
-      if (!expected.Equals (actual))
-        Throw (message);
+      if (expected == actual)
+        return;
+
+      if (expected.Equals(actual))
+        return;
+
+      var expectedEnumerable = expected as IEnumerable;
+      var actualEnumerable = actual as IEnumerable;
+      if (expectedEnumerable != null && actualEnumerable != null && expectedEnumerable.Cast<object>().SequenceEqual (actualEnumerable.Cast<object>()))
+        return;
+
+      Throw (message);
     }
 
     public static void IsNull (Expression actual, string message)
@@ -40,7 +52,8 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
 
     public static void IsInstanceOf<T> (object actual, string message)
     {
-      AreEqual (typeof (T), actual.GetType(), message);
+      if (!(actual is T))
+        Throw (message);
     }
 
     private static void Throw (string message)

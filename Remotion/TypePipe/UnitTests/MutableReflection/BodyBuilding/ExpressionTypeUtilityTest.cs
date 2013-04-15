@@ -17,7 +17,6 @@
 using System;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using System.Collections.Generic;
