@@ -22,7 +22,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Expressions;
 
-namespace Remotion.Development.TypePipe.UnitTesting.Expressions
+namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions
 {
   public static class ExpressionTreeObjectMother
   {
