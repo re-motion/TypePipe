@@ -153,7 +153,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.Expressions
     private string GetMessage (object expected, object actual, string context)
     {
       return string.Format (
-          "Trees are not equal: {0}\nExpected node: {1}\nActual node: {2}\nExpected tree: {3}\nActual tree: {4}",
+          "Trees are not equal: {0}\nExpected node: {1}\nActual  node: {2}\nExpected tree:\n{3}\nActual tree:\n{4}",
           context,
           expected,
           actual,
