@@ -22,7 +22,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Provides utility functions for working with method overrides.
+  /// Provides utility functions for determining names and attributes for method overrides.
   /// </summary>
   public static class MethodOverrideUtility
   {
@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
       Assertion.IsTrue (overriddenMethod.IsVirtual);
 
-      return overriddenMethod.DeclaringType.FullName.Replace ('+', '.') + "." + overriddenMethod.Name;
+      return MemberImplementationUtility.GetNameForExplicitImplementation (overriddenMethod);
     }
 
     public static MethodAttributes GetAttributesForExplicitOverride (MethodInfo overriddenMethod)
