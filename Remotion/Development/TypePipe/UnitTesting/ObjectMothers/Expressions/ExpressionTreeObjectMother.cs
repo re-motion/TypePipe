@@ -36,6 +36,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions
       return Expression.Default (type);
     }
 
+    public static Expression GetSomeWritableExpression (Type type)
+    {
+      return Expression.Variable (type);
+    }
+
     public static ThisExpression GetSomeThisExpression (Type type = null)
     {
       return new ThisExpression (type ?? ReflectionObjectMother.GetSomeType());
