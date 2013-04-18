@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
@@ -42,6 +44,14 @@ namespace Microsoft.Scripting.Ast
       ArgumentUtility.CheckNotNull ("method", method);
 
       return new NewDelegateExpression (delegateType, target, method);
+    }
+
+    // TODO 5370
+    public static NewArrayExpression ArrayConstant<T> (IEnumerable<T> elements)
+    {
+      ArgumentUtility.CheckNotNull ("elements", elements);
+
+      return Expression.NewArrayInit (typeof (T), elements.Select (e => Expression.Constant (e)).Cast<Expression>());
     }
   }
 }
