@@ -53,5 +53,14 @@ namespace Microsoft.Scripting.Ast
 
       return Expression.NewArrayInit (typeof (T), elements.Select (e => Expression.Constant (e)).Cast<Expression>());
     }
+
+    // TODO 5370
+    public static Expression BlockOrEmpty (IEnumerable<Expression> expressionsOrEmpty)
+    {
+      ArgumentUtility.CheckNotNull ("expressionsOrEmpty", expressionsOrEmpty);
+      var expressions = expressionsOrEmpty.ToList();
+
+      return expressions.Count == 0 ? (Expression) Expression.Empty() : Expression.Block (expressions);
+    }
   }
 }
