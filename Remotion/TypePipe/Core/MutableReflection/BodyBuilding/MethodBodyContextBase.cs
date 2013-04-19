@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -84,10 +83,27 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       // Instance may be null (for static methods).
       ArgumentUtility.CheckNotNull ("methodToCall", methodToCall);
 
-      if (GenericParameters.Count > 0)
-        methodToCall = methodToCall.MakeTypePipeGenericMethod (GenericParameters.ToArray());
+      var instantiatedMethodToCall = InstantiateWithOwnGenericParameters (methodToCall);
 
-      return Expression.Call (instance, methodToCall, Parameters.Cast<Expression>());
+      return Expression.Call (instance, instantiatedMethodToCall, Parameters.Cast<Expression>());
+    }
+
+    // TODO 5370
+    public MethodCallExpression DelegateToBase (MethodInfo baseMethod)
+    {
+      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
+
+      var instantiatedBaseMethod = InstantiateWithOwnGenericParameters (baseMethod);
+
+      return CallBase (instantiatedBaseMethod, Parameters.Cast<Expression>());
+    }
+
+    private MethodInfo InstantiateWithOwnGenericParameters (MethodInfo method)
+    {
+      if (GenericParameters.Count == 0)
+        return method;
+
+      return method.MakeTypePipeGenericMethod (GenericParameters.ToArray());
     }
   }
 }
