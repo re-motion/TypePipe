@@ -77,5 +77,17 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         return _baseMethod;
       }
     }
+
+    // TODO 5370
+    public MethodCallExpression DelegateTo (Expression instance, MethodInfo methodToCall)
+    {
+      // Instance may be null (for static methods).
+      ArgumentUtility.CheckNotNull ("methodToCall", methodToCall);
+
+      if (GenericParameters.Count > 0)
+        methodToCall = methodToCall.MakeTypePipeGenericMethod (GenericParameters.ToArray());
+
+      return Expression.Call (instance, methodToCall);
+    }
   }
 }
