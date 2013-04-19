@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
       Assert.That (result.Type, Is.SameAs (typeof (IComparable[])));
       var constantValue = (ConstantExpression) result.Expressions.Single();
-      Assert.That (constantValue.Type, Is.SameAs (typeof (string)));
+      Assert.That (constantValue.Type, Is.SameAs (typeof (IComparable)));
       Assert.That (constantValue.Value, Is.EqualTo ("7"));
     }
 

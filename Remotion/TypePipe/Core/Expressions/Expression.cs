@@ -46,15 +46,19 @@ namespace Microsoft.Scripting.Ast
     }
 
     /// <summary>
-    /// Creates a <see cref="NewArrayExpression"/> containing the specified values as <see cref="ConstantExpression"/>s.
+    /// Creates a <see cref="NewArrayExpression"/> containing the specified values as <see cref="ConstantExpression"/>s that are typed by
+    /// <typeparamref name="T"/>.
     /// </summary>
-    /// <typeparam name="T">The array type.</typeparam>
-    /// <param name="constantValues">The elements of the array; will be wrapped in <see cref="Constant(object)"/>.</param>
+    /// <typeparam name="T">The element type.</typeparam>
+    /// <param name="constantValues">The elements of the array; will be wrapped in <see cref="Constant(object,System.Type)"/>.</param>
     public static NewArrayExpression ArrayConstant<T> (IEnumerable<T> constantValues)
     {
       ArgumentUtility.CheckNotNull ("constantValues", constantValues);
 
-      return Expression.NewArrayInit (typeof (T), constantValues.Select (e => Expression.Constant (e)).Cast<Expression>());
+      var elementType = typeof (T);
+      var constantElements = constantValues.Select (value => Expression.Constant (value, elementType));
+
+      return Expression.NewArrayInit (elementType, constantElements.Cast<Expression>());
     }
 
     /// <summary>
