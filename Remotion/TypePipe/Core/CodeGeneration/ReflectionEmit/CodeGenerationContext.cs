@@ -64,6 +64,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _typeBuilder; }
     }
 
+    [CLSCompliant (false)]
     public IDictionary<MutableMethodInfo, IMethodBuilder> MethodBuilders
     {
       get { return _methodBuilders; }
