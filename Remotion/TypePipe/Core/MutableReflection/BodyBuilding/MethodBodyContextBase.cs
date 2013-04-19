@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (GenericParameters.Count > 0)
         methodToCall = methodToCall.MakeTypePipeGenericMethod (GenericParameters.ToArray());
 
-      return Expression.Call (instance, methodToCall);
+      return Expression.Call (instance, methodToCall, Parameters.Cast<Expression>());
     }
   }
 }
