@@ -36,7 +36,6 @@ namespace Microsoft.Scripting.Ast
     /// <param name="delegateType">The type of the delegate.</param>
     /// <param name="target">The target instance or <see langword="null"/> for static methods.</param>
     /// <param name="method">The method.</param>
-    /// <returns></returns>
     public static NewDelegateExpression NewDelegate (Type delegateType, Expression target, MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("delegateType", delegateType);
@@ -46,15 +45,23 @@ namespace Microsoft.Scripting.Ast
       return new NewDelegateExpression (delegateType, target, method);
     }
 
-    // TODO 5370
-    public static NewArrayExpression ArrayConstant<T> (IEnumerable<T> elements)
+    /// <summary>
+    /// Creates a <see cref="NewArrayExpression"/> containing the specified values as <see cref="ConstantExpression"/>s.
+    /// </summary>
+    /// <typeparam name="T">The array type.</typeparam>
+    /// <param name="constantValues">The elements of the array; will be wrapped in <see cref="Constant(object)"/>.</param>
+    public static NewArrayExpression ArrayConstant<T> (IEnumerable<T> constantValues)
     {
-      ArgumentUtility.CheckNotNull ("elements", elements);
+      ArgumentUtility.CheckNotNull ("constantValues", constantValues);
 
-      return Expression.NewArrayInit (typeof (T), elements.Select (e => Expression.Constant (e)).Cast<Expression>());
+      return Expression.NewArrayInit (typeof (T), constantValues.Select (e => Expression.Constant (e)).Cast<Expression>());
     }
 
-    // TODO 5370
+    /// <summary>
+    /// Creates a <see cref="BlockExpression"/> containing the specified expressions if the sequence is non-empty; otherwise creates an
+    /// <see cref="Empty"/> expression.
+    /// </summary>
+    /// <param name="expressionsOrEmpty">A sequence of expressions which might be empty.</param>
     public static Expression BlockOrEmpty (IEnumerable<Expression> expressionsOrEmpty)
     {
       ArgumentUtility.CheckNotNull ("expressionsOrEmpty", expressionsOrEmpty);
