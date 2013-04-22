@@ -58,6 +58,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
+    <Compile Include="Dlr\PreprocessorSymbols.cs" />
     <Compile Include="Implementation\Synchronization\ICodeManagerSynchronizationPoint.cs" />
     <Compile Include="Implementation\Synchronization\SynchronizationPoint.cs" />
     <Compile Include="Implementation\Synchronization\ISynchronizationPoint.cs" />
