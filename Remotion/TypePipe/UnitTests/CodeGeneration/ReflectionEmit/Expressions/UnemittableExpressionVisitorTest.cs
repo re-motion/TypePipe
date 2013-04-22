@@ -17,6 +17,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
@@ -32,10 +33,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
@@ -72,34 +69,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     }
 
     [Test]
-    public void VisitConstant_EmittableOperand ()
+    public void VisitConstant_EmittableOperand_ChangesNodeType ()
     {
-      var type = ReflectionObjectMother.GetSomeType();
-      var emittableType = ReflectionObjectMother.GetSomeOtherType();
-      var field = ReflectionObjectMother.GetSomeField();
-      var emittableField = ReflectionObjectMother.GetSomeOtherField();
-      var constructor = ReflectionObjectMother.GetSomeConstructor();
-      var emittableConstructor = ReflectionObjectMother.GetSomeOtherConstructor();
-      var method = ReflectionObjectMother.GetSomeMethod();
-      var emittableMethod = ReflectionObjectMother.GetSomeOtherMethod();
+      var type = CustomTypeObjectMother.Create();
+      var emittableType = ReflectionObjectMother.GetSomeType();
+      var field = CustomFieldInfoObjectMother.Create();
+      var emittableField = ReflectionObjectMother.GetSomeField();
+      var constructor = CustomConstructorInfoObjectMother.Create();
+      var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
+      var method = CustomMethodInfoObjectMother.Create();
+      var emittableMethod = ReflectionObjectMother.GetSomeMethod();
 
-      CheckVisitConstant (type, emittableType, (p, t) => p.GetEmittableType (t));
-      CheckVisitConstant (field, emittableField, (p, f) => p.GetEmittableField (f));
-      CheckVisitConstant (constructor, emittableConstructor, (p, c) => p.GetEmittableConstructor (c));
-      CheckVisitConstant (method, emittableMethod, (p, c) => p.GetEmittableMethod (c));
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), MatchType = MessageMatch.StartsWith, ExpectedMessage =
-        "It is not supported to have a ConstantExpression of type 'MutableType' because instances of 'MutableType' exist only at " +
-        "code generation time, not at runtime.")]
-    public void VisitConstant_NotAssignableValue ()
-    {
-      var proxyType = MutableTypeObjectMother.Create();
-      var expression = Expression.Constant (proxyType);
-      _emittableOperandProviderMock.Stub (stub => stub.GetEmittableType (proxyType)).Return (typeof (int));
-
-      _visitorPartialMock.Invoke ("VisitConstant", expression);
+      CheckVisitConstant (type, emittableType, typeof (Type), (p, t) => p.GetEmittableType (t));
+      CheckVisitConstant (field, emittableField, typeof (FieldInfo), (p, f) => p.GetEmittableField (f));
+      CheckVisitConstant (constructor, emittableConstructor, typeof (ConstructorInfo), (p, c) => p.GetEmittableConstructor (c));
+      CheckVisitConstant (method, emittableMethod, typeof (MethodInfo), (p, c) => p.GetEmittableMethod (c));
     }
 
     [Test]
@@ -337,9 +321,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       Assert.That (result, Is.SameAs (expression));
     }
 
-    private void CheckVisitConstant<T> (T value, T emittableValue, Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc)
+    private void CheckVisitConstant<T> (T value, T emittableValue, Type emittableType, Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc)
     {
-      var expression = Expression.Constant (value, typeof (object));
+      var expression = Expression.Constant (value);
       _emittableOperandProviderMock.BackToRecord();
       _emittableOperandProviderMock.Expect (mock => getEmittableOperandFunc (mock, value)).Return (emittableValue);
       _emittableOperandProviderMock.Replay();
@@ -350,7 +334,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       Assert.That (result, Is.AssignableTo<ConstantExpression>());
       var constantExpression = (ConstantExpression) result;
       Assert.That (constantExpression.Value, Is.SameAs (emittableValue));
-      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
+      Assert.That (constantExpression.Type, Is.SameAs (emittableType));
     }
 
     private void CheckVisitUnaryUnchanged (Type toType, Type fromType)
