@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (codeManager.AssemblyDirectory, Is.Null); // Current directory.
       Assert.That (codeManager.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
 
-      pipeline.CreateObject<RequestedType>();
+      pipeline.Create<RequestedType>();
       var path = codeManager.FlushCodeToDisk();
 
       var counter = (int) PrivateInvoke.GetNonPublicStaticField (typeof (ReflectionEmitCodeGenerator), "s_counter");

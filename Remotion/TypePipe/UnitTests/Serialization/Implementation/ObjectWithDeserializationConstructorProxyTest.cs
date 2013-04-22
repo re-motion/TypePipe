@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       var objectFactoryMock = MockRepository.GenerateStrictMock<IPipeline>();
       var fakeObject = new object();
       objectFactoryMock
-          .Expect (mock => mock.CreateObject (Arg.Is (_underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
+          .Expect (mock => mock.Create (Arg.Is (_underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
           .WhenCalled (
               mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, context })))
           .Return (fakeObject);

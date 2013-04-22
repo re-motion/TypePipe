@@ -287,7 +287,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
           + "Strong-naming is enabled but a participant used the type '" + unsignedType.FullName + "' which comes from the unsigned assembly "
           + "'" + unsignedType.Assembly.GetName().Name + "'.\r\n"
           + @"The following participants are currently configured and may have caused the error: 'ParticipantStub'.";
-      Assert.That (() => objectFactory.CreateObject (requestedType), Throws.InvalidOperationException.With.Message.EqualTo (message));
+      Assert.That (() => objectFactory.Create (requestedType), Throws.InvalidOperationException.With.Message.EqualTo (message));
     }
 
     private void CheckStrongNamingExpressionException (Expression methodBody)

@@ -63,13 +63,13 @@ namespace Remotion.TypePipe.Implementation
       get { return _reflectionService; }
     }
 
-    public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    public T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class
     {
-      return (T) CreateObject (typeof (T), constructorArguments, allowNonPublicConstructor);
+      return (T) Create (typeof (T), constructorArguments, allowNonPublicConstructor);
     }
 
-    public object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       constructorArguments = constructorArguments ?? ParamList.Empty;

@@ -30,21 +30,21 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       var pipeline = CreatePipeline();
 
-      var instance = pipeline.CreateObject<DomainType>();
+      var instance = pipeline.Create<DomainType>();
       Assert.That (instance.String, Is.EqualTo ("default .ctor"));
 
       var obj = new object();
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create (obj));
+      instance = pipeline.Create<DomainType> (ParamList.Create (obj));
       Assert.That (instance.Obj, Is.SameAs (obj));
 
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create ("abc"));
+      instance = pipeline.Create<DomainType> (ParamList.Create ("abc"));
       Assert.That (instance.String, Is.EqualTo ("abc"));
 
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create ((IEnumerable<char>) "abc"));
+      instance = pipeline.Create<DomainType> (ParamList.Create ((IEnumerable<char>) "abc"));
       Assert.That (instance.Enumerable, Is.EqualTo ("abc"));
       Assert.That (instance.String, Is.Null);
 
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create (new[] { 'a', 'b', 'c' }));
+      instance = pipeline.Create<DomainType> (ParamList.Create (new[] { 'a', 'b', 'c' }));
       Assert.That (instance.CharArray, Is.EqualTo (new[] { 'a', 'b', 'c' }));
     }
 
@@ -53,10 +53,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       var pipeline = CreatePipeline();
 
-      var instance = (DomainType) pipeline.CreateObject (typeof (DomainType));
+      var instance = (DomainType) pipeline.Create (typeof (DomainType));
       Assert.That (instance.String, Is.EqualTo ("default .ctor"));
 
-      instance = (DomainType) pipeline.CreateObject (typeof (DomainType), ParamList.Create ("abc"));
+      instance = (DomainType) pipeline.Create (typeof (DomainType), ParamList.Create ("abc"));
       Assert.That (instance.String, Is.EqualTo ("abc"));
     }
 
@@ -65,8 +65,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       var pipeline = CreatePipeline();
 
-      var instance1 = pipeline.CreateObject<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
-      var instance2 = (DomainType) pipeline.CreateObject (typeof (DomainType), ParamList.Create (8), allowNonPublicConstructor: true);
+      var instance1 = pipeline.Create<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
+      var instance2 = (DomainType) pipeline.Create (typeof (DomainType), ParamList.Create (8), allowNonPublicConstructor: true);
 
       Assert.That (instance1.String, Is.EqualTo ("7"));
       Assert.That (instance2.String, Is.EqualTo ("8"));

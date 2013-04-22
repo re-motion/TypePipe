@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
     protected override object CreateRealObject (IPipeline pipeline, Type requestedType, StreamingContext context)
     {
       var paramList = ParamList.Create (SerializationInfo, context);
-      return pipeline.CreateObject (requestedType, paramList, allowNonPublicConstructor: true);
+      return pipeline.Create (requestedType, paramList, allowNonPublicConstructor: true);
     }
   }
 }

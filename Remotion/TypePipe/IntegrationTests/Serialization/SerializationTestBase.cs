@@ -79,8 +79,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public void NoModifications ()
     {
       var pipeline = CreatePipelineForSerialization();
-      var instance1 = pipeline.CreateObject<SerializableType>();
-      var instance2 = pipeline.CreateObject<CustomSerializableType>();
+      var instance1 = pipeline.Create<SerializableType>();
+      var instance2 = pipeline.Create<CustomSerializableType>();
       instance1.String = "abc";
       instance2.String = "def";
       instance1.PropertyForPrivateField = "private field value";
@@ -103,8 +103,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public void Standard_AddedFields ()
     {
       var pipeline = CreatePipelineForSerialization (CreateFieldAddingParticipant);
-      var instance1 = pipeline.CreateObject<SerializableType>();
-      var instance2 = pipeline.CreateObject<CustomSerializableType>();
+      var instance1 = pipeline.Create<SerializableType>();
+      var instance2 = pipeline.Create<CustomSerializableType>();
 
       PrivateInvoke.SetPublicField (instance1, "AddedIntField", 7);
       PrivateInvoke.SetPublicField (instance1, "AddedSkippedIntField", 7);
@@ -124,8 +124,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public void InstanceInitialization ()
     {
       var pipeline = CreatePipelineForSerialization (CreateInitializationAddingParticipant);
-      var instance1 = pipeline.CreateObject<SerializableType> ();
-      var instance2 = pipeline.CreateObject<CustomSerializableType> ();
+      var instance1 = pipeline.Create<SerializableType> ();
+      var instance2 = pipeline.Create<CustomSerializableType> ();
       instance1.String = "abc";
       instance2.String = "def";
 
@@ -139,8 +139,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public void ExistingCallback ()
     {
       var pipeline = CreatePipelineForSerialization (CreateInitializationAddingParticipant);
-      var instance1 = pipeline.CreateObject<DeserializationCallbackType> ();
-      var instance2 = pipeline.CreateObject<CustomDeserializationCallbackType> ();
+      var instance1 = pipeline.Create<DeserializationCallbackType> ();
+      var instance2 = pipeline.Create<CustomDeserializationCallbackType> ();
       instance1.String = "abc";
       instance2.String = "def";
 
@@ -155,8 +155,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public void AddedCallback ()
     {
       var pipeline = CreatePipelineForSerialization (CreateInitializationAddingParticipant, CreateCallbackImplementingParticipant);
-      var instance1 = pipeline.CreateObject<SerializableType> ();
-      var instance2 = pipeline.CreateObject<CustomSerializableType> ();
+      var instance1 = pipeline.Create<SerializableType> ();
+      var instance2 = pipeline.Create<CustomSerializableType> ();
       instance1.String = "abc";
       instance2.String = "def";
 
@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public void OnDeserializationMethodWithoutInterface ()
     {
       var pipeline = CreatePipelineForSerialization (CreateInitializationAddingParticipant);
-      var instance = pipeline.CreateObject<OnDeserializationMethodType> ();
+      var instance = pipeline.Create<OnDeserializationMethodType> ();
       instance.String = "abc";
 
       CheckInstanceIsSerializable (
@@ -200,10 +200,10 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       var message = "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
                     + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
-          () => pipeline.CreateObject<ExplicitISerializableType>(),
+          () => pipeline.Create<ExplicitISerializableType>(),
           Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
       Assert.That (
-          () => pipeline.CreateObject<DerivedExplicitISerializableType>(),
+          () => pipeline.Create<DerivedExplicitISerializableType>(),
           Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
     }
 
@@ -216,16 +216,16 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       var message = "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
                     + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.";
       Assert.That (
-          () => pipeline.CreateObject<ExplicitIDeserializationCallbackType>(),
+          () => pipeline.Create<ExplicitIDeserializationCallbackType>(),
           Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
       Assert.That (
-          () => pipeline.CreateObject<DerivedExplicitIDeserializationCallbackType>(),
+          () => pipeline.Create<DerivedExplicitIDeserializationCallbackType>(),
           Throws.TypeOf<NotSupportedException>().With.Message.Contains (message));
     }
 
     private T CreateCyclicInstance<T> (IPipeline pipeline) where T : ReferencingSerializableType
     {
-      var instance = pipeline.CreateObject<T> ();
+      var instance = pipeline.Create<T> ();
       var referenceObject = new ReferencedType ();
 
       instance.ReferencedObject = referenceObject;

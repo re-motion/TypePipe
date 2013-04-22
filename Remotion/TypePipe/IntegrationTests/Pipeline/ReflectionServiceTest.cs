@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void ServiceMethods ()
     {
       var assembledType1 = _reflectionService.GetAssembledType (typeof (RequestedType1));
-      var assembledType2 = _pipeline.CreateObject<RequestedType2>().GetType();
+      var assembledType2 = _pipeline.Create<RequestedType2>().GetType();
       var otherGeneratedType = assembledType1.Assembly.GetType ("MyNs.AdditionalType");
       var unrelatedType = ReflectionObjectMother.GetSomeType();
 

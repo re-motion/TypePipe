@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CreateObject ()
     {
-      var instance = _pipeline.CreateObject<DomainType>();
+      var instance = _pipeline.Create<DomainType>();
 
       Assert.That (instance.String, Is.EqualTo ("initialized"));
       Assert.That (instance.CtorCalled, Is.True);

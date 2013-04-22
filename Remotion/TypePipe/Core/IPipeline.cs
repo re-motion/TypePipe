@@ -49,8 +49,8 @@ namespace Remotion.TypePipe
     /// </summary>
     IReflectionService ReflectionService { get; }
 
-    T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
-    object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+    T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
+    object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
     /// <summary>
     /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.

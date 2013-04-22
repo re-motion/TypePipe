@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var pipeline = PipelineFactory.Create (configurationID, participant);
 
-      Assert.That (() => pipeline.CreateObject<RequestedType>(), Throws.Nothing);
+      Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);
     }
 
     public class RequestedType { }

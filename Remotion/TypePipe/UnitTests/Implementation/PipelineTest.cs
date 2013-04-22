@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
           .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, typeof (Func<object>), false))
           .Return (new Func<object> (() => "default .ctor"));
 
-      var result = _pipeline.CreateObject (_requestedType);
+      var result = _pipeline.Create (_requestedType);
 
       Assert.That (result, Is.EqualTo ("default .ctor"));
     }
@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
                     return "abc, 7";
                   }));
 
-      var result = _pipeline.CreateObject (_requestedType, arguments);
+      var result = _pipeline.Create (_requestedType, arguments);
 
       Assert.That (result, Is.EqualTo ("abc, 7"));
     }
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
           .Expect (mock => mock.GetOrCreateConstructorCall (_requestedType, typeof (Func<object>), allowNonPublic))
           .Return (new Func<object> (() => "non-public .ctor"));
 
-      var result = _pipeline.CreateObject (_requestedType, allowNonPublicConstructor: allowNonPublic);
+      var result = _pipeline.Create (_requestedType, allowNonPublicConstructor: allowNonPublic);
 
       Assert.That (result, Is.EqualTo ("non-public .ctor"));
     }
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
           .Expect (mock => mock.GetOrCreateConstructorCall (typeof (RequestedType), ParamList.Empty.FuncType, false))
           .Return (new Func<object> (() => assembledInstance));
 
-      var result = _pipeline.CreateObject<RequestedType>();
+      var result = _pipeline.Create<RequestedType>();
 
       Assert.That (result, Is.SameAs (assembledInstance));
     }
