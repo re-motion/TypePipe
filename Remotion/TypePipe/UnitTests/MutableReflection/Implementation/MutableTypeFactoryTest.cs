@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateProxy_CopiesAccessibleInstanceConstructors ()
+    public void CreateProxy_CopiesAccessibleInstanceConstructors_WithPublicVisibility ()
     {
       var result = _factory.CreateProxy (_domainType);
 
@@ -143,8 +143,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var ctor = result.AddedConstructors.Single();
       Assert.That (ctor.IsStatic, Is.False);
-      Assert.That (ctor.IsFamily, Is.True);
-      Assert.That (ctor.IsAssembly, Is.False);
+      Assert.That (ctor.IsPublic, Is.True, "Changed from 'family or assembly'.");
+      Assert.That (ctor.IsHideBySig, Is.True);
 
       var parameter = ctor.GetParameters().Single();
       CustomParameterInfoTest.CheckParameter (parameter, ctor, 0, "i", typeof (int).MakeByRefType(), ParameterAttributes.Out);

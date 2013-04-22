@@ -149,9 +149,9 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         if (constructorCalls.TryGetValue (constructorKey, out constructorCall))
           return constructorCall;
 
-        var generatedType = GetOrGenerateType (types, typeKey, requestedType, participantState, mutableTypeBatchCodeGenerator);
+        var assembledType = GetOrGenerateType (types, typeKey, requestedType, participantState, mutableTypeBatchCodeGenerator);
         var ctorSignature = _delegateFactory.GetSignature (delegateType);
-        var constructor = _constructorFinder.GetConstructor (generatedType, ctorSignature.Item1, allowNonPublic, requestedType, ctorSignature.Item1);
+        var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, allowNonPublic, assembledType);
 
         constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
         constructorCalls.Add (constructorKey, constructorCall);

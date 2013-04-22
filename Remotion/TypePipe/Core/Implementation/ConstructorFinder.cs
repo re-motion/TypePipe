@@ -18,24 +18,36 @@
 using System;
 using System.Reflection;
 using Remotion.Text;
+using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.Implementation
 {
   /// <inheritdoc />
   public class ConstructorFinder : IConstructorFinder
   {
-    public ConstructorInfo GetConstructor (
-        Type generatedType, Type[] generatedParamterTypes, bool allowNonPublic, Type originalType, Type[] originalParameterTypes)
+    public ConstructorInfo GetConstructor (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      CheckConstructorOnRequestedType (requestedType, parameterTypes, allowNonPublic);
+
+      // Constructors that where copied from the requested type to the assembled type are always public.
+      return assembledType.GetConstructor (parameterTypes);
+    }
+
+    private void CheckConstructorOnRequestedType (Type requestedType, Type[] parameterTypes, bool allowNonPublic)
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var constructor = generatedType.GetConstructor (bindingFlags, null, generatedParamterTypes, null);
+      var constructor = requestedType.GetConstructor (bindingFlags, null, parameterTypes, null);
 
       if (constructor == null)
       {
         var message = string.Format (
             "Type '{0}' does not contain a constructor with the following signature: ({1}).",
-            originalType.FullName,
-            SeparatedStringBuilder.Build (", ", originalParameterTypes, pt => pt.Name));
+            requestedType.FullName,
+            SeparatedStringBuilder.Build (", ", parameterTypes, pt => pt.Name));
         throw new MissingMethodException (message);
       }
 
@@ -43,11 +55,9 @@ namespace Remotion.TypePipe.Caching
       {
         var message = string.Format (
             "Type '{0}' contains a constructor with the required signature, but it is not public (and the allowNonPublic flag is not set).",
-            originalType.FullName);
+            requestedType.FullName);
         throw new MissingMethodException (message);
       }
-
-      return constructor;
     }
   }
 }

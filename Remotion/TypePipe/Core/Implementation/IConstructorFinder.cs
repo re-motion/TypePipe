@@ -18,14 +18,13 @@
 using System;
 using System.Reflection;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// Searches for a constructor and buildes a useful exception message if it cannot be found.
   /// </summary>
   public interface IConstructorFinder
   {
-    ConstructorInfo GetConstructor (
-        Type generatedType, Type[] generatedParamterTypes, bool allowNonPublic, Type originalType, Type[] originalParameterTypes);
+    ConstructorInfo GetConstructor (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type assembledType);
   }
 }

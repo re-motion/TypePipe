@@ -21,7 +21,7 @@ using System.Reflection;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Determines if a member is visible from a dervied type.
+  /// Determines if a member is visible from a derived type.
   /// </summary>
   public static class SubclassFilterUtility
   {

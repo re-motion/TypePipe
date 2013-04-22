@@ -91,10 +91,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var accessibleInstanceCtors = baseType.GetConstructors (bindingFlags).Where (SubclassFilterUtility.IsVisibleFromSubclass);
 
-      foreach (var ctor in accessibleInstanceCtors)
+      foreach (var constructor in accessibleInstanceCtors)
       {
-        var attributes = ctor.Attributes.AdjustVisibilityForAssemblyBoundaries();
-        var parameters = ctor.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
+        var attributes = MethodAttributes.Public | MethodAttributes.HideBySig;
+        var parameters = constructor.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
 
         proxyType.AddConstructor (attributes, parameters, ctx => ctx.CallBaseConstructor (ctx.Parameters.Cast<Expression>()));
       }

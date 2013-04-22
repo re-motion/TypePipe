@@ -160,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       _delegateFactoryMock.Expect (mock => mock.GetSignature (delegateType)).Return (fakeSignature).WhenCalled (_ => CheckLockIsHeld());
       _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (assembledType, fakeSignature.Item1, allowNonPublic, requestedType, fakeSignature.Item1))
+          .Expect (mock => mock.GetConstructor (requestedType, fakeSignature.Item1, allowNonPublic, assembledType))
           .Return (fakeConstructor)
           .WhenCalled (_ => CheckLockIsHeld());
       _delegateFactoryMock
