@@ -77,7 +77,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       }
     }
 
-    // TODO 5370
     public MethodCallExpression DelegateTo (Expression instance, MethodInfo methodToCall)
     {
       // Instance may be null (for static methods).

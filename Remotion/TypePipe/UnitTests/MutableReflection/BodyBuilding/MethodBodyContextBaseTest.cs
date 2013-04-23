@@ -15,10 +15,12 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
@@ -69,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.HasBaseMethod, Is.True);
 
-      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters, _genericParameters, _returnType, null);
+      var context = MethodBodyContextBaseObjectMother.Create (baseMethod: null);
       Assert.That (context.HasBaseMethod, Is.False);
     }
 
@@ -78,9 +80,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     {
       Assert.That (_context.BaseMethod, Is.SameAs (_baseMethod));
 
-      var context = new TestableMethodBodyContextBase (_declaringType, _isStatic, _parameters, _genericParameters, _returnType, null);
+      var context = MethodBodyContextBaseObjectMother.Create (baseMethod: null);
       Assert.That (
           () => context.BaseMethod, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo ("This method does not override another method."));
+    }
+
+    [Test]
+    public void DelegateTo_Instance_WithParameters ()
+    {
+      var context = MethodBodyContextBaseObjectMother.Create (parameterExpressions: _parameters);
+      var instance = Expression.Default (typeof (object));
+      var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object o) => o.Equals (null));
+
+      var result = context.DelegateTo (instance, method);
+
+      Assert.That (result.Object, Is.SameAs (instance));
+      Assert.That (result.Method, Is.SameAs (method));
+      Assert.That (result.Arguments, Is.EqualTo (_parameters));
+    }
+
+    [Test]
+    public void DelegateTo_Static_WithGenericParameters ()
+    {
+      var context = MethodBodyContextBaseObjectMother.Create (genericParameters: _genericParameters);
+      var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Enumerable.Empty<Dev.T>());
+
+      var result = context.DelegateTo (null, method);
+
+      Assert.That (result.Object, Is.Null);
+      Assert.That (result.Method, Is.SameAs (method.MakeTypePipeGenericMethod (_genericParameters)));
     }
   }
 }
