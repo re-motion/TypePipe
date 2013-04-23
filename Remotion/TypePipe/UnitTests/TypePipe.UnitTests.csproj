@@ -117,6 +117,7 @@
     <Compile Include="MutableReflection\BodyBuilding\BodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBaseBodyContextBaseTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseObjectMother.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
     <Compile Include="CodeGeneration\GeneratedTypeContextTest.cs" />
