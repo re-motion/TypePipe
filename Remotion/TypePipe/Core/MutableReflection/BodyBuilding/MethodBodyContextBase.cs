@@ -87,7 +87,6 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       return Expression.Call (instance, instantiatedMethodToCall, Parameters.Cast<Expression>());
     }
 
-    // TODO 5370
     public MethodCallExpression DelegateToBase (MethodInfo baseMethod)
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);

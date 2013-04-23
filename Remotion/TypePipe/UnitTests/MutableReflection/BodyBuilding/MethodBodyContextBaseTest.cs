@@ -19,11 +19,14 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Scripting.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Expressions;
+using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 
@@ -109,6 +112,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (result.Object, Is.Null);
       Assert.That (result.Method, Is.SameAs (method.MakeTypePipeGenericMethod (_genericParameters)));
+    }
+
+    [Test]
+    public void DelegateToBase ()
+    {
+      var declaringType = MutableTypeObjectMother.Create (typeof (BaseType));
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((BaseType o) => o.BaseMethod<Dev.T> (null));
+      var parameters = new[] { Expression.Parameter (_genericParameters[0]) };
+      var context = MethodBodyContextBaseObjectMother.Create (
+          declaringType, genericParameters: _genericParameters, parameterExpressions: parameters, baseMethod: baseMethod);
+
+      var result = context.DelegateToBase (baseMethod);
+
+      var expected = Expression.Call (
+          new ThisExpression (declaringType),
+          new NonVirtualCallMethodInfoAdapter (baseMethod.MakeTypePipeGenericMethod (_genericParameters)),
+          parameters.Cast<Expression>());
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
+    }
+
+    public class BaseType
+    {
+      public void BaseMethod<T> (T arg) {}
     }
   }
 }
