@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     private void CheckAddedCustomAttributes (ICustomAttributeProvider attributeProvider)
     {
-      var attributes = attributeProvider.GetCustomAttributes (false).Where (a => a.GetType() != typeof (ProxyTypeAttribute)).ToList();
+      var attributes = attributeProvider.GetCustomAttributes (false).Where (a => a.GetType() != typeof (AssembledTypeAttribute)).ToList();
 
       var expectedAttributeTypes = new[] { typeof (SingleAttribute), typeof (MultipleAttribute), typeof (MultipleAttribute) };
       Assert.That (attributes.Select (a => a.GetType()), Is.EquivalentTo (expectedAttributeTypes));

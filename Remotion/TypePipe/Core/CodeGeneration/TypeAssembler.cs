@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class TypeAssembler : ITypeAssembler
   {
-    private static readonly ConstructorInfo s_proxyTypeAttributeCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new ProxyTypeAttribute());
+    private static readonly ConstructorInfo s_proxyTypeAttributeCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeAttribute());
 
     private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return type.IsDefined (typeof (ProxyTypeAttribute), inherit: false);
+      return type.IsDefined (typeof (AssembledTypeAttribute), inherit: false);
     }
 
     public Type GetRequestedType (Type assembledType)

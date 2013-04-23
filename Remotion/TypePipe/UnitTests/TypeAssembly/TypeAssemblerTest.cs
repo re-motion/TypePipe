@@ -26,8 +26,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using System.Linq;
 
@@ -152,7 +150,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
               Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));
 
               var proxyAttribute = proxyType.AddedCustomAttributes.Single();
-              Assert.That (proxyAttribute.Type, Is.SameAs (typeof (ProxyTypeAttribute)));
+              Assert.That (proxyAttribute.Type, Is.SameAs (typeof (AssembledTypeAttribute)));
               Assert.That (proxyAttribute.ConstructorArguments, Is.Empty);
               Assert.That (proxyAttribute.NamedArguments, Is.Empty);
 
@@ -233,7 +231,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     private class RequestedType {}
-    [ProxyType] private class AssembledType : RequestedType {}
+    [AssembledType] private class AssembledType : RequestedType {}
     private class AssembledTypeSubclass {}
   }
 }
