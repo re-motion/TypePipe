@@ -33,7 +33,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory

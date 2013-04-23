@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         if (overriddenMethod is MutableMethodInfo)
           return (MutableMethodInfo) overriddenMethod;
 
-        Assertion.IsTrue (overriddenMethod.IsVirtual, "It's possible to get an interface implementation that is not virtual (in verifiable code).");
+        Assertion.IsTrue (overriddenMethod.IsVirtual, "It is not possible to get an interface implementation that is not virtual (in verifiable code).");
       }
 
       var baseDefinition = overriddenMethod.GetBaseDefinition();
@@ -109,10 +109,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     private MethodInfo GetBaseMethod (MutableType declaringType, MethodInfo baseDefinition)
     {
       var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
+      Assertion.IsNotNull (baseMethod.DeclaringType);
+
       if (baseMethod.IsFinal)
       {
-        Assertion.IsNotNull (baseMethod.DeclaringType);
         var message = string.Format ("Cannot override final method '{0}.{1}'.", baseMethod.DeclaringType.Name, baseMethod.Name);
+        throw new NotSupportedException (message);
+      }
+      // TODO 5370: test!
+      if (!SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
+      {
+        var message = string.Format (
+            "Cannot override method '{0}.{1}' as it is not visible from the proxy.", baseMethod.DeclaringType.Name, baseMethod.Name);
         throw new NotSupportedException (message);
       }
 
@@ -124,11 +132,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (baseMethod.IsAbstract)
         return null;
 
-      return ctx =>
-      {
-        var methodToCall = baseMethod.IsGenericMethodDefinition ? baseMethod.MakeTypePipeGenericMethod (ctx.GenericParameters.ToArray()) : baseMethod;
-        return ctx.CallBase (methodToCall, ctx.Parameters.Cast<Expression> ());
-      };
+      return ctx => ctx.DelegateToBase (baseMethod);
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
