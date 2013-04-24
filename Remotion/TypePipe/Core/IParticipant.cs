@@ -71,5 +71,8 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="loadedTypesContext">The loaded types context.</param>
     void RebuildState (LoadedTypesContext loadedTypesContext);
+
+    // TODO 5370
+    void HandleNonSubclassableType (Type requestedType);
   }
 }

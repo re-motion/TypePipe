@@ -28,9 +28,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -138,6 +135,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void RebuildState ()
     {
       Assert.That (() => _participant.RebuildState (null), Throws.Nothing);
+    }
+
+    [Test]
+    public void HandleNonSubclassableType ()
+    {
+      Assert.That (() => _participant.HandleNonSubclassableType (typeof (int)), Throws.Nothing);
     }
 
     public class SomeType { }

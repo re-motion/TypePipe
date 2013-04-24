@@ -34,7 +34,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
         IDictionary<string, object> state = null)
     {
       requestedType = requestedType ?? typeof (UnspecifiedRequestedType);
-      proxyType = proxyType ?? MutableTypeObjectMother.Create (name: "UnspecifiedProxyType");
+      proxyType = proxyType ?? MutableTypeObjectMother.Create (requestedType);
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 

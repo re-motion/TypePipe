@@ -39,9 +39,14 @@ namespace Remotion.TypePipe.IntegrationTests
     protected static IParticipant CreateParticipant (
         Action<ITypeAssemblyContext> participateAction = null,
         ICacheKeyProvider cacheKeyProvider = null,
-        Action<LoadedTypesContext> rebuildStateAction = null)
+        Action<LoadedTypesContext> rebuildStateAction = null,
+        Action<Type> handleNonSubclassableTypeAction = null)
     {
-      return new ParticipantStub (cacheKeyProvider, participateAction ?? (ctx => { }), rebuildStateAction ?? (ctx => { }));
+      participateAction = participateAction ?? (ctx => { });
+      rebuildStateAction = rebuildStateAction ?? (ctx => { });
+      handleNonSubclassableTypeAction = handleNonSubclassableTypeAction ?? (ctx => { });
+
+      return new ParticipantStub (cacheKeyProvider, participateAction, rebuildStateAction, handleNonSubclassableTypeAction);
     }
 
 

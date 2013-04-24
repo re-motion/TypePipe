@@ -27,18 +27,24 @@ namespace Remotion.TypePipe.IntegrationTests
     private readonly ICacheKeyProvider _cacheKeyProvider;
     private readonly Action<ITypeAssemblyContext> _participateAction;
     private readonly Action<LoadedTypesContext> _rebuildStateAction;
+    private readonly Action<Type> _handleNonSubclassableTypeAction;
 
     public ParticipantStub (
-        ICacheKeyProvider cacheKeyProvider, Action<ITypeAssemblyContext> participateAction, Action<LoadedTypesContext> rebuildStateAction)
+        ICacheKeyProvider cacheKeyProvider,
+        Action<ITypeAssemblyContext> participateAction,
+        Action<LoadedTypesContext> rebuildStateAction,
+        Action<Type> handleNonSubclassableTypeAction)
     
     {
       // Cache key provider may be null.
       ArgumentUtility.CheckNotNull ("participateAction", participateAction);
       ArgumentUtility.CheckNotNull ("rebuildStateAction", rebuildStateAction);
+      ArgumentUtility.CheckNotNull ("handleNonSubclassableTypeAction", handleNonSubclassableTypeAction);
 
       _cacheKeyProvider = cacheKeyProvider;
       _participateAction = participateAction;
       _rebuildStateAction = rebuildStateAction;
+      _handleNonSubclassableTypeAction = handleNonSubclassableTypeAction;
     }
 
     public ICacheKeyProvider PartialCacheKeyProvider
@@ -54,6 +60,11 @@ namespace Remotion.TypePipe.IntegrationTests
     public void RebuildState (LoadedTypesContext loadedTypesContext)
     {
       _rebuildStateAction (loadedTypesContext);
+    }
+
+    public void HandleNonSubclassableType (Type requestedType)
+    {
+      _handleNonSubclassableTypeAction (requestedType);
     }
   }
 }

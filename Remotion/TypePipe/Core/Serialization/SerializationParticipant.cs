@@ -23,7 +23,6 @@ using System.Runtime.Serialization;
 using Microsoft.Scripting.Ast;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -113,7 +112,12 @@ namespace Remotion.TypePipe.Serialization
 
     public void RebuildState (LoadedTypesContext loadedTypesContext)
     {
-      // Do nothing.
+      // Does nothing.
+    }
+
+    public void HandleNonSubclassableType (Type requestedType)
+    {
+      // Does nothing.
     }
 
     private IEnumerable<Expression> CreateMetaDataSerializationExpressions (
