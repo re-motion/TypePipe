@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.MutableReflection;
@@ -310,7 +309,7 @@ namespace System.Linq.Expressions.Compiler {
                 // array[i] = new StrongBox<T>(...);
                 lc.IL.Emit(OpCodes.Dup);
                 lc.IL.EmitInt(i++);
-                Type boxType = typeof(StrongBox<>).MakeTypePipeGenericType(v.Type);
+                Type boxType = typeof(System.Runtime.CompilerServices.StrongBox<>).MakeTypePipeGenericType(v.Type);
                 Debug.Assert (boxType.GetConstructors().Length == 1);
                 var boxTypeCtor = boxType.GetConstructors()[0];
 

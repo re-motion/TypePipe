@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;

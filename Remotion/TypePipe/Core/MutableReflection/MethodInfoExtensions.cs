@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     /// <summary>
     /// Determines whether the current <see cref="MethodInfo"/> is a generic method instantiation, that means,
-    /// <see cref="MethodInfo.IsGenericMethod"/> is <c>true</c> and <see cref="MethodInfo.IsGenericMethodDefinition"/> is <c>false</c>.
+    /// <see cref="MethodBase.IsGenericMethod"/> is <c>true</c> and <see cref="MethodBase.IsGenericMethodDefinition"/> is <c>false</c>.
     /// </summary>
     /// <param name="method">The method.</param>
     /// <returns><c>true</c> if the method is a generic method instantiation; otherwise, <c>false</c>.</returns>

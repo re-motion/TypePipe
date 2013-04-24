@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;

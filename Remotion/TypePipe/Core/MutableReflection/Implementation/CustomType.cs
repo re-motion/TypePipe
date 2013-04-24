@@ -195,7 +195,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// </summary>
     public override bool Equals (object other)
     {
-      return this == other;
+      return this == other as CustomType;
     }
 
     /// <summary>

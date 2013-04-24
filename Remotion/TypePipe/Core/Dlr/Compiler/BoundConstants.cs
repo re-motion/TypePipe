@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
@@ -53,7 +52,7 @@ namespace System.Linq.Expressions.Compiler {
             }
 
             public override int GetHashCode() {
-                return RuntimeHelpers.GetHashCode(Value) ^ Type.GetHashCode();
+                return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(Value) ^ Type.GetHashCode();
             }
             public bool Equals(TypedConstant other) {
                 return object.ReferenceEquals(Value, other.Value) && Type.Equals(other.Type);
