@@ -32,7 +32,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private const BindingFlags c_allMembers = c_instanceMembers | BindingFlags.Static;
 
     [Test]
-    public void FilterFields ()
+    public void IsSubclassable ()
+    {
+      Assert.That (SubclassFilterUtility.IsSubclassable (typeof (string)), Is.False);
+      Assert.That (SubclassFilterUtility.IsSubclassable (typeof (IDisposable)), Is.False);
+      Assert.That (SubclassFilterUtility.IsSubclassable (typeof (TypeWithoutVisibleCtor)), Is.False);
+      Assert.That (SubclassFilterUtility.IsSubclassable (typeof (object)), Is.True);
+    }
+
+    [Test]
+    public void IsVisibleFromSubclass_FieldInfo ()
     {
       var allFields = typeof (TestDomain).GetFields (c_allMembers);
       Assert.That (
@@ -47,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void FilterConstructors ()
+    public void IsVisibleFromSubclass_ConstructorInfo ()
     {
       var instanceConstructors = typeof (TestDomain).GetConstructors (c_instanceMembers);
       Assert.That (
@@ -60,7 +69,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void FilterMethods ()
+    public void IsVisibleFromSubclass_MethodInfo ()
     {
       var allMethods = typeof (TestDomain).GetMethods (c_allMembers);
       // Unfortunately, NUnit doesn't support Is.SupersetOf
@@ -83,6 +92,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private IEnumerable<string> GetCtorSignatures (IEnumerable<ConstructorInfo> ctorInfos)
     {
       return ctorInfos.Select (ctor => ctor.ToString().Replace ("Void ", ""));
+    }
+
+    public class TypeWithoutVisibleCtor
+    {
+      internal TypeWithoutVisibleCtor () {}
     }
 
     public class TestDomain
