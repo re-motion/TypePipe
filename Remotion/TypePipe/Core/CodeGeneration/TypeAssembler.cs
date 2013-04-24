@@ -116,6 +116,7 @@ namespace Remotion.TypePipe.CodeGeneration
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);
 
+      AddAssembledTypeAttribute (typeAssemblyContext.ProxyType);
       var generatedTypeContext = GenerateTypesWithDiagnostics (codeGenerator, typeAssemblyContext);
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
@@ -145,9 +146,6 @@ namespace Remotion.TypePipe.CodeGeneration
     private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)
     {
       var proxyType = _mutableTypeFactory.CreateProxy (requestedType);
-      var proxyTypeAttribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
-      proxyType.AddCustomAttribute (proxyTypeAttribute);
-
       return new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
@@ -168,6 +166,12 @@ namespace Remotion.TypePipe.CodeGeneration
       {
         throw new NotSupportedException (BuildExceptionMessage (context.RequestedType, ex), ex);
       }
+    }
+
+    private static void AddAssembledTypeAttribute (MutableType proxyType)
+    {
+      var proxyTypeAttribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
+      proxyType.AddCustomAttribute (proxyTypeAttribute);
     }
 
     private string BuildExceptionMessage (Type requestedType, Exception exception)

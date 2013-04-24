@@ -149,11 +149,6 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
               Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (proxyType));
               Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));
 
-              var proxyAttribute = proxyType.AddedCustomAttributes.Single();
-              Assert.That (proxyAttribute.Type, Is.SameAs (typeof (AssembledTypeAttribute)));
-              Assert.That (proxyAttribute.ConstructorArguments, Is.Empty);
-              Assert.That (proxyAttribute.NamedArguments, Is.Empty);
-
               typeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
 
               typeAssemblyContext.GenerationCompleted += ctx =>
@@ -168,7 +163,16 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         typeAssemblyContextCodeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
             .Return (new[] { new KeyValuePair<MutableType, Type> (proxyType, fakeGeneratedType) })
-            .WhenCalled (mi => Assert.That (generationCompletedEventRaised, Is.False));
+            .WhenCalled (
+                mi =>
+                {
+                  Assert.That (generationCompletedEventRaised, Is.False);
+
+                  var proxyAttribute = proxyType.AddedCustomAttributes.Single();
+                  Assert.That (proxyAttribute.Type, Is.SameAs (typeof (AssembledTypeAttribute)));
+                  Assert.That (proxyAttribute.ConstructorArguments, Is.Empty);
+                  Assert.That (proxyAttribute.NamedArguments, Is.Empty);
+                });
       }
       mockRepository.ReplayAll();
 
