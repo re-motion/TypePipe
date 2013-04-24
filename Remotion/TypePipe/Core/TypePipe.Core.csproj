@@ -59,6 +59,9 @@
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="Dlr\PreprocessorSymbols.cs" />
+    <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
+    <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecorator.cs" />
+    <Compile Include="Implementation\Remotion\RemotionPipelineRegistry.cs" />
     <Compile Include="Implementation\Synchronization\ICodeManagerSynchronizationPoint.cs" />
     <Compile Include="Implementation\Synchronization\SynchronizationPoint.cs" />
     <Compile Include="Implementation\Synchronization\ISynchronizationPoint.cs" />

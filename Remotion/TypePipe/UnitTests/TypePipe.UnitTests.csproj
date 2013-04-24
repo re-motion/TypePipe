@@ -106,7 +106,10 @@
     <Compile Include="Expressions\ExpressionTestHelper.cs" />
     <Compile Include="Expressions\ThisExpressionTest.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
-    <Compile Include="Caching\SynchronizationPointTest.cs" />
+    <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecoratorTest.cs" />
+    <Compile Include="Implementation\Remotion\RemotionPipelineFactoryTest.cs" />
+    <Compile Include="Implementation\Remotion\RemotionPipelineRegistryTest.cs" />
+    <Compile Include="Implementation\Synchronization\SynchronizationPointTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
     <Compile Include="Implementation\LoadedTypesContextTest.cs" />
     <Compile Include="Implementation\ReflectionServiceTest.cs" />

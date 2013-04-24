@@ -30,7 +30,7 @@ using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.Caching
+namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
 {
   [TestFixture]
   public class SynchronizationPointTest
