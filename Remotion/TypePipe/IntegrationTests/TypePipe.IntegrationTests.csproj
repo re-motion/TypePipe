@@ -69,6 +69,7 @@
     <Compile Include="MutableReflection\MakeTypePipeGenericTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberSelectionTest.cs" />
     <Compile Include="Pipeline\LoadFlushedCodeTest.cs" />
+    <Compile Include="Pipeline\NonSubclassableTypeTest.cs" />
     <Compile Include="Pipeline\ObjectCreationTest.cs" />
     <Compile Include="Pipeline\ObjectInitializationTest.cs" />
     <Compile Include="Pipeline\ParticipantConfigurationTest.cs" />
