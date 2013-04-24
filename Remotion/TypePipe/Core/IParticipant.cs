@@ -72,7 +72,12 @@ namespace Remotion.TypePipe
     /// <param name="loadedTypesContext">The loaded types context.</param>
     void RebuildState (LoadedTypesContext loadedTypesContext);
 
-    // TODO 5547
+    /// <summary>
+    /// This method is called for requested types that are not subclassable and therefore not processed by the pipeline
+    /// (i.e., <see cref="Participate"/> is never called for such types).
+    /// Participants may use this method to log diagnostic and report errors even for types that are not processed by the pipeline.
+    /// </summary>
+    /// <param name="requestedType">The non-subclassable requested type.</param>
     void HandleNonSubclassableType (Type requestedType);
   }
 }
