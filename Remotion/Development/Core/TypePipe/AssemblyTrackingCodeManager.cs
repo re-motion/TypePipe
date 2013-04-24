@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
@@ -39,9 +40,9 @@ namespace Remotion.Development.TypePipe
       _codeManager = codeManager;
     }
 
-    public IList<string> SavedAssemblies
+    public ReadOnlyCollection<string> SavedAssemblies
     {
-      get { return _savedAssemblies; }
+      get { return _savedAssemblies.AsReadOnly(); }
     }
 
     public void PeVerifySavedAssemblies ()
