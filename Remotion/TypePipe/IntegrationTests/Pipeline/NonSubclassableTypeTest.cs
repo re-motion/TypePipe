@@ -44,7 +44,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       TestDelegate action = () => reflectionService.GetAssembledType (typeof (int));
 
-      Assert.That (action, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (""));
+      var message = "Cannot assemble type for the requested type 'Int32' because it cannot be subclassed.";
+      Assert.That (action, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
     }
 
     private IReflectionService GetReflectionService (Action<Type> handleNonSubclassableTypeAction)
