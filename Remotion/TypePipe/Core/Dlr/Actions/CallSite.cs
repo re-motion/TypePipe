@@ -13,10 +13,10 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Ast.Compiler;
-using Microsoft.Scripting.Utils;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -26,15 +26,16 @@ using System.Linq.Expressions.Compiler;
 using System.Core;
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Dynamic;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 
     //
     // A CallSite provides a fast mechanism for call-site caching of dynamic dispatch

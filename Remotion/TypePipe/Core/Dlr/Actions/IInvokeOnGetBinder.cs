@@ -13,7 +13,7 @@
  *
  * ***************************************************************************/
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// Represents information about a dynamic get member operation, indicating
     /// if the get member should invoke properties when performing the get.

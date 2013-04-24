@@ -17,18 +17,18 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
 #endif
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif
@@ -495,7 +495,7 @@ namespace System.Linq.Expressions.Compiler {
 
             // Emit the temp as type CallSite so we get more reuse
             _ilg.Emit(OpCodes.Dup);
-#if CLR2
+#if TypePipe
             // For 3.5, emit the temp as CallSite<T> to work around a Jit32
             // verifier issue (fixed in 3.5 sp1)
             var siteTemp = GetLocal(siteType);

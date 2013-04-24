@@ -13,9 +13,9 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Utils;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 #endif
@@ -23,14 +23,15 @@ using System.Linq.Expressions;
 using System.Core;
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Dynamic;
-using System.Dynamic.Utils;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// Represents an object with members that can be dynamically added and removed at runtime.
     /// </summary>
@@ -1019,7 +1020,7 @@ namespace System.Dynamic {
     }
 }
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 
     //
     // Note: these helpers are kept as simple wrappers so they have a better 

@@ -21,7 +21,7 @@ using Remotion.Utilities;
 
 // This is on purpose.
 // ReSharper disable CheckNamespace
-namespace Microsoft.Scripting.Ast
+namespace Remotion.TypePipe.Dlr.Ast
 // ReSharper restore CheckNamespace
 {
   // Do not add docs to this class.

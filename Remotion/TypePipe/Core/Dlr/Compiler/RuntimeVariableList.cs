@@ -13,16 +13,18 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast.Compiler;
+#if TypePipe
+using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 #else
 using System.Linq.Expressions.Compiler;
 #endif
 
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 
     /// <summary>
     /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.

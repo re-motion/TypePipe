@@ -17,7 +17,7 @@
 
 using System;
 using System.Reflection.Emit;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions

@@ -18,8 +18,8 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Generics;

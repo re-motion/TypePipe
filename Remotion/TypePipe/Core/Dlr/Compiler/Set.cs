@@ -17,8 +17,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Note: can't move to Utils because name conflicts with System.Linq.Set
-#if CLR2
-namespace Microsoft.Scripting.Ast {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

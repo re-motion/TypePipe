@@ -16,7 +16,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 
     /// <summary>
     /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.

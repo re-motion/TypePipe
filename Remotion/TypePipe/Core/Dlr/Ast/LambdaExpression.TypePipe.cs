@@ -15,10 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 
 // ReSharper disable CheckNamespace
-namespace Microsoft.Scripting.Ast
+namespace Remotion.TypePipe.Dlr.Ast
 // ReSharper restore CheckNamespace
 {
   public partial class LambdaExpression

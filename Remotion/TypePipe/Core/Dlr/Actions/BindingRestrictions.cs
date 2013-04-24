@@ -13,8 +13,8 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
@@ -22,10 +22,10 @@ using System.Linq.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Runtime.CompilerServices;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
 
     /// <summary>
     /// Represents a set of binding restrictions on the <see cref="DynamicMetaObject"/>under which the dynamic binding is valid.

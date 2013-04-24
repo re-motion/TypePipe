@@ -16,10 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Text;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// Represents a dynamically assigned class.  Expando objects which share the same 
     /// members will share the same class.  Classes are dynamically assigned as the

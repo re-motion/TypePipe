@@ -17,7 +17,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly

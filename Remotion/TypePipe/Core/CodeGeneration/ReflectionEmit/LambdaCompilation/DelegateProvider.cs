@@ -17,7 +17,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 using System.Linq;

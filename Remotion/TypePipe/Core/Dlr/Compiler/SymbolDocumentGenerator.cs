@@ -13,9 +13,9 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Ast.Compiler;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -31,8 +31,8 @@ using System.Diagnostics.SymbolStore;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace System.Runtime.CompilerServices {
-#if CLR2 || SILVERLIGHT
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
+#if TypePipe || SILVERLIGHT
     using ILGenerator = Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.IILGenerator;
 #endif
 

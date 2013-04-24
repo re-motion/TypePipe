@@ -13,15 +13,16 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
 
-using System.Dynamic.Utils;
+using System;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// Represents the binary dynamic operation at the call site, providing the binding semantic and the details about the operation.
     /// </summary>

@@ -16,7 +16,7 @@
 // 
 using System;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
       _type = type;
       _name = name;
       _attributes = attributes;
-      _expression = Microsoft.Scripting.Ast.Expression.Parameter (type, name);
+      _expression = Remotion.TypePipe.Dlr.Ast.Expression.Parameter (type, name);
     }
 
     public Type Type

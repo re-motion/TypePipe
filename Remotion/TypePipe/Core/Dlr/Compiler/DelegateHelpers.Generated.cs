@@ -17,14 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Dynamic;
-using System.Dynamic.Utils;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
-    using Microsoft.Scripting.Utils;
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
+    using Remotion.TypePipe.Dlr.Utils;
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

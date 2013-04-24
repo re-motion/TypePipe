@@ -23,10 +23,10 @@ using System.Diagnostics.SymbolStore;
 // Not needed in CLR 4 builds because we have the
 // ILGenerator.ILOffset property.
 
-#if CLR2 || SILVERLIGHT
+#if TypePipe || SILVERLIGHT
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

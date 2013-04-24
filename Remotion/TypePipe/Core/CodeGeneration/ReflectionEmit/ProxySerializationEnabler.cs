@@ -18,7 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization.Implementation;
