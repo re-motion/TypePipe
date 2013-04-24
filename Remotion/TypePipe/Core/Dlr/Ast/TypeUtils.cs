@@ -13,8 +13,8 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
@@ -22,12 +22,13 @@ using System.Linq.Expressions;
 using System.Core;
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
-namespace System.Dynamic.Utils {
+namespace Remotion.TypePipe.Dlr.Dynamic.Utils {
   public static class TypeUtils {
         private const BindingFlags AnyStatic = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
         internal const MethodAttributes PublicStatic = MethodAttributes.Public | MethodAttributes.Static;
@@ -149,7 +150,7 @@ namespace System.Dynamic.Utils {
 
         public static bool AreEquivalent(Type t1, Type t2)
         {
-#if CLR2 || SILVERLIGHT
+#if TypePipe || SILVERLIGHT
             return t1 == t2;
 #else
             return t1 == t2 || t1.IsEquivalentTo(t2);

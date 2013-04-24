@@ -13,8 +13,8 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
@@ -22,11 +22,12 @@ using System.Linq.Expressions;
 using System.Core;
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     /// <summary>
     /// The builder for read only collection.
     /// </summary>

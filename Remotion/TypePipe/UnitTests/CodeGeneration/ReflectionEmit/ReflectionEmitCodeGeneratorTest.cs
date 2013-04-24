@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void DebugInfoGenerator ()
     {
       var debugInfoGenerator = _flusher.DebugInfoGenerator;
-      Assert.That (debugInfoGenerator.GetType().FullName, Is.EqualTo ("System.Runtime.CompilerServices.SymbolDocumentGenerator"));
+      Assert.That (debugInfoGenerator.GetType().FullName, Is.EqualTo ("Remotion.TypePipe.Dlr.Runtime.CompilerServices.SymbolDocumentGenerator"));
       Assert.That (_flusher.DebugInfoGenerator, Is.SameAs (debugInfoGenerator));
     }
 

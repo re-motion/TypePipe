@@ -13,9 +13,9 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Ast.Compiler;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -27,13 +27,14 @@ using System.Core;
 using System.Runtime.Remoting;
 #endif
 
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Dynamic.Utils;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// The dynamic call site binder that participates in the <see cref="DynamicMetaObject"/> binding protocol.
     /// </summary>

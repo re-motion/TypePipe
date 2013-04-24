@@ -14,15 +14,15 @@
  * ***************************************************************************/
 
 using System.Collections.ObjectModel;
-using System.Dynamic.Utils;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
 #if SILVERLIGHT
 using System.Core;
 #endif
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

@@ -15,15 +15,15 @@
 
 using System;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using System.Threading;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

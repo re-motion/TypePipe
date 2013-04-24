@@ -16,10 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

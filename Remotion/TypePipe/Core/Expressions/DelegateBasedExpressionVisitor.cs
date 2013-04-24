@@ -16,7 +16,7 @@
 // 
 
 using System;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions

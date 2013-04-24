@@ -16,15 +16,15 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic;
-using System.Dynamic.Utils;
+using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using System.Text;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

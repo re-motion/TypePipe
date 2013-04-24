@@ -12,14 +12,15 @@
  *
  *
  * ***************************************************************************/
-#if CLR2
-using Microsoft.Scripting.Utils;
+#if TypePipe
+using Remotion.TypePipe.Dlr;
 #endif
 
-using System.Runtime.CompilerServices;
+using System;
 using System.Threading;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     internal static partial class UpdateDelegates {
 
         //

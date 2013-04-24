@@ -19,9 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using System.Linq;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests

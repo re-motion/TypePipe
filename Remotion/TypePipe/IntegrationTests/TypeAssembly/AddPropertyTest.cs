@@ -19,7 +19,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;

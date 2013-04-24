@@ -15,9 +15,9 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     sealed class TrueReadOnlyCollection<T> : ReadOnlyCollection<T> {
         /// <summary>
         /// Creates instnace of TrueReadOnlyCollection, wrapping passed in array.

@@ -13,20 +13,21 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Utils;
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Utils;
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
-namespace System.Dynamic.Utils {
+namespace Remotion.TypePipe.Dlr.Dynamic.Utils {
     internal static class CollectionExtensions {
         /// <summary>
         /// Wraps the provided enumerable into a ReadOnlyCollection{T}
@@ -35,7 +36,7 @@ namespace System.Dynamic.Utils {
         /// changed after creation. The exception is if the enumerable is
         /// already a ReadOnlyCollection{T}, in which case we just return it.
         /// </summary>
-#if !CLR2
+#if !TypePipe
         [Pure]
 #endif
         internal static ReadOnlyCollection<T> ToReadOnly<T>(this IEnumerable<T> enumerable) {
@@ -90,7 +91,7 @@ namespace System.Dynamic.Utils {
             return h;
         }
 
-#if !CLR2
+#if !TypePipe
         [Pure]
 #endif
         internal static bool ListEquals<T>(this ICollection<T> first, ICollection<T> second) {

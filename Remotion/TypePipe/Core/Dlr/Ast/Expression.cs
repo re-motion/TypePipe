@@ -16,20 +16,20 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using System.Threading;
 
 #if SILVERLIGHT
 using System.Core;
 #endif
 
-#if CLR2
-namespace Microsoft.Scripting.Ast {
-    using Microsoft.Scripting.Utils;
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast {
+    using Remotion.TypePipe.Dlr.Utils;
 #else
 namespace System.Linq.Expressions {
 #endif
@@ -43,7 +43,7 @@ namespace System.Linq.Expressions {
 
         // LINQ protected ctor from 3.5
 
-#if !CLR2 // needs ConditionWeakTable in 4.0
+#if !TypePipe // needs ConditionWeakTable in 4.0
 
         // For 4.0, many frequently used Expression nodes have had their memory
         // footprint reduced by removing the Type and NodeType fields. This has
@@ -95,7 +95,7 @@ namespace System.Linq.Expressions {
         /// </summary>
         public virtual ExpressionType NodeType {
             get {
-#if !CLR2
+#if !TypePipe
                 ExtensionInfo extInfo;
                 if (_legacyCtorSupportTable != null && _legacyCtorSupportTable.TryGetValue(this, out extInfo)) {
                     return extInfo.NodeType;
@@ -113,7 +113,7 @@ namespace System.Linq.Expressions {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1721:PropertyNamesShouldNotMatchGetMethods")]
         public virtual Type Type {
             get {
-#if !CLR2
+#if !TypePipe
                 ExtensionInfo extInfo;
                 if (_legacyCtorSupportTable != null && _legacyCtorSupportTable.TryGetValue(this, out extInfo)) {
                     return extInfo.Type;
@@ -222,7 +222,7 @@ namespace System.Linq.Expressions {
             return ExpressionStringBuilder.ExpressionToString(this);
         }
 
-#if CLR2
+#if TypePipe
         /// <summary>
         /// Writes a <see cref="String"/> representation of the <see cref="Expression"/> to a <see cref="TextWriter"/>.
         /// </summary>
@@ -325,7 +325,7 @@ namespace System.Linq.Expressions {
         }
 
 #if SILVERLIGHT
-#if !CLR2
+#if !TypePipe
         // Quirks mode for Expression Trees as they existed in Silverlight 2 and 3
         internal readonly static bool SilverlightQuirks =
             AppDomain.CurrentDomain.IsCompatibilitySwitchSet("APP_EARLIER_THAN_SL4.0").GetValueOrDefault();

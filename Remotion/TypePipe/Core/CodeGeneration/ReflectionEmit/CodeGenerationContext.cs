@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -64,6 +65,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _typeBuilder; }
     }
 
+    [CLSCompliant (false)]
     public IDictionary<MutableMethodInfo, IMethodBuilder> MethodBuilders
     {
       get { return _methodBuilders; }

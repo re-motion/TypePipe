@@ -17,9 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast {
-    using Microsoft.Scripting.Utils;
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast {
+    using Remotion.TypePipe.Dlr.Utils;
 #else
 namespace System.Linq.Expressions {
 #endif

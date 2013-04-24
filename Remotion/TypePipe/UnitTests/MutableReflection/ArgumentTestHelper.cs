@@ -16,7 +16,7 @@
 // 
 using System;
 using System.Linq;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 

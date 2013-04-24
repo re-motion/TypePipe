@@ -14,16 +14,17 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Utils;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 #endif
 
+using System;
 using System.Collections.Generic;
 
-namespace System.Dynamic.Utils {
+namespace Remotion.TypePipe.Dlr.Dynamic.Utils {
     // Miscellaneous helpers that don't belong anywhere else
     internal static class Helpers {
 

@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System.Collections.ObjectModel;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 
 namespace Remotion.TypePipe.MutableReflection
 {

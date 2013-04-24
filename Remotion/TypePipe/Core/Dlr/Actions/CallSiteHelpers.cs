@@ -13,8 +13,11 @@
  *
  * ***************************************************************************/
 
+using System;
 using System.Reflection;
-namespace System.Runtime.CompilerServices {
+using Remotion.TypePipe.Dlr.Dynamic;
+
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     /// <summary>
     /// Class that contains helper methods for DLR CallSites.
     /// </summary>
@@ -42,7 +45,7 @@ namespace System.Runtime.CompilerServices {
             }
 
             //Filter out the helper methods.
-            if (mb.DeclaringType == typeof(System.Dynamic.UpdateDelegates)) {
+            if (mb.DeclaringType == typeof(UpdateDelegates)) {
                 return true;
             }
 

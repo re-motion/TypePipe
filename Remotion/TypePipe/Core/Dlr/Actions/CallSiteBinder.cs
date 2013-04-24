@@ -13,8 +13,8 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
@@ -22,15 +22,15 @@ using System.Linq.Expressions;
 using System.Core;
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Dynamic;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Threading;
 using System.Reflection;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     /// <summary>
     /// Class responsible for runtime binding of the dynamic operations on the dynamic call site.
     /// </summary>
@@ -139,7 +139,7 @@ namespace System.Runtime.CompilerServices {
             //
             // finally produce the new rule if we need to
             //
-#if !CLR2 && !SILVERLIGHT
+#if !TypePipe && !SILVERLIGHT
             // We cannot compile rules in the heterogeneous app domains since they
             // may come from less trusted sources
             // Silverlight always uses a homogenous appdomain, so we don’t need this check
