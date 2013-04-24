@@ -31,6 +31,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
+      // TODO 4744: check that baseType.IsVisible
+
       return !type.IsSealed && !type.IsInterface && HasAccessibleConstructor (type);
     }
 

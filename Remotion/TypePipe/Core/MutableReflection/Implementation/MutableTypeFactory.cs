@@ -29,8 +29,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class MutableTypeFactory : IMutableTypeFactory
   {
-    private const BindingFlags c_allInstanceMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-
     private int _counter;
 
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
@@ -42,8 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (attributes.IsSet (TypeAttributes.Interface))
         throw new ArgumentException ("Cannot create interface type. Use CreateInterface instead.", "attributes");
 
-      // TODO 4744: check that baseType.IsVisible
-      if (CanNotBeSubclassed (baseType))
+      if (!SubclassFilterUtility.IsSubclassable (baseType) || baseType.ContainsGenericParameters)
       {
         throw new ArgumentException (
             "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
@@ -98,19 +95,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
         proxyType.AddConstructor (attributes, parameters, ctx => ctx.CallBaseConstructor (ctx.Parameters.Cast<Expression>()));
       }
-    }
-
-    private static bool CanNotBeSubclassed (Type type)
-    {
-      return type.IsSealed
-             || type.IsInterface
-             || type.ContainsGenericParameters
-             || !HasAccessibleConstructor (type);
-    }
-
-    private static bool HasAccessibleConstructor (Type type)
-    {
-      return type.GetConstructors (c_allInstanceMembers).Where (SubclassFilterUtility.IsVisibleFromSubclass).Any ();
     }
   }
 }
