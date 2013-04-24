@@ -25,6 +25,7 @@ using Remotion.Text;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -37,7 +38,8 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class TypeAssembler : ITypeAssembler
   {
-    private static readonly ConstructorInfo s_proxyTypeAttributeCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeAttribute());
+    private static readonly ConstructorInfo s_assembledTypeAttributeCtor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeAttribute());
 
     private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
@@ -107,6 +109,8 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
+      CheckIsSubclassable (requestedType);
+
       var typeAssemblyContext = CreateTypeAssemblyContext (requestedType, participantState);
 
       foreach (var participant in _participants)
@@ -126,10 +130,22 @@ namespace Remotion.TypePipe.CodeGeneration
         participant.RebuildState (loadedTypesContext);
     }
 
+    private void CheckIsSubclassable (Type requestedType)
+    {
+      if (SubclassFilterUtility.IsSubclassable (requestedType))
+        return;
+
+      foreach (var participant in _participants)
+        participant.HandleNonSubclassableType (requestedType);
+
+      var message = string.Format ("Cannot assemble type for the requested type '{0}' because it cannot be subclassed.", requestedType.Name);
+      throw new NotSupportedException (message);
+    }
+
     private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)
     {
       var proxyType = _mutableTypeFactory.CreateProxy (requestedType);
-      var proxyTypeAttribute = new CustomAttributeDeclaration (s_proxyTypeAttributeCtor, new object[0]);
+      var proxyTypeAttribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
       proxyType.AddCustomAttribute (proxyTypeAttribute);
 
       return new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);

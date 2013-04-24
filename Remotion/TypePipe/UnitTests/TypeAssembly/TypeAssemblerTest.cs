@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
 
-      _requestedType = ReflectionObjectMother.GetSomeType();
+      _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       _participantState = new Dictionary<string, object>();
     }
 
@@ -179,6 +179,21 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       mockRepository.VerifyAll();
       Assert.That (generationCompletedEventRaised, Is.True);
       Assert.That (result, Is.SameAs (fakeGeneratedType));
+    }
+
+    [Test]
+    public void AssembleType_NonSubclassableType ()
+    {
+      var participantMock = MockRepository.GenerateMock<IParticipant>();
+      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
+      var nonSubclassableType = ReflectionObjectMother.GetSomeNonSubclassableType();
+      var typeAssemblyContextCodeGeneratorStub = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
+
+      TestDelegate action = () => typeAssembler.AssembleType (nonSubclassableType, _participantState, typeAssemblyContextCodeGeneratorStub);
+
+      var message = "Cannot assemble type for the requested type '" + nonSubclassableType.Name + "' because it cannot be subclassed.";
+      Assert.That (action, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+      participantMock.AssertWasCalled (mock => mock.HandleNonSubclassableType (nonSubclassableType));
     }
 
     [Test]
