@@ -19,7 +19,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Provides access to a <see cref="MutableType"/> and determines if it has been modified.
   /// </summary>
-  public interface ITypeModificationContext
+  public interface ITypeModificationTracker
   {
     MutableType Type { get; }
 

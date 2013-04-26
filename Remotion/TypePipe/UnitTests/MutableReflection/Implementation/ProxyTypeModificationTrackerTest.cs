@@ -25,12 +25,12 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
-  public class ProxyTypeModificationContextTest
+  public class ProxyTypeModificationTrackerTest
   {
     private MutableType _proxy;
     private MutableConstructorInfo _addedCtor;
 
-    private ProxyTypeModificationContext _context;
+    private ProxyTypeModificationTracker _tracker;
 
     [SetUp]
     public void SetUp ()
@@ -38,13 +38,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _proxy = MutableTypeObjectMother.Create();
       _addedCtor = _proxy.AddConstructor();
 
-      _context = new ProxyTypeModificationContext (_proxy, new[] { _addedCtor.Body });
+      _tracker = new ProxyTypeModificationTracker (_proxy, new[] { _addedCtor.Body });
     }
 
     [Test]
     public void IsModified_NotModified ()
     {
-      Assert.That (_context.IsModified(), Is.False);
+      Assert.That (_tracker.IsModified(), Is.False);
     }
 
     [Test]
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _addedCtor.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create());
 
-      Assert.That (_context.IsModified(), Is.True);
+      Assert.That (_tracker.IsModified(), Is.True);
     }
 
     [Test]
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _addedCtor.SetBody (ctx => Expression.Empty());
 
-      Assert.That (_context.IsModified(), Is.True);
+      Assert.That (_tracker.IsModified(), Is.True);
     }
 
     [Test]
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private void CheckIsModified (Action<MutableType> modificationAction)
     {
       var proxy = MutableTypeObjectMother.Create();
-      var context = new ProxyTypeModificationContext (proxy, new Expression[0]);
+      var context = new ProxyTypeModificationTracker (proxy, new Expression[0]);
 
       modificationAction (proxy);
 

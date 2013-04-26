@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return CreateMutableType (name, @namespace, attributes, null);
     }
 
-    public ITypeModificationContext CreateProxy (Type baseType)
+    public ITypeModificationTracker CreateProxy (Type baseType)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var proxyType = CreateType (name, baseType.Namespace, attributes, baseType);
       var constructorBodies = CopyConstructors (baseType, proxyType);
 
-      return new ProxyTypeModificationContext (proxyType, constructorBodies);
+      return new ProxyTypeModificationTracker (proxyType, constructorBodies);
     }
 
     private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType)

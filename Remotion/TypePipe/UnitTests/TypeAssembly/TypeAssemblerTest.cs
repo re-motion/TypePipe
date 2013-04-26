@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         var proxyType = MutableTypeObjectMother.Create();
-        var typeModificationContextMock = mockRepository.StrictMock<ITypeModificationContext>();
+        var typeModificationContextMock = mockRepository.StrictMock<ITypeModificationTracker>();
         mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (typeModificationContextMock);
         typeModificationContextMock.Stub (stub => stub.Type).Return (proxyType);
 
@@ -209,7 +209,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void AssembleType_NoModifications_ReturnsRequestedType ()
     {
       var mutableTypeFactoryStub = MockRepository.GenerateStub<IMutableTypeFactory>();
-      var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationContext>();
+      var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationTracker>();
       mutableTypeFactoryStub.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
       typeModificationContextStub.Stub (_ => _.Type).Return (MutableTypeObjectMother.Create());
       var typeAssembler = CreateTypeAssembler (mutableTypeFactoryStub);
@@ -224,7 +224,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
-      var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationContext>();
+      var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationTracker>();
       typeModificationContextStub.Stub (_ => _.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
       typeModificationContextStub.Stub (_ => _.IsModified()).Return (true);
       _mutableTypeFactoryMock.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);

@@ -117,8 +117,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (type.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
       Assert.That (type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
 
-      Assert.That (result, Is.TypeOf<ProxyTypeModificationContext> ());
-      Assert.That (result.As<ProxyTypeModificationContext> ().ConstructorBodies, Is.EqualTo (type.AddedConstructors.Select (c => c.Body)));
+      Assert.That (result, Is.TypeOf<ProxyTypeModificationTracker> ());
+      Assert.That (result.As<ProxyTypeModificationTracker> ().ConstructorBodies, Is.EqualTo (type.AddedConstructors.Select (c => c.Body)));
     }
 
     [Test]

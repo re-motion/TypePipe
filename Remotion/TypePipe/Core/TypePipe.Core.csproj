@@ -198,7 +198,7 @@
     <Compile Include="MutableReflection\Implementation\ByRefType.cs" />
     <Compile Include="MutableReflection\Implementation\ConstructorOnCustomType.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
-    <Compile Include="MutableReflection\Implementation\ITypeModificationContext.cs" />
+    <Compile Include="MutableReflection\Implementation\ITypeModificationTracker.cs" />
     <Compile Include="MutableReflection\Implementation\MemberImplementationUtility.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOnCustomType.cs" />
     <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethod.cs" />
@@ -233,7 +233,7 @@
     <Compile Include="MutableReflection\ICustomAttributeDataProvider.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainer.cs" />
     <Compile Include="MutableReflection\Implementation\CustomPropertyInfo.cs" />
-    <Compile Include="MutableReflection\Implementation\ProxyTypeModificationContext.cs" />
+    <Compile Include="MutableReflection\Implementation\ProxyTypeModificationTracker.cs" />
     <Compile Include="MutableReflection\Implementation\VectorType.cs" />
     <Compile Include="MutableReflection\Implementation\IMutableTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapper.cs" />

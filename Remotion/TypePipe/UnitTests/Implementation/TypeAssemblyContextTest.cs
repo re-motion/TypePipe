@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var baseType = ReflectionObjectMother.GetSomeType();
       var fakeResult = MutableTypeObjectMother.Create();
-      var typeModificationContextStub = MockRepository.GenerateStrictMock<ITypeModificationContext>();
+      var typeModificationContextStub = MockRepository.GenerateStrictMock<ITypeModificationTracker>();
       typeModificationContextStub.Stub (stub => stub.Type).Return (fakeResult);
       _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (baseType)).Return (typeModificationContextStub);
 

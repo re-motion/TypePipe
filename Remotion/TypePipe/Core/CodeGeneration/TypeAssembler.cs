@@ -112,14 +112,14 @@ namespace Remotion.TypePipe.CodeGeneration
       if (!CheckIsSubclassable (requestedType))
         return requestedType;
 
-      var typeModificationContext = _mutableTypeFactory.CreateProxy (requestedType);
+      var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
       var typeAssemblyContext = new TypeAssemblyContext (
-          _participantConfigurationID, requestedType, typeModificationContext.Type, _mutableTypeFactory, participantState);
+          _participantConfigurationID, requestedType, typeModificationTracker.Type, _mutableTypeFactory, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);
 
-      if (!typeModificationContext.IsModified())
+      if (!typeModificationTracker.IsModified())
         return requestedType;
 
       AddAssembledTypeAttribute (typeAssemblyContext.ProxyType);

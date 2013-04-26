@@ -25,14 +25,14 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Represents a <see cref="ITypeModificationContext"/> for a proxy type that has copied constructors.
+  /// Represents a <see cref="ITypeModificationTracker"/> for a proxy type that has copied constructors.
   /// </summary>
-  public class ProxyTypeModificationContext : ITypeModificationContext
+  public class ProxyTypeModificationTracker : ITypeModificationTracker
   {
     private readonly MutableType _proxyType;
     private readonly ReadOnlyCollection<Expression> _constructorBodies;
 
-    public ProxyTypeModificationContext (MutableType proxyType, IEnumerable<Expression> constructorBodies)
+    public ProxyTypeModificationTracker (MutableType proxyType, IEnumerable<Expression> constructorBodies)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("constructorBodies", constructorBodies);
