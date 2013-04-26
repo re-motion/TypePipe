@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   public class NonSubclassableTypeTest : IntegrationTestBase
   {
     [Test]
-    public void Participant_Throws ()
+    public void Participant_MayReportError ()
     {
       var exception = new Exception();
       var reflectionService = GetReflectionService (t => { throw exception; });
@@ -38,14 +38,14 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void Pipeline_Throws_IfNoParticipantThrows ()
+    public void Pipeline_ReturnsRequestedType_IfParticipantsDoNotCare ()
     {
       var reflectionService = GetReflectionService (t => { });
+      var type = ReflectionObjectMother.GetSomeNonSubclassableType();
 
-      TestDelegate action = () => reflectionService.GetAssembledType (typeof (int));
+      var result = reflectionService.GetAssembledType (type);
 
-      var message = "Cannot assemble type for the requested type 'Int32' because it cannot be subclassed.";
-      Assert.That (action, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+      Assert.That (result, Is.SameAs (type));
     }
 
     private IReflectionService GetReflectionService (Action<Type> handleNonSubclassableTypeAction)
