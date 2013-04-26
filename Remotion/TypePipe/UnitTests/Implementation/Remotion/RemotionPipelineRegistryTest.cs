@@ -15,8 +15,10 @@
 // under the License.
 // 
 
+using System;
 using NUnit.Framework;
 using Remotion.Reflection.TypeDiscovery;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Remotion;
 using Rhino.Mocks;
 
@@ -32,7 +34,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Remotion
     [SetUp]
     public void SetUp ()
     {
-      _participants = new[] { MockRepository.GenerateStub<IParticipant> () };
+      var action = (Action<ITypeAssemblyContext>) (ctx => ctx.ProxyType.AddField ("field", 0, typeof (int)));
+      var participantStub = MockRepository.GenerateStub<IParticipant>();
+      // Modify proxy type to avoid no-modification optimization.
+      participantStub.Stub (_ => _.Participate (Arg<ITypeAssemblyContext>.Is.Anything)).Do (action);
+      _participants = new[] { participantStub };
 
       var registry = new RemotionPipelineRegistry (_participants);
       _defaultPipeline = registry.DefaultPipeline;
@@ -51,6 +57,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Remotion
       // Creates new in-memory assembly.
       var type = _defaultPipeline.ReflectionService.GetAssembledType (typeof (RequestedType));
 
+      Assert.That (type, Is.Not.SameAs (typeof (RequestedType)));
       Assert.That (type.Assembly.IsDefined (typeof (NonApplicationAssemblyAttribute), false), Is.True);
     }
 
