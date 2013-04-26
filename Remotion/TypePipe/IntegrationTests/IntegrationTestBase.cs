@@ -20,11 +20,13 @@ using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
+using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -45,6 +47,9 @@ namespace Remotion.TypePipe.IntegrationTests
       participateAction = participateAction ?? (ctx => { });
       rebuildStateAction = rebuildStateAction ?? (ctx => { });
       handleNonSubclassableTypeAction = handleNonSubclassableTypeAction ?? (ctx => { });
+
+      // Avoid no-modification optimization.
+      participateAction = CreateModifyingAction (participateAction);
 
       return new ParticipantStub (cacheKeyProvider, participateAction, rebuildStateAction, handleNonSubclassableTypeAction);
     }
@@ -122,7 +127,12 @@ namespace Remotion.TypePipe.IntegrationTests
     protected IPipeline CreatePipeline (
         string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
     {
-      var objectFactory = PipelineFactory.Create (participantConfigurationID, participants, configurationProvider);
+      // Avoid no-modification optimization.
+      var participantList = participants.ToList();
+      if (participantList.Count == 0)
+        participantList.Add (CreateParticipant (CreateModifyingAction (ctx => { })));
+
+      var objectFactory = PipelineFactory.Create (participantConfigurationID, participantList, configurationProvider);
 
       _codeManager = objectFactory.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
@@ -173,5 +183,23 @@ namespace Remotion.TypePipe.IntegrationTests
 
       return typeName + '.' + methodName;
     }
+
+    private static Action<ITypeAssemblyContext> CreateModifyingAction (Action<ITypeAssemblyContext> participateAction)
+    {
+      return ctx =>
+      {
+        participateAction (ctx);
+
+        if (ctx.ProxyType.AddedCustomAttributes.Count == 0)
+        {
+          var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new TypeAssembledByIntegrationTestAttribute());
+          var attribute = new CustomAttributeDeclaration (constructor, new object[0]);
+
+          ctx.ProxyType.AddCustomAttribute (attribute);
+        }
+      };
+    }
+
+    public class TypeAssembledByIntegrationTestAttribute : Attribute {}
   }
 }
