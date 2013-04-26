@@ -51,9 +51,26 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _constructorBodies; }
     }
 
-    public bool WasModified ()
+    public bool IsModified ()
     {
-      return false;
+      return HasAddedItems() || HasModifiedConstructors();
+    }
+
+    private bool HasAddedItems ()
+    {
+      // TODO 5550: Nested types
+      return _proxyType.AddedCustomAttributes.Count > 0
+             || _proxyType.AddedInterfaces.Count > 0
+             || _proxyType.AddedFields.Count > 0
+             || _proxyType.AddedConstructors.Count > _constructorBodies.Count
+             || _proxyType.AddedMethods.Count > 0;
+      // Properties and events are covered via methods.
+    }
+
+    private bool HasModifiedConstructors ()
+    {
+      var ctors = _proxyType.AddedConstructors;
+      return ctors.Any (c => c.AddedCustomAttributes.Count > 0) || !ctors.Select (c => c.Body).SequenceEqual (_constructorBodies);
     }
   }
 }

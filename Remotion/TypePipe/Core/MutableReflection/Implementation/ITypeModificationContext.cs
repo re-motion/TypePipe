@@ -23,6 +23,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     MutableType Type { get; }
 
-    bool WasModified ();
+    bool IsModified ();
   }
 }
