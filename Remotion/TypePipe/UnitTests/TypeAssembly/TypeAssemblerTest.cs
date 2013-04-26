@@ -26,6 +26,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 using System.Linq;
 
@@ -136,7 +137,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         var proxyType = MutableTypeObjectMother.Create();
-        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (proxyType);
+        var typeModificationMock = MockRepository.GenerateStrictMock<ITypeModificationContext>();
+        typeModificationMock.Stub (stub => stub.Type).Return (proxyType);
+        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (typeModificationMock);
 
         var additionalType = MutableTypeObjectMother.Create();
         ITypeAssemblyContext typeAssemblyContext = null;
@@ -203,7 +206,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
-      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxy (_requestedType)).Do (new Func<Type, MutableType> (t => MutableTypeObjectMother.Create()));
+      var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationContext>();
+      typeModificationContextStub.Stub (stub => stub.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
+      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxy (_requestedType)).Return (typeModificationContextStub);
       var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");

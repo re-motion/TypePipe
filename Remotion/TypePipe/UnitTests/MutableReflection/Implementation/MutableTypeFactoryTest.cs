@@ -111,17 +111,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var result = _factory.CreateProxy (_domainType);
 
-      Assert.That (result.BaseType, Is.SameAs (_domainType));
-      Assert.That (result.Name, Is.EqualTo (@"DomainType_Proxy1"));
-      Assert.That (result.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
-      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+      var type = result.Type;
+      Assert.That (type.BaseType, Is.SameAs (_domainType));
+      Assert.That (type.Name, Is.EqualTo (@"DomainType_Proxy1"));
+      Assert.That (type.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
+      Assert.That (type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+
+      Assert.That (result, Is.TypeOf<ProxyTypeModificationContext> ());
+      Assert.That (result.As<ProxyTypeModificationContext> ().ConstructorBodies, Is.EqualTo (type.AddedConstructors.Select (c => c.Body)));
     }
 
     [Test]
     public void CreateProxy_UniqueNames ()
     {
-      var result1 = _factory.CreateProxy (_domainType);
-      var result2 = _factory.CreateProxy (_domainType);
+      var result1 = _factory.CreateProxy (_domainType).Type;
+      var result2 = _factory.CreateProxy (_domainType).Type;
 
       Assert.That (result1.Name, Is.Not.EqualTo (result2.Name));
     }
@@ -129,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy_Serializable ()
     {
-      var result = _factory.CreateProxy (typeof (SerializableType));
+      var result = _factory.CreateProxy (typeof (SerializableType)).Type;
 
       Assert.That (result.IsSerializable, Is.True);
     }
@@ -137,10 +141,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy_CopiesAccessibleInstanceConstructors_WithPublicVisibility ()
     {
-      var result = _factory.CreateProxy (_domainType);
+      var result = _factory.CreateProxy (_domainType).Type;
 
       Assert.That (result.AddedConstructors, Has.Count.EqualTo (1));
-
       var ctor = result.AddedConstructors.Single();
       Assert.That (ctor.IsStatic, Is.False);
       Assert.That (ctor.IsPublic, Is.True, "Changed from 'family or assembly'.");

@@ -14,19 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
-using System;
-using System.Reflection;
-
-namespace Remotion.TypePipe.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Defines an interface for classes creating <see cref="MutableType"/> model instances.
+  /// Provides access to a <see cref="MutableType"/> and determines if it has been modified.
   /// </summary>
-  public interface IMutableTypeFactory
+  public interface ITypeModificationContext
   {
-    MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
-    MutableType CreateInterface (string name, string @namespace);
-    MutableType CreateProxy (Type baseType);
+    MutableType Type { get; }
+
+    bool WasModified ();
   }
 }

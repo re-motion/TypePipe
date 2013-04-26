@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,20 +16,17 @@
 // 
 
 using System;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
+using System.Reflection;
 
-namespace Remotion.TypePipe.IntegrationTests.MutableReflection
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  public static class MutableTypeObjectMother
+  /// <summary>
+  /// Defines an interface for classes creating <see cref="MutableType"/> model instances.
+  /// </summary>
+  public interface IMutableTypeFactory
   {
-    public static MutableType Create (Type baseType = null)
-    {
-      baseType = baseType ?? typeof (UnspecifiedType);
-
-      return new MutableTypeFactory().CreateProxy (baseType).Type;
-    }
-
-    public class UnspecifiedType { }
+    MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
+    MutableType CreateInterface (string name, string @namespace);
+    ITypeModificationContext CreateProxy (Type baseType);
   }
 }

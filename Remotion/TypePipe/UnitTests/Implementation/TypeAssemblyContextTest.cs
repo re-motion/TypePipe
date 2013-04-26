@@ -23,7 +23,7 @@ using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
@@ -98,7 +98,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var baseType = ReflectionObjectMother.GetSomeType();
       var fakeResult = MutableTypeObjectMother.Create();
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (baseType)).Return (fakeResult);
+      var typeModificationContextStub = MockRepository.GenerateStrictMock<ITypeModificationContext>();
+      typeModificationContextStub.Stub (stub => stub.Type).Return (fakeResult);
+      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (baseType)).Return (typeModificationContextStub);
 
       var result = _context.CreateProxy (baseType);
 

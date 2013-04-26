@@ -21,6 +21,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -111,7 +112,7 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      var type = _mutableTypeFactory.CreateProxy (baseType);
+      var type = _mutableTypeFactory.CreateProxy (baseType).Type;
       _additionalTypes.Add (type);
 
       return type;

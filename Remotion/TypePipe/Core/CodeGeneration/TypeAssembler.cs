@@ -112,7 +112,9 @@ namespace Remotion.TypePipe.CodeGeneration
       if (!CheckIsSubclassable (requestedType))
         return requestedType;
 
-      var typeAssemblyContext = CreateTypeAssemblyContext (requestedType, participantState);
+      var proxyModificationContext = _mutableTypeFactory.CreateProxy (requestedType);
+      var typeAssemblyContext = new TypeAssemblyContext (
+          _participantConfigurationID, requestedType, proxyModificationContext.Type, _mutableTypeFactory, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (typeAssemblyContext);
@@ -141,12 +143,6 @@ namespace Remotion.TypePipe.CodeGeneration
         participant.HandleNonSubclassableType (requestedType);
 
       return false;
-    }
-
-    private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)
-    {
-      var proxyType = _mutableTypeFactory.CreateProxy (requestedType);
-      return new TypeAssemblyContext (_participantConfigurationID, requestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
     private GeneratedTypeContext GenerateTypesWithDiagnostics (IMutableTypeBatchCodeGenerator codeGenerator, TypeAssemblyContext context)

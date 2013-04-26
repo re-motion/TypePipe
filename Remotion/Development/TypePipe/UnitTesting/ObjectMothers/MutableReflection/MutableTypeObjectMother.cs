@@ -16,12 +16,15 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
 {
@@ -59,8 +62,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
-        IMutableMemberFactory mutableMemberFactory = null,
-        bool copyCtorsFromBase = false)
+        IMutableMemberFactory mutableMemberFactory = null)
     {
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator ());
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder ();
@@ -74,7 +76,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
     private static void CopyConstructors (Type baseType, MutableType proxyType)
     {
       var proxyTypeModelFactory = new MutableTypeFactory();
-      PrivateInvoke.InvokeNonPublicMethod (proxyTypeModelFactory, "CopyConstructors", baseType, proxyType);
+      proxyTypeModelFactory.Invoke<IEnumerable<Expression>> ("CopyConstructors", baseType, proxyType).ForceEnumeration();
     }
 
     public class UnspecifiedType { }
