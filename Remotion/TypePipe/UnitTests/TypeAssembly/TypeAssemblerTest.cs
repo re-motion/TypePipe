@@ -126,7 +126,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
-      var typeAssemblyContextCodeGeneratorMock = mockRepository.StrictMock<IMutableTypeBatchCodeGenerator>();
+      var codeGeneratorMock = mockRepository.StrictMock<IMutableTypeBatchCodeGenerator>();
 
       var generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
@@ -160,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int))).Return (additionalType);
         participantMock2.Expect (mock => mock.Participate (Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
 
-        typeAssemblyContextCodeGeneratorMock
+        codeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
             .Return (new[] { new KeyValuePair<MutableType, Type> (proxyType, fakeGeneratedType) })
             .WhenCalled (
@@ -178,7 +178,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       var typeAssembler = CreateTypeAssembler (mutableTypeFactoryMock, "participant configuration id", new[] { participantMock1, participantMock2 });
 
-      var result = typeAssembler.AssembleType (_requestedType, _participantState, typeAssemblyContextCodeGeneratorMock);
+      var result = typeAssembler.AssembleType (_requestedType, _participantState, codeGeneratorMock);
 
       mockRepository.VerifyAll();
       Assert.That (generationCompletedEventRaised, Is.True);
@@ -191,13 +191,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var participantMock = MockRepository.GenerateMock<IParticipant>();
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
       var nonSubclassableType = ReflectionObjectMother.GetSomeNonSubclassableType();
-      var typeAssemblyContextCodeGeneratorStub = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
+      var codeGenerator = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
 
-      TestDelegate action = () => typeAssembler.AssembleType (nonSubclassableType, _participantState, typeAssemblyContextCodeGeneratorStub);
+      var result = typeAssembler.AssembleType (nonSubclassableType, _participantState, codeGenerator);
 
-      var message = "Cannot assemble type for the requested type '" + nonSubclassableType.Name + "' because it cannot be subclassed.";
-      Assert.That (action, Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message));
+      Assert.That (result, Is.SameAs (nonSubclassableType));
       participantMock.AssertWasCalled (mock => mock.HandleNonSubclassableType (nonSubclassableType));
+      participantMock.AssertWasNotCalled (mock => mock.Participate (Arg<ITypeAssemblyContext>.Is.Anything));
     }
 
     [Test]

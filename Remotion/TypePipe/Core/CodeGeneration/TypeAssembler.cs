@@ -109,7 +109,8 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
-      CheckIsSubclassable (requestedType);
+      if (!CheckIsSubclassable (requestedType))
+        return requestedType;
 
       var typeAssemblyContext = CreateTypeAssemblyContext (requestedType, participantState);
 
@@ -131,16 +132,15 @@ namespace Remotion.TypePipe.CodeGeneration
         participant.RebuildState (loadedTypesContext);
     }
 
-    private void CheckIsSubclassable (Type requestedType)
+    private bool CheckIsSubclassable (Type requestedType)
     {
       if (SubclassFilterUtility.IsSubclassable (requestedType))
-        return;
+        return true;
 
       foreach (var participant in _participants)
         participant.HandleNonSubclassableType (requestedType);
 
-      var message = string.Format ("Cannot assemble type for the requested type '{0}' because it cannot be subclassed.", requestedType.Name);
-      throw new NotSupportedException (message);
+      return false;
     }
 
     private TypeAssemblyContext CreateTypeAssemblyContext (Type requestedType, IDictionary<string, object> participantState)
