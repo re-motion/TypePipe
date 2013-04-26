@@ -13,9 +13,10 @@
  *
  * ***************************************************************************/
 
-using System.Dynamic.Utils;
+using System;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
 
     /// <summary>
     /// Represents the invoke member dynamic operation at the call site,

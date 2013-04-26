@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.MutableReflection;
@@ -25,8 +25,8 @@ using Remotion.TypePipe.MutableReflection;
 using System.Core;
 #endif
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

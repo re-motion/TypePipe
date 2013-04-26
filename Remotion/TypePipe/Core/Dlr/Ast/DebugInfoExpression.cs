@@ -15,14 +15,14 @@
 
 using System;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 #if SILVERLIGHT
 using System.Core;
 #endif
 
-#if CLR2
-namespace Microsoft.Scripting.Ast {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

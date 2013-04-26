@@ -18,7 +18,7 @@
 using System;
 using System.Collections;
 using System.Linq;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 
 namespace Remotion.Development.TypePipe.UnitTesting.Expressions
 {

@@ -18,7 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;

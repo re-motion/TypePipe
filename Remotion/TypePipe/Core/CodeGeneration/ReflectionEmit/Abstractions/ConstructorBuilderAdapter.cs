@@ -18,9 +18,10 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 

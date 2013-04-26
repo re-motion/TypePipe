@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
-namespace System.Dynamic.Utils {
+namespace Remotion.TypePipe.Dlr.Dynamic.Utils {
     /// <summary>
     /// Provides a dictionary-like object used for caches which holds onto a maximum
     /// number of elements specified at construction time.

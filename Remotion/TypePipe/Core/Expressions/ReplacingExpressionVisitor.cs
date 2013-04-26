@@ -16,7 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
 using Remotion.Collections;
 

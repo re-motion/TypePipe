@@ -18,7 +18,7 @@
 using System;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;

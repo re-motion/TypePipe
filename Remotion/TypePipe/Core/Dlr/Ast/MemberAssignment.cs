@@ -14,7 +14,7 @@
  * ***************************************************************************/
 
 using System;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
@@ -22,8 +22,8 @@ using Remotion.TypePipe.MutableReflection;
 using System.Core;
 #endif
 
-#if CLR2
-namespace Microsoft.Scripting.Ast {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif

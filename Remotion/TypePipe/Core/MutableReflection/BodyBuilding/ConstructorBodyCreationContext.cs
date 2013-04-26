@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System.Collections.Generic;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {

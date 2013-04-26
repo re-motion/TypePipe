@@ -19,16 +19,16 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Dynamic;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT
 using System.Core;
 #endif
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif
@@ -324,7 +324,7 @@ namespace System.Linq.Expressions.Compiler {
                     ResolveVariable(v, _closureHoistedLocals).EmitLoad();
                     lc.IL.Emit(OpCodes.Newobj, boxTypeCtor);
                 } else {
-#if CLR2
+#if TypePipe
                     // array[i] = new StrongBox<T>(default(T));
                     lc.IL.EmitDefault(v.Type);
                     lc.IL.Emit(OpCodes.Newobj, boxTypeCtor);

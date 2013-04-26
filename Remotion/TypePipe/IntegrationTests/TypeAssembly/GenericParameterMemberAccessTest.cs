@@ -17,7 +17,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 

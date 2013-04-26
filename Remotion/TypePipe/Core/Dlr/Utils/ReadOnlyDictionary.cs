@@ -13,8 +13,8 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
@@ -24,7 +24,7 @@ using System.Core;
 
 using System.Collections.Generic;
 
-namespace System.Dynamic.Utils {
+namespace Remotion.TypePipe.Dlr.Dynamic.Utils {
 
     // Like ReadOnlyCollection<T>: wraps an IDictionary<K, V> in a read-only wrapper
     internal sealed class ReadOnlyDictionary<K, V> : IDictionary<K, V> {

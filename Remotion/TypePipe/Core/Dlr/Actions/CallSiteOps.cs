@@ -13,12 +13,12 @@
  *
  * ***************************************************************************/
 
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Dynamic;
 using System.Collections.Generic;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 
     // Conceptually these are instance methods on CallSite<T> but
     // we don't want users to see them

@@ -15,7 +15,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -23,8 +23,8 @@ using System.Security;
 using System.Text;
 using System.Threading;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif
@@ -33,7 +33,7 @@ namespace System.Linq.Expressions.Compiler {
 
         // Testing options. Only ever set in CLR2 build
         // configurations, see SetSaveAssemblies
-#if CLR2
+#if TypePipe
         private static string _saveAssembliesPath;
         private static bool _saveAssemblies;
 #endif
@@ -41,7 +41,7 @@ namespace System.Linq.Expressions.Compiler {
         private readonly AssemblyBuilder _myAssembly;
         private readonly ModuleBuilder _myModule;
 
-#if CLR2 && !SILVERLIGHT
+#if TypePipe && !SILVERLIGHT
         private readonly string _outFileName;       // can be null iff !SaveAndReloadAssemblies
         private readonly string _outDir;            // null means the current directory
 #endif
@@ -69,7 +69,7 @@ namespace System.Linq.Expressions.Compiler {
                 new CustomAttributeBuilder(typeof(SecurityTransparentAttribute).GetConstructor(Type.EmptyTypes), new object[0])
             };
 
-#if CLR2
+#if TypePipe
             if (_saveAssemblies) {
                 string outDir = _saveAssembliesPath ?? Directory.GetCurrentDirectory();
                 try {
@@ -128,7 +128,7 @@ namespace System.Linq.Expressions.Compiler {
             );
         }
 
-#if CLR2
+#if TypePipe
         //Return the location of the saved assembly file.
         //The file location is used by PE verification in Microsoft.Scripting.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]

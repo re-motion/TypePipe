@@ -18,8 +18,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 

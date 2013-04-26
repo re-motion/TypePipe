@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Scripting.Ast.Compiler;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;

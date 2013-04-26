@@ -13,18 +13,19 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
 
+using System;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// Provides a simple class that can be inherited from to create an object with dynamic behavior
     /// at runtime.  Subclasses can override the various binder methods (GetMember, SetMember, Call, etc...)

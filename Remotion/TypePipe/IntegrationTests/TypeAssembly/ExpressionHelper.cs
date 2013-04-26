@@ -17,7 +17,7 @@
 
 using System;
 using System.Reflection;
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Development.UnitTesting.Reflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly

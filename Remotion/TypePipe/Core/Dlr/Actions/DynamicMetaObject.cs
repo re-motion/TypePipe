@@ -13,8 +13,8 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
@@ -25,11 +25,12 @@ using System.Core;
 using System.Runtime.Remoting;
 #endif
 
+using System;
 using System.Collections.Generic;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 
-namespace System.Dynamic {
+namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// Represents the dynamic binding and a binding logic of an object participating in the dynamic binding.
     /// </summary>

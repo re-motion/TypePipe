@@ -15,7 +15,7 @@
 // under the License.
 // 
 
-using Microsoft.Scripting.Ast;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions

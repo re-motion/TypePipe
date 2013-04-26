@@ -13,12 +13,13 @@
  *
  * ***************************************************************************/
 
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
-namespace System.Dynamic.Utils {
+namespace Remotion.TypePipe.Dlr.Dynamic.Utils {
 
     // Extensions on System.Type and friends
     internal static class TypeExtensions {

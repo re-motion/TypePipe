@@ -18,7 +18,7 @@ using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {

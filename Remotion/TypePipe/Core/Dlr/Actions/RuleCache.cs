@@ -13,11 +13,12 @@
  *
  * ***************************************************************************/
 
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     /// <summary>
     /// This API supports the .NET Framework infrastructure and is not intended to be used directly from your code.
     /// Represents a cache of runtime binding rules.

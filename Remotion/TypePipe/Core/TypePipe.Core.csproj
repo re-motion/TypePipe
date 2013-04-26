@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CLR2;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TypePipe;NET_3_5</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Remotion.TypePipe.XML</DocumentationFile>
@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;CLR2;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;TypePipe;NET_3_5</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -58,7 +58,6 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
-    <Compile Include="Dlr\PreprocessorSymbols.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecorator.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistry.cs" />

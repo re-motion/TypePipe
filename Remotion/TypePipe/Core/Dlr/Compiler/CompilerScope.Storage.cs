@@ -19,8 +19,8 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif

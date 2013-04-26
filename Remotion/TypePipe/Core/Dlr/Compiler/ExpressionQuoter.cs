@@ -13,20 +13,22 @@
  *
  * ***************************************************************************/
 
-#if CLR2
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Ast.Compiler;
+#if TypePipe
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
 #endif
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using System.Runtime.CompilerServices;
 
-namespace System.Runtime.CompilerServices {
+namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     public partial class RuntimeOps {
         /// <summary>
         /// Quotes the provided expression tree.

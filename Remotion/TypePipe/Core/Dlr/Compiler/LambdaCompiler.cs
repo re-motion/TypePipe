@@ -17,19 +17,20 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Dynamic.Utils;
+using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using System.Threading;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
-#if CLR2
-namespace Microsoft.Scripting.Ast.Compiler {
+#if TypePipe
+namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif
-#if CLR2 || SILVERLIGHT
+#if TypePipe || SILVERLIGHT
     using ILGenerator = IILGenerator;
 #endif
 
@@ -88,7 +89,7 @@ namespace System.Linq.Expressions.Compiler {
         private LambdaCompiler(AnalyzedTree tree, LambdaExpression lambda) {
             Type[] parameterTypes = GetParameterTypes(lambda).AddFirst(typeof(Closure));
 
-#if SILVERLIGHT && CLR2
+#if SILVERLIGHT && TypePipe
             var method = new DynamicMethod(lambda.Name ?? "lambda_method", lambda.ReturnType, parameterTypes);
 #else
             var method = new DynamicMethod(lambda.Name ?? "lambda_method", lambda.ReturnType, parameterTypes, true);
@@ -98,7 +99,7 @@ namespace System.Linq.Expressions.Compiler {
             _lambda = lambda;
             _method = method;
 
-#if CLR2 || SILVERLIGHT
+#if TypePipe || SILVERLIGHT
             _ilg = new OffsetTrackingILGeneratorFactory().CreateAdaptedILGenerator (method.GetILGenerator());
 #else
             _ilg = method.GetILGenerator();
