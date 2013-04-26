@@ -137,9 +137,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
 
         var proxyType = MutableTypeObjectMother.Create();
-        var typeModificationMock = MockRepository.GenerateStrictMock<ITypeModificationContext>();
-        typeModificationMock.Stub (stub => stub.Type).Return (proxyType);
-        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (typeModificationMock);
+        var typeModificationContextMock = mockRepository.StrictMock<ITypeModificationContext>();
+        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (typeModificationContextMock);
+        typeModificationContextMock.Stub (stub => stub.Type).Return (proxyType);
 
         var additionalType = MutableTypeObjectMother.Create();
         ITypeAssemblyContext typeAssemblyContext = null;
@@ -162,6 +162,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
             });
         mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int))).Return (additionalType);
         participantMock2.Expect (mock => mock.Participate (Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
+
+        typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);
 
         codeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
@@ -189,7 +191,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
-    public void AssembleType_NonSubclassableType ()
+    public void AssembleType_NonSubclassableType_LetParticipantReportErrors_AndReturnsRequestedType ()
     {
       var participantMock = MockRepository.GenerateMock<IParticipant>();
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
@@ -204,11 +206,28 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
+    public void AssembleType_NoModifications_ReturnsRequestedType ()
+    {
+      var mutableTypeFactoryStub = MockRepository.GenerateStub<IMutableTypeFactory>();
+      var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationContext>();
+      mutableTypeFactoryStub.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
+      typeModificationContextStub.Stub (_ => _.Type).Return (MutableTypeObjectMother.Create());
+      var typeAssembler = CreateTypeAssembler (mutableTypeFactoryStub);
+      var codeGeneratorMock = MockRepository.GenerateMock<IMutableTypeBatchCodeGenerator>();
+
+      var result = typeAssembler.AssembleType (_requestedType, _participantState, codeGeneratorMock);
+
+      Assert.That (result, Is.SameAs (_requestedType));
+      codeGeneratorMock.AssertWasNotCalled (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.Is.Anything));
+    }
+
+    [Test]
     public void AssembleType_ExceptionInCodeGeneraton ()
     {
       var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationContext>();
-      typeModificationContextStub.Stub (stub => stub.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
-      _mutableTypeFactoryMock.Stub (stub => stub.CreateProxy (_requestedType)).Return (typeModificationContextStub);
+      typeModificationContextStub.Stub (_ => _.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
+      typeModificationContextStub.Stub (_ => _.IsModified()).Return (true);
+      _mutableTypeFactoryMock.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
       var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
