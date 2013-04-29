@@ -58,7 +58,9 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
+    <Compile Include="CodeGeneration\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\AssembledTypePreparer.cs" />
+    <Compile Include="CodeGeneration\IAssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\IAssembledTypePreparer.cs" />
     <Compile Include="CodeGeneration\NullTypeIdentifierProvider.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
