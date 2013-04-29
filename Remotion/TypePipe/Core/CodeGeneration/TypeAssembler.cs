@@ -44,18 +44,25 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
+    private readonly IAssembledTypePreparer _assembledTypePreparer;
     // Array for performance reasons.
     private readonly ITypeIdentifierProvider[] _typeIdentifierProviders;
 
-    public TypeAssembler (string participantConfigurationID, IEnumerable<IParticipant> participants, IMutableTypeFactory mutableTypeFactory)
+    public TypeAssembler (
+        string participantConfigurationID,
+        IEnumerable<IParticipant> participants,
+        IMutableTypeFactory mutableTypeFactory,
+        IAssembledTypePreparer assembledTypePreparer)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
+      ArgumentUtility.CheckNotNull ("assembledTypePreparer", assembledTypePreparer);
 
       _participantConfigurationID = participantConfigurationID;
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
+      _assembledTypePreparer = assembledTypePreparer;
 
       _typeIdentifierProviders = _participants.Select (p => p.PartialTypeIdentifierProvider).Where (ckp => ckp != null).ToArray();
     }
@@ -87,20 +94,26 @@ namespace Remotion.TypePipe.CodeGeneration
       return assembledType.BaseType;
     }
 
-    public object[] GetCompoundCacheKey (Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart)
+    public object[] GetCompoundID (Type requestedType, int freeSlotsAtStart)
     {
       // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (cacheKeyProviderMethod != null);
-      Debug.Assert (type != null);
+      Debug.Assert (requestedType != null);
       Debug.Assert (freeSlotsAtStart >= 0);
 
-      var compoundKey = new object[_typeIdentifierProviders.Length + freeSlotsAtStart];
+      var compoundID = new object[_typeIdentifierProviders.Length + freeSlotsAtStart];
 
       // No LINQ for performance reasons.
       for (int i = 0; i < _typeIdentifierProviders.Length; ++i)
-        compoundKey[freeSlotsAtStart + i] = cacheKeyProviderMethod (_typeIdentifierProviders[i], this, type);
+        compoundID[freeSlotsAtStart + i] = _typeIdentifierProviders[i].GetID (requestedType);
 
-      return compoundKey;
+      return compoundID;
+    }
+
+    public IEnumerable<object> ExtractCompoundID (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      return _assembledTypePreparer.ExtractTypeID (assembledType);
     }
 
     public Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
@@ -122,8 +135,7 @@ namespace Remotion.TypePipe.CodeGeneration
       if (!typeModificationTracker.IsModified())
         return requestedType;
 
-      AddAssembledTypeAttribute (typeAssemblyContext.ProxyType);
-      var generatedTypeContext = GenerateTypesWithDiagnostics (codeGenerator, typeAssemblyContext);
+      var generatedTypeContext = GenerateTypes (typeAssemblyContext, codeGenerator);
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
@@ -148,7 +160,20 @@ namespace Remotion.TypePipe.CodeGeneration
       return false;
     }
 
-    private GeneratedTypeContext GenerateTypesWithDiagnostics (IMutableTypeBatchCodeGenerator codeGenerator, TypeAssemblyContext context)
+    private GeneratedTypeContext GenerateTypes (TypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
+    {
+      var attribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
+      context.ProxyType.AddCustomAttribute (attribute);
+
+      // TODO 5552: Inject type ID to avoid re-calculation.
+      var typeID = GetCompoundID (context.RequestedType, freeSlotsAtStart: 0);
+      var typeIDExpression = _typeIdentifierProviders.Select ((p, i) => p.GetExpressionForID (typeID[i]));
+      _assembledTypePreparer.AddTypeID (context.ProxyType, typeIDExpression);
+
+      return GenerateTypesWithDiagnostics (context, codeGenerator);
+    }
+
+    private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       try
       {
@@ -165,12 +190,6 @@ namespace Remotion.TypePipe.CodeGeneration
       {
         throw new NotSupportedException (BuildExceptionMessage (context.RequestedType, ex), ex);
       }
-    }
-
-    private static void AddAssembledTypeAttribute (MutableType proxyType)
-    {
-      var proxyTypeAttribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
-      proxyType.AddCustomAttribute (proxyTypeAttribute);
     }
 
     private string BuildExceptionMessage (Type requestedType, Exception exception)

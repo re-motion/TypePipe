@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
@@ -24,6 +25,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -35,12 +37,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   [TestFixture]
   public class TypeAssemblerTest
   {
-    public interface ICachKeyProviderMethod
-    {
-      object M (ITypeIdentifierProvider typeIdentifierProvider, ITypeAssembler typeAssembler, Type fromType);
-    }
-
     private IMutableTypeFactory _mutableTypeFactoryMock;
+    private IAssembledTypePreparer _assembledTypePreparerMock;
 
     private Type _requestedType;
     private IDictionary<string, object> _participantState;
@@ -49,6 +47,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     public void SetUp ()
     {
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
+      _assembledTypePreparerMock = MockRepository.GenerateStrictMock<IAssembledTypePreparer>();
 
       _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       _participantState = new Dictionary<string, object>();
@@ -63,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       participantWithCacheProviderStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (cachKeyProviderStub);
       var participants = new[] { participantStub, participantWithCacheProviderStub };
 
-      var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock);
+      var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock, _assembledTypePreparerMock);
 
       var cacheKeyProviders = PrivateInvoke.GetNonPublicField (typeAssembler, "_typeIdentifierProviders");
       Assert.That (cacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
@@ -101,21 +100,19 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     }
 
     [Test]
-    public void GetCompoundCacheKey ()
+    public void GetCompoundID ()
     {
       var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
       var participantMock2 = MockRepository.GenerateStrictMock<IParticipant>();
-      var partialCacheKeyProviderMock1 = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
-      var partialCacheKeyProviderMock2 = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
-      participantMock1.Expect (mock => mock.PartialTypeIdentifierProvider).Return (partialCacheKeyProviderMock1);
-      participantMock2.Expect (mock => mock.PartialTypeIdentifierProvider).Return (partialCacheKeyProviderMock2);
+      var idProviderMock1 = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
+      var idProviderMock2 = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
+      participantMock1.Expect (mock => mock.PartialTypeIdentifierProvider).Return (idProviderMock1);
+      participantMock2.Expect (mock => mock.PartialTypeIdentifierProvider).Return (idProviderMock2);
+      idProviderMock1.Expect (mock => mock.GetID (_requestedType)).Return (1);
+      idProviderMock2.Expect (mock => mock.GetID (_requestedType)).Return ("2");
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
-      var cachKeyProviderMethod = MockRepository.GenerateStrictMock<ICachKeyProviderMethod>();
-      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock1, typeAssembler, _requestedType)).Return (1);
-      cachKeyProviderMethod.Expect (mock => mock.M (partialCacheKeyProviderMock2, typeAssembler, _requestedType)).Return ("2");
-
-      var result = typeAssembler.GetCompoundCacheKey (cachKeyProviderMethod.M, _requestedType, 2);
+      var result = typeAssembler.GetCompoundID (_requestedType, 2);
 
       Assert.That (result, Is.EqualTo (new object[] { null, null, 1, "2" }));
     }
@@ -133,8 +130,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
       {
-        participantMock1.Expect (mock => mock.PartialTypeIdentifierProvider);
-        participantMock2.Expect (mock => mock.PartialTypeIdentifierProvider);
+        var typeIdentifierProviderMock = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
+        participantMock1.Expect (mock => mock.PartialTypeIdentifierProvider).Return (typeIdentifierProviderMock);
+        participantMock2.Expect (mock => mock.PartialTypeIdentifierProvider).Return (null);
 
         var proxyType = MutableTypeObjectMother.Create();
         var typeModificationContextMock = mockRepository.StrictMock<ITypeModificationTracker>();
@@ -164,6 +162,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
         participantMock2.Expect (mock => mock.Participate (Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
 
         typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);
+
+        var idPart = new object();
+        var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression();
+        typeIdentifierProviderMock.Expect (mock => mock.GetID (_requestedType)).Return (idPart);
+        typeIdentifierProviderMock.Expect (mock => mock.GetExpressionForID (idPart)).Return (idPartExpression);
+        _assembledTypePreparerMock.Expect (
+            mock => mock.AddTypeID (Arg.Is (proxyType), Arg<IEnumerable<Expression>>.List.Equal (new[] { idPartExpression })));
 
         codeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
@@ -228,6 +233,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       typeModificationContextStub.Stub (_ => _.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
       typeModificationContextStub.Stub (_ => _.IsModified()).Return (true);
       _mutableTypeFactoryMock.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
+      _assembledTypePreparerMock.Stub (_ => _.AddTypeID (null, null)).IgnoreArguments();
       var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
@@ -270,7 +276,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       mutableTypeFactory = mutableTypeFactory ?? _mutableTypeFactoryMock;
 
-      return new TypeAssembler (configurationId, participants.AsOneTime(), mutableTypeFactory);
+      return new TypeAssembler (configurationId, participants.AsOneTime(), mutableTypeFactory, _assembledTypePreparerMock);
     }
 
     private class RequestedType {}

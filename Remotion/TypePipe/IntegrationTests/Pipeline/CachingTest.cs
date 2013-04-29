@@ -19,8 +19,8 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -86,13 +86,15 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
             var stub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
             stub.Stub (x => x.GetID (Arg<Type>.Is.Anything)).Do (providerFunc);
+            stub.Stub (x => x.GetExpressionForID (Arg<Type>.Is.Anything))
+                .Return (null)
+                .WhenCalled (mi => mi.ReturnValue = Expression.Constant (mi.Arguments[0]));
             return stub;
           });
 
-      Action<MutableType> typeModification = pt => { };
-      var participantStubs = cacheKeyProviderStubs.Select (ckp => CreateParticipant (typeModification, ckp)).ToArray();
+      var participantStubs = cacheKeyProviderStubs.Select (typeIdProvider => CreateParticipant (typeIdentifierProvider: typeIdProvider));
 
-      return CreatePipeline (participantStubs).ReflectionService;
+      return CreatePipeline (participantStubs.ToArray()).ReflectionService;
     }
 
     public class DomainType1 {}

@@ -18,13 +18,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Generates types for requested types and computes compound cache keys to enabled efficient caching of generated types.
+  /// Generates types for requested types and computes compound identifiers to enabled efficient caching of generated types.
   /// </summary>
   public interface ITypeAssembler
   {
@@ -35,16 +34,16 @@ namespace Remotion.TypePipe.CodeGeneration
     Type GetRequestedType (Type assembledType);
 
     /// <summary>
-    /// Computes a compound cache key consisting of the individual cache key parts from the <see cref="ITypeIdentifierProvider"/>s of the participants.
+    /// Computes a compound identifier consisting of the individual identifier parts returned from the
+    /// <see cref="IParticipant.PartialTypeIdentifierProvider"/> of the participants.
     /// The return value of this method is an object array for performance reasons.
     /// </summary>
-    /// <param name="cacheKeyProviderMethod">
-    ///   A function delegate that computes one part of the cache key by calling the appropriate method on <see cref="ITypeIdentifierProvider"/>.
-    /// </param>
-    /// <param name="type">The requested or generated type.</param>
+    /// <param name="requestedType">The requested type.</param>
     /// <param name="freeSlotsAtStart">Number of slots beginning at the start of the array which are reserved for use by the caller.</param>
-    /// <returns>The compound cache key.</returns>
-    object[] GetCompoundCacheKey (Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type type, int freeSlotsAtStart);
+    /// <returns>The compound identifier.</returns>
+    object[] GetCompoundID (Type requestedType, int freeSlotsAtStart);
+
+    IEnumerable<object> ExtractCompoundID (Type assembledType);
 
     Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 

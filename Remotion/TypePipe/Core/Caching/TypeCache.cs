@@ -32,14 +32,6 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    // Storing the delegates as static readonly fields has two advantages for performance:
-    // 1) It ensures that no closure is created.
-    // 2) We do not create new delegate instances every time a cache key is computed.
-    private static readonly Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> s_fromRequestedType =
-        (ckp, typeAssembler, requestedType) => ckp.GetID (requestedType);
-    //private static readonly Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> s_fromAssembledType =
-    //    (ckp, typeAssembler, assembledType) => ckp.RebuildID (typeAssembler.GetRequestedType (assembledType), assembledType);
-
     private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
 
     private readonly ConcurrentDictionary<object[], Type> _types = new ConcurrentDictionary<object[], Type> (s_comparer);
@@ -79,7 +71,7 @@ namespace Remotion.TypePipe.Caching
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
 
-      var key = GetTypeKey (requestedType, s_fromRequestedType, requestedType);
+      var key = GetTypeKey (requestedType);
       return GetOrCreateType (key, requestedType);
     }
 
@@ -115,7 +107,8 @@ namespace Remotion.TypePipe.Caching
     private KeyValuePair<object[], Type> CreateKeyValuePair (Type assembledType)
     {
       var requestedType = _typeAssembler.GetRequestedType (assembledType);
-      var key = GetTypeKey (requestedType, null, assembledType);
+      var compoundID = _typeAssembler.ExtractCompoundID (assembledType);
+      var key = new[] { requestedType }.Concat (compoundID).ToArray();
 
       return new KeyValuePair<object[], Type> (key, assembledType);
     }
@@ -148,9 +141,9 @@ namespace Remotion.TypePipe.Caching
           _mutableTypeBatchCodeGenerator);
     }
 
-    private object[] GetTypeKey (Type requestedType, Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type fromType)
+    private object[] GetTypeKey (Type requestedType)
     {
-      var key = _typeAssembler.GetCompoundCacheKey (cacheKeyProviderMethod, fromType, freeSlotsAtStart: 1);
+      var key = _typeAssembler.GetCompoundID (requestedType, freeSlotsAtStart: 1);
       key[0] = requestedType;
 
       return key;
@@ -158,7 +151,7 @@ namespace Remotion.TypePipe.Caching
 
     private object[] GetConstructorKey (Type requestedType, Type delegateType, bool allowNonPublic)
     {
-      var key = _typeAssembler.GetCompoundCacheKey (s_fromRequestedType, requestedType, freeSlotsAtStart: 3);
+      var key = _typeAssembler.GetCompoundID (requestedType, freeSlotsAtStart: 3);
       key[0] = requestedType;
       key[1] = delegateType;
       key[2] = allowNonPublic;

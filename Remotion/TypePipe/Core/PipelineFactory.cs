@@ -25,7 +25,6 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
@@ -130,8 +129,9 @@ namespace Remotion.TypePipe
     protected virtual ITypeAssembler NewTypeAssembler (string participantConfigurationID, IEnumerable<IParticipant> participants)
     {
       var mutableTypeFactory = NewMutableTypeFactory();
+      var assembledTypePreparer = NewAssembledTypePreparer();
 
-      return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory);
+      return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, assembledTypePreparer);
     }
 
     [CLSCompliant (false)]
@@ -159,6 +159,11 @@ namespace Remotion.TypePipe
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
       return new ReflectionEmitCodeGenerator (moduleBuilderFactory, configurationProvider);
+    }
+
+    protected virtual IAssembledTypePreparer NewAssembledTypePreparer ()
+    {
+      return new AssembledTypePreparer();
     }
 
     protected virtual IDelegateFactory NewDelegateFactory ()
