@@ -24,6 +24,7 @@ using Remotion.Data.DomainObjects.Mapping;
 using Remotion.Development.UnitTesting;
 using Remotion.Mixins;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -110,7 +111,7 @@ namespace Remotion.TypePipe.PerformanceTests
         return mappingConfiguration.ContainsTypeDefinition (requestedType) ? mappingConfiguration.GetTypeDefinition (requestedType) : null;
       }
 
-      public object RebuildID (Type requestedType, Type assembledType)
+      public Expression GetExpressionForID (object id)
       {
         throw new NotImplementedException();
       }
@@ -123,7 +124,7 @@ namespace Remotion.TypePipe.PerformanceTests
         return MixinConfiguration.ActiveConfiguration.GetContext (requestedType); // may be null
       }
 
-      public object RebuildID (Type requestedType, Type assembledType)
+      public Expression GetExpressionForID (object id)
       {
         throw new NotImplementedException();
       }

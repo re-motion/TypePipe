@@ -37,8 +37,8 @@ namespace Remotion.TypePipe.Caching
     // 2) We do not create new delegate instances every time a cache key is computed.
     private static readonly Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> s_fromRequestedType =
         (ckp, typeAssembler, requestedType) => ckp.GetID (requestedType);
-    private static readonly Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> s_fromAssembledType =
-        (ckp, typeAssembler, assembledType) => ckp.RebuildID (typeAssembler.GetRequestedType (assembledType), assembledType);
+    //private static readonly Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> s_fromAssembledType =
+    //    (ckp, typeAssembler, assembledType) => ckp.RebuildID (typeAssembler.GetRequestedType (assembledType), assembledType);
 
     private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
 
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.Caching
     private KeyValuePair<object[], Type> CreateKeyValuePair (Type assembledType)
     {
       var requestedType = _typeAssembler.GetRequestedType (assembledType);
-      var key = GetTypeKey (requestedType, s_fromAssembledType, assembledType);
+      var key = GetTypeKey (requestedType, null, assembledType);
 
       return new KeyValuePair<object[], Type> (key, assembledType);
     }

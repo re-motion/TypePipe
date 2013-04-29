@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
 
@@ -48,22 +49,25 @@ namespace Remotion.TypePipe.Caching
     /// </returns>
     object GetID (Type requestedType);
 
-    /// <summary>
-    /// Rebuilds an identifier from an assembled <see cref="Type"/>.
-    /// This method is the counterpart of <see cref="GetID"/> and will be invoked when types are loaded from an flushed assembly.
-    /// The compound identifier from all participants determines whether or not an assembled type is loaded into the <see cref="IPipeline"/>.
-    /// </summary>
-    /// <remarks>
-    /// The identifier should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
-    /// specified by the <see cref="IParticipant"/>.
-    /// Implementations should not encode the requested type, i.e., the base type of <paramref name="assembledType"/>, as this is already
-    /// handled by the pipeline.
-    /// </remarks>
-    /// <param name="requestedType">The requested type.</param>
-    /// <param name="assembledType">The loaded assembled type.</param>
-    /// <returns>
-    /// A identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="assembledType"/>.
-    /// </returns>
-    object RebuildID (Type requestedType, Type assembledType);
+    // TODO 5552
+    Expression GetExpressionForID (object id);
+
+    // <summary>
+    // Rebuilds an identifier from an assembled <see cref="Type"/>.
+    // This method is the counterpart of <see cref="GetID"/> and will be invoked when types are loaded from an flushed assembly.
+    // The compound identifier from all participants determines whether or not an assembled type is loaded into the <see cref="IPipeline"/>.
+    // </summary>
+    // <remarks>
+    // The identifier should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
+    // specified by the <see cref="IParticipant"/>.
+    // Implementations should not encode the requested type, i.e., the base type of <paramref name="assembledType"/>, as this is already
+    // handled by the pipeline.
+    // </remarks>
+    // <param name="requestedType">The requested type.</param>
+    // <param name="assembledType">The loaded assembled type.</param>
+    // <returns>
+    // A identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="assembledType"/>.
+    // </returns>
+    //object RebuildID (Type requestedType, Type assembledType);
   }
 }
