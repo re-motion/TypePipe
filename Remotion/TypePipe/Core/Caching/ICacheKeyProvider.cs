@@ -21,10 +21,10 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.Caching
 {
   /// <summary>
-  /// This interface provides a cache key for a <see cref="IParticipant"/> from the requested or generated type.
-  /// Implementations should return non-equal cache keys if the participant applies different modifications to the <see cref="MutableType"/>.
+  /// This interface provides an identifier for a <see cref="IParticipant"/> from the requested or generated type.
+  /// Implementations should return non-equal identifiers if the participant applies different modifications to the <see cref="MutableType"/>.
   /// This might depend on participant configuation, context and user options.
-  /// However, a cache key should not encode the requested type itself, as this is already handled by the pipeline caching facilities.
+  /// However, a identifier should not encode the requested type itself, as this is already handled by the pipeline caching facilities.
   /// </summary>
   /// <remarks>
   /// This interface must be implemented if the generated types cannot be cached unconditionally.
@@ -33,26 +33,26 @@ namespace Remotion.TypePipe.Caching
   public interface ICacheKeyProvider
   {
     /// <summary>
-    /// Gets a cache key used to identify the assembled <see cref="Type"/> for the provided requested <see cref="Type"/>.
+    /// Gets an identifier used to identify the assembled <see cref="Type"/> for the provided requested <see cref="Type"/>.
     /// </summary>
     /// <remarks>
-    /// The cache key should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
+    /// The identifier should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
     /// specified by the <see cref="IParticipant"/>.
     /// Implementations should not encode the requested type itself, as this is already handled by the pipeline.
     /// </remarks>
     /// <param name="requestedType">The requested type.</param>
     /// <returns>
-    /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
+    /// An identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
     /// </returns>
     object GetCacheKey (Type requestedType);
 
     /// <summary>
-    /// Rebuilds a cache key from an assembled <see cref="Type"/>.
+    /// Rebuilds an identifier from an assembled <see cref="Type"/>.
     /// This method is the counterpart of <see cref="GetCacheKey"/> and will be invoked when types are loaded from an flushed assembly.
-    /// The compound cache key from all participants determines whether or not an assembled type is loaded into the <see cref="IPipeline"/>.
+    /// The compound identifier from all participants determines whether or not an assembled type is loaded into the <see cref="IPipeline"/>.
     /// </summary>
     /// <remarks>
-    /// The cache key should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
+    /// The identifier should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
     /// specified by the <see cref="IParticipant"/>.
     /// Implementations should not encode the requested type, i.e., the base type of <paramref name="assembledType"/>, as this is already
     /// handled by the pipeline.
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.Caching
     /// <param name="requestedType">The requested type.</param>
     /// <param name="assembledType">The loaded assembled type.</param>
     /// <returns>
-    /// A cache key, or <see langword="null"/> if no specific caching information is required for the <paramref name="assembledType"/>.
+    /// A identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="assembledType"/>.
     /// </returns>
     object RebuildCacheKey (Type requestedType, Type assembledType);
   }
