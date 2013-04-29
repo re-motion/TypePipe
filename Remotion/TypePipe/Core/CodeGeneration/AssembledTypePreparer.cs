@@ -23,21 +23,12 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  // TODO 5552
-  // TODO 5552 Test!
+  /// <summary>
+  /// Prepares an assembled type for code generation.
+  /// </summary>
   public class AssembledTypePreparer : IAssembledTypePreparer
   {
     private const string c_typeIDFieldName = "__typeID";
-
-    public object[] ExtractTypeID (Type assembledType)
-    {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-
-      var typeIDField = assembledType.GetField (c_typeIDFieldName, BindingFlags.NonPublic | BindingFlags.Static);
-      Assertion.IsNotNull (typeIDField);
-
-      return (object[]) typeIDField.GetValue (null);
-    }
 
     public void AddTypeID (MutableType proxyType, IEnumerable<Expression> typeID)
     {
@@ -50,6 +41,16 @@ namespace Remotion.TypePipe.CodeGeneration
           ctx => Expression.Assign (
               Expression.Field (null, typeIDField),
               Expression.NewArrayInit (typeof (object), typeID)));
+    }
+
+    public object[] ExtractTypeID (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      var typeIDField = assembledType.GetField (c_typeIDFieldName, BindingFlags.NonPublic | BindingFlags.Static);
+      Assertion.IsNotNull (typeIDField);
+
+      return (object[]) typeIDField.GetValue (null);
     }
   }
 }

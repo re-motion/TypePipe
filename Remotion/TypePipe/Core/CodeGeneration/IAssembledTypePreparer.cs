@@ -22,11 +22,13 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  // TODO 5552
+  /// <summary>
+  /// Defines an interface for classes that prepare an assembled type for code generation.
+  /// </summary>
   public interface IAssembledTypePreparer
   {
-    object[] ExtractTypeID (Type assembledType);
-
     void AddTypeID (MutableType proxyType, IEnumerable<Expression> typeID);
+
+    object[] ExtractTypeID (Type assembledType);
   }
 }
