@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.Caching
   /// <remarks>
   /// This interface must be implemented if the generated types cannot be cached unconditionally.
   /// If the generated types can be cached unconditionally <see cref="IParticipant.PartialTypeIdentifierProvider"/> should return <see langword="null"/>.
+  /// Furthermore, the returned identifier must be serializable if the <see cref="SerializationParticipant"/> is used.
   /// </remarks>
   public interface ITypeIdentifierProvider
   {
