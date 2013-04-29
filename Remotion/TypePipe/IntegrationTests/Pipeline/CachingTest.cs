@@ -84,8 +84,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             if (providerFunc == null)
               return null;
 
-            var stub = MockRepository.GenerateStub<ICacheKeyProvider>();
-            stub.Stub (x => x.GetCacheKey (Arg<Type>.Is.Anything)).Do (providerFunc);
+            var stub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
+            stub.Stub (x => x.GetID (Arg<Type>.Is.Anything)).Do (providerFunc);
             return stub;
           });
 

@@ -43,9 +43,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    public void PartialCacheKeyProvider ()
+    public void PartialTypeIdentifierProvider ()
     {
-      Assert.That (_participant.PartialCacheKeyProvider, Is.Null);
+      Assert.That (_participant.PartialTypeIdentifierProvider, Is.Null);
     }
 
     [Test]

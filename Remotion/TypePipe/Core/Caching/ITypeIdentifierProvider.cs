@@ -28,9 +28,9 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   /// <remarks>
   /// This interface must be implemented if the generated types cannot be cached unconditionally.
-  /// If the generated types can be cached unconditionally <see cref="IParticipant.PartialCacheKeyProvider"/> should return <see langword="null"/>.
+  /// If the generated types can be cached unconditionally <see cref="IParticipant.PartialTypeIdentifierProvider"/> should return <see langword="null"/>.
   /// </remarks>
-  public interface ICacheKeyProvider
+  public interface ITypeIdentifierProvider
   {
     /// <summary>
     /// Gets an identifier used to identify the assembled <see cref="Type"/> for the provided requested <see cref="Type"/>.
@@ -44,11 +44,11 @@ namespace Remotion.TypePipe.Caching
     /// <returns>
     /// An identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
     /// </returns>
-    object GetCacheKey (Type requestedType);
+    object GetID (Type requestedType);
 
     /// <summary>
     /// Rebuilds an identifier from an assembled <see cref="Type"/>.
-    /// This method is the counterpart of <see cref="GetCacheKey"/> and will be invoked when types are loaded from an flushed assembly.
+    /// This method is the counterpart of <see cref="GetID"/> and will be invoked when types are loaded from an flushed assembly.
     /// The compound identifier from all participants determines whether or not an assembled type is loaded into the <see cref="IPipeline"/>.
     /// </summary>
     /// <remarks>
@@ -62,6 +62,6 @@ namespace Remotion.TypePipe.Caching
     /// <returns>
     /// A identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="assembledType"/>.
     /// </returns>
-    object RebuildCacheKey (Type requestedType, Type assembledType);
+    object RebuildID (Type requestedType, Type assembledType);
   }
 }

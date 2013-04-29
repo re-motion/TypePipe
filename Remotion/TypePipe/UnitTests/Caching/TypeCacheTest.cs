@@ -39,8 +39,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     private TypeCache _cache;
 
-    private Func<ICacheKeyProvider, ITypeAssembler, Type, object> _fromRequestedTypeFunc;
-    private Func<ICacheKeyProvider, ITypeAssembler, Type, object> _fromAssembledTypeFunc;
+    private Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> _fromRequestedTypeFunc;
+    private Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> _fromAssembledTypeFunc;
 
     private ConcurrentDictionary<object[], Type> _types;
     private ConcurrentDictionary<object[], Delegate> _constructorCalls;
@@ -62,9 +62,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _cache = new TypeCache (_typeAssemblerMock, _typeCacheSynchronizationPoint, _batchCodeGeneratorMock);
 
       _fromRequestedTypeFunc =
-          (Func<ICacheKeyProvider, ITypeAssembler, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
+          (Func<ITypeIdentifierProvider, ITypeAssembler, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromRequestedType");
       _fromAssembledTypeFunc =
-          (Func<ICacheKeyProvider, ITypeAssembler, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromAssembledType");
+          (Func<ITypeIdentifierProvider, ITypeAssembler, Type, object>) PrivateInvoke.GetNonPublicStaticField (typeof (TypeCache), "s_fromAssembledType");
 
       _types = (ConcurrentDictionary<object[], Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (ConcurrentDictionary<object[], Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
@@ -78,8 +78,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void FromRequestedTypeFunc ()
     {
       var fakeResult = new object();
-      var cacheKeyProviderMock = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
-      cacheKeyProviderMock.Expect (mock => mock.GetCacheKey (_requestedType)).Return (fakeResult);
+      var cacheKeyProviderMock = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
+      cacheKeyProviderMock.Expect (mock => mock.GetID (_requestedType)).Return (fakeResult);
 
       var result = _fromRequestedTypeFunc (cacheKeyProviderMock, _typeAssemblerMock, _requestedType);
 
@@ -91,9 +91,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void FromAssembledTypeFunc ()
     {
       var fakeResult = new object();
-      var cacheKeyProviderMock = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
+      var cacheKeyProviderMock = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
       _typeAssemblerMock.Expect (mock => mock.GetRequestedType (_assembledType)).Return (_requestedType);
-      cacheKeyProviderMock.Expect (mock => mock.RebuildCacheKey (_requestedType, _assembledType)).Return (fakeResult);
+      cacheKeyProviderMock.Expect (mock => mock.RebuildID (_requestedType, _assembledType)).Return (fakeResult);
 
       var result = _fromAssembledTypeFunc (cacheKeyProviderMock, _typeAssemblerMock, _assembledType);
 

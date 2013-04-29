@@ -106,12 +106,12 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var loadedTypeWithMatchingKeys = _assembly1.GetTypes().Single();
       var loadedTypeWithNonMatchingKeys = _assembly2.GetTypes().Single();
 
-      var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithMatchingKeys)).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithNonMatchingKeys)).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType1))).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("runtime key differing from rebuilt key");
-      var participant = CreateParticipant (cacheKeyProvider: cachKeyProviderStub);
+      var cachKeyProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
+      cachKeyProviderStub.Stub (stub => stub.RebuildID (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithMatchingKeys)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.RebuildID (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithNonMatchingKeys)).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.GetID (typeof (DomainType1))).Return ("key");
+      cachKeyProviderStub.Stub (stub => stub.GetID (typeof (DomainType2))).Return ("runtime key differing from rebuilt key");
+      var participant = CreateParticipant (typeIdentifierProvider: cachKeyProviderStub);
       var pipeline = CreatePipeline (c_participantConfigurationID, participant);
 
       pipeline.CodeManager.LoadFlushedCode (_assembly1);

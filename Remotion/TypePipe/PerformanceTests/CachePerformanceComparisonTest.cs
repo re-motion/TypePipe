@@ -39,8 +39,8 @@ namespace Remotion.TypePipe.PerformanceTests
       // Pipeline participant configuration is set similar to the current Remotion functionality.
       var restoreParticipantStub = MockRepository.GenerateStub<IParticipant>();
       var remixParticipantStub = MockRepository.GenerateStub<IParticipant>();
-      restoreParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RestoreCacheKeyProvider());
-      remixParticipantStub.Stub (stub => stub.PartialCacheKeyProvider).Return (new RemixCacheKeyProvider());
+      restoreParticipantStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (new RestoreTypeIdentifierProvider());
+      remixParticipantStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (new RemixTypeIdentifierProvider());
       var participants = new[] { restoreParticipantStub, remixParticipantStub };
 
       var objectFactory = PipelineFactory.Create ("CachePerformanceComparisonTest", participants);
@@ -102,28 +102,28 @@ namespace Remotion.TypePipe.PerformanceTests
       Console.WriteLine();
     }
 
-    public class RestoreCacheKeyProvider : ICacheKeyProvider
+    public class RestoreTypeIdentifierProvider : ITypeIdentifierProvider
     {
-      public object GetCacheKey (Type requestedType)
+      public object GetID (Type requestedType)
       {
         var mappingConfiguration = MappingConfiguration.Current;
         return mappingConfiguration.ContainsTypeDefinition (requestedType) ? mappingConfiguration.GetTypeDefinition (requestedType) : null;
       }
 
-      public object RebuildCacheKey (Type requestedType, Type assembledType)
+      public object RebuildID (Type requestedType, Type assembledType)
       {
         throw new NotImplementedException();
       }
     }
 
-    public class RemixCacheKeyProvider : ICacheKeyProvider
+    public class RemixTypeIdentifierProvider : ITypeIdentifierProvider
     {
-      public object GetCacheKey (Type requestedType)
+      public object GetID (Type requestedType)
       {
         return MixinConfiguration.ActiveConfiguration.GetContext (requestedType); // may be null
       }
 
-      public object RebuildCacheKey (Type requestedType, Type assembledType)
+      public object RebuildID (Type requestedType, Type assembledType)
       {
         throw new NotImplementedException();
       }

@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
   {
     public interface ICachKeyProviderMethod
     {
-      object M (ICacheKeyProvider cacheKeyProvider, ITypeAssembler typeAssembler, Type fromType);
+      object M (ITypeIdentifierProvider typeIdentifierProvider, ITypeAssembler typeAssembler, Type fromType);
     }
 
     private IMutableTypeFactory _mutableTypeFactoryMock;
@@ -59,13 +59,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       var participantStub = MockRepository.GenerateStub<IParticipant>();
       var participantWithCacheProviderStub = MockRepository.GenerateStub<IParticipant>();
-      var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
-      participantWithCacheProviderStub.Stub (stub => stub.PartialCacheKeyProvider).Return (cachKeyProviderStub);
+      var cachKeyProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
+      participantWithCacheProviderStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (cachKeyProviderStub);
       var participants = new[] { participantStub, participantWithCacheProviderStub };
 
       var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock);
 
-      var cacheKeyProviders = PrivateInvoke.GetNonPublicField (typeAssembler, "_cacheKeyProviders");
+      var cacheKeyProviders = PrivateInvoke.GetNonPublicField (typeAssembler, "_typeIdentifierProviders");
       Assert.That (cacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
       Assert.That (typeAssembler.ParticipantConfigurationID, Is.EqualTo ("configId"));
       Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
@@ -105,10 +105,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
       var participantMock2 = MockRepository.GenerateStrictMock<IParticipant>();
-      var partialCacheKeyProviderMock1 = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
-      var partialCacheKeyProviderMock2 = MockRepository.GenerateStrictMock<ICacheKeyProvider>();
-      participantMock1.Expect (mock => mock.PartialCacheKeyProvider).Return (partialCacheKeyProviderMock1);
-      participantMock2.Expect (mock => mock.PartialCacheKeyProvider).Return (partialCacheKeyProviderMock2);
+      var partialCacheKeyProviderMock1 = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
+      var partialCacheKeyProviderMock2 = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
+      participantMock1.Expect (mock => mock.PartialTypeIdentifierProvider).Return (partialCacheKeyProviderMock1);
+      participantMock2.Expect (mock => mock.PartialTypeIdentifierProvider).Return (partialCacheKeyProviderMock2);
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
       var cachKeyProviderMethod = MockRepository.GenerateStrictMock<ICachKeyProviderMethod>();
@@ -133,8 +133,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
       {
-        participantMock1.Expect (mock => mock.PartialCacheKeyProvider);
-        participantMock2.Expect (mock => mock.PartialCacheKeyProvider);
+        participantMock1.Expect (mock => mock.PartialTypeIdentifierProvider);
+        participantMock2.Expect (mock => mock.PartialTypeIdentifierProvider);
 
         var proxyType = MutableTypeObjectMother.Create();
         var typeModificationContextMock = mockRepository.StrictMock<ITypeModificationTracker>();
@@ -256,7 +256,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       var loadedTypesContext = LoadedTypesContextObjectMother.Create();
       var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
-      participantMock.Stub (stub => stub.PartialCacheKeyProvider);
+      participantMock.Stub (stub => stub.PartialTypeIdentifierProvider);
       participantMock.Expect (mock => mock.RebuildState (loadedTypesContext));
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
 

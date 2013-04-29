@@ -185,7 +185,7 @@
     <Compile Include="Expressions\ThisExpression.cs" />
     <Compile Include="CodeGeneration\MutableTypeBatchCodeGenerator.cs" />
     <Compile Include="Expressions\PrimitiveTypePipeExpressionBase.cs" />
-    <Compile Include="Caching\ICacheKeyProvider.cs" />
+    <Compile Include="Caching\ITypeIdentifierProvider.cs" />
     <Compile Include="Implementation\IConstructorFinder.cs" />
     <Compile Include="IPipeline.cs" />
     <Compile Include="CodeGeneration\ITypeAssembler.cs" />

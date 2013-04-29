@@ -49,14 +49,14 @@ namespace Remotion.TypePipe
   public interface IParticipant
   {
     /// <summary>
-    /// A participant must provide a <see cref="ICacheKeyProvider"/> if generated types cannot be cached unconditionally, i.e.,
+    /// A participant must provide a <see cref="ITypeIdentifierProvider"/> if generated types cannot be cached unconditionally, i.e.,
     /// the modifications depend not solely on the requested type.
-    /// If generated types can be cached unconditionally, <see cref="PartialCacheKeyProvider"/> should return <see langword="null"/>.
+    /// If generated types can be cached unconditionally, <see cref="PartialTypeIdentifierProvider"/> should return <see langword="null"/>.
     /// </summary>
     /// <value>
-    /// The partial cache key provider, or <see langword="null"/>.
+    /// The partial type identifier provider, or <see langword="null"/>.
     /// </value>
-    ICacheKeyProvider PartialCacheKeyProvider { get; }
+    ITypeIdentifierProvider PartialTypeIdentifierProvider { get; }
 
     /// <summary>
     /// This method allows participants to specify their code generation needs.

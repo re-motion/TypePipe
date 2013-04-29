@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.Serialization
     private static readonly MethodInfo s_addFieldValuesMethod =
         MemberInfoFromExpressionUtility.GetMethod (() => ReflectionSerializationHelper.AddFieldValues (null, null));
 
-    public ICacheKeyProvider PartialCacheKeyProvider
+    public ITypeIdentifierProvider PartialTypeIdentifierProvider
     {
       get { return null; }
     }

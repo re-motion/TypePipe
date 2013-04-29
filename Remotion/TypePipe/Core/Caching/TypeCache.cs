@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.Caching
     // Storing the delegates as static readonly fields has two advantages for performance:
     // 1) It ensures that no closure is created.
     // 2) We do not create new delegate instances every time a cache key is computed.
-    private static readonly Func<ICacheKeyProvider, ITypeAssembler, Type, object> s_fromRequestedType =
-        (ckp, typeAssembler, requestedType) => ckp.GetCacheKey (requestedType);
-    private static readonly Func<ICacheKeyProvider, ITypeAssembler, Type, object> s_fromAssembledType =
-        (ckp, typeAssembler, assembledType) => ckp.RebuildCacheKey (typeAssembler.GetRequestedType (assembledType), assembledType);
+    private static readonly Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> s_fromRequestedType =
+        (ckp, typeAssembler, requestedType) => ckp.GetID (requestedType);
+    private static readonly Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> s_fromAssembledType =
+        (ckp, typeAssembler, assembledType) => ckp.RebuildID (typeAssembler.GetRequestedType (assembledType), assembledType);
 
     private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
 
@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.Caching
           _mutableTypeBatchCodeGenerator);
     }
 
-    private object[] GetTypeKey (Type requestedType, Func<ICacheKeyProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type fromType)
+    private object[] GetTypeKey (Type requestedType, Func<ITypeIdentifierProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type fromType)
     {
       var key = _typeAssembler.GetCompoundCacheKey (cacheKeyProviderMethod, fromType, freeSlotsAtStart: 1);
       key[0] = requestedType;
