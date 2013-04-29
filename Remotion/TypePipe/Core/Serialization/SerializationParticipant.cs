@@ -44,6 +44,7 @@ namespace Remotion.TypePipe.Serialization
   ///   <item>Object factory identifier that will be used to retrieve the object factory during deserialization.</item>
   /// </list>
   /// </remarks>
+  // TODO: Simple participant base
   public class SerializationParticipant : IParticipant
   {
     public const string SerializationKeyPrefix = "<tp>";
@@ -60,7 +61,7 @@ namespace Remotion.TypePipe.Serialization
       get { return null; }
     }
 
-    public void Participate (ITypeAssemblyContext typeAssemblyContext)
+    public void Participate (object id, ITypeAssemblyContext typeAssemblyContext)
     {
       ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);
       var proxyType = typeAssemblyContext.ProxyType;

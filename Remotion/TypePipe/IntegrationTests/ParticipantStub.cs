@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.IntegrationTests
       get { return _typeIdentifierProvider; }
     }
 
-    public void Participate (ITypeAssemblyContext typeAssemblyContext)
+    public void Participate (object id, ITypeAssemblyContext typeAssemblyContext)
     {
       _participateAction (typeAssemblyContext);
     }

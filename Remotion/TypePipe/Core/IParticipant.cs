@@ -62,9 +62,13 @@ namespace Remotion.TypePipe
     /// This method allows participants to specify their code generation needs.
     /// The provided <see cref="ITypeAssemblyContext"/> contains the type requested by the user and the mutable proxy type that was created for it by
     /// the pipeline.
+    /// The <paramref name="id"/> identifies the type being assembled. It was created by calling <see cref="ITypeIdentifierProvider.GetID"/> on
+    /// <see cref="PartialTypeIdentifierProvider"/>; it is <see langword="null"/> if there is no such provider.
+    /// The participant must consider this identifier when generating types and must not use any additional ambient configuration data.
     /// </summary>
+    /// <param name="id">The identifier returned by the type identifier provider or <see langword="null"/> if there is no such provider.</param>
     /// <param name="typeAssemblyContext">The type assembly context.</param>
-    void Participate (ITypeAssemblyContext typeAssemblyContext);
+    void Participate (object id, ITypeAssemblyContext typeAssemblyContext);
 
     /// <summary>
     /// This method allows participants to react when the pipeline loads a set of types from a previously flushed assembly.

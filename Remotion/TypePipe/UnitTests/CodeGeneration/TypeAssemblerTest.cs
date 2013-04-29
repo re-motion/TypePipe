@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -32,7 +33,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 using System.Linq;
 
-namespace Remotion.TypePipe.UnitTests.TypeAssembly
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
   public class TypeAssemblerTest
@@ -141,10 +142,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
         var additionalType = MutableTypeObjectMother.Create();
         ITypeAssemblyContext typeAssemblyContext = null;
-        participantMock1.Expect (mock => mock.Participate (Arg<ITypeAssemblyContext>.Is.Anything)).WhenCalled (
+        participantMock1.Expect (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Is.Anything)).WhenCalled (
             mi =>
             {
-              typeAssemblyContext = (ITypeAssemblyContext) mi.Arguments[0];
+              typeAssemblyContext = (ITypeAssemblyContext) mi.Arguments[1];
               Assert.That (typeAssemblyContext.ParticipantConfigurationID, Is.EqualTo ("participant configuration id"));
               Assert.That (typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
               Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (proxyType));
@@ -159,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
               };
             });
         mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int))).Return (additionalType);
-        participantMock2.Expect (mock => mock.Participate (Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
+        participantMock2.Expect (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
 
         typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);
 
@@ -207,7 +208,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
       Assert.That (result, Is.SameAs (nonSubclassableType));
       participantMock.AssertWasCalled (mock => mock.HandleNonSubclassableType (nonSubclassableType));
-      participantMock.AssertWasNotCalled (mock => mock.Participate (Arg<ITypeAssemblyContext>.Is.Anything));
+      participantMock.AssertWasNotCalled (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Is.Anything));
     }
 
     [Test]

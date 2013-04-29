@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
       var typeContext = TypeAssemblyContextObjectMother.Create ("config id", proxyType: proxyType);
 
-      _participant.Participate (typeContext);
+      _participant.Participate (null, typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (proxyType.AddedConstructors, Is.Empty);
@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
       var typeContext = TypeAssemblyContextObjectMother.Create ("config id", proxyType: proxyType);
 
-      _participant.Participate (typeContext);
+      _participant.Participate (null, typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Has.Count.EqualTo (1));
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType));
       var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
-      _participant.Participate (typeContext);
+      _participant.Participate (null, typeContext);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
       var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
-      _participant.Participate (typeContext);
+      _participant.Participate (null, typeContext);
     }
 
     [Test]

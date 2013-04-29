@@ -60,6 +60,7 @@
     <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="CodeGeneration\AssembledTypePreparer.cs" />
     <Compile Include="CodeGeneration\IAssembledTypePreparer.cs" />
+    <Compile Include="CodeGeneration\NullTypeIdentifierProvider.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecorator.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistry.cs" />

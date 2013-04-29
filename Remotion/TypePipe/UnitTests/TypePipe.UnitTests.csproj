@@ -58,6 +58,7 @@
     </Compile>
     <Compile Include="CodeGeneration\AssembledTypePreparerTest.cs" />
     <Compile Include="CodeGeneration\DependentTypeSorterTest.cs" />
+    <Compile Include="CodeGeneration\NullTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecoratorTest.cs" />
@@ -222,7 +223,7 @@
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
-    <Compile Include="TypeAssembly\TypeAssemblerTest.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />
   </ItemGroup>
   <ItemGroup>

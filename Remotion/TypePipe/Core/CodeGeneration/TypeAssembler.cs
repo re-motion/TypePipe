@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.CodeGeneration
           _participantConfigurationID, requestedType, typeModificationTracker.Type, _mutableTypeFactory, participantState);
 
       foreach (var participant in _participants)
-        participant.Participate (typeAssemblyContext);
+        participant.Participate (null, typeAssemblyContext);
 
       if (!typeModificationTracker.IsModified())
         return requestedType;
