@@ -505,9 +505,11 @@ namespace System.Linq.Expressions.Compiler {
             Type t = value as Type;
             if (t != null && ShouldLdtoken(t)) {
                 il.EmitType(t);
-                if (type != typeof(Type)) {
-                    il.Emit(OpCodes.Castclass, type);
-                }
+                // Commented out to avoid the following issue which prevents .NET 4.0 compatibility (RM-5560).
+                // https://connect.microsoft.com/VisualStudio/feedback/details/785822/lambdaexpression-compiletomethod-generates-code-that-throws-an-typeaccessexception-for-certain-expressions
+                //if (type != typeof(Type)) {
+                //    il.Emit(OpCodes.Castclass, type);
+                //}
                 return;
             }
 
