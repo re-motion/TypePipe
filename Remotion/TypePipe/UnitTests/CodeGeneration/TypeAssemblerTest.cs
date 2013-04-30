@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetCompoundID ()
+    public void GetTypeID ()
     {
       var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
       var participantMock2 = MockRepository.GenerateStrictMock<IParticipant>();

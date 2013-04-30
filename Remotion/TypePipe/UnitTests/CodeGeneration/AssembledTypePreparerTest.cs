@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void AddTypeID ()
     {
       var proxyType = MutableTypeObjectMother.Create();
-      var typeIDExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (object[]));
+      var typeIDExpression = ExpressionTreeObjectMother.GetSomeExpression();
 
       _preparer.AddTypeID (proxyType, typeIDExpression);
 
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var typeIDField = proxyType.AddedFields.Single();
       Assert.That (typeIDField.Name, Is.EqualTo ("__typeID"));
       Assert.That (typeIDField.Attributes, Is.EqualTo (FieldAttributes.Private | FieldAttributes.Static));
-      Assert.That (typeIDField.FieldType, Is.SameAs (typeof (object[])));
+      Assert.That (typeIDField.FieldType, Is.SameAs (typeof (object)));
 
       Assert.That (proxyType.MutableTypeInitializer, Is.Not.Null);
       var expectedTypeInitialization = Expression.Block (typeof (void), Expression.Assign (Expression.Field (null, typeIDField), typeIDExpression));

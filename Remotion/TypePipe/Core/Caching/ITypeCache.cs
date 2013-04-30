@@ -31,6 +31,8 @@ namespace Remotion.TypePipe.Caching
     ReadOnlyCollection<IParticipant> Participants { get; }
 
     Type GetOrCreateType (Type requestedType);
+    Type GetOrCreateType (Type requestedType, object[] typeID);
+
     Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
 
     void LoadTypes (IEnumerable<Type> generatedTypes);

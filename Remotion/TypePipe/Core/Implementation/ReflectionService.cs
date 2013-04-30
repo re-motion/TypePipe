@@ -60,5 +60,13 @@ namespace Remotion.TypePipe.Implementation
 
       return _typeCache.GetOrCreateType (requestedType);
     }
+
+    public Type GetAssembledType (Type requestedType, object typeID)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      var castedTypeID = ArgumentUtility.CheckNotNullAndType<object[]> ("typeID", typeID);
+
+      return _typeCache.GetOrCreateType (requestedType, castedTypeID);
+    }
   }
 }

@@ -48,5 +48,9 @@ namespace Remotion.TypePipe.Implementation
     /// <param name="requestedType">A requested type.</param>
     /// <returns>The assembled type for the requested type.</returns>
     Type GetAssembledType (Type requestedType);
+
+    // TODO 5552: Which one?
+    //Type GetAssembledType (object typeID);
+    Type GetAssembledType (Type requestedType, object typeID);
   }
 }

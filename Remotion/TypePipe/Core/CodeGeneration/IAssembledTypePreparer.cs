@@ -28,6 +28,6 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     void AddTypeID (MutableType proxyType, Expression typeID);
 
-    object[] ExtractTypeID (Type assembledType);
+    object ExtractTypeID (Type assembledType);
   }
 }

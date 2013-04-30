@@ -23,7 +23,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Prepares an assembled type for code generation.
+  /// Prepares an assembled type for code generation. Also extracts it's type identifier.
   /// </summary>
   public class AssembledTypePreparer : IAssembledTypePreparer
   {
@@ -33,20 +33,19 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("typeID", typeID);
-      Assertion.IsTrue (typeID.Type == typeof (object[]));
 
-      var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (object[]));
+      var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (object));
       proxyType.AddTypeInitialization (ctx => Expression.Assign (Expression.Field (null, typeIDField), typeID));
     }
 
-    public object[] ExtractTypeID (Type assembledType)
+    public object ExtractTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
       var typeIDField = assembledType.GetField (c_typeIDFieldName, BindingFlags.NonPublic | BindingFlags.Static);
       Assertion.IsNotNull (typeIDField);
 
-      return (object[]) typeIDField.GetValue (null);
+      return typeIDField.GetValue (null);
     }
   }
 }

@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return _assembledTypePreparer.ExtractTypeID (assembledType);
+      return (object[]) _assembledTypePreparer.ExtractTypeID (assembledType);
     }
 
     public Type AssembleType (

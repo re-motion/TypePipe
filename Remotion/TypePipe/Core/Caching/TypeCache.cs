@@ -69,9 +69,22 @@ namespace Remotion.TypePipe.Caching
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
 
-      var typeKey = _typeAssembler.GetTypeID (requestedType);
+      var typeID = _typeAssembler.GetTypeID (requestedType);
 
-      return GetOrCreateType (typeKey, requestedType);
+      return GetOrCreateType (requestedType, typeID);
+    }
+
+    public Type GetOrCreateType (Type requestedType, object[] typeID)
+    {
+      // Using Debug.Assert because it will be compiled away.
+      Debug.Assert (requestedType != null);
+      Debug.Assert (typeID != null);
+
+      Type assembledType;
+      if (_types.TryGetValue (typeID, out assembledType))
+        return assembledType;
+
+      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -80,10 +93,15 @@ namespace Remotion.TypePipe.Caching
       Debug.Assert (requestedType != null);
       Debug.Assert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
 
-      var typeKey = _typeAssembler.GetTypeID (requestedType);
-      var constructionKey = new ConstructionKey (typeKey, delegateType, allowNonPublic);
+      var typeID = _typeAssembler.GetTypeID (requestedType);
+      var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
 
-      return GetOrCreateConstructorCall (constructionKey, requestedType);
+      Delegate constructorCall;
+      if (_constructorCalls.TryGetValue (constructionKey, out constructorCall))
+        return constructorCall;
+
+      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
+          _constructorCalls, constructionKey, _types, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
@@ -103,25 +121,6 @@ namespace Remotion.TypePipe.Caching
 
       var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (_typeAssembler.ExtractTypeID (t), t));
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
-    }
-
-    private Type GetOrCreateType (object[] key, Type requestedType)
-    {
-      Type generatedType;
-      if (_types.TryGetValue (key, out generatedType))
-        return generatedType;
-
-      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, key, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
-    }
-
-    private Delegate GetOrCreateConstructorCall (ConstructionKey key, Type requestedType)
-    {
-      Delegate constructorCall;
-      if (_constructorCalls.TryGetValue (key, out constructorCall))
-        return constructorCall;
-
-      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
-          _constructorCalls, key, _types, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
     }
   }
 }
