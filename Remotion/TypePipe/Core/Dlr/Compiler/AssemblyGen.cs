@@ -85,7 +85,7 @@ namespace System.Linq.Expressions.Compiler {
 
                 _outFileName = name.Name + ".dll";
                 _outDir = outDir;
-                _myAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndSave, outDir, true, attributes);
+                _myAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndSave, outDir, false, attributes);
 
                 _myModule = _myAssembly.DefineDynamicModule(name.Name, _outFileName, false);
             } else

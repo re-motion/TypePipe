@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,30 +14,18 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection.Emit;
-using NUnit.Framework;
-using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
-  [TestFixture]
-  public class OffsetTrackingILGeneratorFactoryTest
+  public static class ILGeneratorObjectMother
   {
-    [Test]
-    public void CreateAdaptedILGenerator ()
+    public static ILGenerator Create ()
     {
-      var factory = new OffsetTrackingILGeneratorFactory();
-      var realILGenerator = ILGeneratorObjectMother.Create();
-      
-      var result = factory.CreateAdaptedILGenerator (realILGenerator);
-
-      Assert.That (result, Is.TypeOf<OffsetTrackingILGeneratorAdapter>());
-
-      var offsetTrackingILGenerator = PrivateInvoke.GetNonPublicProperty (result, "ILGenerator");
-      var innermostILGenerator = PrivateInvoke.GetNonPublicField (offsetTrackingILGenerator, "_ilg");
-      Assert.That (innermostILGenerator, Is.SameAs (realILGenerator));
+      var dynamicMethod = new DynamicMethod ("Test", typeof (void), Type.EmptyTypes);
+      return dynamicMethod.GetILGenerator();
     }
   }
 }

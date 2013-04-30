@@ -140,7 +140,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAllFields ()
     {
-      Assert.That (_type.Invoke ("GetAllFields"), Is.Empty);
+      var expectedFields = typeof (Array).GetFields (c_all);
+
+      var result = _type.Invoke<IEnumerable<FieldInfo>> ("GetAllFields");
+
+      Assert.That (result, Is.Not.Empty.And.EquivalentTo (expectedFields));
     }
 
     [Test]
