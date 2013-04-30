@@ -104,6 +104,7 @@
     <Compile Include="Pipeline\ParticipantStateTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
+    <Compile Include="TypeAssembly\TypeConstantDlrBugTest.cs" />
     <Compile Include="TypeAssembly\TypeInitializerTest.cs" />
     <Compile Include="TypeAssembly\CopyMethodBodyTest.cs" />
     <Compile Include="TypeAssembly\DelegateInstantiationTest.cs" />
