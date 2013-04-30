@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   public class ReflectionWorkaroundsTest : TypeAssemblerIntegrationTestBase
   {
     // https://connect.microsoft.com/VisualStudio/feedback/details/757478/overriding-a-propertys-accessor-via-a-methodimpl-can-cause-the-property-to-disappear-from-reflection
+
     [Test]
     public void PreventDisappearanceOfPropertyWhenModifying ()
     {
