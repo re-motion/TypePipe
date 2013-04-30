@@ -61,13 +61,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void GetPartialIdentifier_ParticipantDoesNotContributeToIdentifier ()
     {
-      var identifier = new object[] { "requested type", "abc" };
-      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (fakeExpression);
+      var requestedType = "requested type";
+      var identifier = new object[] { requestedType, "abc" };
+      var idPart = ExpressionTreeObjectMother.GetSomeExpression();
+      _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (idPart);
 
       var result = _provider.GetIdentifierExpression (identifier);
 
-      var expectedResult = Expression.NewArrayInit (typeof (object), new[] { fakeExpression });
+      var expectedResult = Expression.NewArrayInit (typeof (object), new[] { Expression.Constant (requestedType), idPart });
       ExpressionTreeComparer.CheckAreEqualTrees (expectedResult, result);
     }
   }

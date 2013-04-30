@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.CodeGeneration
       return _assembledTypeIdentifierProvider.GetIdentifier (requestedType);
     }
 
-    public IEnumerable<object> ExtractTypeID (Type assembledType)
+    public object[] ExtractTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 

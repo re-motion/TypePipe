@@ -59,9 +59,10 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("identifier", identifier);
       Assertion.IsTrue (identifier.Length == _identifierProviders.Length + 1);
 
-      var identifierParts = identifier.Skip (1).Select ((part, i) => _identifierProviders[i].GetExpressionForID (part));
+      var idParts = identifier.Skip (1).Select ((part, i) => _identifierProviders[i].GetExpressionForID (part));
+      var idPartExpressions = new[] { Expression.Constant (identifier[0]) }.Concat (idParts);
 
-      return Expression.NewArrayInit (typeof (object), identifierParts);
+      return Expression.NewArrayInit (typeof (object), idPartExpressions);
     }
   }
 }

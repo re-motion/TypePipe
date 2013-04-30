@@ -153,8 +153,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_assembledType)).Return (true);
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
-      _typeAssemblerMock.Expect (mock => mock.GetRequestedType (_assembledType)).Return (_requestedType);
-      _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (_assembledType)).Return (new object[] { "key" });
+      var typeKey = new object[] { "key" };
+      _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (_assembledType)).Return (typeKey);
       _typeCacheSynchronizationPoint
           .Expect (
               mock => mock.RebuildParticipantState (
@@ -167,7 +167,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
               {
                 var keysToAssembledTypes = (IEnumerable<KeyValuePair<object[], Type>>) mi.Arguments[1];
                 var pair = keysToAssembledTypes.Single();
-                Assert.That (pair.Key, Is.EqualTo (new object[] { _requestedType, "key" }));
+                Assert.That (pair.Key, Is.SameAs (typeKey));
                 Assert.That (pair.Value, Is.SameAs (_assembledType));
               });
 

@@ -17,7 +17,7 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Rhino.Mocks;
@@ -61,25 +61,27 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void ParticipantHasAccessToTypeIDExpression ()
     {
-      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
       var typeIDPart = "type id part";
-      var typeIDPartExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      var typeIDPartExpression = Expression.Constant (typeIDPart);
+      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
       typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (RequestedType))).Return (typeIDPart);
       typeIdentifierProviderStub.Stub (_ => _.GetExpressionForID (typeIDPart)).Return (typeIDPartExpression);
       var participant = CreateParticipant (
-          ctx =>
+          context =>
           {
-            Assert.That (ctx.TypeID, Is.InstanceOf<NewArrayExpression>());
-            var typeID = (NewArrayExpression) ctx.TypeID;
-            Assert.That (typeID.Expressions, Is.EqualTo (new[] { typeIDPartExpression }));
+            var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((RequestedType o) => o.Method());
+            context.ProxyType.GetOrAddOverride (method).SetBody (ctx => context.TypeID);
           },
           typeIdentifierProviderStub);
 
-      var pipeline = CreatePipeline (participant);
+      var instance = CreatePipeline (participant).Create<RequestedType>();
 
-      Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);
+      Assert.That (instance.Method(), Is.EqualTo (new object[] { typeof (RequestedType), typeIDPart }));
     }
 
-    public class RequestedType { }
+    public class RequestedType
+    {
+      public virtual object Method () { return null; }
+    }
   }
 }

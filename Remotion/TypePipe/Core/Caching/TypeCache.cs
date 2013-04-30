@@ -101,17 +101,8 @@ namespace Remotion.TypePipe.Caching
           additionalTypes.Add (type);
       }
 
-      var keysToAssembledTypes = assembledTypes.Select (CreateKeyValuePair);
+      var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (_typeAssembler.ExtractTypeID (t), t));
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
-    }
-
-    private KeyValuePair<object[], Type> CreateKeyValuePair (Type assembledType)
-    {
-      var requestedType = _typeAssembler.GetRequestedType (assembledType);
-      var compoundID = _typeAssembler.ExtractTypeID (assembledType);
-      var key = new[] { requestedType }.Concat (compoundID).ToArray();
-
-      return new KeyValuePair<object[], Type> (key, assembledType);
     }
 
     private Type GetOrCreateType (object[] key, Type requestedType)
