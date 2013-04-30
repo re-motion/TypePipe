@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.Caching
   /// <remarks>
   /// Note that the length of the type key (object array) is assumed to be equal.
   /// </remarks>
-  public struct ConstructionKey
+  public struct ConstructionKey : IEquatable<ConstructionKey>
   {
     private static readonly CompoundIdentifierEqualityComparer s_typeKeyComparer = new CompoundIdentifierEqualityComparer();
 
@@ -66,18 +66,16 @@ namespace Remotion.TypePipe.Caching
       get { return _allowNonPublic; }
     }
 
-    public override bool Equals (object obj)
+    public bool Equals (ConstructionKey other)
     {
-      // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (obj != null);
-
-      // Unsafe implementation for performance.
-      var other = (ConstructionKey) obj;
-      Debug.Assert (_typeKey.Length == other._typeKey.Length);
-
       return s_typeKeyComparer.Equals (_typeKey, other._typeKey)
              && _delegateType == other._delegateType
              && _allowNonPublic == other._allowNonPublic;
+    }
+
+    public override bool Equals (object obj)
+    {
+      throw new NotSupportedException ("Should not be used for performance reasons.");
     }
 
     public override int GetHashCode ()

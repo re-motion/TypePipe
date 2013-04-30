@@ -17,6 +17,7 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.UnitTests.Caching
@@ -47,6 +48,13 @@ namespace Remotion.TypePipe.UnitTests.Caching
       Assert.That (_key1, Is.Not.EqualTo (_key3));
       Assert.That (_key1, Is.Not.EqualTo (_key4));
       Assert.That (_key1, Is.EqualTo (_key5));
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException))]
+    public void Equals_Object ()
+    {
+      Dev.Null = _key1.Equals (null);
     }
 
     [Test]

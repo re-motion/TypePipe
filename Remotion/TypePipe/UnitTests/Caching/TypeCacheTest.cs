@@ -132,7 +132,13 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeCacheSynchronizationPoint
           .Expect (
               mock => mock.GetOrGenerateConstructorCall (
-                  _constructorCalls, constructionKey, _types, typeKey, _requestedType, _participantState, _batchCodeGeneratorMock))
+                  Arg.Is (_constructorCalls),
+                  Arg<ConstructionKey>.Matches (key => key.Equals (constructionKey)), // Use strongly typed overload.
+                  Arg.Is (_types),
+                  Arg.Is (typeKey),
+                  Arg.Is (_requestedType),
+                  Arg.Is (_participantState),
+                  Arg.Is (_batchCodeGeneratorMock)))
           .Return (_generatedCtorCall);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
