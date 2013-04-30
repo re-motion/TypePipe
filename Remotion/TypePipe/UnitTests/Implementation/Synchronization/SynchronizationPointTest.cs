@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var types = new ConcurrentDictionary<object[], Type>();
 
       var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls, constructionKey, types, typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+          constructorCalls, constructionKey, types, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       Assert.That (result, Is.SameAs (assembledConstructorCall));
     }
@@ -164,7 +164,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .WhenCalled (_ => CheckLockIsHeld());
 
       var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls, constructionKey, types, typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+          constructorCalls, constructionKey, types, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       _delegateFactoryMock.VerifyAllExpectations();
       _constructorFinderMock.VerifyAllExpectations();

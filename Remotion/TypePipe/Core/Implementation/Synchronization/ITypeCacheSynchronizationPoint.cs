@@ -38,7 +38,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
         ConstructionKey constructionKey,
         ConcurrentDictionary<object[], Type> types,
-        object[] typeKey,
         Type requestedType,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);

@@ -129,13 +129,11 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
         ConstructionKey constructionKey,
         ConcurrentDictionary<object[], Type> types,
-        object[] typeKey,
         Type requestedType,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
-      ArgumentUtility.CheckNotNull ("typeKey", typeKey);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
@@ -146,7 +144,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         if (constructorCalls.TryGetValue (constructionKey, out constructorCall))
           return constructorCall;
 
-        var assembledType = GetOrGenerateType (types, typeKey, requestedType, participantState, mutableTypeBatchCodeGenerator);
+        var assembledType = GetOrGenerateType (types, constructionKey.TypeKey, requestedType, participantState, mutableTypeBatchCodeGenerator);
         var ctorSignature = _delegateFactory.GetSignature (constructionKey.DelegateType);
         var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, constructionKey.AllowNonPublic, assembledType);
 

@@ -135,7 +135,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
                   Arg.Is (_constructorCalls),
                   Arg<ConstructionKey>.Matches (key => key.Equals (constructionKey)), // Use strongly typed overload.
                   Arg.Is (_types),
-                  Arg.Is (typeKey),
                   Arg.Is (_requestedType),
                   Arg.Is (_participantState),
                   Arg.Is (_batchCodeGeneratorMock)))

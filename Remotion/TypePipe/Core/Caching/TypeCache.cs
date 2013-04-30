@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.Caching
         return constructorCall;
 
       return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
-          _constructorCalls, key, _types, key.TypeKey, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
+          _constructorCalls, key, _types, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
     }
   }
 }
