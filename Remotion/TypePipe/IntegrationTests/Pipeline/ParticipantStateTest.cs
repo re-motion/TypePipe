@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             loadedType = loadedProxy.GeneratedType;
             ctx.State["key"] = "reconstructed state";
           },
-          participateAction: ctx =>
+          participateAction: (id, ctx) =>
           {
             Assert.That (ctx.State["key"], Is.EqualTo ("reconstructed state"));
             stateWasRead = true;

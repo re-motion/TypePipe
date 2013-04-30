@@ -59,22 +59,37 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
+    public void ParticipantIsSuppliedWithHisTypeIDPart ()
+    {
+      var typeIDPart = "type ID part";
+      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider> ();
+      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (RequestedType))).Return (typeIDPart);
+
+      var participant1 = CreateParticipant ((id, ctx) => Assert.That (id, Is.Null));
+      var participant2 = CreateParticipant ((id, ctx) => Assert.That (id, Is.EqualTo (typeIDPart)), typeIdentifierProviderStub);
+      var pipeline = CreatePipeline (participant1, participant2);
+
+      Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);
+    }
+
+    [Test]
     public void ParticipantHasAccessToTypeIDExpression ()
     {
-      var typeIDPart = "type id part";
+      var typeIDPart = "type ID part";
       var typeIDPartExpression = Expression.Constant (typeIDPart);
       var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
       typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (RequestedType))).Return (typeIDPart);
       typeIdentifierProviderStub.Stub (_ => _.GetExpressionForID (typeIDPart)).Return (typeIDPartExpression);
       var participant = CreateParticipant (
-          context =>
+          (id, context) =>
           {
             var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((RequestedType o) => o.Method());
             context.ProxyType.GetOrAddOverride (method).SetBody (ctx => context.TypeID);
           },
           typeIdentifierProviderStub);
+      var pipeline = CreatePipeline (participant);
 
-      var instance = CreatePipeline (participant).Create<RequestedType>();
+      var instance = pipeline.Create<RequestedType>();
 
       var expectedTypeID = new AssembledTypeID (typeof (RequestedType), new object[] { typeIDPart });
       Assert.That (instance.Method(), Is.EqualTo (expectedTypeID));

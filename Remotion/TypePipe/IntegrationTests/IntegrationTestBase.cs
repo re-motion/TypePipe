@@ -32,19 +32,23 @@ namespace Remotion.TypePipe.IntegrationTests
 {
   public abstract class IntegrationTestBase
   {
-    protected static IParticipant CreateParticipant (
-        Action<MutableType> typeModification, ITypeIdentifierProvider typeIdentifierProvider = null, Action<LoadedTypesContext> rebuildStateAction = null)
+    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
     {
-      return CreateParticipant (ctx => typeModification (ctx.ProxyType), typeIdentifierProvider, rebuildStateAction);
+      return CreateParticipant (ctx => typeModification (ctx.ProxyType));
+    }
+
+    protected static IParticipant CreateParticipant (Action<ITypeAssemblyContext> participateAction)
+    {
+      return CreateParticipant ((id, ctx) => participateAction (ctx));
     }
 
     protected static IParticipant CreateParticipant (
-        Action<ITypeAssemblyContext> participateAction = null,
+        Action<object, ITypeAssemblyContext> participateAction = null,
         ITypeIdentifierProvider typeIdentifierProvider = null,
         Action<LoadedTypesContext> rebuildStateAction = null,
         Action<Type> handleNonSubclassableTypeAction = null)
     {
-      participateAction = participateAction ?? (ctx => { });
+      participateAction = participateAction ?? ((id, ctx) => { });
       rebuildStateAction = rebuildStateAction ?? (ctx => { });
       handleNonSubclassableTypeAction = handleNonSubclassableTypeAction ?? (ctx => { });
 
@@ -130,7 +134,7 @@ namespace Remotion.TypePipe.IntegrationTests
       // Avoid no-modification optimization.
       var participantList = participants.ToList();
       if (participantList.Count == 0)
-        participantList.Add (CreateParticipant (CreateModifyingAction (ctx => { })));
+        participantList.Add (CreateParticipant (CreateModifyingAction ((id, ctx) => { })));
 
       var objectFactory = PipelineFactory.Create (participantConfigurationID, participantList, configurationProvider);
 
@@ -184,11 +188,11 @@ namespace Remotion.TypePipe.IntegrationTests
       return typeName + '.' + methodName;
     }
 
-    private static Action<ITypeAssemblyContext> CreateModifyingAction (Action<ITypeAssemblyContext> participateAction)
+    private static Action<object, ITypeAssemblyContext> CreateModifyingAction (Action<object, ITypeAssemblyContext> participateAction)
     {
-      return ctx =>
+      return (id, ctx) =>
       {
-        participateAction (ctx);
+        participateAction (id, ctx);
 
         if (ctx.ProxyType.AddedCustomAttributes.Count == 0)
         {
