@@ -22,52 +22,57 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Caching
 {
   /// <summary>
-  /// A data structure that can be used as a key for constructor delegates.
+  /// A data structure that identifies an assembled type.
   /// </summary>
-  public struct ConstructionKey : IEquatable<ConstructionKey>
+  /// <remarks>
+  /// Note that the length of the id parts (object array) is assumed to be equal.
+  /// </remarks>
+  [Serializable]
+  public struct AssembledTypeID : IEquatable<AssembledTypeID>
   {
-    private static readonly CompoundIdentifierEqualityComparer s_typeKeyComparer = new CompoundIdentifierEqualityComparer();
-
-    private readonly object[] _typeID;
-    private readonly Type _delegateType;
-    private readonly bool _allowNonPublic;
-
+    private readonly Type _requestedType;
+    private readonly object[] _parts;
     private readonly int _hashCode;
 
-    public ConstructionKey (object[] typeID, Type delegateType, bool allowNonPublic)
+    public AssembledTypeID (Type requestedType, object[] parts)
     {
       // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (typeID != null);
-      Debug.Assert (delegateType != null);
+      Debug.Assert (requestedType != null);
+      Debug.Assert (parts != null);
 
-      _typeID = typeID;
-      _delegateType = delegateType;
-      _allowNonPublic = allowNonPublic;
+      _requestedType = requestedType;
+      _parts = parts;
 
       // Pre-compute hash code.
-      _hashCode = EqualityUtility.GetRotatedHashCode (s_typeKeyComparer.GetHashCode (typeID), delegateType, allowNonPublic);
+      _hashCode = requestedType.GetHashCode() ^ EqualityUtility.GetRotatedHashCode (_parts);
     }
 
-    public object[] TypeID
+    public Type RequestedType
     {
-      get { return _typeID; }
+      get { return _requestedType; }
     }
 
-    public Type DelegateType
+    public object[] Parts
     {
-      get { return _delegateType; }
+      get { return _parts; }
     }
 
-    public bool AllowNonPublic
+    public bool Equals (AssembledTypeID other)
     {
-      get { return _allowNonPublic; }
-    }
+      // Using Debug.Assert because it will be compiled away.
+      Debug.Assert (_parts.Length == other._parts.Length);
 
-    public bool Equals (ConstructionKey other)
-    {
-      return s_typeKeyComparer.Equals (_typeID, other._typeID)
-             && _delegateType == other._delegateType
-             && _allowNonPublic == other._allowNonPublic;
+      if (_requestedType != other.RequestedType)
+        return false;
+
+      // ReSharper disable LoopCanBeConvertedToQuery // No LINQ for performance reasons.
+      for (int i = 0; i < _parts.Length; ++i)
+      {
+        if (!Equals (_parts[i], other._parts[i]))
+          return false;
+      }
+
+      return true;
     }
 
     public override bool Equals (object obj)
