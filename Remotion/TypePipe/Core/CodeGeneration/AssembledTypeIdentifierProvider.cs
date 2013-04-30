@@ -69,10 +69,10 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("typeID", typeID);
 
       var requestedType = Expression.Constant (typeID.RequestedType);
-      var individualParts = typeID.Parts.Select ((p, i) => _identifierProviders[i].GetExpressionForID (p));
-      var parts = Expression.NewArrayInit (typeof (object), individualParts);
+      var parts = typeID.Parts.Select ((idPart, i) => GetNonNullExpressionForID (i, idPart));
+      var partsArray = Expression.NewArrayInit (typeof (object), parts);
 
-      return Expression.New (s_assembledTypeIDConstructor, requestedType, parts);
+      return Expression.New (s_assembledTypeIDConstructor, requestedType, partsArray);
     }
 
     public object GetPart (AssembledTypeID typeID, IParticipant participant)
@@ -84,6 +84,11 @@ namespace Remotion.TypePipe.CodeGeneration
         return typeID.Parts[index];
 
       return null;
+    }
+
+    private Expression GetNonNullExpressionForID (int index, object id)
+    {
+      return _identifierProviders[index].GetExpressionForID (id) ?? Expression.Constant (null);
     }
   }
 }

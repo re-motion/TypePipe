@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GetExpression ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeID = new AssembledTypeID (requestedType, new object[] { "abc" });
+      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
       var idPart = ExpressionTreeObjectMother.GetSomeExpression();
       _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (idPart);
 
@@ -75,6 +75,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           ctor,
           Expression.Constant (requestedType),
           Expression.NewArrayInit (typeof (object), new[] { idPart }));
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
+    }
+
+    [Test]
+    public void GetExpression_TypeIdentifierProviderReturnsNull ()
+    {
+      var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { "abc" });
+      _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (null);
+
+      var result = _provider.GetExpression (typeID);
+
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (null, null));
+      var expected = Expression.New (
+          ctor,
+          Expression.Constant (typeID.RequestedType),
+          Expression.NewArrayInit (typeof (object), new Expression[] { Expression.Constant (null) }));
       ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
 
