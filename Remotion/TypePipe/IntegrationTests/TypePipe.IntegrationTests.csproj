@@ -151,6 +151,10 @@
       <Project>{B719A305-0493-4C72-88FE-9A2FC6964578}</Project>
       <Name>Development.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Development\TypePipe\Development.TypePipe.csproj">
+      <Project>{f6faf727-9405-4bcc-9153-803f73853e67}</Project>
+      <Name>Development.TypePipe</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\TypePipe.Core.csproj">
       <Project>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</Project>
       <Name>TypePipe.Core</Name>

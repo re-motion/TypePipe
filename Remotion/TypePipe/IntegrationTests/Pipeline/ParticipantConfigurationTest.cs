@@ -17,6 +17,10 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Dlr.Ast;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -50,6 +54,28 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var participant = CreateParticipant (ctx => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
 
       var pipeline = PipelineFactory.Create (configurationID, participant);
+
+      Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);
+    }
+
+    [Test]
+    public void ParticipantHasAccessToTypeIDExpression ()
+    {
+      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
+      var typeIDPart = "type id part";
+      var typeIDPartExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (RequestedType))).Return (typeIDPart);
+      typeIdentifierProviderStub.Stub (_ => _.GetExpressionForID (typeIDPart)).Return (typeIDPartExpression);
+      var participant = CreateParticipant (
+          ctx =>
+          {
+            Assert.That (ctx.TypeID, Is.InstanceOf<NewArrayExpression>());
+            var typeID = (NewArrayExpression) ctx.TypeID;
+            Assert.That (typeID.Expressions, Is.EqualTo (new[] { typeIDPartExpression }));
+          },
+          typeIdentifierProviderStub);
+
+      var pipeline = CreatePipeline (participant);
 
       Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);
     }
