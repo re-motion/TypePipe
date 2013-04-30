@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
@@ -30,17 +30,14 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     private const string c_typeIDFieldName = "__typeID";
 
-    public void AddTypeID (MutableType proxyType, IEnumerable<Expression> typeID)
+    public void AddTypeID (MutableType proxyType, Expression typeID)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("typeID", typeID);
+      Assertion.IsTrue (typeID.Type == typeof (object[]));
 
       var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (object[]));
-
-      proxyType.AddTypeInitialization (
-          ctx => Expression.Assign (
-              Expression.Field (null, typeIDField),
-              Expression.NewArrayInit (typeof (object), typeID)));
+      proxyType.AddTypeInitialization (ctx => Expression.Assign (Expression.Field (null, typeIDField), typeID));
     }
 
     public object[] ExtractTypeID (Type assembledType)

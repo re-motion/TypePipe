@@ -58,6 +58,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\ConcurrentDictionary.cs" />
+    <Compile Include="Caching\ConstructionKey.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\AssembledTypePreparer.cs" />
     <Compile Include="CodeGeneration\IAssembledTypeIdentifierProvider.cs" />
@@ -162,7 +163,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactory.cs" />
-    <Compile Include="Caching\CompoundCacheKeyEqualityComparer.cs" />
+    <Compile Include="Caching\CompoundIdentifierEqualityComparer.cs" />
     <Compile Include="Implementation\ConstructorFinder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGenerator.cs" />
     <Compile Include="Configuration\IConfigurationProvider.cs" />

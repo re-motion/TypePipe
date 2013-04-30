@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         if (types.TryGetValue (typeKey, out generatedType))
           return generatedType;
 
-        generatedType = _typeAssembler.AssembleType (requestedType, participantState, mutableTypeBatchCodeGenerator);
+        generatedType = _typeAssembler.AssembleType (typeKey, requestedType, participantState, mutableTypeBatchCodeGenerator);
         types.Add (typeKey, generatedType);
       }
 
@@ -126,10 +126,8 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     }
 
     public Delegate GetOrGenerateConstructorCall (
-        ConcurrentDictionary<object[], Delegate> constructorCalls,
-        object[] constructorKey,
-        Type delegateType,
-        bool allowNonPublic,
+        ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
+        ConstructionKey constructionKey,
         ConcurrentDictionary<object[], Type> types,
         object[] typeKey,
         Type requestedType,
@@ -137,7 +135,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
-      ArgumentUtility.CheckNotNull ("constructorKey", constructorKey);
       ArgumentUtility.CheckNotNull ("typeKey", typeKey);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
@@ -146,15 +143,15 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       Delegate constructorCall;
       lock (_codeGenerationLock)
       {
-        if (constructorCalls.TryGetValue (constructorKey, out constructorCall))
+        if (constructorCalls.TryGetValue (constructionKey, out constructorCall))
           return constructorCall;
 
         var assembledType = GetOrGenerateType (types, typeKey, requestedType, participantState, mutableTypeBatchCodeGenerator);
-        var ctorSignature = _delegateFactory.GetSignature (delegateType);
-        var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, allowNonPublic, assembledType);
+        var ctorSignature = _delegateFactory.GetSignature (constructionKey.DelegateType);
+        var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, constructionKey.AllowNonPublic, assembledType);
 
-        constructorCall = _delegateFactory.CreateConstructorCall (constructor, delegateType);
-        constructorCalls.Add (constructorKey, constructorCall);
+        constructorCall = _delegateFactory.CreateConstructorCall (constructor, constructionKey.DelegateType);
+        constructorCalls.Add (constructionKey, constructorCall);
       }
 
       return constructorCall;

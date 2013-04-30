@@ -33,19 +33,11 @@ namespace Remotion.TypePipe.CodeGeneration
     bool IsAssembledType (Type type);
     Type GetRequestedType (Type assembledType);
 
-    /// <summary>
-    /// Computes a compound identifier consisting of the individual identifier parts returned from the
-    /// <see cref="IParticipant.PartialTypeIdentifierProvider"/> of the participants.
-    /// The return value of this method is an object array for performance reasons.
-    /// </summary>
-    /// <param name="requestedType">The requested type.</param>
-    /// <param name="freeSlotsAtStart">Number of slots beginning at the start of the array which are reserved for use by the caller.</param>
-    /// <returns>The compound identifier.</returns>
-    object[] GetCompoundID (Type requestedType, int freeSlotsAtStart);
+    object[] GetTypeID (Type requestedType);
+    IEnumerable<object> ExtractTypeID (Type assembledType);
 
-    IEnumerable<object> ExtractCompoundID (Type assembledType);
-
-    Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+    Type AssembleType (
+        object[] typeID, Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 
     void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
   }

@@ -26,7 +26,6 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -41,6 +40,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     private IMutableTypeFactory _mutableTypeFactoryMock;
     private IAssembledTypePreparer _assembledTypePreparerMock;
 
+    private object[] _typeID;
     private Type _requestedType;
     private IDictionary<string, object> _participantState;
 
@@ -50,6 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _assembledTypePreparerMock = MockRepository.GenerateStrictMock<IAssembledTypePreparer>();
 
+      _typeID = new object[] { typeof (RequestedType) };
       _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       _participantState = new Dictionary<string, object>();
     }
@@ -59,16 +60,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var participantStub = MockRepository.GenerateStub<IParticipant>();
       var participantWithCacheProviderStub = MockRepository.GenerateStub<IParticipant>();
-      var cachKeyProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
-      participantWithCacheProviderStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (cachKeyProviderStub);
+      var identifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
+      participantWithCacheProviderStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (identifierProviderStub);
       var participants = new[] { participantStub, participantWithCacheProviderStub };
 
       var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock, _assembledTypePreparerMock);
 
-      var cacheKeyProviders = PrivateInvoke.GetNonPublicField (typeAssembler, "_typeIdentifierProviders");
-      Assert.That (cacheKeyProviders, Is.EqualTo (new[] { cachKeyProviderStub }));
       Assert.That (typeAssembler.ParticipantConfigurationID, Is.EqualTo ("configId"));
       Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
+
+      var assembledTypeIdentifierProvider = PrivateInvoke.GetNonPublicField (typeAssembler, "_assembledTypeIdentifierProvider");
+      Assert.That (assembledTypeIdentifierProvider, Is.TypeOf<AssembledTypeIdentifierProvider>());
+      var identifierProviders = PrivateInvoke.GetNonPublicField (assembledTypeIdentifierProvider, "_identifierProviders");
+      Assert.That (identifierProviders, Is.EqualTo (new[] { identifierProviderStub }));
     }
 
     [Test]
@@ -113,9 +117,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       idProviderMock2.Expect (mock => mock.GetID (_requestedType)).Return ("2");
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
-      var result = typeAssembler.GetCompoundID (_requestedType, 2);
+      var result = typeAssembler.GetTypeID (_requestedType);
 
-      Assert.That (result, Is.EqualTo (new object[] { null, null, 1, "2" }));
+      Assert.That (result, Is.EqualTo (new object[] { _requestedType, 1, "2" }));
     }
 
     [Test]
@@ -125,8 +129,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var participantMock1 = mockRepository.StrictMock<IParticipant>();
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
+      var assembledTypeIdentifierProviderMock = mockRepository.StrictMock<IAssembledTypeIdentifierProvider>();
       var codeGeneratorMock = mockRepository.StrictMock<IMutableTypeBatchCodeGenerator>();
 
+      var typeID = new object[] { _requestedType, "typeID part" };
       var generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
       using (mockRepository.Ordered())
@@ -140,6 +146,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
         mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (typeModificationContextMock);
         typeModificationContextMock.Stub (stub => stub.Type).Return (proxyType);
 
+        var typeIDExpression = ExpressionTreeObjectMother.GetSomeExpression();
+        assembledTypeIdentifierProviderMock.Expect (mock => mock.GetIdentifierExpression (typeID)).Return (typeIDExpression);
+
         var additionalType = MutableTypeObjectMother.Create();
         ITypeAssemblyContext typeAssemblyContext = null;
         participantMock1.Expect (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Is.Anything)).WhenCalled (
@@ -147,6 +156,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
             {
               typeAssemblyContext = (ITypeAssemblyContext) mi.Arguments[1];
               Assert.That (typeAssemblyContext.ParticipantConfigurationID, Is.EqualTo ("participant configuration id"));
+              Assert.That (typeAssemblyContext.TypeID, Is.SameAs (typeIDExpression));
               Assert.That (typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
               Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (proxyType));
               Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));
@@ -164,12 +174,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
         typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);
 
-        var idPart = new object();
-        var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression();
-        typeIdentifierProviderMock.Expect (mock => mock.GetID (_requestedType)).Return (idPart);
-        typeIdentifierProviderMock.Expect (mock => mock.GetExpressionForID (idPart)).Return (idPartExpression);
-        _assembledTypePreparerMock.Expect (
-            mock => mock.AddTypeID (Arg.Is (proxyType), Arg<IEnumerable<Expression>>.List.Equal (new[] { idPartExpression })));
+        _assembledTypePreparerMock.Expect (mock => mock.AddTypeID (proxyType, typeIDExpression));
 
         codeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
@@ -188,8 +193,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       mockRepository.ReplayAll();
 
       var typeAssembler = CreateTypeAssembler (mutableTypeFactoryMock, "participant configuration id", new[] { participantMock1, participantMock2 });
+      PrivateInvoke.SetNonPublicField (typeAssembler, "_assembledTypeIdentifierProvider", assembledTypeIdentifierProviderMock);
 
-      var result = typeAssembler.AssembleType (_requestedType, _participantState, codeGeneratorMock);
+      var result = typeAssembler.AssembleType (typeID, _requestedType, _participantState, codeGeneratorMock);
 
       mockRepository.VerifyAll();
       Assert.That (generationCompletedEventRaised, Is.True);
@@ -204,7 +210,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var nonSubclassableType = ReflectionObjectMother.GetSomeNonSubclassableType();
       var codeGenerator = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
 
-      var result = typeAssembler.AssembleType (nonSubclassableType, _participantState, codeGenerator);
+      var result = typeAssembler.AssembleType (_typeID, nonSubclassableType, _participantState, codeGenerator);
 
       Assert.That (result, Is.SameAs (nonSubclassableType));
       participantMock.AssertWasCalled (mock => mock.HandleNonSubclassableType (nonSubclassableType));
@@ -221,7 +227,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var typeAssembler = CreateTypeAssembler (mutableTypeFactoryStub);
       var codeGeneratorMock = MockRepository.GenerateMock<IMutableTypeBatchCodeGenerator>();
 
-      var result = typeAssembler.AssembleType (_requestedType, _participantState, codeGeneratorMock);
+      var result = typeAssembler.AssembleType (_typeID, _requestedType, _participantState, codeGeneratorMock);
 
       Assert.That (result, Is.SameAs (_requestedType));
       codeGeneratorMock.AssertWasNotCalled (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.Is.Anything));
@@ -247,14 +253,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var expectedMessageRegex = "An error occurred during code generation for '" + _requestedType.Name + "':\r\nblub\r\n"
                                  + @"The following participants are currently configured and may have caused the error: 'IParticipantProxy.*'\.";
       Assert.That (
-          () => typeAssembler.AssembleType (_requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
+          () => typeAssembler.AssembleType (_typeID, _requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
           Throws.InvalidOperationException.With.InnerException.SameAs (exception1).And.With.Message.Matches (expectedMessageRegex));
       Assert.That (
-          () => typeAssembler.AssembleType (_requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
+          () => typeAssembler.AssembleType (_typeID, _requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
           Throws.TypeOf<NotSupportedException>().With.InnerException.SameAs (exception2).And.With.Message.Matches (expectedMessageRegex));
 
       Assert.That (
-          () => typeAssembler.AssembleType (_requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
+          () => typeAssembler.AssembleType (_typeID, _requestedType, _participantState, typeAssemblyContextCodeGeneratorMock),
           Throws.Exception.SameAs (exception3));
     }
 

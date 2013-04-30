@@ -23,13 +23,13 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Caching
 {
   /// <summary>
-  /// Compares compound cache keys, i.e., compares object arrays.
+  /// Compares compound identifiers, i.e., compares object arrays.
   /// This class is an implementation detail of <see cref="TypeCache"/>.
   /// </summary>
   /// <remarks>
   /// Note that the length of the object arrays is assumed to be equal.
   /// </remarks>
-  public class CompoundCacheKeyEqualityComparer : IEqualityComparer<object[]>
+  public class CompoundIdentifierEqualityComparer : IEqualityComparer<object[]>
   {
     public bool Equals (object[] x, object[] y)
     {
@@ -50,6 +50,7 @@ namespace Remotion.TypePipe.Caching
 
     public int GetHashCode (object[] compoundKey)
     {
+      // Using Debug.Assert because it will be compiled away.
       Debug.Assert (compoundKey != null);
 
       return EqualityUtility.GetRotatedHashCode (compoundKey);

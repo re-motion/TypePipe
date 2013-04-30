@@ -35,10 +35,8 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
 
     Delegate GetOrGenerateConstructorCall (
-        ConcurrentDictionary<object[], Delegate> constructorCalls,
-        object[] constructorKey,
-        Type delegateType,
-        bool allowNonPublic,
+        ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
+        ConstructionKey constructionKey,
         ConcurrentDictionary<object[], Type> types,
         object[] typeKey,
         Type requestedType,

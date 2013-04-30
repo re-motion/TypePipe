@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Dlr.Ast;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -25,6 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration
   public interface IAssembledTypeIdentifierProvider
   {
     object[] GetIdentifier (Type requestedType);
-    object GetPartialIdentifier (object[] identifier, IParticipant participant);
+
+    Expression GetIdentifierExpression (object[] identifier);
   }
 }

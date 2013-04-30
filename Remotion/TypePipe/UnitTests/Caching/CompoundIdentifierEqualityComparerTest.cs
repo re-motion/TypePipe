@@ -22,14 +22,14 @@ using Remotion.TypePipe.Caching;
 namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
-  public class CompoundCacheKeyEqualityComparerTest
+  public class CompoundIdentifierEqualityComparerTest
   {
-    private CompoundCacheKeyEqualityComparer _comparer;
+    private CompoundIdentifierEqualityComparer _comparer;
 
     [SetUp]
     public void SetUp ()
     {
-      _comparer = new CompoundCacheKeyEqualityComparer();
+      _comparer = new CompoundIdentifierEqualityComparer();
     }
 
     [Test]

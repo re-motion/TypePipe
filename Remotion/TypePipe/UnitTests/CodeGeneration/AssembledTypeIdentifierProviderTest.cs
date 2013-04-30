@@ -16,9 +16,12 @@
 // 
 
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Dlr.Ast;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 
@@ -58,21 +61,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void GetPartialIdentifier_ParticipantDoesNotContributeToIdentifier ()
     {
-      var identifier = new object[0];
+      var identifier = new object[] { "requested type", "abc" };
+      var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (fakeExpression);
 
-      var result = _provider.GetPartialIdentifier (identifier, _participantWithoutIdentifierProvider);
+      var result = _provider.GetIdentifierExpression (identifier);
 
-      Assert.That (result, Is.Null);
-    }
-
-    [Test]
-    public void GetPartialIdentifier_ParticipantContributesToIdentifier ()
-    {
-      var identifier = new object[] { "requestedType", "abc", "def" };
-
-      var result = _provider.GetPartialIdentifier (identifier, _participantWithIdentifierProvider);
-
-      Assert.That (result, Is.EqualTo ("abc"));
+      var expectedResult = Expression.NewArrayInit (typeof (object), new[] { fakeExpression });
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedResult, result);
     }
   }
 }

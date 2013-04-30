@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -30,19 +31,12 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     // Array for performance reasons.
     private readonly ITypeIdentifierProvider[] _identifierProviders;
-    private readonly Dictionary<IParticipant, int> _identifierProviderIndexes;
 
     public AssembledTypeIdentifierProvider (IEnumerable<IParticipant> participants)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
 
-      var providersWithIndex = participants
-          .Select (p => new { Participant = p, IdentifierProvider = p.PartialTypeIdentifierProvider })
-          .Where (t => t.IdentifierProvider != null)
-          .Select ((t, i) => new { t.Participant, t.IdentifierProvider, Index = i }).ToList();
-
-      _identifierProviders = providersWithIndex.Select (t => t.IdentifierProvider).ToArray();
-      _identifierProviderIndexes = providersWithIndex.ToDictionary (t => t.Participant, t => t.Index);
+      _identifierProviders = participants.Select (p => p.PartialTypeIdentifierProvider).Where (p => p != null).ToArray();
     }
 
     public object[] GetIdentifier (Type requestedType)
@@ -60,16 +54,14 @@ namespace Remotion.TypePipe.CodeGeneration
       return id;
     }
 
-    public object GetPartialIdentifier (object[] identifier, IParticipant participant)
+    public Expression GetIdentifierExpression (object[] identifier)
     {
       ArgumentUtility.CheckNotNull ("identifier", identifier);
-      ArgumentUtility.CheckNotNull ("participant", participant);
+      Debug.Assert (identifier.Length == _identifierProviders.Length + 1);
 
-      int index;
-      if (_identifierProviderIndexes.TryGetValue (participant, out index))
-        return identifier[index + 1];
+      var identifierParts = identifier.Skip (1).Select ((part, i) => _identifierProviders[i].GetExpressionForID (part));
 
-      return null;
+      return Expression.NewArrayInit (typeof (object), identifierParts);
     }
   }
 }

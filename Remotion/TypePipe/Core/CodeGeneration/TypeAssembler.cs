@@ -45,8 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly IAssembledTypePreparer _assembledTypePreparer;
-    // Array for performance reasons.
-    private readonly ITypeIdentifierProvider[] _typeIdentifierProviders;
+    private readonly IAssembledTypeIdentifierProvider _assembledTypeIdentifierProvider;
 
     public TypeAssembler (
         string participantConfigurationID,
@@ -64,7 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration
       _mutableTypeFactory = mutableTypeFactory;
       _assembledTypePreparer = assembledTypePreparer;
 
-      _typeIdentifierProviders = _participants.Select (p => p.PartialTypeIdentifierProvider).Where (ckp => ckp != null).ToArray();
+      _assembledTypeIdentifierProvider = new AssembledTypeIdentifierProvider (_participants);
     }
 
     public string ParticipantConfigurationID
@@ -94,30 +93,25 @@ namespace Remotion.TypePipe.CodeGeneration
       return assembledType.BaseType;
     }
 
-    public object[] GetCompoundID (Type requestedType, int freeSlotsAtStart)
+    public object[] GetTypeID (Type requestedType)
     {
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
-      Debug.Assert (freeSlotsAtStart >= 0);
 
-      var compoundID = new object[_typeIdentifierProviders.Length + freeSlotsAtStart];
-
-      // No LINQ for performance reasons.
-      for (int i = 0; i < _typeIdentifierProviders.Length; ++i)
-        compoundID[freeSlotsAtStart + i] = _typeIdentifierProviders[i].GetID (requestedType);
-
-      return compoundID;
+      return _assembledTypeIdentifierProvider.GetIdentifier (requestedType);
     }
 
-    public IEnumerable<object> ExtractCompoundID (Type assembledType)
+    public IEnumerable<object> ExtractTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
       return _assembledTypePreparer.ExtractTypeID (assembledType);
     }
 
-    public Type AssembleType (Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
+    public Type AssembleType (
+        object[] typeID, Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
+      ArgumentUtility.CheckNotNull ("typeID", typeID);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
@@ -126,8 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = new TypeAssemblyContext (
-          _participantConfigurationID, requestedType, typeModificationTracker.Type, _mutableTypeFactory, participantState);
+      var typeAssemblyContext = CreateTypeAssemblyContext (typeID, requestedType, typeModificationTracker.Type, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (null, typeAssemblyContext);
@@ -139,6 +132,13 @@ namespace Remotion.TypePipe.CodeGeneration
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
+    }
+
+    private TypeAssemblyContext CreateTypeAssemblyContext (
+        object[] typeID, Type requestedType, MutableType proxyType, IDictionary<string, object> participantState)
+    {
+      var typeIDExpression = _assembledTypeIdentifierProvider.GetIdentifierExpression (typeID);
+      return new TypeAssemblyContext (_participantConfigurationID, typeIDExpression, requestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
     public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)
@@ -165,10 +165,7 @@ namespace Remotion.TypePipe.CodeGeneration
       var attribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
       context.ProxyType.AddCustomAttribute (attribute);
 
-      // TODO 5552: Inject type ID to avoid re-calculation.
-      var typeID = GetCompoundID (context.RequestedType, freeSlotsAtStart: 0);
-      var typeIDExpression = _typeIdentifierProviders.Select ((p, i) => p.GetExpressionForID (typeID[i]));
-      _assembledTypePreparer.AddTypeID (context.ProxyType, typeIDExpression);
+      _assembledTypePreparer.AddTypeID (context.ProxyType, context.TypeID);
 
       return GenerateTypesWithDiagnostics (context, codeGenerator);
     }

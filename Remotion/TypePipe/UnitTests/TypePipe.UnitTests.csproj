@@ -56,6 +56,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="Caching\ConstructionKeyTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypePreparerTest.cs" />
     <Compile Include="CodeGeneration\DependentTypeSorterTest.cs" />
@@ -93,7 +94,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnemittableExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
-    <Compile Include="Caching\CompoundCacheKeyEqualityComparerTest.cs" />
+    <Compile Include="Caching\CompoundIdentifierEqualityComparerTest.cs" />
     <Compile Include="Implementation\ConstructorFinderTest.cs" />
     <Compile Include="CodeGeneration\MutableTypeBatchCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />

@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 
@@ -27,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public interface IAssembledTypePreparer
   {
-    void AddTypeID (MutableType proxyType, IEnumerable<Expression> typeID);
+    void AddTypeID (MutableType proxyType, Expression typeID);
 
     object[] ExtractTypeID (Type assembledType);
   }

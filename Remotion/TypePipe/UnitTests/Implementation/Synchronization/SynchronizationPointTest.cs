@@ -109,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var types = new ConcurrentDictionary<object[], Type>();
 
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock))
+          .Expect (mock => mock.AssembleType (typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock))
           .Return (assembledType)
           .WhenCalled (_ => CheckLockIsHeld ());
 
@@ -126,19 +126,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var requestedType = ReflectionObjectMother.GetSomeType();
       var delegateType = ReflectionObjectMother.GetSomeDelegateType();
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var constructorKey = new object[] { "ctor key" };
       var typeKey = new object[] { "key" };
+      var constructionKey = new ConstructionKey (typeKey, delegateType, allowNonPublic);
       var assembledConstructorCall = (Action) (() => { });
-      var constructorCalls = new ConcurrentDictionary<object[], Delegate> { {constructorKey, assembledConstructorCall} };
+      var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate> { { constructionKey, assembledConstructorCall } };
       var types = new ConcurrentDictionary<object[], Type>();
 
       var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls,
-          constructorKey,
-          delegateType,
-          allowNonPublic,
-          types,
-          typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+          constructorCalls, constructionKey, types, typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       Assert.That (result, Is.SameAs (assembledConstructorCall));
     }
@@ -149,11 +144,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var requestedType = ReflectionObjectMother.GetSomeType();
       var delegateType = ReflectionObjectMother.GetSomeDelegateType();
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var constructorKey = new object[] { "ctor key" };
       var typeKey = new object[] { "key" };
+      var constructionKey = new ConstructionKey (typeKey, delegateType, allowNonPublic);
       var assembledConstructorCall = (Action) (() => { });
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var constructorCalls = new ConcurrentDictionary<object[], Delegate>();
+      var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
       var types = new ConcurrentDictionary<object[], Type> { { typeKey, assembledType } };
       var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
       var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
@@ -169,17 +164,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .WhenCalled (_ => CheckLockIsHeld());
 
       var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls,
-          constructorKey,
-          delegateType,
-          allowNonPublic,
-          types,
-          typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+          constructorCalls, constructionKey, types, typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       _delegateFactoryMock.VerifyAllExpectations();
       _constructorFinderMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (assembledConstructorCall));
-      Assert.That (constructorCalls[constructorKey], Is.SameAs (assembledConstructorCall));
+      Assert.That (constructorCalls[constructionKey], Is.SameAs (assembledConstructorCall));
     }
 
     [Test]

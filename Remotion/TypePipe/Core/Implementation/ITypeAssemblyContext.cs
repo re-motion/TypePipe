@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Implementation
@@ -44,6 +45,9 @@ namespace Remotion.TypePipe.Implementation
     /// Gets the participant configuration ID of the containing <see cref="IPipeline"/>.
     /// </summary>
     string ParticipantConfigurationID { get; }
+
+    // TODO 5552
+    Expression TypeID { get; }
 
     /// <summary>
     /// The original <see cref="Type"/> that was requested by the user through an instance of <see cref="IPipeline"/>.
