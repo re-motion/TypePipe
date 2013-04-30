@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.CodeGeneration
     public Expression GetIdentifierExpression (object[] identifier)
     {
       ArgumentUtility.CheckNotNull ("identifier", identifier);
-      Debug.Assert (identifier.Length == _identifierProviders.Length + 1);
+      Assertion.IsTrue (identifier.Length == _identifierProviders.Length + 1);
 
       var identifierParts = identifier.Skip (1).Select ((part, i) => _identifierProviders[i].GetExpressionForID (part));
 

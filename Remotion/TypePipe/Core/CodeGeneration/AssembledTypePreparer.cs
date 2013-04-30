@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
