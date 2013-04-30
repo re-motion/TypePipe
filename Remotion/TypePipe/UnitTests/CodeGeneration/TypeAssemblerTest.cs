@@ -166,9 +166,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
             .Expect (mock => mock.GetExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
             .Return (typeIDExpression);
 
+        var idPart = new object();
+        assembledTypeIdentifierProviderMock
+            .Expect (mock => mock.GetPart (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg.Is (participantMock1)))
+            .Return (idPart);
+
         var additionalType = MutableTypeObjectMother.Create();
         ITypeAssemblyContext typeAssemblyContext = null;
-        participantMock1.Expect (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Is.Anything)).WhenCalled (
+        participantMock1.Expect (mock => mock.Participate (Arg.Is (idPart), Arg<ITypeAssemblyContext>.Is.Anything)).WhenCalled (
             mi =>
             {
               typeAssemblyContext = (ITypeAssemblyContext) mi.Arguments[1];
@@ -187,6 +192,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
               };
             });
         mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int))).Return (additionalType);
+
+        assembledTypeIdentifierProviderMock
+            .Expect (mock => mock.GetPart (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg.Is (participantMock2)))
+            .Return (null);
         participantMock2.Expect (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
 
         typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);

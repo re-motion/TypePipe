@@ -122,7 +122,10 @@ namespace Remotion.TypePipe.CodeGeneration
       var typeAssemblyContext = CreateTypeAssemblyContext (typeID, typeModificationTracker.Type, participantState);
 
       foreach (var participant in _participants)
-        participant.Participate (null, typeAssemblyContext);
+      {
+        var idPart = _assembledTypeIdentifierProvider.GetPart (typeID, participant);
+        participant.Participate (idPart, typeAssemblyContext);
+      }
 
       if (!typeModificationTracker.IsModified())
         return requestedType;
