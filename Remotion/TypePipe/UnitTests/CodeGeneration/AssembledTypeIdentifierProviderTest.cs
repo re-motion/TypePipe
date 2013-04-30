@@ -53,23 +53,28 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var requestedType = ReflectionObjectMother.GetSomeType();
       _identifierProviderStub.Stub (_ => _.GetID (requestedType)).Return ("abc");
 
-      var result = _provider.GetIdentifier (requestedType);
+      var result = _provider.GetTypeID (requestedType);
 
-      Assert.That (result, Is.EqualTo (new object[] { requestedType, "abc" }));
+      var expectedTypeID = new AssembledTypeID (requestedType, new object[] { "abc" });
+      Assert.That (result, Is.EqualTo (expectedTypeID));
     }
 
     [Test]
     public void GetPartialIdentifier_ParticipantDoesNotContributeToIdentifier ()
     {
-      var requestedType = "requested type";
-      var identifier = new object[] { requestedType, "abc" };
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var typeID = new AssembledTypeID (requestedType, new object[] { "abc" });
       var idPart = ExpressionTreeObjectMother.GetSomeExpression();
       _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (idPart);
 
-      var result = _provider.GetIdentifierExpression (identifier);
+      var result = _provider.GetTypeIDExpression (typeID);
 
-      var expectedResult = Expression.NewArrayInit (typeof (object), new[] { Expression.Constant (requestedType), idPart });
-      ExpressionTreeComparer.CheckAreEqualTrees (expectedResult, result);
+      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (null, null));
+      var expected = Expression.New (
+          ctor,
+          Expression.Constant (requestedType),
+          Expression.NewArrayInit (typeof (object), new[] { idPart }));
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
   }
 }

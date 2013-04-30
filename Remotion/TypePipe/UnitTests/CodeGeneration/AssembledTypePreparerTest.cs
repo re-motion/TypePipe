@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Dlr.Ast;
 
@@ -41,7 +42,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void AddTypeID ()
     {
       var proxyType = MutableTypeObjectMother.Create();
-      var typeIDExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      var typeIDExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (AssembledTypeID));
 
       _preparer.AddTypeID (proxyType, typeIDExpression);
 
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var typeIDField = proxyType.AddedFields.Single();
       Assert.That (typeIDField.Name, Is.EqualTo ("__typeID"));
       Assert.That (typeIDField.Attributes, Is.EqualTo (FieldAttributes.Private | FieldAttributes.Static));
-      Assert.That (typeIDField.FieldType, Is.SameAs (typeof (object)));
+      Assert.That (typeIDField.FieldType, Is.SameAs (typeof (AssembledTypeID)));
 
       Assert.That (proxyType.MutableTypeInitializer, Is.Not.Null);
       var expectedTypeInitialization = Expression.Block (typeof (void), Expression.Assign (Expression.Field (null, typeIDField), typeIDExpression));
@@ -61,14 +62,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var result = _preparer.ExtractTypeID (typeof (AssembledType));
 
-      Assert.That (result, Is.EqualTo (new object[] { 1, "2" }));
+      Assert.That (result.RequestedType, Is.SameAs (typeof (int)));
+      Assert.That (result.Parts, Is.EqualTo (new object[] { 1, "2" }));
     }
 
     private class AssembledType
     {
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
-      private static object[] __typeID = new object[] { 1, "2" };
+      private static AssembledTypeID __typeID = new AssembledTypeID (typeof (int), new object[] { 1, "2" });
 // ReSharper restore UnusedMember.Local
 // ReSharper restore InconsistentNaming
     }

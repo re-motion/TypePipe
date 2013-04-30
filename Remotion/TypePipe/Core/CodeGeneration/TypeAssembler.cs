@@ -93,34 +93,33 @@ namespace Remotion.TypePipe.CodeGeneration
       return assembledType.BaseType;
     }
 
-    public object[] GetTypeID (Type requestedType)
+    public AssembledTypeID GetTypeID (Type requestedType)
     {
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
 
-      return _assembledTypeIdentifierProvider.GetIdentifier (requestedType);
+      return _assembledTypeIdentifierProvider.GetTypeID (requestedType);
     }
 
-    public object[] ExtractTypeID (Type assembledType)
+    public AssembledTypeID ExtractTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return (object[]) _assembledTypePreparer.ExtractTypeID (assembledType);
+      return _assembledTypePreparer.ExtractTypeID (assembledType);
     }
 
-    public Type AssembleType (
-        object[] typeID, Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
+    public Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("typeID", typeID);
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
+      var requestedType = typeID.RequestedType;
       if (!CheckIsSubclassable (requestedType))
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = CreateTypeAssemblyContext (typeID, requestedType, typeModificationTracker.Type, participantState);
+      var typeAssemblyContext = CreateTypeAssemblyContext (typeID, typeModificationTracker.Type, participantState);
 
       foreach (var participant in _participants)
         participant.Participate (null, typeAssemblyContext);
@@ -134,11 +133,11 @@ namespace Remotion.TypePipe.CodeGeneration
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
     }
 
-    private TypeAssemblyContext CreateTypeAssemblyContext (
-        object[] typeID, Type requestedType, MutableType proxyType, IDictionary<string, object> participantState)
+    private TypeAssemblyContext CreateTypeAssemblyContext (AssembledTypeID typeID, MutableType proxyType, IDictionary<string, object> participantState)
     {
-      var typeIDExpression = _assembledTypeIdentifierProvider.GetIdentifierExpression (typeID);
-      return new TypeAssemblyContext (_participantConfigurationID, typeIDExpression, requestedType, proxyType, _mutableTypeFactory, participantState);
+      var typeIDExpression = _assembledTypeIdentifierProvider.GetTypeIDExpression (typeID);
+      return new TypeAssemblyContext (
+          _participantConfigurationID, typeIDExpression, typeID.RequestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
     public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)

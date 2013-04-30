@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Implementation
 {
@@ -49,8 +50,7 @@ namespace Remotion.TypePipe.Implementation
     /// <returns>The assembled type for the requested type.</returns>
     Type GetAssembledType (Type requestedType);
 
-    // TODO 5552: Which one?
-    //Type GetAssembledType (object typeID);
-    Type GetAssembledType (Type requestedType, object typeID);
+    // TODO 5552
+    Type GetAssembledType (AssembledTypeID typeID);
   }
 }

@@ -18,6 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
@@ -29,6 +31,9 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public class AssembledTypeIdentifierProvider : IAssembledTypeIdentifierProvider
   {
+    private static readonly ConstructorInfo s_assembledTypeIDConstructor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (typeof (object), new object[0]));
+
     // Array for performance reasons.
     private readonly ITypeIdentifierProvider[] _identifierProviders;
 
@@ -39,30 +44,29 @@ namespace Remotion.TypePipe.CodeGeneration
       _identifierProviders = participants.Select (p => p.PartialTypeIdentifierProvider).Where (p => p != null).ToArray();
     }
 
-    public object[] GetIdentifier (Type requestedType)
+    public AssembledTypeID GetTypeID (Type requestedType)
     {
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
 
-      var id = new object[_identifierProviders.Length + 1];
-      id[0] = requestedType;
+      var parts = new object[_identifierProviders.Length];
 
       // No LINQ for performance reasons.
       for (int i = 0; i < _identifierProviders.Length; i++)
-        id[i + 1] = _identifierProviders[i].GetID (requestedType);
+        parts[i] = _identifierProviders[i].GetID (requestedType);
 
-      return id;
+      return new AssembledTypeID (requestedType, parts);
     }
 
-    public Expression GetIdentifierExpression (object[] identifier)
+    public Expression GetTypeIDExpression (AssembledTypeID typeID)
     {
-      ArgumentUtility.CheckNotNull ("identifier", identifier);
-      Assertion.IsTrue (identifier.Length == _identifierProviders.Length + 1);
+      ArgumentUtility.CheckNotNull ("typeID", typeID);
 
-      var idParts = identifier.Skip (1).Select ((part, i) => _identifierProviders[i].GetExpressionForID (part));
-      var idPartExpressions = new[] { Expression.Constant (identifier[0]) }.Concat (idParts);
+      var requestedType = Expression.Constant (typeID.RequestedType);
+      var individualParts = typeID.Parts.Select ((p, i) => _identifierProviders[i].GetExpressionForID (p));
+      var parts = Expression.NewArrayInit (typeof (object), individualParts);
 
-      return Expression.NewArrayInit (typeof (object), idPartExpressions);
+      return Expression.New (s_assembledTypeIDConstructor, requestedType, parts);
     }
   }
 }

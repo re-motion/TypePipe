@@ -95,7 +95,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnemittableExpressionVisitorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
-    <Compile Include="Caching\CompoundIdentifierEqualityComparerTest.cs" />
     <Compile Include="Implementation\ConstructorFinderTest.cs" />
     <Compile Include="CodeGeneration\MutableTypeBatchCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />

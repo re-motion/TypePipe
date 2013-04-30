@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
@@ -90,12 +91,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     [Test]
     public void GetOrGenerateType_CacheHit ()
     {
-      var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeKey = new object[] { "key" };
+      var typeID = AssembledTypeIDObjectMother.Create();
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var types = new ConcurrentDictionary<object[], Type> { { typeKey, assembledType } };
+      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { typeID, assembledType } };
 
-      var result = _point.GetOrGenerateType (types, typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _point.GetOrGenerateType (types, typeID, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       Assert.That (result, Is.SameAs (assembledType));
     }
@@ -103,37 +103,39 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     [Test]
     public void GetOrGenerateType_CacheMiss ()
     {
-      var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeKey = new object[] { "key" };
+      var typeID = AssembledTypeIDObjectMother.Create();
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var types = new ConcurrentDictionary<object[], Type>();
+      var types = new ConcurrentDictionary<AssembledTypeID, Type>();
 
       _typeAssemblerMock
-          .Expect (mock => mock.AssembleType (typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock))
+          .Expect (
+              mock => mock.AssembleType (
+                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), // Use strongly typed Equals overload.
+                  Arg.Is(_participantState),
+                  Arg.Is(_mutableTypeBatchCodeGeneratorMock)))
           .Return (assembledType)
           .WhenCalled (_ => CheckLockIsHeld ());
 
-      var result = _point.GetOrGenerateType (types, typeKey, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _point.GetOrGenerateType (types, typeID, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (assembledType));
-      Assert.That (types[typeKey], Is.SameAs (assembledType));
+      Assert.That (types[typeID], Is.SameAs (assembledType));
     }
 
     [Test]
     public void GetOrGenerateConstructorCall_CacheHit ()
     {
-      var requestedType = ReflectionObjectMother.GetSomeType();
+      var typeID = AssembledTypeIDObjectMother.Create();
       var delegateType = ReflectionObjectMother.GetSomeDelegateType();
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var typeKey = new object[] { "key" };
-      var constructionKey = new ConstructionKey (typeKey, delegateType, allowNonPublic);
+      var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
       var assembledConstructorCall = (Action) (() => { });
       var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate> { { constructionKey, assembledConstructorCall } };
-      var types = new ConcurrentDictionary<object[], Type>();
+      var types = new ConcurrentDictionary<AssembledTypeID, Type>();
 
       var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls, constructionKey, types, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+          constructorCalls, constructionKey, types, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       Assert.That (result, Is.SameAs (assembledConstructorCall));
     }
@@ -141,21 +143,20 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     [Test]
     public void GetOrCreateConstructorCall_CacheMiss_CacheHitTypes ()
     {
-      var requestedType = ReflectionObjectMother.GetSomeType();
+      var typeID = AssembledTypeIDObjectMother.Create();
       var delegateType = ReflectionObjectMother.GetSomeDelegateType();
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var typeKey = new object[] { "key" };
-      var constructionKey = new ConstructionKey (typeKey, delegateType, allowNonPublic);
+      var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
       var assembledConstructorCall = (Action) (() => { });
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
       var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
-      var types = new ConcurrentDictionary<object[], Type> { { typeKey, assembledType } };
+      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { typeID, assembledType } };
       var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
       var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
 
       _delegateFactoryMock.Expect (mock => mock.GetSignature (delegateType)).Return (fakeSignature).WhenCalled (_ => CheckLockIsHeld());
       _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (requestedType, fakeSignature.Item1, allowNonPublic, assembledType))
+          .Expect (mock => mock.GetConstructor (typeID.RequestedType, fakeSignature.Item1, allowNonPublic, assembledType))
           .Return (fakeConstructor)
           .WhenCalled (_ => CheckLockIsHeld());
       _delegateFactoryMock
@@ -164,7 +165,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .WhenCalled (_ => CheckLockIsHeld());
 
       var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls, constructionKey, types, requestedType, _participantState, _mutableTypeBatchCodeGeneratorMock);
+          constructorCalls, constructionKey, types, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
       _delegateFactoryMock.VerifyAllExpectations();
       _constructorFinderMock.VerifyAllExpectations();
@@ -178,14 +179,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var alreadyCachedAssembledType = ReflectionObjectMother.GetSomeType();
       var loadedAssembledType = ReflectionObjectMother.GetSomeOtherType();
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
-      var cachedTypeKey = new object[] { "cached type key" };
-      var loadedTypeKey = new object[] { "loaded type key" };
-      var types = new ConcurrentDictionary<object[], Type> { { cachedTypeKey, alreadyCachedAssembledType } };
+      var cachedTypeKey = AssembledTypeIDObjectMother.Create (parts: new[] { new object() });
+      var loadedTypeKey = AssembledTypeIDObjectMother.Create();
+      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { cachedTypeKey, alreadyCachedAssembledType } };
       var keysToAssembledTypes =
           new[]
           {
-              new KeyValuePair<object[], Type> (cachedTypeKey, alreadyCachedAssembledType),
-              new KeyValuePair<object[], Type> (loadedTypeKey, loadedAssembledType)
+              new KeyValuePair<AssembledTypeID, Type> (cachedTypeKey, alreadyCachedAssembledType),
+              new KeyValuePair<AssembledTypeID, Type> (loadedTypeKey, loadedAssembledType)
           };
       var additionalTypes = new[] { additionalType };
 

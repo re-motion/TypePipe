@@ -164,7 +164,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactory.cs" />
-    <Compile Include="Caching\CompoundIdentifierEqualityComparer.cs" />
     <Compile Include="Implementation\ConstructorFinder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGenerator.cs" />
     <Compile Include="Configuration\IConfigurationProvider.cs" />

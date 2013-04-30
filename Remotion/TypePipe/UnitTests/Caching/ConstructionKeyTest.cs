@@ -34,11 +34,14 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [SetUp]
     public void SetUp ()
     {
-      _key1 = new ConstructionKey (new object[] { 1, 2 }, typeof (Action), true);
-      _key2 = new ConstructionKey (new object[] { 1, 3 }, typeof (Action), true);
-      _key3 = new ConstructionKey (new object[] { 1, 2 }, typeof (Func<int>), true);
-      _key4 = new ConstructionKey (new object[] { 1, 2 }, typeof (Action), false);
-      _key5 = new ConstructionKey (new object[] { 1, 2 }, typeof (Action), true);
+      var typeID1 = new AssembledTypeID (typeof (int), new object[0]);
+      var typeID2 = new AssembledTypeID (typeof (object), new object[0]);
+
+      _key1 = new ConstructionKey (typeID1, typeof (Action), true);
+      _key2 = new ConstructionKey (typeID2, typeof (Action), true);
+      _key3 = new ConstructionKey (typeID1, typeof (Func<int>), true);
+      _key4 = new ConstructionKey (typeID1, typeof (Action), false);
+      _key5 = new ConstructionKey (typeID1, typeof (Action), true);
     }
 
     [Test]

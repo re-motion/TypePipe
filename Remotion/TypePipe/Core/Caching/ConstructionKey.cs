@@ -26,18 +26,15 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public struct ConstructionKey : IEquatable<ConstructionKey>
   {
-    private static readonly CompoundIdentifierEqualityComparer s_typeKeyComparer = new CompoundIdentifierEqualityComparer();
-
-    private readonly object[] _typeID;
+    private readonly AssembledTypeID _typeID;
     private readonly Type _delegateType;
     private readonly bool _allowNonPublic;
 
     private readonly int _hashCode;
 
-    public ConstructionKey (object[] typeID, Type delegateType, bool allowNonPublic)
+    public ConstructionKey (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
     {
       // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (typeID != null);
       Debug.Assert (delegateType != null);
 
       _typeID = typeID;
@@ -45,10 +42,10 @@ namespace Remotion.TypePipe.Caching
       _allowNonPublic = allowNonPublic;
 
       // Pre-compute hash code.
-      _hashCode = EqualityUtility.GetRotatedHashCode (s_typeKeyComparer.GetHashCode (typeID), delegateType, allowNonPublic);
+      _hashCode = EqualityUtility.GetRotatedHashCode (_typeID.GetHashCode(), delegateType, allowNonPublic);
     }
 
-    public object[] TypeID
+    public AssembledTypeID TypeID
     {
       get { return _typeID; }
     }
@@ -65,7 +62,7 @@ namespace Remotion.TypePipe.Caching
 
     public bool Equals (ConstructionKey other)
     {
-      return s_typeKeyComparer.Equals (_typeID, other._typeID)
+      return _typeID.Equals (other._typeID)
              && _delegateType == other._delegateType
              && _allowNonPublic == other._allowNonPublic;
     }

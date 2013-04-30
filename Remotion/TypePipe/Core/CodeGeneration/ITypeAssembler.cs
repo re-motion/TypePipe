@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -33,10 +34,10 @@ namespace Remotion.TypePipe.CodeGeneration
     bool IsAssembledType (Type type);
     Type GetRequestedType (Type assembledType);
 
-    object[] GetTypeID (Type requestedType);
-    object[] ExtractTypeID (Type assembledType);
+    AssembledTypeID GetTypeID (Type requestedType);
+    AssembledTypeID ExtractTypeID (Type assembledType);
 
-    Type AssembleType (object[] typeID, Type requestedType, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+    Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 
     void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
   }

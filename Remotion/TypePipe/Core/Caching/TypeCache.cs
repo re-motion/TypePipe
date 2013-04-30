@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    private readonly ConcurrentDictionary<object[], Type> _types = new ConcurrentDictionary<object[], Type> (new CompoundIdentifierEqualityComparer());
+    private readonly ConcurrentDictionary<AssembledTypeID, Type> _types = new ConcurrentDictionary<AssembledTypeID, Type>();
     private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
@@ -71,20 +71,16 @@ namespace Remotion.TypePipe.Caching
 
       var typeID = _typeAssembler.GetTypeID (requestedType);
 
-      return GetOrCreateType (requestedType, typeID);
+      return GetOrCreateType (typeID);
     }
 
-    public Type GetOrCreateType (Type requestedType, object[] typeID)
+    public Type GetOrCreateType (AssembledTypeID typeID)
     {
-      // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (requestedType != null);
-      Debug.Assert (typeID != null);
-
       Type assembledType;
       if (_types.TryGetValue (typeID, out assembledType))
         return assembledType;
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
+      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -101,7 +97,7 @@ namespace Remotion.TypePipe.Caching
         return constructorCall;
 
       return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
-          _constructorCalls, constructionKey, _types, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
+          _constructorCalls, constructionKey, _types, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
@@ -119,7 +115,7 @@ namespace Remotion.TypePipe.Caching
           additionalTypes.Add (type);
       }
 
-      var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<object[], Type> (_typeAssembler.ExtractTypeID (t), t));
+      var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeAssembler.ExtractTypeID (t), t));
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
     }
   }

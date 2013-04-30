@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 
@@ -28,6 +29,6 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     void AddTypeID (MutableType proxyType, Expression typeID);
 
-    object ExtractTypeID (Type assembledType);
+    AssembledTypeID ExtractTypeID (Type assembledType);
   }
 }

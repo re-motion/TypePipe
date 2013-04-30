@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -33,19 +34,20 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("typeID", typeID);
+      Assertion.IsTrue (typeID.Type == typeof (AssembledTypeID));
 
-      var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (object));
+      var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (AssembledTypeID));
       proxyType.AddTypeInitialization (ctx => Expression.Assign (Expression.Field (null, typeIDField), typeID));
     }
 
-    public object ExtractTypeID (Type assembledType)
+    public AssembledTypeID ExtractTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
       var typeIDField = assembledType.GetField (c_typeIDFieldName, BindingFlags.NonPublic | BindingFlags.Static);
       Assertion.IsNotNull (typeIDField);
 
-      return typeIDField.GetValue (null);
+      return (AssembledTypeID) typeIDField.GetValue (null);
     }
   }
 }

@@ -76,7 +76,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var instance = CreatePipeline (participant).Create<RequestedType>();
 
-      Assert.That (instance.Method(), Is.EqualTo (new object[] { typeof (RequestedType), typeIDPart }));
+      var expectedTypeID = new AssembledTypeID (typeof (RequestedType), new object[] { typeIDPart });
+      Assert.That (instance.Method(), Is.EqualTo (expectedTypeID));
     }
 
     public class RequestedType
