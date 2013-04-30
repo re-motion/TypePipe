@@ -29,6 +29,8 @@ namespace Remotion.TypePipe.Caching
   /// </remarks>
   public struct ConstructionKey
   {
+    private static readonly CompoundIdentifierEqualityComparer s_typeKeyComparer = new CompoundIdentifierEqualityComparer();
+
     private readonly object[] _typeKey;
     private readonly Type _delegateType;
     private readonly bool _allowNonPublic;
@@ -46,7 +48,7 @@ namespace Remotion.TypePipe.Caching
       _allowNonPublic = allowNonPublic;
 
       // Pre-compute hash code.
-      _hashCode = EqualityUtility.GetRotatedHashCode (EqualityUtility.GetRotatedHashCode (typeKey), delegateType, allowNonPublic);
+      _hashCode = EqualityUtility.GetRotatedHashCode (s_typeKeyComparer.GetHashCode (typeKey), delegateType, allowNonPublic);
     }
 
     public object[] TypeKey
@@ -73,14 +75,9 @@ namespace Remotion.TypePipe.Caching
       var other = (ConstructionKey) obj;
       Debug.Assert (_typeKey.Length == other._typeKey.Length);
 
-      // ReSharper disable LoopCanBeConvertedToQuery // No LINQ for performance reasons.
-      for (int i = 0; i < _typeKey.Length; i++)
-      {
-        if (!object.Equals (_typeKey[i], other._typeKey[i]))
-          return false;
-      }
-
-      return _delegateType == other._delegateType && _allowNonPublic == other._allowNonPublic;
+      return s_typeKeyComparer.Equals (_typeKey, other._typeKey)
+             && _delegateType == other._delegateType
+             && _allowNonPublic == other._allowNonPublic;
     }
 
     public override int GetHashCode ()
