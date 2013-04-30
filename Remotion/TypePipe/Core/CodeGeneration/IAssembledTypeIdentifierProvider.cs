@@ -28,6 +28,8 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     AssembledTypeID GetTypeID (Type requestedType);
 
-    Expression GetTypeIDExpression (AssembledTypeID typeID);
+    Expression GetExpression (AssembledTypeID typeID);
+
+    object GetPart (AssembledTypeID typeID, IParticipant participant);
   }
 }

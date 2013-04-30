@@ -163,7 +163,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
         var typeIDExpression = ExpressionTreeObjectMother.GetSomeExpression();
         assembledTypeIdentifierProviderMock
-            .Expect (mock => mock.GetTypeIDExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
+            .Expect (mock => mock.GetExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
             .Return (typeIDExpression);
 
         var additionalType = MutableTypeObjectMother.Create();

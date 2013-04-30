@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
@@ -36,12 +35,19 @@ namespace Remotion.TypePipe.CodeGeneration
 
     // Array for performance reasons.
     private readonly ITypeIdentifierProvider[] _identifierProviders;
+    private readonly Dictionary<IParticipant, int> _identifierProviderIndexes;
 
     public AssembledTypeIdentifierProvider (IEnumerable<IParticipant> participants)
     {
       ArgumentUtility.CheckNotNull ("participants", participants);
 
-      _identifierProviders = participants.Select (p => p.PartialTypeIdentifierProvider).Where (p => p != null).ToArray();
+      var providersWithIndex = participants
+          .Select (p => new { Participant = p, IdentifierProvider = p.PartialTypeIdentifierProvider })
+          .Where (t => t.IdentifierProvider != null)
+          .Select ((t, i) => new { t.Participant, t.IdentifierProvider, Index = i }).ToList();
+
+      _identifierProviders = providersWithIndex.Select (t => t.IdentifierProvider).ToArray();
+      _identifierProviderIndexes = providersWithIndex.ToDictionary (t => t.Participant, t => t.Index);
     }
 
     public AssembledTypeID GetTypeID (Type requestedType)
@@ -58,7 +64,7 @@ namespace Remotion.TypePipe.CodeGeneration
       return new AssembledTypeID (requestedType, parts);
     }
 
-    public Expression GetTypeIDExpression (AssembledTypeID typeID)
+    public Expression GetExpression (AssembledTypeID typeID)
     {
       ArgumentUtility.CheckNotNull ("typeID", typeID);
 
@@ -67,6 +73,17 @@ namespace Remotion.TypePipe.CodeGeneration
       var parts = Expression.NewArrayInit (typeof (object), individualParts);
 
       return Expression.New (s_assembledTypeIDConstructor, requestedType, parts);
+    }
+
+    public object GetPart (AssembledTypeID typeID, IParticipant participant)
+    {
+      ArgumentUtility.CheckNotNull ("participant", participant);
+
+      int index;
+      if (_identifierProviderIndexes.TryGetValue (participant, out index))
+        return typeID.Parts[index];
+
+      return null;
     }
   }
 }

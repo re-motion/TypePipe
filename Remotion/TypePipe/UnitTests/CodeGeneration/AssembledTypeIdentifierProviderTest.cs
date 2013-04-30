@@ -17,6 +17,7 @@
 
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -48,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetIdentifier ()
+    public void GetTypeID ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       _identifierProviderStub.Stub (_ => _.GetID (requestedType)).Return ("abc");
@@ -60,14 +61,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetPartialIdentifier_ParticipantDoesNotContributeToIdentifier ()
+    public void GetExpression ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = new AssembledTypeID (requestedType, new object[] { "abc" });
       var idPart = ExpressionTreeObjectMother.GetSomeExpression();
       _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (idPart);
 
-      var result = _provider.GetTypeIDExpression (typeID);
+      var result = _provider.GetExpression (typeID);
 
       var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (null, null));
       var expected = Expression.New (
@@ -75,6 +76,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           Expression.Constant (requestedType),
           Expression.NewArrayInit (typeof (object), new[] { idPart }));
       ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
+    }
+
+    [Test]
+    public void GetPart_ParticipantDidNotContributeToTypeID ()
+    {
+      var typeID = AssembledTypeIDObjectMother.Create (parts: new object[0]);
+
+      var result = _provider.GetPart (typeID, _participantWithoutIdentifierProvider);
+
+      Assert.That (result, Is.Null);
+    }
+
+    [Test]
+    public void GetPart_ParticipantContributedToTypeID ()
+    {
+      var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { "abc", "def" });
+
+      var result = _provider.GetPart (typeID, _participantWithIdentifierProvider);
+
+      Assert.That (result, Is.EqualTo ("abc"));
     }
   }
 }

@@ -135,7 +135,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private TypeAssemblyContext CreateTypeAssemblyContext (AssembledTypeID typeID, MutableType proxyType, IDictionary<string, object> participantState)
     {
-      var typeIDExpression = _assembledTypeIdentifierProvider.GetTypeIDExpression (typeID);
+      var typeIDExpression = _assembledTypeIdentifierProvider.GetExpression (typeID);
       return new TypeAssemblyContext (
           _participantConfigurationID, typeIDExpression, typeID.RequestedType, proxyType, _mutableTypeFactory, participantState);
     }
