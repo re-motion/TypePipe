@@ -30,6 +30,7 @@ using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
+  // TODO 5552
   [TestFixture]
   public class SerializationParticipantTest
   {
@@ -39,12 +40,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void SetUp ()
     {
       _enabler = new ComplexSerializationEnabler();
-    }
-
-    [Test]
-    public void PartialTypeIdentifierProvider ()
-    {
-      Assert.That (_enabler.PartialTypeIdentifierProvider, Is.Null);
     }
 
     [Test]
@@ -128,18 +123,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
       _enabler.Participate (null, typeContext);
-    }
-
-    [Test]
-    public void RebuildState ()
-    {
-      Assert.That (() => _enabler.RebuildState (null), Throws.Nothing);
-    }
-
-    [Test]
-    public void HandleNonSubclassableType ()
-    {
-      Assert.That (() => _enabler.HandleNonSubclassableType (typeof (int)), Throws.Nothing);
     }
 
     public class SomeType { }

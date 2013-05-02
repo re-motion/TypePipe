@@ -35,6 +35,7 @@ using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
+  // tODO 5552
   [TestFixture]
   public class TypeAssemblerTest
   {

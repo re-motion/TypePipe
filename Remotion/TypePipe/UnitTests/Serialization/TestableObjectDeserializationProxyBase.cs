@@ -17,26 +17,27 @@
 
 using System;
 using System.Runtime.Serialization;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
   public class TestableObjectDeserializationProxyBase : ObjectDeserializationProxyBase
   {
-    private readonly Func<IPipeline, Type, StreamingContext, object> _createRealObjectAssertions;
+    private readonly Func<IPipeline, AssembledTypeID, StreamingContext, object> _createRealObjectAssertions;
 
     public TestableObjectDeserializationProxyBase (
         SerializationInfo serializationInfo,
         StreamingContext streamingContext,
-        Func<IPipeline, Type, StreamingContext, object> createRealObjectAssertions)
+        Func<IPipeline, AssembledTypeID, StreamingContext, object> createRealObjectAssertions)
         : base (serializationInfo, streamingContext)
     {
       _createRealObjectAssertions = createRealObjectAssertions;
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, Type requestedType, StreamingContext context)
+    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
     {
-      return _createRealObjectAssertions (pipeline, requestedType, context);
+      return _createRealObjectAssertions (pipeline, typeID, context);
     }
   }
 }

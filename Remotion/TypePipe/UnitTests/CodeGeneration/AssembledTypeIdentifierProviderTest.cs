@@ -15,14 +15,20 @@
 // under the License.
 // 
 
+using System;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 
@@ -33,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
   {
     private IParticipant _participantWithoutIdentifierProvider;
     private IParticipant _participantWithIdentifierProvider;
-    private ITypeIdentifierProvider _identifierProviderStub;
+    private ITypeIdentifierProvider _identifierProviderMock;
 
     private AssembledTypeIdentifierProvider _provider;
 
@@ -42,8 +48,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       _participantWithoutIdentifierProvider = MockRepository.GenerateStub<IParticipant>();
       _participantWithIdentifierProvider = MockRepository.GenerateStub<IParticipant>();
-      _identifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
-      _participantWithIdentifierProvider.Stub (_ => _.PartialTypeIdentifierProvider).Return (_identifierProviderStub);
+      _identifierProviderMock = MockRepository.GenerateMock<ITypeIdentifierProvider>();
+      _participantWithIdentifierProvider.Stub (_ => _.PartialTypeIdentifierProvider).Return (_identifierProviderMock);
 
       _provider = new AssembledTypeIdentifierProvider (new[] { _participantWithoutIdentifierProvider, _participantWithIdentifierProvider }.AsOneTime());
     }
@@ -52,46 +58,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GetTypeID ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      _identifierProviderStub.Stub (_ => _.GetID (requestedType)).Return ("abc");
+      _identifierProviderMock.Stub (_ => _.GetID (requestedType)).Return ("abc");
 
       var result = _provider.GetTypeID (requestedType);
 
       var expectedTypeID = new AssembledTypeID (requestedType, new object[] { "abc" });
       Assert.That (result, Is.EqualTo (expectedTypeID));
-    }
-
-    [Test]
-    public void GetExpression ()
-    {
-      var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
-      var idPart = ExpressionTreeObjectMother.GetSomeExpression();
-      _identifierProviderStub.Stub (_ => _.GetExpression ("abc")).Return (idPart);
-
-      var result = _provider.GetExpression (typeID);
-
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (null, null));
-      var expected = Expression.New (
-          ctor,
-          Expression.Constant (requestedType),
-          Expression.NewArrayInit (typeof (object), new[] { idPart }));
-      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
-    }
-
-    [Test]
-    public void GetExpression_TypeIdentifierProviderReturnsNull ()
-    {
-      var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { "abc" });
-      _identifierProviderStub.Stub (_ => _.GetExpression ("abc")).Return (null);
-
-      var result = _provider.GetExpression (typeID);
-
-      var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (null, null));
-      var expected = Expression.New (
-          ctor,
-          Expression.Constant (typeID.RequestedType),
-          Expression.NewArrayInit (typeof (object), new Expression[] { Expression.Constant (null) }));
-      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
 
     [Test]
@@ -112,6 +84,131 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var result = _provider.GetPart (typeID, _participantWithIdentifierProvider);
 
       Assert.That (result, Is.EqualTo ("abc"));
+    }
+
+    [Test]
+    public void AddTypeID ()
+    {
+      var proxyType = MutableTypeObjectMother.Create();
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
+      var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression();
+      _identifierProviderMock.Stub (_ => _.GetExpression ("abc")).Return (idPartExpression);
+
+      _provider.AddTypeID (proxyType, typeID);
+
+      Assert.That (proxyType.AddedFields, Has.Count.EqualTo (1));
+      var typeIDField = proxyType.AddedFields.Single();
+      Assert.That (typeIDField.Name, Is.EqualTo ("__typeID"));
+      Assert.That (typeIDField.Attributes, Is.EqualTo (FieldAttributes.Private | FieldAttributes.Static));
+      Assert.That (typeIDField.FieldType, Is.SameAs (typeof (AssembledTypeID)));
+
+      CheckTypeIDInitialization (proxyType, typeID.RequestedType, idPartExpression);
+    }
+
+    [Test]
+    public void AddTypeID_ProviderNotCalledForNull ()
+    {
+      var proxyType = MutableTypeObjectMother.Create();
+      var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { null });
+
+      _provider.AddTypeID (proxyType, typeID);
+
+      _identifierProviderMock.AssertWasNotCalled (mock => mock.GetExpression (Arg<object>.Is.Anything));
+      var expectedIdPartExpression = Expression.Constant (null);
+      CheckTypeIDInitialization (proxyType, typeID.RequestedType, expectedIdPartExpression);
+    }
+
+    [Test]
+    public void AddTypeID_ProviderReturnsNull_IsSubstitutedForConstantNullExpression ()
+    {
+      var proxyType = MutableTypeObjectMother.Create();
+      var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { "abc" });
+      _identifierProviderMock.Stub (_ => _.GetExpression ("abc")).Return (null);
+
+      _provider.AddTypeID (proxyType, typeID);
+
+      var expectedIdPartExpression = Expression.Constant (null);
+      CheckTypeIDInitialization (proxyType, typeID.RequestedType, expectedIdPartExpression);
+    }
+    
+    [Test]
+    public void ExtractTypeID ()
+    {
+      var result = _provider.ExtractTypeID (typeof (AssembledType));
+
+      Assert.That (result.RequestedType, Is.SameAs (typeof (int)));
+      Assert.That (result.Parts, Is.EqualTo (new object[] { 1, "2" }));
+    }
+
+    [Test]
+    public void GetAssembledTypeIDDataExpression ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
+      var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression ();
+      _identifierProviderMock.Stub (_ => _.GetFlattenedSerializeExpression ("abc")).Return (idPartExpression);
+
+      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
+
+      CheckTypeIDDataExpression (result, requestedType, idPartExpression);
+    }
+
+    [Test]
+    public void GetAssembledTypeIDDataExpression_ProviderNotCalledForNull ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { null });
+
+      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
+
+      _identifierProviderMock.AssertWasNotCalled (mock => mock.GetFlattenedSerializeExpression (Arg<object>.Is.Anything));
+      var expectedIdPartExpression = Expression.Constant (null);
+      CheckTypeIDDataExpression (result, requestedType, expectedIdPartExpression);
+    }
+
+    [Test]
+    public void GetAssembledTypeIDDataExpression_ProviderReturnsNull_IsSubstitutedForConstantNullExpression ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeType ();
+      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
+      _identifierProviderMock.Stub (_ => _.GetFlattenedSerializeExpression ("abc")).Return (null);
+
+      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
+
+      var expectedIdPartExpression = Expression.Constant (null);
+      CheckTypeIDDataExpression (result, requestedType, expectedIdPartExpression);
+    }
+
+    private static void CheckTypeIDDataExpression (Expression result, Type requestedType, Expression idPartExpression)
+    {
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeIDData ("name", null));
+      var expected = Expression.New (
+          constructor, Expression.Constant (requestedType.AssemblyQualifiedName), Expression.NewArrayInit (typeof (object), idPartExpression));
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
+    }
+
+    private static void CheckTypeIDInitialization (MutableType proxyType, Type requestedType, Expression idPartExpression)
+    {
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (null, null));
+      var typeIDField = proxyType.AddedFields.Single ();
+
+      Assert.That (proxyType.MutableTypeInitializer, Is.Not.Null);
+      var expected = Expression.Block (
+          typeof (void),
+          Expression.Assign (
+              Expression.Field (null, typeIDField),
+              Expression.New (constructor, Expression.Constant (requestedType), Expression.NewArrayInit (typeof (object), idPartExpression))));
+      ExpressionTreeComparer.CheckAreEqualTrees (expected, proxyType.MutableTypeInitializer.Body);
+    }
+
+    private class AssembledType
+    {
+      // ReSharper disable InconsistentNaming
+      // ReSharper disable UnusedMember.Local
+      private static AssembledTypeID __typeID = new AssembledTypeID (typeof (int), new object[] { 1, "2" });
+      // ReSharper restore UnusedMember.Local
+      // ReSharper restore InconsistentNaming
     }
   }
 }

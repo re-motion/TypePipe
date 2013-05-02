@@ -19,10 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -33,8 +31,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class TypeAssemblyContextTest
   {
-    private string _configurationID;
-    private Expression _typeID;
     private Type _requestedType;
     private MutableType _proxyType;
     private IMutableTypeFactory _mutableTypeFactoryMock;
@@ -45,21 +41,17 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _configurationID = "example config id";
-      _typeID = ExpressionTreeObjectMother.GetSomeExpression();
       _requestedType = ReflectionObjectMother.GetSomeType();
       _proxyType = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _state = new Dictionary<string, object>();
 
-      _context = new TypeAssemblyContext (_configurationID, _typeID, _requestedType, _proxyType, _mutableTypeFactoryMock, _state);
+      _context = new TypeAssemblyContext (_requestedType, _proxyType, _mutableTypeFactoryMock, _state);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_context.ParticipantConfigurationID, Is.EqualTo (_configurationID));
-      Assert.That (_context.TypeID, Is.SameAs (_typeID));
       Assert.That (_context.RequestedType, Is.SameAs (_requestedType));
       Assert.That (_context.ProxyType, Is.SameAs (_proxyType));
       Assert.That (_context.AdditionalTypes, Is.Empty);

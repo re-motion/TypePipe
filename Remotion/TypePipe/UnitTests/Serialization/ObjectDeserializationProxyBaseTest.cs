@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 
@@ -34,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     private ObjectDeserializationProxyBase _objectDeserializationProxyBase;
 
     private IPipelineRegistry _pipelineRegistryMock;
-    private Func<IPipeline, Type, StreamingContext, object> _createRealObjectAssertions;
+    private Func<IPipeline, AssembledTypeID, StreamingContext, object> _createRealObjectAssertions;
 
     [SetUp]
     public void SetUp ()

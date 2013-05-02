@@ -59,7 +59,6 @@
     <Compile Include="Caching\AssembledTypeIDTest.cs" />
     <Compile Include="Caching\ConstructionKeyTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
-    <Compile Include="CodeGeneration\AssembledTypePreparerTest.cs" />
     <Compile Include="CodeGeneration\DependentTypeSorterTest.cs" />
     <Compile Include="CodeGeneration\NullTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
@@ -81,7 +80,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />
-    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\CodeGenerationExpressionEmitterTest.cs" />
@@ -221,11 +219,9 @@
     <Compile Include="Serialization\SerializableFieldFinderTest.cs" />
     <Compile Include="Serialization\ReflectionSerializationHelperTest.cs" />
     <Compile Include="Serialization\TestableObjectDeserializationProxyBase.cs" />
-    <Compile Include="Serialization\SerializationParticipantTest.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />
   </ItemGroup>
   <ItemGroup>
