@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.Configuration
              {
                  ForceStrongNaming = ForceStrongNaming,
                  KeyFilePath = KeyFilePath,
-                 EnableComplexSerialization = EnableComplexSerialization
+                 EnableSerializationWithoutAssemblySaving = EnableComplexSerialization
              };
     }
   }

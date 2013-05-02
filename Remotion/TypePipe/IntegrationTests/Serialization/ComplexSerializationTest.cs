@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       _participantProviders = participantProviders;
 
       var participants = _participantProviders.Select (pp => pp()).ToArray();
-      var settings = new PipelineSettings (c_participantConfigurationID) { EnableComplexSerialization = true };
+      var settings = new PipelineSettings (c_participantConfigurationID) { EnableSerializationWithoutAssemblySaving = true };
 
       return CreatePipeline (settings, participants);
     }

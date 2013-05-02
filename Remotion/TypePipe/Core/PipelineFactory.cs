@@ -73,7 +73,7 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("participants", participants);
 
       var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
-      var typeAssembler = NewTypeAssembler (settings.ParticipantConfigurationID, participants, settings.EnableComplexSerialization);
+      var typeAssembler = NewTypeAssembler (settings.ParticipantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
       var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, reflectionEmitCodeGenerator);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
@@ -118,10 +118,10 @@ namespace Remotion.TypePipe
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, bool enableComplexSerialization)
+        string participantConfigurationID, IEnumerable<IParticipant> participants, bool enableSerializationWithoutAssemblySaving)
     {
       var mutableTypeFactory = NewMutableTypeFactory();
-      var complexSerializationEnabler = ComplexSerializationEnabler (enableComplexSerialization);
+      var complexSerializationEnabler = ComplexSerializationEnabler (enableSerializationWithoutAssemblySaving);
 
       return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, complexSerializationEnabler);
     }

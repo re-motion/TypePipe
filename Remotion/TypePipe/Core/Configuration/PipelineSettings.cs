@@ -52,11 +52,13 @@ namespace Remotion.TypePipe.Configuration
 
     /// <summary>
     /// When <see cref="ForceStrongNaming"/> is enabled, the key file (<c>*.snk</c>) denoted by this property is used to sign generated assemblies.
-    /// If this property is <see langword="null"/> a default key file is used instead.
+    /// If this property is <see langword="null"/> a pipeline-provided default key file is used instead.
     /// </summary>
     public string KeyFilePath { get; set; }
 
-    // TODO 5552
-    public bool EnableComplexSerialization { get; set; }
+    /// <summary>
+    /// Enables the serialization of assembled type instances without the need of saving the generated assembly to disk.
+    /// </summary>
+    public bool EnableSerializationWithoutAssemblySaving { get; set; }
   }
 }
