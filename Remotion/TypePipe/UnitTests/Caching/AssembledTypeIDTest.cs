@@ -59,15 +59,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       Dev.Null = _id1.Equals (null);
     }
-
+    
     [Test]
     public new void GetHashCode ()
     {
-      // TODO 5552: remove
-      // Usually testing for different hash-codes is a bad idea, but our peformance depends on it.
-      Assert.That (_id1.GetHashCode (), Is.Not.EqualTo (_id2.GetHashCode ()));
-      Assert.That (_id1.GetHashCode (), Is.Not.EqualTo (_id3.GetHashCode ()));
-
       Assert.That (_id1.GetHashCode (), Is.EqualTo (_id4.GetHashCode ()));
     }
   }

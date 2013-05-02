@@ -45,6 +45,12 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
+    public void IsStruct_ForPerformance ()
+    {
+      Assert.That (typeof (ConstructionKey).IsValueType, Is.True);
+    }
+
+    [Test]
     public void Equals ()
     {
       Assert.That (_key1, Is.Not.EqualTo (_key2));
@@ -63,12 +69,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public new void GetHashCode ()
     {
-      // TODO 5552: remove
-      // Usually testing for different hash-codes is a bad idea, but our peformance depends on it.
-      Assert.That (_key1.GetHashCode(), Is.Not.EqualTo (_key2.GetHashCode()));
-      Assert.That (_key1.GetHashCode(), Is.Not.EqualTo (_key3.GetHashCode()));
-      Assert.That (_key1.GetHashCode(), Is.Not.EqualTo (_key4.GetHashCode()));
-
       Assert.That (_key1.GetHashCode(), Is.EqualTo (_key5.GetHashCode()));
     }
   }
