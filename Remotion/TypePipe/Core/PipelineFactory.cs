@@ -26,6 +26,7 @@ using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
 
@@ -73,6 +74,7 @@ namespace Remotion.TypePipe
       return s_instance.CreatePipeline (participantConfigurationID, participants, configurationProvider);
     }
 
+    // TODO 5552: Settings? OR: ConfigurationProvider?
     public virtual IPipeline CreatePipeline (
         string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider)
     {
@@ -117,7 +119,6 @@ namespace Remotion.TypePipe
       return new TypeCache (typeAssembler, typeCacheSynchronizationPoint, mutableTypeBatchCodeGenerator);
     }
 
-    [CLSCompliant (false)]
     protected virtual ISynchronizationPoint NewSynchronizationPoint (IGeneratedCodeFlusher generatedCodeFlusher, ITypeAssembler typeAssembler)
     {
       var constructorFinder = NewConstructorFinder();
@@ -129,9 +130,9 @@ namespace Remotion.TypePipe
     protected virtual ITypeAssembler NewTypeAssembler (string participantConfigurationID, IEnumerable<IParticipant> participants)
     {
       var mutableTypeFactory = NewMutableTypeFactory();
-      var assembledTypePreparer = NewAssembledTypePreparer();
+      var complexSerializationEnabler = ComplexSerializationEnabler();
 
-      return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, assembledTypePreparer);
+      return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, complexSerializationEnabler);
     }
 
     [CLSCompliant (false)]
@@ -161,11 +162,6 @@ namespace Remotion.TypePipe
       return new ReflectionEmitCodeGenerator (moduleBuilderFactory, configurationProvider);
     }
 
-    protected virtual IAssembledTypePreparer NewAssembledTypePreparer ()
-    {
-      return new AssembledTypePreparer();
-    }
-
     protected virtual IDelegateFactory NewDelegateFactory ()
     {
       return new DelegateFactory();
@@ -179,6 +175,11 @@ namespace Remotion.TypePipe
     protected virtual IDependentTypeSorter NewDependentTypeSorter ()
     {
       return new DependentTypeSorter();
+    }
+
+    protected virtual ComplexSerializationEnabler ComplexSerializationEnabler ()
+    {
+      return new ComplexSerializationEnabler();
     }
 
     protected virtual IProxySerializationEnabler NewProxySerializationEnabler ()

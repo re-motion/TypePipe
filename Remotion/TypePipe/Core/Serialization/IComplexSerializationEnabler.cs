@@ -16,19 +16,16 @@
 // 
 
 using System;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
-  /// Defines an interface for classes that prepare an assembled type for code generation.
+  /// Enables the serialization of assembled type instances without the need of saving the generated assembly to disk.
   /// </summary>
-  public interface IAssembledTypePreparer
+  public interface IComplexSerializationEnabler
   {
-    void AddTypeID (MutableType proxyType, Expression typeID);
-
-    AssembledTypeID ExtractTypeID (Type assembledType);
+    void MakeSerializable (MutableType proxyType, string participantConfigurationID, Expression assembledTypeIDData);
   }
 }

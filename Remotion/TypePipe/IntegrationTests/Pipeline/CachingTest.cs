@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
             var stub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
             stub.Stub (x => x.GetID (Arg<Type>.Is.Anything)).Do (providerFunc);
-            stub.Stub (x => x.GetExpressionForID (Arg<Type>.Is.Anything))
+            stub.Stub (x => x.GetExpression (Arg<Type>.Is.Anything))
                 .Return (null)
                 .WhenCalled (mi => mi.ReturnValue = Expression.Constant (mi.Arguments[0]));
             return stub;

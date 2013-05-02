@@ -26,6 +26,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -44,24 +45,25 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly string _participantConfigurationID;
     private readonly ReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
-    private readonly IAssembledTypePreparer _assembledTypePreparer;
     private readonly IAssembledTypeIdentifierProvider _assembledTypeIdentifierProvider;
+    private readonly IComplexSerializationEnabler _complexSerializationEnabler;
 
     public TypeAssembler (
         string participantConfigurationID,
         IEnumerable<IParticipant> participants,
         IMutableTypeFactory mutableTypeFactory,
-        IAssembledTypePreparer assembledTypePreparer)
+        IComplexSerializationEnabler complexSerializationEnabler)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
-      ArgumentUtility.CheckNotNull ("assembledTypePreparer", assembledTypePreparer);
+      ArgumentUtility.CheckNotNull ("complexSerializationEnabler", complexSerializationEnabler);
+      
 
       _participantConfigurationID = participantConfigurationID;
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
-      _assembledTypePreparer = assembledTypePreparer;
+      _complexSerializationEnabler = complexSerializationEnabler;
 
       _assembledTypeIdentifierProvider = new AssembledTypeIdentifierProvider (_participants);
     }
@@ -105,7 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return _assembledTypePreparer.ExtractTypeID (assembledType);
+      return _assembledTypeIdentifierProvider.ExtractTypeID (assembledType);
     }
 
     public Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
@@ -119,7 +121,7 @@ namespace Remotion.TypePipe.CodeGeneration
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = CreateTypeAssemblyContext (typeID, typeModificationTracker.Type, participantState);
+      var typeAssemblyContext = new TypeAssemblyContext (requestedType, typeModificationTracker.Type, _mutableTypeFactory, participantState);
 
       foreach (var participant in _participants)
       {
@@ -130,17 +132,10 @@ namespace Remotion.TypePipe.CodeGeneration
       if (!typeModificationTracker.IsModified())
         return requestedType;
 
-      var generatedTypeContext = GenerateTypes (typeAssemblyContext, codeGenerator);
+      var generatedTypeContext = GenerateTypes (typeID, typeAssemblyContext, codeGenerator);
       typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
 
       return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
-    }
-
-    private TypeAssemblyContext CreateTypeAssemblyContext (AssembledTypeID typeID, MutableType proxyType, IDictionary<string, object> participantState)
-    {
-      var typeIDExpression = _assembledTypeIdentifierProvider.GetExpression (typeID);
-      return new TypeAssemblyContext (
-          _participantConfigurationID, typeIDExpression, typeID.RequestedType, proxyType, _mutableTypeFactory, participantState);
     }
 
     public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)
@@ -162,12 +157,14 @@ namespace Remotion.TypePipe.CodeGeneration
       return false;
     }
 
-    private GeneratedTypeContext GenerateTypes (TypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
+    private GeneratedTypeContext GenerateTypes (AssembledTypeID typeID, TypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       var attribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
       context.ProxyType.AddCustomAttribute (attribute);
 
-      _assembledTypePreparer.AddTypeID (context.ProxyType, context.TypeID);
+      _assembledTypeIdentifierProvider.AddTypeID (context.ProxyType, typeID);
+      var assembledTypeIDData = _assembledTypeIdentifierProvider.GetAssembledTypeIDDataExpression (typeID.Parts);
+      _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID, assembledTypeIDData);
 
       return GenerateTypesWithDiagnostics (context, codeGenerator);
     }

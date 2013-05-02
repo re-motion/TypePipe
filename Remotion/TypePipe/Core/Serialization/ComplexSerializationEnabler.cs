@@ -16,23 +16,17 @@
 // 
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.FunctionalProgramming;
-using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
-  /// Enables the serialization of modified type instances without the need of saving the generated assembly to disk.
+  /// Enables the serialization of assembled type instances without the need of saving the generated assembly to disk.
   /// </summary>
   /// <remarks>
   /// Serialization is enabled by adding additional metadata to the serialization payload and using a serialization helper for deserialization.
@@ -40,31 +34,32 @@ namespace Remotion.TypePipe.Serialization
   /// The metadata includes the following items:
   /// <list type="bullet">
   ///   <item>Type of the serialization helper which should be used for deserialization.</item>
-  ///   <item>The assembly-qualified type name of the underlying type.</item>
-  ///   <item>Object factory identifier that will be used to retrieve the object factory during deserialization.</item>
+  ///   <item>Participant configuration identifier that will be used to retrieve the pipeline during deserialization.</item>
+  ///   <item>An instance of <see cref="AssembledTypeIDData"/>.</item>
   /// </list>
   /// </remarks>
-  // TODO: Simple participant base
-  public class SerializationParticipant : IParticipant
+  public class ComplexSerializationEnabler : IComplexSerializationEnabler
   {
     public const string SerializationKeyPrefix = "<tp>";
-    public const string RequestedTypeKey = SerializationKeyPrefix + "requestedType";
     public const string ParticipantConfigurationID = SerializationKeyPrefix + "participantConfigurationID";
+    public const string AssembledTypeIDData = SerializationKeyPrefix + "assembledTypeIDData";
 
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
+
     private static readonly MethodInfo s_addFieldValuesMethod =
         MemberInfoFromExpressionUtility.GetMethod (() => ReflectionSerializationHelper.AddFieldValues (null, null));
 
-    public ITypeIdentifierProvider PartialTypeIdentifierProvider
-    {
-      get { return null; }
-    }
+    private static readonly MethodInfo s_setTypeMethod =
+        MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo o) => o.SetType (typeof (int)));
+    private static readonly MethodInfo s_addValueMethod =
+        MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo o) => o.AddValue ("name", new object()));
 
-    public void Participate (object id, ITypeAssemblyContext typeAssemblyContext)
+    public void MakeSerializable (MutableType proxyType, string participantConfigurationID, Expression assembledTypeIDData)
     {
-      ArgumentUtility.CheckNotNull ("typeAssemblyContext", typeAssemblyContext);
-      var proxyType = typeAssemblyContext.ProxyType;
+      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNull ("assembledTypeIDData", assembledTypeIDData);
 
       if (!proxyType.IsTypePipeSerializable())
         return;
@@ -80,9 +75,9 @@ namespace Remotion.TypePipe.Serialization
               .GetOrAddOverride (s_getObjectDataMethod)
               .SetBody (
                   ctx => Expression.Block (
-                      new[] { ctx.PreviousBody }.Concat (
-                          CreateMetaDataSerializationExpressions (
-                              ctx, typeof (ObjectWithDeserializationConstructorProxy), typeAssemblyContext.ParticipantConfigurationID))));
+                      ctx.PreviousBody,
+                      CreateMetaDataSerializationExpression (
+                          ctx.Parameters[0], typeof (ObjectWithDeserializationConstructorProxy), participantConfigurationID, assembledTypeIDData)));
         }
         catch (NotSupportedException exception)
         {
@@ -104,38 +99,24 @@ namespace Remotion.TypePipe.Serialization
         proxyType.AddExplicitOverride (
             s_getObjectDataMethod,
             ctx => Expression.Block (
-                typeof (void),
-                CreateMetaDataSerializationExpressions (
-                    ctx, typeof (ObjectWithoutDeserializationConstructorProxy), typeAssemblyContext.ParticipantConfigurationID)
-                    .Concat (Expression.Call (s_addFieldValuesMethod, ctx.Parameters[0], ctx.This))));
+                CreateMetaDataSerializationExpression (
+                    ctx.Parameters[0], typeof (ObjectWithoutDeserializationConstructorProxy), participantConfigurationID, assembledTypeIDData),
+                Expression.Call (s_addFieldValuesMethod, ctx.Parameters[0], ctx.This)));
       }
     }
 
-    public void RebuildState (LoadedTypesContext loadedTypesContext)
+    private Expression CreateMetaDataSerializationExpression (
+        Expression serializationInfo, Type serializationSurrogateType, string participantConfigurationID, Expression assembledTypeIDData)
     {
-      // Does nothing.
+      return Expression.Block (
+          Expression.Call (serializationInfo, s_setTypeMethod, Expression.Constant (serializationSurrogateType)),
+          CreateAddValueExpression (serializationInfo, ParticipantConfigurationID, Expression.Constant (participantConfigurationID)),
+          CreateAddValueExpression (serializationInfo, AssembledTypeIDData, assembledTypeIDData));
     }
 
-    public void HandleNonSubclassableType (Type requestedType)
+    private MethodCallExpression CreateAddValueExpression (Expression serializationInfo, string key, Expression value)
     {
-      // Does nothing.
-    }
-
-    private IEnumerable<Expression> CreateMetaDataSerializationExpressions (
-        MethodBodyContextBase context, Type serializationSurrogateType, string participantConfigurationID)
-    {
-      var serializationInfo = context.Parameters[0];
-      return new Expression[]
-             {
-                 Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (serializationSurrogateType)),
-                 CreateAddValueExpression (serializationInfo, RequestedTypeKey, context.DeclaringType.BaseType.AssemblyQualifiedName),
-                 CreateAddValueExpression (serializationInfo, ParticipantConfigurationID, participantConfigurationID)
-             };
-    }
-
-    private MethodCallExpression CreateAddValueExpression (ParameterExpression serializationInfo, string key, string value)
-    {
-      return Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant (key), Expression.Constant (value));
+      return Expression.Call (serializationInfo, s_addValueMethod, Expression.Constant (key), value);
     }
   }
 }

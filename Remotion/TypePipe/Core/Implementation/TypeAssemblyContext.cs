@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -32,31 +31,19 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class TypeAssemblyContext : ITypeAssemblyContext
   {
-    private readonly string _participantConfigurationID;
-    private readonly Expression _typeID;
     private readonly Type _requestedType;
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly MutableType _proxyType;
     private readonly IDictionary<string, object> _state;
     private readonly List<MutableType> _additionalTypes = new List<MutableType>();
 
-    public TypeAssemblyContext (
-        string participantConfigurationID,
-        Expression typeID,
-        Type requestedType,
-        MutableType proxyType,
-        IMutableTypeFactory mutableTypeFactory,
-        IDictionary<string, object> state)
+    public TypeAssemblyContext (Type requestedType, MutableType proxyType, IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNull ("typeID", typeID);
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("state", state);
 
-      _participantConfigurationID = participantConfigurationID;
-      _typeID = typeID;
       _mutableTypeFactory = mutableTypeFactory;
       _requestedType = requestedType;
       _proxyType = proxyType;
@@ -64,16 +51,6 @@ namespace Remotion.TypePipe.Implementation
     }
 
     public event Action<GeneratedTypeContext> GenerationCompleted;
-
-    public string ParticipantConfigurationID
-    {
-      get { return _participantConfigurationID; }
-    }
-
-    public Expression TypeID
-    {
-      get { return _typeID; }
-    }
 
     public Type RequestedType
     {

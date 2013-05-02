@@ -45,7 +45,6 @@ namespace Remotion.TypePipe
                            + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true, Position = 1)]
   [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
                            + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true, Position = 2)]
-  [ConcreteImplementation (typeof (SerializationParticipant), Position = 3)]
   public interface IParticipant
   {
     /// <summary>

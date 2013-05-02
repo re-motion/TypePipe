@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
       var idPart = ExpressionTreeObjectMother.GetSomeExpression();
-      _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (idPart);
+      _identifierProviderStub.Stub (_ => _.GetExpression ("abc")).Return (idPart);
 
       var result = _provider.GetExpression (typeID);
 
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GetExpression_TypeIdentifierProviderReturnsNull ()
     {
       var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { "abc" });
-      _identifierProviderStub.Stub (_ => _.GetExpressionForID ("abc")).Return (null);
+      _identifierProviderStub.Stub (_ => _.GetExpression ("abc")).Return (null);
 
       var result = _provider.GetExpression (typeID);
 

@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.PerformanceTests
         return mappingConfiguration.ContainsTypeDefinition (requestedType) ? mappingConfiguration.GetTypeDefinition (requestedType) : null;
       }
 
-      public Expression GetExpressionForID (object id)
+      public Expression GetExpression (object id)
       {
         throw new NotImplementedException();
       }
@@ -124,7 +124,7 @@ namespace Remotion.TypePipe.PerformanceTests
         return MixinConfiguration.ActiveConfiguration.GetContext (requestedType); // may be null
       }
 
-      public Expression GetExpressionForID (object id)
+      public Expression GetExpression (object id)
       {
         throw new NotImplementedException();
       }

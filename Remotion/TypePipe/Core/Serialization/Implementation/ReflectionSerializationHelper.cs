@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// A static helper class for writing the contents of all serializable members of an object into a <see cref="SerializationInfo"/> object.
   /// </summary>
   /// <remarks>
-  /// This class is used by <see cref="ObjectWithoutDeserializationConstructorProxy"/>, and <see cref="SerializationParticipant"/> generates code
+  /// This class is used by <see cref="ObjectWithoutDeserializationConstructorProxy"/>, and <see cref="ComplexSerializationEnabler"/> generates code
   /// that calls this class at runtime.
   /// </remarks>
   public static class ReflectionSerializationHelper

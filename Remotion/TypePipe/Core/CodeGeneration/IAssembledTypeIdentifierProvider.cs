@@ -18,6 +18,7 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
@@ -28,8 +29,12 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     AssembledTypeID GetTypeID (Type requestedType);
 
-    Expression GetExpression (AssembledTypeID typeID);
-
     object GetPart (AssembledTypeID typeID, IParticipant participant);
+
+    void AddTypeID (MutableType proxyType, AssembledTypeID typeID);
+
+    AssembledTypeID ExtractTypeID (Type assembledType);
+
+    Expression GetAssembledTypeIDDataExpression (object[] parts);
   }
 }

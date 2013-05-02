@@ -17,14 +17,15 @@
 
 using System;
 using System.Runtime.Serialization;
+using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
   /// <summary>
-  /// Acts as a placeholder in the .NET deserialization process for modified types that do not declare a deserialization constructor.
+  /// Acts as a placeholder in the .NET deserialization process for assembled types that do not declare a deserialization constructor.
   /// </summary>
   /// <remarks>
-  /// For such types, the <see cref="SerializationParticipant"/> will add serialization code that calls 
+  /// For such types, the <see cref="ComplexSerializationEnabler"/> will add serialization code that calls 
   /// <see cref="ReflectionSerializationHelper.AddFieldValues"/>.
   /// </remarks>
   [Serializable]
@@ -35,9 +36,9 @@ namespace Remotion.TypePipe.Serialization.Implementation
     {
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, Type requestedType, StreamingContext context)
+    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
     {
-      var assembledType = pipeline.ReflectionService.GetAssembledType (requestedType);
+      var assembledType = pipeline.ReflectionService.GetAssembledType (typeID);
       var instance = FormatterServices.GetUninitializedObject (assembledType);
       ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
 

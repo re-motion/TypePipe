@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.Caching
   /// <remarks>
   /// This interface must be implemented if the generated types cannot be cached unconditionally.
   /// If the generated types can be cached unconditionally <see cref="IParticipant.PartialTypeIdentifierProvider"/> should return <see langword="null"/>.
-  /// Furthermore, the returned identifier must be serializable if the <see cref="SerializationParticipant"/> is used.
+  /// Furthermore, the returned identifier must be serializable if the <see cref="ComplexSerializationEnabler"/> is used.
   /// </remarks>
   public interface ITypeIdentifierProvider
   {
@@ -47,11 +47,16 @@ namespace Remotion.TypePipe.Caching
     /// <returns>
     /// An identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
     /// </returns>
-    // TODO 5552: Doku for serialization
     object GetID (Type requestedType);
 
     // TODO 5552
-    Expression GetExpressionForID (object id);
+    Expression GetExpression (object id);
+
+    // TODO 5552
+    Expression GetFlattenedSerializeExpression (object id);
+
+    // TODO 5552
+    object DeserializeID (object flattenedID);
 
     // <summary>
     // Rebuilds an identifier from an assembled <see cref="Type"/>.

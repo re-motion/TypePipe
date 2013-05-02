@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
               {
                 var fieldArray = fieldsByName.ToArray();
 
-                var prefix = SerializationParticipant.SerializationKeyPrefix;
+                var prefix = ComplexSerializationEnabler.SerializationKeyPrefix;
                 var serializationKeyProvider =
                     fieldArray.Length == 1
                         ? (Func<FieldInfo, string>) (f => prefix + f.Name)

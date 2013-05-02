@@ -32,11 +32,23 @@ namespace Remotion.TypePipe.CodeGeneration
       return null;
     }
 
-    public Expression GetExpressionForID (object id)
+    public Expression GetExpression (object id)
     {
       Assertion.IsNull (id);
 
       return Expression.Constant (null);
+    }
+
+    public Expression GetFlattenedSerializeExpression (object id)
+    {
+      return GetExpression (id);
+    }
+
+    public object DeserializeID (object flattenedID)
+    {
+      Assertion.IsNull (flattenedID);
+
+      return null;
     }
   }
 }

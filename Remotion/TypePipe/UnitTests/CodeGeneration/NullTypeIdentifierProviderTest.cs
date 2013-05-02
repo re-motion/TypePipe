@@ -42,11 +42,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetExpressionForID ()
+    public void GetExpression ()
     {
-      var result = _provider.GetExpressionForID (id: null);
+      var result = _provider.GetExpression (id: null);
 
       Assert.That (result, Is.TypeOf<ConstantExpression>().And.Property ("Value").Null);
+    }
+
+    [Test]
+    public void GetFlattenedSerializeExpression ()
+    {
+      var result = _provider.GetFlattenedSerializeExpression (id: null);
+
+      Assert.That (result, Is.TypeOf<ConstantExpression> ().And.Property ("Value").Null);
+    }
+
+    [Test]
+    public void DeserializeID ()
+    {
+      Assert.That (_provider.DeserializeID (flattenedID: null), Is.Null);
     }
   }
 }

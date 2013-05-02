@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var typeIDPartExpression = Expression.Constant (typeIDPart);
       var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
       typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (RequestedType))).Return (typeIDPart);
-      typeIdentifierProviderStub.Stub (_ => _.GetExpressionForID (typeIDPart)).Return (typeIDPartExpression);
+      typeIdentifierProviderStub.Stub (_ => _.GetExpression (typeIDPart)).Return (typeIDPartExpression);
       var participant = CreateParticipant (
           (id, context) =>
           {

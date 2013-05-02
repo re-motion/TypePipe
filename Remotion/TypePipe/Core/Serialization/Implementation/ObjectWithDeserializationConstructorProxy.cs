@@ -17,6 +17,7 @@
 using System;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
+using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Serialization.Implementation
 {
@@ -31,10 +32,11 @@ namespace Remotion.TypePipe.Serialization.Implementation
     {
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, Type requestedType, StreamingContext context)
+    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
     {
+      // TODO 5552: Pass in typeID!
       var paramList = ParamList.Create (SerializationInfo, context);
-      return pipeline.Create (requestedType, paramList, allowNonPublicConstructor: true);
+      return pipeline.Create (typeID.RequestedType, paramList, allowNonPublicConstructor: true);
     }
   }
 }

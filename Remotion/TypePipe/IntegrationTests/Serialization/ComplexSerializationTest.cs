@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      _participantProviders = participantProviders.Concat (() => new SerializationParticipant()).ToArray();
+      _participantProviders = participantProviders.Concat (() => new ComplexSerializationEnabler()).ToArray();
       var allParticipants = _participantProviders.Select (pp => pp()).ToArray();
       var factory = CreatePipeline (allParticipants);
 

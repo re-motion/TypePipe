@@ -61,9 +61,7 @@
     <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProvider.cs" />
-    <Compile Include="CodeGeneration\AssembledTypePreparer.cs" />
     <Compile Include="CodeGeneration\IAssembledTypeIdentifierProvider.cs" />
-    <Compile Include="CodeGeneration\IAssembledTypePreparer.cs" />
     <Compile Include="CodeGeneration\NullTypeIdentifierProvider.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecorator.cs" />
@@ -253,6 +251,8 @@
     <Compile Include="MutableReflection\MutablePropertyInfo.cs" />
     <Compile Include="MutableReflection\MutableTypeExtensions.cs" />
     <Compile Include="MutableReflection\GenericParameterContext.cs" />
+    <Compile Include="Serialization\AssembledTypeIDData.cs" />
+    <Compile Include="Serialization\IComplexSerializationEnabler.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\Implementation\ISerializableFieldFinder.cs" />
     <Compile Include="Serialization\Implementation\SerializableFieldFinder.cs" />
@@ -435,7 +435,7 @@
     <Compile Include="Caching\TypeCache.cs" />
     <Compile Include="Serialization\Implementation\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Implementation\PipelineRegistry.cs" />
-    <Compile Include="Serialization\SerializationParticipant.cs" />
+    <Compile Include="Serialization\ComplexSerializationEnabler.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
     <Compile Include="StrongNaming\IAssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\ITypeAnalyzer.cs" />

@@ -17,6 +17,7 @@
 using System;
 using System.Runtime.Serialization;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization.Implementation
@@ -25,7 +26,7 @@ namespace Remotion.TypePipe.Serialization.Implementation
   /// A common base class for objects used as placeholders in the .NET deserialization process.
   /// </summary>
   /// <remarks>
-  /// This class uses the metadata in the <see cref="SerializationInfo"/> that was added by the <see cref="SerializationParticipant"/> to 
+  /// This class uses the metadata in the <see cref="SerializationInfo"/> that was added by the <see cref="ComplexSerializationEnabler"/> to 
   /// regenerate a suitable type for deserialization.
   /// </remarks>
   public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference, IDeserializationCallback
@@ -60,16 +61,15 @@ namespace Remotion.TypePipe.Serialization.Implementation
       if (_instance != null)
         return _instance;
 
-      var requestedTypeName = (string) SerializationInfo.GetValue (SerializationParticipant.RequestedTypeKey, typeof (string));
-      var participantConfigurationID = (string) SerializationInfo.GetValue (SerializationParticipant.ParticipantConfigurationID, typeof (string));
+      var participantConfigurationID = (string) _serializationInfo.GetValue (ComplexSerializationEnabler.ParticipantConfigurationID, typeof (string));
+      var assembledTypeIDData = (AssembledTypeIDData) _serializationInfo.GetValue (ComplexSerializationEnabler.AssembledTypeIDData, typeof (AssembledTypeIDData));
 
-      var underlyingType = Type.GetType (requestedTypeName, throwOnError: true);
-      var factory = _registry.Get (participantConfigurationID);
-      var instance = CreateRealObject (factory, underlyingType, context);
+      var pipeline = _registry.Get (participantConfigurationID);
+      var typeID = assembledTypeIDData.CreateTypeID (pipeline);
 
-      _instance = instance;
+      _instance = CreateRealObject (pipeline, typeID, context);
 
-      return instance;
+      return _instance;
     }
 
     public void OnDeserialization (object sender)
@@ -79,6 +79,6 @@ namespace Remotion.TypePipe.Serialization.Implementation
         deserializationCallback.OnDeserialization (sender);
     }
 
-    protected abstract object CreateRealObject (IPipeline pipeline, Type requestedType, StreamingContext context);
+    protected abstract object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context);
   }
 }
