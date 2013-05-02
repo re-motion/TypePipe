@@ -18,7 +18,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -65,7 +67,18 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (() => _reflectionService.GetRequestedType (unrelatedType), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
-    // TODO 5552: Integration tet
+    [Test]
+    public void GetAssembledType_ViaTypeID ()
+    {
+      var assembledType = _reflectionService.GetAssembledType (typeof (RequestedType1));
+      var typeID = (AssembledTypeID) PrivateInvoke.GetNonPublicStaticField (assembledType, "__typeID");
+
+      var type1 = _reflectionService.GetAssembledType (typeID);
+      var type2 = _pipeline.Create (typeID).GetType();
+
+      Assert.That (type1, Is.SameAs (assembledType));
+      Assert.That (type2, Is.SameAs (assembledType));
+    }
 
     public class RequestedType1 {}
     public class RequestedType2 {}
