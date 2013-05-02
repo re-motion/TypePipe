@@ -22,7 +22,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
-  // TODO 5552
+  /// <summary>
+  /// A data container for serialization that holds flattened from an <see cref="AssembledTypeID"/>.
+  /// </summary>
   [Serializable]
   public class AssembledTypeIDData
   {
@@ -36,6 +38,16 @@ namespace Remotion.TypePipe.Serialization
 
       _requestedTypeAssemblyQualifiedName = requestedTypeAssemblyQualifiedName;
       _flattenedSerializableIDParts = flattenedSerializableIDParts;
+    }
+
+    public string RequestedTypeAssemblyQualifiedName
+    {
+      get { return _requestedTypeAssemblyQualifiedName; }
+    }
+
+    public object[] FlattenedSerializableIDParts
+    {
+      get { return _flattenedSerializableIDParts; }
     }
 
     public AssembledTypeID CreateTypeID (IPipeline pipeline)
