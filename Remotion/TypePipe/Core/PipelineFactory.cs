@@ -72,7 +72,7 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("participants", participants);
 
-      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.EnableComplexSerialization, settings.KeyFilePath);
+      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
       var typeAssembler = NewTypeAssembler (settings.ParticipantConfigurationID, participants, settings.EnableComplexSerialization);
       var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
       var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, reflectionEmitCodeGenerator);

@@ -31,7 +31,6 @@ using Remotion.TypePipe.StrongNaming;
 
 namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
-  [Ignore("TODO 5552")]
   [TestFixture]
   public class StrongNamingTest : IntegrationTestBase
   {
