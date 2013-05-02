@@ -222,6 +222,9 @@
     <Compile Include="Serialization\ObjectDeserializationProxyBaseTest.cs" />
     <Compile Include="Serialization\SerializableFieldFinderTest.cs" />
     <Compile Include="Serialization\ReflectionSerializationHelperTest.cs" />
+    <Compile Include="Serialization\ComplexSerializationEnablerTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Serialization\TestableObjectDeserializationProxyBase.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />

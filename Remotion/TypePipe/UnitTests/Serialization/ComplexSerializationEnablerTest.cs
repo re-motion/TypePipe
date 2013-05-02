@@ -18,10 +18,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
@@ -30,25 +30,29 @@ using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
-  // TODO 5552
   [TestFixture]
-  public class SerializationParticipantTest
+  public class ComplexSerializationEnablerTest
   {
     private ComplexSerializationEnabler _enabler;
+
+    private string _participantConfigurationID;
+    private Expression _assembledTypeIDData;
 
     [SetUp]
     public void SetUp ()
     {
       _enabler = new ComplexSerializationEnabler();
+
+      _participantConfigurationID = "configID";
+      _assembledTypeIDData = ExpressionTreeObjectMother.GetSomeExpression();
     }
 
     [Test]
-    public void Participate_SerializableType ()
+    public void MakeSerializable_SerializableType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create ("config id", proxyType: proxyType);
-
-      _enabler.Participate (null, typeContext);
+      
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
 
       Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (proxyType.AddedConstructors, Is.Empty);
@@ -57,72 +61,68 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var method = proxyType.AddedMethods.Single();
       var serializationInfo = method.ParameterExpressions[0];
       var expectedMethodBody = Expression.Block (
-          typeof (void),
-          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithoutDeserializationConstructorProxy))),
-          Expression.Call (
-              serializationInfo,
-              "AddValue",
-              Type.EmptyTypes,
-              Expression.Constant ("<tp>requestedType"),
-              Expression.Constant (typeof (SomeType).AssemblyQualifiedName)),
-          Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>participantConfigurationID"), Expression.Constant ("config id")),
+          Expression.Block (
+              Expression.Call (
+                  serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithoutDeserializationConstructorProxy))),
+              Expression.Call (
+                  serializationInfo,
+                  "AddValue",
+                  Type.EmptyTypes,
+                  Expression.Constant ("<tp>participantConfigurationID"),
+                  Expression.Constant (_participantConfigurationID)),
+              Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>assembledTypeIDData"), _assembledTypeIDData)),
           Expression.Call (
               typeof (ReflectionSerializationHelper), "AddFieldValues", Type.EmptyTypes, serializationInfo, new ThisExpression (proxyType)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedMethodBody, method.Body);
     }
 
     [Test]
-    public void Participate_SerializableInterfaceType ()
+    public void MakeSerializable_SerializableInterfaceType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create ("config id", proxyType: proxyType);
 
-      _enabler.Participate (null, typeContext);
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Has.Count.EqualTo (1));
 
-      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableInterfaceType o) => o.GetObjectData (null, new StreamingContext()));
-      var method = proxyType.AddedMethods.Single();
-      var serializationInfo = method.ParameterExpressions[0];      
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableInterfaceType o) => o.GetObjectData (null, new StreamingContext ()));
+      var method = proxyType.AddedMethods.Single ();
+      var serializationInfo = method.ParameterExpressions[0];
       var expectedBody = Expression.Block (
-          Expression.Call (
-              new ThisExpression (proxyType), new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
-          Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithDeserializationConstructorProxy))),
-          Expression.Call (
-              serializationInfo,
-              "AddValue",
-              Type.EmptyTypes,
-              Expression.Constant ("<tp>requestedType"),
-              Expression.Constant (typeof (SerializableInterfaceType).AssemblyQualifiedName)),
-          Expression.Call (
-              serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>participantConfigurationID"), Expression.Constant ("config id")));
+          Expression.Call (new ThisExpression (proxyType), new NonVirtualCallMethodInfoAdapter (baseMethod), method.ParameterExpressions.Cast<Expression>()),
+          Expression.Block (
+              Expression.Call (serializationInfo, "SetType", Type.EmptyTypes, Expression.Constant (typeof (ObjectWithDeserializationConstructorProxy))),
+              Expression.Call (
+                  serializationInfo,
+                  "AddValue",
+                  Type.EmptyTypes,
+                  Expression.Constant ("<tp>participantConfigurationID"),
+                  Expression.Constant (_participantConfigurationID)),
+              Expression.Call (serializationInfo, "AddValue", Type.EmptyTypes, Expression.Constant ("<tp>assembledTypeIDData"), _assembledTypeIDData)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
     [Test]
-    public void Participate_SomeType ()
+    public void MakeSerializable_SomeType ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType));
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
-      _enabler.Participate (null, typeContext);
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
-                          + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void Participate_CannotOverrideGetObjectData ()
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
+        + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
+    public void MakeSerializable_CannotOverrideGetObjectData ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
-      var typeContext = TypeAssemblyContextObjectMother.Create (proxyType: proxyType);
 
-      _enabler.Participate (null, typeContext);
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
     }
 
     public class SomeType { }
