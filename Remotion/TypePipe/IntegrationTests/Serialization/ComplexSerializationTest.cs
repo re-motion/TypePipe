@@ -15,31 +15,30 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
-  [Ignore("TODO 5552")]
   [TestFixture]
   public class ComplexSerializationTest : SerializationTestBase
   {
+    private const string c_participantConfigurationID = "ComplexSerializationTest";
+
     private Func<IParticipant>[] _participantProviders;
-    private string _participantConfigurationID;
 
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      _participantProviders = participantProviders.ToArray();
-      var allParticipants = _participantProviders.Select (pp => pp()).ToArray();
-      var factory = CreatePipeline (allParticipants);
+      _participantProviders = participantProviders;
 
-      _participantConfigurationID = factory.ParticipantConfigurationID;
+      var participants = _participantProviders.Select (pp => pp()).ToArray();
+      var settings = new PipelineSettings (c_participantConfigurationID) { EnableComplexSerialization = true };
 
-      return factory;
+      return CreatePipeline (settings, participants);
     }
 
     protected override Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context)
@@ -47,14 +46,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       // Do not flush generated assembly to disk to force complex serialization strategy.
 
       context.ParticipantProviders = _participantProviders;
-      context.ParticipantConfigurationID = _participantConfigurationID;
       return ctx =>
       {
-        var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
-
-        SetUpDeserialization (registry, ctx.ParticipantConfigurationID, ctx.ParticipantProviders);
-        var deserializedInstance = (T) Serializer.Deserialize (ctx.SerializedData);
-        TearDownDeserialization (registry, ctx.ParticipantConfigurationID);
+        var deserializedInstance = (T) DeserializeInstance (ctx.ParticipantProviders, ctx.SerializedData);
 
         // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
         var type = deserializedInstance.GetType();
@@ -71,19 +65,22 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       };
     }
 
-    private static void SetUpDeserialization (
-        IPipelineRegistry registry, string participantConfigurationID, IEnumerable<Func<IParticipant>> participantProviders)
+    private static object DeserializeInstance (Func<IParticipant>[] participantProviders, byte[] serializedData)
     {
+      var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
       var participants = participantProviders.Select (pp => pp());
-      var factory = PipelineFactory.Create (participantConfigurationID, participants.ToArray());
+      var pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
 
       // Register a factory for deserialization in current (new) app domain.
-      registry.Register (factory);
-    }
-
-    private static void TearDownDeserialization (IPipelineRegistry registry, string participantConfigurationID)
-    {
-      registry.Unregister (participantConfigurationID);
+      registry.Register (pipeline);
+      try
+      {
+        return Serializer.Deserialize (serializedData);
+      }
+      finally
+      {
+        registry.Unregister (c_participantConfigurationID);
+      }
     }
   }
 }
