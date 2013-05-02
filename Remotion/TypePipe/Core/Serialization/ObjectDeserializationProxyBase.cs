@@ -14,13 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Runtime.Serialization;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
   /// A common base class for objects used as placeholders in the .NET deserialization process.

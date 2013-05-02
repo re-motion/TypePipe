@@ -21,7 +21,7 @@ using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 using System.Linq;
 

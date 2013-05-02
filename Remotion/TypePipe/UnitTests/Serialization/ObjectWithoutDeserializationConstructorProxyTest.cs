@@ -14,24 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
+namespace Remotion.TypePipe.UnitTests.Serialization
 {
   [TestFixture]
-  public class ObjectWithDeserializationConstructorProxyTest
+  public class ObjectWithoutDeserializationConstructorProxyTest
   {
     private Type _underlyingType;
     private SerializationInfo _serializationInfo;
 
-    private ObjectWithDeserializationConstructorProxy _proxy;
+    private ObjectWithoutDeserializationConstructorProxy _proxy;
+
+    private IPipeline _pipelineMock;
+    private StreamingContext _context;
 
     [SetUp]
     public void SetUp ()
@@ -39,25 +42,29 @@ namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
       _underlyingType = ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
 
-      _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
+      _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
+
+      _pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
+      _context = new StreamingContext (StreamingContextStates.Persistence);
     }
 
     [Test]
     public void CreateRealObject ()
     {
-      var context = new StreamingContext (StreamingContextStates.Persistence);
-      var objectFactoryMock = MockRepository.GenerateStrictMock<IPipeline>();
-      var fakeObject = new object();
-      objectFactoryMock
-          .Expect (mock => mock.Create (Arg.Is (_underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
-          .WhenCalled (
-              mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, context })))
-          .Return (fakeObject);
+      _serializationInfo.AddValue ("<tp>IntField", 7);
+      _pipelineMock.Expect (mock => mock.ReflectionService.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", objectFactoryMock, _underlyingType, context);
+      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", _pipelineMock, _underlyingType, _context);
 
-      objectFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeObject));
+      _pipelineMock.VerifyAllExpectations();
+      Assert.That (result, Is.TypeOf<DomainType>());
+      Assert.That (((DomainType) result).IntField, Is.EqualTo (7));
+    }
+
+    [Serializable]
+    class DomainType
+    {
+      public int IntField = 0;
     }
   }
 }

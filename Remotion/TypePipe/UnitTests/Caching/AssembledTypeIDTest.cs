@@ -40,6 +40,12 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
+    public void IsStruct_ForPerformance ()
+    {
+      Assert.That (typeof (AssembledTypeID).IsValueType, Is.True);
+    }
+
+    [Test]
     public void Equals ()
     {
       Assert.That (_id1, Is.Not.EqualTo (_id2));

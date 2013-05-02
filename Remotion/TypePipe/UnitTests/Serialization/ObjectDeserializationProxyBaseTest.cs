@@ -14,15 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
+namespace Remotion.TypePipe.UnitTests.Serialization
 {
   [TestFixture]
   public class ObjectDeserializationProxyBaseTest

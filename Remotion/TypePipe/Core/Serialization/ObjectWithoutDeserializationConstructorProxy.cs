@@ -14,29 +14,35 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Runtime.Serialization;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
-  /// Acts as a placeholder in the .NET deserialization process for modified types that declare a deserialization constructor.
+  /// Acts as a placeholder in the .NET deserialization process for assembled types that do not declare a deserialization constructor.
   /// </summary>
+  /// <remarks>
+  /// For such types, the <see cref="ComplexSerializationEnabler"/> will add serialization code that calls 
+  /// <see cref="ReflectionSerializationHelper.AddFieldValues"/>.
+  /// </remarks>
   [Serializable]
-  public class ObjectWithDeserializationConstructorProxy : ObjectDeserializationProxyBase
+  public class ObjectWithoutDeserializationConstructorProxy : ObjectDeserializationProxyBase
   {
-    public ObjectWithDeserializationConstructorProxy (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    public ObjectWithoutDeserializationConstructorProxy (SerializationInfo serializationInfo, StreamingContext streamingContext)
         : base (serializationInfo, streamingContext)
     {
     }
 
     protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
     {
-      // TODO 5552: Pass in typeID!
-      var paramList = ParamList.Create (SerializationInfo, context);
-      return pipeline.Create (typeID.RequestedType, paramList, allowNonPublicConstructor: true);
+      var assembledType = pipeline.ReflectionService.GetAssembledType (typeID);
+      var instance = FormatterServices.GetUninitializedObject (assembledType);
+      ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
+
+      return instance;
     }
   }
 }

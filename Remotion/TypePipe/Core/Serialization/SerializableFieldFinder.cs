@@ -23,7 +23,7 @@ using System.Runtime.Serialization;
 using Remotion.Collections;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
   /// This class filters fields, retains the serializable ones and creates a mapping so that the field values can be stored or retrieved from a

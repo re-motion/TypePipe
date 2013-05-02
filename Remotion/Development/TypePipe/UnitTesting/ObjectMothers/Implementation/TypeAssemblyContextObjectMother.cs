@@ -17,9 +17,7 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
-using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -29,20 +27,17 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
   public static class TypeAssemblyContextObjectMother
   {
     public static TypeAssemblyContext Create (
-        string participantConfigurationID = "unspecified participant configuration id",
-        Expression typeID = null,
         Type requestedType = null,
         MutableType proxyType = null,
         IMutableTypeFactory mutableTypeFactory = null,
         IDictionary<string, object> state = null)
     {
-      typeID = typeID ?? ExpressionTreeObjectMother.GetSomeExpression();
       requestedType = requestedType ?? typeof (UnspecifiedRequestedType);
       proxyType = proxyType ?? MutableTypeObjectMother.Create (requestedType);
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new TypeAssemblyContext (participantConfigurationID, typeID, requestedType, proxyType, mutableTypeFactory, state);
+      return new TypeAssemblyContext (requestedType, proxyType, mutableTypeFactory, state);
     }
 
     public class UnspecifiedRequestedType {}

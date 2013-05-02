@@ -25,7 +25,8 @@ namespace Remotion.TypePipe.Caching
   /// A data structure that identifies an assembled type.
   /// </summary>
   /// <remarks>
-  /// Note that the length of the id parts (object array) is assumed to be equal.
+  /// Note that the implementation of this struct is critical for performance.
+  /// Moreover, the length of the id parts (object array) is assumed to be equal.
   /// </remarks>
   public struct AssembledTypeID : IEquatable<AssembledTypeID>
   {

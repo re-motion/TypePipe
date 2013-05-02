@@ -20,7 +20,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization

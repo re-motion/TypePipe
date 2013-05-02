@@ -21,7 +21,6 @@ using Remotion.Diagnostics;
 using Remotion.Reflection.TypeDiscovery;
 using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Remotion;
 
@@ -54,11 +53,11 @@ namespace Remotion.Development.TypePipe
     public int MaximumTypesPerAssembly { get; set; }
 
     [CLSCompliant (false)]
-    protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (IConfigurationProvider configurationProvider)
+    protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (bool forceStrongNaming, string keyFilePath)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
-      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, configurationProvider, DebuggerInterface, MaximumTypesPerAssembly);
+      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, DebuggerInterface, MaximumTypesPerAssembly);
     }
   }
 }

@@ -27,7 +27,6 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
-using Remotion.TypePipe.Serialization.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {

@@ -19,6 +19,7 @@ using System.Configuration;
 
 namespace Remotion.TypePipe.Configuration
 {
+  // TODO 5545: Move this to Remotion.Core.
   /// <summary>
   /// An <c>App.config</c>-based configuration provider.<br/>
   /// <example>
@@ -38,11 +39,11 @@ namespace Remotion.TypePipe.Configuration
   /// </code>
   /// </example>
   /// </summary>
-  public class AppConfigBasedConfigurationProvider : IConfigurationProvider
+  public class AppConfigBasedSettingsProvider
   {
     private readonly TypePipeConfigurationSection _section;
 
-    public AppConfigBasedConfigurationProvider ()
+    public AppConfigBasedSettingsProvider ()
     {
       _section = (TypePipeConfigurationSection) ConfigurationManager.GetSection ("typePipe") ?? new TypePipeConfigurationSection();
     }
@@ -55,6 +56,20 @@ namespace Remotion.TypePipe.Configuration
     public string KeyFilePath
     {
       get { return _section.ForceStrongNaming.KeyFilePath; }
+    }
+
+    // TODO 5552
+    public bool EnableComplexSerialization { get; set; }
+
+    // TODO 5552
+    public PipelineSettings GetSettings ()
+    {
+      return new PipelineSettings ("remotion-default-pipeline")
+             {
+                 ForceStrongNaming = ForceStrongNaming,
+                 KeyFilePath = KeyFilePath,
+                 EnableComplexSerialization = EnableComplexSerialization
+             };
     }
   }
 }

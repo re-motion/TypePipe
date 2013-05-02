@@ -26,14 +26,14 @@ namespace Remotion.TypePipe.UnitTests.Configuration
   [TestFixture]
   public class AppConfigBasedConfigurationProviderTest
   {
-    private AppConfigBasedConfigurationProvider _provider;
+    private AppConfigBasedSettingsProvider _provider;
     private TypePipeConfigurationSection _section;
 
     [SetUp]
     public void SetUp ()
     {
       _section = new TypePipeConfigurationSection();
-      _provider = new AppConfigBasedConfigurationProvider();
+      _provider = new AppConfigBasedSettingsProvider();
       PrivateInvoke.SetNonPublicField (_provider, "_section", _section);
     }
 

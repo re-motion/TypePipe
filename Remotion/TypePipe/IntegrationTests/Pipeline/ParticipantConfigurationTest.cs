@@ -17,9 +17,7 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Dlr.Ast;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -48,17 +46,6 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void ParticipantHasAccessToParticipantConfigurationID ()
-    {
-      var configurationID = "configurationID";
-      var participant = CreateParticipant (ctx => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
-
-      var pipeline = PipelineFactory.Create (configurationID, participant);
-
-      Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);
-    }
-
-    [Test]
     public void ParticipantIsSuppliedWithHisTypeIDPart ()
     {
       var typeIDPart = "type ID part";
@@ -70,29 +57,6 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var pipeline = CreatePipeline (participant1, participant2);
 
       Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);
-    }
-
-    [Test]
-    public void ParticipantHasAccessToTypeIDExpression ()
-    {
-      var typeIDPart = "type ID part";
-      var typeIDPartExpression = Expression.Constant (typeIDPart);
-      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
-      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (RequestedType))).Return (typeIDPart);
-      typeIdentifierProviderStub.Stub (_ => _.GetExpression (typeIDPart)).Return (typeIDPartExpression);
-      var participant = CreateParticipant (
-          (id, context) =>
-          {
-            var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((RequestedType o) => o.Method());
-            context.ProxyType.GetOrAddOverride (method).SetBody (ctx => context.TypeID);
-          },
-          typeIdentifierProviderStub);
-      var pipeline = CreatePipeline (participant);
-
-      var instance = pipeline.Create<RequestedType>();
-
-      var expectedTypeID = new AssembledTypeID (typeof (RequestedType), new object[] { typeIDPart });
-      Assert.That (instance.Method(), Is.EqualTo (expectedTypeID));
     }
 
     public class RequestedType

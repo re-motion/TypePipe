@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.Serialization
 {
   // TODO 5552
   [Serializable]
-  public struct AssembledTypeIDData
+  public class AssembledTypeIDData
   {
     private readonly string _requestedTypeAssemblyQualifiedName;
     private readonly object[] _flattenedSerializableIDParts;
@@ -55,9 +55,17 @@ namespace Remotion.TypePipe.Serialization
 
       var parts = new object[_flattenedSerializableIDParts.Length];
       for (int i = 0; i < parts.Length; i++)
-        parts[i] = typeIDProviders[i].DeserializeID (_flattenedSerializableIDParts[i]);
+        parts[i] = DeserializeID(typeIDProviders[i], _flattenedSerializableIDParts[i]);
 
       return parts;
+    }
+
+    private static object DeserializeID (ITypeIdentifierProvider typeIDProvider, object flattenedIDPart)
+    {
+      if (flattenedIDPart == null)
+        return null;
+
+      return typeIDProvider.DeserializeID (flattenedIDPart);
     }
   }
 }

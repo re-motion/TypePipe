@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using Remotion.Reflection;
@@ -27,7 +26,6 @@ using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
-using Remotion.TypePipe.Serialization.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe
@@ -50,40 +48,32 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
 
-      return Create (participantConfigurationID, (IEnumerable<IParticipant>) participants);
+      return Create (new PipelineSettings (participantConfigurationID), participants);
     }
 
     /// <summary>
     /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants and optionally a
     /// custom configuration provider. If the configuration provider is omitted, the <c>App.config</c>-based configuration provider
-    /// (<see cref="AppConfigBasedConfigurationProvider"/>) is used.
+    /// (<see cref="AppConfigBasedSettingsProvider"/>) is used.
     /// </summary>
-    /// <param name="participantConfigurationID">The participant configuration ID.</param>
+    /// <param name="settings">The pipeline settings.</param>
     /// <param name="participants">The participants that should be used by this object factory.</param>
-    /// <param name="configurationProvider">
-    /// A configuration provider; or <see langword="null"/> for the default, AppConfig-based configuration provider.
-    /// </param>
     /// <returns>An new instance of <see cref="IPipeline"/>.</returns>
-    public static IPipeline Create (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
+    public static IPipeline Create (PipelineSettings settings, params IParticipant[] participants)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNull ("participants", participants);
-      configurationProvider = configurationProvider ?? new AppConfigBasedConfigurationProvider();
+      ArgumentUtility.CheckNotNull ("settings", settings);
+      ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
 
-      return s_instance.CreatePipeline (participantConfigurationID, participants, configurationProvider);
+      return s_instance.CreatePipeline (settings, participants);
     }
 
-    // TODO 5552: Settings? OR: ConfigurationProvider?
-    public virtual IPipeline CreatePipeline (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider)
+    public virtual IPipeline CreatePipeline (PipelineSettings settings, IEnumerable<IParticipant> participants)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("participants", participants);
-      ArgumentUtility.CheckNotNull ("configurationProvider", configurationProvider);
 
-      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (configurationProvider);
-      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants);
+      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.EnableComplexSerialization, settings.KeyFilePath);
+      var typeAssembler = NewTypeAssembler (settings.ParticipantConfigurationID, participants, settings.EnableComplexSerialization);
       var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
       var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, reflectionEmitCodeGenerator);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
@@ -127,10 +117,11 @@ namespace Remotion.TypePipe
       return new SynchronizationPoint (generatedCodeFlusher, typeAssembler, constructorFinder, delegateFactory);
     }
 
-    protected virtual ITypeAssembler NewTypeAssembler (string participantConfigurationID, IEnumerable<IParticipant> participants)
+    protected virtual ITypeAssembler NewTypeAssembler (
+        string participantConfigurationID, IEnumerable<IParticipant> participants, bool enableComplexSerialization)
     {
       var mutableTypeFactory = NewMutableTypeFactory();
-      var complexSerializationEnabler = ComplexSerializationEnabler();
+      var complexSerializationEnabler = ComplexSerializationEnabler (enableComplexSerialization);
 
       return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, complexSerializationEnabler);
     }
@@ -155,11 +146,11 @@ namespace Remotion.TypePipe
     }
 
     [CLSCompliant (false)]
-    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (IConfigurationProvider configurationProvider)
+    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (bool forceStrongNaming, string keyFilePath)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
-      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, configurationProvider);
+      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath);
     }
 
     protected virtual IDelegateFactory NewDelegateFactory ()
@@ -177,9 +168,9 @@ namespace Remotion.TypePipe
       return new DependentTypeSorter();
     }
 
-    protected virtual ComplexSerializationEnabler ComplexSerializationEnabler ()
+    protected virtual IComplexSerializationEnabler ComplexSerializationEnabler (bool enableComplexSerialization)
     {
-      return new ComplexSerializationEnabler();
+      return enableComplexSerialization ? (IComplexSerializationEnabler) new ComplexSerializationEnabler() : new NullComplexSerializationEnabler();
     }
 
     protected virtual IProxySerializationEnabler NewProxySerializationEnabler ()

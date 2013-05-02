@@ -22,6 +22,7 @@ using System.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -35,6 +36,9 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private static readonly ConstructorInfo s_assembledTypeIDConstructor =
         MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (typeof (object), new object[0]));
+
+    private static readonly ConstructorInfo s_assembledTypeIDDataConstructor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeIDData ("type name", new object[0]));
 
     // Array for performance reasons.
     private readonly ITypeIdentifierProvider[] _identifierProviders;
@@ -84,7 +88,8 @@ namespace Remotion.TypePipe.CodeGeneration
       ArgumentUtility.CheckNotNull ("typeID", typeID);
 
       var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (AssembledTypeID));
-      var typeIDExpression = CreateTypeIDExpression (typeID);
+      var typeIDExpression = CreateNewTypeIDExpression (
+          s_assembledTypeIDConstructor, typeID.RequestedType, typeID.Parts, (p, id) => p.GetExpression (id));
 
       proxyType.AddTypeInitialization (ctx => Expression.Assign (Expression.Field (null, typeIDField), typeIDExpression));
     }
@@ -99,23 +104,31 @@ namespace Remotion.TypePipe.CodeGeneration
       return (AssembledTypeID) typeIDField.GetValue (null);
     }
 
-    public Expression GetAssembledTypeIDDataExpression (object[] parts)
+    public Expression GetAssembledTypeIDDataExpression (AssembledTypeID typeID)
     {
-      throw new NotImplementedException();
+      return CreateNewTypeIDExpression (
+          s_assembledTypeIDDataConstructor,
+          typeID.RequestedType.AssemblyQualifiedName,
+          typeID.Parts,
+          (p, id) => p.GetFlattenedSerializeExpression (id));
     }
 
-    private Expression CreateTypeIDExpression (AssembledTypeID typeID)
+    private Expression CreateNewTypeIDExpression (
+        ConstructorInfo constructor, object requestedTypeValue, object[] idParts, Func<ITypeIdentifierProvider, object, Expression> expressionProvider)
     {
-      var requestedType = Expression.Constant (typeID.RequestedType);
-      var parts = typeID.Parts.Select ((idPart, i) => GetNonNullExpressionForID (i, idPart));
+      var requestedTypeExpression = Expression.Constant (requestedTypeValue);
+      var parts = idParts.Select ((idPart, i) => GetNonNullExpressionForID (expressionProvider, idPart, i));
       var partsArray = Expression.NewArrayInit (typeof (object), parts);
 
-      return Expression.New (s_assembledTypeIDConstructor, requestedType, partsArray);
+      return Expression.New (constructor, requestedTypeExpression, partsArray);
     }
 
-    private Expression GetNonNullExpressionForID (int index, object idPart)
+    private Expression GetNonNullExpressionForID (Func<ITypeIdentifierProvider, object, Expression> expressionProvider, object idPart, int i)
     {
-      return _identifierProviders[index].GetExpression (idPart) ?? Expression.Constant (null);
+      if (idPart == null)
+        return Expression.Constant (null);
+
+      return expressionProvider (_identifierProviders[i], idPart) ?? Expression.Constant (null);
     }
   }
 }

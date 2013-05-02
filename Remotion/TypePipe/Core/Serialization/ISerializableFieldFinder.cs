@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,24 +16,17 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Remotion.Collections;
 
-namespace Remotion.TypePipe.Configuration
+namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
-  /// Defines an interface for classes that provide configuration values.
+  /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields.
   /// </summary>
-  public interface IConfigurationProvider
+  public interface ISerializableFieldFinder
   {
-    /// <summary>
-    /// If <see langword="true"/>, the pipeline signs all generated assemblies or throws an <see cref="InvalidOperationException"/> if that is not
-    /// possible.
-    /// </summary>
-    bool ForceStrongNaming { get; }
-
-    /// <summary>
-    /// When <see cref="ForceStrongNaming"/> is enabled, the key file (<c>*.snk</c>) denoted by this property is used to sign generated assemblies.
-    /// If this property is <see langword="null"/> a default key file is used instead.
-    /// </summary>
-    string KeyFilePath { get; }
+    IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields);
   }
 }

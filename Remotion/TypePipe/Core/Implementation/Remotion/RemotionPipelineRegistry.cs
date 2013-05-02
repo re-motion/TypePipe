@@ -31,11 +31,12 @@ namespace Remotion.TypePipe.Implementation.Remotion
   /// </summary>
   public class RemotionPipelineRegistry : PipelineRegistry
   {
-    private static IPipeline CreateDefaultPipeline (IEnumerable<IParticipant> defaultPipelineParticipant)
+    private static IPipeline CreateDefaultPipeline (IEnumerable<IParticipant> defaultPipelineParticipants)
     {
       var remotionPipelineFactory = new RemotionPipelineFactory();
-      return remotionPipelineFactory.CreatePipeline (
-          "remotion-default-pipeline", defaultPipelineParticipant, new AppConfigBasedConfigurationProvider());
+      var settings = new AppConfigBasedSettingsProvider().GetSettings();
+
+      return remotionPipelineFactory.CreatePipeline (settings, defaultPipelineParticipants);
     }
 
     public RemotionPipelineRegistry (IEnumerable<IParticipant> defaultPipelineParticipant)

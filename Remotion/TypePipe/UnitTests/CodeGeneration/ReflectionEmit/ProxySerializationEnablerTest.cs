@@ -30,7 +30,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 

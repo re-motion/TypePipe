@@ -20,12 +20,11 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
+  [Ignore("TODO 5552")]
   [TestFixture]
   public class ComplexSerializationTest : SerializationTestBase
   {
@@ -34,7 +33,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      _participantProviders = participantProviders.Concat (() => new ComplexSerializationEnabler()).ToArray();
+      _participantProviders = participantProviders.ToArray();
       var allParticipants = _participantProviders.Select (pp => pp()).ToArray();
       var factory = CreatePipeline (allParticipants);
 
@@ -76,7 +75,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
         IPipelineRegistry registry, string participantConfigurationID, IEnumerable<Func<IParticipant>> participantProviders)
     {
       var participants = participantProviders.Select (pp => pp());
-      var factory = PipelineFactory.Create (participantConfigurationID, participants);
+      var factory = PipelineFactory.Create (participantConfigurationID, participants.ToArray());
 
       // Register a factory for deserialization in current (new) app domain.
       registry.Register (factory);

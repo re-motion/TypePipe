@@ -17,9 +17,9 @@
 
 using System;
 using System.Runtime.Serialization;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.Serialization;
 
-namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
+namespace Remotion.TypePipe.UnitTests.Serialization
 {
   public class TestableObjectDeserializationProxyBase : ObjectDeserializationProxyBase
   {

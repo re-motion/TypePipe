@@ -21,10 +21,9 @@ using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Remotion.TypePipe.Serialization;
 
-namespace Remotion.TypePipe.UnitTests.Serialization.Implementation
+namespace Remotion.TypePipe.UnitTests.Serialization
 {
   [TestFixture]
   public class SerializableFieldFinderTest

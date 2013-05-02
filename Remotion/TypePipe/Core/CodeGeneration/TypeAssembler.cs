@@ -163,7 +163,7 @@ namespace Remotion.TypePipe.CodeGeneration
       context.ProxyType.AddCustomAttribute (attribute);
 
       _assembledTypeIdentifierProvider.AddTypeID (context.ProxyType, typeID);
-      var assembledTypeIDData = _assembledTypeIdentifierProvider.GetAssembledTypeIDDataExpression (typeID.Parts);
+      var assembledTypeIDData = _assembledTypeIdentifierProvider.GetAssembledTypeIDDataExpression (typeID);
       _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID, assembledTypeIDData);
 
       return GenerateTypesWithDiagnostics (context, codeGenerator);

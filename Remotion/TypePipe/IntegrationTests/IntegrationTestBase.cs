@@ -26,7 +26,6 @@ using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -125,22 +124,20 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IPipeline CreatePipeline (string participantConfigurationID, params IParticipant[] participants)
     {
-      return CreatePipeline (participantConfigurationID, participants, null);
+      return CreatePipeline (new PipelineSettings (participantConfigurationID), participants);
     }
 
-    protected IPipeline CreatePipeline (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
+    protected IPipeline CreatePipeline (PipelineSettings settings, params IParticipant[] participants)
     {
       // Avoid no-modification optimization.
-      var participantList = participants.ToList();
-      if (participantList.Count == 0)
-        participantList.Add (CreateParticipant (CreateModifyingAction ((id, ctx) => { })));
+      if (participants.Length == 0)
+        participants = new[] { CreateParticipant (CreateModifyingAction ((id, ctx) => { })) };
 
-      var objectFactory = PipelineFactory.Create (participantConfigurationID, participantList, configurationProvider);
+      var objectFactory = PipelineFactory.Create (settings, participants);
 
       _codeManager = objectFactory.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _codeManager.SetAssemblyNamePattern (participantConfigurationID + "_{counter}");
+      _codeManager.SetAssemblyNamePattern (settings.ParticipantConfigurationID + "_{counter}");
 
       return objectFactory;
     }

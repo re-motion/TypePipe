@@ -21,7 +21,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
   /// A static helper class for writing the contents of all serializable members of an object into a <see cref="SerializationInfo"/> object.

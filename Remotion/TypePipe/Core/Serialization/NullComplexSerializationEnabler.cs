@@ -15,18 +15,18 @@
 // under the License.
 // 
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Remotion.Collections;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.TypePipe.Serialization.Implementation
+namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
-  /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields.
+  /// An implementation of <see cref="IComplexSerializationEnabler"/> that does nothing.
   /// </summary>
-  public interface ISerializableFieldFinder
+  public class NullComplexSerializationEnabler : IComplexSerializationEnabler
   {
-    IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields);
+    public void MakeSerializable (MutableType proxyType, string participantConfigurationID, Expression assembledTypeIDData)
+    {
+    }
   }
 }
