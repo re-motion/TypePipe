@@ -18,6 +18,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe
@@ -51,6 +52,7 @@ namespace Remotion.TypePipe
 
     T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
     object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+    object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
     /// <summary>
     /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.

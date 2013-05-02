@@ -18,11 +18,11 @@
 using System;
 using System.Collections.ObjectModel;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
@@ -129,6 +129,22 @@ namespace Remotion.TypePipe.UnitTests.Implementation
           .Return (new Func<object> (() => assembledInstance));
 
       var result = _pipeline.Create<RequestedType>();
+
+      Assert.That (result, Is.SameAs (assembledInstance));
+    }
+
+    [Test]
+    public void CreateObject_AssembledTypeID ()
+    {
+      var assembledInstance = new AssembledType();
+      var assembledTypeID = AssembledTypeIDObjectMother.Create();
+      _typeCacheMock
+          .Expect (
+              mock => mock.GetOrCreateConstructorCall (
+                  Arg<AssembledTypeID>.Matches (id => id.Equals (assembledTypeID)), Arg.Is (ParamList.Empty.FuncType), Arg.Is (false)))
+          .Return (new Func<object> (() => assembledInstance));
+
+      var result = _pipeline.Create (assembledTypeID);
 
       Assert.That (result, Is.SameAs (assembledInstance));
     }

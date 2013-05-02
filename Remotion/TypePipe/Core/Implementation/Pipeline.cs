@@ -80,6 +80,16 @@ namespace Remotion.TypePipe.Implementation
       return instance;
     }
 
+    public object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    {
+      constructorArguments = constructorArguments ?? ParamList.Empty;
+
+      var constructorCall = _typeCache.GetOrCreateConstructorCall (typeID, constructorArguments.FuncType, allowNonPublicConstructor);
+      var instance = constructorArguments.InvokeFunc (constructorCall);
+
+      return instance;
+    }
+
     public void PrepareExternalUninitializedObject (object instance)
     {
       ArgumentUtility.CheckNotNull ("instance", instance);

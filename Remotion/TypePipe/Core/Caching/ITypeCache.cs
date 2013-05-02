@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.Caching
     Type GetOrCreateType (AssembledTypeID typeID);
 
     Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic);
+    Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic);
 
     void LoadTypes (IEnumerable<Type> generatedTypes);
   }

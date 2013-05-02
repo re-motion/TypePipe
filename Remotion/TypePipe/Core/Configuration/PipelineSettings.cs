@@ -20,7 +20,9 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Configuration
 {
-  // TODO 5552
+  /// <summary>
+  /// Holds configuration options for pipelines.
+  /// </summary>
   public class PipelineSettings
   {
     private readonly string _participantConfigurationID;
@@ -32,6 +34,10 @@ namespace Remotion.TypePipe.Configuration
       _participantConfigurationID = participantConfigurationID;
     }
 
+    /// <summary>
+    /// The participant configuration identifier of the pipeline.
+    /// </summary>
+    /// <seealso cref="IPipeline.ParticipantConfigurationID"/>
     public string ParticipantConfigurationID
     {
       get { return _participantConfigurationID; }
