@@ -24,7 +24,7 @@ using Remotion.TypePipe.Configuration;
 namespace Remotion.TypePipe.UnitTests.Configuration
 {
   [TestFixture]
-  public class AppConfigBasedConfigurationProviderTest
+  public class AppConfigBasedSettingsProviderTest
   {
     private AppConfigBasedSettingsProvider _provider;
     private TypePipeConfigurationSection _section;

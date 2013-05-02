@@ -58,10 +58,10 @@ namespace Remotion.TypePipe.Configuration
       get { return _section.ForceStrongNaming.KeyFilePath; }
     }
 
-    // TODO 5552
+    // TODO 5370
     public bool EnableComplexSerialization { get; set; }
 
-    // TODO 5552
+    // TODO 5370
     public PipelineSettings GetSettings ()
     {
       return new PipelineSettings ("remotion-default-pipeline")
