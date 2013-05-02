@@ -15,20 +15,28 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 
-using System.Reflection;
+using System;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.Development.TypePipe.UnitTesting
 {
   /// <summary>
-  /// Adds a field to the proxy type. Use this participant to avoid the pipelines no-modification optimization in tests.
+  /// Adds a custom attribute to the proxy type. Use this participant to avoid the pipelines no-modification optimization in tests.
   /// </summary>
   public class ModifyingParticipant : SimpleParticipantBase
   {
+    [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public class ModifiedAssembledTypeAttribute : Attribute { }
+
     public override void Participate (object id, ITypeAssemblyContext typeAssemblyContext)
     {
-      typeAssemblyContext.ProxyType.AddField ("_field_added_by_ModifyingParticipant", FieldAttributes.Private, typeof (int));
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ModifiedAssembledTypeAttribute());
+      var attribute = new CustomAttributeDeclaration (constructor, new object[0]);
+
+      typeAssemblyContext.ProxyType.AddCustomAttribute (attribute);
     }
   }
 }

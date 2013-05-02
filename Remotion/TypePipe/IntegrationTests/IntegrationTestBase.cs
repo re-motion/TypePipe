@@ -201,6 +201,7 @@ namespace Remotion.TypePipe.IntegrationTests
       };
     }
 
+    [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class TypeAssembledByIntegrationTestAttribute : Attribute {}
   }
 }
