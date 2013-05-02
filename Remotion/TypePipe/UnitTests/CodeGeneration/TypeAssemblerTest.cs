@@ -30,17 +30,17 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
-  // tODO 5552
   [TestFixture]
   public class TypeAssemblerTest
   {
     private IMutableTypeFactory _mutableTypeFactoryMock;
-    private IAssembledTypePreparer _assembledTypePreparerMock;
+    private IComplexSerializationEnabler _complexSerializationEnablerMock;
 
     private AssembledTypeID _typeID;
     private Type _requestedType;
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void SetUp ()
     {
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
-      _assembledTypePreparerMock = MockRepository.GenerateStrictMock<IAssembledTypePreparer>();
+      _complexSerializationEnablerMock = MockRepository.GenerateStrictMock<IComplexSerializationEnabler>();
 
       _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
       _typeID = AssembledTypeIDObjectMother.Create (_requestedType);
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       participantWithCacheProviderStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (identifierProviderStub);
       var participants = new[] { participantStub, participantWithCacheProviderStub };
 
-      var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock, _assembledTypePreparerMock);
+      var typeAssembler = new TypeAssembler ("configId", participants.AsOneTime(), _mutableTypeFactoryMock, _complexSerializationEnablerMock);
 
       Assert.That (typeAssembler.ParticipantConfigurationID, Is.EqualTo ("configId"));
       Assert.That (typeAssembler.Participants, Is.EqualTo (participants));
@@ -125,20 +125,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void ExtractTypeID ()
-    {
-      var assembledType = ReflectionObjectMother.GetSomeType();
-      var typeID = AssembledTypeIDObjectMother.Create();
-      _assembledTypePreparerMock.Expect (mock => mock.ExtractTypeID (assembledType)).Return (typeID);
-      var typeAssembler = CreateTypeAssembler();
-
-      var result = typeAssembler.ExtractTypeID (assembledType);
-
-      _assembledTypePreparerMock.VerifyAllExpectations();
-      Assert.That (result, Is.EqualTo (typeID));
-    }
-
-    [Test]
     public void AssembleType ()
     {
       var mockRepository = new MockRepository();
@@ -146,11 +132,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var participantMock2 = mockRepository.StrictMock<IParticipant>();
       var mutableTypeFactoryMock = mockRepository.StrictMock<IMutableTypeFactory>();
       var assembledTypeIdentifierProviderMock = mockRepository.StrictMock<IAssembledTypeIdentifierProvider>();
+      var complexSerializationEnablerMock = mockRepository.StrictMock<IComplexSerializationEnabler>();
       var codeGeneratorMock = mockRepository.StrictMock<IMutableTypeBatchCodeGenerator>();
 
+      var participantConfigurationID = "participant configuration id";
       var typeID = AssembledTypeIDObjectMother.Create (_requestedType, new object[] { "type id part" });
       var generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
+
       using (mockRepository.Ordered())
       {
         var typeIdentifierProviderMock = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
@@ -161,11 +150,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
         var typeModificationContextMock = mockRepository.StrictMock<ITypeModificationTracker>();
         mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (typeModificationContextMock);
         typeModificationContextMock.Stub (stub => stub.Type).Return (proxyType);
-
-        var typeIDExpression = ExpressionTreeObjectMother.GetSomeExpression();
-        assembledTypeIdentifierProviderMock
-            .Expect (mock => mock.GetExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
-            .Return (typeIDExpression);
 
         var idPart = new object();
         assembledTypeIdentifierProviderMock
@@ -178,8 +162,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
             mi =>
             {
               typeAssemblyContext = (ITypeAssemblyContext) mi.Arguments[1];
-              Assert.That (typeAssemblyContext.ParticipantConfigurationID, Is.EqualTo ("participant configuration id"));
-              Assert.That (typeAssemblyContext.TypeID, Is.SameAs (typeIDExpression));
               Assert.That (typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
               Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (proxyType));
               Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));
@@ -201,7 +183,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
         typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);
 
-        _assembledTypePreparerMock.Expect (mock => mock.AddTypeID (proxyType, typeIDExpression));
+        assembledTypeIdentifierProviderMock.Expect (mock => mock.AddTypeID (Arg.Is (proxyType), Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))));
+        var dataExpression = ExpressionTreeObjectMother.GetSomeExpression();
+        assembledTypeIdentifierProviderMock
+            .Expect (mock => mock.GetAssembledTypeIDDataExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
+            .Return (dataExpression);
+        complexSerializationEnablerMock.Expect(mock => mock.MakeSerializable(proxyType, participantConfigurationID, dataExpression));
 
         codeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
@@ -219,7 +206,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       }
       mockRepository.ReplayAll();
 
-      var typeAssembler = CreateTypeAssembler (mutableTypeFactoryMock, "participant configuration id", new[] { participantMock1, participantMock2 });
+      var typeAssembler = CreateTypeAssembler (
+          mutableTypeFactoryMock, complexSerializationEnablerMock, participantConfigurationID, new[] { participantMock1, participantMock2 });
       PrivateInvoke.SetNonPublicField (typeAssembler, "_assembledTypeIdentifierProvider", assembledTypeIdentifierProviderMock);
 
       var result = typeAssembler.AssembleType (typeID, _participantState, codeGeneratorMock);
@@ -268,7 +256,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       typeModificationContextStub.Stub (_ => _.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
       typeModificationContextStub.Stub (_ => _.IsModified()).Return (true);
       _mutableTypeFactoryMock.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
-      _assembledTypePreparerMock.Stub (_ => _.AddTypeID (null, null)).IgnoreArguments();
+      _complexSerializationEnablerMock.Stub (_ => _.MakeSerializable (null, null, null)).IgnoreArguments();
       var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
@@ -307,11 +295,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     private TypeAssembler CreateTypeAssembler (
-        IMutableTypeFactory mutableTypeFactory = null, string configurationId = "id", params IParticipant[] participants)
+        IMutableTypeFactory mutableTypeFactory = null,
+        IComplexSerializationEnabler complexSerializationEnabler = null,
+        string configurationId = "id",
+        params IParticipant[] participants)
     {
       mutableTypeFactory = mutableTypeFactory ?? _mutableTypeFactoryMock;
+      complexSerializationEnabler = complexSerializationEnabler ?? _complexSerializationEnablerMock;
 
-      return new TypeAssembler (configurationId, participants.AsOneTime(), mutableTypeFactory, _assembledTypePreparerMock);
+      return new TypeAssembler (configurationId, participants.AsOneTime (), mutableTypeFactory, complexSerializationEnabler);
     }
 
     private class RequestedType {}
