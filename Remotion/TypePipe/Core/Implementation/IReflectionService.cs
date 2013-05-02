@@ -44,13 +44,26 @@ namespace Remotion.TypePipe.Implementation
 
     /// <summary>
     /// Gets a cached or newly generates an assembled type for a requested type.
-    /// Note that this method triggers code generation if the respective assembled type is not yet present in the cache.
+    /// Because an assembled type is not uniquely identified by its requested type alone, this method may return different assembled types if the
+    /// participant configuration changes between calls.
     /// </summary>
+    /// <remarks>
+    /// Note that this method triggers code generation if the respective assembled type is not yet present in the cache.
+    /// </remarks>
     /// <param name="requestedType">A requested type.</param>
-    /// <returns>The assembled type for the requested type.</returns>
+    /// <returns>An assembled type for the requested type.</returns>
     Type GetAssembledType (Type requestedType);
 
-    // TODO 5552
+    /// <summary>
+    /// Gets a cached or newly generates an assembled type for the specified <see cref="AssembledTypeID"/>.
+    /// Because an assembled type is uniquely identified by its <paramref name="typeID"/>, this method always returns the same assembled type even
+    /// if the participant configuration changes between calls.
+    /// </summary>
+    /// <remarks>
+    /// Note that this method triggers code generation if the respective assembled type is not yet present in the cache.
+    /// </remarks>
+    /// <param name="typeID">An assembled type identifier.</param>
+    /// <returns>The assembled type for the specified identifier.</returns>
     Type GetAssembledType (AssembledTypeID typeID);
   }
 }
