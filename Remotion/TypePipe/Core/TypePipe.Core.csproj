@@ -437,6 +437,7 @@
     <Compile Include="Serialization\ObjectWithoutDeserializationConstructorProxy.cs" />
     <Compile Include="Implementation\PipelineRegistry.cs" />
     <Compile Include="Serialization\ComplexSerializationEnabler.cs" />
+    <Compile Include="SimpleParticipantBase.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
     <Compile Include="StrongNaming\IAssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\ITypeAnalyzer.cs" />
