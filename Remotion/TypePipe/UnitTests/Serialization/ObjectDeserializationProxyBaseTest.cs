@@ -23,6 +23,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
+using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -56,27 +57,30 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    public void Initialization ()
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "This method should not be called.")]
+    public void GetObjectData ()
     {
-      Assert.That (_objectDeserializationProxyBase.SerializationInfo, Is.SameAs (_info));
+      _objectDeserializationProxyBase.GetObjectData (null, new StreamingContext ());
     }
 
     [Test]
     public void GetRealObject ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
+      var data = new AssembledTypeIDData (requestedType.AssemblyQualifiedName, new object[0]);
       var context = new StreamingContext ((StreamingContextStates) 8);
 
-      _info.AddValue ("<tp>requestedType", requestedType.AssemblyQualifiedName);
       _info.AddValue ("<tp>participantConfigurationID", "config1");
+      _info.AddValue ("<tp>assembledTypeIDData", data);
 
-      var fakeObjectFactory = MockRepository.GenerateStub<IPipeline>();
+      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
+      pipelineStub.Stub (_ => _.Participants).Return (new IParticipant[0].ToList().AsReadOnly());
       var fakeInstance = MockRepository.GenerateStrictMock<IDeserializationCallback>();
-      _pipelineRegistryMock.Expect (mock => mock.Get ("config1")).Return (fakeObjectFactory);
-      _createRealObjectAssertions = (factory, type, ctx) =>
+      _pipelineRegistryMock.Expect (mock => mock.Get ("config1")).Return (pipelineStub);
+      _createRealObjectAssertions = (factory, typeID, ctx) =>
       {
-        Assert.That (factory, Is.SameAs (fakeObjectFactory));
-        Assert.That (type, Is.SameAs (requestedType));
+        Assert.That (factory, Is.SameAs (pipelineStub));
+        Assert.That (typeID.RequestedType, Is.EqualTo (requestedType));
         Assert.That (ctx, Is.EqualTo (context).And.Not.EqualTo (_context));
 
         return fakeInstance;
@@ -102,17 +106,17 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    public void CreateRealObject ()
+    public void OnDeserialization ()
     {
-      var instance = new object();
+      var instance = new object ();
       PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_instance", instance);
-      var sender = new object();
+      var sender = new object ();
 
       Assert.That (() => _objectDeserializationProxyBase.OnDeserialization (sender), Throws.Nothing);
     }
 
     [Test]
-    public void CreateRealObject_DeserializationCallback ()
+    public void OnDeserialization_DeserializationCallback ()
     {
       var deserializationCallbackMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
       var sender = new object ();
@@ -122,24 +126,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _objectDeserializationProxyBase.OnDeserialization (sender);
 
       deserializationCallbackMock.VerifyAllExpectations ();
-    }
-
-    [Test]
-    [ExpectedException (typeof (TypeLoadException), MatchType = MessageMatch.StartsWith,
-        ExpectedMessage = "Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, ")]
-    public void GetRealObject_UnderlyingTypeNotFound ()
-    {
-      _info.AddValue ("<tp>requestedType", "UnknownType");
-      _info.AddValue ("<tp>participantConfigurationID", "factory1");
-
-      _objectDeserializationProxyBase.GetRealObject (new StreamingContext());
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "This method should not be called.")]
-    public void GetObjectData ()
-    {
-      _objectDeserializationProxyBase.GetObjectData (null, new StreamingContext());
     }
   }
 }
