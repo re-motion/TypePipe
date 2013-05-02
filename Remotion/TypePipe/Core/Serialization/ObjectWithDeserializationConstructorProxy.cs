@@ -35,9 +35,8 @@ namespace Remotion.TypePipe.Serialization
 
     protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
     {
-      // TODO 5552: Pass in typeID!
-      var paramList = ParamList.Create (SerializationInfo, context);
-      return pipeline.Create (typeID.RequestedType, paramList, allowNonPublicConstructor: true);
+      var constructorArguments = ParamList.Create (SerializationInfo, context);
+      return pipeline.Create (typeID, constructorArguments, allowNonPublicConstructor: true);
     }
   }
 }

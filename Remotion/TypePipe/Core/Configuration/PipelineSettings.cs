@@ -21,7 +21,8 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Configuration
 {
   /// <summary>
-  /// Holds configuration options for pipelines.
+  /// Holds configuration options pipelines created via 
+  /// <see cref="PipelineFactory.Create(Remotion.TypePipe.Configuration.PipelineSettings,Remotion.TypePipe.IParticipant[])"/>.
   /// </summary>
   public class PipelineSettings
   {

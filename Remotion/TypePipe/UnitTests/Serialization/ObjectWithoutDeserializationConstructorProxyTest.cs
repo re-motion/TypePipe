@@ -18,8 +18,10 @@
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 
@@ -28,7 +30,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   [TestFixture]
   public class ObjectWithoutDeserializationConstructorProxyTest
   {
-    private Type _underlyingType;
     private SerializationInfo _serializationInfo;
 
     private ObjectWithoutDeserializationConstructorProxy _proxy;
@@ -39,7 +40,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [SetUp]
     public void SetUp ()
     {
-      _underlyingType = ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
 
       _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
@@ -51,10 +51,13 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void CreateRealObject ()
     {
+      var typeID = AssembledTypeIDObjectMother.Create();
       _serializationInfo.AddValue ("<tp>IntField", 7);
-      _pipelineMock.Expect (mock => mock.ReflectionService.GetAssembledType (_underlyingType)).Return (typeof (DomainType));
+      _pipelineMock
+          .Expect (mock => mock.ReflectionService.GetAssembledType (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
+          .Return (typeof (DomainType));
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", _pipelineMock, _underlyingType, _context);
+      var result = _proxy.Invoke ("CreateRealObject", _pipelineMock, typeID, _context);
 
       _pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<DomainType>());

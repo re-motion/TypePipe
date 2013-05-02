@@ -18,9 +18,11 @@
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 
@@ -29,7 +31,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   [TestFixture]
   public class ObjectWithDeserializationConstructorProxyTest
   {
-    private Type _underlyingType;
     private SerializationInfo _serializationInfo;
 
     private ObjectWithDeserializationConstructorProxy _proxy;
@@ -37,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [SetUp]
     public void SetUp ()
     {
-      _underlyingType = ReflectionObjectMother.GetSomeType();
+      ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
 
       _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
@@ -46,18 +47,19 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void CreateRealObject ()
     {
+      var typeID = AssembledTypeIDObjectMother.Create();
       var context = new StreamingContext (StreamingContextStates.Persistence);
-      var objectFactoryMock = MockRepository.GenerateStrictMock<IPipeline>();
+      var pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
       var fakeObject = new object();
-      objectFactoryMock
-          .Expect (mock => mock.Create (Arg.Is (_underlyingType), Arg<ParamList>.Is.Anything, Arg.Is (true)))
+      pipelineMock
+          .Expect (mock => mock.Create (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg<ParamList>.Is.Anything, Arg.Is (true)))
           .WhenCalled (
               mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, context })))
           .Return (fakeObject);
 
-      var result = PrivateInvoke.InvokeNonPublicMethod (_proxy, "CreateRealObject", objectFactoryMock, _underlyingType, context);
+      var result = _proxy.Invoke ("CreateRealObject", pipelineMock, typeID, context);
 
-      objectFactoryMock.VerifyAllExpectations();
+      pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));
     }
   }

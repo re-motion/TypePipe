@@ -115,6 +115,16 @@ namespace Remotion.TypePipe.PerformanceTests
       {
         throw new NotImplementedException();
       }
+
+      public Expression GetFlattenedSerializeExpression (object id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public object DeserializeID (object flattenedID)
+      {
+        throw new NotImplementedException();
+      }
     }
 
     public class RemixTypeIdentifierProvider : ITypeIdentifierProvider
@@ -125,6 +135,16 @@ namespace Remotion.TypePipe.PerformanceTests
       }
 
       public Expression GetExpression (object id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public Expression GetFlattenedSerializeExpression (object id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public object DeserializeID (object flattenedID)
       {
         throw new NotImplementedException();
       }
