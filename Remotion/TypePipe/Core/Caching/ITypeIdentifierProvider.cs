@@ -47,6 +47,7 @@ namespace Remotion.TypePipe.Caching
     /// <returns>
     /// An identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="requestedType"/>.
     /// </returns>
+    // TODO 5552: Doku for serialization
     object GetID (Type requestedType);
 
     // TODO 5552

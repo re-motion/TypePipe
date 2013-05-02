@@ -27,7 +27,6 @@ namespace Remotion.TypePipe.Caching
   /// <remarks>
   /// Note that the length of the id parts (object array) is assumed to be equal.
   /// </remarks>
-  [Serializable]
   public struct AssembledTypeID : IEquatable<AssembledTypeID>
   {
     private readonly Type _requestedType;

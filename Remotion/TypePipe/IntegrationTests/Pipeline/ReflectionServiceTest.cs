@@ -65,6 +65,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (() => _reflectionService.GetRequestedType (unrelatedType), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
+    // TODO 5552: Integration tet
+
     public class RequestedType1 {}
     public class RequestedType2 {}
   }
