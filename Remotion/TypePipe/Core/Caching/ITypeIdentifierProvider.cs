@@ -36,7 +36,8 @@ namespace Remotion.TypePipe.Caching
   public interface ITypeIdentifierProvider
   {
     /// <summary>
-    /// Gets an identifier used to identify the assembled <see cref="Type"/> for the provided requested <see cref="Type"/>.
+    /// Gets an identifier used to identify the assembled type for the provided requested type.
+    /// The implementation of this method should be fast as it is invoked everytime the pipeline creates an object.
     /// </summary>
     /// <remarks>
     /// The identifier should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
@@ -49,31 +50,29 @@ namespace Remotion.TypePipe.Caching
     /// </returns>
     object GetID (Type requestedType);
 
-    // TODO 5552
+    /// <summary>
+    /// Gets an expression that re-builds the specified identifier in code.
+    /// </summary>
+    /// <param name="id">An identifier previously returned by <see cref="GetID"/>.</param>
+    /// <returns>An expression that builds an identifier equivalent to <paramref name="id"/>.</returns>
+    /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     Expression GetExpression (object id);
 
-    // TODO 5552
+    /// <summary>
+    /// Gets an expression that re-builds a flattened serializable representation of the specified identifier in code.
+    /// This flattened representation is later deserialized via <see cref="DeserializeID"/>.
+    /// </summary>
+    /// <param name="id">An identifier previously returned by <see cref="GetID"/>.</param>
+    /// <returns>An expression that builds a flattened serializable representation of <paramref name="id"/>.</returns>
+    /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     Expression GetFlattenedSerializeExpression (object id);
 
-    // TODO 5552
+    /// <summary>
+    /// Deserializes the flattened identifier data that was created by the code returned form <see cref="GetFlattenedSerializeExpression"/>.
+    /// </summary>
+    /// <param name="flattenedID">A flattened serializable representation of an identifier.</param>
+    /// <returns>An identifier equivalent to the original identifier returned by <see cref="GetID"/>.</returns>
+    /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     object DeserializeID (object flattenedID);
-
-    // <summary>
-    // Rebuilds an identifier from an assembled <see cref="Type"/>.
-    // This method is the counterpart of <see cref="GetID"/> and will be invoked when types are loaded from an flushed assembly.
-    // The compound identifier from all participants determines whether or not an assembled type is loaded into the <see cref="IPipeline"/>.
-    // </summary>
-    // <remarks>
-    // The identifier should include the configuration of this <see cref="IParticipant"/> and other data that might influence the modifications
-    // specified by the <see cref="IParticipant"/>.
-    // Implementations should not encode the requested type, i.e., the base type of <paramref name="assembledType"/>, as this is already
-    // handled by the pipeline.
-    // </remarks>
-    // <param name="requestedType">The requested type.</param>
-    // <param name="assembledType">The loaded assembled type.</param>
-    // <returns>
-    // A identifier, or <see langword="null"/> if no specific caching information is required for the <paramref name="assembledType"/>.
-    // </returns>
-    //object RebuildID (Type requestedType, Type assembledType);
   }
 }
