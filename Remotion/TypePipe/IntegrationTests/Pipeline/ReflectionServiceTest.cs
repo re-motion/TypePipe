@@ -71,7 +71,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void GetAssembledType_ViaTypeID ()
     {
       var assembledType = _reflectionService.GetAssembledType (typeof (RequestedType1));
-      var typeID = (AssembledTypeID) PrivateInvoke.GetNonPublicStaticField (assembledType, "__typeID");
+      var typeID = _reflectionService.GetTypeID (assembledType);
+      Assert.That (typeID.RequestedType, Is.SameAs (typeof (RequestedType1)));
 
       var type1 = _reflectionService.GetAssembledType (typeID);
       var type2 = _pipeline.Create (typeID).GetType();
