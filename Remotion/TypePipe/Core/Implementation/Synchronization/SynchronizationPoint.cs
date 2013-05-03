@@ -99,6 +99,11 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         return _typeAssembler.GetRequestedType (assembledType);
     }
 
+    public AssembledTypeID GetTypeID (Type assembledType)
+    {
+      throw new NotImplementedException();
+    }
+
     public Type GetOrGenerateType (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         AssembledTypeID typeID,

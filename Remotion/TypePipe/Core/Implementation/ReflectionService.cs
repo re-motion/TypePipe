@@ -54,6 +54,13 @@ namespace Remotion.TypePipe.Implementation
       return _reflectionServiceSynchronizationPoint.GetRequestedType (assembledType);
     }
 
+    public AssembledTypeID GetTypeID (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      return _reflectionServiceSynchronizationPoint.GetTypeID (assembledType);
+    }
+
     public Type GetAssembledType (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);

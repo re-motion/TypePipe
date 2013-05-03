@@ -42,6 +42,9 @@ namespace Remotion.TypePipe.Implementation
     /// <exception cref="ArgumentException">If the argument type is not an assembled type.</exception>
     Type GetRequestedType (Type assembledType);
 
+    // TODO 5552
+    AssembledTypeID GetTypeID (Type assembledType);
+
     /// <summary>
     /// Gets a cached or newly generates an assembled type for a requested type.
     /// Because an assembled type is not uniquely identified by its requested type alone, this method may return different assembled types if the

@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -69,13 +70,39 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    public void GetAssembledType ()
+    public void GetTypeID ()
+    {
+      var assembledType = ReflectionObjectMother.GetSomeType();
+      var fakeTypeID = AssembledTypeIDObjectMother.Create();
+      _reflectionServiceSynchronizationPointMock.Expect (mock => mock.GetTypeID (assembledType)).Return (fakeTypeID);
+
+      var result = _service.GetTypeID (assembledType);
+
+      _reflectionServiceSynchronizationPointMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeTypeID));
+    }
+
+    [Test]
+    public void GetAssembledType_RequestedType ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       var fakeAssembledType = ReflectionObjectMother.GetSomeOtherType();
       _typeCacheMock.Expect (mock => mock.GetOrCreateType (requestedType)).Return (fakeAssembledType);
 
       var result = _service.GetAssembledType (requestedType);
+
+      _typeCacheMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeAssembledType));
+    }
+
+    [Test]
+    public void GetAssembledType_AssembledTypeID ()
+    {
+      var typeID = AssembledTypeIDObjectMother.Create();
+      var fakeAssembledType = ReflectionObjectMother.GetSomeOtherType();
+      _typeCacheMock.Expect (mock => mock.GetOrCreateType (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)))).Return (fakeAssembledType);
+
+      var result = _service.GetAssembledType (typeID);
 
       _typeCacheMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeAssembledType));
