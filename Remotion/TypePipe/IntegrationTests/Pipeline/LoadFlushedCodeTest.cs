@@ -69,6 +69,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
+    [Ignore("TODO RM-5578")]
     public void LoadAssembly_ThenContinueGenerating ()
     {
       _codeManager.LoadFlushedCode (_assembly1);

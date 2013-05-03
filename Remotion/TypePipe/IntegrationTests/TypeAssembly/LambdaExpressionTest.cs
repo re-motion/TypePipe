@@ -25,6 +25,7 @@ using Remotion.Development.UnitTesting.Reflection;
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
   [TestFixture]
+  [Ignore("TODO RM-5578")]
   public class LambdaExpressionTest : TypeAssemblerIntegrationTestBase
   {
     private MethodInfo _invokeLambda;
