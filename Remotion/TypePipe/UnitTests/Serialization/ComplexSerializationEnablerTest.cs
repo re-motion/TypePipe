@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _typeID = AssembledTypeIDObjectMother.Create();
       _assembledTypeIDData = ExpressionTreeObjectMother.GetSomeExpression();
       _assembledTypeIdentifierProviderStub
-          .Stub (_ => _.GetAssembledTypeIDDataExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID))))
+          .Stub (_ => _.GetFlattenedExpressionForSerialization (Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID))))
           .Return (_assembledTypeIDData);
     }
 

@@ -116,12 +116,12 @@ namespace Remotion.TypePipe.PerformanceTests
         throw new NotImplementedException();
       }
 
-      public Expression GetFlattenedSerializeExpression (object id)
+      public Expression GetFlattenedExpressionForSerialization (object id)
       {
         throw new NotImplementedException();
       }
 
-      public object DeserializeID (object flattenedID)
+      public object DeserializeFlattenedID (object flattenedID)
       {
         throw new NotImplementedException();
       }
@@ -139,12 +139,12 @@ namespace Remotion.TypePipe.PerformanceTests
         throw new NotImplementedException();
       }
 
-      public Expression GetFlattenedSerializeExpression (object id)
+      public Expression GetFlattenedExpressionForSerialization (object id)
       {
         throw new NotImplementedException();
       }
 
-      public object DeserializeID (object flattenedID)
+      public object DeserializeFlattenedID (object flattenedID)
       {
         throw new NotImplementedException();
       }

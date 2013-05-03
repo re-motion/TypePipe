@@ -67,17 +67,17 @@ namespace Remotion.TypePipe.Serialization
 
       var parts = new object[_flattenedSerializableIDParts.Length];
       for (int i = 0; i < parts.Length; i++)
-        parts[i] = DeserializeID(typeIDProviders[i], _flattenedSerializableIDParts[i]);
+        parts[i] = DeserializeFlattenedID(typeIDProviders[i], _flattenedSerializableIDParts[i]);
 
       return parts;
     }
 
-    private static object DeserializeID (ITypeIdentifierProvider typeIDProvider, object flattenedIDPart)
+    private static object DeserializeFlattenedID (ITypeIdentifierProvider typeIDProvider, object flattenedIDPart)
     {
       if (flattenedIDPart == null)
         return null;
 
-      return typeIDProvider.DeserializeID (flattenedIDPart);
+      return typeIDProvider.DeserializeFlattenedID (flattenedIDPart);
     }
   }
 }

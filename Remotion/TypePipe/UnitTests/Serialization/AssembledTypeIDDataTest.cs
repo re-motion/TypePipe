@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       var idProviderMock = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
       var deserializedIdPart = new object();
-      idProviderMock.Expect (_ => _.DeserializeID (_idPart)).Return (deserializedIdPart);
+      idProviderMock.Expect (_ => _.DeserializeFlattenedID (_idPart)).Return (deserializedIdPart);
       var participantStub = MockRepository.GenerateStub<IParticipant>();
       participantStub.Stub (_ => _.PartialTypeIdentifierProvider).Return (idProviderMock);
       var pipeline = CreatePipelineStub (participantStub);

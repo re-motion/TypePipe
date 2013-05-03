@@ -99,13 +99,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
           {
             var deserializingTypeIdentifierProvider =
                 (TypeIdentifierProviderStub) ctx.Pipeline.Participants.Select (p => p.PartialTypeIdentifierProvider).Single (p => p != null);
-            Assert.That (deserializingTypeIdentifierProvider.GetFlattenedSerializeExpressionWasCalled, Is.False);
-            Assert.That (deserializingTypeIdentifierProvider.DeserializeIDWasCalled, Is.True);
+            Assert.That (deserializingTypeIdentifierProvider.GetFlattenedExpressionForSerializationWasCalled, Is.False);
+            Assert.That (deserializingTypeIdentifierProvider.DeserializeFlattenedIDWasCalled, Is.True);
           });
 
       var typeIdentifierProvider = (TypeIdentifierProviderStub) pipeline.Participants.Single().PartialTypeIdentifierProvider;
-      Assert.That (typeIdentifierProvider.GetFlattenedSerializeExpressionWasCalled, Is.True);
-      Assert.That (typeIdentifierProvider.DeserializeIDWasCalled, Is.False);
+      Assert.That (typeIdentifierProvider.GetFlattenedExpressionForSerializationWasCalled, Is.True);
+      Assert.That (typeIdentifierProvider.DeserializeFlattenedIDWasCalled, Is.False);
     }
 
     private static IParticipant CreateParticipantWithTypeIdentifierProvider ()
@@ -115,8 +115,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     private class TypeIdentifierProviderStub : ITypeIdentifierProvider
     {
-      public bool GetFlattenedSerializeExpressionWasCalled;
-      public bool DeserializeIDWasCalled;
+      public bool GetFlattenedExpressionForSerializationWasCalled;
+      public bool DeserializeFlattenedIDWasCalled;
 
       public object GetID (Type requestedType)
       {
@@ -130,18 +130,18 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
         return Expression.Constant ("identifier from code");
       }
 
-      public Expression GetFlattenedSerializeExpression (object id)
+      public Expression GetFlattenedExpressionForSerialization (object id)
       {
         Assert.That (id, Is.EqualTo ("identifier"));
-        GetFlattenedSerializeExpressionWasCalled = true;
+        GetFlattenedExpressionForSerializationWasCalled = true;
 
         return Expression.Constant ("flattened identifier from code");
       }
 
-      public object DeserializeID (object flattenedID)
+      public object DeserializeFlattenedID (object flattenedID)
       {
         Assert.That (flattenedID, Is.EqualTo ("flattened identifier from code"));
-        DeserializeIDWasCalled = true;
+        DeserializeFlattenedIDWasCalled = true;
 
         return "identifier";
       }

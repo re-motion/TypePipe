@@ -142,39 +142,39 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetAssembledTypeIDDataExpression ()
+    public void GetFlattenedExpressionForSerialization ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
       var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression ();
-      _identifierProviderMock.Stub (_ => _.GetFlattenedSerializeExpression ("abc")).Return (idPartExpression);
+      _identifierProviderMock.Stub (_ => _.GetFlattenedExpressionForSerialization ("abc")).Return (idPartExpression);
 
-      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
+      var result = _provider.GetFlattenedExpressionForSerialization (typeID);
 
       CheckTypeIDDataExpression (result, requestedType, idPartExpression);
     }
 
     [Test]
-    public void GetAssembledTypeIDDataExpression_ProviderNotCalledForNull ()
+    public void GetFlattenedExpressionForSerialization_ProviderNotCalledForNull ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { null });
 
-      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
+      var result = _provider.GetFlattenedExpressionForSerialization (typeID);
 
-      _identifierProviderMock.AssertWasNotCalled (mock => mock.GetFlattenedSerializeExpression (Arg<object>.Is.Anything));
+      _identifierProviderMock.AssertWasNotCalled (mock => mock.GetFlattenedExpressionForSerialization (Arg<object>.Is.Anything));
       var expectedIdPartExpression = Expression.Constant (null);
       CheckTypeIDDataExpression (result, requestedType, expectedIdPartExpression);
     }
 
     [Test]
-    public void GetAssembledTypeIDDataExpression_ProviderReturnsNull_IsSubstitutedForConstantNullExpression ()
+    public void GetFlattenedExpressionForSerialization_ProviderReturnsNull_IsSubstitutedForConstantNullExpression ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType ();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
-      _identifierProviderMock.Stub (_ => _.GetFlattenedSerializeExpression ("abc")).Return (null);
+      _identifierProviderMock.Stub (_ => _.GetFlattenedExpressionForSerialization ("abc")).Return (null);
 
-      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
+      var result = _provider.GetFlattenedExpressionForSerialization (typeID);
 
       var expectedIdPartExpression = Expression.Constant (null);
       CheckTypeIDDataExpression (result, requestedType, expectedIdPartExpression);

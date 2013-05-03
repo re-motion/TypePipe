@@ -50,17 +50,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetFlattenedSerializeExpression ()
+    public void GetFlattenedExpressionForSerialization ()
     {
-      var result = _provider.GetFlattenedSerializeExpression (id: null);
+      var result = _provider.GetFlattenedExpressionForSerialization (id: null);
 
       Assert.That (result, Is.TypeOf<ConstantExpression> ().And.Property ("Value").Null);
     }
 
     [Test]
-    public void DeserializeID ()
+    public void DeserializeFlattenedID ()
     {
-      Assert.That (_provider.DeserializeID (flattenedID: null), Is.Null);
+      Assert.That (_provider.DeserializeFlattenedID (flattenedID: null), Is.Null);
     }
   }
 }

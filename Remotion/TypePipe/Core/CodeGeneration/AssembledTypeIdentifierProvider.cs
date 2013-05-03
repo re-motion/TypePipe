@@ -104,13 +104,13 @@ namespace Remotion.TypePipe.CodeGeneration
       return (AssembledTypeID) typeIDField.GetValue (null);
     }
 
-    public Expression GetAssembledTypeIDDataExpression (AssembledTypeID typeID)
+    public Expression GetFlattenedExpressionForSerialization (AssembledTypeID typeID)
     {
       return CreateNewTypeIDExpression (
           s_assembledTypeIDDataConstructor,
           typeID.RequestedType.AssemblyQualifiedName,
           typeID.Parts,
-          (p, id) => p.GetFlattenedSerializeExpression (id));
+          (p, id) => p.GetFlattenedExpressionForSerialization (id));
     }
 
     private Expression CreateNewTypeIDExpression (

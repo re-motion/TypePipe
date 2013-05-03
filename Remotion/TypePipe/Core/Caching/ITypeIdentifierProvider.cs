@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Reflection;
+using System.Runtime.Serialization;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
@@ -61,27 +63,40 @@ namespace Remotion.TypePipe.Caching
 
     /// <summary>
     /// Gets an expression that re-builds a flattened serializable representation of the specified identifier in code.
-    /// This flattened representation is later deserialized via <see cref="DeserializeID"/>.
+    /// This flattened representation is later deserialized via <see cref="DeserializeFlattenedID"/>.
     /// </summary>
     /// <param name="id">An identifier previously returned by <see cref="GetID"/>.</param>
     /// <returns>An expression that builds a flattened serializable representation of <paramref name="id"/>.</returns>
     /// <remarks>
+    /// <para>
     /// This method is only called when using the complex serialization strategy and <see cref="GetID"/> did not return <see langword="null"/>.
+    /// </para>
+    /// <para>
+    /// A "flattened" value is a value that is immediately deserializable in one step. It must not contain any cycles or objects
+    /// that implement <see cref="IObjectReference"/>, such as <see cref="Type"/>, <see cref="MethodInfo"/>, etc. Instead of such objects, include
+    /// some simple identifier in the flattened value, e.g., <see cref="Type.AssemblyQualifiedName"/>.
+    /// </para>
     /// </remarks>
     /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
-    Expression GetFlattenedSerializeExpression (object id);
+    Expression GetFlattenedExpressionForSerialization (object id);
 
     /// <summary>
-    /// Deserializes the flattened identifier data that was created by the code returned form <see cref="GetFlattenedSerializeExpression"/>.
+    /// Deserializes the flattened identifier data that was created by the code returned form <see cref="GetFlattenedExpressionForSerialization"/>.
     /// </summary>
     /// <param name="flattenedID">A flattened serializable representation of an identifier.</param>
     /// <returns>An identifier equivalent to the original identifier returned by <see cref="GetID"/>.</returns>
-    /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     /// <remarks>
+    /// <para>
     /// This method is only called during deserialization when the serializing pipeline used the complex serialization strategy and 
     /// <see cref="GetID"/> did not return <see langword="null"/>.
+    /// </para>
+    /// <para>
+    /// See <see cref="GetFlattenedExpressionForSerialization"/> for a description on what a "flattened" value is. If 
+    /// <see cref="GetFlattenedExpressionForSerialization"/> returned an invalid value (e.g., one that contains cycles or <see cref="Type"/> members),
+    /// the <see cref="DeserializeFlattenedID"/> might encounter <see langword="null" /> values where none are expected.
+    /// </para>
     /// </remarks>
     /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
-    object DeserializeID (object flattenedID);
+    object DeserializeFlattenedID (object flattenedID);
   }
 }

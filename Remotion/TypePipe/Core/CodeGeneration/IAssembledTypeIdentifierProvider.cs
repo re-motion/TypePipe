@@ -35,6 +35,6 @@ namespace Remotion.TypePipe.CodeGeneration
 
     AssembledTypeID ExtractTypeID (Type assembledType);
 
-    Expression GetAssembledTypeIDDataExpression (AssembledTypeID typeID);
+    Expression GetFlattenedExpressionForSerialization (AssembledTypeID typeID);
   }
 }
