@@ -78,7 +78,8 @@ namespace Remotion.TypePipe.Caching
     /// <returns>An identifier equivalent to the original identifier returned by <see cref="GetID"/>.</returns>
     /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     /// <remarks>
-    /// This method is only called when using the complex serialization strategy and <see cref="GetID"/> did not return <see langword="null"/>.
+    /// This method is only called during deserialization when the serializing pipeline used the complex serialization strategy and 
+    /// <see cref="GetID"/> did not return <see langword="null"/>.
     /// </remarks>
     /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
     object DeserializeID (object flattenedID);
