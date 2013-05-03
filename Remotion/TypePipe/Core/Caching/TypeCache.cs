@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.Caching
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
 
-      var typeID = _typeAssembler.GetTypeID (requestedType);
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
 
       return GetOrCreateType (typeID);
     }
@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.Caching
       Debug.Assert (requestedType != null);
       Debug.Assert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
 
-      var typeID = _typeAssembler.GetTypeID (requestedType);
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
 
       return GetOrCreateConstructorCall (typeID, delegateType, allowNonPublic);
     }

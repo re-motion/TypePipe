@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       var typeID = AssembledTypeIDObjectMother.Create (_requestedType);
       _types.Add (typeID, _assembledType);
-      _typeAssemblerMock.Expect (mock => mock.GetTypeID (_requestedType)).Return (typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
       var result = _cache.GetOrCreateType (_requestedType);
 
@@ -101,7 +101,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void GetOrCreateType_CacheMiss ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.GetTypeID (_requestedType)).Return (typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
       _typeCacheSynchronizationPoint
           .Expect (
               mock => mock.GetOrGenerateType (
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       var typeID = AssembledTypeIDObjectMother.Create();
       _constructorCalls.Add (new ConstructionKey (typeID, _delegateType, _allowNonPublic), _generatedCtorCall);
-      _typeAssemblerMock.Expect (mock => mock.GetTypeID (_requestedType)).Return (typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       var typeID = AssembledTypeIDObjectMother.Create();
       var constructionKey = new ConstructionKey (typeID, _delegateType, _allowNonPublic);
-      _typeAssemblerMock.Expect (mock => mock.GetTypeID (_requestedType)).Return (typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
       _typeCacheSynchronizationPoint
           .Expect (
               mock => mock.GetOrGenerateConstructorCall (

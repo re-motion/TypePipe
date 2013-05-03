@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.CodeGeneration
       _identifierProviderIndexes = providersWithIndex.ToDictionary (t => t.Participant, t => t.Index);
     }
 
-    public AssembledTypeID GetTypeID (Type requestedType)
+    public AssembledTypeID ComputeTypeID (Type requestedType)
     {
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);

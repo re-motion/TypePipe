@@ -101,7 +101,10 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
     public AssembledTypeID GetTypeID (Type assembledType)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      lock (_codeGenerationLock)
+        return _typeAssembler.ExtractTypeID (assembledType);
     }
 
     public Type GetOrGenerateType (

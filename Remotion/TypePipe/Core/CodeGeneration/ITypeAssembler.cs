@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.CodeGeneration
     bool IsAssembledType (Type type);
     Type GetRequestedType (Type assembledType);
 
-    AssembledTypeID GetTypeID (Type requestedType);
+    AssembledTypeID ComputeTypeID (Type requestedType);
     AssembledTypeID ExtractTypeID (Type assembledType);
 
     Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);

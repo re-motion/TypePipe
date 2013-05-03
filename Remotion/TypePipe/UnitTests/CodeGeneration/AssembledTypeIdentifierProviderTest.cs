@@ -55,12 +55,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetTypeID ()
+    public void ComputeTypeID ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       _identifierProviderMock.Stub (_ => _.GetID (requestedType)).Return ("abc");
 
-      var result = _provider.GetTypeID (requestedType);
+      var result = _provider.ComputeTypeID (requestedType);
 
       var expectedTypeID = new AssembledTypeID (requestedType, new object[] { "abc" });
       Assert.That (result, Is.EqualTo (expectedTypeID));

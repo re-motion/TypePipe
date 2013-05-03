@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    public void GetTypeID ()
+    public void ComputeTypeID ()
     {
       var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
       var participantMock2 = MockRepository.GenerateStrictMock<IParticipant>();
@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       idProviderMock2.Expect (mock => mock.GetID (_requestedType)).Return ("2");
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
 
-      var result = typeAssembler.GetTypeID (_requestedType);
+      var result = typeAssembler.ComputeTypeID (_requestedType);
 
       Assert.That (result, Is.EqualTo (new AssembledTypeID (_requestedType, new object[] { 1, "2" })));
     }

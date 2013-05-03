@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public interface IAssembledTypeIdentifierProvider
   {
-    AssembledTypeID GetTypeID (Type requestedType);
+    AssembledTypeID ComputeTypeID (Type requestedType);
 
     object GetPart (AssembledTypeID typeID, IParticipant participant);
 

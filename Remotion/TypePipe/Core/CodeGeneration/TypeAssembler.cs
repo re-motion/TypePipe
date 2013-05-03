@@ -95,12 +95,12 @@ namespace Remotion.TypePipe.CodeGeneration
       return assembledType.BaseType;
     }
 
-    public AssembledTypeID GetTypeID (Type requestedType)
+    public AssembledTypeID ComputeTypeID (Type requestedType)
     {
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
 
-      return _assembledTypeIdentifierProvider.GetTypeID (requestedType);
+      return _assembledTypeIdentifierProvider.ComputeTypeID (requestedType);
     }
 
     public AssembledTypeID ExtractTypeID (Type assembledType)
