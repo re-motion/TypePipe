@@ -94,15 +94,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void GetRequestedType ()
     {
       var assembledType = typeof (AssembledType);
-      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
       var otherType = ReflectionObjectMother.GetSomeType();
 
       var typeAssembler = CreateTypeAssembler();
 
       Assert.That (typeAssembler.GetRequestedType (assembledType), Is.SameAs (typeof (RequestedType)));
-      var message = "The argument type is not an assembled type.\r\nParameter name: assembledType";
-      Assert.That (() => typeAssembler.GetRequestedType (assembledTypeSubclass), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => typeAssembler.GetRequestedType (otherType), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (
+          () => typeAssembler.GetRequestedType (otherType),
+          Throws.ArgumentException.With.Message.EqualTo ("The argument type is not an assembled type.\r\nParameter name: assembledType"));
     }
 
     [Test]
@@ -121,6 +120,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var result = typeAssembler.ComputeTypeID (_requestedType);
 
       Assert.That (result, Is.EqualTo (new AssembledTypeID (_requestedType, new object[] { 1, "2" })));
+    }
+
+    [Test]
+    public void ExtractTypeID ()
+    {
+      var assembledType = typeof (AssembledType);
+      var otherType = ReflectionObjectMother.GetSomeType();
+      var fakeTypeID = AssembledTypeIDObjectMother.Create();
+      var assembledTypeIdentifierProviderStub = MockRepository.GenerateStub<IAssembledTypeIdentifierProvider>();
+      assembledTypeIdentifierProviderStub.Stub (_ => _.ExtractTypeID (assembledType)).Return (fakeTypeID);
+
+      var typeAssembler = CreateTypeAssembler (assembledTypeIdentifierProvider: assembledTypeIdentifierProviderStub);
+
+      Assert.That (typeAssembler.ExtractTypeID (assembledType), Is.EqualTo (fakeTypeID));
+      Assert.That (
+          () => typeAssembler.ExtractTypeID (otherType),
+          Throws.ArgumentException.With.Message.EqualTo ("The argument type is not an assembled type.\r\nParameter name: assembledType"));
     }
 
     [Test]
@@ -208,8 +224,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       mockRepository.ReplayAll();
 
       var typeAssembler = CreateTypeAssembler (
-          mutableTypeFactoryMock, complexSerializationEnablerMock, participantConfigurationID, new[] { participantMock1, participantMock2 });
-      PrivateInvoke.SetNonPublicField (typeAssembler, "_assembledTypeIdentifierProvider", assembledTypeIdentifierProviderMock);
+          mutableTypeFactoryMock,
+          assembledTypeIdentifierProviderMock,
+          complexSerializationEnablerMock,
+          participantConfigurationID,
+          new[] { participantMock1, participantMock2 });
 
       var result = typeAssembler.AssembleType (typeID, _participantState, codeGeneratorMock);
 
@@ -297,14 +316,20 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
     private TypeAssembler CreateTypeAssembler (
         IMutableTypeFactory mutableTypeFactory = null,
+        IAssembledTypeIdentifierProvider assembledTypeIdentifierProvider = null,
         IComplexSerializationEnabler complexSerializationEnabler = null,
         string configurationId = "id",
         params IParticipant[] participants)
     {
       mutableTypeFactory = mutableTypeFactory ?? _mutableTypeFactoryMock;
+      // Do not fix up assembledTypeIdentifierProvider.
       complexSerializationEnabler = complexSerializationEnabler ?? _complexSerializationEnablerMock;
 
-      return new TypeAssembler (configurationId, participants.AsOneTime (), mutableTypeFactory, complexSerializationEnabler);
+      var typeAssembler = new TypeAssembler (configurationId, participants.AsOneTime(), mutableTypeFactory, complexSerializationEnabler);
+      if (assembledTypeIdentifierProvider != null)
+        PrivateInvoke.SetNonPublicField (typeAssembler, "_assembledTypeIdentifierProvider", assembledTypeIdentifierProvider);
+
+      return typeAssembler;
     }
 
     private class RequestedType {}

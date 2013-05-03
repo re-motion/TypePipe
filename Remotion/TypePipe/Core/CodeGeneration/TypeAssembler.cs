@@ -88,9 +88,7 @@ namespace Remotion.TypePipe.CodeGeneration
     public Type GetRequestedType (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-
-      if (!IsAssembledType (assembledType))
-        throw new ArgumentException ("The argument type is not an assembled type.", "assembledType");
+      CheckIsAssembledType (assembledType);
 
       return assembledType.BaseType;
     }
@@ -106,6 +104,7 @@ namespace Remotion.TypePipe.CodeGeneration
     public AssembledTypeID ExtractTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      CheckIsAssembledType (assembledType);
 
       return _assembledTypeIdentifierProvider.ExtractTypeID (assembledType);
     }
@@ -202,6 +201,12 @@ namespace Remotion.TypePipe.CodeGeneration
           exception.Message,
           Environment.NewLine,
           participantList);
+    }
+
+    private void CheckIsAssembledType (Type assembledType)
+    {
+      if (!IsAssembledType (assembledType))
+        throw new ArgumentException ("The argument type is not an assembled type.", "assembledType");
     }
   }
 }
