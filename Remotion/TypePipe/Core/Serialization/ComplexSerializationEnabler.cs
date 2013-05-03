@@ -18,6 +18,8 @@
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -54,14 +56,20 @@ namespace Remotion.TypePipe.Serialization
     private static readonly MethodInfo s_addValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo o) => o.AddValue ("name", new object()));
 
-    public void MakeSerializable (MutableType proxyType, string participantConfigurationID, Expression assembledTypeIDData)
+    public void MakeSerializable (
+        MutableType proxyType,
+        string participantConfigurationID,
+        IAssembledTypeIdentifierProvider assembledTypeIdentifierProvider,
+        AssembledTypeID typeID)
     {
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNull ("assembledTypeIDData", assembledTypeIDData);
+      ArgumentUtility.CheckNotNull ("assembledTypeIdentifierProvider", assembledTypeIdentifierProvider);
 
       if (!proxyType.IsTypePipeSerializable())
         return;
+
+      var assembledTypeIDData = assembledTypeIdentifierProvider.GetAssembledTypeIDDataExpression (typeID);
 
       if (typeof (ISerializable).IsTypePipeAssignableFrom (proxyType))
       {

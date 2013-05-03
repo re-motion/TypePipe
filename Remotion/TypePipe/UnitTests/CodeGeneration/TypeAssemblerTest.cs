@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
@@ -184,11 +183,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
         typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);
 
         assembledTypeIdentifierProviderMock.Expect (mock => mock.AddTypeID (Arg.Is (proxyType), Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))));
-        var dataExpression = ExpressionTreeObjectMother.GetSomeExpression();
-        assembledTypeIdentifierProviderMock
-            .Expect (mock => mock.GetAssembledTypeIDDataExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
-            .Return (dataExpression);
-        complexSerializationEnablerMock.Expect(mock => mock.MakeSerializable(proxyType, participantConfigurationID, dataExpression));
+        complexSerializationEnablerMock
+            .Expect (
+                mock => mock.MakeSerializable (
+                    Arg.Is(proxyType),
+                    Arg.Is(participantConfigurationID),
+                    Arg.Is (assembledTypeIdentifierProviderMock),
+                    Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))));
 
         codeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
@@ -256,7 +257,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       typeModificationContextStub.Stub (_ => _.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
       typeModificationContextStub.Stub (_ => _.IsModified()).Return (true);
       _mutableTypeFactoryMock.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
-      _complexSerializationEnablerMock.Stub (_ => _.MakeSerializable (null, null, null)).IgnoreArguments();
+      _complexSerializationEnablerMock.Stub (_ => _.MakeSerializable (null, null, null, new AssembledTypeID())).IgnoreArguments();
       var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");

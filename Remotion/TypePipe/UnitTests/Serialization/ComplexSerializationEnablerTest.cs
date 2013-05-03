@@ -18,7 +18,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
@@ -27,6 +30,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -36,6 +40,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     private ComplexSerializationEnabler _enabler;
 
     private string _participantConfigurationID;
+    private IAssembledTypeIdentifierProvider _assembledTypeIdentifierProviderStub;
+    private AssembledTypeID _typeID;
     private Expression _assembledTypeIDData;
 
     [SetUp]
@@ -44,7 +50,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _enabler = new ComplexSerializationEnabler();
 
       _participantConfigurationID = "configID";
+      _assembledTypeIdentifierProviderStub = MockRepository.GenerateStub<IAssembledTypeIdentifierProvider>();
+      _typeID = AssembledTypeIDObjectMother.Create();
       _assembledTypeIDData = ExpressionTreeObjectMother.GetSomeExpression();
+      _assembledTypeIdentifierProviderStub
+          .Stub (_ => _.GetAssembledTypeIDDataExpression (Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID))))
+          .Return (_assembledTypeIDData);
     }
 
     [Test]
@@ -52,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType), attributes: TypeAttributes.Serializable);
       
-      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIdentifierProviderStub, _typeID);
 
       Assert.That (proxyType.AddedInterfaces, Is.EqualTo (new[] { typeof (ISerializable) }));
       Assert.That (proxyType.AddedConstructors, Is.Empty);
@@ -81,7 +92,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SerializableInterfaceType), attributes: TypeAttributes.Serializable);
 
-      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIdentifierProviderStub, _typeID);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Has.Count.EqualTo (1));
@@ -108,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (SomeType));
 
-      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIdentifierProviderStub, _typeID);
 
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
       Assert.That (proxyType.AddedMethods, Is.Empty);
@@ -122,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
 
-      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIDData);
+      _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIdentifierProviderStub, _typeID);
     }
 
     public class SomeType { }

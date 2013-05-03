@@ -159,12 +159,15 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private GeneratedTypeContext GenerateTypes (AssembledTypeID typeID, TypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
     {
+      // Add [AssembledType] attribute.
       var attribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
       context.ProxyType.AddCustomAttribute (attribute);
 
+      // Add '__typeID' and initialization code.
       _assembledTypeIdentifierProvider.AddTypeID (context.ProxyType, typeID);
-      var assembledTypeIDData = _assembledTypeIdentifierProvider.GetAssembledTypeIDDataExpression (typeID);
-      _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID, assembledTypeIDData);
+
+      // Enable complex serialization.
+      _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID,_assembledTypeIdentifierProvider, typeID);
 
       return GenerateTypesWithDiagnostics (context, codeGenerator);
     }

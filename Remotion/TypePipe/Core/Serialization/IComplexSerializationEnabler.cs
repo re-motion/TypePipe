@@ -16,7 +16,8 @@
 // 
 
 using System;
-using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Serialization
@@ -26,6 +27,10 @@ namespace Remotion.TypePipe.Serialization
   /// </summary>
   public interface IComplexSerializationEnabler
   {
-    void MakeSerializable (MutableType proxyType, string participantConfigurationID, Expression assembledTypeIDData);
+    void MakeSerializable (
+        MutableType proxyType,
+        string participantConfigurationID,
+        IAssembledTypeIdentifierProvider assembledTypeIdentifierProvider,
+        AssembledTypeID typeID);
   }
 }
