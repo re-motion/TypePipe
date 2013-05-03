@@ -95,6 +95,7 @@
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableTypeObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\ParameterDeclarationObjectMother.cs" />
+    <Compile Include="UnitTesting\Serialization\FlatValueStub.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

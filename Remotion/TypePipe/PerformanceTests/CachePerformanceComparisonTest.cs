@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.PerformanceTests
         throw new NotImplementedException();
       }
 
-      public Expression GetFlattenedExpressionForSerialization (object id)
+      public Expression GetFlatValueExpressionForSerialization (object id)
       {
         throw new NotImplementedException();
       }
@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.PerformanceTests
         throw new NotImplementedException();
       }
 
-      public Expression GetFlattenedExpressionForSerialization (object id)
+      public Expression GetFlatValueExpressionForSerialization (object id)
       {
         throw new NotImplementedException();
       }

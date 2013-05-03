@@ -19,6 +19,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
@@ -46,21 +47,21 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var result = _provider.GetExpression (id: null);
 
-      Assert.That (result, Is.TypeOf<ConstantExpression>().And.Property ("Value").Null);
+      Assert.That (result, Is.TypeOf<ConstantExpression>());
+      var constantExpression = (ConstantExpression) result;
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
+      Assert.That (constantExpression.Value, Is.Null);
     }
 
     [Test]
     public void GetFlattenedExpressionForSerialization ()
     {
-      var result = _provider.GetFlattenedExpressionForSerialization (id: null);
+      var result = _provider.GetFlatValueExpressionForSerialization (id: null);
 
-      Assert.That (result, Is.TypeOf<ConstantExpression> ().And.Property ("Value").Null);
-    }
-
-    [Test]
-    public void DeserializeFlattenedID ()
-    {
-      Assert.That (_provider.DeserializeFlattenedID (flattenedID: null), Is.Null);
+      Assert.That (result, Is.InstanceOf<ConstantExpression>());
+      var constantExpression = (ConstantExpression) result;
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (IFlatValue)));
+      Assert.That (constantExpression.Value, Is.Null);
     }
   }
 }

@@ -23,15 +23,15 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
-  /// A data container for serialization that holds flattened from an <see cref="AssembledTypeID"/>.
+  /// A data container for serialization that holds flattened serializable data from an <see cref="AssembledTypeID"/>.
   /// </summary>
   [Serializable]
   public class AssembledTypeIDData
   {
     private readonly string _requestedTypeAssemblyQualifiedName;
-    private readonly object[] _flattenedSerializableIDParts;
+    private readonly IFlatValue[] _flattenedSerializableIDParts;
 
-    public AssembledTypeIDData (string requestedTypeAssemblyQualifiedName, object[] flattenedSerializableIDParts)
+    public AssembledTypeIDData (string requestedTypeAssemblyQualifiedName, IFlatValue[] flattenedSerializableIDParts)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("requestedTypeAssemblyQualifiedName", requestedTypeAssemblyQualifiedName);
       ArgumentUtility.CheckNotNull ("flattenedSerializableIDParts", flattenedSerializableIDParts);
@@ -45,39 +45,17 @@ namespace Remotion.TypePipe.Serialization
       get { return _requestedTypeAssemblyQualifiedName; }
     }
 
-    public object[] FlattenedSerializableIDParts
+    public IFlatValue[] FlattenedSerializableIDParts
     {
       get { return _flattenedSerializableIDParts; }
     }
 
-    public AssembledTypeID CreateTypeID (IPipeline pipeline)
+    public AssembledTypeID CreateTypeID ()
     {
-      ArgumentUtility.CheckNotNull ("pipeline", pipeline);
-
       var requestedType = Type.GetType (_requestedTypeAssemblyQualifiedName, throwOnError: true);
-      var parts = GetPartsArray (pipeline);
+      var parts = _flattenedSerializableIDParts.Select (v => v != null ? v.GetRealValue () : null).ToArray ();
 
       return new AssembledTypeID (requestedType, parts);
-    }
-
-    private object[] GetPartsArray (IPipeline pipeline)
-    {
-      var typeIDProviders = pipeline.Participants.Select (p => p.PartialTypeIdentifierProvider).Where (p => p != null).ToList();
-      Assertion.IsTrue (typeIDProviders.Count == _flattenedSerializableIDParts.Length);
-
-      var parts = new object[_flattenedSerializableIDParts.Length];
-      for (int i = 0; i < parts.Length; i++)
-        parts[i] = DeserializeFlattenedID(typeIDProviders[i], _flattenedSerializableIDParts[i]);
-
-      return parts;
-    }
-
-    private static object DeserializeFlattenedID (ITypeIdentifierProvider typeIDProvider, object flattenedIDPart)
-    {
-      if (flattenedIDPart == null)
-        return null;
-
-      return typeIDProvider.DeserializeFlattenedID (flattenedIDPart);
     }
   }
 }

@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.Serialization
       var assembledTypeIDData = (AssembledTypeIDData) _serializationInfo.GetValue (ComplexSerializationEnabler.AssembledTypeIDData, typeof (AssembledTypeIDData));
 
       var pipeline = _registry.Get (participantConfigurationID);
-      var typeID = assembledTypeIDData.CreateTypeID (pipeline);
+      var typeID = assembledTypeIDData.CreateTypeID();
 
       _instance = CreateRealObject (pipeline, typeID, context);
 

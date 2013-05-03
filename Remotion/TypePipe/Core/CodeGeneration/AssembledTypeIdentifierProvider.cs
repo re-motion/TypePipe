@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration
         MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (typeof (object), new object[0]));
 
     private static readonly ConstructorInfo s_assembledTypeIDDataConstructor =
-        MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeIDData ("type name", new object[0]));
+        MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeIDData ("type name", new IFlatValue[0]));
 
     // Array for performance reasons.
     private readonly ITypeIdentifierProvider[] _identifierProviders;
@@ -89,7 +89,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (AssembledTypeID));
       var typeIDExpression = CreateNewTypeIDExpression (
-          s_assembledTypeIDConstructor, typeID.RequestedType, typeID.Parts, (p, id) => p.GetExpression (id));
+          s_assembledTypeIDConstructor, typeID.RequestedType, typeID.Parts, typeof (object), (p, id) => p.GetExpression (id), "GetExpression");
 
       proxyType.AddTypeInitialization (ctx => Expression.Assign (Expression.Field (null, typeIDField), typeIDExpression));
     }
@@ -104,31 +104,49 @@ namespace Remotion.TypePipe.CodeGeneration
       return (AssembledTypeID) typeIDField.GetValue (null);
     }
 
-    public Expression GetFlattenedExpressionForSerialization (AssembledTypeID typeID)
+    public Expression GetAssembledTypeIDDataExpression (AssembledTypeID typeID)
     {
       return CreateNewTypeIDExpression (
           s_assembledTypeIDDataConstructor,
           typeID.RequestedType.AssemblyQualifiedName,
           typeID.Parts,
-          (p, id) => p.GetFlattenedExpressionForSerialization (id));
+          typeof (IFlatValue),
+          (p, id) => p.GetFlatValueExpressionForSerialization (id),
+          "GetFlatValueExpressionForSerialization");
     }
 
     private Expression CreateNewTypeIDExpression (
-        ConstructorInfo constructor, object requestedTypeValue, object[] idParts, Func<ITypeIdentifierProvider, object, Expression> expressionProvider)
+        ConstructorInfo constructor,
+        object requestedTypeValue,
+        object[] idParts,
+        Type idPartType,
+        Func<ITypeIdentifierProvider, object, Expression> expressionProvider,
+        string methodName)
     {
       var requestedTypeExpression = Expression.Constant (requestedTypeValue);
-      var parts = idParts.Select ((idPart, i) => GetNonNullExpressionForID (expressionProvider, idPart, i));
-      var partsArray = Expression.NewArrayInit (typeof (object), parts);
+      var parts = idParts.Select ((idPart, i) => GetNonNullExpressionForID (expressionProvider, i, idPart, idPartType, methodName));
+      var partsArray = Expression.NewArrayInit (idPartType, parts);
 
       return Expression.New (constructor, requestedTypeExpression, partsArray);
     }
 
-    private Expression GetNonNullExpressionForID (Func<ITypeIdentifierProvider, object, Expression> expressionProvider, object idPart, int i)
+    private Expression GetNonNullExpressionForID (
+        Func<ITypeIdentifierProvider, object, Expression> expressionProvider, int index, object idPart, Type idPartType, string methodName)
     {
       if (idPart == null)
-        return Expression.Constant (null);
+        return Expression.Constant (null, idPartType);
 
-      return expressionProvider (_identifierProviders[i], idPart) ?? Expression.Constant (null);
+      var flatValue = expressionProvider (_identifierProviders[index], idPart);
+      if (flatValue == null)
+        return Expression.Constant (null, idPartType);
+
+      if (!idPartType.IsTypePipeAssignableFrom (flatValue.Type))
+      {
+        var message = string.Format ("The expression returned from '{0}' must build an instance of '{1}'.", methodName, idPartType.Name);
+        throw new InvalidOperationException (message);
+      }
+
+      return flatValue;
     }
   }
 }

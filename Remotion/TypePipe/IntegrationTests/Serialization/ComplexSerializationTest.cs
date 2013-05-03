@@ -19,12 +19,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting;
+using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
@@ -52,7 +54,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       context.ParticipantProviders = _participantProviders;
       return ctx =>
       {
-        var deserializedInstance = DeserializeInstance (ctx);
+        var deserializedInstance = (T) DeserializeInstance (ctx.ParticipantProviders, ctx.SerializedData);
 
         // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
         var type = deserializedInstance.GetType();
@@ -69,17 +71,17 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       };
     }
 
-    private static T DeserializeInstance<T> (SerializationTestContext<T> context)
+    private static object DeserializeInstance (Func<IParticipant>[] participantProviders, byte[] serializedData)
     {
       var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
-      var participants = context.ParticipantProviders.Select (pp => pp()).Concat (new ModifyingParticipant()); // Avoid no-modification optimization.
-      context.Pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
+      var participants = participantProviders.Select (pp => pp()).Concat (new ModifyingParticipant()); // Avoid no-modification optimization.
+      var pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
 
       // Register a factory for deserialization in current (new) app domain.
-      registry.Register (context.Pipeline);
+      registry.Register (pipeline);
       try
       {
-        return (T) Serializer.Deserialize (context.SerializedData);
+        return Serializer.Deserialize (serializedData);
       }
       finally
       {
@@ -93,19 +95,10 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       var pipeline = CreatePipelineForSerialization (CreateParticipantWithTypeIdentifierProvider);
       var instance = pipeline.Create<RequestedType>();
 
-      CheckInstanceIsSerializable (
-          instance,
-          (deserializedInstance, ctx) =>
-          {
-            var deserializingTypeIdentifierProvider =
-                (TypeIdentifierProviderStub) ctx.Pipeline.Participants.Select (p => p.PartialTypeIdentifierProvider).Single (p => p != null);
-            Assert.That (deserializingTypeIdentifierProvider.GetFlattenedExpressionForSerializationWasCalled, Is.False);
-            Assert.That (deserializingTypeIdentifierProvider.DeserializeFlattenedIDWasCalled, Is.True);
-          });
+      CheckInstanceIsSerializable (instance, (deserializedInstance, ctx) => { });
 
       var typeIdentifierProvider = (TypeIdentifierProviderStub) pipeline.Participants.Single().PartialTypeIdentifierProvider;
       Assert.That (typeIdentifierProvider.GetFlattenedExpressionForSerializationWasCalled, Is.True);
-      Assert.That (typeIdentifierProvider.DeserializeFlattenedIDWasCalled, Is.False);
     }
 
     private static IParticipant CreateParticipantWithTypeIdentifierProvider ()
@@ -116,7 +109,6 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     private class TypeIdentifierProviderStub : ITypeIdentifierProvider
     {
       public bool GetFlattenedExpressionForSerializationWasCalled;
-      public bool DeserializeFlattenedIDWasCalled;
 
       public object GetID (Type requestedType)
       {
@@ -130,20 +122,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
         return Expression.Constant ("identifier from code");
       }
 
-      public Expression GetFlattenedExpressionForSerialization (object id)
+      public Expression GetFlatValueExpressionForSerialization (object id)
       {
         Assert.That (id, Is.EqualTo ("identifier"));
         GetFlattenedExpressionForSerializationWasCalled = true;
 
-        return Expression.Constant ("flattened identifier from code");
-      }
-
-      public object DeserializeFlattenedID (object flattenedID)
-      {
-        Assert.That (flattenedID, Is.EqualTo ("flattened identifier from code"));
-        DeserializeFlattenedIDWasCalled = true;
-
-        return "identifier";
+        var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new FlatValueStub ("real value"));
+        return Expression.New (constructor, Expression.Constant ("identifier"));
       }
     }
 

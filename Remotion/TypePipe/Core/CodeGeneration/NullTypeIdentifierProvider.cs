@@ -18,6 +18,7 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -36,19 +37,12 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       Assertion.IsNull (id);
 
-      return Expression.Constant (null);
+      return Expression.Constant (null, typeof (object));
     }
 
-    public Expression GetFlattenedExpressionForSerialization (object id)
+    public Expression GetFlatValueExpressionForSerialization (object id)
     {
-      return GetExpression (id);
-    }
-
-    public object DeserializeFlattenedID (object flattenedID)
-    {
-      Assertion.IsNull (flattenedID);
-
-      return null;
+      return Expression.Constant (null, typeof (IFlatValue));
     }
   }
 }

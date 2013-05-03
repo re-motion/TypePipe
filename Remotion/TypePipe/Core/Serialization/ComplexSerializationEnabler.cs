@@ -69,7 +69,7 @@ namespace Remotion.TypePipe.Serialization
       if (!proxyType.IsTypePipeSerializable())
         return;
 
-      var assembledTypeIDData = assembledTypeIdentifierProvider.GetFlattenedExpressionForSerialization (typeID);
+      var assembledTypeIDData = assembledTypeIdentifierProvider.GetAssembledTypeIDDataExpression (typeID);
 
       if (typeof (ISerializable).IsTypePipeAssignableFrom (proxyType))
       {

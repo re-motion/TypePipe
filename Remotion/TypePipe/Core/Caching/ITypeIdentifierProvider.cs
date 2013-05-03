@@ -61,9 +61,10 @@ namespace Remotion.TypePipe.Caching
     /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     Expression GetExpression (object id);
 
+    // TODO 5552: Update docs.
     /// <summary>
     /// Gets an expression that re-builds a flattened serializable representation of the specified identifier in code.
-    /// This flattened representation is later deserialized via <see cref="DeserializeFlattenedID"/>.
+    /// This flattened representation is later deserialized via "DeserializeFlattenedID" todo.
     /// </summary>
     /// <param name="id">An identifier previously returned by <see cref="GetID"/>.</param>
     /// <returns>An expression that builds a flattened serializable representation of <paramref name="id"/>.</returns>
@@ -78,25 +79,6 @@ namespace Remotion.TypePipe.Caching
     /// </para>
     /// </remarks>
     /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
-    Expression GetFlattenedExpressionForSerialization (object id);
-
-    /// <summary>
-    /// Deserializes the flattened identifier data that was created by the code returned form <see cref="GetFlattenedExpressionForSerialization"/>.
-    /// </summary>
-    /// <param name="flattenedID">A flattened serializable representation of an identifier.</param>
-    /// <returns>An identifier equivalent to the original identifier returned by <see cref="GetID"/>.</returns>
-    /// <remarks>
-    /// <para>
-    /// This method is only called during deserialization when the serializing pipeline used the complex serialization strategy and 
-    /// <see cref="GetID"/> did not return <see langword="null"/>.
-    /// </para>
-    /// <para>
-    /// See <see cref="GetFlattenedExpressionForSerialization"/> for a description on what a "flattened" value is. If 
-    /// <see cref="GetFlattenedExpressionForSerialization"/> returned an invalid value (e.g., one that contains cycles or <see cref="Type"/> members),
-    /// the <see cref="DeserializeFlattenedID"/> might encounter <see langword="null" /> values where none are expected.
-    /// </para>
-    /// </remarks>
-    /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
-    object DeserializeFlattenedID (object flattenedID);
+    Expression GetFlatValueExpressionForSerialization (object id);
   }
 }

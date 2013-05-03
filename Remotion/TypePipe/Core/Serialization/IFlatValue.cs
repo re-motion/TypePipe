@@ -17,24 +17,22 @@
 
 using System;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Dlr.Ast;
-using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.Configuration;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.Serialization
 {
-  /// <summary>
-  /// Defines an interface for classes providing identifiers for assembled types.
-  /// </summary>
-  public interface IAssembledTypeIdentifierProvider
+  // TODO 5552
+  ///<remarks>
+  /// <para>
+  /// See <see cref="ITypeIdentifierProvider.GetFlatValueExpressionForSerialization"/> for a description on what a "flattened" value is. If 
+  /// <see cref="ITypeIdentifierProvider.GetFlatValueExpressionForSerialization"/> returned an invalid value (e.g., one that contains cycles or <see cref="Type"/> members),
+  /// the "ITypeIdentifierProvider.DeserializeFlattenedID" might encounter <see langword="null" /> values where none are expected.
+  /// </para>
+  /// </remarks>
+  /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
+  public interface IFlatValue
   {
-    AssembledTypeID ComputeTypeID (Type requestedType);
-
-    object GetPart (AssembledTypeID typeID, IParticipant participant);
-
-    void AddTypeID (MutableType proxyType, AssembledTypeID typeID);
-
-    AssembledTypeID ExtractTypeID (Type assembledType);
-
-    Expression GetAssembledTypeIDDataExpression (AssembledTypeID typeID);
+    // TODO 5552
+    object GetRealValue ();
   }
 }

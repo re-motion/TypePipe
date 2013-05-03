@@ -253,6 +253,7 @@
     <Compile Include="MutableReflection\GenericParameterContext.cs" />
     <Compile Include="Serialization\AssembledTypeIDData.cs" />
     <Compile Include="Serialization\IComplexSerializationEnabler.cs" />
+    <Compile Include="Serialization\IFlatValue.cs" />
     <Compile Include="Serialization\NullComplexSerializationEnabler.cs" />
     <Compile Include="Serialization\ObjectWithDeserializationConstructorProxy.cs" />
     <Compile Include="Serialization\ISerializableFieldFinder.cs" />

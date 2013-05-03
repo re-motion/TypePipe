@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     public void GetRealObject ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      var data = new AssembledTypeIDData (requestedType.AssemblyQualifiedName, new object[0]);
+      var data = new AssembledTypeIDData (requestedType.AssemblyQualifiedName, new IFlatValue[0]);
       var context = new StreamingContext ((StreamingContextStates) 8);
 
       _info.AddValue ("<tp>participantConfigurationID", "config1");

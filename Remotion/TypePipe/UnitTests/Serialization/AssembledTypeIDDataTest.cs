@@ -17,12 +17,10 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
-using Rhino.Mocks;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -32,15 +30,15 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     private AssembledTypeIDData _data;
 
     private Type _type;
-    private object _idPart;
+    private FlatValueStub _flatValueStub;
 
     [SetUp]
     public void SetUp ()
     {
       _type = ReflectionObjectMother.GetSomeType();
-      _idPart = "id part";
+      _flatValueStub = new FlatValueStub();
 
-      _data = new AssembledTypeIDData (_type.AssemblyQualifiedName, new[] { _idPart });
+      _data = new AssembledTypeIDData (_type.AssemblyQualifiedName, new IFlatValue[] { _flatValueStub, null });
     }
 
     [Test]
@@ -55,18 +53,13 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void CreateTypeID ()
     {
-      var idProviderMock = MockRepository.GenerateStrictMock<ITypeIdentifierProvider>();
       var deserializedIdPart = new object();
-      idProviderMock.Expect (_ => _.DeserializeFlattenedID (_idPart)).Return (deserializedIdPart);
-      var participantStub = MockRepository.GenerateStub<IParticipant>();
-      participantStub.Stub (_ => _.PartialTypeIdentifierProvider).Return (idProviderMock);
-      var pipeline = CreatePipelineStub (participantStub);
+      _flatValueStub.RealValue = deserializedIdPart;
 
-      var result = _data.CreateTypeID (pipeline);
+      var result = _data.CreateTypeID();
 
-      idProviderMock.VerifyAllExpectations();
       Assert.That (result.RequestedType, Is.SameAs (_type));
-      Assert.That (result.Parts, Is.EqualTo (new[] { deserializedIdPart }));
+      Assert.That (result.Parts, Is.EqualTo (new[] { deserializedIdPart, null }));
     }
 
     [Test]
@@ -74,18 +67,9 @@ namespace Remotion.TypePipe.UnitTests.Serialization
         ExpectedMessage = "Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, ")]
     public void GetRealObject_RequestedTypeNotFound ()
     {
-      var pipeline = CreatePipelineStub();
-      var data = new AssembledTypeIDData ("UnknownType", new object[0]);
+      var data = new AssembledTypeIDData ("UnknownType", new IFlatValue[0]);
 
-      data.CreateTypeID (pipeline);
-    }
-
-    private static IPipeline CreatePipelineStub (params IParticipant[] participants)
-    {
-      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
-      pipelineStub.Stub (_ => _.Participants).Return (participants.ToList().AsReadOnly());
-
-      return pipelineStub;
+      data.CreateTypeID();
     }
   }
 }
