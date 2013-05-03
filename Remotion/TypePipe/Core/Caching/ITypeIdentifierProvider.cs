@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
@@ -64,7 +65,10 @@ namespace Remotion.TypePipe.Caching
     /// </summary>
     /// <param name="id">An identifier previously returned by <see cref="GetID"/>.</param>
     /// <returns>An expression that builds a flattened serializable representation of <paramref name="id"/>.</returns>
-    /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
+    /// <remarks>
+    /// This method is only called when using the complex serialization strategy and <see cref="GetID"/> did not return <see langword="null"/>.
+    /// </remarks>
+    /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
     Expression GetFlattenedSerializeExpression (object id);
 
     /// <summary>
@@ -73,6 +77,10 @@ namespace Remotion.TypePipe.Caching
     /// <param name="flattenedID">A flattened serializable representation of an identifier.</param>
     /// <returns>An identifier equivalent to the original identifier returned by <see cref="GetID"/>.</returns>
     /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
+    /// <remarks>
+    /// This method is only called when using the complex serialization strategy and <see cref="GetID"/> did not return <see langword="null"/>.
+    /// </remarks>
+    /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
     object DeserializeID (object flattenedID);
   }
 }
