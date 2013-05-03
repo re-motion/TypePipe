@@ -16,23 +16,37 @@
 // 
 
 using System;
+using System.Reflection;
+using System.Runtime.Serialization;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.Serialization
 {
-  // TODO 5552
-  ///<remarks>
+  /// <summary>
+  /// Represents a flat value that knows how to re-construct its real value. Participants must return serializable expressions of this type from
+  /// <see cref="ITypeIdentifierProvider.GetFlatValueExpressionForSerialization"/> in order to allow serialization of instances without the need of
+  /// saving the generated assembly to disk.
+  /// </summary>
+  /// <remarks>
   /// <para>
-  /// See <see cref="ITypeIdentifierProvider.GetFlatValueExpressionForSerialization"/> for a description on what a "flattened" value is. If 
-  /// <see cref="ITypeIdentifierProvider.GetFlatValueExpressionForSerialization"/> returned an invalid value (e.g., one that contains cycles or <see cref="Type"/> members),
-  /// the "ITypeIdentifierProvider.DeserializeFlattenedID" might encounter <see langword="null" /> values where none are expected.
+  /// A "flattened" value is a value that is immediately deserializable in one step. It must not contain any cycles or objects
+  /// that implement <see cref="IObjectReference"/>, such as <see cref="Type"/>, <see cref="MethodInfo"/>, etc. Instead of such objects, include
+  /// some simple identifier in the flattened value, e.g., <see cref="Type.AssemblyQualifiedName"/>.
+  /// </para>
+  /// <para>
+  /// If <see cref="ITypeIdentifierProvider.GetFlatValueExpressionForSerialization"/> returned an invalid value (e.g., one that contains cycles
+  /// or <see cref="Type"/> members), the method <see cref="GetRealValue"/> might encounter <see langword="null"/> values where none are expected.
   /// </para>
   /// </remarks>
+  /// <seealso cref="ITypeIdentifierProvider.GetFlatValueExpressionForSerialization"/>
   /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
   public interface IFlatValue
   {
-    // TODO 5552
+    /// <summary>
+    /// Re-constructs the real value from its flat representation.
+    /// </summary>
+    /// <returns>The real value.</returns>
     object GetRealValue ();
   }
 }

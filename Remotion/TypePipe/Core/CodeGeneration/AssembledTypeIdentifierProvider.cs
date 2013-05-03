@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       if (!idPartType.IsTypePipeAssignableFrom (flatValue.Type))
       {
-        var message = string.Format ("The expression returned from '{0}' must build an instance of '{1}'.", methodName, idPartType.Name);
+        var message = string.Format ("The expression returned from '{0}' must build an serializable instance of '{1}'.", methodName, idPartType.Name);
         throw new InvalidOperationException (message);
       }
 

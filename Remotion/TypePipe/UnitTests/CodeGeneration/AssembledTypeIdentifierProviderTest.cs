@@ -182,7 +182,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The expression returned from 'GetFlatValueExpressionForSerialization' must build an instance of 'IFlatValue'.")]
+        "The expression returned from 'GetFlatValueExpressionForSerialization' must build an serializable instance of 'IFlatValue'.")]
     public void GetFlattenedExpressionForSerialization_ProviderReturnsNonFlatValue ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();

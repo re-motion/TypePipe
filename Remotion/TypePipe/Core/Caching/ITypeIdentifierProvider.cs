@@ -61,13 +61,13 @@ namespace Remotion.TypePipe.Caching
     /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     Expression GetExpression (object id);
 
-    // TODO 5552: Update docs.
     /// <summary>
-    /// Gets an expression that re-builds a flattened serializable representation of the specified identifier in code.
-    /// This flattened representation is later deserialized via "DeserializeFlattenedID" todo.
+    /// Gets an expression of type <see cref="IFlatValue"/> that re-builds a flattened serializable representation of the specified identifier
+    /// in code. On deserialization <see cref="IFlatValue.GetRealValue"/> is called on the deserialized flat value to create an identifier that is
+    /// equivalent to the original identifier.
     /// </summary>
     /// <param name="id">An identifier previously returned by <see cref="GetID"/>.</param>
-    /// <returns>An expression that builds a flattened serializable representation of <paramref name="id"/>.</returns>
+    /// <returns>An expression of type <see cref="IFlatValue"/> that builds a flattened serializable representation of <paramref name="id"/>.</returns>
     /// <remarks>
     /// <para>
     /// This method is only called when using the complex serialization strategy and <see cref="GetID"/> did not return <see langword="null"/>.
@@ -78,6 +78,7 @@ namespace Remotion.TypePipe.Caching
     /// some simple identifier in the flattened value, e.g., <see cref="Type.AssemblyQualifiedName"/>.
     /// </para>
     /// </remarks>
+    /// <seealso cref="IFlatValue"/>
     /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
     Expression GetFlatValueExpressionForSerialization (object id);
   }
