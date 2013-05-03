@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var type = result.Type;
       Assert.That (type.BaseType, Is.SameAs (_domainType));
-      Assert.That (type.Name, Is.EqualTo (@"DomainType_Proxy1"));
+      Assert.That (type.Name, Is.EqualTo (@"DomainType_Proxy_1"));
       Assert.That (type.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
       Assert.That (type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
 

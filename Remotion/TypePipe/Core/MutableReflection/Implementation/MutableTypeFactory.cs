@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
       _counter++;
-      var name = string.Format ("{0}_Proxy{1}", baseType.Name, _counter);
+      var name = string.Format ("{0}_Proxy_{1}", baseType.Name, _counter);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
 
       var proxyType = CreateType (name, baseType.Namespace, attributes, baseType);

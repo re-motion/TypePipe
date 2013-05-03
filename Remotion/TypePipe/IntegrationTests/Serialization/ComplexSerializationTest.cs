@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
         // The generated type is always the single type in the assembly. Its name is therefore the same as the serialized type name, but with
         // "Proxy1" in the end.
-        var expectedFullName = Regex.Replace (ctx.SerializedTypeFullName, @"Proxy\d+$", "Proxy1");
+        var expectedFullName = Regex.Replace (ctx.SerializedTypeFullName, @"Proxy_\d+$", "Proxy_1");
         Assert.That (type.FullName, Is.EqualTo (expectedFullName));
 
         return deserializedInstance;
