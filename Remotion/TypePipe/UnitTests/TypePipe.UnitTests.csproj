@@ -46,7 +46,7 @@
       <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks-3.6\net-3.5\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
