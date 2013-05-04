@@ -46,7 +46,7 @@
       <HintPath>..\..\..\prereq\Assemblies\CommonServiceLocator-1.0\net-3.5\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
