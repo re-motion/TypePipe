@@ -75,7 +75,9 @@ namespace Remotion.TypePipe.Implementation
 
     public Type GetAdditionalType (object additionalTypeID)
     {
-      throw new NotImplementedException("TODO 5553");
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+
+      return _reflectionServiceSynchronizationPoint.GetAdditionalType (additionalTypeID);
     }
   }
 }

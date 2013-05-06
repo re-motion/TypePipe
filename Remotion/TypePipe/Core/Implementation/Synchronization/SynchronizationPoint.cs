@@ -107,6 +107,11 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         return _typeAssembler.ExtractTypeID (assembledType);
     }
 
+    public Type GetAdditionalType (object additionalTypeID)
+    {
+      throw new NotImplementedException("TODO 5553");
+    }
+
     public Type GetOrGenerateType (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         AssembledTypeID typeID,

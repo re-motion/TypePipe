@@ -107,5 +107,18 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeAssembledType));
     }
+
+    [Test]
+    public void GetAdditionalType ()
+    {
+      var additionalTypeID = new object();
+      var fakeAdditionalType = ReflectionObjectMother.GetSomeType();
+      _reflectionServiceSynchronizationPointMock.Expect (mock => mock.GetAdditionalType (additionalTypeID)).Return (fakeAdditionalType);
+
+      var result = _service.GetAdditionalType (additionalTypeID);
+
+      _reflectionServiceSynchronizationPointMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (fakeAdditionalType));
+    }
   }
 }

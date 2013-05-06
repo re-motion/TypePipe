@@ -24,7 +24,7 @@ using Remotion.TypePipe.Implementation;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
-  public class ReflectionServiceTest : IntegrationTestBase
+  public class AssembledTypeServicesTest : IntegrationTestBase
   {
     private IPipeline _pipeline;
     private IReflectionService _reflectionService;

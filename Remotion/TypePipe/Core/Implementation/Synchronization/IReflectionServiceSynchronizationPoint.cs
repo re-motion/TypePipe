@@ -30,5 +30,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     Type GetRequestedType (Type assembledType);
 
     AssembledTypeID GetTypeID (Type assembledType);
+
+    Type GetAdditionalType (object additionalTypeID);
   }
 }
