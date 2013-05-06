@@ -62,6 +62,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateType_NamespaceCanBeNull ()
+    {
+      var result = _factory.CreateType ("Name", null, TypeAttributes.Class, typeof (object));
+
+      Assert.That (result.Namespace, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type cannot be null.\r\nParameter name: baseType")]
+    public void CreateType_BaseType_CannotBeNull ()
+    {
+      _factory.CreateType ("Name", "ns", TypeAttributes.Class, null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type must be null for interfaces.\r\nParameter name: baseType")]
+    public void CreateType_BaseType_MustBeNullForInterfaces ()
+    {
+      _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object));
+    }
+
+    [Test]
     public void CreateType_SpecialBaseType ()
     {
       CheckCreateType (typeof (Enum));

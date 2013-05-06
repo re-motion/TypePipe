@@ -36,9 +36,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      if (!SubclassFilterUtility.IsSubclassable (baseType) || baseType.ContainsGenericParameters)
+      var isInterface = attributes.IsSet (TypeAttributes.Interface);
+      if (!isInterface && baseType == null)
+        throw new ArgumentException ("Base type cannot be null.", "baseType");
+      if (isInterface && baseType != null)
+        throw new ArgumentException ("Base type must be null for interfaces.", "baseType");
+
+      if (baseType != null && (!SubclassFilterUtility.IsSubclassable (baseType) || baseType.ContainsGenericParameters))
       {
         throw new ArgumentException (
             "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
@@ -65,7 +70,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Name space may be null.
 
       var attributes = TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract;
-      return CreateMutableType (name, @namespace, attributes, null);
+      return CreateType (name, @namespace, attributes, baseType: null);
     }
 
     public ITypeModificationTracker CreateProxy (Type baseType)
