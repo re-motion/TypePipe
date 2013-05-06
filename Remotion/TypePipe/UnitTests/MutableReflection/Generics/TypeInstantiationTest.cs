@@ -21,7 +21,6 @@ using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 using Remotion.Development.UnitTesting;
@@ -178,6 +177,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (
           event_.GetRemoveMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetRemoveMethod (true)));
     }
+
+    // TODO 5550: Use outerCustomType to check that getNestedTypes returns _customType ... (which is correctly instantiated).
 
     [Test]
     public void Initialization_UsesAllBindingFlagsToRetrieveMembers ()

@@ -164,8 +164,10 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (remover.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (genericRemover));
     }
 
+    // TODO 5550: Nested generic types
+
     [Test]
-    public void NestedGenericType_TypeInstantiation ()
+    public void GenericType_WrappedInSignature_TypeInstantiation ()
     {
       var enumerable = _instantiation.GetField ("SubstituteTypeInstantiation").FieldType;
       Assert.That (enumerable, Is.TypeOf<TypeInstantiation>());
@@ -177,7 +179,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
-    public void NestedGenericType_RuntimeType ()
+    public void GenericType_WrappedInSignature_RuntimeType ()
     {
       var enumerable = _instantiation.GetField ("SubstituteRuntimeType").FieldType;
       Assert.That (enumerable.IsRuntimeType(), Is.True);
