@@ -22,7 +22,7 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
+namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
 {
   public static class ProxyTypeAssemblyContextObjectMother
   {

@@ -52,14 +52,6 @@ namespace Remotion.TypePipe.CodeGeneration
     MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
 
     /// <summary>
-    /// Creates an additional <see cref="MutableType"/> representing an interface.
-    /// </summary>
-    /// <param name="name">The interface name.</param>
-    /// <param name="namespace">The namespace of the interface.</param>
-    /// <returns>A new mutable type representing an interface.</returns>
-    MutableType CreateInterface (string name, string @namespace);
-
-    /// <summary>
     /// Creates an additional <see cref="MutableType"/> that represents a proxy type for the specified base type.
     /// This method copies all accessible constructors of the base type.
     /// </summary>

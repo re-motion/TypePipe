@@ -21,9 +21,9 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
-  public class TestableTypeAssemblyContext : TypeAssemblyContextBase
+  public class TestableTypeAssemblyContextBase : TypeAssemblyContextBase
   {
-    public TestableTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+    public TestableTypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
         : base (mutableTypeFactory, state) {}
   }
 }

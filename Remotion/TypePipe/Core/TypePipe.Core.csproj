@@ -219,6 +219,7 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayType.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyContextExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\ParameterOnCustomMember.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtility.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclaration.cs" />

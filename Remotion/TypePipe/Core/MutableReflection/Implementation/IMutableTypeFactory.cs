@@ -27,10 +27,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
 
-    MutableType CreateClass (string name, string @namespace, Type baseType);
-
-    MutableType CreateInterface (string name, string @namespace);
-
     ITypeModificationTracker CreateProxy (Type baseType);
   }
 }

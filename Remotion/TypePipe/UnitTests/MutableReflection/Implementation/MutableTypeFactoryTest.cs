@@ -109,33 +109,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    public void CreateClass ()
-    {
-      var name = "MyName";
-      var @namespace = "MyNamespace";
-      var baseType = ReflectionObjectMother.GetSomeSubclassableType();
-
-      var result = _factory.CreateClass (name, @namespace, baseType);
-
-      Assert.That (result.Name, Is.EqualTo (name));
-      Assert.That (result.Namespace, Is.EqualTo (@namespace));
-      Assert.That (result.BaseType, Is.SameAs (baseType));
-      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Class));
-    }
-
-    [Test]
-    public void CreateInterface ()
-    {
-      var result = _factory.CreateInterface ("IAbc", "MyNs");
-
-      Assert.That (result.IsInterface, Is.True);
-      Assert.That (result.BaseType, Is.Null);
-      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract));
-      Assert.That (result.Name, Is.EqualTo ("IAbc"));
-      Assert.That (result.Namespace, Is.EqualTo ("MyNs"));
-    }
-
-    [Test]
     public void CreateProxy ()
     {
       var result = _factory.CreateProxy (_domainType);

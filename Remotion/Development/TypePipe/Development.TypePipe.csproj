@@ -55,9 +55,11 @@
     <Compile Include="UnitTesting\Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="UnitTesting\ModifyingParticipant.cs" />
     <Compile Include="UnitTesting\ObjectMothers\Caching\AssembledTypeIDObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\TypeAssemblyContextBaseObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\TestableTypeAssemblyContextBase.cs" />
     <Compile Include="UnitTesting\ObjectMothers\Expressions\ExpressionTreeObjectMother.cs" />
-    <Compile Include="UnitTesting\ObjectMothers\Implementation\LoadedTypesContextObjectMother.cs" />
-    <Compile Include="UnitTesting\ObjectMothers\Implementation\ProxyTypeAssemblyContextObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\LoadedTypesContextObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\ProxyTypeAssemblyContextObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\CustomAttributeReflectionObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\GenericParameterDeclarationObjectMother.cs" />

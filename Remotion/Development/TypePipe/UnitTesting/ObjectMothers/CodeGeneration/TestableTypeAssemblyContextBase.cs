@@ -18,20 +18,13 @@
 using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
+namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
 {
-  public static class LoadedTypesContextObjectMother
+  public class TestableTypeAssemblyContextBase : TypeAssemblyContextBase
   {
-    public static LoadedTypesContext Create (
-        IEnumerable<Type> proxyTypes = null, IEnumerable<Type> additionalTypes = null, IDictionary<string, object> state = null)
-    {
-      proxyTypes = proxyTypes ?? Type.EmptyTypes;
-      additionalTypes = additionalTypes ?? Type.EmptyTypes;
-      state = state ?? new Dictionary<string, object>();
-
-      return new LoadedTypesContext (proxyTypes, additionalTypes, state);
-    }
+    public TestableTypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+        : base (mutableTypeFactory, state) {}
   }
 }

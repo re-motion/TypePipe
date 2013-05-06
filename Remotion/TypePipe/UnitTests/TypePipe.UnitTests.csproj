@@ -96,7 +96,7 @@
     <Compile Include="CodeGeneration\Implementation\TypeAssemblerTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeGeneration\TestableTypeAssemblyContext.cs" />
+    <Compile Include="CodeGeneration\TestableTypeAssemblyContextBase.cs" />
     <Compile Include="Implementation\ConstructorFinderTest.cs" />
     <Compile Include="CodeGeneration\Implementation\MutableTypeBatchCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
@@ -130,6 +130,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
     <Compile Include="CodeGeneration\GeneratedTypeContextTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfoTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiationContextTest.cs" />
@@ -150,7 +151,6 @@
     <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayTypeTest.cs" />
     <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
-    <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
     <Compile Include="MutableReflection\GenericParameterDeclarationTest.cs" />
@@ -185,6 +185,7 @@
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
+    <Compile Include="CodeGeneration\TypeAssemblyContextExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\VectorTypeTest.cs" />
     <Compile Include="MutableReflection\MethodDeclarationTest.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensionsTest.cs" />

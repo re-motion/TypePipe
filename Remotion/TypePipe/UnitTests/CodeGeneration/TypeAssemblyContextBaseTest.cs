@@ -21,6 +21,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
@@ -32,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     private IMutableTypeFactory _mutableTypeFactoryMock;
     private IDictionary<string, object> _state;
 
-    private TestableTypeAssemblyContext _context;
+    private TestableTypeAssemblyContextBase _context;
 
     [SetUp]
     public void SetUp ()
@@ -40,7 +41,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _state = new Dictionary<string, object>();
 
-      _context = new TestableTypeAssemblyContext (_mutableTypeFactoryMock, _state);
+      _context = new TestableTypeAssemblyContextBase (_mutableTypeFactoryMock, _state);
     }
 
     [Test]
@@ -61,21 +62,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _mutableTypeFactoryMock.Expect (mock => mock.CreateType (name, @namespace, attributes, baseType)).Return (fakeResult);
 
       var result = _context.CreateType (name, @namespace, attributes, baseType);
-
-      _mutableTypeFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeResult));
-      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { result }));
-    }
-
-    [Test]
-    public void CreateInterface ()
-    {
-      var name = "name";
-      var @namespace = "namespace";
-      var fakeResult = MutableTypeObjectMother.Create();
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateInterface (name, @namespace)).Return (fakeResult);
-
-      var result = _context.CreateInterface (name, @namespace);
 
       _mutableTypeFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));

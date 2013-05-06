@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
