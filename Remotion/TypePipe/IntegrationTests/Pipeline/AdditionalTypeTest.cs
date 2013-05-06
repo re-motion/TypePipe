@@ -18,6 +18,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -26,19 +27,26 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   public class AdditionalTypeTest : IntegrationTestBase
   {
     [Test]
-    public void CachedType ()
+    public void CachedType_ViaParticipantState ()
     {
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
 
-      var participant1 = CreateParticipant (additionalTypeFunc: (id, ctx) => null);
-      var participant2 = CreateParticipant (
-          additionalTypeFunc: (id, ctx) =>
+      var participant1 = CreateParticipant (additionalTypeFunc: (id, ctx) =>
+          {
+            ctx.State["key"] = additionalTypeID;
+            return null;
+          });
+      var participant2 = CreateParticipant (additionalTypeFunc: (id, ctx) =>
           {
             Assert.That (id, Is.SameAs (additionalTypeID));
             return additionalType;
           });
-      var participant3 = CreateParticipant (additionalTypeFunc: (id, ctx) => { throw new Exception ("Should not be called."); });
+      var participant3 = CreateParticipant (additionalTypeFunc: (id, ctx) =>
+          {
+            Assert.Fail ("Should not be called.");
+            return null;
+      });
       var pipeline = CreatePipeline (participant1, participant2, participant3);
 
       var result = pipeline.ReflectionService.GetAdditionalType (additionalTypeID);
@@ -47,15 +55,17 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void NewType ()
+    public void NewlyGeneratedType ()
     {
       
     }
 
     [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "No participant provided an additional type for the given identifier.")]
     public void NoParticipantProvidesAdditionalType ()
     {
-      // TODO 5553
+      var pipeline = CreatePipeline(/* no participants */);
+      pipeline.ReflectionService.GetAdditionalType (new object());
     }
   }
 }

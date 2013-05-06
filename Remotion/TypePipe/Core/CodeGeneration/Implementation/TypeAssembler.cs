@@ -151,7 +151,11 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       ArgumentUtility.CheckNotNull ("participantState", participantState);
 
       var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, participantState);
-      return _participants.Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context)).First (t => t != null);
+      var additionalType = _participants
+          .Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context))
+          .First (t => t != null, () => new InvalidOperationException ("No participant provided an additional type for the given identifier."));
+
+      return additionalType;
     }
 
     private bool CheckIsSubclassable (Type requestedType)
