@@ -181,35 +181,35 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       // Enable complex serialization.
       _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID,_assembledTypeIdentifierProvider, typeID);
 
-      return GenerateTypesWithDiagnostics (context, codeGenerator);
+      var mutableTypes = context.AdditionalTypes.Concat (context.ProxyType);
+      return GenerateTypesWithDiagnostics (codeGenerator, mutableTypes, context.RequestedType.Name);
     }
 
-    private GeneratedTypeContext GenerateTypesWithDiagnostics (ProxyTypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
+    private GeneratedTypeContext GenerateTypesWithDiagnostics (
+        IMutableTypeBatchCodeGenerator codeGenerator, IEnumerable<MutableType> mutableTypes, string generationSubjectName)
     {
       try
       {
-        var mutableTypes = context.AdditionalTypes.Concat (context.ProxyType);
         var generatedTypes = codeGenerator.GenerateTypes (mutableTypes);
-
         return new GeneratedTypeContext (generatedTypes);
       }
       catch (InvalidOperationException ex)
       {
-        throw new InvalidOperationException (BuildExceptionMessage (context.RequestedType, ex), ex);
+        throw new InvalidOperationException (BuildExceptionMessage (generationSubjectName, ex), ex);
       }
       catch (NotSupportedException ex)
       {
-        throw new NotSupportedException (BuildExceptionMessage (context.RequestedType, ex), ex);
+        throw new NotSupportedException (BuildExceptionMessage (generationSubjectName, ex), ex);
       }
     }
 
-    private string BuildExceptionMessage (Type requestedType, Exception exception)
+    private string BuildExceptionMessage (string generationSubjectName, Exception exception)
     {
       var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
       return string.Format (
           "An error occurred during code generation for '{0}':{1}{2}{3}"
           + "The following participants are currently configured and may have caused the error: {4}.",
-          requestedType.Name,
+          generationSubjectName,
           Environment.NewLine,
           exception.Message,
           Environment.NewLine,
