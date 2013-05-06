@@ -120,21 +120,21 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = new ProxyTypeAssemblyContext (_mutableTypeFactory, participantState, requestedType, typeModificationTracker.Type);
+      var context = new ProxyTypeAssemblyContext (_mutableTypeFactory, participantState, requestedType, typeModificationTracker.Type);
 
       foreach (var participant in _participants)
       {
         var idPart = _assembledTypeIdentifierProvider.GetPart (typeID, participant);
-        participant.Participate (idPart, typeAssemblyContext);
+        participant.Participate (idPart, context);
       }
 
       if (!typeModificationTracker.IsModified())
         return requestedType;
 
-      var generatedTypeContext = GenerateTypes (typeID, typeAssemblyContext, codeGenerator);
-      typeAssemblyContext.OnGenerationCompleted (generatedTypeContext);
+      var generatedTypesContext = GenerateTypes (typeID, context, codeGenerator);
+      context.OnGenerationCompleted (generatedTypesContext);
 
-      return generatedTypeContext.GetGeneratedType (typeAssemblyContext.ProxyType);
+      return generatedTypesContext.GetGeneratedType (context.ProxyType);
     }
 
     public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)
@@ -145,17 +145,25 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
         participant.RebuildState (loadedTypesContext);
     }
 
-    public Type GetOrAssembleAdditionalType (object additionalTypeID, IDictionary<string, object> participantState)
+    public Type GetOrAssembleAdditionalType (
+        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
       var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, participantState);
       var additionalType = _participants
           .Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context))
           .First (t => t != null, () => new InvalidOperationException ("No participant provided an additional type for the given identifier."));
 
-      return additionalType;
+      var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes, additionalTypeID.ToString());
+      context.OnGenerationCompleted (generatedTypesContext);
+
+      if (additionalType is MutableType)
+        return generatedTypesContext.GetGeneratedType ((MutableType) additionalTypeID);
+      else
+        return additionalType;
     }
 
     private bool CheckIsSubclassable (Type requestedType)
@@ -169,7 +177,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       return false;
     }
 
-    private GeneratedTypeContext GenerateTypes (AssembledTypeID typeID, ProxyTypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
+    private GeneratedTypesContext GenerateTypes (AssembledTypeID typeID, ProxyTypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       // Add [AssembledType] attribute.
       var attribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
@@ -185,13 +193,13 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       return GenerateTypesWithDiagnostics (codeGenerator, mutableTypes, context.RequestedType.Name);
     }
 
-    private GeneratedTypeContext GenerateTypesWithDiagnostics (
+    private GeneratedTypesContext GenerateTypesWithDiagnostics (
         IMutableTypeBatchCodeGenerator codeGenerator, IEnumerable<MutableType> mutableTypes, string generationSubjectName)
     {
       try
       {
         var generatedTypes = codeGenerator.GenerateTypes (mutableTypes);
-        return new GeneratedTypeContext (generatedTypes);
+        return new GeneratedTypesContext (generatedTypes);
       }
       catch (InvalidOperationException ex)
       {

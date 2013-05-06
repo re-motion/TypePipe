@@ -198,7 +198,7 @@
     <Compile Include="IPipeline.cs" />
     <Compile Include="CodeGeneration\Implementation\ITypeAssembler.cs" />
     <Compile Include="Caching\ITypeCache.cs" />
-    <Compile Include="CodeGeneration\GeneratedTypeContext.cs" />
+    <Compile Include="CodeGeneration\GeneratedTypesContext.cs" />
     <Compile Include="MutableReflection\Generics\TypeInstantiationContext.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiation.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfo.cs" />

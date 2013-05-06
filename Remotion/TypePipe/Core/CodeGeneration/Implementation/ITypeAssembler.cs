@@ -40,6 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
 
     void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
 
-    Type GetOrAssembleAdditionalType (object additionalTypeID, IDictionary<string, object> participantState);
+    Type GetOrAssembleAdditionalType (
+        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
   }
 }

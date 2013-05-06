@@ -47,6 +47,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         IEnumerable<Type> additionalTypes,
         IDictionary<string, object> participantState);
 
-    Type GetOrGenerateAdditionalType (object additionalTypeID, IDictionary<string, object> participantState);
+    Type GetOrGenerateAdditionalType (
+        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
   }
 }

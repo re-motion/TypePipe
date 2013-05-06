@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.Utilities;
@@ -133,7 +132,7 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID, _participantState);
+      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID, _participantState, _mutableTypeBatchCodeGenerator);
     }
   }
 }

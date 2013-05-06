@@ -29,14 +29,14 @@ using Remotion.TypePipe.UnitTests.MutableReflection;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class GeneratedTypeContextTest
+  public class GeneratedTypesContextTest
   {
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     private MutableType _mutableType;
     private Type _generatedType;
 
-    private GeneratedTypeContext _context;
+    private GeneratedTypesContext _context;
 
 
     [SetUp]
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _mutableType = MutableTypeObjectMother.Create();
       _generatedType = typeof (GeneratedType);
 
-      _context = new GeneratedTypeContext (new[] { new KeyValuePair<MutableType, Type> (_mutableType, _generatedType) });
+      _context = new GeneratedTypesContext (new[] { new KeyValuePair<MutableType, Type> (_mutableType, _generatedType) });
     }
 
     [Test]

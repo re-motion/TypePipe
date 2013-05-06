@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.CodeGeneration
       _state = state;
     }
 
-    public event Action<GeneratedTypeContext> GenerationCompleted;
+    public event Action<GeneratedTypesContext> GenerationCompleted;
 
     public IDictionary<string, object> State
     {
@@ -77,11 +77,11 @@ namespace Remotion.TypePipe.CodeGeneration
       return type;
     }
 
-    public void OnGenerationCompleted (GeneratedTypeContext generatedTypeContext)
+    public void OnGenerationCompleted (GeneratedTypesContext generatedTypesContext)
     {
       var handler = GenerationCompleted;
       if (handler != null)
-        handler (generatedTypeContext);
+        handler (generatedTypesContext);
     }
   }
 }

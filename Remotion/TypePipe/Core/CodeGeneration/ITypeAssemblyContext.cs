@@ -27,9 +27,9 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     /// <summary>
     /// An event that is raised when the generation of types was completed. The generated members can be accessed
-    /// by <see cref="GeneratedTypeContext.GetGeneratedMember"/>.
+    /// by <see cref="GeneratedTypesContext.GetGeneratedMember"/>.
     /// </summary>
-    event Action<GeneratedTypeContext> GenerationCompleted;
+    event Action<GeneratedTypesContext> GenerationCompleted;
 
     /// <summary>
     /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.

@@ -188,13 +188,15 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       }
     }
 
-    public Type GetOrGenerateAdditionalType (object additionalTypeID, IDictionary<string, object> participantState)
+    public Type GetOrGenerateAdditionalType (
+        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
 
       lock (_codeGenerationLock)
-        return _typeAssembler.GetOrAssembleAdditionalType (additionalTypeID, participantState);
+        return _typeAssembler.GetOrAssembleAdditionalType (additionalTypeID, participantState, mutableTypeBatchCodeGenerator);
     }
   }
 }

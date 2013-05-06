@@ -30,14 +30,14 @@ namespace Remotion.TypePipe.CodeGeneration
   /// A context that holds the completed types after code generation. This class can be used to retrieve a generated <see cref="MemberInfo"/>
   /// with the corresponding <see cref="IMutableMember"/>.
   /// </summary>
-  public class GeneratedTypeContext
+  public class GeneratedTypesContext
   {
     private const BindingFlags c_allDeclared =
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
     private readonly Dictionary<IMutableMember, MemberInfo> _mapping;
 
-    public GeneratedTypeContext (IEnumerable<KeyValuePair<MutableType, Type>> mutableToGeneratedTypeMapping)
+    public GeneratedTypesContext (IEnumerable<KeyValuePair<MutableType, Type>> mutableToGeneratedTypeMapping)
     {
       ArgumentUtility.CheckNotNull ("mutableToGeneratedTypeMapping", mutableToGeneratedTypeMapping);
 
