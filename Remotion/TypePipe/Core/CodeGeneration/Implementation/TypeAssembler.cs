@@ -161,7 +161,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       context.OnGenerationCompleted (generatedTypesContext);
 
       if (additionalType is MutableType)
-        return generatedTypesContext.GetGeneratedType ((MutableType) additionalTypeID);
+        return generatedTypesContext.GetGeneratedType ((MutableType) additionalType);
       else
         return additionalType;
     }
