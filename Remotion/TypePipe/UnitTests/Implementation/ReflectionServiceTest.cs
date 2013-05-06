@@ -113,11 +113,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var additionalTypeID = new object();
       var fakeAdditionalType = ReflectionObjectMother.GetSomeType();
-      _reflectionServiceSynchronizationPointMock.Expect (mock => mock.GetAdditionalType (additionalTypeID)).Return (fakeAdditionalType);
+      _typeCacheMock.Expect (mock => mock.GetOrCreateAdditionalType (additionalTypeID)).Return (fakeAdditionalType);
 
       var result = _service.GetAdditionalType (additionalTypeID);
 
-      _reflectionServiceSynchronizationPointMock.VerifyAllExpectations();
+      _typeCacheMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeAdditionalType));
     }
   }

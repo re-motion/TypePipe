@@ -127,5 +127,12 @@ namespace Remotion.TypePipe.Caching
       var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeAssembler.ExtractTypeID (t), t));
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
     }
+
+    public Type GetOrCreateAdditionalType (object additionalTypeID)
+    {
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+
+      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID, _participantState);
+    }
   }
 }

@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      return _reflectionServiceSynchronizationPoint.GetAdditionalType (additionalTypeID);
+      return _typeCache.GetOrCreateAdditionalType (additionalTypeID);
     }
   }
 }

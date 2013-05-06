@@ -145,6 +145,13 @@ namespace Remotion.TypePipe.CodeGeneration
         participant.RebuildState (loadedTypesContext);
     }
 
+    public Type GetAdditionalType (object additionalTypeID)
+    {
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+
+      throw new NotImplementedException ("TODO 5553");
+    }
+
     private bool CheckIsSubclassable (Type requestedType)
     {
       if (SubclassFilterUtility.IsSubclassable (requestedType))

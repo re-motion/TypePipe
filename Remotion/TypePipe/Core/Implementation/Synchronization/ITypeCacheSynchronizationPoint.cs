@@ -45,5 +45,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,
         IEnumerable<Type> additionalTypes,
         IDictionary<string, object> participantState);
+
+    Type GetOrGenerateAdditionalType (object additionalTypeID, IDictionary<string, object> participantState);
   }
 }
