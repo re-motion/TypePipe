@@ -64,6 +64,7 @@
     <Compile Include="CodeGeneration\IAssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\NullTypeIdentifierProvider.cs" />
     <Compile Include="Configuration\PipelineSettings.cs" />
+    <Compile Include="Implementation\AdditionalTypeGenerationContext.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecorator.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistry.cs" />

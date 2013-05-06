@@ -36,7 +36,12 @@ namespace Remotion.TypePipe
       // Does nothing.
     }
 
-    public void HandleNonSubclassableType (Type requestedType)
+    public virtual Type GetOrCreateAdditionalType (object id, AdditionalTypeGenerationContext additionalTypeGenerationContext)
+    {
+      return null;
+    }
+
+    public virtual void HandleNonSubclassableType (Type requestedType)
     {
       // Does noting.
     }

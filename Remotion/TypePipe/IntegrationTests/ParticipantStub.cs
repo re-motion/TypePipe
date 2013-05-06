@@ -28,23 +28,26 @@ namespace Remotion.TypePipe.IntegrationTests
     private readonly Action<object, ITypeAssemblyContext> _participateAction;
     private readonly Action<LoadedTypesContext> _rebuildStateAction;
     private readonly Action<Type> _handleNonSubclassableTypeAction;
+    private readonly Func<object, AdditionalTypeGenerationContext, Type> _getOrCreateAdditionalTypeFunc;
 
     public ParticipantStub (
         ITypeIdentifierProvider typeIdentifierProvider,
         Action<object, ITypeAssemblyContext> participateAction,
         Action<LoadedTypesContext> rebuildStateAction,
-        Action<Type> handleNonSubclassableTypeAction)
-    
+        Action<Type> handleNonSubclassableTypeAction,
+        Func<object, AdditionalTypeGenerationContext, Type> getOrCreateAdditionalTypeFunc)
     {
-      // Cache key provider may be null.
+      // Type identifier provider may be null.
       ArgumentUtility.CheckNotNull ("participateAction", participateAction);
       ArgumentUtility.CheckNotNull ("rebuildStateAction", rebuildStateAction);
       ArgumentUtility.CheckNotNull ("handleNonSubclassableTypeAction", handleNonSubclassableTypeAction);
+      ArgumentUtility.CheckNotNull ("getOrCreateAdditionalTypeFunc", getOrCreateAdditionalTypeFunc);
 
       _typeIdentifierProvider = typeIdentifierProvider;
       _participateAction = participateAction;
       _rebuildStateAction = rebuildStateAction;
       _handleNonSubclassableTypeAction = handleNonSubclassableTypeAction;
+      _getOrCreateAdditionalTypeFunc = getOrCreateAdditionalTypeFunc;
     }
 
     public ITypeIdentifierProvider PartialTypeIdentifierProvider
@@ -65,6 +68,11 @@ namespace Remotion.TypePipe.IntegrationTests
     public void HandleNonSubclassableType (Type requestedType)
     {
       _handleNonSubclassableTypeAction (requestedType);
+    }
+
+    public Type GetOrCreateAdditionalType (object id, AdditionalTypeGenerationContext additionalTypeGenerationContext)
+    {
+      return _getOrCreateAdditionalTypeFunc (id, additionalTypeGenerationContext);
     }
   }
 }

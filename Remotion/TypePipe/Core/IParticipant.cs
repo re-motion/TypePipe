@@ -20,7 +20,6 @@ using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe
 {
@@ -74,6 +73,9 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="loadedTypesContext">The loaded types context.</param>
     void RebuildState (LoadedTypesContext loadedTypesContext);
+
+    // TODO 5553
+    Type GetOrCreateAdditionalType (object id, AdditionalTypeGenerationContext additionalTypeGenerationContext);
 
     /// <summary>
     /// This method is called for requested types that are not subclassable and therefore not processed by the pipeline
