@@ -57,7 +57,7 @@
     <Compile Include="UnitTesting\ObjectMothers\Caching\AssembledTypeIDObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\Expressions\ExpressionTreeObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\Implementation\LoadedTypesContextObjectMother.cs" />
-    <Compile Include="UnitTesting\ObjectMothers\Implementation\TypeAssemblyContextObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\Implementation\ProxyTypeAssemblyContextObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\CustomAttributeReflectionObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\GenericParameterDeclarationObjectMother.cs" />

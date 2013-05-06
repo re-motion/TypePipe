@@ -19,7 +19,6 @@ using System;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe
@@ -38,7 +37,7 @@ namespace Remotion.TypePipe
   /// <para>
   /// Note that implementations of this interface may be shared across multiple <see cref="IPipeline"/> instances.
   /// Participants therefore must not hold any mutable state directly.
-  /// If there is the need to hold state a participant should use <see cref="ProxyTypeAssemblyContext.State"/>.
+  /// If there is the need to hold state a participant should use <see cref="ITypeAssemblyContext.State"/>.
   /// </para>
   /// </remarks>
   [ConcreteImplementation ("Remotion.Mixins.CodeGeneration.TypePipe.MixinParticipant, Remotion.Mixins, "

@@ -87,11 +87,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Cannot create interface type. Use CreateInterface instead.\r\nParameter name: attributes")]
-    public void CreateType_InterfaceAttributes ()
+    public void CreateClass ()
     {
-      _factory.CreateType ("name", null, TypeAttributes.Interface, typeof (object));
+      var name = "MyName";
+      var @namespace = "MyNamespace";
+      var baseType = ReflectionObjectMother.GetSomeSubclassableType();
+
+      var result = _factory.CreateClass (name, @namespace, baseType);
+
+      Assert.That (result.Name, Is.EqualTo (name));
+      Assert.That (result.Namespace, Is.EqualTo (@namespace));
+      Assert.That (result.BaseType, Is.SameAs (baseType));
+      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Class));
     }
 
     [Test]

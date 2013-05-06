@@ -38,9 +38,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Name space may be null.
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      if (attributes.IsSet (TypeAttributes.Interface))
-        throw new ArgumentException ("Cannot create interface type. Use CreateInterface instead.", "attributes");
-
       if (!SubclassFilterUtility.IsSubclassable (baseType) || baseType.ContainsGenericParameters)
       {
         throw new ArgumentException (
@@ -50,6 +47,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
 
       return CreateMutableType (name, @namespace, attributes, baseType);
+    }
+
+    public MutableType CreateClass (string name, string @namespace, Type baseType)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      // Name space may be null.
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
+
+      var attributes = TypeAttributes.Public | TypeAttributes.Class;
+      return CreateType (name, @namespace, attributes, baseType);
     }
 
     public MutableType CreateInterface (string name, string @namespace)

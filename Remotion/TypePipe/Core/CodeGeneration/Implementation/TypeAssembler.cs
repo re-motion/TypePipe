@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = new ProxyTypeAssemblyContext (requestedType, typeModificationTracker.Type, _mutableTypeFactory, participantState);
+      var typeAssemblyContext = new ProxyTypeAssemblyContext (_mutableTypeFactory, participantState, requestedType, typeModificationTracker.Type);
 
       foreach (var participant in _participants)
       {

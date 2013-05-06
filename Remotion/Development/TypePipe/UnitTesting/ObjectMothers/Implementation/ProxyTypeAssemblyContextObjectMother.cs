@@ -19,13 +19,12 @@ using System;
 using System.Collections.Generic;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
 {
-  public static class TypeAssemblyContextObjectMother
+  public static class ProxyTypeAssemblyContextObjectMother
   {
     public static ProxyTypeAssemblyContext Create (
         Type requestedType = null,
@@ -38,7 +37,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new ProxyTypeAssemblyContext (requestedType, proxyType, mutableTypeFactory, state);
+      return new ProxyTypeAssemblyContext (mutableTypeFactory, state, requestedType, proxyType);
     }
 
     public class UnspecifiedRequestedType {}

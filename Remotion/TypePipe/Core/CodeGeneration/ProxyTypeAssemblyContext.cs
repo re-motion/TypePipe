@@ -17,39 +17,30 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  /// <summary>
-  /// Implements <see cref="IProxyTypeAssemblyContext"/> and provides the possibility to raise the <see cref="GenerationCompleted"/> event.
-  /// </summary>
-  public class ProxyTypeAssemblyContext : IProxyTypeAssemblyContext
+  // TODO 5553 Docs
+  public class ProxyTypeAssemblyContext : TypeAssemblyContextBase, IProxyTypeAssemblyContext
   {
     private readonly Type _requestedType;
-    private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly MutableType _proxyType;
-    private readonly IDictionary<string, object> _state;
-    private readonly List<MutableType> _additionalTypes = new List<MutableType>();
 
-    public ProxyTypeAssemblyContext (Type requestedType, MutableType proxyType, IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+    public ProxyTypeAssemblyContext (
+        IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state, Type requestedType, MutableType proxyType)
+        : base (mutableTypeFactory, state)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNull ("state", state);
 
-      _mutableTypeFactory = mutableTypeFactory;
       _requestedType = requestedType;
       _proxyType = proxyType;
-      _state = state;
     }
-
-    public event Action<GeneratedTypeContext> GenerationCompleted;
 
     public Type RequestedType
     {
@@ -59,56 +50,6 @@ namespace Remotion.TypePipe.CodeGeneration
     public MutableType ProxyType
     {
       get { return _proxyType; }
-    }
-
-    public IDictionary<string, object> State
-    {
-      get { return _state; }
-    }
-
-    public ReadOnlyCollection<MutableType> AdditionalTypes
-    {
-      get { return _additionalTypes.AsReadOnly(); }
-    }
-
-    public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Namespace may be null.
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
-
-      var type = _mutableTypeFactory.CreateType (name, @namespace, attributes, baseType);
-      _additionalTypes.Add (type);
-
-      return type;
-    }
-
-    public MutableType CreateInterface (string name, string @namespace)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Namespace may be null.
-
-      var type = _mutableTypeFactory.CreateInterface (name, @namespace);
-      _additionalTypes.Add (type);
-
-      return type;
-    }
-
-    public MutableType CreateProxy (Type baseType)
-    {
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
-
-      var type = _mutableTypeFactory.CreateProxy (baseType).Type;
-      _additionalTypes.Add (type);
-
-      return type;
-    }
-
-    public void OnGenerationCompleted (GeneratedTypeContext generatedTypeContext)
-    {
-      var handler = GenerationCompleted;
-      if (handler != null)
-        handler (generatedTypeContext);
     }
   }
 }

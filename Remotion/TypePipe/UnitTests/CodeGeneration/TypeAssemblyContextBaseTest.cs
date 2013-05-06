@@ -21,39 +21,31 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class ProxyTypeAssemblyContextTest
+  public class TypeAssemblyContextBaseTest
   {
-    private Type _requestedType;
-    private MutableType _proxyType;
     private IMutableTypeFactory _mutableTypeFactoryMock;
     private IDictionary<string, object> _state;
 
-    private ProxyTypeAssemblyContext _context;
+    private TestableTypeAssemblyContext _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _requestedType = ReflectionObjectMother.GetSomeType();
-      _proxyType = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _state = new Dictionary<string, object>();
 
-      _context = new ProxyTypeAssemblyContext (_requestedType, _proxyType, _mutableTypeFactoryMock, _state);
+      _context = new TestableTypeAssemblyContext (_mutableTypeFactoryMock, _state);
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_context.RequestedType, Is.SameAs (_requestedType));
-      Assert.That (_context.ProxyType, Is.SameAs (_proxyType));
       Assert.That (_context.AdditionalTypes, Is.Empty);
       Assert.That (_context.State, Is.SameAs (_state));
     }

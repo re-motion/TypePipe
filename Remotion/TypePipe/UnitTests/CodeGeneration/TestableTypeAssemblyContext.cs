@@ -15,22 +15,15 @@
 // under the License.
 // 
 
-using System;
-using System.Reflection;
+using System.Collections.Generic;
+using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.TypePipe.MutableReflection.Implementation
+namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
-  /// <summary>
-  /// Defines an interface for classes creating <see cref="MutableType"/> model instances.
-  /// </summary>
-  public interface IMutableTypeFactory
+  public class TestableTypeAssemblyContext : TypeAssemblyContextBase
   {
-    MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
-
-    MutableType CreateClass (string name, string @namespace, Type baseType);
-
-    MutableType CreateInterface (string name, string @namespace);
-
-    ITypeModificationTracker CreateProxy (Type baseType);
+    public TestableTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+        : base (mutableTypeFactory, state) {}
   }
 }
