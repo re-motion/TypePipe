@@ -70,9 +70,9 @@ namespace Remotion.TypePipe.IntegrationTests
       _handleNonSubclassableTypeAction (requestedType);
     }
 
-    public Type GetOrCreateAdditionalType (object id, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
+    public Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
     {
-      return _getOrCreateAdditionalTypeFunc (id, additionalTypeAssemblyContext);
+      return _getOrCreateAdditionalTypeFunc (additionalTypeID, additionalTypeAssemblyContext);
     }
   }
 }

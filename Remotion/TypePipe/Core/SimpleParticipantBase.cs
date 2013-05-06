@@ -36,7 +36,7 @@ namespace Remotion.TypePipe
       // Does nothing.
     }
 
-    public virtual Type GetOrCreateAdditionalType (object id, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
+    public virtual Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
     {
       return null; // Does nothing.
     }

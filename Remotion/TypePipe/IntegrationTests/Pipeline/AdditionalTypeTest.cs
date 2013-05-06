@@ -22,31 +22,22 @@ using Remotion.TypePipe.CodeGeneration;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
-  [Ignore ("TODO 5553")]
   [TestFixture]
   public class AdditionalTypeTest : IntegrationTestBase
   {
     [Test]
-    public void CachedType_ViaParticipantState ()
+    public void ExistingType ()
     {
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
 
-      var participant1 = CreateParticipant (additionalTypeFunc: (id, ctx) =>
-          {
-            ctx.State["key"] = additionalTypeID;
-            return null;
-          });
+      var participant1 = CreateParticipant (additionalTypeFunc: (id, ctx) => null);
       var participant2 = CreateParticipant (additionalTypeFunc: (id, ctx) =>
-          {
-            Assert.That (id, Is.SameAs (additionalTypeID));
-            return additionalType;
-          });
-      var participant3 = CreateParticipant (additionalTypeFunc: (id, ctx) =>
-          {
-            Assert.Fail ("Should not be called.");
-            return null;
+      {
+        Assert.That (id, Is.SameAs (additionalTypeID));
+        return additionalType;
       });
+      var participant3 = CreateParticipant (additionalTypeFunc: (id, ctx) => { throw new Exception ("Should not be called."); });
       var pipeline = CreatePipeline (participant1, participant2, participant3);
 
       var result = pipeline.ReflectionService.GetAdditionalType (additionalTypeID);
@@ -55,9 +46,29 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void NewlyGeneratedType ()
+    public void GeneratedType_CachedViaParticipantState ()
     {
-      
+      var additionalTypeID = new object ();
+
+      var participant = CreateParticipant (additionalTypeFunc: (id, ctx) =>
+      {
+        Assert.That (id, Is.SameAs (additionalTypeID));
+
+        if (ctx.State.ContainsKey ("key"))
+          return (Type) ctx.State["key"];
+
+        var myClass = ctx.CreateClass ("Class", "My", typeof (object));
+        ctx.GenerationCompleted += generatedTypeContext => { ctx.State["key"] = generatedTypeContext.GetGeneratedType (myClass); };
+
+        return myClass;
+      });
+      var pipeline = CreatePipeline (participant);
+
+      var result1 = pipeline.ReflectionService.GetAdditionalType (additionalTypeID);
+      var result2 = pipeline.ReflectionService.GetAdditionalType (additionalTypeID);
+
+      Assert.That (result1.FullName, Is.EqualTo ("My.Class"));
+      Assert.That (result1, Is.SameAs (result2), "Cached by participant.");
     }
 
     [Test]
