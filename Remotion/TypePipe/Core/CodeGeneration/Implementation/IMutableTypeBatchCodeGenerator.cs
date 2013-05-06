@@ -22,7 +22,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration.Implementation
 {
   /// <summary>
-  /// Defines an interface for classes generating types from a <see cref="TypeAssemblyContext"/>.
+  /// Defines an interface for classes generating types from a <see cref="ProxyTypeAssemblyContext"/>.
   /// </summary>
   public interface IMutableTypeBatchCodeGenerator
   {

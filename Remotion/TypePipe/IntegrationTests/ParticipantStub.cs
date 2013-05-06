@@ -26,14 +26,14 @@ namespace Remotion.TypePipe.IntegrationTests
   public class ParticipantStub : IParticipant
   {
     private readonly ITypeIdentifierProvider _typeIdentifierProvider;
-    private readonly Action<object, ITypeAssemblyContext> _participateAction;
+    private readonly Action<object, IProxyTypeAssemblyContext> _participateAction;
     private readonly Action<LoadedTypesContext> _rebuildStateAction;
     private readonly Action<Type> _handleNonSubclassableTypeAction;
     private readonly Func<object, AdditionalTypeAssemblyContext, Type> _getOrCreateAdditionalTypeFunc;
 
     public ParticipantStub (
         ITypeIdentifierProvider typeIdentifierProvider,
-        Action<object, ITypeAssemblyContext> participateAction,
+        Action<object, IProxyTypeAssemblyContext> participateAction,
         Action<LoadedTypesContext> rebuildStateAction,
         Action<Type> handleNonSubclassableTypeAction,
         Func<object, AdditionalTypeAssemblyContext, Type> getOrCreateAdditionalTypeFunc)
@@ -56,9 +56,9 @@ namespace Remotion.TypePipe.IntegrationTests
       get { return _typeIdentifierProvider; }
     }
 
-    public void Participate (object id, ITypeAssemblyContext typeAssemblyContext)
+    public void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext)
     {
-      _participateAction (id, typeAssemblyContext);
+      _participateAction (id, proxyTypeAssemblyContext);
     }
 
     public void RebuildState (LoadedTypesContext loadedTypesContext)

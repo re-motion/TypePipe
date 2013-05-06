@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
-      var typeAssemblyContext = new TypeAssemblyContext (requestedType, typeModificationTracker.Type, _mutableTypeFactory, participantState);
+      var typeAssemblyContext = new ProxyTypeAssemblyContext (requestedType, typeModificationTracker.Type, _mutableTypeFactory, participantState);
 
       foreach (var participant in _participants)
       {
@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       return false;
     }
 
-    private GeneratedTypeContext GenerateTypes (AssembledTypeID typeID, TypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
+    private GeneratedTypeContext GenerateTypes (AssembledTypeID typeID, ProxyTypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       // Add [AssembledType] attribute.
       var attribute = new CustomAttributeDeclaration (s_assembledTypeAttributeCtor, new object[0]);
@@ -180,7 +180,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       return GenerateTypesWithDiagnostics (context, codeGenerator);
     }
 
-    private GeneratedTypeContext GenerateTypesWithDiagnostics (TypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
+    private GeneratedTypeContext GenerateTypesWithDiagnostics (ProxyTypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       try
       {

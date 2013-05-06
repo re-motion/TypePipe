@@ -27,7 +27,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
 {
   public static class TypeAssemblyContextObjectMother
   {
-    public static TypeAssemblyContext Create (
+    public static ProxyTypeAssemblyContext Create (
         Type requestedType = null,
         MutableType proxyType = null,
         IMutableTypeFactory mutableTypeFactory = null,
@@ -38,7 +38,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Implementation
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new TypeAssemblyContext (requestedType, proxyType, mutableTypeFactory, state);
+      return new ProxyTypeAssemblyContext (requestedType, proxyType, mutableTypeFactory, state);
     }
 
     public class UnspecifiedRequestedType {}

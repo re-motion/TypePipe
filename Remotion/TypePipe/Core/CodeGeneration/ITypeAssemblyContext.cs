@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -23,14 +22,7 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  /// <summary>
-  /// Holds the <see cref="RequestedType"/> and <see cref="ProxyType"/> and allows generation of additional types.
-  /// </summary>
-  /// <remarks>
-  /// The <see cref="ProxyType"/> represents the proxy type to be generated for the <see cref="RequestedType"/> including the modifications
-  /// applied by preceding participants.
-  /// Its mutating members (e.g. <see cref="MutableType.AddMethod"/>) can be used to specify the needed modifications.
-  /// </remarks>
+  // TODO 5550: Docs
   public interface ITypeAssemblyContext
   {
     /// <summary>
@@ -40,22 +32,12 @@ namespace Remotion.TypePipe.CodeGeneration
     event Action<GeneratedTypeContext> GenerationCompleted;
 
     /// <summary>
-    /// The original <see cref="Type"/> that was requested by the user through an instance of <see cref="IPipeline"/>.
-    /// </summary>
-    Type RequestedType { get; }
-
-    /// <summary>
-    /// The mutable proxy type that was created by the pipeline for the <see cref="RequestedType"/>.
-    /// </summary>
-    MutableType ProxyType { get; }
-
-    /// <summary>
     /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.
     /// </summary>
     IDictionary<string, object> State { get; }
 
     /// <summary>
-    /// Gets the additional <see cref="MutableType"/>s that should be generated alongside with the <see cref="ProxyType"/>.
+    /// Gets the additional <see cref="MutableType"/>s that should be generated.
     /// </summary>
     ReadOnlyCollection<MutableType> AdditionalTypes { get; }
 

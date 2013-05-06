@@ -32,12 +32,12 @@ namespace Remotion.Development.TypePipe.UnitTesting
     [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class ModifiedAssembledTypeAttribute : Attribute { }
 
-    public override void Participate (object id, ITypeAssemblyContext typeAssemblyContext)
+    public override void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext)
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ModifiedAssembledTypeAttribute());
       var attribute = new CustomAttributeDeclaration (constructor, new object[0]);
 
-      typeAssemblyContext.ProxyType.AddCustomAttribute (attribute);
+      proxyTypeAssemblyContext.ProxyType.AddCustomAttribute (attribute);
     }
   }
 }

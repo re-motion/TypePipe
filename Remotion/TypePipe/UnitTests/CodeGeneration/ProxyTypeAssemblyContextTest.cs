@@ -29,14 +29,14 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
-  public class TypeAssemblyContextTest
+  public class ProxyTypeAssemblyContextTest
   {
     private Type _requestedType;
     private MutableType _proxyType;
     private IMutableTypeFactory _mutableTypeFactoryMock;
     private IDictionary<string, object> _state;
 
-    private TypeAssemblyContext _context;
+    private ProxyTypeAssemblyContext _context;
 
     [SetUp]
     public void SetUp ()
@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _state = new Dictionary<string, object>();
 
-      _context = new TypeAssemblyContext (_requestedType, _proxyType, _mutableTypeFactoryMock, _state);
+      _context = new ProxyTypeAssemblyContext (_requestedType, _proxyType, _mutableTypeFactoryMock, _state);
     }
 
     [Test]

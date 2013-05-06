@@ -30,7 +30,7 @@ namespace Remotion.TypePipe
       get { return null; }
     }
 
-    public abstract void Participate (object id, ITypeAssemblyContext typeAssemblyContext);
+    public abstract void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext);
 
     public virtual void RebuildState (LoadedTypesContext loadedTypesContext)
     {

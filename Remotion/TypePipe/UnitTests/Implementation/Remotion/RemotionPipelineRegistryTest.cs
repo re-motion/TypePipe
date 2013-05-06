@@ -35,10 +35,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Remotion
     [SetUp]
     public void SetUp ()
     {
-      var action = (Action<object, ITypeAssemblyContext>) ((id, ctx) => ctx.ProxyType.AddField ("field", 0, typeof (int)));
+      var action = (Action<object, IProxyTypeAssemblyContext>) ((id, ctx) => ctx.ProxyType.AddField ("field", 0, typeof (int)));
       var participantStub = MockRepository.GenerateStub<IParticipant>();
       // Modify proxy type to avoid no-modification optimization.
-      participantStub.Stub (_ => _.Participate (Arg<object>.Is.Anything, Arg<ITypeAssemblyContext>.Is.Anything)).Do (action);
+      participantStub.Stub (_ => _.Participate (Arg<object>.Is.Anything, Arg<IProxyTypeAssemblyContext>.Is.Anything)).Do (action);
       _participants = new[] { participantStub };
 
       var registry = new RemotionPipelineRegistry (_participants);

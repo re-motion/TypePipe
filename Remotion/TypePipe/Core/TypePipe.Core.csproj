@@ -60,6 +60,7 @@
     <Compile Include="Caching\AssembledTypeID.cs" />
     <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
+    <Compile Include="CodeGeneration\ITypeAssemblyContext.cs" />
     <Compile Include="CodeGeneration\Implementation\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\Implementation\IAssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\Implementation\NullTypeIdentifierProvider.cs" />
@@ -245,7 +246,7 @@
     <Compile Include="MutableReflection\Implementation\MutableTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensions.cs" />
     <Compile Include="MutableReflection\IMutableInfo.cs" />
-    <Compile Include="CodeGeneration\ITypeAssemblyContext.cs" />
+    <Compile Include="CodeGeneration\IProxyTypeAssemblyContext.cs" />
     <Compile Include="MutableReflection\MethodDeclaration.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensions.cs" />
     <Compile Include="MutableReflection\MutableEventInfo.cs" />
@@ -445,7 +446,7 @@
     <Compile Include="StrongNaming\ITypeAnalyzer.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyContext.cs" />
+    <Compile Include="CodeGeneration\ProxyTypeAssemblyContext.cs" />
     <Compile Include="PipelineFactory.cs" />
   </ItemGroup>
   <ItemGroup>

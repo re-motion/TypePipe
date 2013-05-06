@@ -37,13 +37,13 @@ namespace Remotion.TypePipe.IntegrationTests
       return CreateParticipant (ctx => typeModification (ctx.ProxyType));
     }
 
-    protected static IParticipant CreateParticipant (Action<ITypeAssemblyContext> participateAction)
+    protected static IParticipant CreateParticipant (Action<IProxyTypeAssemblyContext> participateAction)
     {
       return CreateParticipant ((id, ctx) => participateAction (ctx));
     }
 
     protected static IParticipant CreateParticipant (
-        Action<object, ITypeAssemblyContext> participateAction = null,
+        Action<object, IProxyTypeAssemblyContext> participateAction = null,
         ITypeIdentifierProvider typeIdentifierProvider = null,
         Action<LoadedTypesContext> rebuildStateAction = null,
         Func<object, AdditionalTypeAssemblyContext, Type> additionalTypeFunc = null,
@@ -188,7 +188,7 @@ namespace Remotion.TypePipe.IntegrationTests
       return typeName + '.' + methodName;
     }
 
-    private static Action<object, ITypeAssemblyContext> CreateModifyingAction (Action<object, ITypeAssemblyContext> participateAction)
+    private static Action<object, IProxyTypeAssemblyContext> CreateModifyingAction (Action<object, IProxyTypeAssemblyContext> participateAction)
     {
       return (id, ctx) =>
       {

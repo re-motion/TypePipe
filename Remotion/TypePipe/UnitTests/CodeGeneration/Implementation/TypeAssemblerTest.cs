@@ -172,18 +172,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
             .Return (idPart);
 
         var additionalType = MutableTypeObjectMother.Create();
-        ITypeAssemblyContext typeAssemblyContext = null;
-        participantMock1.Expect (mock => mock.Participate (Arg.Is (idPart), Arg<ITypeAssemblyContext>.Is.Anything)).WhenCalled (
+        IProxyTypeAssemblyContext proxyTypeAssemblyContext = null;
+        participantMock1.Expect (mock => mock.Participate (Arg.Is (idPart), Arg<IProxyTypeAssemblyContext>.Is.Anything)).WhenCalled (
             mi =>
             {
-              typeAssemblyContext = (ITypeAssemblyContext) mi.Arguments[1];
-              Assert.That (typeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
-              Assert.That (typeAssemblyContext.ProxyType, Is.SameAs (proxyType));
-              Assert.That (typeAssemblyContext.State, Is.SameAs (_participantState));
+              proxyTypeAssemblyContext = (IProxyTypeAssemblyContext) mi.Arguments[1];
+              Assert.That (proxyTypeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
+              Assert.That (proxyTypeAssemblyContext.ProxyType, Is.SameAs (proxyType));
+              Assert.That (proxyTypeAssemblyContext.State, Is.SameAs (_participantState));
 
-              typeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
+              proxyTypeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
 
-              typeAssemblyContext.GenerationCompleted += ctx =>
+              proxyTypeAssemblyContext.GenerationCompleted += ctx =>
               {
                 Assert.That (ctx.GetGeneratedType (proxyType), Is.SameAs (fakeGeneratedType));
                 generationCompletedEventRaised = true;
@@ -194,7 +194,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
         assembledTypeIdentifierProviderMock
             .Expect (mock => mock.GetPart (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg.Is (participantMock2)))
             .Return (null);
-        participantMock2.Expect (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Matches (ctx => ctx == typeAssemblyContext)));
+        participantMock2.Expect (mock => mock.Participate (Arg.Is<object> (null), Arg<IProxyTypeAssemblyContext>.Matches (ctx => ctx == proxyTypeAssemblyContext)));
 
         typeModificationContextMock.Expect (mock => mock.IsModified()).Return (true);
 
@@ -250,7 +250,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
 
       Assert.That (result, Is.SameAs (nonSubclassableType));
       participantMock.AssertWasCalled (mock => mock.HandleNonSubclassableType (nonSubclassableType));
-      participantMock.AssertWasNotCalled (mock => mock.Participate (Arg.Is<object> (null), Arg<ITypeAssemblyContext>.Is.Anything));
+      participantMock.AssertWasNotCalled (mock => mock.Participate (Arg.Is<object> (null), Arg<IProxyTypeAssemblyContext>.Is.Anything));
     }
 
     [Test]

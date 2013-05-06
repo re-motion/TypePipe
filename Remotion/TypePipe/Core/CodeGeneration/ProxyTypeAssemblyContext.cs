@@ -26,9 +26,9 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Implements <see cref="ITypeAssemblyContext"/> and provides the possibility to raise the <see cref="GenerationCompleted"/> event.
+  /// Implements <see cref="IProxyTypeAssemblyContext"/> and provides the possibility to raise the <see cref="GenerationCompleted"/> event.
   /// </summary>
-  public class TypeAssemblyContext : ITypeAssemblyContext
+  public class ProxyTypeAssemblyContext : IProxyTypeAssemblyContext
   {
     private readonly Type _requestedType;
     private readonly IMutableTypeFactory _mutableTypeFactory;
@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly IDictionary<string, object> _state;
     private readonly List<MutableType> _additionalTypes = new List<MutableType>();
 
-    public TypeAssemblyContext (Type requestedType, MutableType proxyType, IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+    public ProxyTypeAssemblyContext (Type requestedType, MutableType proxyType, IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
