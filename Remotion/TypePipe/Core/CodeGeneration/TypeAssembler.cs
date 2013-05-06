@@ -145,9 +145,10 @@ namespace Remotion.TypePipe.CodeGeneration
         participant.RebuildState (loadedTypesContext);
     }
 
-    public Type GetAdditionalType (object additionalTypeID)
+    public Type RetrieveAdditionalType (object additionalTypeID, IDictionary<string, object> participantState)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+      ArgumentUtility.CheckNotNull ("participantState", participantState);
 
       throw new NotImplementedException ("TODO 5553");
     }

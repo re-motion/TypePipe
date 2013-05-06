@@ -89,6 +89,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (assembledType)).Return (fakeTypeID).WhenCalled (_ => CheckLockIsHeld());
       Assert.That (_point.GetTypeID (assembledType), Is.EqualTo (fakeTypeID));
 
+      var additionalTypeID = new object();
+      var additionalType = ReflectionObjectMother.GetSomeType();
+      _typeAssemblerMock
+          .Expect (mock => mock.RetrieveAdditionalType (additionalTypeID, _participantState))
+          .Return (additionalType)
+          .WhenCalled (_ => CheckLockIsHeld());
+      Assert.That (_point.GetOrGenerateAdditionalType (additionalTypeID, _participantState), Is.SameAs (additionalType));
+
       _generatedCodeFlusherMock.VerifyAllExpectations();
       _typeAssemblerMock.VerifyAllExpectations();
     }

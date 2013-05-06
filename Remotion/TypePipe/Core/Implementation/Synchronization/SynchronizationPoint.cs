@@ -181,6 +181,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
           loadedAssembledTypes.Add (p.Value);
         }
 
+        // TODO 5553: pass in simple values, create context in TypeAssembler.
         var loadedTypesContext = new LoadedTypesContext (loadedAssembledTypes, additionalTypes, participantState);
         _typeAssembler.RebuildParticipantState (loadedTypesContext);
       }
@@ -188,7 +189,11 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
     public Type GetOrGenerateAdditionalType (object additionalTypeID, IDictionary<string, object> participantState)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+      ArgumentUtility.CheckNotNull ("participantState", participantState);
+
+      lock (_codeGenerationLock)
+        return _typeAssembler.RetrieveAdditionalType (additionalTypeID, participantState);
     }
   }
 }

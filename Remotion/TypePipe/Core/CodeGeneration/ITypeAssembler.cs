@@ -41,6 +41,6 @@ namespace Remotion.TypePipe.CodeGeneration
 
     void RebuildParticipantState (LoadedTypesContext loadedTypesContext);
 
-    Type GetAdditionalType (object additionalTypeID);
+    Type RetrieveAdditionalType (object additionalTypeID, IDictionary<string, object> participantState);
   }
 }
