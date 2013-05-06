@@ -60,6 +60,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="Pipeline\AdditionalTypeTest.cs" />
     <Compile Include="Pipeline\CachingTest.cs" />
     <Compile Include="Pipeline\ConcurrencyTest.cs" />
     <Compile Include="Pipeline\FlushGeneratedCodeTest.cs" />

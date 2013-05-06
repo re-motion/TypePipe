@@ -73,5 +73,8 @@ namespace Remotion.TypePipe.Implementation
     /// <param name="typeID">An assembled type identifier.</param>
     /// <returns>The assembled type for the specified identifier.</returns>
     Type GetAssembledType (AssembledTypeID typeID);
+
+    // TODO 5553
+    Type GetAdditionalType (object additionalTypeID);
   }
 }

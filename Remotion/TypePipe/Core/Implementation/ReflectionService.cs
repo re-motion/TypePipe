@@ -72,5 +72,10 @@ namespace Remotion.TypePipe.Implementation
     {
       return _typeCache.GetOrCreateType (typeID);
     }
+
+    public Type GetAdditionalType (object additionalTypeID)
+    {
+      throw new NotImplementedException("TODO 5553");
+    }
   }
 }
