@@ -18,7 +18,6 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe
 {
@@ -37,9 +36,9 @@ namespace Remotion.TypePipe
       // Does nothing.
     }
 
-    public virtual Type GetOrCreateAdditionalType (object id, AdditionalTypeAssemblyContext additionalTypeAssemblyContext)
+    public virtual Type GetOrCreateAdditionalType (object id, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
     {
-      return null;
+      return null; // Does nothing.
     }
 
     public virtual void HandleNonSubclassableType (Type requestedType)

@@ -14,19 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
-using System;
-using System.Collections.Generic;
-using Remotion.TypePipe.MutableReflection.Implementation;
-
 namespace Remotion.TypePipe.CodeGeneration
 {
   // TODO 5553
-  public class AdditionalTypeAssemblyContext : TypeAssemblyContextBase, IAdditionalTypeAssemblyContext
+  public interface IAdditionalTypeAssemblyContext : ITypeAssemblyContext
   {
-    public AdditionalTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
-        : base (mutableTypeFactory, state)
-    {
-    }
   }
 }

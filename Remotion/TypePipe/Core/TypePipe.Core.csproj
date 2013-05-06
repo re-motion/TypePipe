@@ -60,6 +60,7 @@
     <Compile Include="Caching\AssembledTypeID.cs" />
     <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
+    <Compile Include="CodeGeneration\IAdditionalTypeAssemblyContext.cs" />
     <Compile Include="CodeGeneration\ITypeAssemblyContext.cs" />
     <Compile Include="CodeGeneration\Implementation\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\Implementation\IAssembledTypeIdentifierProvider.cs" />

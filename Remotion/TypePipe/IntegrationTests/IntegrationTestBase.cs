@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.IntegrationTests
         Action<object, IProxyTypeAssemblyContext> participateAction = null,
         ITypeIdentifierProvider typeIdentifierProvider = null,
         Action<LoadedTypesContext> rebuildStateAction = null,
-        Func<object, AdditionalTypeAssemblyContext, Type> additionalTypeFunc = null,
+        Func<object, IAdditionalTypeAssemblyContext, Type> additionalTypeFunc = null,
         Action<Type> handleNonSubclassableTypeAction = null)
     {
       participateAction = participateAction ?? ((id, ctx) => { });

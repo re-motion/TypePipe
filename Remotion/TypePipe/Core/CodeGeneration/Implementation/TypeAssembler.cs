@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
 
-      var context = new AdditionalTypeAssemblyContext (participantState);
+      var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, participantState);
       return _participants.Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context)).First (t => t != null);
     }
 

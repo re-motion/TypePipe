@@ -75,7 +75,7 @@ namespace Remotion.TypePipe
     void RebuildState (LoadedTypesContext loadedTypesContext);
 
     // TODO 5553
-    Type GetOrCreateAdditionalType (object id, AdditionalTypeAssemblyContext additionalTypeAssemblyContext);
+    Type GetOrCreateAdditionalType (object id, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext);
 
     /// <summary>
     /// This method is called for requested types that are not subclassable and therefore not processed by the pipeline
