@@ -18,6 +18,7 @@
 using System;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 

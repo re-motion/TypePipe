@@ -17,6 +17,7 @@
 
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Serialization

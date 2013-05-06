@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe
@@ -36,7 +37,7 @@ namespace Remotion.TypePipe
       // Does nothing.
     }
 
-    public virtual Type GetOrCreateAdditionalType (object id, AdditionalTypeGenerationContext additionalTypeGenerationContext)
+    public virtual Type GetOrCreateAdditionalType (object id, AdditionalTypeAssemblyContext additionalTypeAssemblyContext)
     {
       return null;
     }

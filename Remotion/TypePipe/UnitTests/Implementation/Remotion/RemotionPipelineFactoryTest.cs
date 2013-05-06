@@ -16,7 +16,7 @@
 // 
 
 using NUnit.Framework;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.Implementation.ReflectionEmit;
 using Remotion.TypePipe.Implementation.Remotion;
 using Remotion.Development.UnitTesting;
 

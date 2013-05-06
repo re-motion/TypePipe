@@ -16,7 +16,7 @@
 // 
 
 using System;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.Implementation.ReflectionEmit;
 
 namespace Remotion.TypePipe.Implementation.Remotion
 {

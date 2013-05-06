@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.Implementation;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {

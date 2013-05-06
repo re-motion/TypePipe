@@ -18,6 +18,7 @@
 using System;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe
     void RebuildState (LoadedTypesContext loadedTypesContext);
 
     // TODO 5553
-    Type GetOrCreateAdditionalType (object id, AdditionalTypeGenerationContext additionalTypeGenerationContext);
+    Type GetOrCreateAdditionalType (object id, AdditionalTypeAssemblyContext additionalTypeAssemblyContext);
 
     /// <summary>
     /// This method is called for requested types that are not subclassable and therefore not processed by the pipeline

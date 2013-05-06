@@ -21,6 +21,7 @@ using System.Linq;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -193,7 +194,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       ArgumentUtility.CheckNotNull ("participantState", participantState);
 
       lock (_codeGenerationLock)
-        return _typeAssembler.RetrieveAdditionalType (additionalTypeID, participantState);
+        return _typeAssembler.GetOrAssembleAdditionalType (additionalTypeID, participantState);
     }
   }
 }

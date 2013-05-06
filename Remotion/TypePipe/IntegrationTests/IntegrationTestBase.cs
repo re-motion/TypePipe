@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
@@ -45,7 +46,7 @@ namespace Remotion.TypePipe.IntegrationTests
         Action<object, ITypeAssemblyContext> participateAction = null,
         ITypeIdentifierProvider typeIdentifierProvider = null,
         Action<LoadedTypesContext> rebuildStateAction = null,
-        Func<object, AdditionalTypeGenerationContext, Type> additionalTypeFunc = null,
+        Func<object, AdditionalTypeAssemblyContext, Type> additionalTypeFunc = null,
         Action<Type> handleNonSubclassableTypeAction = null)
     {
       participateAction = participateAction ?? ((id, ctx) => { });

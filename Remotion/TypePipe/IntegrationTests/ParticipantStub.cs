@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
@@ -28,14 +29,14 @@ namespace Remotion.TypePipe.IntegrationTests
     private readonly Action<object, ITypeAssemblyContext> _participateAction;
     private readonly Action<LoadedTypesContext> _rebuildStateAction;
     private readonly Action<Type> _handleNonSubclassableTypeAction;
-    private readonly Func<object, AdditionalTypeGenerationContext, Type> _getOrCreateAdditionalTypeFunc;
+    private readonly Func<object, AdditionalTypeAssemblyContext, Type> _getOrCreateAdditionalTypeFunc;
 
     public ParticipantStub (
         ITypeIdentifierProvider typeIdentifierProvider,
         Action<object, ITypeAssemblyContext> participateAction,
         Action<LoadedTypesContext> rebuildStateAction,
         Action<Type> handleNonSubclassableTypeAction,
-        Func<object, AdditionalTypeGenerationContext, Type> getOrCreateAdditionalTypeFunc)
+        Func<object, AdditionalTypeAssemblyContext, Type> getOrCreateAdditionalTypeFunc)
     {
       // Type identifier provider may be null.
       ArgumentUtility.CheckNotNull ("participateAction", participateAction);
@@ -70,9 +71,9 @@ namespace Remotion.TypePipe.IntegrationTests
       _handleNonSubclassableTypeAction (requestedType);
     }
 
-    public Type GetOrCreateAdditionalType (object id, AdditionalTypeGenerationContext additionalTypeGenerationContext)
+    public Type GetOrCreateAdditionalType (object id, AdditionalTypeAssemblyContext additionalTypeAssemblyContext)
     {
-      return _getOrCreateAdditionalTypeFunc (id, additionalTypeGenerationContext);
+      return _getOrCreateAdditionalTypeFunc (id, additionalTypeAssemblyContext);
     }
   }
 }

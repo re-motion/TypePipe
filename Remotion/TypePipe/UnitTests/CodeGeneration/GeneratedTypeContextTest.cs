@@ -59,6 +59,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void GetGeneratedXXX_Members ()
     {
+      // TODO 5550: Nested types
       // TODO 5461: MutableGenericParameters on MutableType.
 
       var addedTypeInitializer = _mutableType.AddTypeInitializer (ctx => Expression.Empty());

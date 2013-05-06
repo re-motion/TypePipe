@@ -18,6 +18,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.Reflection.TypeDiscovery;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Remotion;
 using Rhino.Mocks;

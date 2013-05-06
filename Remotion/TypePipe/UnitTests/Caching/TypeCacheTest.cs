@@ -25,6 +25,7 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Rhino.Mocks;
 using System.Linq;

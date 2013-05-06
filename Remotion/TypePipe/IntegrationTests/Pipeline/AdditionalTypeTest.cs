@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   public class AdditionalTypeTest : IntegrationTestBase
   {
     [Test]
-    public void Standard ()
+    public void CachedType ()
     {
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
@@ -44,6 +44,12 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var result = pipeline.ReflectionService.GetAdditionalType (additionalTypeID);
 
       Assert.That (result, Is.SameAs (additionalType));
+    }
+
+    [Test]
+    public void NewType ()
+    {
+      
     }
 
     [Test]

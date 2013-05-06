@@ -27,6 +27,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Rhino.Mocks;
@@ -92,7 +93,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
       _typeAssemblerMock
-          .Expect (mock => mock.RetrieveAdditionalType (additionalTypeID, _participantState))
+          .Expect (mock => mock.GetOrAssembleAdditionalType (additionalTypeID, _participantState))
           .Return (additionalType)
           .WhenCalled (_ => CheckLockIsHeld());
       Assert.That (_point.GetOrGenerateAdditionalType (additionalTypeID, _participantState), Is.SameAs (additionalType));

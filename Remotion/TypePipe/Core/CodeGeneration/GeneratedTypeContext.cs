@@ -75,6 +75,8 @@ namespace Remotion.TypePipe.CodeGeneration
       var generatedMembers = generatedType.GetMembers (c_allDeclared);
       var generatedMembersByNameAndSig = generatedMembers.ToDictionary (m => Tuple.Create (m.Name, MemberSignatureProvider.GetMemberSignature (m)));
 
+      // TODO 5550: Add Nested types.
+
       var addedMembers = 
           new IMutableMember[] { mutableType.MutableTypeInitializer }.Where(m => m != null)
           .Concat (mutableType.AddedFields.Cast<IMutableMember>())
