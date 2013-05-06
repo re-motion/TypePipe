@@ -27,6 +27,14 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public static class TypeAssemblyContextExtensions
   {
+    /// <summary>
+    /// Creates an additional <see cref="MutableType"/> representing an public top-level class.
+    /// </summary>
+    /// <param name="context">A type assembly context.</param>
+    /// <param name="name">The class name.</param>
+    /// <param name="namespace">The namespace of the class.</param>
+    /// <param name="baseType">The base type of the class.</param>
+    /// <returns>A new mutable type representing a class.</returns>
     public static MutableType CreateClass (this ITypeAssemblyContext context, string name, string @namespace, Type baseType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
@@ -37,6 +45,13 @@ namespace Remotion.TypePipe.CodeGeneration
       return context.CreateType (name, @namespace, attributes, baseType);
     }
 
+    /// <summary>
+    /// Creates an additional <see cref="MutableType"/> representing an public interface.
+    /// </summary>
+    /// <param name="context">A type assembly context.</param>
+    /// <param name="name">The interface name.</param>
+    /// <param name="namespace">The namespace of the interface.</param>
+    /// <returns>A new mutable type representing an interface.</returns>
     public static MutableType CreateInterface (this ITypeAssemblyContext context, string name, string @namespace)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
