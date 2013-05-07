@@ -18,7 +18,6 @@
 using System;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
 
@@ -75,7 +74,17 @@ namespace Remotion.TypePipe
     /// <param name="loadedTypesContext">The loaded types context.</param>
     void RebuildState (LoadedTypesContext loadedTypesContext);
 
-    // TODO 5553
+    /// <summary>
+    /// Gets or creates an additional type for the specified identifier. If the participant can not interpret the <paramref name="additionalTypeID"/>
+    /// it should return <see langword="null"/>.
+    /// </summary>
+    /// <param name="additionalTypeID">The additional type identifier.</param>
+    /// <param name="additionalTypeAssemblyContext">The additional type assembly context.</param>
+    /// <returns>An additional type for the specified identifier; or <see langword="null"/>.</returns>
+    /// <remarks>
+    /// A participant may retrieve a cached additional type from the state cache available via <see cref="ITypeAssemblyContext.State"/> on
+    /// <paramref name="additionalTypeAssemblyContext"/> or create a new <see cref="MutableType"/> and return it.
+    /// </remarks>
     Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext);
 
     /// <summary>
