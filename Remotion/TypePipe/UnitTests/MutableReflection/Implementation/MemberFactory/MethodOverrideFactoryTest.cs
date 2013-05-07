@@ -25,7 +25,6 @@ using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -349,7 +348,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
-        + "Use MutableType.AddExplicitOverride to create an explicit implementation.")]
+        + "Use AddExplicitOverride to create an explicit implementation.")]
     public void GetOrCreateOverride_InterfaceMethod_InvalidCandidate ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
@@ -397,20 +396,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var method = _mutableType.AddMethod ("method", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
       _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
-    }
-
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void GetOrCreateOverride_FinalBaseMethod ()
-    {
-      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
-      var inputMethod = baseDefinition;
-      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
-      var isBaseDefinitionShadowed = BooleanObjectMother.GetRandomBoolean ();
-
-      SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
-
-      _factory.GetOrCreateOverride (_mutableType, inputMethod, out _isNewlyCreated);
     }
 
     private void CallAndCheckGetOrAddOverride (
@@ -549,8 +534,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       // base definition
       public virtual void OverrideHierarchy (int aaa) { }
-
-      public virtual void FinalBaseMethodInB (int i) { }
     }
 
     public class B : A
@@ -559,7 +542,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       public override void OverrideHierarchy (int bbb) { }
 
       protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int protectedOrInternal) { }
-      public override sealed void FinalBaseMethodInB (int i) { }
     }
 
     public class C : B

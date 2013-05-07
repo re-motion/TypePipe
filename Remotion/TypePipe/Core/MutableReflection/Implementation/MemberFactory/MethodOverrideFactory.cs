@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -94,7 +93,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       }
       isNewlyCreated = true;
 
-      var baseMethod = GetBaseMethod (declaringType, baseDefinition);
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
       var bodyProvider = CreateBodyProvider (baseMethod);
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
@@ -104,27 +103,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
       return CreateOverride (baseMethod, declaringType, baseMethod.Name, attributes, bodyProvider);
-    }
-
-    private MethodInfo GetBaseMethod (MutableType declaringType, MethodInfo baseDefinition)
-    {
-      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
-      Assertion.IsNotNull (baseMethod.DeclaringType);
-
-      if (baseMethod.IsFinal)
-      {
-        var message = string.Format ("Cannot override final method '{0}.{1}'.", baseMethod.DeclaringType.Name, baseMethod.Name);
-        throw new NotSupportedException (message);
-      }
-      // TODO 5370: test!
-      if (!SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
-      {
-        var message = string.Format (
-            "Cannot override method '{0}.{1}' as it is not visible from the proxy.", baseMethod.DeclaringType.Name, baseMethod.Name);
-        throw new NotSupportedException (message);
-      }
-
-      return baseMethod;
     }
 
     private static Func<MethodBodyCreationContext, Expression> CreateBodyProvider (MethodInfo baseMethod)
@@ -168,10 +146,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         {
           var message = string.Format (
               "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
-              + "Use {1}.{2} to create an explicit implementation.",
-              ifcMethod.Name,
-              typeof (MutableType).Name,
-              MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddExplicitOverride (null, null)).Name);
+              + "Use AddExplicitOverride to create an explicit implementation.",
+              ifcMethod.Name);
           throw new InvalidOperationException (message);
         }
       }

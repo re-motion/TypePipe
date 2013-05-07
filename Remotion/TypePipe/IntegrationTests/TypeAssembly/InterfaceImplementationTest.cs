@@ -107,8 +107,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             proxyType.AddInterface (typeof (IInvalidCandidates));
 
-            var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already "
-                                + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
+            var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
+                                + "Use AddExplicitOverride to create an explicit implementation.";
             Assert.That (
                 () => proxyType.GetOrAddOverride (interfaceMethod1),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod1.Name)));

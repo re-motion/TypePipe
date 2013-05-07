@@ -138,12 +138,21 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         return null;
 
       var baseMethod = _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType);
+
       if (baseMethod != null && baseMethod.IsFinal)
       {
         Assertion.IsNotNull (baseMethod.DeclaringType);
         var message = string.Format ("Cannot override final method '{0}.{1}'.", baseMethod.DeclaringType.Name, baseMethod.Name);
         throw new NotSupportedException (message);
       }
+
+      // TODO 5551: test!
+      //if (baseMethod != null && !SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
+      //{
+      //  var message = string.Format (
+      //      "Cannot override method '{0}.{1}' as it is not visible from the proxy.", baseMethod.DeclaringType.Name, baseMethod.Name);
+      //  throw new NotSupportedException (message);
+      //}
 
       return baseMethod;
     }
