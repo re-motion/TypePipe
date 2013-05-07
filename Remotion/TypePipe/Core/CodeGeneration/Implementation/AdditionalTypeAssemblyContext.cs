@@ -21,7 +21,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration.Implementation
 {
-  // TODO 5553
+  /// <inheritdoc />
   public class AdditionalTypeAssemblyContext : TypeAssemblyContextBase, IAdditionalTypeAssemblyContext
   {
     public AdditionalTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)

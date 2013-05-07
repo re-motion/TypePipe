@@ -392,7 +392,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "No participant provided an additional type for the given identifier.")]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "No participant provided an additional type for the given identifier.")]
     public void GetOrAssembleAdditionalType_NoParticipantReturnsType ()
     {
       var codeGeneratorStub = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();

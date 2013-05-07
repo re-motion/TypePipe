@@ -155,7 +155,7 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, participantState);
       var additionalType = _participants
           .Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context))
-          .First (t => t != null, () => new InvalidOperationException ("No participant provided an additional type for the given identifier."));
+          .First (t => t != null, () => new NotSupportedException ("No participant provided an additional type for the given identifier."));
 
       var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes, additionalTypeID.ToString());
       context.OnGenerationCompleted (generatedTypesContext);

@@ -55,11 +55,11 @@ namespace Remotion.TypePipe.Implementation
     /// Because an assembled type is not uniquely identified by its requested type alone, this method may return different assembled types if the
     /// participant configuration changes between calls.
     /// </summary>
+    /// <param name="requestedType">A requested type.</param>
+    /// <returns>An assembled type for the requested type.</returns>
     /// <remarks>
     /// Note that this method triggers code generation if the respective assembled type is not yet present in the cache.
     /// </remarks>
-    /// <param name="requestedType">A requested type.</param>
-    /// <returns>An assembled type for the requested type.</returns>
     Type GetAssembledType (Type requestedType);
 
     /// <summary>
@@ -67,14 +67,24 @@ namespace Remotion.TypePipe.Implementation
     /// Because an assembled type is uniquely identified by its <paramref name="typeID"/>, this method always returns the same assembled type even
     /// if the participant configuration changes between calls.
     /// </summary>
+    /// <param name="typeID">An assembled type identifier.</param>
+    /// <returns>The assembled type for the specified identifier.</returns>
     /// <remarks>
     /// Note that this method triggers code generation if the respective assembled type is not yet present in the cache.
     /// </remarks>
-    /// <param name="typeID">An assembled type identifier.</param>
-    /// <returns>The assembled type for the specified identifier.</returns>
     Type GetAssembledType (AssembledTypeID typeID);
 
-    // TODO 5553
+    /// <summary>
+    /// Gets a cached or newly generates an additional type for the specified <paramref name="additionalTypeID"/>.
+    /// This is done by calling <see cref="IParticipant.GetOrCreateAdditionalType"/> in the order the participants are configured in the pipeline
+    /// and returning the first non-<see langword="null"/> value. Participants may generate a new type or return a type from their state cache.
+    /// </summary>
+    /// <param name="additionalTypeID">An identifier for the requested additional type.</param>
+    /// <returns>The additional type for the specified identifier.</returns>
+    /// <exception cref="NotSupportedException">If no participant provides a type for the given identifier.</exception>
+    /// <remarks>
+    /// Note that this method triggers code generation if the respective additional type is not yet cached by a participant.
+    /// </remarks>
     Type GetAdditionalType (object additionalTypeID);
   }
 }

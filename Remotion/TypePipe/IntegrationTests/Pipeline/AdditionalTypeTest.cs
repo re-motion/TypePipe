@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "No participant provided an additional type for the given identifier.")]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "No participant provided an additional type for the given identifier.")]
     public void NoParticipantProvidesAdditionalType ()
     {
       var pipeline = CreatePipeline(/* no participants */);

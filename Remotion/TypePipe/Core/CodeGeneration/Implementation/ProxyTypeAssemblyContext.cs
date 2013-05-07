@@ -23,9 +23,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.Implementation
 {
-  /// <summary>
-  /// 
-  /// </summary>
+  /// <inheritdoc />
   public class ProxyTypeAssemblyContext : TypeAssemblyContextBase, IProxyTypeAssemblyContext
   {
     private readonly Type _requestedType;
