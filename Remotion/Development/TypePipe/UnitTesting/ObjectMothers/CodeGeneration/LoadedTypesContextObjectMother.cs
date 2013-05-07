@@ -24,9 +24,9 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
   public static class LoadedTypesContextObjectMother
   {
     public static LoadedTypesContext Create (
-        IEnumerable<Type> proxyTypes = null, IEnumerable<Type> additionalTypes = null, IDictionary<string, object> state = null)
+        IEnumerable<LoadedProxy> proxyTypes = null, IEnumerable<Type> additionalTypes = null, IDictionary<string, object> state = null)
     {
-      proxyTypes = proxyTypes ?? Type.EmptyTypes;
+      proxyTypes = proxyTypes ?? new LoadedProxy[0];
       additionalTypes = additionalTypes ?? Type.EmptyTypes;
       state = state ?? new Dictionary<string, object>();
 

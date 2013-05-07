@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -32,6 +31,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 using System.Linq;
+using Remotion.Collections;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
 {
@@ -301,20 +301,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
     }
 
     [Test]
-    public void RebuildParticipantState ()
-    {
-      var loadedTypesContext = LoadedTypesContextObjectMother.Create();
-      var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
-      participantMock.Stub (stub => stub.PartialTypeIdentifierProvider);
-      participantMock.Expect (mock => mock.RebuildState (loadedTypesContext));
-      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
-
-      typeAssembler.RebuildParticipantState (loadedTypesContext);
-
-      participantMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void GetOrAssembleAdditionalType_ParticipantReturnsMutableType ()
     {
       var mockRepository = new MockRepository();
@@ -399,6 +385,30 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
       var typeAssembler = CreateTypeAssembler();
 
       typeAssembler.GetOrAssembleAdditionalType (new object(), _participantState, codeGeneratorStub);
+    }
+
+    [Test]
+    public void RebuildParticipantState ()
+    {
+      var assembledType = typeof (AssembledType);
+      var additionalType = ReflectionObjectMother.GetSomeOtherType();
+      var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
+      participantMock.Stub (_ => _.PartialTypeIdentifierProvider);
+      participantMock
+          .Expect (mock => mock.RebuildState (Arg<LoadedTypesContext>.Is.Anything))
+          .WhenCalled (
+              mi =>
+              {
+                var ctx = (LoadedTypesContext) mi.Arguments[0];
+                Assert.That (ctx.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy (typeof (RequestedType), assembledType) }));
+                Assert.That (ctx.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
+                Assert.That (ctx.State, Is.SameAs (_participantState));
+              });
+      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
+
+      typeAssembler.RebuildParticipantState (new[] { assembledType }.AsReadOnly(), new[] { additionalType }.AsReadOnly(), _participantState);
+
+      participantMock.VerifyAllExpectations();
     }
 
     private TypeAssembler CreateTypeAssembler (

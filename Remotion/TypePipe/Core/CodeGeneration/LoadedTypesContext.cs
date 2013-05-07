@@ -32,13 +32,13 @@ namespace Remotion.TypePipe.CodeGeneration
     private readonly ReadOnlyCollection<Type> _additionalTypes;
     private readonly IDictionary<string, object> _state;
 
-    public LoadedTypesContext (IEnumerable<Type> proxyTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> state)
+    public LoadedTypesContext (IEnumerable<LoadedProxy> proxyTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> state)
     {
       ArgumentUtility.CheckNotNull ("proxyTypes", proxyTypes);
       ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
       ArgumentUtility.CheckNotNull ("state", state);
 
-      _proxyTypes = proxyTypes.Select (p => new LoadedProxy (p)).ToList().AsReadOnly();
+      _proxyTypes = proxyTypes.ToList().AsReadOnly();
       _additionalTypes = additionalTypes.ToList().AsReadOnly();
       _state = state;
     }

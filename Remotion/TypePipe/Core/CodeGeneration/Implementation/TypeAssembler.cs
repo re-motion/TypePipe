@@ -137,14 +137,6 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
       return generatedTypesContext.GetGeneratedType (context.ProxyType);
     }
 
-    public void RebuildParticipantState (LoadedTypesContext loadedTypesContext)
-    {
-      ArgumentUtility.CheckNotNull ("loadedTypesContext", loadedTypesContext);
-
-      foreach (var participant in _participants)
-        participant.RebuildState (loadedTypesContext);
-    }
-
     public Type GetOrAssembleAdditionalType (
         object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
@@ -164,6 +156,20 @@ namespace Remotion.TypePipe.CodeGeneration.Implementation
         return generatedTypesContext.GetGeneratedType ((MutableType) additionalType);
       else
         return additionalType;
+    }
+
+    public void RebuildParticipantState (
+        IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> participantState)
+    {
+      ArgumentUtility.CheckNotNull ("assembledTypes", assembledTypes);
+      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
+      ArgumentUtility.CheckNotNull ("participantState", participantState);
+
+      var proxyTypes = assembledTypes.Select (t => new LoadedProxy (GetRequestedType (t), t));
+      var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, participantState);
+
+      foreach (var participant in _participants)
+        participant.RebuildState (loadedTypesContext);
     }
 
     private bool CheckIsSubclassable (Type requestedType)

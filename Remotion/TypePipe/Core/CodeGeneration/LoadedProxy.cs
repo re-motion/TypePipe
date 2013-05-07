@@ -25,12 +25,15 @@ namespace Remotion.TypePipe.CodeGeneration
   /// </summary>
   public struct LoadedProxy
   {
+    private readonly Type _requestedType;
     private readonly Type _generatedType;
 
-    public LoadedProxy (Type generatedType)
+    public LoadedProxy (Type requestedType, Type generatedType)
     {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("generatedType", generatedType);
 
+      _requestedType = requestedType;
       _generatedType = generatedType;
     }
 
@@ -39,7 +42,7 @@ namespace Remotion.TypePipe.CodeGeneration
     /// </summary>
     public Type RequestedType
     {
-      get { return _generatedType.BaseType; }
+      get { return _requestedType; }
     }
 
     /// <summary>

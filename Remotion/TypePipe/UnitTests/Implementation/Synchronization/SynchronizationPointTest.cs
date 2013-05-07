@@ -26,7 +26,6 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
@@ -206,15 +205,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var additionalTypes = new[] { additionalType };
 
       _typeAssemblerMock
-          .Expect (mock => mock.RebuildParticipantState (Arg<LoadedTypesContext>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var context = (LoadedTypesContext) mi.Arguments[0];
-                Assert.That (context.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy (loadedAssembledType) }));
-                Assert.That (context.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
-                Assert.That (context.State, Is.SameAs (_participantState));
-              })
+          .Expect (mock => mock.RebuildParticipantState (new[] { loadedAssembledType }, new[] { additionalType }, _participantState))
           .WhenCalled (_ => CheckLockIsHeld());
 
       _point.RebuildParticipantState (types, keysToAssembledTypes, additionalTypes, _participantState);

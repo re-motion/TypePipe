@@ -30,16 +30,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void Initialization ()
     {
-      var proxyType = ReflectionObjectMother.GetSomeType();
+      var proxyType = new LoadedProxy (typeof (int), typeof (string));
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
       var state = new Dictionary<string, object>();
 
       var context = new LoadedTypesContext (new[] { proxyType }.AsOneTime(), new[] { additionalType }.AsOneTime(), state);
 
-      Assert.That (context.ProxyTypes, Has.Count.EqualTo (1));
-      var loadedProxy = context.ProxyTypes[0];
-      Assert.That (loadedProxy.RequestedType, Is.SameAs (proxyType.BaseType));
-      Assert.That (loadedProxy.GeneratedType, Is.SameAs (proxyType));
+      Assert.That (context.ProxyTypes, Is.EqualTo (new[] { proxyType }));
       Assert.That (context.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
       Assert.That (context.State, Is.SameAs (state));
     }
