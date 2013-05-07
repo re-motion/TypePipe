@@ -34,18 +34,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method1());
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverrideOrReImplement (interfaceMethod)
-                .SetBody (
-                    ctx =>
-                    {
-                      Assert.That (ctx.BaseMethod, Is.EqualTo (interfaceMethod));
-                      Assert.That (ctx.DeclaringType.AddedInterfaces, Is.Empty);
+          p =>
+          {
+            var method = p.GetOrAddOverrideOrReImplement (interfaceMethod);
+            Assert.That (method, Is.SameAs (p.GetOrAddOverrideOrReImplement (interfaceMethod)));
 
-                      return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("override"));
-                    }));
+            method.SetBody (ctx =>
+            {
+              Assert.That (ctx.BaseMethod, Is.EqualTo (interfaceMethod));
+              Assert.That (ctx.DeclaringType.AddedInterfaces, Is.Empty);
 
-      var method = GetDeclaredMethod (type, "Method1");
-      Assert.That (method.Attributes.IsSet (MethodAttributes.ReuseSlot), Is.True);
+              return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("override"));
+            });
+          });
+
+      var overrideMethod = GetDeclaredMethod (type, "Method1");
+      Assert.That (overrideMethod.Attributes.IsSet (MethodAttributes.ReuseSlot), Is.True);
       var instance = (DomainType) Activator.CreateInstance (type);
 
       var result1 = instance.Method1();
@@ -60,18 +64,22 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method2 ());
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverrideOrReImplement (interfaceMethod)
-                .SetBody (
-                    ctx =>
-                    {
-                      Assert.That (ctx.BaseMethod, Is.EqualTo (interfaceMethod));
-                      Assert.That (ctx.DeclaringType.AddedInterfaces, Is.EqualTo (new[] { typeof (IMyInterface) }));
+          p =>
+          {
+            var method = p.GetOrAddOverrideOrReImplement (interfaceMethod);
+            Assert.That (method, Is.SameAs (p.GetOrAddOverrideOrReImplement (interfaceMethod)));
 
-                      return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("re-implementation"));
-                    }));
+            method.SetBody (ctx =>
+            {
+              Assert.That (ctx.BaseMethod, Is.Null);
+              return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("re-implementation"));
+            });
 
-      var method = GetDeclaredMethod (type, "Method2");
-      Assert.That (method.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
+            Assert.That (p.AddedInterfaces, Is.EqualTo (new[] { typeof (IMyInterface) }));
+          });
+
+      var reImplementMethod = GetDeclaredMethod (type, "Method2");
+      Assert.That (reImplementMethod.Attributes.IsSet (MethodAttributes.NewSlot), Is.True);
       var instance = (DomainType) Activator.CreateInstance (type);
 
       var result1 = instance.Method2();
