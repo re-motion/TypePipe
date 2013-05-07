@@ -31,6 +31,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.Serialization;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Serialization

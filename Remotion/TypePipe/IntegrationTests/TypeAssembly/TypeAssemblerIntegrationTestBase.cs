@@ -25,6 +25,7 @@ using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {

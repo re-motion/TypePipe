@@ -19,6 +19,7 @@ using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation

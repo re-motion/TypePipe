@@ -21,6 +21,7 @@ using Remotion.Reflection.TypeDiscovery;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Remotion;
+using Remotion.TypePipe.TypeAssembly;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation.Remotion

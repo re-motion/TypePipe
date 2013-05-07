@@ -14,7 +14,7 @@
  * ***************************************************************************/
 
 #if TypePipe
-using Remotion.TypePipe.CodeGeneration.Implementation.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Dlr.Ast.Compiler;
 #else

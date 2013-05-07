@@ -18,8 +18,8 @@
 using System;
 using System.Reflection;
 using Remotion.Reflection.TypeDiscovery;
-using Remotion.TypePipe.CodeGeneration.Implementation.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.Implementation.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 

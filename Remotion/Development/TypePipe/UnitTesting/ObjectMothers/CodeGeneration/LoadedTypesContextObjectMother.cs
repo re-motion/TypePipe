@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
 {

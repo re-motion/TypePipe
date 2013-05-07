@@ -58,46 +58,46 @@
     </Compile>
     <Compile Include="Caching\AssembledTypeIDTest.cs" />
     <Compile Include="Caching\ConstructionKeyTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\AssembledTypeIdentifierProviderTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\DependentTypeSorterTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\NullTypeIdentifierProviderTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\ConstructorBuilderDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\EventBuilderDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\FieldBuilderDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\GenericTypeParameterBuilderDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBaseTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\MethodBuilderDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\PropertyBuilderDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Expressions\BoxAndCastExpressionTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Expressions\CodeGenerationExpressionBaseTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Expressions\UnboxExpressionTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Expressions\UnaryExpressionBaseTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\InitializationBuilderTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\LambdaCompilation\DelegateTypePlaceholderTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\MutableTypeCodeGeneratorFactoryTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\ProxySerializationEnablerTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\DeferredActionManagerTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\LambdaCompilation\CodeGenerationExpressionEmitterTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\EmittableOperandProviderTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\CodeGenerationContextObjectMother.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\CodeGenerationContextTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\MemberEmitterTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\MethodTrampolineProviderTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Expressions\UnemittableExpressionVisitorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\MutableTypeCodeGeneratorTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\MemberEmitterFactoryTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\TypeAssemblerTest.cs">
+    <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EventBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\GenericTypeParameterBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxAndCastExpressionTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\CodeGenerationExpressionBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpressionTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnaryExpressionBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\DelegateTypePlaceholderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\CodeGenerationExpressionEmitterTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContextObjectMother.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContextTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnemittableExpressionVisitorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblerTest.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Implementation\ConstructorFinderTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\MutableTypeBatchCodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\MutableTypeBatchCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />
     <Compile Include="Configuration\AppConfigBasedSettingsProviderTest.cs" />
     <Compile Include="Configuration\TypePipeConfigurationSectionTest.cs" />
@@ -116,7 +116,7 @@
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistryTest.cs" />
     <Compile Include="Implementation\Synchronization\SynchronizationPointTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
-    <Compile Include="CodeGeneration\LoadedTypesContextTest.cs" />
+    <Compile Include="TypeAssembly\LoadedTypesContextTest.cs" />
     <Compile Include="Implementation\ReflectionServiceTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
@@ -128,7 +128,7 @@
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseObjectMother.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
-    <Compile Include="CodeGeneration\GeneratedTypesContextTest.cs" />
+    <Compile Include="TypeAssembly\GeneratedTypesContextTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationInfoTest.cs" />
     <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
@@ -172,7 +172,7 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeContainerTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\ReflectionEmitObjectMother.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
     <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapperTest.cs" />
     <Compile Include="MutableReflection\Implementation\MutableTypeFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\ProxyTypeModificationTrackerTest.cs" />
@@ -184,7 +184,7 @@
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyContextExtensionsTest.cs" />
+    <Compile Include="TypeAssembly\TypeAssemblyContextExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\VectorTypeTest.cs" />
     <Compile Include="MutableReflection\MethodDeclarationTest.cs" />
     <Compile Include="MutableReflection\MethodInfoExtensionsTest.cs" />
@@ -198,7 +198,7 @@
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\TypeAssemblyContextBaseTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyContextBaseTest.cs" />
     <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeFinderTest.cs" />
@@ -228,7 +228,7 @@
     </Compile>
     <Compile Include="Serialization\TestableObjectDeserializationProxyBase.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
-    <Compile Include="CodeGeneration\Implementation\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
     <Compile Include="Caching\TypeCacheTest.cs" />
   </ItemGroup>
@@ -239,7 +239,7 @@
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
-    <None Include="CodeGeneration\Implementation\ReflectionEmit\OtherKey.snk">
+    <None Include="CodeGeneration\ReflectionEmit\OtherKey.snk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

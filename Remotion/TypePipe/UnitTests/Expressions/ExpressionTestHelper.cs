@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.CodeGeneration.Implementation.ReflectionEmit.Expressions;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;

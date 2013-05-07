@@ -19,6 +19,7 @@ using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {

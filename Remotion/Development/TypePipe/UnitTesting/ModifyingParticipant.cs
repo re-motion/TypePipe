@@ -21,6 +21,7 @@ using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.Development.TypePipe.UnitTesting
 {

@@ -18,6 +18,7 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.TypePipe
 {

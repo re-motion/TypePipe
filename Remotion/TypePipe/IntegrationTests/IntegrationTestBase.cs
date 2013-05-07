@@ -26,6 +26,7 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.TypeAssembly;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests
