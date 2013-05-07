@@ -21,6 +21,7 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
+  /// This context allows <see cref="IParticipant"/>s to specify their code generation needs.
   /// Holds the <see cref="RequestedType"/> and <see cref="ProxyType"/> and allows generation of additional types.
   /// </summary>
   /// <remarks>

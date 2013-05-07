@@ -16,7 +16,9 @@
 // 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  // TODO 5553
+  /// <summary>
+  /// A context that provides functionality to assemble additional types.
+  /// </summary>
   public interface IAdditionalTypeAssemblyContext : ITypeAssemblyContext
   {
   }

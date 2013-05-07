@@ -96,7 +96,6 @@
     <Compile Include="CodeGeneration\Implementation\TypeAssemblerTest.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CodeGeneration\TestableTypeAssemblyContextBase.cs" />
     <Compile Include="Implementation\ConstructorFinderTest.cs" />
     <Compile Include="CodeGeneration\Implementation\MutableTypeBatchCodeGeneratorTest.cs" />
     <Compile Include="Configuration\RequireStrongNamingConfigurationElementTest.cs" />

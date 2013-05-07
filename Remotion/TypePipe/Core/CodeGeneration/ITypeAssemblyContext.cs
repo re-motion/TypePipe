@@ -22,7 +22,9 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
-  // TODO 5550: Docs
+  /// <summary>
+  /// A base interface for type assembly contexts.
+  /// </summary>
   public interface ITypeAssemblyContext
   {
     /// <summary>
