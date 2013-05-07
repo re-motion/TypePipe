@@ -105,6 +105,7 @@
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
     <Compile Include="TypeAssembly\MutableTypeInSignaturesTest.cs" />
     <Compile Include="Pipeline\ParticipantStateTest.cs" />
+    <Compile Include="TypeAssembly\ReImplementInterfaceMethodTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
     <Compile Include="TypeAssembly\TypeConstantDlrBugTest.cs" />

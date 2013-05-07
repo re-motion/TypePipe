@@ -252,7 +252,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <summary>
     /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="overriddenMethod"/>.
     /// </summary>
-    /// <param name="overriddenMethod">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
+    /// <param name="overriddenMethod">The base or interface <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
     /// <returns>
     /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="overriddenMethod"/>, an override for a base method or an implementation for 
     /// an interface method.
@@ -294,6 +294,13 @@ namespace Remotion.TypePipe.MutableReflection
         _addedMethods.Add (method);
 
       return method;
+    }
+
+    public MutableMethodInfo GetOrAddOverrideOrReImplement (MethodInfo interfaceMethod)
+    {
+      ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
+
+      throw new NotImplementedException ("TODO 5551");
     }
 
     public MutablePropertyInfo AddProperty (
