@@ -18,7 +18,6 @@
 using System;
 using System.Reflection;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Implementation

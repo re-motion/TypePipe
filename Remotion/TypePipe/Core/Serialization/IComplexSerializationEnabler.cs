@@ -17,8 +17,6 @@
 
 using System;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 

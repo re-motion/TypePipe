@@ -21,7 +21,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;

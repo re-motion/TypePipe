@@ -18,7 +18,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;

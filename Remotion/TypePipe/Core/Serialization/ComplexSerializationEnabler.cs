@@ -19,8 +19,6 @@ using System;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly.Implementation;

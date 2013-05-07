@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Is.SameAs (mutableMethod));
       Assert.That (_mutableType.AddedMethods, Has.Member (result));
 
-      var name = "Remotion.TypePipe.UnitTests.CodeGeneration.Implementation.ReflectionEmit.MethodTrampolineProviderTest+DomainType.Abc_NonVirtualCallTrampoline";
+      var name = "Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.MethodTrampolineProviderTest+DomainType.Abc_NonVirtualCallTrampoline";
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Attributes, Is.EqualTo (MethodAttributes.Private));
       Assert.That (result.ReturnType, Is.SameAs (typeof (string)));

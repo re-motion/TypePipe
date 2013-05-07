@@ -22,7 +22,7 @@ using Remotion.TypePipe.Expressions;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 {
   /// <summary>
-  /// Identifies expressions that are specific to the <see cref="Remotion.TypePipe.CodeGeneration.Implementation.ReflectionEmit"/> code generator.
+  /// Identifies expressions that are specific to the <see cref="Remotion.TypePipe.CodeGeneration.ReflectionEmit"/> code generator.
   /// </summary>
   /// Expressions of this type can be handled using an <see cref="ICodeGenerationExpressionVisitor"/>.
   /// <seealso cref="CodeGenerationExpressionBase"/>

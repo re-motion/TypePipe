@@ -20,7 +20,6 @@ using Remotion.Reflection;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;

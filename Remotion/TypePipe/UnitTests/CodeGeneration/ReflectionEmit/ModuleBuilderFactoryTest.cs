@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder_StrongNamed_ProvidedKey ()
     {
-      var otherKeyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"CodeGeneration\Implementation\ReflectionEmit\OtherKey.snk");
+      var otherKeyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"CodeGeneration\ReflectionEmit\OtherKey.snk");
       var result = _factory.CreateModuleBuilder (
           c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath);
 

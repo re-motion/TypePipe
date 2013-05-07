@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Remotion.FunctionalProgramming;
 using Remotion.Text;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 

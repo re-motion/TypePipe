@@ -18,7 +18,6 @@
 using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
