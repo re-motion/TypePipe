@@ -14,16 +14,19 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 
-namespace Remotion.TypePipe.CodeGeneration
+using System;
+using System.Collections.Generic;
+using Remotion.TypePipe.MutableReflection.Implementation;
+
+namespace Remotion.TypePipe.CodeGeneration.Implementation
 {
-  /// <summary>
-  /// This is an infastructure <see cref="Attribute"/> and not meant to be used outside of TypePipe code.
-  /// The pipeline attaches this custom attribute to the assembled <see cref="Type"/>s it generates.
-  /// </summary>
-  [AttributeUsage (AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public class AssembledTypeAttribute : Attribute
+  // TODO 5553
+  public class AdditionalTypeAssemblyContext : TypeAssemblyContextBase, IAdditionalTypeAssemblyContext
   {
+    public AdditionalTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+        : base (mutableTypeFactory, state)
+    {
+    }
   }
 }

@@ -18,11 +18,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration.Implementation;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly

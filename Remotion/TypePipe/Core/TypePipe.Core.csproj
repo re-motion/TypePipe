@@ -65,9 +65,9 @@
     <Compile Include="CodeGeneration\Implementation\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\Implementation\IAssembledTypeIdentifierProvider.cs" />
     <Compile Include="CodeGeneration\Implementation\NullTypeIdentifierProvider.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyContextBase.cs" />
+    <Compile Include="CodeGeneration\Implementation\TypeAssemblyContextBase.cs" />
     <Compile Include="Configuration\PipelineSettings.cs" />
-    <Compile Include="CodeGeneration\AdditionalTypeAssemblyContext.cs" />
+    <Compile Include="CodeGeneration\Implementation\AdditionalTypeAssemblyContext.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecorator.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistry.cs" />
@@ -89,7 +89,7 @@
     <Compile Include="Implementation\IInitializableObject.cs" />
     <Compile Include="CodeGeneration\Implementation\DependentTypeSorter.cs" />
     <Compile Include="CodeGeneration\Implementation\IDependentTypeSorter.cs" />
-    <Compile Include="CodeGeneration\AssembledTypeAttribute.cs" />
+    <Compile Include="CodeGeneration\Implementation\AssembledTypeAttribute.cs" />
     <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\ConstructorBuilderDecorator.cs" />
     <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\BuilderAdapterBase.cs" />
     <Compile Include="CodeGeneration\Implementation\ReflectionEmit\Abstractions\BuilderDecoratorBase.cs" />
@@ -449,7 +449,7 @@
     <Compile Include="StrongNaming\ITypeAnalyzer.cs" />
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
-    <Compile Include="CodeGeneration\ProxyTypeAssemblyContext.cs" />
+    <Compile Include="CodeGeneration\Implementation\ProxyTypeAssemblyContext.cs" />
     <Compile Include="PipelineFactory.cs" />
   </ItemGroup>
   <ItemGroup>

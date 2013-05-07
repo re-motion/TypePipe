@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {

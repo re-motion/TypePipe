@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,7 +23,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.CodeGeneration.Implementation
 {
   /// <summary>
   /// A base class for <see cref="ITypeAssemblyContext"/> implementers that provides the possibility to raise

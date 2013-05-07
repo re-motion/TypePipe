@@ -25,7 +25,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
-namespace Remotion.TypePipe.UnitTests.CodeGeneration
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.Implementation
 {
   [TestFixture]
   public class TypeAssemblyContextBaseTest

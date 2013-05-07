@@ -198,7 +198,7 @@
     <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
     <Compile Include="MutableReflection\Implementation\SignatureDebugStringGeneratorTest.cs" />
     <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
-    <Compile Include="CodeGeneration\TypeAssemblyContextBaseTest.cs" />
+    <Compile Include="CodeGeneration\Implementation\TypeAssemblyContextBaseTest.cs" />
     <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
     <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeFinderTest.cs" />

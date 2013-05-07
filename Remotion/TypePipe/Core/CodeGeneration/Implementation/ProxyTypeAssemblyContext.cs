@@ -21,9 +21,11 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.CodeGeneration
+namespace Remotion.TypePipe.CodeGeneration.Implementation
 {
-  // TODO 5553 Docs
+  /// <summary>
+  /// 
+  /// </summary>
   public class ProxyTypeAssemblyContext : TypeAssemblyContextBase, IProxyTypeAssemblyContext
   {
     private readonly Type _requestedType;
