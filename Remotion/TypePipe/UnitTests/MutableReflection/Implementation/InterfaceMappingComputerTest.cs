@@ -66,6 +66,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_ExistingInterface ()
     {
       var implicitImplementation1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method11());
+      var implicitImplementation2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method12 ());
       var explicitImplementation = _mutableType.AddMethod ("ExplicitImpl", MethodAttributes.Virtual);
       explicitImplementation.AddExplicitBaseDefinition (_existingInterfaceMethod2);
 
@@ -76,7 +77,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               {
                   InterfaceType = typeof (IExistingInterface),
                   InterfaceMethods = new[] { _existingInterfaceMethod1, _existingInterfaceMethod2 },
-                  TargetMethods = new[] { implicitImplementation1, null /* not used */ }
+                  TargetMethods = new[] { implicitImplementation1, implicitImplementation2 }
               });
 
       CallComputeMappingAndCheckResult (
