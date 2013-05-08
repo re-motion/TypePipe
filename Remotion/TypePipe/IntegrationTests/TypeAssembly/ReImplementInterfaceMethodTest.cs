@@ -25,14 +25,42 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
-  [Ignore ("TODO 5551")]
   [TestFixture]
   public class ReImplementInterfaceMethodTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
-    public void Virtual_Overrides ()
+    public void NoBase_Implement ()
+    {
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface o) => o.AddedMethod());
+      var type = AssembleType<DomainType> (
+          p =>
+          {
+            p.AddInterface (typeof (IAddedInterface));
+
+            var method = p.GetOrAddOverrideOrReImplement (interfaceMethod);
+            Assert.That (method, Is.SameAs (p.GetOrAddOverrideOrReImplement (interfaceMethod)));
+
+            method.SetBody (
+                ctx =>
+                {
+                  Assert.That (ctx.HasBaseMethod, Is.False);
+                  Assert.That (ctx.HasPreviousBody, Is.False);
+
+                  return Expression.Constant ("added");
+                });
+          });
+
+      var instance = (IAddedInterface) Activator.CreateInstance (type);
+
+      Assert.That (instance.AddedMethod(), Is.EqualTo ("added"));
+    }
+
+    [Ignore ("TODO 5551")]
+    [Test]
+    public void VirtualBase_Overrides ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method1());
+      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.Method1());
       var type = AssembleType<DomainType> (
           p =>
           {
@@ -41,7 +69,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             method.SetBody (ctx =>
             {
-              Assert.That (ctx.BaseMethod, Is.EqualTo (interfaceMethod));
+              Assert.That (ctx.BaseMethod, Is.EqualTo (baseMethod));
               Assert.That (ctx.DeclaringType.AddedInterfaces, Is.Empty);
 
               return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("override"));
@@ -59,8 +87,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result2, Is.EqualTo ("1 override"));
     }
 
+    [Ignore ("TODO 5551")]
     [Test]
-    public void NonVirtual_ReImplements_AndCallsBase ()
+    public void NonVirtualBase_ReImplements_AndCallsBase ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method2 ());
       var type = AssembleType<DomainType> (
@@ -71,11 +100,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             method.SetBody (ctx =>
             {
-              Assert.That (ctx.BaseMethod, Is.Null);
+              Assert.That (ctx.HasBaseMethod, Is.False);
+              Assert.That (p.AddedInterfaces, Is.EqualTo (new[] { typeof (IMyInterface) }));
+
               return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("re-implementation"));
             });
-
-            Assert.That (p.AddedInterfaces, Is.EqualTo (new[] { typeof (IMyInterface) }));
           });
 
       var reImplementMethod = GetDeclaredMethod (type, "Method2");
@@ -92,24 +121,27 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
         "Cannot re-implement interface method 'Method3' because its base implementation is not accessible.")]
-    public void NonVirtual_NonAccessible ()
+    public void NonVirtualBase_ReImplement_BaseNonAccessible ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method3());
       AssembleType<DomainType> (p => p.GetOrAddOverrideOrReImplement (interfaceMethod).SetBody (ctx => null));
     }
 
-    private class DomainType : IMyInterface
+    public class DomainType : IMyInterface
     {
       public virtual string Method1 () { return "1 "; }
       public string Method2 () { return "2 "; }
       string IMyInterface.Method3 () { return "3 "; }
     }
-
-    interface IMyInterface
+    public interface IMyInterface
     {
       string Method1 ();
       string Method2 ();
       string Method3 ();
+    }
+    public interface IAddedInterface
+    {
+      string AddedMethod ();
     }
   }
 }
