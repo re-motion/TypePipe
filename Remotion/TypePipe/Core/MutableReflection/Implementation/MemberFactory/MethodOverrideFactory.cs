@@ -102,10 +102,60 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProvider);
 
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
-      return CreateOverride (baseMethod, declaringType, baseMethod.Name, attributes, bodyProvider);
+      return CreateOverride (declaringType, baseMethod, baseMethod.Name, attributes, bodyProvider);
     }
 
-    private static Func<MethodBodyCreationContext, Expression> CreateBodyProvider (MethodInfo baseMethod)
+    public MutableMethodInfo GetOrCreateOverrideOrReImplement (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
+    {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
+      Assertion.IsNotNull (interfaceMethod.DeclaringType);
+
+      // TODO: Check if interface ...
+
+
+      if (interfaceMethod.IsGenericMethodInstantiation())
+      {
+        throw new ArgumentException (
+            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
+            "interfaceMethod");
+      }
+
+      // ReSharper disable PossibleUnintendedReferenceComparison
+      if (!interfaceMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType))
+      // ReSharper restore PossibleUnintendedReferenceComparison
+      {
+        var message = string.Format (
+            "Method is declared by an interface that is not implemented by the proxy: '{0}'.", interfaceMethod.DeclaringType.Name);
+        throw new ArgumentException (message, "interfaceMethod");
+      }
+
+      var baseImplementation = GetOrCreateImplementationMethod (declaringType, interfaceMethod, out isNewlyCreated);
+      if (baseImplementation is MutableMethodInfo)
+        return (MutableMethodInfo) baseImplementation;
+
+      Assertion.IsTrue (baseImplementation.IsVirtual, "It is not possible to get an interface implementation that is not virtual (in verifiable code).");
+
+      // Re-implement if final.
+      if (baseImplementation.IsFinal)
+      {
+        if (!SubclassFilterUtility.IsVisibleFromSubclass (baseImplementation))
+        {
+          throw new Exception ("TODO 5551");
+        }
+
+        declaringType.AddInterfaceIfNotPresent (interfaceMethod.DeclaringType);
+
+        var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot;
+        Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.DelegateToBase (baseImplementation);
+
+        return CreateOverride (declaringType, interfaceMethod, interfaceMethod.Name, attributes, bodyProvider);
+      }
+
+      return GetOrCreateOverride (declaringType, baseImplementation, out isNewlyCreated);
+    }
+
+    private Func<MethodBodyCreationContext, Expression> CreateBodyProvider (MethodInfo baseMethod)
     {
       if (baseMethod.IsAbstract)
         return null;
@@ -123,7 +173,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (bodyProviderOrNull != null)
         attributes = attributes.Unset (MethodAttributes.Abstract);
 
-      var method = CreateOverride (overriddenMethodBaseDefinition, declaringType, name, attributes, bodyProviderOrNull);
+      var method = CreateOverride (declaringType, overriddenMethodBaseDefinition, name, attributes, bodyProviderOrNull);
       method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
 
       return method;
@@ -140,7 +190,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         try
         {
           isNewlyCreated = true;
-          return CreateOverride (ifcMethod, declaringType, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
+          // tODO: 5551 use explicit attributes (and test!)
+          //var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract | MethodAttributes.ReuseSlot;
+          return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
         }
         catch (InvalidOperationException)
         {
@@ -159,8 +211,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     }
 
     private MutableMethodInfo CreateOverride (
-        MethodInfo overriddenMethod,
         MutableType declaringType,
+        MethodInfo overriddenMethod,
         string name,
         MethodAttributes attributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
