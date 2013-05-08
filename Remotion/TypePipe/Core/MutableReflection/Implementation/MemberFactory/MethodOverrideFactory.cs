@@ -151,6 +151,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot;
         Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.DelegateToBase (baseImplementation);
 
+        isNewlyCreated = true;
         return CreateOverride (declaringType, interfaceMethod, interfaceMethod.Name, attributes, bodyProvider);
       }
 

@@ -55,7 +55,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (instance.AddedMethod(), Is.EqualTo ("added"));
     }
 
-    [Ignore ("TODO 5551")]
     [Test]
     public void VirtualBase_Overrides ()
     {
@@ -72,12 +71,12 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               Assert.That (ctx.BaseMethod, Is.EqualTo (baseMethod));
               Assert.That (ctx.DeclaringType.AddedInterfaces, Is.Empty);
 
-              return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("override"));
+              return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" override"));
             });
           });
 
       var overrideMethod = GetDeclaredMethod (type, "Method1");
-      Assert.That (overrideMethod.Attributes.IsSet (MethodAttributes.ReuseSlot), Is.True);
+      Assert.That (overrideMethod.Attributes.IsSet (MethodAttributes.VtableLayoutMask, MethodAttributes.ReuseSlot), Is.True);
       var instance = (DomainType) Activator.CreateInstance (type);
 
       var result1 = instance.Method1();
@@ -87,7 +86,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result2, Is.EqualTo ("1 override"));
     }
 
-    [Ignore ("TODO 5551")]
     [Test]
     public void NonVirtualBase_ReImplements_AndCallsBase ()
     {
@@ -103,7 +101,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
               Assert.That (ctx.HasBaseMethod, Is.False);
               Assert.That (p.AddedInterfaces, Is.EqualTo (new[] { typeof (IMyInterface) }));
 
-              return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant ("re-implementation"));
+              return ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" re-implementation"));
             });
           });
 
@@ -129,9 +127,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     public class DomainType : IMyInterface
     {
-      public virtual string Method1 () { return "1 "; }
-      public string Method2 () { return "2 "; }
-      string IMyInterface.Method3 () { return "3 "; }
+      public virtual string Method1 () { return "1"; }
+      public string Method2 () { return "2"; }
+      string IMyInterface.Method3 () { return "3"; }
     }
     public interface IMyInterface
     {
