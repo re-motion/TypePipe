@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
       var interfaceMethods = interfaceType.GetMethods();
       var targetMethods = interfaceMethods
-          .Select (
+          .Select ( // 1) Explicit implementation.  2) Most derived implementation.
               m => explicitImplementations.GetValueOrDefault (m)
                    ?? GetMostDerivedOrDefault (candidates[new { m.Name, Signature = MethodSignature.Create (m) }]))
           .ToArray();
@@ -124,13 +124,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       for (int i = 0; i < mapping.InterfaceMethods.Length; i++)
       {
         var interfaceMethod = mapping.InterfaceMethods[i];
-        var targetMethod = mapping.TargetMethods[i];
+        var baseImplementation = mapping.TargetMethods[i];
 
-        MutableMethodInfo explicitImplementation;
-        if (explicitImplementations.TryGetValue (interfaceMethod, out explicitImplementation))
-          mapping.TargetMethods[i] = explicitImplementation;
-        else
-          mapping.TargetMethods[i] = targetMethod;
+        // 1) Explicit implementation.  2) Base implementation override.  3) Base implementation.
+        mapping.TargetMethods[i] = explicitImplementations.GetValueOrDefault (interfaceMethod)
+                                   ?? mutableType.AddedMethods.SingleOrDefault (m => baseImplementation.Equals (m.BaseMethod))
+                                   ?? baseImplementation;
       }
 
       return mapping;
