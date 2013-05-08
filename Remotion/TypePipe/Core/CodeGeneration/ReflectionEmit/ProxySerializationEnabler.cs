@@ -33,12 +33,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ProxySerializationEnabler : IProxySerializationEnabler
   {
-    private static readonly MethodInfo s_getObjectDataMetod =
+    private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
+
+    private static readonly ConstructorInfo s_serializationExceptionConstructor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new SerializationException ("message"));
 
     private readonly ISerializableFieldFinder _serializableFieldFinder;
 
@@ -91,18 +94,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       try
       {
         proxyType
-            .GetOrAddOverride (s_getObjectDataMetod)
+            .GetOrAddOverrideOrReImplement (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
                     typeof (void),
                     new[] { ctx.PreviousBody }.Concat (BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
       }
-      catch (NotSupportedException exception)
+      catch (NotSupportedException)
       {
-        throw new NotSupportedException (
-            "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
-            + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.",
-            exception);
+        // Overriding and re-implementation failed because the base implementation is not accessible from the proxy.
+        // Do nothing here; error reporting code will be generated in the ProxySerializationEnabler.
+        // Add an explicit re-implementation that throws exception (instead of simply throwing an exception here).
+        // Reasoning: Users often cannot influence the requested type and do not care about any serialization problem.
+
+        proxyType.AddInterfaceIfNotPresent (typeof (ISerializable));
+
+        var message = "The requested type implements ISerializable but GetObjectData is not accessible from the proxy. "
+                      + "Make sure that GetObjectData is implemented implicitly (not explicitly).";
+        proxyType.AddExplicitOverride (
+            s_getObjectDataMethod,
+            ctx => Expression.Throw (Expression.New (s_serializationExceptionConstructor, Expression.Constant (message))));
       }
     }
 
@@ -126,15 +137,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       try
       {
-        proxyType.GetOrAddOverride (s_onDeserializationMethod)
-                   .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
+        proxyType.GetOrAddOverrideOrReImplement (s_onDeserializationMethod)
+                 .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
       }
-      catch (NotSupportedException exception)
+      catch (NotSupportedException)
       {
-        throw new NotSupportedException (
-            "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
-            + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.",
-            exception);
+        // Overriding and re-implementation failed because the base implementation is not accessible from the proxy.
+        // Add an explicit re-implementation that throws exception (instead of simply throwing an exception here).
+        // Reasoning: Users often cannot influence the requested type and do not care about any serialization problem.
+
+        proxyType.AddInterfaceIfNotPresent (typeof (IDeserializationCallback));
+
+        var message = "The requested type implements IDeserializationCallback but OnDeserialization is not accessible from the proxy. "
+                      + "Make sure that OnDeserialization is implemented implicitly (not explicitly).";
+        proxyType.AddExplicitOverride (
+            s_onDeserializationMethod,
+            ctx => Expression.Throw (Expression.New (s_serializationExceptionConstructor, Expression.Constant (message))));
       }
     }
 

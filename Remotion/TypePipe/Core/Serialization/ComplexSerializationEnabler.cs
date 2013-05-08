@@ -79,19 +79,18 @@ namespace Remotion.TypePipe.Serialization
         try
         {
           proxyType
-              .GetOrAddOverride (s_getObjectDataMethod)
+              .GetOrAddOverrideOrReImplement (s_getObjectDataMethod)
               .SetBody (
                   ctx => Expression.Block (
                       ctx.PreviousBody,
                       CreateMetaDataSerializationExpression (
                           ctx.Parameters[0], typeof (ObjectWithDeserializationConstructorProxy), participantConfigurationID, assembledTypeIDData)));
         }
-        catch (NotSupportedException exception)
+        catch (NotSupportedException)
         {
-          throw new NotSupportedException (
-              "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
-              + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.",
-              exception);
+          // Overriding and re-implementation failed because the base implementation of GetObjectData is not accessible from the proxy.
+          // Do nothing here; error reporting code will be generated in the ProxySerializationEnabler.
+          // Reasoning: Users often cannot influence the requested type and do not care about any serialization problem.
         }
       }
       else
