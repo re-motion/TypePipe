@@ -296,6 +296,7 @@ namespace Remotion.TypePipe.MutableReflection
       return method;
     }
 
+    // TODO 5551: Better name?
     public MutableMethodInfo GetOrAddOverrideOrReImplement (MethodInfo interfaceMethod)
     {
       ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
