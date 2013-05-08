@@ -300,7 +300,12 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
 
-      throw new NotImplementedException ("TODO 5551");
+      bool isNewlyCreated;
+      var method = _mutableMemberFactory.GetOrCreateOverrideOrReImplement (this, interfaceMethod, out isNewlyCreated);
+      if (isNewlyCreated)
+        _addedMethods.Add (method);
+
+      return method;
     }
 
     public MutablePropertyInfo AddProperty (

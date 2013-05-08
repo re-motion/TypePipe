@@ -141,12 +141,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       {
         if (!SubclassFilterUtility.IsVisibleFromSubclass (baseImplementation))
         {
-          throw new Exception ("TODO 5551");
+          var message = string.Format (
+              "Cannot re-implement interface method '{0}' because its base implementation is not accessible.", interfaceMethod.Name);
+          throw new NotSupportedException (message);
         }
 
         declaringType.AddInterfaceIfNotPresent (interfaceMethod.DeclaringType);
 
-        var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot;
+        var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot;
         Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.DelegateToBase (baseImplementation);
 
         return CreateOverride (declaringType, interfaceMethod, interfaceMethod.Name, attributes, bodyProvider);

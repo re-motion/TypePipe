@@ -93,6 +93,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return _methodOverrideFactory.GetOrCreateOverride (declaringType, overriddenMethod, out isNewlyCreated);
     }
 
+    public MutableMethodInfo GetOrCreateOverrideOrReImplement (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
+    {
+      return _methodOverrideFactory.GetOrCreateOverrideOrReImplement (declaringType, interfaceMethod, out isNewlyCreated);
+    }
+
     public MutablePropertyInfo CreateProperty (
         MutableType declaringType,
         string name,
