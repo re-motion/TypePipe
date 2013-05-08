@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
@@ -66,6 +65,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
             "overriddenMethod");
       }
 
+      Assertion.IsNotNull (overriddenMethod.DeclaringType);
       // ReSharper disable PossibleUnintendedReferenceComparison
       if (!overriddenMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType) || declaringType == overriddenMethod.DeclaringType)
           // ReSharper restore PossibleUnintendedReferenceComparison
@@ -109,7 +109,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
-      Assertion.IsNotNull (interfaceMethod.DeclaringType);
 
       // TODO: Check if interface ...
 
@@ -125,6 +124,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (!interfaceMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType))
       // ReSharper restore PossibleUnintendedReferenceComparison
       {
+        Assertion.IsNotNull (interfaceMethod.DeclaringType);
         var message = string.Format (
             "Method is declared by an interface that is not implemented by the proxy: '{0}'.", interfaceMethod.DeclaringType.Name);
         throw new ArgumentException (message, "interfaceMethod");
@@ -192,10 +192,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       {
         try
         {
+          var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract
+                           | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+
           isNewlyCreated = true;
-          // tODO: 5551 use explicit attributes (and test!)
-          //var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract | MethodAttributes.ReuseSlot;
-          return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
+          return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, attributes, bodyProvider: null);
         }
         catch (InvalidOperationException)
         {
