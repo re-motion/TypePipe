@@ -126,14 +126,13 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
-        + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_CannotOverrideGetObjectData ()
+    public void MakeSerializable_CannotOverrideOrReImplementGetObjectData ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), attributes: TypeAttributes.Serializable);
 
       _enabler.MakeSerializable (proxyType, _participantConfigurationID, _assembledTypeIdentifierProviderStub, _typeID);
+
+      Assert.That (proxyType.AddedMethods, Is.Empty);
     }
 
     public class SomeType { }
