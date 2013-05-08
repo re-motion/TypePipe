@@ -249,6 +249,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
+    public void CreateMethod_ImplicitOverride_FinalBaseMethod ()
+    {
+      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
+          .Return (fakeBaseMethod);
+
+      CallCreateMethod (
+          _mutableType,
+          "MethodName",
+          MethodAttributes.Public | MethodAttributes.Virtual,
+          typeof (void),
+          ParameterDeclaration.None,
+          ctx => Expression.Empty());
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "Cannot override method 'B.InaccessibleBaseMethodInB' as it is not visible from the proxy.")]
+    public void CreateMethod_ImplicitOverride_InaccessibleBaseMethod ()
+    {
+      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.InaccessibleBaseMethodInB (7));
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
+          .Return (fakeBaseMethod);
+
+      CallCreateMethod (
+          _mutableType,
+          "MethodName",
+          MethodAttributes.Public | MethodAttributes.Virtual,
+          typeof (void),
+          ParameterDeclaration.None,
+          ctx => Expression.Empty());
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Non-abstract methods must have a body.\r\nParameter name: bodyProvider")]
     public void CreateMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
     {
@@ -349,25 +388,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
     }
 
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void CreateMethod_ThrowsIfOverridingFinalMethod ()
-    {
-      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
-      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
-      _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
-          .Return (fakeBaseMethod);
-
-      CallCreateMethod (
-          _mutableType,
-          "MethodName",
-          MethodAttributes.Public | MethodAttributes.Virtual,
-          typeof (void),
-          ParameterDeclaration.None,
-          ctx => Expression.Empty ());
-    }
-
     private MutableMethodInfo CreateMethod (MutableType mutableType, MethodAttributes attributes)
     {
       return CallCreateMethod (
@@ -406,6 +426,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int protectedOrInternal) { }
       public override sealed void FinalBaseMethodInB (int i) { }
+      internal virtual void InaccessibleBaseMethodInB (int i) { }
     }
 
     public class C : B
