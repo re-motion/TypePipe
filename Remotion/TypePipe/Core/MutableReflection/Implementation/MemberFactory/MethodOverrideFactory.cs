@@ -58,12 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (!overriddenMethod.IsVirtual)
         throw new ArgumentException ("Only virtual methods can be overridden.", "overriddenMethod");
 
-      if (overriddenMethod.IsGenericMethodInstantiation())
-      {
-        throw new ArgumentException (
-            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
-            "overriddenMethod");
-      }
+      CheckIsNotMethodInstantiation (overriddenMethod, "overriddenMethod");
 
       Assertion.IsNotNull (overriddenMethod.DeclaringType);
       // ReSharper disable PossibleUnintendedReferenceComparison
@@ -109,16 +104,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
+      Assertion.IsNotNull (interfaceMethod.DeclaringType);
 
-      // TODO: Check if interface ...
+      if (!interfaceMethod.DeclaringType.IsInterface)
+        throw new ArgumentException ("The specified method is not an interface method.", "interfaceMethod");
 
-
-      if (interfaceMethod.IsGenericMethodInstantiation())
-      {
-        throw new ArgumentException (
-            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
-            "interfaceMethod");
-      }
+      CheckIsNotMethodInstantiation (interfaceMethod, "interfaceMethod");
 
       // ReSharper disable PossibleUnintendedReferenceComparison
       if (!interfaceMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType))
@@ -224,6 +215,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var md = MethodDeclaration.CreateEquivalent (overriddenMethod);
       return _methodFactory.CreateMethod (
           declaringType, name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
+    }
+
+    private static void CheckIsNotMethodInstantiation (MethodInfo method, string parameterName)
+    {
+      if (method.IsGenericMethodInstantiation ())
+      {
+        throw new ArgumentException (
+            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
+            parameterName);
+      }
     }
   }
 }
