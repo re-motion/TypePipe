@@ -239,27 +239,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
-        + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_ISerializable_SerializedFields_CannotOverrideGetObjectData ()
+    public void MakeSerializable_ISerializable_SerializedFields_InaccessibleGetObjectData ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), copyCtorsFromBase: true);
       StubFilterWithSerializedFields (proxyType);
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
+
+      var method = proxyType.AddedMethods.Single();
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new SerializationException ("message"));
+      var message = "The requested type implements ISerializable but GetObjectData is not accessible from the proxy. "
+                    + "Make sure that GetObjectData is implemented implicitly (not explicitly).";
+      var expectedBody = Expression.Throw (Expression.New (constructor, Expression.Constant (message)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
-        + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_IDeserializationCallback_CannotOverrideGetObjectData ()
+    public void MakeSerializable_IDeserializationCallback_InaccessibleOnDeserialization ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitDeserializationCallbackType));
-      StubFilterWithNoSerializedFields ();
+      StubFilterWithNoSerializedFields();
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
+
+      var method = proxyType.AddedMethods.Single();
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new SerializationException ("message"));
+      var message = "The requested type implements IDeserializationCallback but OnDeserialization is not accessible from the proxy. "
+                    + "Make sure that OnDeserialization is implemented implicitly (not explicitly).";
+      var expectedBody = Expression.Throw (Expression.New (constructor, Expression.Constant (message)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
     [Test]
