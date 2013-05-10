@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.MutableReflection
       _initializations.Add (initialization);
     }
 
-    public void AddInterface (Type interfaceType)
+    public void AddInterface (Type interfaceType, bool throwIfAlreadyImplemented = true)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
@@ -180,13 +180,15 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 4744: Check that interface is visible.
 
-      if (_addedInterfaces.Contains (interfaceType))
+      var alreadyImplemented = _addedInterfaces.Contains (interfaceType);
+      if (alreadyImplemented && throwIfAlreadyImplemented)
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
         throw new ArgumentException (message, "interfaceType");
       }
 
-      _addedInterfaces.Add (interfaceType);
+      if (!alreadyImplemented)
+        _addedInterfaces.Add (interfaceType);
     }
 
     public MutableFieldInfo AddField (string name, FieldAttributes attributes, Type type)
@@ -484,5 +486,5 @@ namespace Remotion.TypePipe.MutableReflection
 
       return addedMembers.Cast<T>().Concat (baseMemberProvider (BaseType));
     }
-  } 
+  }
 }

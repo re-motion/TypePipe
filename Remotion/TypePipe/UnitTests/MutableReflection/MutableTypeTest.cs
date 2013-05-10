@@ -174,12 +174,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Interface 'IDisposable' is already implemented.\r\nParameter name: interfaceType")]
-    public void AddInterface_ThrowsIfAlreadyImplemented ()
+    public void AddInterface_AlreadyImplemented ()
     {
-      _mutableType.AddInterface (typeof (IDisposable));
-      _mutableType.AddInterface (typeof (IDisposable));
+      var interfaceType = typeof (IDisposable);
+      _mutableType.AddInterface (interfaceType);
+
+      Assert.That (() => _mutableType.AddInterface (interfaceType, throwIfAlreadyImplemented: false), Throws.Nothing);
+      Assert.That (
+          () => _mutableType.AddInterface (interfaceType),
+          Throws.TypeOf<ArgumentException>().With.Message.EqualTo ("Interface 'IDisposable' is already implemented.\r\nParameter name: interfaceType"));
     }
 
     [Test]
