@@ -60,23 +60,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
       CheckIsNotMethodInstantiation (overriddenMethod, "overriddenMethod");
 
-      Assertion.IsNotNull (overriddenMethod.DeclaringType);
-      // ReSharper disable PossibleUnintendedReferenceComparison
-      if (!overriddenMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType) || declaringType == overriddenMethod.DeclaringType)
-          // ReSharper restore PossibleUnintendedReferenceComparison
+      if (!declaringType.IsSubclassOf (overriddenMethod.DeclaringType))
       {
-        var message = string.Format (
-            "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", overriddenMethod.DeclaringType.Name);
+        var message = string.Format ("Method is declared by type '{0}' outside of the proxy base class hierarchy.", overriddenMethod.DeclaringType.Name);
         throw new ArgumentException (message, "overriddenMethod");
-      }
-
-      if (overriddenMethod.DeclaringType.IsInterface)
-      {
-        overriddenMethod = GetOrCreateImplementationMethod (declaringType, overriddenMethod, out isNewlyCreated);
-        if (overriddenMethod is MutableMethodInfo)
-          return (MutableMethodInfo) overriddenMethod;
-
-        Assertion.IsTrue (overriddenMethod.IsVirtual, "It is not possible to get an interface implementation that is not virtual (in verifiable code).");
       }
 
       var baseDefinition = overriddenMethod.GetBaseDefinition();
@@ -132,8 +119,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       {
         if (!SubclassFilterUtility.IsVisibleFromSubclass (baseImplementation))
         {
+          Assertion.IsNotNull (baseImplementation.DeclaringType);
           var message = string.Format (
-              "Cannot re-implement interface method '{0}' because its base implementation is not accessible.", interfaceMethod.Name);
+              "Cannot re-implement interface method '{0}' because its base implementation on '{1}' is not accessible.",
+              interfaceMethod.Name,
+              baseImplementation.DeclaringType.Name);
           throw new NotSupportedException (message);
         }
 
@@ -179,29 +169,26 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var index = Array.IndexOf (interfaceMap.InterfaceMethods, ifcMethod);
       var implementation = interfaceMap.TargetMethods[index];
 
-      if (implementation == null)
-      {
-        try
-        {
-          var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract
-                           | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
-
-          isNewlyCreated = true;
-          return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, attributes, bodyProvider: null);
-        }
-        catch (InvalidOperationException)
-        {
-          var message = string.Format (
-              "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
-              + "Use AddExplicitOverride to create an explicit implementation.",
-              ifcMethod.Name);
-          throw new InvalidOperationException (message);
-        }
-      }
-      else
+      if (implementation != null)
       {
         isNewlyCreated = false;
         return implementation;
+      }
+      isNewlyCreated = true;
+
+      try
+      {
+        var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract
+                         | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
+        return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, attributes, bodyProvider: null);
+      }
+      catch (InvalidOperationException)
+      {
+        var message = string.Format (
+            "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
+            + "Use AddExplicitOverride to create an explicit implementation.",
+            ifcMethod.Name);
+        throw new InvalidOperationException (message);
       }
     }
 

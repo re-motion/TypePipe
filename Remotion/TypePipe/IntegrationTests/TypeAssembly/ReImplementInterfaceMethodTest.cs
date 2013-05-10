@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     [Test]
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Cannot re-implement interface method 'Method3' because its base implementation is not accessible.")]
+        "Cannot re-implement interface method 'Method3' because its base implementation on 'DomainType' is not accessible.")]
     public void NonVirtualBase_ReImplement_BaseNonAccessible ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method3());
