@@ -107,7 +107,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         // Add an explicit re-implementation that throws exception (instead of simply throwing an exception here).
         // Reasoning: Users often cannot influence the requested type and do not care about any serialization problem.
 
-        proxyType.AddInterfaceIfNotPresent (typeof (ISerializable));
+        proxyType.AddInterface (typeof (ISerializable), throwIfAlreadyImplemented: false);
 
         var message = "The requested type implements ISerializable but GetObjectData is not accessible from the proxy. "
                       + "Make sure that GetObjectData is implemented implicitly (not explicitly).";
@@ -146,7 +146,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         // Add an explicit re-implementation that throws exception (instead of simply throwing an exception here).
         // Reasoning: Users often cannot influence the requested type and do not care about any serialization problem.
 
-        proxyType.AddInterfaceIfNotPresent (typeof (IDeserializationCallback));
+        proxyType.AddInterface (typeof (IDeserializationCallback), throwIfAlreadyImplemented: false);
 
         var message = "The requested type implements IDeserializationCallback but OnDeserialization is not accessible from the proxy. "
                       + "Make sure that OnDeserialization is implemented implicitly (not explicitly).";

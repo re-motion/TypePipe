@@ -30,16 +30,6 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class MutableTypeExtensions
   {
-    // TODO 5551: Better name?
-    public static void AddInterfaceIfNotPresent (this MutableType declaringType, Type interfaceType)
-    {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
-
-      if (!declaringType.AddedInterfaces.Contains (interfaceType))
-        declaringType.AddInterface (interfaceType);
-    }
-
     public static void AddTypeInitialization (this MutableType declaringType, Func<InitializationBodyContext, Expression> typeInitializationProvider)
     {
       ArgumentUtility.CheckNotNull ("typeInitializationProvider", typeInitializationProvider);

@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
           throw new NotSupportedException (message);
         }
 
-        declaringType.AddInterfaceIfNotPresent (interfaceMethod.DeclaringType);
+        declaringType.AddInterface (interfaceMethod.DeclaringType, throwIfAlreadyImplemented: false);
 
         var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot;
         Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.DelegateToBase (baseImplementation);
