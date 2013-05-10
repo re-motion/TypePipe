@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated);
 
-    MutableMethodInfo GetOrCreateOverrideOrReImplement (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated);
+    MutableMethodInfo GetOrCreateImplementation (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated);
 
     MutablePropertyInfo CreateProperty (
         MutableType declaringType,

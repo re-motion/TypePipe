@@ -306,40 +306,40 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetOrAddOverrideOrReImplement_CreatesNewMethod ()
+    public void GetOrAddImplementation_CreatesNewImplementation ()
     {
       var interfaceMethod = ReflectionObjectMother.GetSomeMethod();
-      var fakeOverride = MutableMethodInfoObjectMother.Create ();
+      var fakeImplementation = MutableMethodInfoObjectMother.Create ();
       _mutableMemberFactoryMock
           .Expect (
-              mock => mock.GetOrCreateOverrideOrReImplement (
+              mock => mock.GetOrCreateImplementation (
                   Arg.Is (_mutableType),
                   Arg.Is (interfaceMethod),
                   out Arg<bool>.Out (true).Dummy))
-          .Return (fakeOverride);
+          .Return (fakeImplementation);
 
-      var result = _mutableType.GetOrAddOverrideOrReImplement (interfaceMethod);
+      var result = _mutableType.GetOrAddImplementation (interfaceMethod);
 
-      Assert.That (result, Is.SameAs (fakeOverride));
+      Assert.That (result, Is.SameAs (fakeImplementation));
       Assert.That (_mutableType.AddedMethods, Has.Member (result));
     }
 
     [Test]
-    public void GetOrAddOverrideOrReImplement_RetrievesExistingOverride ()
+    public void GetOrAddImplementation_RetrievesExistingImplementation ()
     {
       var interfaceMethod = ReflectionObjectMother.GetSomeMethod();
-      var fakeOverride = MutableMethodInfoObjectMother.Create();
+      var fakeImplementation = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock
           .Expect (
-              mock => mock.GetOrCreateOverrideOrReImplement (
+              mock => mock.GetOrCreateImplementation (
                   Arg.Is (_mutableType),
                   Arg.Is (interfaceMethod),
                   out Arg<bool>.Out (false).Dummy))
-          .Return (fakeOverride);
+          .Return (fakeImplementation);
 
-      var result = _mutableType.GetOrAddOverrideOrReImplement (interfaceMethod);
+      var result = _mutableType.GetOrAddImplementation (interfaceMethod);
 
-      Assert.That (result, Is.SameAs (fakeOverride));
+      Assert.That (result, Is.SameAs (fakeImplementation));
       Assert.That (_mutableType.AddedMethods, Has.No.Member (result));
     }
 

@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       try
       {
         proxyType
-            .GetOrAddOverrideOrReImplement (s_getObjectDataMethod)
+            .GetOrAddImplementation (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
                     typeof (void),
@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       try
       {
-        proxyType.GetOrAddOverrideOrReImplement (s_onDeserializationMethod)
+        proxyType.GetOrAddImplementation (s_onDeserializationMethod)
                  .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
       }
       catch (NotSupportedException)

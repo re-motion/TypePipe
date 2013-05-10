@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.Serialization
         try
         {
           proxyType
-              .GetOrAddOverrideOrReImplement (s_getObjectDataMethod)
+              .GetOrAddImplementation (s_getObjectDataMethod)
               .SetBody (
                   ctx => Expression.Block (
                       ctx.PreviousBody,

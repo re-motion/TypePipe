@@ -37,8 +37,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             p.AddInterface (typeof (IAddedInterface));
 
-            var method = p.GetOrAddOverrideOrReImplement (interfaceMethod);
-            Assert.That (method, Is.SameAs (p.GetOrAddOverrideOrReImplement (interfaceMethod)));
+            var method = p.GetOrAddImplementation (interfaceMethod);
+            Assert.That (method, Is.SameAs (p.GetOrAddImplementation (interfaceMethod)));
 
             method.SetBody (
                 ctx =>
@@ -63,8 +63,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           p =>
           {
-            var method = p.GetOrAddOverrideOrReImplement (interfaceMethod);
-            Assert.That (method, Is.SameAs (p.GetOrAddOverrideOrReImplement (interfaceMethod)));
+            var method = p.GetOrAddImplementation (interfaceMethod);
+            Assert.That (method, Is.SameAs (p.GetOrAddImplementation (interfaceMethod)));
 
             method.SetBody (ctx =>
             {
@@ -93,8 +93,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           p =>
           {
-            var method = p.GetOrAddOverrideOrReImplement (interfaceMethod);
-            Assert.That (method, Is.SameAs (p.GetOrAddOverrideOrReImplement (interfaceMethod)));
+            var method = p.GetOrAddImplementation (interfaceMethod);
+            Assert.That (method, Is.SameAs (p.GetOrAddImplementation (interfaceMethod)));
 
             method.SetBody (ctx =>
             {
@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void NonVirtualBase_ReImplement_BaseNonAccessible ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method3());
-      AssembleType<DomainType> (p => p.GetOrAddOverrideOrReImplement (interfaceMethod).SetBody (ctx => null));
+      AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod).SetBody (ctx => null));
     }
 
     public class DomainType : IMyInterface

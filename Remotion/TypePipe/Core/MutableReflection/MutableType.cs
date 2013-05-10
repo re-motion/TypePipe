@@ -296,13 +296,13 @@ namespace Remotion.TypePipe.MutableReflection
       return method;
     }
 
-    // TODO 5551: Better name?
-    public MutableMethodInfo GetOrAddOverrideOrReImplement (MethodInfo interfaceMethod)
+    // TODO 5551: Docs name?
+    public MutableMethodInfo GetOrAddImplementation (MethodInfo interfaceMethod)
     {
       ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
 
       bool isNewlyCreated;
-      var method = _mutableMemberFactory.GetOrCreateOverrideOrReImplement (this, interfaceMethod, out isNewlyCreated);
+      var method = _mutableMemberFactory.GetOrCreateImplementation (this, interfaceMethod, out isNewlyCreated);
       if (isNewlyCreated)
         _addedMethods.Add (method);
 

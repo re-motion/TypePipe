@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       return CreateOverride (declaringType, baseMethod, baseMethod.Name, attributes, bodyProvider);
     }
 
-    public MutableMethodInfo GetOrCreateOverrideOrReImplement (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
+    public MutableMethodInfo GetOrCreateImplementation (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
