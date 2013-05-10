@@ -35,8 +35,16 @@ namespace Remotion.TypePipe.Serialization
 
     protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
     {
-      var constructorArguments = ParamList.Create (SerializationInfo, context);
-      return pipeline.Create (typeID, constructorArguments, allowNonPublicConstructor: true);
+      try
+      {
+        var constructorArguments = ParamList.Create (SerializationInfo, context);
+        return pipeline.Create (typeID, constructorArguments, allowNonPublicConstructor: true);
+      }
+      catch (MissingMethodException exception)
+      {
+        var message = string.Format ("The constructor to deserialize an object of type '{0}' was not found.", typeID.RequestedType.Name);
+        throw new SerializationException (message, exception);
+      }
     }
   }
 }

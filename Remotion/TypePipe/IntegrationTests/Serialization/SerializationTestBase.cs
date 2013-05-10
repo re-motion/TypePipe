@@ -203,9 +203,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
 
     [Test]
-    [ExpectedException (typeof (SerializationException), ExpectedMessage =
-        "The constructor to deserialize an object of type "
-        + "'Remotion.TypePipe.IntegrationTests.Serialization.CustomSerializableTypeWithoutConstructor_Proxy_1' was not found.")]
+    [ExpectedException (typeof (SerializationException), MatchType = MessageMatch.Regex, ExpectedMessage =
+        "The constructor to deserialize an object of type '.*CustomSerializableTypeWithoutConstructor.*' was not found.")]
     public void ISerializable_MissingDeserializationConstructor ()
     {
       var pipeline = CreatePipelineForSerialization (CreateFieldAddingParticipant);

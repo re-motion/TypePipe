@@ -98,7 +98,7 @@ namespace Remotion.TypePipe.Serialization
         // If the mutable type does not implement ISerializable, we need to add the interface and then also serialize all the fields on the object.
         // We cannot add a deserialization constructor because there is no base constructor that we could call. Therefore, ProxySerializationEnabler
         // cannot take care of serializing the added fields, and we thus have to serialize both existing and added fields ourselves via 
-        // ReflectionHelper.AddFieldValues.
+        // ReflectionSerializationHelper.AddFieldValues.
 
         proxyType.AddInterface (typeof (ISerializable));
 
