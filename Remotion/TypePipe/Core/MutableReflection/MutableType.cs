@@ -252,40 +252,13 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="overriddenMethod"/>.
+    /// Returns an existing or creates a new override (implicit; or explicit if necessary) for <paramref name="overriddenMethod"/>.
     /// </summary>
-    /// <param name="overriddenMethod">The base or interface <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
-    /// <returns>
-    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="overriddenMethod"/>, an override for a base method or an implementation for 
-    /// an interface method.
-    /// </returns>
-    /// <remarks>
-    /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="overriddenMethod"/> this method returns the following.
-    /// <list type="number">
-    ///   <item>
-    ///     Proxy type
-    ///     <list type="bullet">
-    ///       <item>The corresponding <see cref="MutableMethodInfo"/> from the <see cref="AddedMethods"/> collection.</item>
-    ///     </list>
-    ///   </item>
-    ///   <item>
-    ///     Base type
-    ///     <list type="bullet">
-    ///       <item>An existing mutable override for the base method, or</item>
-    ///       <item>a newly created override (implicit; or explicit if necessary).</item>
-    ///     </list>
-    ///   </item>
-    ///   <item>
-    ///     Interface type
-    ///     <list type="bullet">
-    ///       <item>An existing mutable implementation, or</item>
-    ///       <item>a newly created implementation, or</item>
-    ///       <item>an existing mutable override for a base implementation, or</item>
-    ///       <item>a newly created override for a base implementation (implicit; or explicit if necessary).</item>
-    ///     </list>
-    ///   </item>
-    /// </list>
-    /// </remarks>
+    /// <param name="overriddenMethod">The base method that should be overridden.</param>
+    /// <returns>A <see cref="MutableMethodInfo"/> that is an override of the base method.</returns>
+    /// <exception cref="NotSupportedException">
+    /// If the specified method cannot be overridden, e.g., it is final or not accessible from the proxy.
+    /// </exception>
     public MutableMethodInfo GetOrAddOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
@@ -298,7 +271,25 @@ namespace Remotion.TypePipe.MutableReflection
       return method;
     }
 
-    // TODO 5551: Docs name?
+    /// <summary>
+    /// Returns an existing or creates a new implementation (or re-implementation) for <paramref name="interfaceMethod"/>.
+    /// Note that the specified implementation is not invoked if a final base implementation is invoked directly (not via the interface).
+    /// </summary>
+    /// <param name="interfaceMethod">The interface method that should be implemented.</param>
+    /// <returns>A <see cref="MutableMethodInfo"/> that is an implementation of the interface method.</returns>
+    /// <exception cref="NotSupportedException">
+    /// If the specified method cannot be implemented (or re-implemented), e.g., it is not accessible from the proxy.
+    /// </exception>
+    /// <remarks>
+    /// This method returns one of the following:
+    /// <list type="number">
+    ///   <item>An existing mutable implementation.</item>
+    ///   <item>A newly created implementation (if no base implementation).</item>
+    ///   <item>An existing mutable override for a base implementation.</item>
+    ///   <item>A newly created override (implicit; or explicit if necessary) for a base implementation (if base implementation is not final).</item>
+    ///   <item>A newly created re-implementation which calls the base implementation.</item>
+    /// </list>
+    /// </remarks>
     public MutableMethodInfo GetOrAddImplementation (MethodInfo interfaceMethod)
     {
       ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
