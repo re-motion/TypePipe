@@ -37,6 +37,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
     }
 
     public IEnumerable<ICustomAttributeData> CustomAttributeDatas;
+    public IEnumerable<Type> NestedTypes; 
     public IEnumerable<Type> Interfaces;
     public IEnumerable<FieldInfo> Fields;
     public IEnumerable<ConstructorInfo> Constructors;
@@ -58,6 +59,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
     {
       return CustomAttributeDatas;
     }
+
+    protected override IEnumerable<Type> GetAllNestedTypes ()
+    {
+      return NestedTypes;
+    } 
 
     protected override IEnumerable<Type> GetAllInterfaces ()
     {

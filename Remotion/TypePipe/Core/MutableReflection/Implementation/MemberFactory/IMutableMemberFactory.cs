@@ -31,6 +31,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// </remarks>
   public interface IMutableMemberFactory : IMethodFactory
   {
+    MutableType CreateNestedType (MutableType declaringType, string name, TypeAttributes attributes, Type baseType);
+
     Expression CreateInitialization (MutableType declaringType, Func<InitializationBodyContext, Expression> initializationProvider);
 
     MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes);

@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = (TypeAttributes) 7;
 
       var proxyType = new MutableType (
-          _memberSelectorMock, baseType, name, @namespace, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+          _memberSelectorMock, baseType, name, @namespace, attributes, null, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
       Assert.That (proxyType.DeclaringType, Is.Null);
       Assert.That (proxyType.MutableDeclaringType, Is.Null);
@@ -88,6 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.IsGenericType, Is.False);
       Assert.That (proxyType.IsGenericTypeDefinition, Is.False);
       Assert.That (proxyType.GetGenericArguments(), Is.Empty);
+      Assert.That (proxyType.DeclaringType, Is.Null);
 
       Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
       Assert.That (proxyType.Initializations, Is.Empty);
@@ -109,6 +110,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Initialization_NestedType ()
+    {
+      var declaringType = ReflectionObjectMother.GetSomeType();
+
+      var mutableType = MutableTypeObjectMother.Create (declaringType: declaringType);
+
+      Assert.That (mutableType.DeclaringType, Is.SameAs (declaringType));
+    }
+
+    [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));
@@ -116,6 +127,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
       Assert.That (_mutableType.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+    }
+
+    [Test]
+    public void AddNestedType ()
+    {
+      Assert.That (_mutableType.AddedNestedTypes, Is.Empty);
+      var typeName = "NestedType";
+      var typeAttributes = TypeAttributes.NestedFamily;
+      var baseType = ReflectionObjectMother.GetSomeType();
+      var nestedTypeFake = MutableTypeObjectMother.Create();
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateNestedType (_mutableType, typeName, typeAttributes, baseType)).Return (nestedTypeFake);
+
+      var result = _mutableType.AddNestedType (typeName, typeAttributes, baseType);
+
+      Assert.That (result, Is.SameAs (nestedTypeFake));
+      _mutableMemberFactoryMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -583,6 +610,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void GetAllNestedTypes ()
+    {
+      Assertion.IsTrue (typeof(DomainType).GetNestedTypes().Length > 0);
+      var addedNestedType = _mutableTypeWithoutMocks.AddNestedType();
+
+      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllNestedTypes");
+
+      Assert.That (result, Is.EqualTo(new[] { addedNestedType }));
+    }
+
+    [Test]
     public void GetAllInterfaces ()
     {
       var baseInterfaces = typeof (DomainType).GetInterfaces();
@@ -769,6 +807,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public interface IDomainInterface { }
     public class DomainType : DomainTypeBase, IDomainInterface
     {
+      public class NestedType {}
+
       public int Field;
 
       public int Property { get; set; }

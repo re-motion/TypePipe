@@ -190,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
               };
             });
         var additionalType = MutableTypeObjectMother.Create();
-        mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int))).Return (additionalType);
+        mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int), null)).Return (additionalType);
 
         assembledTypeIdentifierProviderMock
             .Expect (mock => mock.GetPart (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg.Is (participantMock2)))
@@ -339,7 +339,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
                     generationCompletedEventRaised = true;
                   };
                 });
-        mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int))).Return (additionalMutableType);
+        mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int), null)).Return (additionalMutableType);
 
         participantMock2
             .Expect (

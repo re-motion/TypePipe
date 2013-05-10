@@ -74,11 +74,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void DeclareType ()
     {
       EnsureState (0);
-
+      
+      // TODO 5550: Put this into a separate DefineType method, then extract everything into an abstract base class, make the method abstract. 
+      // Then add a second implementation: NestedTypeCodeGenerator, which takes the enclosing TypeBuilder as a ctor arg and implements DefineType via _enclosingTypeBuilder.DefineNestedType.
       var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProvider);
       typeBuilder.RegisterWith (_emittableOperandProvider, _mutableType);
 
       _context = new CodeGenerationContext (_mutableType, typeBuilder, _codeGenerator.DebugInfoGenerator, _emittableOperandProvider);
+
+      // TODO 5550
+      //foreach (var nestedType in _mutableType.AddedNestedTypes)
+      //{
+      //  var nestedTypeCodeGenerator = new MutableTypeCodeGenerator (
+      //      nestedType,
+      //      _codeGenerator.DebugInfoGenerator,
+      //      _emittableOperandProvider,
+      //      _memberEmitter,
+      //      _initializationBuilder,
+      //      _proxySerializationEnabler);
+      //  nestedTypeCodeGenerator.DeclareType();
+      //  _nestedTypeCodeGenerators.Add (nestedTypeCodeGenerator);
+      //}
     }
 
     public void DefineTypeFacets ()
@@ -87,6 +103,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (_mutableType.BaseType != null)
         _context.TypeBuilder.SetParent (_mutableType.BaseType);
+
+      // TODO 5550
+      // _nestedTypeCodeGenerators.ForEach (g => g.DefineTypeFacets);
+      
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
 
@@ -99,6 +119,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         _context.TypeBuilder.SetCustomAttribute (attribute);
       foreach (var ifc in _mutableType.AddedInterfaces)
         _context.TypeBuilder.AddInterfaceImplementation (ifc);
+      foreach (var nestedType in _mutableType.AddedNestedTypes)
+        _memberEmitter.AddNestedType (_context, nestedType);
       foreach (var field in _mutableType.AddedFields)
         _memberEmitter.AddField (_context, field);
       foreach (var ctor in _mutableType.AddedConstructors)
@@ -115,6 +137,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public Type CreateType ()
     {
       EnsureState (2);
+
+      // TODO 5550
+      // _nestedTypeCodeGenerators.ForEach (g => g.CreateType);
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 

@@ -32,11 +32,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private int _counter;
 
-    public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType)
+    public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, Type declaringType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
       // Base type may be null (for interfaces).
+      // Declaring type may be null.
 
       var isInterface = attributes.IsSet (TypeAttributes.Interface);
       if (!isInterface && baseType == null)
@@ -52,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             "baseType");
       }
 
-      return CreateMutableType (name, @namespace, attributes, baseType);
+      return CreateMutableType (name, @namespace, attributes, baseType, declaringType);
     }
 
     public ITypeModificationTracker CreateProxy (Type baseType)
@@ -63,19 +64,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var name = string.Format ("{0}_Proxy_{1}", baseType.Name, _counter);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
 
-      var proxyType = CreateType (name, baseType.Namespace, attributes, baseType);
+      var proxyType = CreateType (name, baseType.Namespace, attributes, baseType, null);
       var constructorBodies = CopyConstructors (baseType, proxyType);
 
       return new ProxyTypeModificationTracker (proxyType, constructorBodies);
     }
 
-    private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType)
+    private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType, Type declaringType)
     {
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
-      return new MutableType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return new MutableType (memberSelector, baseType, name, @namespace, attributes, declaringType, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private IEnumerable<Expression> CopyConstructors (Type baseType, MutableType proxyType)

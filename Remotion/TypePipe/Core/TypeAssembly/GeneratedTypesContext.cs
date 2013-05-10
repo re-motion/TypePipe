@@ -63,6 +63,7 @@ namespace Remotion.TypePipe.TypeAssembly
     }
 
     public Type GetGeneratedType (MutableType mutableType) { return (Type) GetGeneratedMember (mutableType); }
+    public Type GetGeneratedNestedType (MutableType mutableType) { return (Type) GetGeneratedMember (mutableType); }
     public FieldInfo GetGeneratedField (MutableFieldInfo mutableField) { return (FieldInfo) GetGeneratedMember (mutableField); }
     public ConstructorInfo GetGeneratedConstructor (MutableConstructorInfo mutableConstructor) { return (ConstructorInfo) GetGeneratedMember (mutableConstructor); }
     public MethodInfo GetGeneratedMethod (MutableMethodInfo mutableMethod) { return (MethodInfo) GetGeneratedMember (mutableMethod); }
@@ -75,10 +76,9 @@ namespace Remotion.TypePipe.TypeAssembly
       var generatedMembers = generatedType.GetMembers (c_allDeclared);
       var generatedMembersByNameAndSig = generatedMembers.ToDictionary (m => Tuple.Create (m.Name, MemberSignatureProvider.GetMemberSignature (m)));
 
-      // TODO 5550: Add Nested types.
-
       var addedMembers = 
           new IMutableMember[] { mutableType.MutableTypeInitializer }.Where(m => m != null)
+          .Concat (mutableType.AddedNestedTypes.Cast<IMutableMember>())
           .Concat (mutableType.AddedFields.Cast<IMutableMember>())
           .Concat (mutableType.AddedConstructors.Cast<IMutableMember>())
           .Concat (mutableType.AddedMethods.Cast<IMutableMember>())

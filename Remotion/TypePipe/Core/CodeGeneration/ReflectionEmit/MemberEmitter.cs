@@ -58,6 +58,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _ilGeneratorFactory; }
     }
 
+    public void AddNestedType (CodeGenerationContext context, MutableType nestedType)
+    {
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("nestedType", nestedType);
+
+      var typeBuilder = context.TypeBuilder.DefineNestedType (nestedType.Name, nestedType.Attributes, nestedType.BaseType);
+      typeBuilder.RegisterWith (context.EmittableOperandProvider, nestedType);
+
+      DefineCustomAttributes (typeBuilder, nestedType);
+    }
+
     public void AddField (CodeGenerationContext context, MutableFieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("context", context);

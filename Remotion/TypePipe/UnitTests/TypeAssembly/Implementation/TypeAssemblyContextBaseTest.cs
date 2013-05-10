@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var attributes = (TypeAttributes) 7;
       var baseType = ReflectionObjectMother.GetSomeType();
       var fakeResult = MutableTypeObjectMother.Create();
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateType (name, @namespace, attributes, baseType)).Return (fakeResult);
+      _mutableTypeFactoryMock.Expect (mock => mock.CreateType (name, @namespace, attributes, baseType, null)).Return (fakeResult);
 
       var result = _context.CreateType (name, @namespace, attributes, baseType);
 

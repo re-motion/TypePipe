@@ -35,6 +35,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         string name = "MyMutableType",
         string @namespace = "MyNamespace",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
+        Type declaringType = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
@@ -42,13 +43,15 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         bool copyCtorsFromBase = false)
     {
       baseType = baseType ?? typeof (UnspecifiedType);
+      // Declaring type stays null.
 
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
 
-      var proxyType = new MutableType (memberSelector, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      var proxyType = new MutableType (
+          memberSelector, baseType, name, @namespace, attributes, declaringType, interfaceMappingComputer, mutableMemberFactory);
       if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
 
@@ -59,18 +62,21 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         string name = "MyMutableInterface",
         string @namespace = "MyNamespace",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract,
+        Type declaringType = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null)
     {
-      memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator ());
-      relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder ();
-      interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer ();
+      // Declaring type stays null.
+
+      memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
+      relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
+      interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
       Assertion.IsTrue (attributes.IsSet (TypeAttributes.Interface | TypeAttributes.Abstract));
 
-      return new MutableType (memberSelector, null, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return new MutableType (memberSelector, null, name, @namespace, attributes, declaringType, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private static void CopyConstructors (Type baseType, MutableType proxyType)

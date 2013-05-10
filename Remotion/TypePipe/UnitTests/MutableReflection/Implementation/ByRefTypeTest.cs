@@ -78,6 +78,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAllXXX ()
     {
+      Assert.That (_type.Invoke ("GetAllNestedTypes"), Is.Empty);
       Assert.That (_type.Invoke ("GetAllInterfaces"), Is.Empty);
       Assert.That (_type.Invoke ("GetAllFields"), Is.Empty);
       Assert.That (_type.Invoke ("GetAllConstructors"), Is.Empty);

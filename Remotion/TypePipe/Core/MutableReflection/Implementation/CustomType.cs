@@ -77,6 +77,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
 
+    protected abstract IEnumerable<Type> GetAllNestedTypes (); 
     protected abstract IEnumerable<Type> GetAllInterfaces ();
     protected abstract IEnumerable<FieldInfo> GetAllFields ();
     protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
@@ -110,6 +111,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type DeclaringType
     {
       get { return _declaringType; }
+    }
+
+    public override MemberTypes MemberType
+    {
+      get { return _declaringType == null ? MemberTypes.TypeInfo : MemberTypes.NestedType; }
     }
 
     public override Type BaseType
@@ -263,6 +269,23 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
+    }
+
+    public override Type[] GetNestedTypes(BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectTypes (GetAllNestedTypes(), bindingAttr).ToArray();
+    }
+
+    public override Type GetNestedType(string name, BindingFlags bindingAttr)
+    {
+      // TODO 4744
+      // When we implement this we need to use a "NestedTypeOnTypeInstantiation" similiar to othe other MemberXXXOnTypeInstantiation.
+      // Note that a generic type definition is not instantiated (at least not fully) and should "stay" a generic type definition.
+      // See MethodOnTypeInstantiation constructor and GetGenericMethodDefinition. (Should work similiar for NestedTypeOnTypeInstantiation).
+      // Create an integration test for this!
+      ArgumentUtility.CheckNotNullOrEmpty("name", name);
+
+      return _memberSelector.SelectSingleType (GetAllNestedTypes(), bindingAttr, name);
     }
 
     public override Type[] GetInterfaces ()
@@ -443,22 +466,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override MemberInfo[] GetMember (string name, MemberTypes type, BindingFlags bindingAttr)
     {
       return new MemberInfo[0]; // Needed for GetMember(..) - virtual method check
-    }
-
-    public override Type[] GetNestedTypes (BindingFlags bindingAttr)
-    {
-      return new Type[0]; // Needed for virtual method check
-    }
-
-    public override Type GetNestedType (string name, BindingFlags bindingAttr)
-    {
-      // TODO 4744
-      // When we implement this we need to use a "NestedTypeOnTypeInstantiation" similiar to othe other MemberXXXOnTypeInstantiation.
-      // Note that a generic type definition is not instantiated (at least not fully) and should "stay" a generic type definition.
-      // See MethodOnTypeInstantiation constructor and GetGenericMethodDefinition. (Should work similiar for NestedTypeOnTypeInstantiation).
-      // Create an integration test for this!
-
-      throw new NotImplementedException ();
     }
 
     #endregion

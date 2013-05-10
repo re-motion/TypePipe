@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private MutableTypeFactory _factory;
 
     private Type _domainType;
+    private Type _declaringType;
 
     [SetUp]
     public void SetUp ()
@@ -52,35 +53,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var @namespace = "MyNamespace";
       var attributes = (TypeAttributes) 7;
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
+      var declaringType = ReflectionObjectMother.GetSomeType();
 
-      var result = _factory.CreateType (name, @namespace, attributes, baseType);
+      var result = _factory.CreateType (name, @namespace, attributes, baseType, declaringType);
 
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Namespace, Is.EqualTo (@namespace));
       Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.BaseType, Is.SameAs (baseType));
+      Assert.That (result.DeclaringType, Is.SameAs (declaringType));
     }
 
     [Test]
     public void CreateType_NamespaceCanBeNull ()
     {
-      var result = _factory.CreateType ("Name", null, TypeAttributes.Class, typeof (object));
+      var result = _factory.CreateType ("Name", null, TypeAttributes.Class, typeof (object), typeof (object));
 
       Assert.That (result.Namespace, Is.Null);
+    }
+
+    [Test]
+    public void CreateType_DeclaringTypeCanBeNull ()
+    {
+      var result = _factory.CreateType ("Name", "ns", TypeAttributes.Class, typeof (object), null);
+
+      Assert.That (result.DeclaringType, Is.Null);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type cannot be null.\r\nParameter name: baseType")]
     public void CreateType_BaseType_CannotBeNull ()
     {
-      _factory.CreateType ("Name", "ns", TypeAttributes.Class, null);
+      _factory.CreateType ("Name", "ns", TypeAttributes.Class, null, typeof (object));
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type must be null for interfaces.\r\nParameter name: baseType")]
     public void CreateType_BaseType_MustBeNullForInterfaces ()
     {
-      _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object));
+      _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), typeof (object));
     }
 
     [Test]
@@ -118,6 +129,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (type.Name, Is.EqualTo (@"DomainType_Proxy_1"));
       Assert.That (type.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
       Assert.That (type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+      Assert.That (type.DeclaringType, Is.Null);
 
       Assert.That (result, Is.TypeOf<ProxyTypeModificationTracker> ());
       Assert.That (result.As<ProxyTypeModificationTracker> ().ConstructorBodies, Is.EqualTo (type.AddedConstructors.Select (c => c.Body)));
@@ -162,14 +174,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private void CheckCreateType (Type validBaseType)
     {
-      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, validBaseType), Throws.Nothing);
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, validBaseType, null), Throws.Nothing);
     }
 
     private void CheckThrowsForInvalidBaseType (Type invalidBaseType)
     {
       var message = "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
                     + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
-      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType, null), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     public class DomainType

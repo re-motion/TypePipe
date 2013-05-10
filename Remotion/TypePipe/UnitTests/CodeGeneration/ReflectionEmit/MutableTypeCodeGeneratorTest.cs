@@ -124,6 +124,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var @interface = typeof (IDisposable);
       _mutableType.AddInterface (@interface);
 
+      var nestedType = _mutableType.AddNestedType();
       var field = _mutableType.AddField();
       var constructor = _mutableType.AddConstructor();
       var method = _mutableType.AddMethod();
@@ -142,6 +143,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
         _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
         _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
+        _memberEmitterMock.Expect (mock => mock.AddNestedType (context, nestedType));
         _memberEmitterMock.Expect (mock => mock.AddField (context, field));
         _initializationBuilderMock.Expect (
             mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));

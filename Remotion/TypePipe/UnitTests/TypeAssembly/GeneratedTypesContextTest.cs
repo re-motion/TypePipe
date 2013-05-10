@@ -60,16 +60,17 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void GetGeneratedXXX_Members ()
     {
-      // TODO 5550: Nested types
       // TODO 5461: MutableGenericParameters on MutableType.
 
       var addedTypeInitializer = _mutableType.AddTypeInitializer (ctx => Expression.Empty());
+      var addedNestedType = _mutableType.AddNestedType ("NestedType");
       var addedField = _mutableType.AddField ("_field");
       var addedConstructor = _mutableType.AddConstructor();
       var addedMethod = MutableTypeTestExtensions.AddMethod (_mutableType, "Method");
       var addedProperty = _mutableType.AddProperty ("Property");
       var addedEvent = _mutableType.AddEvent ("Event");
 
+      var nestedType = _generatedType.GetNestedTypes().Single (n => n.Name == "NestedType");
       var typeInitializer = _generatedType.TypeInitializer;
       var field = _generatedType.GetFields (c_all).Single (f => f.Name == "_field");
       var constructor = _generatedType.GetConstructors().Single();
@@ -77,6 +78,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
       var property = _generatedType.GetProperties (c_all).Single (p => p.Name == "Property");
       var event_ = _generatedType.GetEvents (c_all).Single (e => e.Name == "Event");
 
+      Assert.That (_context.GetGeneratedNestedType (addedNestedType), Is.SameAs (nestedType));
       Assert.That (_context.GetGeneratedConstructor (addedTypeInitializer), Is.SameAs (typeInitializer));
       Assert.That (_context.GetGeneratedField (addedField), Is.SameAs (field));
       Assert.That (_context.GetGeneratedConstructor (addedConstructor), Is.SameAs (constructor));
@@ -96,6 +98,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
 
     private class GeneratedType
     {
+      public class NestedType {}
       static GeneratedType() {}
       private int _field;
       public static void Method () {}

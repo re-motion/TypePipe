@@ -207,6 +207,7 @@
     <Compile Include="MutableReflection\Implementation\ConstructorOnCustomType.cs" />
     <Compile Include="MutableReflection\Implementation\GenericArgumentUtility.cs" />
     <Compile Include="MutableReflection\Implementation\ITypeModificationTracker.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\NestedTypeFactory.cs" />
     <Compile Include="MutableReflection\Implementation\MemberImplementationUtility.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOnCustomType.cs" />
     <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethod.cs" />

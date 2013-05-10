@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public interface IMemberEmitter
   {
+    void AddNestedType (CodeGenerationContext context, MutableType nestedType);
     void AddField (CodeGenerationContext context, MutableFieldInfo field);
     void AddConstructor (CodeGenerationContext context, MutableConstructorInfo constructor);
     void AddMethod (CodeGenerationContext context, MutableMethodInfo method);

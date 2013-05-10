@@ -74,6 +74,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+    public void AddNestedType ()
+    {
+      var nestedType = MutableTypeObjectMother.Create();
+      var typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
+
+      _typeBuilderMock
+          .Expect (mock => mock.DefineNestedType (nestedType.Name, nestedType.Attributes, nestedType.BaseType))
+          .Return (typeBuilderMock);
+      typeBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, nestedType));
+      SetupDefineCustomAttribute (typeBuilderMock, nestedType);
+
+      _emitter.AddNestedType (_context, nestedType);
+
+      _typeBuilderMock.VerifyAllExpectations();
+      typeBuilderMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void AddField ()
     {
       var field = MutableFieldInfoObjectMother.Create();

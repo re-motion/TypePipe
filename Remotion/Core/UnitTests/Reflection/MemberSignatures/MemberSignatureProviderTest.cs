@@ -25,6 +25,17 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
   public class MemberSignatureProviderTest
   {
     [Test]
+    public void GetMemberSignature_NestedType ()
+    {
+      var nestedType = typeof (DomainType.NestedType);
+
+      var result = MemberSignatureProvider.GetMemberSignature (nestedType);
+
+      Assert.That (result, Is.TypeOf<NestedTypeSignature>());
+      Assert.That (result.ToString(), Is.EqualTo ("`0"));
+    }
+
+    [Test]
     public void GetMemberSignature_Constructor ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
@@ -91,6 +102,8 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
 
     public class DomainType
     {
+      public class NestedType {}
+
       internal int Field = 0;
 
       public double Method () { return 0.0; }

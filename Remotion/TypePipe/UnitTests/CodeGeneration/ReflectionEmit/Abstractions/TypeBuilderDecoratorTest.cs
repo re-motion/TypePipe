@@ -76,6 +76,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [Test]
+    public void DefineNestedType ()
+    {
+      var name = "type";
+      var attributes = (TypeAttributes) 7;
+      var parent = ReflectionObjectMother.GetSomeType();
+
+      var emittableType = ReflectionObjectMother.GetSomeOtherType();
+      var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
+      _operandProvider.Expect (mock => mock.GetEmittableType (parent)).Return (emittableType);
+      _innerMock.Expect (mock => mock.DefineNestedType (name, attributes, emittableType)).Return (fakeTypeBuilder);
+
+      var result = _decorator.DefineNestedType (name, attributes, parent);
+
+      _operandProvider.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
+      Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
+      Assert.That (result.As<TypeBuilderDecorator>().DecoratedTypeBuilder, Is.SameAs (fakeTypeBuilder));
+    }
+
+    [Test]
     public void DefineField ()
     {
       var name = "field";

@@ -40,6 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     private readonly CustomAttributeContainer _customAttributes = new CustomAttributeContainer();
+    private readonly List<MutableType> _addedNestedTypes = new List<MutableType>(); 
     private readonly List<Expression> _initializations = new List<Expression>();
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
@@ -56,15 +57,17 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         string @namespace,
         TypeAttributes attributes,
+        Type declaringType,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
         : base (memberSelector, name, @namespace, attributes, null, EmptyTypes)
     {
       // Base type may be null (for interfaces).
+      // Declaring type may be null.
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
-      SetDeclaringType (null);
+      SetDeclaringType (declaringType);
       SetBaseType (baseType);
 
       _interfaceMappingComputer = interfaceMappingComputer;
@@ -75,6 +78,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       get { return (MutableType) DeclaringType; }
     }
+
+    public ReadOnlyCollection<MutableType> AddedNestedTypes
+    {
+      get { return _addedNestedTypes.AsReadOnly(); }
+    } 
 
     public MutableConstructorInfo MutableTypeInitializer
     {
@@ -137,6 +145,17 @@ namespace Remotion.TypePipe.MutableReflection
     public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
       return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
+    }
+
+    public MutableType AddNestedType (string typeName, TypeAttributes attributes, Type baseType)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("typeName", typeName);
+      ArgumentUtility.CheckNotNull ("baseType", baseType);
+
+      var nestedType = _mutableMemberFactory.CreateNestedType (this, typeName, attributes, baseType);
+      _addedNestedTypes.Add (nestedType);
+
+      return nestedType;
     }
 
     public MutableConstructorInfo AddTypeInitializer (Func<ConstructorBodyCreationContext, Expression> bodyProvider)
@@ -422,6 +441,11 @@ namespace Remotion.TypePipe.MutableReflection
         return attributes & ~TypeAttributes.Abstract;
     }
 
+    protected override IEnumerable<Type> GetAllNestedTypes()
+    {
+      return GetAllMembers(_addedNestedTypes, b => EmptyTypes);
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       return GetAllMembers (_addedInterfaces, b => b.GetInterfaces()).Distinct();
@@ -469,7 +493,7 @@ namespace Remotion.TypePipe.MutableReflection
           .Any();
     }
 
-    private IEnumerable<T> GetAllMembers<T, TMutable> (List<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
+    private IEnumerable<T> GetAllMembers<T, TMutable> (IEnumerable<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
         where TMutable : T
     {
       if (BaseType == null)

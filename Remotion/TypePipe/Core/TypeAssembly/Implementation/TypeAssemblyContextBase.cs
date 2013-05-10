@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       // Namespace may be null.
       // Base type may be null (for interfaces).
 
-      var type = _mutableTypeFactory.CreateType (name, @namespace, attributes, baseType);
+      var type = _mutableTypeFactory.CreateType (name, @namespace, attributes, baseType, null);
       _additionalTypes.Add (type);
 
       return type;

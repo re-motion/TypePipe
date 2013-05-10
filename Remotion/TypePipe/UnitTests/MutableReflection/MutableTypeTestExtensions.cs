@@ -39,6 +39,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       mutableType.AddCustomAttribute (customAttributeDeclaration);
     }
 
+    public static MutableType AddNestedType (
+        this MutableType mutableType, string name = null, TypeAttributes attributes = TypeAttributes.NestedPublic, Type baseType = null)
+    {
+      name = name ?? "NestedType_" + ++s_counter;
+      baseType = baseType ?? typeof (object);
+
+      return mutableType.AddNestedType (name, attributes, baseType);
+    }
+
     public static void AddInterface (this MutableType mutableType, Type interfaceType = null)
     {
       interfaceType = interfaceType ?? ReflectionObjectMother.GetSomeInterfaceType();
