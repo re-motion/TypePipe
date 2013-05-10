@@ -62,5 +62,17 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));
     }
+
+    [Test]
+    [ExpectedException (typeof (SerializationException), ExpectedMessage = "The constructor to deserialize an object of type 'Int32' was not found.")]
+    public void CreateRealObject_MissingDeserializationConstructor ()
+    {
+      var typeID = AssembledTypeIDObjectMother.Create (typeof (int));
+      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
+      var exception = new MissingMethodException();
+      pipelineStub.Stub (_ => _.Create (typeID, null, true)).IgnoreArguments().Throw (exception);
+
+      _proxy.Invoke ("CreateRealObject", pipelineStub, typeID, new StreamingContext());
+    }
   }
 }
