@@ -69,7 +69,6 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    [Ignore("TODO RM-5578")]
     public void LoadAssembly_ThenContinueGenerating ()
     {
       _codeManager.LoadFlushedCode (_assembly1);
@@ -81,7 +80,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var assembledType2 = _reflectionService.GetAssembledType (typeof (DomainType2));
 
-      Assert.That (assembledType2.Assembly, Is.TypeOf<AssemblyBuilder>());
+      Assert.That (assembledType2.Assembly.IsDynamic, Is.True);
       Assert.That (Flush(), Is.Not.Null);
     }
 
