@@ -341,7 +341,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
-    [Ignore]
+    [Ignore ("TODO 5551: Remainder of RM-5551, check with JL.")]
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
