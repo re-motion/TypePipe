@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (nestedType.Attributes, Is.EqualTo (TypeAttributes.NestedPublic));
       Assert.That (nestedType.BaseType, Is.SameAs (typeof (BaseType)));
       Assert.That (nestedType.DeclaringType, Is.SameAs (type));
-      // TODO mko
+      // TODO 5550: // TODO mko
       Assert.That (nestedType.FullName, Is.EqualTo (type.FullName + "+NestedType"));
     }
 
