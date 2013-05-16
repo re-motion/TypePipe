@@ -341,22 +341,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
     }
 
-    [Ignore ("TODO 5551: Remainder of RM-5551, check with JL.")]
     [Test]
     [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
         "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
         + "Use AddExplicitOverride to create an explicit implementation.")]
-    public void GetOrCreateOverride_InterfaceMethod_InvalidCandidate ()
+    public void GetOrAddImplementation_InterfaceMethod_InvalidCandidate ()
     {
-    //  _mutableType.AddInterface (typeof (IAddedInterface));
-    //  _mutableType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
-    //  var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate ());
+      _mutableType.AddInterface(typeof(IAddedInterface));
+      _mutableType.AddMethod("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod((IAddedInterface obj) => obj.InvalidCandidate());
 
-    //  _methodFactoryMock
-    //      .Expect (mock => mock.CreateMethod (null, "", 0, null, null, null, null)).IgnoreArguments ()
-    //      .Throw (new InvalidOperationException ());
+      _methodFactoryMock
+          .Expect(mock => mock.CreateMethod(null, "", 0, null, null, null, null)).IgnoreArguments()
+          .Throw(new InvalidOperationException());
 
-    //  _factory.GetOrCreateOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
+      _factory.GetOrCreateImplementation(_mutableType, interfaceMethod, out _isNewlyCreated);
     }
 
     private void CallAndCheckGetOrAddOverride (
@@ -485,6 +484,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       public virtual void InterfaceMethod (int interfaceMethodOnDomainType) {}
       public virtual TPar GenericMethod<TPar> (int arg1, TPar arg2) where TPar : DomainType, IDisposable, new () { return arg2; }
+
+      public void InvalidCandidate () {}
+    }
+
+    public interface IAddedInterface
+    {
+      void InvalidCandidate ();
     }
 
     public abstract class AbstractTypeWithOneMethod
