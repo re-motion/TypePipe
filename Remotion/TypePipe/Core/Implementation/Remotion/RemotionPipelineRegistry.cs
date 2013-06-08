@@ -35,6 +35,8 @@ namespace Remotion.TypePipe.Implementation.Remotion
     {
       var remotionPipelineFactory = new RemotionPipelineFactory();
       var settings = new AppConfigBasedSettingsProvider().GetSettings();
+      // TODO 5730: This should be set via the config files when implemented.
+      settings.EnableSerializationWithoutAssemblySaving = true;
 
       return remotionPipelineFactory.CreatePipeline (settings, defaultPipelineParticipants);
     }
