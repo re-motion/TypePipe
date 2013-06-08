@@ -133,8 +133,21 @@ namespace Remotion.TypePipe
       var memberEmitterFactory = NewMemberEmitterFactory();
       var initializationBuilder = NewInitializationBuilder();
       var proxySerializationEnabler = NewProxySerializationEnabler();
+      var nestedTypeCodeGeneratorFactory = NewMutableNestedTypeCodeGeneratorFactory (
+          reflectionEmitCodeGenerator, memberEmitterFactory, initializationBuilder, proxySerializationEnabler);
 
-      return new MutableTypeCodeGeneratorFactory (memberEmitterFactory, reflectionEmitCodeGenerator, initializationBuilder, proxySerializationEnabler);
+      return new MutableTypeCodeGeneratorFactory (
+          nestedTypeCodeGeneratorFactory, memberEmitterFactory, reflectionEmitCodeGenerator, initializationBuilder, proxySerializationEnabler);
+    }
+
+    [CLSCompliant (false)]
+    protected virtual MutableNestedTypeCodeGeneratorFactory NewMutableNestedTypeCodeGeneratorFactory (
+        IReflectionEmitCodeGenerator reflectionEmitCodeGenerator,
+        IMemberEmitterFactory memberEmitterFactory,
+        IInitializationBuilder initializationBuilder,
+        IProxySerializationEnabler proxySerializationEnabler)
+    {
+      return new MutableNestedTypeCodeGeneratorFactory (reflectionEmitCodeGenerator, initializationBuilder, proxySerializationEnabler);
     }
 
     [CLSCompliant (false)]

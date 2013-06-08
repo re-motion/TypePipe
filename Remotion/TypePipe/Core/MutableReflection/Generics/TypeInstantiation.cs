@@ -132,7 +132,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     protected override IEnumerable<Type> GetAllNestedTypes ()
     {
-      throw new NotImplementedException();
+      // REVIEW: sure? this is a protected method called from GetNestedTypes
+      throw new NotSupportedException ("Method GetNestedTypes is not supported.");
     }
 
     protected override IEnumerable<Type> GetAllInterfaces ()

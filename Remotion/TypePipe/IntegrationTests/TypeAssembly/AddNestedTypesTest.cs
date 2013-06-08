@@ -18,8 +18,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using NUnit.Framework;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -32,13 +33,40 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType => proxyType.AddNestedType ("NestedType", TypeAttributes.NestedPublic, typeof (BaseType)));
     
-      var nestedType = type.GetNestedTypes().Single();
-      Assert.That (nestedType.Name, Is.EqualTo ("NestedType"));
-      Assert.That (nestedType.Attributes, Is.EqualTo (TypeAttributes.NestedPublic));
-      Assert.That (nestedType.BaseType, Is.SameAs (typeof (BaseType)));
-      Assert.That (nestedType.DeclaringType, Is.SameAs (type));
-      // TODO 5550: // TODO mko
-      Assert.That (nestedType.FullName, Is.EqualTo (type.FullName + "+NestedType"));
+      var addedNestedType = type.GetNestedTypes().Single();
+      Assert.That (addedNestedType.Name, Is.EqualTo ("NestedType"));
+      Assert.That (addedNestedType.FullName, Is.EqualTo ("Remotion.TypePipe.IntegrationTests.TypeAssembly.DomainType_Proxy_1+NestedType"));
+      Assert.That (addedNestedType.Attributes, Is.EqualTo (TypeAttributes.NestedPublic));
+      Assert.That (addedNestedType.BaseType, Is.SameAs (typeof (BaseType)));
+      Assert.That (addedNestedType.DeclaringType, Is.SameAs (type));
+    }
+
+    [Test]
+    public void CrossReferencing ()
+    {
+      var type = AssembleType<DomainType> (
+          proxyType =>
+          {
+            var nestedType = proxyType.AddNestedType ("NestedType", TypeAttributes.NestedPublic, typeof (object));
+            var field = proxyType.AddField ("field", FieldAttributes.Public | FieldAttributes.Static, nestedType);
+            nestedType.AddMethod (
+                "Method",
+                MethodAttributes.Public | MethodAttributes.Static,
+                GenericParameterDeclaration.None,
+                ctx => nestedType,
+                ctx => ParameterDeclaration.None,
+                ctx => Expression.Field (null, field));
+          });
+
+      var addedNestedType = type.GetNestedTypes().Single();
+      var addedField = type.GetField ("field");
+      var instance = Activator.CreateInstance (addedNestedType);
+      addedField.SetValue (null, instance);
+      var method = addedNestedType.GetMethod ("Method");
+
+      var result = method.Invoke (null, new object[0]);
+
+      Assert.That (result, Is.Not.Null.And.SameAs (instance));
     }
 
     public class DomainType {}

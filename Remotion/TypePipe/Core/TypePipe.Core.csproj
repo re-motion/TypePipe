@@ -60,6 +60,9 @@
     <Compile Include="Caching\AssembledTypeID.cs" />
     <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\IMutableNestedTypeCodeGeneratorFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGenerator.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="TypeAssembly\IAdditionalTypeAssemblyContext.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyContext.cs" />
     <Compile Include="TypeAssembly\Implementation\AssembledTypeIdentifierProvider.cs" />

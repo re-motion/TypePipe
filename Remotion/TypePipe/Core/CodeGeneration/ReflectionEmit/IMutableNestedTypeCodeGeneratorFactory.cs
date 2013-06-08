@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,19 +16,19 @@
 // 
 
 using System;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
+  // REVIEW: move to outer namespace?
   /// <summary>
-  /// Defines an interface for classes emitting members for mutable reflection objects. Used by <see cref="MutableTypeCodeGenerator"/>.
+  /// Defines an interface for classes creating instances of <see cref="IMutableTypeCodeGenerator"/> for nested types.
   /// </summary>
-  public interface IMemberEmitter
+  [CLSCompliant (false)]
+  public interface IMutableNestedTypeCodeGeneratorFactory
   {
-    void AddField (CodeGenerationContext context, MutableFieldInfo field);
-    void AddConstructor (CodeGenerationContext context, MutableConstructorInfo constructor);
-    void AddMethod (CodeGenerationContext context, MutableMethodInfo method);
-    void AddProperty (CodeGenerationContext context, MutablePropertyInfo property);
-    void AddEvent (CodeGenerationContext context, MutableEventInfo event_);
+    IMutableTypeCodeGenerator Create (
+        MutableType nestedType, ITypeBuilder enclosingTypeBuilder, IMemberEmitter memberEmitter, IEmittableOperandProvider emittableOperandProvider);
   }
 }

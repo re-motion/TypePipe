@@ -65,7 +65,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("parent", parent);
 
       var typeBuilder = _typeBuilder.DefineNestedType (name, attributes, parent);
-      typeBuilder.CreateType();
       return new TypeBuilderAdapter (typeBuilder);
     }
 
