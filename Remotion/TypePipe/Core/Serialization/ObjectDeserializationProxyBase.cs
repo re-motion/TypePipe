@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Runtime.Serialization;
 using Remotion.ServiceLocation;
@@ -34,22 +33,13 @@ namespace Remotion.TypePipe.Serialization
   {
     private readonly IPipelineRegistry _registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
 
-    private readonly SerializationInfo _serializationInfo;
+    private readonly object _instance;
 
-    private object _instance;
-
-    // ReSharper disable UnusedParameter.Local
     protected ObjectDeserializationProxyBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
-    // ReSharper restore UnusedParameter.Local
     {
       ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
 
-      _serializationInfo = serializationInfo;
-    }
-
-    public SerializationInfo SerializationInfo
-    {
-      get { return _serializationInfo; }
+      _instance = CreateRealObject (serializationInfo, streamingContext);
     }
 
     public void GetObjectData (SerializationInfo info, StreamingContext context)
@@ -59,27 +49,32 @@ namespace Remotion.TypePipe.Serialization
 
     public object GetRealObject (StreamingContext context)
     {
-      if (_instance != null)
-        return _instance;
-
-      var participantConfigurationID = (string) _serializationInfo.GetValue (ComplexSerializationEnabler.ParticipantConfigurationID, typeof (string));
-      var assembledTypeIDData = (AssembledTypeIDData) _serializationInfo.GetValue (ComplexSerializationEnabler.AssembledTypeIDData, typeof (AssembledTypeIDData));
-
-      var pipeline = _registry.Get (participantConfigurationID);
-      var typeID = assembledTypeIDData.CreateTypeID();
-
-      _instance = CreateRealObject (pipeline, typeID, context);
-
       return _instance;
     }
 
     public void OnDeserialization (object sender)
     {
+      // TODO ????: OnDeserialized
+
+      //SerializationImplementer.RaiseOnDeserialized (_instance, );
+      //SerializationImplementer.RaiseOnDeserialization (_instance, sender);
+
       var deserializationCallback = _instance as IDeserializationCallback;
       if (deserializationCallback != null)
         deserializationCallback.OnDeserialization (sender);
     }
 
-    protected abstract object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context);
+    private object CreateRealObject (SerializationInfo serializationInfo, StreamingContext streamingContext)
+    {
+      var participantConfigurationID = (string) serializationInfo.GetValue(ComplexSerializationEnabler.ParticipantConfigurationID, typeof(string));
+      var assembledTypeIDData = (AssembledTypeIDData) serializationInfo.GetValue(ComplexSerializationEnabler.AssembledTypeIDData, typeof(AssembledTypeIDData));
+
+      var pipeline = _registry.Get(participantConfigurationID);
+      var typeID = assembledTypeIDData.CreateTypeID();
+
+      return CreateRealObject (pipeline, typeID, serializationInfo, streamingContext);
+    }
+
+    protected abstract object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, SerializationInfo serializationInfo, StreamingContext streamingContext);
   }
 }

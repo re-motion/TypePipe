@@ -36,11 +36,12 @@ namespace Remotion.TypePipe.Serialization
     {
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
+    protected override object CreateRealObject (
+        IPipeline pipeline, AssembledTypeID typeID, SerializationInfo serializationInfo, StreamingContext streamingContext)
     {
       var assembledType = pipeline.ReflectionService.GetAssembledType (typeID);
       var instance = FormatterServices.GetUninitializedObject (assembledType);
-      ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
+      ReflectionSerializationHelper.PopulateFields (serializationInfo, instance);
 
       return instance;
     }

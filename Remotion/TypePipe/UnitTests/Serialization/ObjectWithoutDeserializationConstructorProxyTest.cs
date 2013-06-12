@@ -30,22 +30,21 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   [TestFixture]
   public class ObjectWithoutDeserializationConstructorProxyTest
   {
-    private SerializationInfo _serializationInfo;
-
     private ObjectWithoutDeserializationConstructorProxy _proxy;
 
+    private SerializationInfo _serializationInfo;
     private IPipeline _pipelineMock;
     private StreamingContext _context;
 
     [SetUp]
     public void SetUp ()
     {
-      _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
+      // Don't use ctor, because base ctor performs work.
+      _proxy = (ObjectWithoutDeserializationConstructorProxy) FormatterServices.GetUninitializedObject(typeof(ObjectWithoutDeserializationConstructorProxy));
 
-      _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
-
-      _pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
+      _serializationInfo = new SerializationInfo(ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
       _context = new StreamingContext (StreamingContextStates.Persistence);
+      _pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
     }
 
     [Test]
@@ -57,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
           .Expect (mock => mock.ReflectionService.GetAssembledType (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
           .Return (typeof (DomainType));
 
-      var result = _proxy.Invoke ("CreateRealObject", _pipelineMock, typeID, _context);
+      var result = _proxy.Invoke ("CreateRealObject", _pipelineMock, typeID, _serializationInfo, _context);
 
       _pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<DomainType>());
