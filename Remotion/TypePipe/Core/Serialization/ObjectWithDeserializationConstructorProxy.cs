@@ -33,11 +33,11 @@ namespace Remotion.TypePipe.Serialization
     {
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
+    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID)
     {
       try
       {
-        var constructorArguments = ParamList.Create (SerializationInfo, context);
+        var constructorArguments = ParamList.Create (SerializationInfo, StreamingContext);
         return pipeline.Create (typeID, constructorArguments, allowNonPublicConstructor: true);
       }
       catch (MissingMethodException exception)

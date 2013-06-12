@@ -35,7 +35,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     private ObjectWithoutDeserializationConstructorProxy _proxy;
 
     private IPipeline _pipelineMock;
-    private StreamingContext _context;
 
     [SetUp]
     public void SetUp ()
@@ -45,7 +44,6 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
 
       _pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
-      _context = new StreamingContext (StreamingContextStates.Persistence);
     }
 
     [Test]
@@ -57,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
           .Expect (mock => mock.ReflectionService.GetAssembledType (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
           .Return (typeof (DomainType));
 
-      var result = _proxy.Invoke ("CreateRealObject", _pipelineMock, typeID, _context);
+      var result = _proxy.Invoke ("CreateRealObject", _pipelineMock, typeID);
 
       _pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.TypeOf<DomainType>());

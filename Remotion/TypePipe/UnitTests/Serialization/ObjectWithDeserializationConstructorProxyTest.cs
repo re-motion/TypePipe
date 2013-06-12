@@ -32,32 +32,32 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   public class ObjectWithDeserializationConstructorProxyTest
   {
     private SerializationInfo _serializationInfo;
+    private StreamingContext _streamingContext;
 
     private ObjectWithDeserializationConstructorProxy _proxy;
 
     [SetUp]
     public void SetUp ()
     {
-      ReflectionObjectMother.GetSomeType();
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
+      _streamingContext = new StreamingContext (StreamingContextStates.File);
 
-      _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
+      _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, _streamingContext);
     }
 
     [Test]
     public void CreateRealObject ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
-      var context = new StreamingContext (StreamingContextStates.Persistence);
       var pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
       var fakeObject = new object();
       pipelineMock
           .Expect (mock => mock.Create (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg<ParamList>.Is.Anything, Arg.Is (true)))
           .WhenCalled (
-              mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, context })))
+              mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, _streamingContext })))
           .Return (fakeObject);
 
-      var result = _proxy.Invoke ("CreateRealObject", pipelineMock, typeID, context);
+      var result = _proxy.Invoke ("CreateRealObject", pipelineMock, typeID);
 
       pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var exception = new MissingMethodException();
       pipelineStub.Stub (_ => _.Create (typeID, null, true)).IgnoreArguments().Throw (exception);
 
-      _proxy.Invoke ("CreateRealObject", pipelineStub, typeID, new StreamingContext());
+      _proxy.Invoke ("CreateRealObject", pipelineStub, typeID);
     }
   }
 }

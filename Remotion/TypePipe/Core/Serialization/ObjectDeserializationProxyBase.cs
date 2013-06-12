@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
@@ -35,6 +36,7 @@ namespace Remotion.TypePipe.Serialization
     private readonly IPipelineRegistry _registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
 
     private readonly SerializationInfo _serializationInfo;
+    private readonly StreamingContext _streamingContext;
 
     private object _instance;
 
@@ -45,11 +47,17 @@ namespace Remotion.TypePipe.Serialization
       ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
 
       _serializationInfo = serializationInfo;
+      _streamingContext = streamingContext;
     }
 
     public SerializationInfo SerializationInfo
     {
       get { return _serializationInfo; }
+    }
+
+    public StreamingContext StreamingContext
+    {
+      get { return _streamingContext; }
     }
 
     public void GetObjectData (SerializationInfo info, StreamingContext context)
@@ -59,6 +67,8 @@ namespace Remotion.TypePipe.Serialization
 
     public object GetRealObject (StreamingContext context)
     {
+      Debug.Assert (context.Equals(_streamingContext));
+
       if (_instance != null)
         return _instance;
 
@@ -68,18 +78,20 @@ namespace Remotion.TypePipe.Serialization
       var pipeline = _registry.Get (participantConfigurationID);
       var typeID = assembledTypeIDData.CreateTypeID();
 
-      _instance = CreateRealObject (pipeline, typeID, context);
+      _instance = CreateRealObject (pipeline, typeID);
 
       return _instance;
     }
 
     public void OnDeserialization (object sender)
     {
+      //SerializationImplementer.RaiseOnDeserialized (_instance, StreamingContext);
+
       var deserializationCallback = _instance as IDeserializationCallback;
       if (deserializationCallback != null)
         deserializationCallback.OnDeserialization (sender);
     }
 
-    protected abstract object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context);
+    protected abstract object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID);
   }
 }
