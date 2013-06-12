@@ -14,17 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -33,6 +28,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   {
     private SerializationInfo _serializationInfo;
     private StreamingContext _streamingContext;
+    private string _requestedTypeName;
 
     private ObjectWithDeserializationConstructorProxy _proxy;
 
@@ -41,38 +37,87 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     {
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
       _streamingContext = new StreamingContext (StreamingContextStates.File);
+      _requestedTypeName = "requested type name";
 
       _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, _streamingContext);
     }
 
     [Test]
-    public void CreateRealObject ()
+    public void PopulateInstance ()
     {
-      var typeID = AssembledTypeIDObjectMother.Create();
-      var pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
-      var fakeObject = new object();
-      pipelineMock
-          .Expect (mock => mock.Create (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg<ParamList>.Is.Anything, Arg.Is (true)))
-          .WhenCalled (
-              mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, _streamingContext })))
-          .Return (fakeObject);
+      var instance = new TypeWithDeserializationConstructor();
 
-      var result = _proxy.Invoke ("CreateRealObject", pipelineMock, typeID);
+      _proxy.Invoke ("PopulateInstance", instance, _serializationInfo, _streamingContext, _requestedTypeName);
 
-      pipelineMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (fakeObject));
+      Assert.That (instance.DeserializationCtorWasCalled, Is.True);
+      Assert.That (instance.SerializationInfo, Is.SameAs (_serializationInfo));
+      Assert.That (instance.StreamingContext, Is.EqualTo (_streamingContext));
     }
 
     [Test]
-    [ExpectedException (typeof (SerializationException), ExpectedMessage = "The constructor to deserialize an object of type 'Int32' was not found.")]
-    public void CreateRealObject_MissingDeserializationConstructor ()
+    public void PopulateInstance_NonPublicDeserializationCtor ()
     {
-      var typeID = AssembledTypeIDObjectMother.Create (typeof (int));
-      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
-      var exception = new MissingMethodException();
-      pipelineStub.Stub (_ => _.Create (typeID, null, true)).IgnoreArguments().Throw (exception);
+      var instance = new TypeWithNonPublicDeserializationConstructor();
 
-      _proxy.Invoke ("CreateRealObject", pipelineStub, typeID);
+      _proxy.Invoke("PopulateInstance", instance, _serializationInfo, _streamingContext, _requestedTypeName);
+
+      Assert.That (instance.DeserializationCtorWasCalled, Is.True);
+    }
+
+    [Test]
+    [ExpectedException (typeof (SerializationException), ExpectedMessage =
+        "The constructor to deserialize an object of type 'requested type name' was not found.")]
+    public void PopulateInstance_MissingDeserializationConstructor ()
+    {
+      _proxy.Invoke ("PopulateInstance", new int(), _serializationInfo, _streamingContext, _requestedTypeName);
+    }
+
+    [Test]
+    public void PopulateInstance_ThrowingDeserializationCtor ()
+    {
+      var instance = new TypeWithThrowingDeserializationConstructor();
+
+      var exception = Assert.Catch (() => _proxy.Invoke ("PopulateInstance", instance, _serializationInfo, _streamingContext, _requestedTypeName));
+
+      Assert.That (exception.Message, Is.EqualTo ("blub"));
+      Assert.That (exception.StackTrace, Is.StringContaining ("TypeWithThrowingDeserializationConstructor"));
+    }
+
+    public class TypeWithDeserializationConstructor
+    {
+      public readonly SerializationInfo SerializationInfo;
+      public readonly StreamingContext StreamingContext;
+      public readonly bool DeserializationCtorWasCalled;
+
+      public TypeWithDeserializationConstructor () {}
+      public TypeWithDeserializationConstructor (SerializationInfo serializationInfo, StreamingContext streamingContext)
+      {
+        SerializationInfo = serializationInfo;
+        StreamingContext = streamingContext;
+        DeserializationCtorWasCalled = true;
+      }
+    }
+
+    public class TypeWithNonPublicDeserializationConstructor
+    {
+      public readonly bool DeserializationCtorWasCalled;
+
+      public TypeWithNonPublicDeserializationConstructor () {}
+      private TypeWithNonPublicDeserializationConstructor (SerializationInfo serializationInfo, StreamingContext streamingContext)
+      {
+        DeserializationCtorWasCalled = true;
+      }
+    }
+
+    public class TypeWithThrowingDeserializationConstructor
+    {
+      public readonly bool DeserializationCtorWasCalled;
+
+      public TypeWithThrowingDeserializationConstructor () { }
+      public TypeWithThrowingDeserializationConstructor (SerializationInfo serializationInfo, StreamingContext streamingContext)
+      {
+        throw new Exception ("blub");
+      }
     }
   }
 }

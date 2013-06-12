@@ -18,12 +18,9 @@
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Serialization;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -31,35 +28,28 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   public class ObjectWithoutDeserializationConstructorProxyTest
   {
     private SerializationInfo _serializationInfo;
+    private StreamingContext _streamingContext;
 
     private ObjectWithoutDeserializationConstructorProxy _proxy;
-
-    private IPipeline _pipelineMock;
 
     [SetUp]
     public void SetUp ()
     {
       _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
+      _streamingContext = new StreamingContext (StreamingContextStates.File);
 
-      _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
-
-      _pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
+      _proxy = new ObjectWithoutDeserializationConstructorProxy (_serializationInfo, _streamingContext);
     }
 
     [Test]
-    public void CreateRealObject ()
+    public void PopulateInstance ()
     {
-      var typeID = AssembledTypeIDObjectMother.Create();
+      var instance = new DomainType();
       _serializationInfo.AddValue ("<tp>IntField", 7);
-      _pipelineMock
-          .Expect (mock => mock.ReflectionService.GetAssembledType (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
-          .Return (typeof (DomainType));
 
-      var result = _proxy.Invoke ("CreateRealObject", _pipelineMock, typeID);
+      _proxy.Invoke ("PopulateInstance", instance, _serializationInfo, _streamingContext);
 
-      _pipelineMock.VerifyAllExpectations();
-      Assert.That (result, Is.TypeOf<DomainType>());
-      Assert.That (((DomainType) result).IntField, Is.EqualTo (7));
+      Assert.That (instance.IntField, Is.EqualTo (7));
     }
 
     [Serializable]

@@ -16,9 +16,9 @@
 // 
 
 using System;
+using System.Reflection;
 using System.Runtime.Serialization;
-using Remotion.Reflection;
-using Remotion.TypePipe.Caching;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
@@ -33,18 +33,37 @@ namespace Remotion.TypePipe.Serialization
     {
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID)
+    protected override void PopulateInstance (
+        object instance, SerializationInfo serializationInfo, StreamingContext streamingContext, string requestedTypeName)
     {
+      ArgumentUtility.CheckNotNull ("instance", instance);
+      ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
+      ArgumentUtility.CheckNotNullOrEmpty ("requestedTypeName", requestedTypeName);
+
+      var deserializationConstructor = GetDeserializationConstructor (instance);
+      if (deserializationConstructor == null)
+      {
+        var message = string.Format ("The constructor to deserialize an object of type '{0}' was not found.", requestedTypeName);
+        throw new SerializationException (message);
+      }
+
       try
       {
-        var constructorArguments = ParamList.Create (SerializationInfo, StreamingContext);
-        return pipeline.Create (typeID, constructorArguments, allowNonPublicConstructor: true);
+        var parameters = new object[] { serializationInfo, streamingContext };
+        deserializationConstructor.Invoke (instance, parameters);
       }
-      catch (MissingMethodException exception)
+      catch (TargetInvocationException ex)
       {
-        var message = string.Format ("The constructor to deserialize an object of type '{0}' was not found.", typeID.RequestedType.Name);
-        throw new SerializationException (message, exception);
+        throw ex.InnerException.PreserveStackTrace();
       }
+    }
+
+    private ConstructorInfo GetDeserializationConstructor (object instance)
+    {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+      var parameterTypes = new[] { typeof (SerializationInfo), typeof (StreamingContext) };
+
+      return instance.GetType().GetConstructor (bindingFlags, null, parameterTypes, null);
     }
   }
 }

@@ -51,16 +51,6 @@ namespace Remotion.TypePipe.Serialization
       _streamingContext = streamingContext;
     }
 
-    public SerializationInfo SerializationInfo
-    {
-      get { return _serializationInfo; }
-    }
-
-    public StreamingContext StreamingContext
-    {
-      get { return _streamingContext; }
-    }
-
     public void GetObjectData (SerializationInfo info, StreamingContext context)
     {
       throw new NotSupportedException ("This method should not be called.");
@@ -68,7 +58,7 @@ namespace Remotion.TypePipe.Serialization
 
     public object GetRealObject (StreamingContext context)
     {
-      Debug.Assert (context.Equals(_streamingContext));
+      Debug.Assert (context.Equals (_streamingContext));
 
       // Do not move this code into the constructor (although it belongs there logically).
       // Reason: The deserialization constructor is called by .NET infrastructure via reflection. If we create the instance in the constructor,
@@ -85,9 +75,6 @@ namespace Remotion.TypePipe.Serialization
 
       _instance = CreateRealObject (pipeline, typeID);
 
-      // Where execute this?
-      //_deserializationMethodInvoker.InvokeOnDeserializing (_instance, StreamingContext);
-
       return _instance;
     }
 
@@ -95,10 +82,24 @@ namespace Remotion.TypePipe.Serialization
     {
       // sender may be null.
 
-      _deserializationMethodInvoker.InvokeOnDeserialized (_instance, StreamingContext);
+      _deserializationMethodInvoker.InvokeOnDeserialized (_instance, _streamingContext);
       _deserializationMethodInvoker.InvokeOnDeserialization (_instance, sender);
     }
 
-    protected abstract object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID);
+    private object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID)
+    {
+      var assembledType = pipeline.ReflectionService.GetAssembledType (typeID);
+      var instance = FormatterServices.GetUninitializedObject (assembledType);
+
+      // Call methods with [OnDeserializing] which setup default values for fields ...
+      _deserializationMethodInvoker.InvokeOnDeserializing (instance, _streamingContext);
+      // ... but those default values may be overridden by deserialized values.
+      PopulateInstance (instance, _serializationInfo, _streamingContext, typeID.RequestedType.Name);
+
+      return instance;
+    }
+
+    protected abstract void PopulateInstance (
+        object instance, SerializationInfo serializationInfo, StreamingContext streamingContext, string requestedTypeName);
   }
 }

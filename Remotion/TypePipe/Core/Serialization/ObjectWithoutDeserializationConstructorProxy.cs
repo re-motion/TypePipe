@@ -17,7 +17,7 @@
 
 using System;
 using System.Runtime.Serialization;
-using Remotion.TypePipe.Caching;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
@@ -36,13 +36,13 @@ namespace Remotion.TypePipe.Serialization
     {
     }
 
-    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID)
+    protected override void PopulateInstance (
+        object instance, SerializationInfo serializationInfo, StreamingContext streamingContext, string requestedTypeName)
     {
-      var assembledType = pipeline.ReflectionService.GetAssembledType (typeID);
-      var instance = FormatterServices.GetUninitializedObject (assembledType);
-      ReflectionSerializationHelper.PopulateFields (SerializationInfo, instance);
+      ArgumentUtility.CheckNotNull ("instance", instance);
+      ArgumentUtility.CheckNotNull ("serializationInfo", serializationInfo);
 
-      return instance;
+      ReflectionSerializationHelper.PopulateFields (serializationInfo, instance);
     }
   }
 }
