@@ -24,15 +24,20 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 {
   public class TestableObjectDeserializationProxyBase : ObjectDeserializationProxyBase
   {
-    public static Func<IPipeline, AssembledTypeID, SerializationInfo, StreamingContext, object> CreateRealObjectAssertions;
+    private readonly Func<IPipeline, AssembledTypeID, StreamingContext, object> _createRealObjectAssertions;
 
-    public TestableObjectDeserializationProxyBase (SerializationInfo serializationInfo, StreamingContext streamingContext)
-        : base (serializationInfo, streamingContext) {}
-
-    protected override object CreateRealObject (
-        IPipeline pipeline, AssembledTypeID typeID, SerializationInfo serializationInfo, StreamingContext streamingContext)
+    public TestableObjectDeserializationProxyBase (
+        SerializationInfo serializationInfo,
+        StreamingContext streamingContext,
+        Func<IPipeline, AssembledTypeID, StreamingContext, object> createRealObjectAssertions)
+        : base (serializationInfo, streamingContext)
     {
-      return CreateRealObjectAssertions (pipeline, typeID, serializationInfo, streamingContext);
+      _createRealObjectAssertions = createRealObjectAssertions;
+    }
+
+    protected override object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID, StreamingContext context)
+    {
+      return _createRealObjectAssertions (pipeline, typeID, context);
     }
   }
 }

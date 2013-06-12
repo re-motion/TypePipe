@@ -31,34 +31,33 @@ namespace Remotion.TypePipe.UnitTests.Serialization
   [TestFixture]
   public class ObjectWithDeserializationConstructorProxyTest
   {
-    private ObjectWithDeserializationConstructorProxy _proxy;
-
     private SerializationInfo _serializationInfo;
-    private StreamingContext _context;
+
+    private ObjectWithDeserializationConstructorProxy _proxy;
 
     [SetUp]
     public void SetUp ()
     {
-      // Don't use ctor, because base ctor performs work.
-      _proxy = (ObjectWithDeserializationConstructorProxy) FormatterServices.GetUninitializedObject (typeof (ObjectWithDeserializationConstructorProxy));
+      ReflectionObjectMother.GetSomeType();
+      _serializationInfo = new SerializationInfo (ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
 
-      _serializationInfo = new SerializationInfo(ReflectionObjectMother.GetSomeOtherType(), new FormatterConverter());
-      _context = new StreamingContext(StreamingContextStates.Persistence);
+      _proxy = new ObjectWithDeserializationConstructorProxy (_serializationInfo, new StreamingContext (StreamingContextStates.File));
     }
 
     [Test]
     public void CreateRealObject ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
+      var context = new StreamingContext (StreamingContextStates.Persistence);
       var pipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
       var fakeObject = new object();
       pipelineMock
           .Expect (mock => mock.Create (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), Arg<ParamList>.Is.Anything, Arg.Is (true)))
           .WhenCalled (
-              mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, _context })))
+              mi => Assert.That (((ParamList) mi.Arguments[1]).GetParameterValues(), Is.EqualTo (new object[] { _serializationInfo, context })))
           .Return (fakeObject);
 
-      var result = _proxy.Invoke ("CreateRealObject", pipelineMock, typeID, _serializationInfo, _context);
+      var result = _proxy.Invoke ("CreateRealObject", pipelineMock, typeID, context);
 
       pipelineMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeObject));
@@ -73,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var exception = new MissingMethodException();
       pipelineStub.Stub (_ => _.Create (typeID, null, true)).IgnoreArguments().Throw (exception);
 
-      _proxy.Invoke ("CreateRealObject", pipelineStub, typeID, _serializationInfo, _context);
+      _proxy.Invoke ("CreateRealObject", pipelineStub, typeID, new StreamingContext());
     }
   }
 }

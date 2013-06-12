@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
+  [Ignore]
   [TestFixture]
   public class SimpleSerializationTest : SerializationTestBase
   {
