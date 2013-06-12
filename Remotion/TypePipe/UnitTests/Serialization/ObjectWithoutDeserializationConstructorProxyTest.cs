@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var instance = new DomainType();
       _serializationInfo.AddValue ("<tp>IntField", 7);
 
-      _proxy.Invoke ("PopulateInstance", instance, _serializationInfo, _streamingContext);
+      _proxy.Invoke ("PopulateInstance", instance, _serializationInfo, _streamingContext, "requested type name");
 
       Assert.That (instance.IntField, Is.EqualTo (7));
     }
