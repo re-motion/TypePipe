@@ -143,11 +143,14 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       instance1.String = "abc";
       instance2.String = "def";
 
-      Action<SerializableType, SerializationTestContext<SerializableType>> assertions =
-          (deserializedInstance, ctx) => Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
-      CheckInstanceIsSerializable (instance1, assertions, expectedStringFieldValue: "abc existingCallback valueFromInstanceInitialization");
+      Action<SerializableType, SerializationTestContext<SerializableType>> assertions = (deserializedInstance, ctx) =>
+      {
+        Assert.That (deserializedInstance.String, Is.EqualTo (ctx.ExpectedStringFieldValue));
+        Assert.That (deserializedInstance.OnDeserializingAttributeWasCalled, Is.True);
+      };
+      CheckInstanceIsSerializable(instance1, assertions, expectedStringFieldValue: "abc OnDeserializedAttribute existingCallback valueFromInstanceInitialization");
       CheckInstanceIsSerializable (
-          instance2, assertions, expectedStringFieldValue: "def (custom deserialization ctor) existingCallback valueFromInstanceInitialization");
+          instance2, assertions, expectedStringFieldValue: "def (custom deserialization ctor) OnDeserializedAttribute existingCallback valueFromInstanceInitialization");
     }
 
     [Test]
@@ -308,6 +311,8 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
       [NonSerialized]
       public readonly bool ConstructorCalled;
+      [NonSerialized]
+      public bool OnDeserializingAttributeWasCalled;
 
       public SerializableType ()
       {
@@ -348,6 +353,20 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       {
         String += " existingCallback";
       }
+
+      [OnDeserializing]
+      public void OnDeserializing (StreamingContext context)
+      {
+        // Methods marked with OnDeserializingAttribute are used to set up default values (which will be overridden by deserialized values).
+        String += " OnDeserializingAttribute";
+        OnDeserializingAttributeWasCalled = true;
+      }
+
+      [OnDeserialized]
+      public void OnDeserialized (StreamingContext context)
+      {
+        String += " OnDeserializedAttribute";
+      }
     }
 
     [Serializable]
@@ -363,6 +382,20 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       public virtual void OnDeserialization (object sender)
       {
         String += " existingCallback";
+      }
+
+      [OnDeserializing]
+      public void OnDeserializing (StreamingContext context)
+      {
+        // Methods marked with OnDeserializingAttribute are used to set up default values (which will be overridden by deserialized values).
+        String += " OnDeserializingAttribute";
+        OnDeserializingAttributeWasCalled = true;
+      }
+
+      [OnDeserialized]
+      public void OnDeserialized (StreamingContext context)
+      {
+        String += " OnDeserializedAttribute";
       }
     }
 
