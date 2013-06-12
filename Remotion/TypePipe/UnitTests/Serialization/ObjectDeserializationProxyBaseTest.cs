@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     private ObjectDeserializationProxyBase _objectDeserializationProxyBase;
 
     private IPipelineRegistry _pipelineRegistryMock;
+    private IDeserializationMethodInvoker _deserializationMethodInvokerMock;
     private Func<IPipeline, AssembledTypeID, object> _createRealObjectAssertions;
 
     [SetUp]
@@ -47,6 +48,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _context = new StreamingContext ((StreamingContextStates) 7);
 
       _pipelineRegistryMock = MockRepository.GenerateStrictMock<IPipelineRegistry>();
+      _deserializationMethodInvokerMock = MockRepository.GenerateMock<IDeserializationMethodInvoker>();
       _createRealObjectAssertions = (f, t) => { throw new Exception ("Setup assertions and return real object."); };
 
       using (new ServiceLocatorScope (typeof (IPipelineRegistry), () => _pipelineRegistryMock))
@@ -54,6 +56,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
         // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
         _objectDeserializationProxyBase = new TestableObjectDeserializationProxyBase (_info, _context, (f, t) => _createRealObjectAssertions (f, t));
       }
+      PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_deserializationMethodInvoker", _deserializationMethodInvokerMock);
     }
 
     [Test]
@@ -74,7 +77,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 
       var pipelineStub = MockRepository.GenerateStub<IPipeline>();
       pipelineStub.Stub (_ => _.Participants).Return (new IParticipant[0].ToList().AsReadOnly());
-      var fakeInstance = MockRepository.GenerateStrictMock<IDeserializationCallback>();
+      var fakeInstance = new object();
       _pipelineRegistryMock.Expect (mock => mock.Get ("config1")).Return (pipelineStub);
       _createRealObjectAssertions = (factory, typeID) =>
       {
@@ -87,7 +90,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var result = _objectDeserializationProxyBase.GetRealObject (_context);
 
       _pipelineRegistryMock.VerifyAllExpectations();
-      fakeInstance.AssertWasNotCalled (mock => mock.OnDeserialization (Arg<object>.Is.Anything));
+      _deserializationMethodInvokerMock.AssertWasCalled (_ => _.InvokeOnDeserializing (fakeInstance, _context));
       Assert.That (result, Is.SameAs (fakeInstance));
       Assert.That (PrivateInvoke.GetNonPublicField (_objectDeserializationProxyBase, "_instance"), Is.SameAs (fakeInstance));
     }
@@ -106,24 +109,14 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     [Test]
     public void OnDeserialization ()
     {
-      var instance = new object ();
+      var instance = new object();
       PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_instance", instance);
-      var sender = new object ();
-
-      Assert.That (() => _objectDeserializationProxyBase.OnDeserialization (sender), Throws.Nothing);
-    }
-
-    [Test]
-    public void OnDeserialization_DeserializationCallback ()
-    {
-      var deserializationCallbackMock = MockRepository.GenerateStrictMock<IDeserializationCallback> ();
-      var sender = new object ();
-      deserializationCallbackMock.Expect (x => x.OnDeserialization (sender));
-      PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_instance", deserializationCallbackMock);
+      var sender = new object();
 
       _objectDeserializationProxyBase.OnDeserialization (sender);
 
-      deserializationCallbackMock.VerifyAllExpectations ();
+      _deserializationMethodInvokerMock.AssertWasCalled (_ => _.InvokeOnDeserialized (instance, _context));
+      _deserializationMethodInvokerMock.AssertWasCalled (_ => _.InvokeOnDeserialization (instance, sender));
     }
   }
 }

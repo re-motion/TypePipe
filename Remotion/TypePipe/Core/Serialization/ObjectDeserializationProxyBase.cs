@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.Serialization
   public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference, IDeserializationCallback
   {
     private readonly IPipelineRegistry _registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
+    private readonly IDeserializationMethodInvoker _deserializationMethodInvoker = new DeserializationMethodInvoker();
 
     private readonly SerializationInfo _serializationInfo;
     private readonly StreamingContext _streamingContext;
@@ -69,6 +70,10 @@ namespace Remotion.TypePipe.Serialization
     {
       Debug.Assert (context.Equals(_streamingContext));
 
+      // Do not move this code into the constructor (although it belongs there logically).
+      // Reason: The deserialization constructor is called by .NET infrastructure via reflection. If we create the instance in the constructor,
+      // we get an TargetInvocationException instead of our hand-crafted exceptions if something goes wrong.
+
       if (_instance != null)
         return _instance;
 
@@ -80,16 +85,18 @@ namespace Remotion.TypePipe.Serialization
 
       _instance = CreateRealObject (pipeline, typeID);
 
+      // Where execute this?
+      //_deserializationMethodInvoker.InvokeOnDeserializing (_instance, StreamingContext);
+
       return _instance;
     }
 
     public void OnDeserialization (object sender)
     {
-      //SerializationImplementer.RaiseOnDeserialized (_instance, StreamingContext);
+      // sender may be null.
 
-      var deserializationCallback = _instance as IDeserializationCallback;
-      if (deserializationCallback != null)
-        deserializationCallback.OnDeserialization (sender);
+      _deserializationMethodInvoker.InvokeOnDeserialized (_instance, StreamingContext);
+      _deserializationMethodInvoker.InvokeOnDeserialization (_instance, sender);
     }
 
     protected abstract object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID);
