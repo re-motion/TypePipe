@@ -19,7 +19,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
@@ -67,13 +66,7 @@ namespace Remotion.TypePipe.Serialization
       if (_instance != null)
         return _instance;
 
-      var participantConfigurationID = (string) _serializationInfo.GetValue (ComplexSerializationEnabler.ParticipantConfigurationID, typeof (string));
-      var assembledTypeIDData = (AssembledTypeIDData) _serializationInfo.GetValue (ComplexSerializationEnabler.AssembledTypeIDData, typeof (AssembledTypeIDData));
-
-      var pipeline = _registry.Get (participantConfigurationID);
-      var typeID = assembledTypeIDData.CreateTypeID();
-
-      _instance = CreateRealObject (pipeline, typeID);
+      _instance = CreateRealObject();
 
       return _instance;
     }
@@ -86,10 +79,15 @@ namespace Remotion.TypePipe.Serialization
       _deserializationMethodInvoker.InvokeOnDeserialization (_instance, sender);
     }
 
-    private object CreateRealObject (IPipeline pipeline, AssembledTypeID typeID)
+    private object CreateRealObject ()
     {
-      var assembledType = pipeline.ReflectionService.GetAssembledType (typeID);
-      var instance = FormatterServices.GetUninitializedObject (assembledType);
+      var participantConfigurationID = (string) _serializationInfo.GetValue (ComplexSerializationEnabler.ParticipantConfigurationID, typeof (string));
+      var assembledTypeIDData = (AssembledTypeIDData) _serializationInfo.GetValue (ComplexSerializationEnabler.AssembledTypeIDData, typeof (AssembledTypeIDData));
+      var typeID = assembledTypeIDData.CreateTypeID();
+
+      var pipeline = _registry.Get(participantConfigurationID);
+      var assembledType = pipeline.ReflectionService.GetAssembledType(typeID);
+      var instance = FormatterServices.GetUninitializedObject(assembledType);
 
       // Call methods with [OnDeserializing] which setup default values for fields ...
       _deserializationMethodInvoker.InvokeOnDeserializing (instance, _streamingContext);
