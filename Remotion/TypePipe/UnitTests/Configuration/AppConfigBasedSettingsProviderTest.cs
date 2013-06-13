@@ -64,5 +64,23 @@ namespace Remotion.TypePipe.UnitTests.Configuration
 
       Assert.That (_provider.KeyFilePath, Is.EqualTo (@"C:\key.snk"));
     }
+
+    [Test]
+    public void EnableComplexSerialization_False ()
+    {
+      var xmlFragment = "<typePipe></typePipe>";
+      ConfigurationHelper.DeserializeSection (_section, xmlFragment);
+
+      Assert.That (_provider.EnableSerializationWithoutAssemblySaving, Is.False);
+    }
+
+    [Test]
+    public void EnableComplexSerialization_True ()
+    {
+      var xmlFragment = "<typePipe><enableSerializationWithoutAssemblySaving/></typePipe>";
+      ConfigurationHelper.DeserializeSection (_section, xmlFragment);
+
+      Assert.That (_provider.EnableSerializationWithoutAssemblySaving, Is.True);
+    }
   }
 }

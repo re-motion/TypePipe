@@ -42,6 +42,17 @@ namespace Remotion.TypePipe.UnitTests.Configuration
 
       Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.True);
       Assert.That (_section.ForceStrongNaming.KeyFilePath, Is.EqualTo ("keyFile.snk"));
+      Assert.That(_section.EnableSerializationWithoutAssemblySaving.ElementInformation.IsPresent, Is.True);
+    }
+
+    [Test]
+    public void Empty ()
+    {
+      var xmlFragment = @"<typePipe {xmlns} />";
+      DeserializeSection (xmlFragment);
+      
+      Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.False);
+      Assert.That (_section.EnableSerializationWithoutAssemblySaving.ElementInformation.IsPresent, Is.False);
     }
 
     [Test]
@@ -54,17 +65,17 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     }
 
     [Test]
-    public void ForceStrongNaming_Empty ()
+    public void EnableSerializationWithoutAssemblySaving ()
     {
-      var xmlFragment = @"<typePipe {xmlns} />";
-      DeserializeSection (xmlFragment);
-      
-      Assert.That (_section.ForceStrongNaming.ElementInformation.IsPresent, Is.False);
+      var xmlFragment = @"<typePipe {xmlns}><enableSerializationWithoutAssemblySaving/></typePipe>";
+      DeserializeSection(xmlFragment);
+
+      Assert.That(_section.EnableSerializationWithoutAssemblySaving.ElementInformation.IsPresent, Is.True);
     }
 
     [Test]
     [ExpectedException (typeof (ConfigurationErrorsException), ExpectedMessage = "Example configuration:", MatchType = MessageMatch.Contains)]
-    public void ForceStrongNaming_InvalidSection ()
+    public void InvalidSection ()
     {
       var xmlFragment = "<typePipe {xmlns}><invalid /></typePipe>";
       DeserializeSection (xmlFragment);

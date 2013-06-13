@@ -32,7 +32,8 @@ namespace Remotion.TypePipe.Configuration
   ///   &lt;/configSections&gt;
   ///   
   ///   &lt;typePipe xmlns="http://typepipe.codeplex.com/configuration"&gt;
-  ///     &lt;forceStrongNaming keyFilePath="keyFile.snk" /&gt;
+  ///     &lt;forceStrongNaming keyFilePath="keyFile.snk"/&gt;
+  ///     &lt;enableSerializationWithoutAssemblySaving/&gt;
   ///   &lt;/typePipe&gt;
   ///   &lt;!-- ... --&gt;
   /// &lt;/configuration&gt;
@@ -58,17 +59,19 @@ namespace Remotion.TypePipe.Configuration
       get { return _section.ForceStrongNaming.KeyFilePath; }
     }
 
-    // TODO 5370
-    public bool EnableComplexSerialization { get; set; }
+    public bool EnableSerializationWithoutAssemblySaving
+    {
+      get { return _section.EnableSerializationWithoutAssemblySaving.ElementInformation.IsPresent; }
+    }
 
-    // TODO 5370
     public PipelineSettings GetSettings ()
     {
+      // TODO 5370: Give possibility to configure default pipeline name!?
       return new PipelineSettings ("remotion-default-pipeline")
              {
                  ForceStrongNaming = ForceStrongNaming,
                  KeyFilePath = KeyFilePath,
-                 EnableSerializationWithoutAssemblySaving = EnableComplexSerialization
+                 EnableSerializationWithoutAssemblySaving = EnableSerializationWithoutAssemblySaving
              };
     }
   }
