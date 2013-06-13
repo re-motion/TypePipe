@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     [Test]
     public void ForceStrongNaming_False ()
     {
-      var xmlFragment = "<typePipe />";
+      var xmlFragment = "<typePipe/>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.ForceStrongNaming, Is.False);
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.Configuration
     [Test]
     public void EnableComplexSerialization_False ()
     {
-      var xmlFragment = "<typePipe></typePipe>";
+      var xmlFragment = "<typePipe/>";
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.EnableSerializationWithoutAssemblySaving, Is.False);
@@ -81,6 +81,34 @@ namespace Remotion.TypePipe.UnitTests.Configuration
       ConfigurationHelper.DeserializeSection (_section, xmlFragment);
 
       Assert.That (_provider.EnableSerializationWithoutAssemblySaving, Is.True);
+    }
+
+    [Test]
+    public void GetSettings_Defaults ()
+    {
+      var xmlFragment = "<typePipe/>";
+      ConfigurationHelper.DeserializeSection (_section, xmlFragment);
+
+      var settings = _provider.GetSettings();
+
+      Assert.That (settings.ParticipantConfigurationID, Is.EqualTo ("remotion-default-pipeline"));
+      Assert.That (settings.ForceStrongNaming, Is.False);
+      Assert.That (settings.KeyFilePath, Is.Empty);
+      Assert.That (settings.EnableSerializationWithoutAssemblySaving, Is.False);
+    }
+
+    [Test]
+    public void GetSettings_CustomValues ()
+    {
+      var xmlFragment = @"<typePipe><forceStrongNaming keyFilePath=""C:\key.snk""/><enableSerializationWithoutAssemblySaving/></typePipe>";
+      ConfigurationHelper.DeserializeSection (_section, xmlFragment);
+
+      var settings = _provider.GetSettings();
+
+      Assert.That (settings.ParticipantConfigurationID, Is.EqualTo ("remotion-default-pipeline"));
+      Assert.That (settings.ForceStrongNaming, Is.True);
+      Assert.That (settings.KeyFilePath, Is.EqualTo (@"C:\key.snk"));
+      Assert.That (settings.EnableSerializationWithoutAssemblySaving, Is.True);
     }
   }
 }
