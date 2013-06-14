@@ -19,7 +19,6 @@ using System;
 using System.Globalization;
 using NUnit.Framework;
 using Remotion.Data.DomainObjects;
-using Remotion.Data.DomainObjects.Infrastructure;
 using Remotion.Data.DomainObjects.Mapping;
 using Remotion.Development.UnitTesting;
 using Remotion.Mixins;
@@ -52,17 +51,6 @@ namespace Remotion.TypePipe.PerformanceTests
 
       TimeThis ("TypePipe_Types", typeCacheFunc);
       TimeThis ("TypePipe_ConstructorDelegates", constructorDelegateCacheFunc);
-    }
-
-    [Test]
-    public void Remotion ()
-    {
-      Func<Type> typeCacheFunc = () => InterceptedDomainObjectCreator.Instance.Factory.GetConcreteDomainObjectType (typeof (DomainType));
-      Func<Delegate> constructorDelegateCacheFunc =
-          () => InterceptedDomainObjectCreator.Instance.GetConstructorLookupInfo (typeof (DomainType)).GetDelegate (typeof (Func<object>));
-
-      TimeThis ("Remotion_Types", typeCacheFunc);
-      TimeThis ("Remotion_ConstructorDelegates", constructorDelegateCacheFunc);
     }
 
     private static void TimeThis<T> (string testName, Func<T> func)
