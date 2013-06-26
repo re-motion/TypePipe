@@ -447,6 +447,7 @@
     </EmbeddedResource>
     <None Include="Dlr\Preserve-Dlr.licenseheader" />
     <EmbeddedResource Include="StrongNaming\FallbackKey.snk" />
+    <None Include="doc\include\GettingStartedWithTypePipe.aml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">
