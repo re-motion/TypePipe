@@ -150,7 +150,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableType AddNestedType (string typeName, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("typeName", typeName);
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      // Base type can be null
 
       var nestedType = _mutableMemberFactory.CreateNestedType (this, typeName, attributes, baseType);
       _addedNestedTypes.Add (nestedType);

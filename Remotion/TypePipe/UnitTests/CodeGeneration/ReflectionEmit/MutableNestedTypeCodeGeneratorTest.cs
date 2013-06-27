@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       using (MockRepository.Ordered())
       {
         _enclosingTypeBuilderMock
-            .Expect (mock => mock.DefineNestedType (MutableType.Name, MutableType.Attributes, typeof (object)))
+            .Expect (mock => mock.DefineNestedType (MutableType.Name, MutableType.Attributes))
             .Return (TypeBuilderMock);
         TypeBuilderMock.Expect (mock => mock.RegisterWith (EmittableOperandProviderMock, MutableType));
         CodeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (DebugInfoGeneratorMock);

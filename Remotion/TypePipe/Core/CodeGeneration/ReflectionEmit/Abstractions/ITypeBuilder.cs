@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     void SetParent (Type parent);
     void AddInterfaceImplementation (Type interfaceType);
 
-    ITypeBuilder DefineNestedType (string name, TypeAttributes attributes, Type parent);
+    ITypeBuilder DefineNestedType (string name, TypeAttributes attributes);
     IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes);
     IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes);
     IMethodBuilder DefineMethod (string name, MethodAttributes attributes);

@@ -42,6 +42,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    public void AddInterface ()
+    {
+      var type = AssembleType<DomainType> (
+          proxyType => proxyType.AddNestedType ("NestedType", TypeAttributes.NestedPublic | TypeAttributes.Interface | TypeAttributes.Abstract, null));
+
+      var addedNestedType = type.GetNestedTypes ().Single ();
+      Assert.That (addedNestedType.Name, Is.EqualTo ("NestedType"));
+      Assert.That (addedNestedType.FullName, Is.EqualTo ("Remotion.TypePipe.IntegrationTests.TypeAssembly.DomainType_Proxy_1+NestedType"));
+      Assert.That (addedNestedType.IsInterface, Is.True);
+      Assert.That (addedNestedType.BaseType, Is.Null);
+      Assert.That (addedNestedType.DeclaringType, Is.SameAs (type));
+    }
+
+    [Test]
     public void CrossReferencing ()
     {
       var type = AssembleType<DomainType> (

@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     protected override ITypeBuilder DefineType (IReflectionEmitCodeGenerator codeGenerator, IEmittableOperandProvider emittableOperandProvider)
     {
-      return _enclosingTypeBuilder.DefineNestedType (MutableType.Name, MutableType.Attributes, typeof (object));
+      return _enclosingTypeBuilder.DefineNestedType (MutableType.Name, MutableType.Attributes);
     }
   }
 }

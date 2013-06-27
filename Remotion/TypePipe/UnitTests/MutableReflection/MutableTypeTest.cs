@@ -146,6 +146,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddNestedType_WithNullBaseType ()
+    {
+      Assert.That (_mutableType.AddedNestedTypes, Is.Empty);
+      var typeName = "NestedType";
+      var typeAttributes = TypeAttributes.NestedFamily;
+      var nestedTypeFake = MutableTypeObjectMother.Create ();
+      _mutableMemberFactoryMock.Expect (mock => mock.CreateNestedType (_mutableType, typeName, typeAttributes, baseType: null)).Return (nestedTypeFake);
+
+      var result = _mutableType.AddNestedType (typeName, typeAttributes, baseType: null);
+
+      Assert.That (result, Is.SameAs (nestedTypeFake));
+      _mutableMemberFactoryMock.VerifyAllExpectations ();
+    }
+
+    [Test]
     public void AddTypeInitializer ()
     {
       Assert.That (_mutableType.MutableTypeInitializer, Is.Null);

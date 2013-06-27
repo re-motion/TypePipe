@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      // Base type may be null
 
       return _nestedTypeFactory.CreateNestedType (declaringType, name, attributes, baseType);
     }

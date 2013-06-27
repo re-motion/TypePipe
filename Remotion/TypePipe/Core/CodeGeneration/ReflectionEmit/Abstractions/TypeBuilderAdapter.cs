@@ -59,12 +59,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     [CLSCompliant (false)]
-    public ITypeBuilder DefineNestedType (string name, TypeAttributes attributes, Type parent)
+    public ITypeBuilder DefineNestedType (string name, TypeAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("parent", parent);
 
-      var typeBuilder = _typeBuilder.DefineNestedType (name, attributes, parent);
+      var typeBuilder = _typeBuilder.DefineNestedType (name, attributes);
       return new TypeBuilderAdapter (typeBuilder);
     }
 
