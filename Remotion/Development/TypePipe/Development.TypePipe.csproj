@@ -43,6 +43,10 @@
     <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\prereq\Assemblies\CommonServiceLocator-1.0\net-2.0\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -97,6 +101,7 @@
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutablePropertyInfoObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableTypeObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\ParameterDeclarationObjectMother.cs" />
+    <Compile Include="UnitTesting\PipelineRegistryTestHelper.cs" />
     <Compile Include="UnitTesting\Serialization\FlatValueStub.cs" />
   </ItemGroup>
   <ItemGroup>
