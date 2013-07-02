@@ -24,37 +24,50 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   [TestFixture]
   public class NoModificationOptimizationTest
   {
-    private Type _requestedType;
-
     private IPipeline _pipeline;
 
     [SetUp]
     public void SetUp ()
     {
-      _requestedType = typeof (RequestedType);
-
       _pipeline = PipelineFactory.Create ("NoModificationOptimizationTest");
     }
 
     [Test]
     public void InstantiatesRequestedType ()
     {
-      var instance = _pipeline.Create (_requestedType, ParamList.Create ("string"));
+      var requestedType = typeof (RequestedType);
+      var instance = _pipeline.Create (requestedType, ParamList.Create ("string"));
 
-      Assert.That (instance.GetType(), Is.SameAs (_requestedType));
+      Assert.That (instance.GetType(), Is.SameAs (requestedType));
     }
 
     [Test]
     public void ReturnsRequestedType ()
     {
-      var assembledType = _pipeline.ReflectionService.GetAssembledType (_requestedType);
+      var requestedType = typeof (RequestedType);
+      var assembledType = _pipeline.ReflectionService.GetAssembledType (requestedType);
 
-      Assert.That (assembledType, Is.SameAs (_requestedType));
+      Assert.That (assembledType, Is.SameAs (requestedType));
+    }
+
+    [Test]
+    [Ignore ("TODO 5735")]
+    public void AbstractType_WithoutAbstractMethods_IsAssembledAsNonAbstract ()
+    {
+      var assembledType = _pipeline.ReflectionService.GetAssembledType (typeof (RequestedAbstractType));
+
+      Assert.That (assembledType, Is.Not.SameAs (typeof (RequestedAbstractType)));
+      Assert.That (assembledType.IsAbstract, Is.False);
     }
 
     public class RequestedType
     {
       public RequestedType (string s) {}
+    }
+
+    public abstract class RequestedAbstractType
+    {
+      public RequestedAbstractType (string s) { }
     }
   }
 }
