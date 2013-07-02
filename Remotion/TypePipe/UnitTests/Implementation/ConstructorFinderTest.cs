@@ -16,6 +16,7 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
@@ -52,15 +53,28 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    public void GetConstructor_NonPublic ()
+    public void GetConstructor_NonPublicOnRequestedType_PublicOnAssembledType ()
     {
       var parameterTypes = Type.EmptyTypes;
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new RequestedType());
       Assert.That (constructor.IsPublic, Is.False);
 
-      var result = _finder.GetConstructor (_assembledType, parameterTypes, true, _assembledType);
+      var result = _finder.GetConstructor (_requestedType, parameterTypes, true, _assembledType);
 
       var expectedConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledType());
+      Assert.That (result, Is.EqualTo (expectedConstructor));
+    }
+
+    [Test]
+    public void GetConstructor_NonPublicOnRequestedType_AssembledTypeIsRequestedType ()
+    {
+      var parameterTypes = Type.EmptyTypes;
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new RequestedType ());
+      Assert.That (constructor.IsPublic, Is.False);
+
+      var result = _finder.GetConstructor (_requestedType, parameterTypes, true, _requestedType);
+
+      var expectedConstructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new RequestedType ());
       Assert.That (result, Is.EqualTo (expectedConstructor));
     }
 
@@ -82,8 +96,21 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _finder.GetConstructor (_requestedType, Type.EmptyTypes, false, _assembledType);
     }
 
+    [Test]
+    public void GetConstructor_AbstractAssembledType ()
+    {
+      var parameterTypes = Type.EmptyTypes;
+
+      Assert.That (
+          () => _finder.GetConstructor (_requestedType, parameterTypes, true, typeof (AbstractAssembledType)),
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "The type 'Remotion.TypePipe.UnitTests.Implementation.ConstructorFinderTest+RequestedType' cannot be constructed because the "
+              + "assembled type is abstract."));
+    }
+
     private class RequestedType
     {
+      [UsedImplicitly]
       public RequestedType (string s1, int i2)
       {
         Dev.Null = s1;
@@ -98,5 +125,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       public AssembledType (string s1, int i2) : base (s1, i2) {}
       public AssembledType () {}
     }
+
+    abstract class AbstractAssembledType : RequestedType {}
   }
 }

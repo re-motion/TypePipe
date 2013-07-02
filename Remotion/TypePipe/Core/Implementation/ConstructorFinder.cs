@@ -32,9 +32,20 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
       CheckConstructorOnRequestedType (requestedType, parameterTypes, allowNonPublic);
+      CheckNotAbstract (assembledType, requestedType);
 
-      // Constructors that where copied from the requested type to the assembled type are always public.
-      return assembledType.GetConstructor (parameterTypes);
+      // Constructors that where copied from the requested type to the assembled type are always public. However, this does not hold when the
+      // "don't create an assembled type if no modifications are made" optimization kicks in.
+      return assembledType.GetConstructor (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, parameterTypes, null);
+    }
+
+    private void CheckNotAbstract (Type assembledType, Type requestedType)
+    {
+      if (assembledType.IsAbstract)
+      {
+        var message = string.Format ("The type '{0}' cannot be constructed because the assembled type is abstract.", requestedType);
+        throw new InvalidOperationException (message);
+      }
     }
 
     private void CheckConstructorOnRequestedType (Type requestedType, Type[] parameterTypes, bool allowNonPublic)
