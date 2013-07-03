@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,29 +14,27 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
+
+using System.Collections.Generic;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 
-namespace Remotion.TypePipe.MutableReflection.BodyBuilding
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  /// <summary>
-  /// Provides access to expressions needed for building initializations.
-  /// </summary>
-  public class InitializationBodyContext : BodyContextBase
+  // TODO 5370
+  public class InstanceInitialization
   {
-    // TODO 5370 remove.
-    public static readonly Expression InitilizationSemanticsPlaceHolder = 
-      Expression.Parameter (typeof (InitializationSemantics), "initializationSemantics");
+    private readonly ParameterExpression _initializationSemantics = Expression.Variable (typeof (InitializationSemantics), "initializationSemantics");
+    private readonly List<Expression> _initailizations = new List<Expression>();
 
-    public InitializationBodyContext (MutableType declaringType, bool isStatic)
-        : base (declaringType, isStatic)
+    public ParameterExpression InitializationSemantics
     {
+      get { return _initializationSemantics; }
     }
 
-    public Expression InitializationSemantics
+    public IList<Expression> Initializations
     {
-      get { return InitilizationSemanticsPlaceHolder; }
+      get { return _initailizations; }
     }
   }
 }

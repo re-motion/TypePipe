@@ -61,6 +61,7 @@
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
+    <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
     <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
     <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
