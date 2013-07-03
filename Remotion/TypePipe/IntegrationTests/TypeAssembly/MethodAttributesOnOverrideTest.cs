@@ -41,7 +41,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckMethodAttributes (method);
     }
 
-    [Ignore("TODO 5370")]
     [Test]
     public void Implementation ()
     {
@@ -59,7 +58,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckMethodAttributes (method);
     }
 
-    [Ignore("TODO 5370")]
+    [Ignore ("TODO 5370: c# compiler does not copy such things either on implementation OR override")]
     [Test]
     public void ReImplementation ()
     {

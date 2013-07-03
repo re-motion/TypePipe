@@ -178,9 +178,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
       try
       {
-        var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract
-                         | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
-        return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, attributes, bodyProvider: null);
+        return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
       }
       catch (InvalidOperationException)
       {
