@@ -56,7 +56,8 @@ namespace Remotion.TypePipe
 
     /// <summary>
     /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.
-    /// For example, an instance that was created via <see cref="FormatterServices"/>.<see cref="FormatterServices.GetUninitializedObject"/>.
+    /// For example, an instance that was created via <see cref="FormatterServices"/>.<see cref="FormatterServices.GetUninitializedObject"/>
+    /// during deserialization.
     /// </summary>
     /// <param name="instance">The assembled type instance which should be prepared.</param>
     void PrepareExternalUninitializedObject (object instance);
