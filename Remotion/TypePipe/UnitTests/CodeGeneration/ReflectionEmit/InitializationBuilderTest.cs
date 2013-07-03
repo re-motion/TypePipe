@@ -23,7 +23,6 @@ using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
@@ -53,8 +52,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateInstanceInitializationMembers ()
     {
-      var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();
-      _mutableType.AddInitialization (ctx => initExpression);
+      _mutableType.AddInitialization (ctx => Expression.Constant ("blub"));
+      _mutableType.AddInitialization (ctx => ctx.InitializationSemantics);
 
       var result = _builder.CreateInitializationMembers (_mutableType);
 
@@ -76,15 +75,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (initMethod.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (initMethod.Name, Is.EqualTo ("Remotion.TypePipe.Implementation.IInitializableObject.Initialize"));
       Assert.That (initMethod.Attributes, Is.EqualTo (methodAttributes));
+      Assert.That (initMethod.ReturnType, Is.SameAs (typeof (void)));
+      var parameters = initMethod.GetParameters();
+      Assert.That (parameters, Has.Length.EqualTo (1));
+      Assert.That (parameters[0].ParameterType, Is.SameAs (typeof (InitializationSemantics)));
 
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod((IInitializableObject obj) => obj.Initialize(0));
-      Assert.That(initMethod.AddedExplicitBaseDefinitions, Is.EqualTo(new[] { interfaceMethod }));
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize (0));
+      Assert.That (initMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { interfaceMethod }));
 
-      Assert.That (initMethod.Body.Type, Is.SameAs (typeof (void)));
-      Assert.That (initMethod.Body, Is.InstanceOf<BlockExpression>());
-      var blockExpression = (BlockExpression) initMethod.Body;
-      Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { initExpression }));
-     // tODO 5370
+      var expectedBody = Expression.Block (typeof (void), Expression.Constant ("blub"), initMethod.ParameterExpressions[0]);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, initMethod.Body);
     }
 
     [Test]
@@ -98,12 +98,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_mutableType.AddedMethods, Is.Empty);
     }
 
-    [Ignore("TODO 5370")]
     [Test]
     public void WireConstructorWithInitialization ()
     {
       var counter = MutableFieldInfoObjectMother.Create (_mutableType, type: typeof (int));
-      var initMethod = MutableMethodInfoObjectMother.Create (_mutableType);
+      var initMethod = MutableMethodInfoObjectMother.Create (
+          _mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (InitializationSemantics)) });
       var initializationMembers = Tuple.Create<FieldInfo, MethodInfo> (counter, initMethod);
       var constructor = MutableConstructorInfoObjectMother.Create (_mutableType);
       var oldBody = constructor.Body;
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               Expression.Subtract (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (1))),
           Expression.IfThen (
               Expression.Equal (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (0)),
-              Expression.Call (new ThisExpression (_mutableType), initMethod)));
+              Expression.Call (new ThisExpression (_mutableType), initMethod, Expression.Constant (InitializationSemantics.Construction))));
 
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, constructor.Body);
     }
