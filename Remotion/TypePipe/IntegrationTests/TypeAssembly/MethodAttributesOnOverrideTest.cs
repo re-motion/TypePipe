@@ -58,7 +58,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       CheckMethodAttributes (method);
     }
 
-    [Ignore ("TODO 5370: c# compiler does not copy such things either on implementation OR override")]
     [Test]
     public void ReImplementation ()
     {
@@ -70,13 +69,17 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var implementation1 = proxy.GetOrAddImplementation (interfaceMethod1);
             var implementation2 = proxy.GetOrAddImplementation (interfaceMethod2);
-            CheckMethodAttributes (implementation1);
+
+            // Interface method is implemented by a virtual method which will be overidden (and is not marked [SpecialName]).
+            Assert.That (implementation1.Attributes.IsSet (MethodAttributes.SpecialName), Is.False);
             CheckMethodAttributes (implementation2);
           });
 
       var method1 = GetDeclaredMethod (type, "InterfaceMethod1");
       var method2 = GetDeclaredMethod (type, "InterfaceMethod2");
-      CheckMethodAttributes (method1);
+
+      // Interface method is implemented by a virtual method which will be overidden (and is not marked [SpecialName]).
+      Assert.That (method1.Attributes.IsSet (MethodAttributes.SpecialName), Is.False);
       CheckMethodAttributes (method2);
     }
 
@@ -92,6 +95,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       public virtual void InterfaceMethod1 () { }
       public /*not-virtual*/ void InterfaceMethod2 () { }
     }
+
     public interface IMyInterface
     {
       [SpecialName] void InterfaceMethod1 ();

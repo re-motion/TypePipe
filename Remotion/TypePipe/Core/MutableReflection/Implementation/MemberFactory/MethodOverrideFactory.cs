@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProvider);
 
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
-      return CreateOverride (declaringType, baseMethod, baseMethod.Name, attributes, bodyProvider);
+      return CreateMethod (declaringType, baseMethod, baseMethod.Name, attributes, bodyProvider);
     }
 
     public MutableMethodInfo GetOrCreateImplementation (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
@@ -129,11 +129,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
         declaringType.AddInterface (interfaceMethod.DeclaringType, throwIfAlreadyImplemented: false);
 
-        var attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot;
+        var attributes = interfaceMethod.Attributes.Unset (MethodAttributes.Abstract);
         Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.DelegateToBase (baseImplementation);
 
         isNewlyCreated = true;
-        return CreateOverride (declaringType, interfaceMethod, interfaceMethod.Name, attributes, bodyProvider);
+        return CreateMethod (declaringType, interfaceMethod, interfaceMethod.Name, attributes, bodyProvider);
       }
 
       return GetOrCreateOverride (declaringType, baseImplementation, out isNewlyCreated);
@@ -157,7 +157,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (bodyProviderOrNull != null)
         attributes = attributes.Unset (MethodAttributes.Abstract);
 
-      var method = CreateOverride (declaringType, overriddenMethodBaseDefinition, name, attributes, bodyProviderOrNull);
+      var method = CreateMethod (declaringType, overriddenMethodBaseDefinition, name, attributes, bodyProviderOrNull);
       method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
 
       return method;
@@ -178,7 +178,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
       try
       {
-        return CreateOverride (declaringType, ifcMethod, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
+        return CreateMethod (declaringType, ifcMethod, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
       }
       catch (InvalidOperationException)
       {
@@ -190,14 +190,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       }
     }
 
-    private MutableMethodInfo CreateOverride (
+    private MutableMethodInfo CreateMethod (
         MutableType declaringType,
-        MethodInfo overriddenMethod,
+        MethodInfo template,
         string name,
         MethodAttributes attributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      var md = MethodDeclaration.CreateEquivalent (overriddenMethod);
+      var md = MethodDeclaration.CreateEquivalent (template);
       return _methodFactory.CreateMethod (
           declaringType, name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
     }
