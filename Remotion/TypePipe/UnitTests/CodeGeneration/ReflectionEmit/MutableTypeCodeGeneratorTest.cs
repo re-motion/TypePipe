@@ -184,7 +184,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var mutableType = MutableTypeObjectMother.CreateInterface();
       Assert.That (mutableType.BaseType, Is.Null);
       Assert.That (mutableType.MutableTypeInitializer, Is.Null);
-      Assert.That (mutableType.Initializations, Is.Empty);
+      Assert.That (mutableType.Initialization.Expressions, Is.Empty);
 
       var generator = new MutableTypeCodeGenerator (
           mutableType,

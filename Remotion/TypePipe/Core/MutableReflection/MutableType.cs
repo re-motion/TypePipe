@@ -40,8 +40,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     private readonly CustomAttributeContainer _customAttributes = new CustomAttributeContainer();
-    private readonly List<MutableType> _addedNestedTypes = new List<MutableType>(); 
-    private readonly List<Expression> _initializations = new List<Expression>();
+    private readonly List<MutableType> _addedNestedTypes = new List<MutableType>();
+    private readonly InstanceInitialization _initialization = new InstanceInitialization();
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
@@ -89,9 +89,9 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _typeInitializer; }
     }
 
-    public ReadOnlyCollection<Expression> Initializations
+    public InstanceInitialization Initialization
     {
-      get { return _initializations.AsReadOnly(); }
+      get { return _initialization; }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -181,13 +181,13 @@ namespace Remotion.TypePipe.MutableReflection
     /// </para>
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>
-    /// <seealso cref="Initializations"/>
+    /// <seealso cref="Initialization"/>
     public void AddInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
       var initialization = _mutableMemberFactory.CreateInitialization (this, initializationProvider);
-      _initializations.Add (initialization);
+      _initialization.Expressions.Add (initialization);
     }
 
     public void AddInterface (Type interfaceType, bool throwIfAlreadyImplemented = true)

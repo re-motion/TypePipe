@@ -17,7 +17,6 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
@@ -51,6 +50,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           {
             Assert.That (ctx.DeclaringType, Is.SameAs (_mutableType));
             Assert.That (ctx.IsStatic, Is.False);
+            Assert.That (ctx.InitializationSemantics, Is.SameAs (_mutableType.Initialization.Semantics));
 
             return fakeExpression;
           });

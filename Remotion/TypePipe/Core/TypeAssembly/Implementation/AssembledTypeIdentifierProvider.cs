@@ -91,8 +91,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (AssembledTypeID));
       var typeIDExpression = CreateNewTypeIDExpression (
           s_assembledTypeIDConstructor, typeID.RequestedType, typeID.Parts, typeof (object), (p, id) => p.GetExpression (id), "GetExpression");
+      var typeIDFieldInitialization = Expression.Assign (Expression.Field (null, typeIDField), typeIDExpression);
 
-      proxyType.AddTypeInitialization (ctx => Expression.Assign (Expression.Field (null, typeIDField), typeIDExpression));
+      proxyType.AddTypeInitialization (typeIDFieldInitialization);
     }
 
     public AssembledTypeID ExtractTypeID (Type assembledType)

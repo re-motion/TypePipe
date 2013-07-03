@@ -30,12 +30,10 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class MutableTypeExtensions
   {
-    public static void AddTypeInitialization (this MutableType declaringType, Func<InitializationBodyContext, Expression> typeInitializationProvider)
+    public static void AddTypeInitialization (this MutableType declaringType, Expression typeInitialization)
     {
-      ArgumentUtility.CheckNotNull ("typeInitializationProvider", typeInitializationProvider);
-
-      var context = new InitializationBodyContext (declaringType, isStatic: true);
-      var typeInitialization = ProviderUtility.GetNonNullValue (typeInitializationProvider, context, "typeInitializationProvider");
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("typeInitialization", typeInitialization);
 
       if (declaringType.MutableTypeInitializer == null)
         declaringType.AddTypeInitializer (ctx => typeInitialization);

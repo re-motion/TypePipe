@@ -16,7 +16,7 @@
 // 
 using System;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.TypePipe.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -25,18 +25,19 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public class InitializationBodyContext : BodyContextBase
   {
-    // TODO 5370 remove.
-    public static readonly Expression InitilizationSemanticsPlaceHolder = 
-      Expression.Parameter (typeof (InitializationSemantics), "initializationSemantics");
+    private readonly ParameterExpression _initializationSemantics;
 
-    public InitializationBodyContext (MutableType declaringType, bool isStatic)
+    public InitializationBodyContext (MutableType declaringType, bool isStatic, ParameterExpression initializationSemantics)
         : base (declaringType, isStatic)
     {
+      ArgumentUtility.CheckNotNull ("initializationSemantics", initializationSemantics);
+
+      _initializationSemantics = initializationSemantics;
     }
 
-    public Expression InitializationSemantics
+    public ParameterExpression InitializationSemantics
     {
-      get { return InitilizationSemanticsPlaceHolder; }
+      get { return _initializationSemantics; }
     }
   }
 }

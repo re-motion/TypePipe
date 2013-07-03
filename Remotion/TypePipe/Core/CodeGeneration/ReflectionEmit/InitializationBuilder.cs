@@ -23,6 +23,7 @@ using Remotion.Collections;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
@@ -41,7 +42,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
-      if (mutableType.Initializations.Count == 0)
+      var initialization = mutableType.Initialization;
+      if (initialization.Expressions.Count == 0)
         return null;
 
       mutableType.AddInterface (typeof (IInitializableObject));
@@ -50,19 +52,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var nonSerializedCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
       counter.AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedCtor, new object[0]));
 
-      var initializationMethod = mutableType.AddExplicitOverride (
-          s_interfaceMethod,
-          ctx => CreateInitializationBody (ctx, mutableType.Initializations));
+      var initializationMethod = mutableType.AddExplicitOverride (s_interfaceMethod, ctx => CreateInitializationBody (ctx, initialization));
 
       return Tuple.Create<FieldInfo, MethodInfo> (counter, initializationMethod);
     }
 
-    private Expression CreateInitializationBody (MethodBodyCreationContext ctx, IEnumerable<Expression> initializations)
+    private Expression CreateInitializationBody (MethodBodyCreationContext ctx, InstanceInitialization initialization)
     {
-      var replacements = new Dictionary<Expression, Expression> { { InitializationBodyContext.InitilizationSemanticsPlaceHolder, ctx.Parameters[0] } };
-      var adjustedInitializations = initializations.Select (e => e.Replace (replacements));
+      var replacements = new Dictionary<Expression, Expression> { { initialization.Semantics, ctx.Parameters[0] } };
+      var adjustedInitializations = initialization.Expressions.Select (e => e.Replace (replacements));
 
-      return Expression.Block (typeof (void), adjustedInitializations);
+      return Expression.Block (typeof (void), new[] { initialization.Semantics }, adjustedInitializations);
     }
 
     public void WireConstructorWithInitialization (

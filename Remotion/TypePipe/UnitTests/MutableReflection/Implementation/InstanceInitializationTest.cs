@@ -35,14 +35,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void InitializationSemantics ()
     {
-      Assert.That (_initialization.InitializationSemantics.Type, Is.SameAs (typeof (InitializationSemantics)));
-      Assert.That (_initialization.InitializationSemantics.Name, Is.EqualTo ("initializationSemantics"));
+      Assert.That (_initialization.Semantics.Type, Is.SameAs (typeof (InitializationSemantics)));
+      Assert.That (_initialization.Semantics.Name, Is.EqualTo ("initializationSemantics"));
     }
 
     [Test]
     public void Initializations ()
     {
-      Assert.That (_initialization.Initializations, Is.Empty);
+      Assert.That (_initialization.Expressions, Is.Empty);
     }
   }
 }

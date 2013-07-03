@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var participant = CreateParticipant (
           proxyType =>
           {
-            Assert.That (proxyType.Initializations, Is.Empty);
+            Assert.That (proxyType.Initialization.Expressions, Is.Empty);
 
             proxyType.AddInitialization (
                 ctx =>
@@ -105,7 +105,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
                               Expression.Constant (" deserialization"))));
                 });
 
-            Assert.That (proxyType.Initializations, Is.Not.Empty);
+            Assert.That (proxyType.Initialization.Expressions, Is.Not.Empty);
           });
 
       return CreatePipeline (new[] { participant });
