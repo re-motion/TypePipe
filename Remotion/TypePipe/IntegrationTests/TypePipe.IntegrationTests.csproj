@@ -103,6 +103,7 @@
     <Compile Include="TypeAssembly\GenericParameterConversionsTest.cs" />
     <Compile Include="TypeAssembly\GenericParameterMemberAccessTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
+    <Compile Include="TypeAssembly\MethodAttributesOnOverrideTest.cs" />
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
     <Compile Include="TypeAssembly\MutableTypeInSignaturesTest.cs" />
     <Compile Include="Pipeline\ParticipantStateTest.cs" />
