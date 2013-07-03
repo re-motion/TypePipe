@@ -60,7 +60,7 @@ namespace Remotion.TypePipe
     /// during deserialization.
     /// </summary>
     /// <param name="instance">The assembled type instance which should be prepared.</param>
-    /// <param name="semantics">The reason or semantics to apply during the initialization.</param>
-    void PrepareExternalUninitializedObject (object instance, InitializationSemantics semantics);
+    /// <param name="initializationSemantics">The semantics to apply during initialization.</param>
+    void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics);
   }
 }

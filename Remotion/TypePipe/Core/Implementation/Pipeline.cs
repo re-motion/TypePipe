@@ -90,13 +90,13 @@ namespace Remotion.TypePipe.Implementation
       return instance;
     }
 
-    public void PrepareExternalUninitializedObject (object instance, InitializationSemantics semantics)
+    public void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics)
     {
       ArgumentUtility.CheckNotNull ("instance", instance);
 
       var initializableInstance = instance as IInitializableObject;
       if (initializableInstance != null)
-        initializableInstance.Initialize (semantics);
+        initializableInstance.Initialize (initializationSemantics);
     }
   }
 }
