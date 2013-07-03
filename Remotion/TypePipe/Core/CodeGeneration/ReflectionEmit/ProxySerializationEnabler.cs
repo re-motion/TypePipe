@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Collections;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
@@ -133,12 +134,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                   new[] { ctx.PreviousBody }.Concat (BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
     }
 
-    private static void OverrideOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
+    private void OverrideOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
     {
       try
       {
         proxyType.GetOrAddImplementation (s_onDeserializationMethod)
-                 .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
+                 .SetBody (
+                     ctx => Expression.Block (
+                         typeof (void),
+                         ctx.PreviousBody,
+                         CallInitializationMethod (ctx.This, initializationMethod)));
       }
       catch (NotSupportedException)
       {
@@ -156,10 +161,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       }
     }
 
-    private static void ExplicitlyImplementOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
+    private void ExplicitlyImplementOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
     {
       proxyType.AddInterface (typeof (IDeserializationCallback));
-      proxyType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
+      proxyType.AddExplicitOverride (s_onDeserializationMethod, ctx => CallInitializationMethod (ctx.This, initializationMethod));
+    }
+
+    private static MethodCallExpression CallInitializationMethod (Expression @this, MethodInfo initializationMethod)
+    {
+      return Expression.Call (@this, initializationMethod, Expression.Constant (InitializationSemantics.Deserialization));
     }
 
     private IEnumerable<Expression> BuildFieldSerializationExpressions (

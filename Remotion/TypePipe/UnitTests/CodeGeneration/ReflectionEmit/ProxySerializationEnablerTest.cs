@@ -37,6 +37,7 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
+  [Ignore("TODO 5370")]
   public class ProxySerializationEnablerTest
   {
     private ISerializableFieldFinder _serializableFieldFinderMock;

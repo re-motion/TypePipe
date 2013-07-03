@@ -32,6 +32,6 @@ namespace Remotion.TypePipe.Implementation
   /// </remarks>
   public interface IInitializableObject
   {
-    void Initialize ();
+    void Initialize (InitializationSemantics semantics);
   }
 }

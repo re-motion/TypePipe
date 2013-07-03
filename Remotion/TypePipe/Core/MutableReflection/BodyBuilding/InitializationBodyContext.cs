@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
@@ -23,9 +25,16 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public class InitializationBodyContext : BodyContextBase
   {
+    public static readonly Expression InitilizationSemanticsPlaceHolder = Expression.Parameter (typeof (InitializationSemantics), "semantics");
+
     public InitializationBodyContext (MutableType declaringType, bool isStatic)
         : base (declaringType, isStatic)
     {
+    }
+
+    public Expression InitializationSemantics
+    {
+      get { return InitilizationSemanticsPlaceHolder; }
     }
   }
 }

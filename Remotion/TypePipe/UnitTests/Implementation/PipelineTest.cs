@@ -19,6 +19,7 @@ using System;
 using System.Collections.ObjectModel;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
+using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
@@ -153,16 +154,17 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void PrepareAssembledTypeInstance_Initializable ()
     {
       var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
+      var reason = BooleanObjectMother.GetRandomBoolean() ? InitializationSemantics.Construction : InitializationSemantics.Deserialization;
 
-      _pipeline.PrepareExternalUninitializedObject (initializableObjectMock);
+      _pipeline.PrepareExternalUninitializedObject (initializableObjectMock, reason);
 
-      initializableObjectMock.AssertWasCalled (mock => mock.Initialize());
+      initializableObjectMock.AssertWasCalled (mock => mock.Initialize (reason));
     }
 
     [Test]
     public void PrepareAssembledTypeInstance_NonInitializable ()
     {
-      Assert.That (() => _pipeline.PrepareExternalUninitializedObject (new object()), Throws.Nothing);
+      Assert.That (() => _pipeline.PrepareExternalUninitializedObject (new object(), 0), Throws.Nothing);
     }
 
     class RequestedType { }
