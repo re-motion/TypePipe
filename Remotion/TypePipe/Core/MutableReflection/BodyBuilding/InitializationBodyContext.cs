@@ -21,7 +21,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 {
   /// <summary>
-  /// Provides access to expressions needed for building initializations.
+  /// Provides access to expressions needed for building instance initializations.
   /// </summary>
   public class InitializationBodyContext : BodyContextBase
   {
@@ -35,6 +35,10 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _initializationSemantics = initializationSemantics;
     }
 
+    /// <summary>
+    /// Represents a parameter of type <see cref="TypePipe.Implementation.InitializationSemantics"/> which can be used to determine the
+    /// initialization context in which the code is executed.
+    /// </summary>
     public ParameterExpression InitializationSemantics
     {
       get { return _initializationSemantics; }

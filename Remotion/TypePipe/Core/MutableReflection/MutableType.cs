@@ -166,8 +166,8 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Adds instance initialization code.
-    /// The initialization code is executed exactly once after object creation or deserialization.
+    /// Adds instance initialization code. The initialization code is executed exactly once after object creation or deserialization.
+    /// Use <see cref="InitializationBodyContext.InitializationSemantics"/> to distinguish between object creation and deserialization.
     /// </summary>
     /// <remarks>
     /// <note type="warning">

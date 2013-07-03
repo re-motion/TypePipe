@@ -21,17 +21,27 @@ using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
-  // TODO 5370
+  /// <summary>
+  /// Holds instance initialization code.
+  /// </summary>
   public class InstanceInitialization
   {
     private readonly ParameterExpression _semantics = Expression.Parameter (typeof (InitializationSemantics), "initializationSemantics");
     private readonly List<Expression> _initailizations = new List<Expression>();
 
+    /// <summary>
+    /// Represents a parameter of type <see cref="InitializationSemantics"/> which can be used to determine the
+    /// initialization context in which the code is executed.
+    /// </summary>
     public ParameterExpression Semantics
     {
       get { return _semantics; }
     }
 
+    /// <summary>
+    /// A list of expressions that represent the initialization code.
+    /// The code may use <see cref="Semantics"/> to determine in which initialization context it is executed.
+    /// </summary>
     public List<Expression> Expressions
     {
       get { return _initailizations; }

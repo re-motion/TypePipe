@@ -14,9 +14,14 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+using Remotion.TypePipe.MutableReflection;
+
 namespace Remotion.TypePipe.Implementation
 {
-  // TODO 5370
+  /// <summary>
+  /// Represents the initialization semantics in which code that was added via <see cref="MutableType.AddInitialization"/> is run.
+  /// </summary>
   public enum InitializationSemantics
   {
     Construction,
