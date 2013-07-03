@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   // TODO 5370
   public class InstanceInitialization
   {
-    private readonly ParameterExpression _semantics = Expression.Variable (typeof (InitializationSemantics), "initializationSemantics");
+    private readonly ParameterExpression _semantics = Expression.Parameter (typeof (InitializationSemantics), "initializationSemantics");
     private readonly List<Expression> _initailizations = new List<Expression>();
 
     public ParameterExpression Semantics

@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Collections;
@@ -26,7 +27,6 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Remotion.TypePipe.Expressions;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -60,9 +60,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private Expression CreateInitializationBody (MethodBodyCreationContext ctx, InstanceInitialization initialization)
     {
       var replacements = new Dictionary<Expression, Expression> { { initialization.Semantics, ctx.Parameters[0] } };
-      var adjustedInitializations = initialization.Expressions.Select (e => e.Replace (replacements));
+      var initializations = initialization.Expressions.Select (e => e.Replace (replacements));
 
-      return Expression.Block (typeof (void), new[] { initialization.Semantics }, adjustedInitializations);
+      return Expression.Block (typeof (void), initializations);
     }
 
     public void WireConstructorWithInitialization (
