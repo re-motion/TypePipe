@@ -17,7 +17,7 @@
 namespace Remotion.TypePipe.Implementation
 {
   // TODO 5370
-  public enum InitializationReason
+  public enum InitializationSemantics
   {
     Construction,
     Deserialization
