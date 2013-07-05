@@ -67,12 +67,12 @@ namespace Remotion.TypePipe.Configuration
     public PipelineSettings GetSettings ()
     {
       // TODO 5370: Give possibility to configure default pipeline name!?
-      return new PipelineSettings ("remotion-default-pipeline")
-             {
-                 ForceStrongNaming = ForceStrongNaming,
-                 KeyFilePath = KeyFilePath,
-                 EnableSerializationWithoutAssemblySaving = EnableSerializationWithoutAssemblySaving
-             };
+      return PipelineSettings
+          .WithParticipantConfigurationID ("remotion-default-pipeline")
+          .SetForceStrongNaming (ForceStrongNaming)
+          .SetKeyFilePath (KeyFilePath)
+          .SetEnableSerializationWithoutAssemblySaving (EnableSerializationWithoutAssemblySaving)
+          .Build();
     }
   }
 }

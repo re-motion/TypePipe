@@ -42,7 +42,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       _participantProviders = participantProviders;
 
       var participants = _participantProviders.Select (pp => pp()).ToArray();
-      var settings = new PipelineSettings (c_participantConfigurationID) { EnableSerializationWithoutAssemblySaving = true };
+      var settings = PipelineSettings.WithParticipantConfigurationID (c_participantConfigurationID)
+                                     .SetEnableSerializationWithoutAssemblySaving (true)
+                                     .Build();
 
       return CreatePipeline (settings, participants);
     }

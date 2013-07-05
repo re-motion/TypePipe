@@ -49,7 +49,8 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
 
-      return Create (new PipelineSettings (participantConfigurationID), participants);
+      var settings = PipelineSettings.WithParticipantConfigurationID (participantConfigurationID).Build();
+      return Create (settings, participants);
     }
 
     /// <summary>

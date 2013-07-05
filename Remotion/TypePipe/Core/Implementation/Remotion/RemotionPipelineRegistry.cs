@@ -37,13 +37,13 @@ namespace Remotion.TypePipe.Implementation.Remotion
       var settings = new AppConfigBasedSettingsProvider().GetSettings();
       // TODO 5730: This should be set via config files when implemented.
       // It is now implemented, so we just need to add config files!!!
-      settings.EnableSerializationWithoutAssemblySaving = true;
+      var settings2 = PipelineSettings.From (settings).SetEnableSerializationWithoutAssemblySaving (true).Build();
 
-      return remotionPipelineFactory.CreatePipeline (settings, defaultPipelineParticipants);
+      return remotionPipelineFactory.CreatePipeline (settings2, defaultPipelineParticipants);
     }
 
-    public RemotionPipelineRegistry (IEnumerable<IParticipant> defaultPipelineParticipant)
-        : base (CreateDefaultPipeline (ArgumentUtility.CheckNotNull ("defaultPipelineParticipant", defaultPipelineParticipant)))
+    public RemotionPipelineRegistry (IEnumerable<IParticipant> defaultPipelineParticipants)
+        : base (CreateDefaultPipeline (ArgumentUtility.CheckNotNull ("defaultPipelineParticipants", defaultPipelineParticipants)))
     {
     }
   }

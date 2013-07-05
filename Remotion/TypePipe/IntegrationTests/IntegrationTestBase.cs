@@ -127,7 +127,8 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IPipeline CreatePipeline (string participantConfigurationID, params IParticipant[] participants)
     {
-      return CreatePipeline (new PipelineSettings (participantConfigurationID), participants);
+      var settings = PipelineSettings.WithParticipantConfigurationID (participantConfigurationID).Build();
+      return CreatePipeline (settings, participants);
     }
 
     protected IPipeline CreatePipeline (PipelineSettings settings, params IParticipant[] participants)

@@ -296,7 +296,11 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
     private IPipeline CreateObjectFactoryForStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null)
     {
-      var settings = new PipelineSettings ("StrongNamingTest") { ForceStrongNaming = forceStrongNaming, KeyFilePath = keyFilePath };
+      var settings = PipelineSettings
+          .WithParticipantConfigurationID ("StrongNamingTest")
+          .SetForceStrongNaming (forceStrongNaming)
+          .SetKeyFilePath (keyFilePath)
+          .Build();
       return CreatePipeline (settings, participant);
     }
 
