@@ -23,6 +23,7 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 
@@ -31,6 +32,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class PipelineTest
   {
+    private PipelineSettings _settings;
     private ITypeCache _typeCacheMock;
     private ICodeManager _codeManagerMock;
     private IReflectionService _reflectionServiceMock;
@@ -42,11 +44,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
+      _settings = new PipelineSettings ("participant config");
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
       _reflectionServiceMock = MockRepository.GenerateStrictMock<IReflectionService>();
 
-      _pipeline = new Pipeline (_typeCacheMock, _codeManagerMock, _reflectionServiceMock);
+      _pipeline = new Pipeline (_settings, _typeCacheMock, _codeManagerMock, _reflectionServiceMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
     }
@@ -54,6 +57,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void Initialization ()
     {
+      Assert.That (_pipeline.Settings, Is.SameAs (_settings));
       Assert.That (_pipeline.CodeManager, Is.SameAs (_codeManagerMock));
       Assert.That (_pipeline.ReflectionService, Is.SameAs (_reflectionServiceMock));
     }

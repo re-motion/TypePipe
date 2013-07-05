@@ -19,6 +19,7 @@ using System;
 using System.Collections.ObjectModel;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -28,16 +29,19 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class Pipeline : IPipeline
   {
+    private readonly PipelineSettings _settings;
     private readonly ITypeCache _typeCache;
     private readonly ICodeManager _codeManager;
     private readonly IReflectionService _reflectionService;
 
-    public Pipeline (ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
     {
+      ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
       ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
 
+      _settings = settings; // TODO 5370: defensive copy.
       _typeCache = typeCache;
       _codeManager = codeManager;
       _reflectionService = reflectionService;
@@ -46,6 +50,12 @@ namespace Remotion.TypePipe.Implementation
     public string ParticipantConfigurationID
     {
       get { return _typeCache.ParticipantConfigurationID; }
+    }
+
+    // TODO 5370: Defensive copy.
+    public PipelineSettings Settings
+    {
+      get { return _settings; }
     }
 
     public ReadOnlyCollection<IParticipant> Participants

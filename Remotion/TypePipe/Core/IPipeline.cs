@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe
@@ -33,7 +34,11 @@ namespace Remotion.TypePipe
     /// Gets the participant configuration ID which describes the participants and their configuration.
     /// <see cref="IPipeline"/> instances with equal <see cref="ParticipantConfigurationID"/>s must generate equivalent types.
     /// </summary>
+    // TODO 5370: Remove?!
     string ParticipantConfigurationID { get; }
+
+    // TODO 5370: Docs
+    PipelineSettings Settings { get; }
 
     /// <summary>
     /// Gets the participants used by this <see cref="IPipeline"/> instance.

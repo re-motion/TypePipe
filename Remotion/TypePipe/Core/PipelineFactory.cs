@@ -80,12 +80,13 @@ namespace Remotion.TypePipe
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
       var reflectionService = NewReflectionService (synchronizationPoint, typeCache);
 
-      return NewPipeline (typeCache, codeManager, reflectionService);
+      return NewPipeline (settings, typeCache, codeManager, reflectionService);
     }
 
-    protected virtual IPipeline NewPipeline (ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+    protected virtual IPipeline NewPipeline (
+        PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
     {
-      return new Pipeline (typeCache, codeManager, reflectionService);
+      return new Pipeline (settings, typeCache, codeManager, reflectionService);
     }
 
     protected virtual ICodeManager NewCodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
@@ -134,7 +135,7 @@ namespace Remotion.TypePipe
       var initializationBuilder = NewInitializationBuilder();
       var proxySerializationEnabler = NewProxySerializationEnabler();
       var nestedTypeCodeGeneratorFactory = NewMutableNestedTypeCodeGeneratorFactory (
-          reflectionEmitCodeGenerator, memberEmitterFactory, initializationBuilder, proxySerializationEnabler);
+          reflectionEmitCodeGenerator, initializationBuilder, proxySerializationEnabler);
 
       return new MutableTypeCodeGeneratorFactory (
           nestedTypeCodeGeneratorFactory, memberEmitterFactory, reflectionEmitCodeGenerator, initializationBuilder, proxySerializationEnabler);
@@ -143,7 +144,6 @@ namespace Remotion.TypePipe
     [CLSCompliant (false)]
     protected virtual MutableNestedTypeCodeGeneratorFactory NewMutableNestedTypeCodeGeneratorFactory (
         IReflectionEmitCodeGenerator reflectionEmitCodeGenerator,
-        IMemberEmitterFactory memberEmitterFactory,
         IInitializationBuilder initializationBuilder,
         IProxySerializationEnabler proxySerializationEnabler)
     {

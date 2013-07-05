@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.Configuration
   /// Holds configuration options pipelines created via 
   /// <see cref="PipelineFactory.Create(Remotion.TypePipe.Configuration.PipelineSettings,Remotion.TypePipe.IParticipant[])"/>.
   /// </summary>
+  // TODO 5370: Make immutable object to avoid defensive copies.
   public class PipelineSettings
   {
     private readonly string _participantConfigurationID;
@@ -33,6 +34,16 @@ namespace Remotion.TypePipe.Configuration
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
       _participantConfigurationID = participantConfigurationID;
+    }
+
+    public PipelineSettings (PipelineSettings settings)
+    {
+      ArgumentUtility.CheckNotNull ("settings", settings);
+
+      _participantConfigurationID = settings.ParticipantConfigurationID;
+      ForceStrongNaming = settings.ForceStrongNaming;
+      KeyFilePath = settings.KeyFilePath;
+      EnableSerializationWithoutAssemblySaving = settings.EnableSerializationWithoutAssemblySaving;
     }
 
     /// <summary>
