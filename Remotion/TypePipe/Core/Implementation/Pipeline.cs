@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
       ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
 
-      _settings = settings; // TODO 5370: defensive copy.
+      _settings = settings;
       _typeCache = typeCache;
       _codeManager = codeManager;
       _reflectionService = reflectionService;
@@ -52,7 +52,6 @@ namespace Remotion.TypePipe.Implementation
       get { return _typeCache.ParticipantConfigurationID; }
     }
 
-    // TODO 5370: Defensive copy.
     public PipelineSettings Settings
     {
       get { return _settings; }

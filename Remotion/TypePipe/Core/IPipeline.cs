@@ -34,10 +34,14 @@ namespace Remotion.TypePipe
     /// Gets the participant configuration ID which describes the participants and their configuration.
     /// <see cref="IPipeline"/> instances with equal <see cref="ParticipantConfigurationID"/>s must generate equivalent types.
     /// </summary>
-    // TODO 5370: Remove?!
+    // Implementation note: Although this property could be removed in favor of Settings.ParticipantConfigurationID we don't want to do this
+    // because the TypeAssembler containing the participants is the ultimate source of truth. We might calculate the ID in the TypeAssember directly
+    // from the configured participants someday, which would remove the Settings.ParticipantConfigurationID property.
     string ParticipantConfigurationID { get; }
 
-    // TODO 5370: Docs
+    /// <summary>
+    /// Gets the configuration settings of the pipeline.
+    /// </summary>
     PipelineSettings Settings { get; }
 
     /// <summary>
