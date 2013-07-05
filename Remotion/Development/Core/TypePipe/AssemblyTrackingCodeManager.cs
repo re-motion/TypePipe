@@ -45,6 +45,12 @@ namespace Remotion.Development.TypePipe
       get { return _savedAssemblies.AsReadOnly(); }
     }
 
+    public void AddSavedAssembly (string assemblyPath)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("assemblyPath", assemblyPath);
+      _savedAssemblies.Add (assemblyPath);
+    }
+
     public void PeVerifySavedAssemblies ()
     {
       foreach (var assemblyPath in _savedAssemblies)
