@@ -508,6 +508,7 @@ namespace System.Linq.Expressions.Compiler {
                 il.EmitType(t);
                 // Commented out to avoid the following issue which prevents .NET 4.0 compatibility (RM-5560).
                 // https://connect.microsoft.com/VisualStudio/feedback/details/785822/lambdaexpression-compiletomethod-generates-code-that-throws-an-typeaccessexception-for-certain-expressions
+                // Don't cast to RuntimeType.
                 //if (type != typeof(Type)) {
                 //    il.Emit(OpCodes.Castclass, type);
                 //}
@@ -524,8 +525,17 @@ namespace System.Linq.Expressions.Compiler {
                 } else {
                     il.Emit(OpCodes.Call, typeof(MethodBase).GetMethod("GetMethodFromHandle", new Type[] { typeof(RuntimeMethodHandle) }));
                 }
-                if (type != typeof(MethodBase)) {
-                    il.Emit(OpCodes.Castclass, type);
+                // Commented out to avoid the following issue which prevents .NET 4.0 compatibility (RM-5560).
+                // https://connect.microsoft.com/VisualStudio/feedback/details/785822/lambdaexpression-compiletomethod-generates-code-that-throws-an-typeaccessexception-for-certain-expressions
+                // Don't cast to RuntimeMethodInfo or RuntimeConstructorInfo, cast to MethodInfo or ConstructorInfo instead (MethodBase.GetMethodFromHandle only returns MethodBase).
+                //if (type != typeof(MethodBase)) {
+                //    il.Emit(OpCodes.Castclass, type);
+                //}
+                if (typeof(MethodInfo).IsTypePipeAssignableFrom(type)) {
+                    il.Emit(OpCodes.Castclass, typeof(MethodInfo));
+                }
+                if (typeof(ConstructorInfo).IsTypePipeAssignableFrom(type)) {
+                    il.Emit(OpCodes.Castclass, typeof(ConstructorInfo));
                 }
                 return;
             }
