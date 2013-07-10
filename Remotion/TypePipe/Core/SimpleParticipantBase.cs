@@ -17,12 +17,17 @@
 
 using System;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.TypePipe
 {
-  // TODO 5370
+  /// <summary>
+  /// A base class for simple participants that do not need to implement the full <see cref="IParticipant"/> contract.
+  /// Such a participant does not use context-sensitive data to generate types, i.e., the modifications only depend on the requested type.
+  /// Furthermore it does not accumulate state, create additionaly types or handle non-subclassable requested types.
+  /// If one of these features is required the participant may override the appropriate method in this base class or implement
+  /// <see cref="IParticipant"/> directly.
+  /// </summary>
   public abstract class SimpleParticipantBase : IParticipant
   {
     public virtual ITypeIdentifierProvider PartialTypeIdentifierProvider
