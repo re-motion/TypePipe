@@ -79,5 +79,12 @@ namespace Remotion.TypePipe.Implementation
 
       return _typeCache.GetOrCreateAdditionalType (additionalTypeID);
     }
+
+    public object InstantiateAssembledType (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      return null;
+    }
   }
 }

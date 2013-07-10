@@ -86,5 +86,12 @@ namespace Remotion.TypePipe.Implementation
     /// Note that this method triggers code generation if the respective additional type is not yet cached by a participant.
     /// </remarks>
     Type GetAdditionalType (object additionalTypeID);
+
+    /// <summary>
+    /// Creates a new instance of the given assembled type.
+    /// </summary>
+    /// <param name="assembledType">The assembled type.</param>
+    /// <returns>A newly constructed instance of the assembled type.</returns>
+    object InstantiateAssembledType (Type assembledType);
   }
 }
