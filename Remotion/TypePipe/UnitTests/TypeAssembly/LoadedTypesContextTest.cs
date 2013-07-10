@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.TypeAssembly;
 

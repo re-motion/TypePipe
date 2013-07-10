@@ -26,15 +26,15 @@ namespace Remotion.TypePipe.TypeAssembly
   public struct LoadedProxy
   {
     private readonly Type _requestedType;
-    private readonly Type _generatedType;
+    private readonly Type _assembledType;
 
-    public LoadedProxy (Type requestedType, Type generatedType)
+    public LoadedProxy (Type requestedType, Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("generatedType", generatedType);
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
       _requestedType = requestedType;
-      _generatedType = generatedType;
+      _assembledType = assembledType;
     }
 
     /// <summary>
@@ -46,11 +46,11 @@ namespace Remotion.TypePipe.TypeAssembly
     }
 
     /// <summary>
-    /// Gets the proxy <see cref="Type"/> that was generated for the <see cref="RequestedType"/>.
+    /// Gets the proxy <see cref="Type"/> that was assembled for the <see cref="RequestedType"/>.
     /// </summary>
-    public Type GeneratedType
+    public Type AssembledType
     {
-      get { return _generatedType; }
+      get { return _assembledType; }
     }
   }
 }

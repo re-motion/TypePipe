@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             Assert.That (loadedProxy.RequestedType, Is.SameAs (typeof (RequestedType1)));
             Assert.That (additionalType.FullName, Is.EqualTo ("MyNs.AdditionalType"));
 
-            loadedType = loadedProxy.GeneratedType;
+            loadedType = loadedProxy.AssembledType;
             ctx.State["key"] = "reconstructed state";
           },
           participateAction: (id, ctx) =>
