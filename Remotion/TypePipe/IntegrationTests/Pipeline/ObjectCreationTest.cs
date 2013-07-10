@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       base.SetUp ();
 
       _modifyingPipeline = CreatePipeline ();
-      _nonModifyingPipeline = PipelineFactory.Create ("NoModification");
+      _nonModifyingPipeline = PipelineFactory.Create ("no-modifications");
     }
 
     [Test]
@@ -86,6 +86,18 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       Assert.That (instance1.String, Is.EqualTo ("7"));
       Assert.That (instance2.String, Is.EqualTo ("8"));
+    }
+
+    [Test]
+    public void CreatingAnAssembledType_Throws ()
+    {
+      var assembledType1 = _nonModifyingPipeline.ReflectionService.GetAssembledType (typeof (DomainType));
+      var assembledType2 = _modifyingPipeline.ReflectionService.GetAssembledType (typeof (DomainType));
+
+      Assert.That (() => _nonModifyingPipeline.Create (assembledType1), Throws.Nothing);
+      Assert.That (
+          () => _modifyingPipeline.Create (assembledType2),
+          Throws.ArgumentException.With.Message.EqualTo ("The provided requested type '" + assembledType2.Name + "' is already an assembled type."));
     }
 
     [Test]

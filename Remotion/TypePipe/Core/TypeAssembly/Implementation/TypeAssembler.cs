@@ -117,7 +117,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
       var requestedType = typeID.RequestedType;
-      if (!CheckIsSubclassable (requestedType))
+      CheckRequestedType (requestedType);
+
+      if (ShortCircuitTypeAssembly (requestedType))
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
@@ -173,15 +175,25 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         participant.RebuildState (loadedTypesContext);
     }
 
-    private bool CheckIsSubclassable (Type requestedType)
+    private void CheckRequestedType (Type requestedType)
     {
-      if (SubclassFilterUtility.IsSubclassable (requestedType))
-        return true;
+      if (IsAssembledType (requestedType))
+      {
+        var message = string.Format ("The provided requested type '{0}' is already an assembled type.", requestedType.Name);
+        throw new ArgumentException (message);
+      }
+    }
 
-      foreach (var participant in _participants)
-        participant.HandleNonSubclassableType (requestedType);
+    private bool ShortCircuitTypeAssembly (Type requestedType)
+    {
+      var isNonSubclassable = !SubclassFilterUtility.IsSubclassable (requestedType);
+      if (isNonSubclassable)
+      {
+        foreach (var participant in _participants)
+          participant.HandleNonSubclassableType (requestedType);
+      }
 
-      return false;
+      return isNonSubclassable;
     }
 
     private GeneratedTypesContext GenerateTypes (AssembledTypeID typeID, ProxyTypeAssemblyContext context, IMutableTypeBatchCodeGenerator codeGenerator)

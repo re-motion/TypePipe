@@ -44,6 +44,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
     private AssembledTypeID _typeID;
     private Type _requestedType;
+    private Type _assembledType;
     private IDictionary<string, object> _participantState;
 
     [SetUp]
@@ -52,8 +53,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
       _complexSerializationEnablerMock = MockRepository.GenerateStrictMock<IComplexSerializationEnabler>();
 
-      _requestedType = ReflectionObjectMother.GetSomeSubclassableType();
+      _requestedType = typeof (RequestedType);
       _typeID = AssembledTypeIDObjectMother.Create (_requestedType);
+      _assembledType = typeof (AssembledType);
       _participantState = new Dictionary<string, object>();
     }
 
@@ -80,26 +82,22 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     [Test]
     public void IsAssembledType ()
     {
-      var assembledType = typeof (AssembledType);
-      var assembledTypeSubclass = typeof (AssembledTypeSubclass);
-      var otherType = ReflectionObjectMother.GetSomeType();
-
+      Assert.That (typeof (AssembledTypeSubclass).BaseType, Is.SameAs (typeof (AssembledType)));
       var typeAssembler = CreateTypeAssembler();
 
-      Assert.That (typeAssembler.IsAssembledType (assembledType), Is.True);
-      Assert.That (typeAssembler.IsAssembledType (assembledTypeSubclass), Is.False);
-      Assert.That (typeAssembler.IsAssembledType (otherType), Is.False);
+      Assert.That (typeAssembler.IsAssembledType (typeof (AssembledType)), Is.True);
+      Assert.That (typeAssembler.IsAssembledType (typeof (AssembledTypeSubclass)), Is.False);
+      Assert.That (typeAssembler.IsAssembledType (typeof (object)), Is.False);
     }
 
     [Test]
     public void GetRequestedType ()
     {
-      var assembledType = typeof (AssembledType);
       var otherType = ReflectionObjectMother.GetSomeType();
 
       var typeAssembler = CreateTypeAssembler();
 
-      Assert.That (typeAssembler.GetRequestedType (assembledType), Is.SameAs (typeof (RequestedType)));
+      Assert.That (typeAssembler.GetRequestedType (_assembledType), Is.SameAs (typeof (RequestedType)));
       Assert.That (
           () => typeAssembler.GetRequestedType (otherType),
           Throws.ArgumentException.With.Message.EqualTo ("The argument type is not an assembled type.\r\nParameter name: assembledType"));
@@ -126,15 +124,14 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     [Test]
     public void ExtractTypeID ()
     {
-      var assembledType = typeof (AssembledType);
       var otherType = ReflectionObjectMother.GetSomeType();
       var fakeTypeID = AssembledTypeIDObjectMother.Create();
       var assembledTypeIdentifierProviderStub = MockRepository.GenerateStub<IAssembledTypeIdentifierProvider>();
-      assembledTypeIdentifierProviderStub.Stub (_ => _.ExtractTypeID (assembledType)).Return (fakeTypeID);
+      assembledTypeIdentifierProviderStub.Stub (_ => _.ExtractTypeID (_assembledType)).Return (fakeTypeID);
 
       var typeAssembler = CreateTypeAssembler (assembledTypeIdentifierProvider: assembledTypeIdentifierProviderStub);
 
-      Assert.That (typeAssembler.ExtractTypeID (assembledType), Is.EqualTo (fakeTypeID));
+      Assert.That (typeAssembler.ExtractTypeID (_assembledType), Is.EqualTo (fakeTypeID));
       Assert.That (
           () => typeAssembler.ExtractTypeID (otherType),
           Throws.ArgumentException.With.Message.EqualTo ("The argument type is not an assembled type.\r\nParameter name: assembledType"));
@@ -239,15 +236,26 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     }
 
     [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "The provided requested type 'AssembledType' is already an assembled type.")]
+    public void AssembleType_RequestAssembledType ()
+    {
+      var typeAssembler = CreateTypeAssembler();
+      var typeID = AssembledTypeIDObjectMother.Create (requestedType: _assembledType);
+      var codeGeneratorStub = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
+
+      typeAssembler.AssembleType (typeID, _participantState, codeGeneratorStub);
+    }
+
+    [Test]
     public void AssembleType_NonSubclassableType_LetParticipantReportErrors_AndReturnsRequestedType ()
     {
       var participantMock = MockRepository.GenerateMock<IParticipant>();
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
       var nonSubclassableType = ReflectionObjectMother.GetSomeNonSubclassableType();
       var typeID = AssembledTypeIDObjectMother.Create (nonSubclassableType);
-      var codeGenerator = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
+      var codeGeneratorStub = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
 
-      var result = typeAssembler.AssembleType (typeID, _participantState, codeGenerator);
+      var result = typeAssembler.AssembleType (typeID, _participantState, codeGeneratorStub);
 
       Assert.That (result, Is.SameAs (nonSubclassableType));
       participantMock.AssertWasCalled (mock => mock.HandleNonSubclassableType (nonSubclassableType));
@@ -391,7 +399,6 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     [Test]
     public void RebuildParticipantState ()
     {
-      var assembledType = typeof (AssembledType);
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
       var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
       participantMock.Stub (_ => _.PartialTypeIdentifierProvider);
@@ -401,13 +408,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
               mi =>
               {
                 var ctx = (LoadedTypesContext) mi.Arguments[0];
-                Assert.That (ctx.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy (typeof (RequestedType), assembledType) }));
+                Assert.That (ctx.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy (_requestedType, _assembledType) }));
                 Assert.That (ctx.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
                 Assert.That (ctx.State, Is.SameAs (_participantState));
               });
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
 
-      typeAssembler.RebuildParticipantState (new[] { assembledType }.AsReadOnly(), new[] { additionalType }.AsReadOnly(), _participantState);
+      typeAssembler.RebuildParticipantState (new[] { _assembledType }.AsReadOnly(), new[] { additionalType }.AsReadOnly(), _participantState);
 
       participantMock.VerifyAllExpectations();
     }
@@ -432,6 +439,6 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
     private class RequestedType {}
     [AssembledType] private class AssembledType : RequestedType {}
-    private class AssembledTypeSubclass {}
+    private class AssembledTypeSubclass : AssembledType {}
   }
 }
