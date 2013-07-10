@@ -19,6 +19,7 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
@@ -31,16 +32,18 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   {
     private IReflectionServiceSynchronizationPoint _reflectionServiceSynchronizationPointMock;
     private ITypeCache _typeCacheMock;
+    private IReverseTypeCache _reverseTypeCacheMock;
 
     private ReflectionService _service;
 
     [SetUp]
     public void SetUp ()
     {
-      _reflectionServiceSynchronizationPointMock = MockRepository.GenerateStrictMock<IReflectionServiceSynchronizationPoint> ();
+      _reflectionServiceSynchronizationPointMock = MockRepository.GenerateStrictMock<IReflectionServiceSynchronizationPoint>();
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
+      _reverseTypeCacheMock = MockRepository.GenerateStrictMock<IReverseTypeCache>();
 
-      _service = new ReflectionService (_reflectionServiceSynchronizationPointMock, _typeCacheMock);
+      _service = new ReflectionService (_reflectionServiceSynchronizationPointMock, _typeCacheMock, _reverseTypeCacheMock);
     }
 
     [Test]
@@ -119,6 +122,36 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
       _typeCacheMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeAdditionalType));
+    }
+
+    [Test]
+    public void InstantiateAssembledType ()
+    {
+      var assembledType = ReflectionObjectMother.GetSomeType();
+      var arguments = ParamList.Create ("abc", 7);
+      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
+      _reverseTypeCacheMock
+          .Expect (mock => mock.GetOrCreateConstructorCall (assembledType, arguments.FuncType, allowNonPublic))
+          .Return (new Func<string, int, object> ((s, i) => "blub"));
+
+      var result = _service.InstantiateAssembledType (assembledType, arguments, allowNonPublic);
+
+      _typeCacheMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo ("blub"));
+    }
+
+    [Test]
+    public void InstantiateAssembledType_NoConstructorArguments ()
+    {
+      var assembledType = ReflectionObjectMother.GetSomeType();
+      _reverseTypeCacheMock
+          .Expect (mock => mock.GetOrCreateConstructorCall (assembledType, typeof (Func<object>), allowNonPublic: false))
+          .Return (new Func<object> (() => "blub"));
+
+      var result = _service.InstantiateAssembledType (assembledType, constructorArguments: null, allowNonPublicConstructor: false);
+
+      _typeCacheMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo ("blub"));
     }
   }
 }

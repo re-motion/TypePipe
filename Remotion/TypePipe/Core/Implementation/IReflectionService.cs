@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Implementation
@@ -91,7 +92,9 @@ namespace Remotion.TypePipe.Implementation
     /// Creates a new instance of the given assembled type.
     /// </summary>
     /// <param name="assembledType">The assembled type.</param>
+    /// <param name="constructorArguments">The constructor arguments.</param>
+    /// <param name="allowNonPublicConstructor">Determines if non-public constructors will be used to create the instance.</param>
     /// <returns>A newly constructed instance of the assembled type.</returns>
-    object InstantiateAssembledType (Type assembledType);
+    object InstantiateAssembledType (Type assembledType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
   }
 }
