@@ -18,7 +18,6 @@
 using System.Linq;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe;
-using Remotion.TypePipe.Configuration;
 
 namespace Remotion.Development.TypePipe.UnitTesting
 {
@@ -42,12 +41,15 @@ namespace Remotion.Development.TypePipe.UnitTesting
     public static void ResetDefaultPipeline ()
     {
       var pipelineRegistry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
-      // TODO 5370: This should use the same settings as the default pipeline, add a way to retrieve these settings.
-      var defaulPipeline = PipelineFactory.Create (
-          "use same identifier here",
-          new AppConfigBasedSettingsProvider().GetSettings(),
-          pipelineRegistry.DefaultPipeline.Participants.ToArray());
-      pipelineRegistry.SetDefaultPipeline (defaulPipeline);
+      var previousPipeline = pipelineRegistry.DefaultPipeline;
+
+      var pipeline = PipelineFactory.Create (
+          previousPipeline.ParticipantConfigurationID,
+          previousPipeline.Settings,
+          previousPipeline.Participants.ToArray());
+
+      // This overrides the previous default pipeline.
+      pipelineRegistry.SetDefaultPipeline (pipeline);
     }
   }
 }
