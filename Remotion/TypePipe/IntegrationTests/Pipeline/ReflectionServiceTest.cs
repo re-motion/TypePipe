@@ -18,7 +18,6 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -50,7 +49,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var assembledType1 = _reflectionService.GetAssembledType (typeof (RequestedType1));
       var assembledType2 = _pipeline.Create<RequestedType2>().GetType();
       var otherGeneratedType = assembledType1.Assembly.GetType ("MyNs.AdditionalType");
-      var unrelatedType = ReflectionObjectMother.GetSomeType();
+      var unrelatedType = typeof (Random);
 
       Assert.That (_reflectionService.IsAssembledType (assembledType1), Is.True);
       Assert.That (_reflectionService.IsAssembledType (assembledType2), Is.True);
@@ -60,9 +59,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (_reflectionService.GetRequestedType (assembledType1), Is.SameAs (typeof (RequestedType1)));
       Assert.That (_reflectionService.GetRequestedType (assembledType2), Is.SameAs (typeof (RequestedType2)));
 
-      var message = "The argument type is not an assembled type.\r\nParameter name: assembledType";
-      Assert.That (() => _reflectionService.GetRequestedType (otherGeneratedType), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => _reflectionService.GetRequestedType (unrelatedType), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message1 = "The argument type 'AdditionalType' is not an assembled type.\r\nParameter name: assembledType";
+      var message2 = "The argument type 'Random' is not an assembled type.\r\nParameter name: assembledType";
+      Assert.That (() => _reflectionService.GetRequestedType (otherGeneratedType), Throws.ArgumentException.With.Message.EqualTo (message1));
+      Assert.That (() => _reflectionService.GetRequestedType (unrelatedType), Throws.ArgumentException.With.Message.EqualTo (message2));
     }
 
     [Test]

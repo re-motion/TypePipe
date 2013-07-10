@@ -246,7 +246,10 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     private void CheckIsAssembledType (Type assembledType)
     {
       if (!IsAssembledType (assembledType))
-        throw new ArgumentException ("The argument type is not an assembled type.", "assembledType");
+      {
+        var message = string.Format ("The argument type '{0}' is not an assembled type.", assembledType.Name);
+        throw new ArgumentException (message, "assembledType");
+      }
     }
   }
 }
