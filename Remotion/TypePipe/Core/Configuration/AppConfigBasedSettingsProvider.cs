@@ -66,7 +66,6 @@ namespace Remotion.TypePipe.Configuration
 
     public PipelineSettings GetSettings ()
     {
-      // TODO 5370: Give possibility to configure default pipeline name!?
       return PipelineSettings
           .WithParticipantConfigurationID ("remotion-default-pipeline")
           .SetForceStrongNaming (ForceStrongNaming)
