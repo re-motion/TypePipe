@@ -66,6 +66,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     [Test]
     public void DelegatingMembers_GuardedByLock ()
     {
+      _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return ("config");
+      Assert.That (_point.ParticipantConfigurationID, Is.EqualTo ("config"));
       _generatedCodeFlusherMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLockIsHeld());
       Assert.That (_point.AssemblyDirectory, Is.EqualTo ("get dir"));
       _generatedCodeFlusherMock.Expect (mock => mock.AssemblyNamePattern).Return ("get name pattern").WhenCalled (_ => CheckLockIsHeld());
@@ -88,7 +90,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var assembledType = ReflectionObjectMother.GetSomeType();
       var fakeTypeID = AssembledTypeIDObjectMother.Create();
       _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (assembledType)).Return (fakeTypeID).WhenCalled (_ => CheckLockIsHeld());
-      Assert.That (_point.GetTypeID (assembledType), Is.EqualTo (fakeTypeID));
+      Assert.That (_point.ExtractTypeID (assembledType), Is.EqualTo (fakeTypeID));
+
+      _typeAssemblerMock.Expect(mock => mock.ExtractTypeID(assembledType)).Return(fakeTypeID).WhenCalled(_ => CheckLockIsHeld());
+      Assert.That(_point.GetTypeID(assembledType), Is.EqualTo(fakeTypeID));
 
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();

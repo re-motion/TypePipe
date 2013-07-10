@@ -56,6 +56,11 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       _delegateFactory = delegateFactory;
     }
 
+    public string ParticipantConfigurationID
+    {
+      get { lock (_codeGenerationLock) return _typeAssembler.ParticipantConfigurationID; }
+    }
+
     public string AssemblyDirectory
     {
       get { lock (_codeGenerationLock) return _generatedCodeFlusher.AssemblyDirectory; }
@@ -100,6 +105,15 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         return _typeAssembler.GetRequestedType (assembledType);
     }
 
+    public AssembledTypeID ExtractTypeID (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      lock (_codeGenerationLock)
+        return _typeAssembler.ExtractTypeID (assembledType);
+    }
+
+    // TODO 5370: Remove.
     public AssembledTypeID GetTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);

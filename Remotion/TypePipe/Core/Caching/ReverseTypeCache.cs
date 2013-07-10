@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -23,6 +24,10 @@ namespace Remotion.TypePipe.Caching
   {
     public Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic)
     {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+
+
       throw new NotImplementedException();
     }
   }

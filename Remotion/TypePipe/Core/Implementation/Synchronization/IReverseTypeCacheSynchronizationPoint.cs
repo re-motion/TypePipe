@@ -16,18 +16,17 @@
 // 
 
 using System;
+using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
   /// <summary>
-  /// Defines an interface for classes that act as guards for code generation capabilities.
-  /// This interface is a simple union of existing client-specific synchronization point interfaces and should not define any additional members.
+  /// This interface is an implementation detail of <see cref="ReverseTypeCache"/> to enable synchronization of code generation functionalities in one place.
   /// </summary>
-  public interface ISynchronizationPoint
-      : ICodeManagerSynchronizationPoint,
-        IReflectionServiceSynchronizationPoint,
-        ITypeCacheSynchronizationPoint,
-        IReverseTypeCacheSynchronizationPoint
+  public interface IReverseTypeCacheSynchronizationPoint
   {
+    string ParticipantConfigurationID { get; }
+
+    AssembledTypeID ExtractTypeID (Type assembledType);
   }
 }
