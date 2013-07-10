@@ -48,6 +48,10 @@ namespace Remotion.TypePipe.Implementation.Remotion
     [CLSCompliant (false)]
     public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
+      // Assembly directory may be null.
+      // Key file path may be null.
+
       var moduleBuilder = _moduleBuilderFactory.CreateModuleBuilder (assemblyName, assemblyDirectoryOrNull, strongNamed, keyFilePathOrNull);
 
       var attribute = new CustomAttributeDeclaration (s_nonApplicationAssemblyAttributeConstructor, new object[0]);
