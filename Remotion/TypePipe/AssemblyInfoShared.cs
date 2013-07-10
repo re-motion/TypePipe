@@ -25,10 +25,10 @@ using System.Reflection;
 //
 [assembly: AssemblyConfiguration(".NET Framework: net-4.5, build type: Debug")]
 [assembly: AssemblyCompany("rubicon IT GmbH")]
-[assembly: AssemblyProduct("re-motion TypePipe (typepipe.codeplex.com)")]
+[assembly: AssemblyProduct("re-motion code generation library (typepipe.codeplex.com)")]
 [assembly: AssemblyCopyright ("Copyright (c) rubicon IT GmbH, www.rubicon.eu - Licensed under Apache License, Version 2.0")]
 [assembly: AssemblyTrademark ("")]
-[assembly: AssemblyInformationalVersion ("1.15.1.1  Debug; ")]
+[assembly: AssemblyInformationalVersion ("1.15.2.1  Debug; ")]
 
 //
 // Version information for an assembly consists of the following four values:
@@ -41,5 +41,5 @@ using System.Reflection;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("1.15.1.1")]
-[assembly: AssemblyFileVersion ("1.15.1.1")]
+[assembly: AssemblyVersion("1.15.2.1")]
+[assembly: AssemblyFileVersion ("1.15.2.1")]
