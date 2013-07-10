@@ -130,7 +130,6 @@ namespace Remotion.TypePipe.IntegrationTests
       return CreatePipeline (participantConfigurationID, PipelineSettings.Defaults, participants);
     }
 
-    // TODO 5370: Remove if not needed.
     protected IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
     {
       // Avoid no-modification optimization.
