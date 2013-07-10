@@ -21,53 +21,45 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Configuration
 {
   /// <summary>
-  /// Holds configuration options for pipelines.
+  /// Holds configuration options for pipelines. This class is immutable.
   /// </summary>
-  /// <seealso cref="PipelineFactory.Create(Remotion.TypePipe.Configuration.PipelineSettings,Remotion.TypePipe.IParticipant[])"/>
+  /// <seealso cref="PipelineFactory.Create(string,Remotion.TypePipe.Configuration.PipelineSettings,Remotion.TypePipe.IParticipant[])"/>
   /// <seealso cref="IPipeline.Settings"/>
   public class PipelineSettings
   {
-    public static Builder WithParticipantConfigurationID (string participantConfigurationID)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+    private static readonly PipelineSettings s_defaults = New().Build();
 
-      return new Builder (participantConfigurationID);
+    public static PipelineSettings Defaults
+    {
+      get { return s_defaults; }
+    }
+
+    public static Builder New ()
+    {
+      return new Builder();
     }
 
     public static Builder From (PipelineSettings settings)
     {
       ArgumentUtility.CheckNotNull ("settings", settings);
 
-      return new Builder (settings.ParticipantConfigurationID)
+      return New()
           .SetForceStrongNaming (settings.EnableSerializationWithoutAssemblySaving)
           .SetKeyFilePath (settings.KeyFilePath)
           .SetEnableSerializationWithoutAssemblySaving (settings.EnableSerializationWithoutAssemblySaving);
     }
 
-    private readonly string _participantConfigurationID;
     private readonly bool _forceStrongNaming;
     private readonly string _keyFilePath;
     private readonly bool _enableSerializationWithoutAssemblySaving;
 
-    public PipelineSettings (
-        string participantConfigurationID, bool forceStrongNaming, string keyFilePath, bool enableSerializationWithoutAssemblySaving)
+    public PipelineSettings (bool forceStrongNaming, string keyFilePath, bool enableSerializationWithoutAssemblySaving)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       // Key file path may be null.
 
-      _participantConfigurationID = participantConfigurationID;
       _forceStrongNaming = forceStrongNaming;
       _keyFilePath = keyFilePath;
       _enableSerializationWithoutAssemblySaving = enableSerializationWithoutAssemblySaving;
-    }
-
-    /// <summary>
-    /// The participant configuration identifier of the pipeline.
-    /// </summary>
-    /// <seealso cref="IPipeline.ParticipantConfigurationID"/>
-    public string ParticipantConfigurationID
-    {
-      get { return _participantConfigurationID; }
     }
 
     /// <summary>
@@ -98,25 +90,9 @@ namespace Remotion.TypePipe.Configuration
 
     public class Builder
     {
-      private string _participantConfigurationID;
       private bool _forceStrongNaming;
       private string _keyFilePath;
       private bool _enableSerializationWithoutAssemblySaving;
-
-      public Builder (string participantConfigurationID)
-      {
-        ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-
-        _participantConfigurationID = participantConfigurationID;
-      }
-
-      public Builder SetParticipantConfigurationID (string participantConfigurationID)
-      {
-        ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-
-        _participantConfigurationID = participantConfigurationID;
-        return this;
-      }
 
       public Builder SetForceStrongNaming (bool forceStrongNaming)
       {
@@ -124,11 +100,11 @@ namespace Remotion.TypePipe.Configuration
         return this;
       }
 
-      public Builder SetKeyFilePath (string KeyFilePath)
+      public Builder SetKeyFilePath (string keyFilePath)
       {
         // Key file path may be null.
 
-        _keyFilePath = KeyFilePath;
+        _keyFilePath = keyFilePath;
         return this;
       }
 
@@ -140,7 +116,7 @@ namespace Remotion.TypePipe.Configuration
 
       public PipelineSettings Build ()
       {
-        return new PipelineSettings (_participantConfigurationID, _forceStrongNaming, _keyFilePath, _enableSerializationWithoutAssemblySaving);
+        return new PipelineSettings (_forceStrongNaming, _keyFilePath, _enableSerializationWithoutAssemblySaving);
       }
     }
   }

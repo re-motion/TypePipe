@@ -28,6 +28,6 @@ namespace Remotion.TypePipe.Implementation
   [ConcreteImplementation (typeof (RemotionPipelineFactory))]
   public interface IPipelineFactory
   {
-    IPipeline CreatePipeline (PipelineSettings settings, IEnumerable<IParticipant> participants);
+    IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants);
   }
 }

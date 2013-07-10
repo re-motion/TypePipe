@@ -44,8 +44,9 @@ namespace Remotion.Development.TypePipe.UnitTesting
       var pipelineRegistry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
       // TODO 5370: This should use the same settings as the default pipeline, add a way to retrieve these settings.
       var defaulPipeline = PipelineFactory.Create (
-          new AppConfigBasedSettingsProvider().GetSettings(), 
-          pipelineRegistry.DefaultPipeline.Participants.ToArray ());
+          "use same identifier here",
+          new AppConfigBasedSettingsProvider().GetSettings(),
+          pipelineRegistry.DefaultPipeline.Participants.ToArray());
       pipelineRegistry.SetDefaultPipeline (defaulPipeline);
     }
   }

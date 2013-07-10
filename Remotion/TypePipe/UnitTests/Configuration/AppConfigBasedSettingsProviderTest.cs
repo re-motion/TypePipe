@@ -91,7 +91,6 @@ namespace Remotion.TypePipe.UnitTests.Configuration
 
       var settings = _provider.GetSettings();
 
-      Assert.That (settings.ParticipantConfigurationID, Is.EqualTo ("remotion-default-pipeline"));
       Assert.That (settings.ForceStrongNaming, Is.False);
       Assert.That (settings.KeyFilePath, Is.Empty);
       Assert.That (settings.EnableSerializationWithoutAssemblySaving, Is.False);
@@ -105,7 +104,6 @@ namespace Remotion.TypePipe.UnitTests.Configuration
 
       var settings = _provider.GetSettings();
 
-      Assert.That (settings.ParticipantConfigurationID, Is.EqualTo ("remotion-default-pipeline"));
       Assert.That (settings.ForceStrongNaming, Is.True);
       Assert.That (settings.KeyFilePath, Is.EqualTo (@"C:\key.snk"));
       Assert.That (settings.EnableSerializationWithoutAssemblySaving, Is.True);

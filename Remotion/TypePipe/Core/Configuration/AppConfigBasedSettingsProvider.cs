@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.Configuration
     public PipelineSettings GetSettings ()
     {
       return PipelineSettings
-          .WithParticipantConfigurationID ("remotion-default-pipeline")
+          .New()
           .SetForceStrongNaming (ForceStrongNaming)
           .SetKeyFilePath (KeyFilePath)
           .SetEnableSerializationWithoutAssemblySaving (EnableSerializationWithoutAssemblySaving)

@@ -42,11 +42,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       _participantProviders = participantProviders;
 
       var participants = _participantProviders.Select (pp => pp()).ToArray();
-      var settings = PipelineSettings.WithParticipantConfigurationID (c_participantConfigurationID)
-                                     .SetEnableSerializationWithoutAssemblySaving (true)
-                                     .Build();
+      var settings = PipelineSettings.New().SetEnableSerializationWithoutAssemblySaving (true).Build();
 
-      return CreatePipeline (settings, participants);
+      return CreatePipeline (c_participantConfigurationID, settings, participants);
     }
 
     protected override Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context)

@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _settings = PipelineSettings.WithParticipantConfigurationID ("participant config").Build();
+      _settings = PipelineSettings.New().Build();
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
       _reflectionServiceMock = MockRepository.GenerateStrictMock<IReflectionService>();

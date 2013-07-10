@@ -36,13 +36,14 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class DefaultPipelineFactory : IPipelineFactory
   {
-    public virtual IPipeline CreatePipeline (PipelineSettings settings, IEnumerable<IParticipant> participants)
+    public virtual IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("participants", participants);
 
       var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
-      var typeAssembler = NewTypeAssembler (settings.ParticipantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
+      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
       var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, reflectionEmitCodeGenerator);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);

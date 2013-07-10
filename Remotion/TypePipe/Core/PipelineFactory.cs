@@ -41,8 +41,7 @@ namespace Remotion.TypePipe
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
 
-      var settings = PipelineSettings.WithParticipantConfigurationID (participantConfigurationID).Build();
-      return Create (settings, participants);
+      return Create (participantConfigurationID, PipelineSettings.Defaults, participants);
     }
 
     /// <summary>
@@ -50,15 +49,18 @@ namespace Remotion.TypePipe
     /// custom configuration provider. If the configuration provider is omitted, the <c>App.config</c>-based configuration provider
     /// (<see cref="AppConfigBasedSettingsProvider"/>) is used.
     /// </summary>
+    /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <param name="settings">The pipeline settings.</param>
     /// <param name="participants">The participants that should be used by this object factory.</param>
     /// <returns>An new instance of <see cref="IPipeline"/>.</returns>
-    public static IPipeline Create (PipelineSettings settings, params IParticipant[] participants)
+    public static IPipeline Create (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("settings", settings);
-      ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
+      ArgumentUtility.CheckNotNullOrItemsNull("participants", participants);
 
-      return s_instance.CreatePipeline (settings, participants);
+
+      return s_instance.CreatePipeline (participantConfigurationID, settings, participants);
     }
   }
 }

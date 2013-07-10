@@ -127,23 +127,23 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IPipeline CreatePipeline (string participantConfigurationID, params IParticipant[] participants)
     {
-      var settings = PipelineSettings.WithParticipantConfigurationID (participantConfigurationID).Build();
-      return CreatePipeline (settings, participants);
+      return CreatePipeline (participantConfigurationID, PipelineSettings.Defaults, participants);
     }
 
-    protected IPipeline CreatePipeline (PipelineSettings settings, params IParticipant[] participants)
+    // TODO 5370: Remove if not needed.
+    protected IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
     {
       // Avoid no-modification optimization.
       if (participants.Length == 0)
         participants = new[] { CreateParticipant (CreateModifyingAction ((id, ctx) => { })) };
 
-      var objectFactory = PipelineFactory.Create (settings, participants);
+      var pipeline = PipelineFactory.Create (participantConfigurationID, settings, participants);
 
-      _codeManager = objectFactory.CodeManager;
+      _codeManager = pipeline.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _codeManager.SetAssemblyNamePattern (settings.ParticipantConfigurationID + "_{counter}");
+      _codeManager.SetAssemblyNamePattern (participantConfigurationID + "_{counter}");
 
-      return objectFactory;
+      return pipeline;
     }
 
     protected string Flush (IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)

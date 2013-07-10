@@ -297,11 +297,11 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     private IPipeline CreateObjectFactoryForStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null)
     {
       var settings = PipelineSettings
-          .WithParticipantConfigurationID ("StrongNamingTest")
+          .New()
           .SetForceStrongNaming (forceStrongNaming)
           .SetKeyFilePath (keyFilePath)
           .Build();
-      return CreatePipeline (settings, participant);
+      return CreatePipeline ("StrongNamingTest", settings, participant);
     }
 
     private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)
