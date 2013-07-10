@@ -65,6 +65,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="Configuration\EnableSerializationWithoutAssemblySavingConfigurationElement.cs" />
     <Compile Include="Implementation\InitializationSemantics.cs" />
+    <Compile Include="Implementation\DefaultPipelineFactory.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitialization.cs" />
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\IDeserializationMethodInvoker.cs" />

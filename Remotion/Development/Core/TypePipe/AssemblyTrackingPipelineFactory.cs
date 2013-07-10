@@ -16,7 +16,6 @@
 // 
 
 using System;
-using Remotion.TypePipe;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
@@ -24,7 +23,7 @@ using Remotion.TypePipe.Implementation.Synchronization;
 namespace Remotion.Development.TypePipe
 {
   // TODO 5370
-  public class AssemblyTrackingPipelineFactory : PipelineFactory
+  public class AssemblyTrackingPipelineFactory : DefaultPipelineFactory
   {
     public AssemblyTrackingCodeManager AssemblyTrackingCodeManager { get; private set; }
 
