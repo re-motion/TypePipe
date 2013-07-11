@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.Implementation
       var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
       var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, reflectionEmitCodeGenerator);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
-      var reverseTypeCache = NewReverseTypeCache();
+      var reverseTypeCache = NewReverseTypeCache (synchronizationPoint);
       var reflectionService = NewReflectionService (synchronizationPoint, typeCache, reverseTypeCache);
 
       return NewPipeline (settings, typeCache, codeManager, reflectionService);
@@ -79,6 +79,11 @@ namespace Remotion.TypePipe.Implementation
       var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
 
       return new TypeCache (typeAssembler, typeCacheSynchronizationPoint, mutableTypeBatchCodeGenerator);
+    }
+
+    protected virtual IReverseTypeCache NewReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
+    {
+      return new ReverseTypeCache (reverseTypeCacheSynchronizationPoint);
     }
 
     protected virtual ISynchronizationPoint NewSynchronizationPoint (IGeneratedCodeFlusher generatedCodeFlusher, ITypeAssembler typeAssembler)
@@ -135,11 +140,6 @@ namespace Remotion.TypePipe.Implementation
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
       return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath);
-    }
-
-    protected virtual IReverseTypeCache NewReverseTypeCache ()
-    {
-      return new ReverseTypeCache();
     }
 
     protected virtual IDelegateFactory NewDelegateFactory ()

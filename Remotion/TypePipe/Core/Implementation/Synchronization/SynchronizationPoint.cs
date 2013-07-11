@@ -56,11 +56,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       _delegateFactory = delegateFactory;
     }
 
-    public string ParticipantConfigurationID
-    {
-      get { lock (_codeGenerationLock) return _typeAssembler.ParticipantConfigurationID; }
-    }
-
     public string AssemblyDirectory
     {
       get { lock (_codeGenerationLock) return _generatedCodeFlusher.AssemblyDirectory; }
@@ -103,14 +98,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
       lock (_codeGenerationLock)
         return _typeAssembler.GetRequestedType (assembledType);
-    }
-
-    public AssembledTypeID ExtractTypeID (Type assembledType)
-    {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-
-      lock (_codeGenerationLock)
-        return _typeAssembler.ExtractTypeID (assembledType);
     }
 
     // TODO 5370: Remove.
@@ -209,6 +196,14 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
       lock (_codeGenerationLock)
         return _typeAssembler.GetOrAssembleAdditionalType (additionalTypeID, participantState, mutableTypeBatchCodeGenerator);
+    }
+
+    public Delegate GetOrGenerateConstructorCall (
+        ConcurrentDictionary<ReverseConstructionKey, Delegate> constructorCalls, ReverseConstructionKey reverseConstructionKey)
+    {
+      ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
+
+      throw new NotImplementedException("TODO 5370");
     }
   }
 }

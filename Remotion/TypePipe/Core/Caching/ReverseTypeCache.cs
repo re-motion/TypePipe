@@ -23,14 +23,14 @@ namespace Remotion.TypePipe.Caching
   // TODO 5370 docs and tests
   public class ReverseTypeCache : IReverseTypeCache
   {
-    //private readonly IReverseTypeCacheSynchronizationPoint _reverseTypeCacheSynchronizationPoint;
+    private readonly IReverseTypeCacheSynchronizationPoint _reverseTypeCacheSynchronizationPoint;
 
-    //public ReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
-    //{
-    //  ArgumentUtility.CheckNotNull ("reverseTypeCacheSynchronizationPoint", reverseTypeCacheSynchronizationPoint);
+    public ReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
+    {
+      ArgumentUtility.CheckNotNull("reverseTypeCacheSynchronizationPoint", reverseTypeCacheSynchronizationPoint);
 
-    //  _reverseTypeCacheSynchronizationPoint = reverseTypeCacheSynchronizationPoint;
-    //}
+      _reverseTypeCacheSynchronizationPoint = reverseTypeCacheSynchronizationPoint;
+    }
 
     public Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic)
     {

@@ -25,8 +25,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   /// </summary>
   public interface IReverseTypeCacheSynchronizationPoint
   {
-    string ParticipantConfigurationID { get; }
-
-    AssembledTypeID ExtractTypeID (Type assembledType);
+    Delegate GetOrGenerateConstructorCall (
+        ConcurrentDictionary<ReverseConstructionKey, Delegate> constructorCalls, ReverseConstructionKey reverseConstructionKey);
   }
 }
