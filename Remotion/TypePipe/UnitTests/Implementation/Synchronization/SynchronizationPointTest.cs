@@ -141,10 +141,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     [Test]
     public void GetOrGenerateConstructorCall_CacheHit ()
     {
-      var typeID = AssembledTypeIDObjectMother.Create();
-      var delegateType = ReflectionObjectMother.GetSomeDelegateType();
-      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
+      var constructionKey = CreateConstructionKey();
       var assembledConstructorCall = (Action) (() => { });
       var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate> { { constructionKey, assembledConstructorCall } };
       var types = new ConcurrentDictionary<AssembledTypeID, Type>();
@@ -158,24 +155,21 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     [Test]
     public void GetOrCreateConstructorCall_CacheMiss_CacheHitTypes ()
     {
-      var typeID = AssembledTypeIDObjectMother.Create();
-      var delegateType = ReflectionObjectMother.GetSomeDelegateType();
-      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
+      var constructionKey = CreateConstructionKey();
       var assembledConstructorCall = (Action) (() => { });
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
       var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
-      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { typeID, assembledType } };
+      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { constructionKey.TypeID, assembledType } };
       var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
       var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
 
-      _delegateFactoryMock.Expect (mock => mock.GetSignature (delegateType)).Return (fakeSignature).WhenCalled (_ => CheckLockIsHeld());
+      _delegateFactoryMock.Expect (mock => mock.GetSignature (constructionKey.DelegateType)).Return (fakeSignature).WhenCalled (_ => CheckLockIsHeld());
       _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (typeID.RequestedType, fakeSignature.Item1, allowNonPublic, assembledType))
+          .Expect (mock => mock.GetConstructor (constructionKey.TypeID.RequestedType, fakeSignature.Item1, constructionKey.AllowNonPublic, assembledType))
           .Return (fakeConstructor)
           .WhenCalled (_ => CheckLockIsHeld());
       _delegateFactoryMock
-          .Expect (mock => mock.CreateConstructorCall (fakeConstructor, delegateType))
+          .Expect (mock => mock.CreateConstructorCall (fakeConstructor, constructionKey.DelegateType))
           .Return (assembledConstructorCall)
           .WhenCalled (_ => CheckLockIsHeld());
 
@@ -214,9 +208,74 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       _typeAssemblerMock.VerifyAllExpectations();
     }
 
+    [Test]
+    public void GetOrGenerateConstructorCall_Reverse_CacheHit ()
+    {
+      var reverseConstructionKey = CreateReverseConstructionKey();
+      var assembledConstructorCall = (Action) (() => { });
+      var constructorCalls = new ConcurrentDictionary<ReverseConstructionKey, Delegate> { { reverseConstructionKey, assembledConstructorCall } };
+
+      var result = _point.GetOrGenerateConstructorCall (constructorCalls, reverseConstructionKey);
+
+      Assert.That (result, Is.SameAs (assembledConstructorCall));
+    }
+
+    [Test]
+    public void GetOrCreateConstructorCall_Reverse_CacheMiss ()
+    {
+      var reverseConstructionKey = CreateReverseConstructionKey();
+      var assembledConstructorCall = (Action) (() => { });
+      var constructorCalls = new ConcurrentDictionary<ReverseConstructionKey, Delegate>();
+      var fakeRequestedType = ReflectionObjectMother.GetSomeType();
+      var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
+      var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
+
+      _typeAssemblerMock
+          .Expect (mock => mock.GetRequestedType (reverseConstructionKey.AssembledType)).Return (fakeRequestedType)
+          .WhenCalled (_ => CheckLockIsHeld());
+      _delegateFactoryMock
+          .Expect (mock => mock.GetSignature (reverseConstructionKey.DelegateType))
+          .Return (fakeSignature)
+          .WhenCalled (_ => CheckLockIsHeld());
+      _constructorFinderMock
+          .Expect(mock => mock.GetConstructor(fakeRequestedType, fakeSignature.Item1, reverseConstructionKey.AllowNonPublic, reverseConstructionKey.AssembledType))
+          .Return (fakeConstructor)
+          .WhenCalled (_ => CheckLockIsHeld());
+      _delegateFactoryMock
+          .Expect (mock => mock.CreateConstructorCall (fakeConstructor, reverseConstructionKey.DelegateType))
+          .Return (assembledConstructorCall)
+          .WhenCalled (_ => CheckLockIsHeld());
+
+      var result = _point.GetOrGenerateConstructorCall (constructorCalls, reverseConstructionKey);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _delegateFactoryMock.VerifyAllExpectations();
+      _constructorFinderMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (assembledConstructorCall));
+      Assert.That (constructorCalls[reverseConstructionKey], Is.SameAs (assembledConstructorCall));
+    }
+
     private void CheckLockIsHeld ()
     {
       LockTestHelper.CheckLockIsHeld (_codeGeneratorLock);
+    }
+
+    private ConstructionKey CreateConstructionKey ()
+    {
+      var typeID = AssembledTypeIDObjectMother.Create();
+      var delegateType = ReflectionObjectMother.GetSomeDelegateType();
+      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
+
+      return new ConstructionKey (typeID, delegateType, allowNonPublic);
+    }
+
+    private ReverseConstructionKey CreateReverseConstructionKey ()
+    {
+      var assembledType = ReflectionObjectMother.GetSomeType();
+      var delegateType = ReflectionObjectMother.GetSomeDelegateType();
+      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
+
+      return new ReverseConstructionKey (assembledType, delegateType, allowNonPublic);
     }
   }
 }

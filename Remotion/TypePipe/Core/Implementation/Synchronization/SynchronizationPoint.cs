@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         return _typeAssembler.GetRequestedType (assembledType);
     }
 
-    // TODO 5370: Remove.
+    // TODO 5370: Remove?
     public AssembledTypeID GetTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
@@ -152,10 +152,8 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
         var typeID = constructionKey.TypeID;
         var assembledType = GetOrGenerateType (types, typeID, participantState, mutableTypeBatchCodeGenerator);
-        var ctorSignature = _delegateFactory.GetSignature (constructionKey.DelegateType);
-        var constructor = _constructorFinder.GetConstructor (typeID.RequestedType, ctorSignature.Item1, constructionKey.AllowNonPublic, assembledType);
 
-        constructorCall = _delegateFactory.CreateConstructorCall (constructor, constructionKey.DelegateType);
+        constructorCall = CreateConstructorCall (typeID.RequestedType, constructionKey.DelegateType, constructionKey.AllowNonPublic, assembledType);
         constructorCalls.Add (constructionKey, constructorCall);
       }
 
@@ -203,7 +201,28 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     {
       ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
 
-      throw new NotImplementedException("TODO 5370");
+      Delegate constructorCall;
+      lock (_codeGenerationLock)
+      {
+        if (constructorCalls.TryGetValue (reverseConstructionKey, out constructorCall))
+          return constructorCall;
+
+        var assembledType = reverseConstructionKey.AssembledType;
+        var requestedType = _typeAssembler.GetRequestedType (assembledType);
+
+        constructorCall = CreateConstructorCall (requestedType, reverseConstructionKey.DelegateType, reverseConstructionKey.AllowNonPublic, assembledType);
+        constructorCalls.Add (reverseConstructionKey, constructorCall);
+      }
+
+      return constructorCall;
+    }
+
+    private Delegate CreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic, Type assembledType)
+    {
+      var ctorSignature = _delegateFactory.GetSignature (delegateType);
+      var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, allowNonPublic, assembledType);
+
+      return _delegateFactory.CreateConstructorCall (constructor, delegateType);
     }
   }
 }
