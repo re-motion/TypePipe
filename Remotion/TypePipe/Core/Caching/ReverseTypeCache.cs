@@ -15,17 +15,29 @@
 // under the License.
 // 
 using System;
+using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
 {
-  // TODO 5370
+  // TODO 5370 docs and tests
   public class ReverseTypeCache : IReverseTypeCache
   {
+    //private readonly IReverseTypeCacheSynchronizationPoint _reverseTypeCacheSynchronizationPoint;
+
+    //public ReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
+    //{
+    //  ArgumentUtility.CheckNotNull ("reverseTypeCacheSynchronizationPoint", reverseTypeCacheSynchronizationPoint);
+
+    //  _reverseTypeCacheSynchronizationPoint = reverseTypeCacheSynchronizationPoint;
+    //}
+
     public Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+
+      // What about particpants calling ReflectionServe.InstantiateAssembledType API and deadlocking?
 
 
       throw new NotImplementedException();
