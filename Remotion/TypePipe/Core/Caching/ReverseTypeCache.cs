@@ -20,9 +20,15 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
 {
-  // TODO 5370 docs and tests
+  /// <summary>
+  /// Retrieves construction delegates for assembled types from a cache or delegates to <see cref="IReverseTypeCacheSynchronizationPoint"/> to
+  /// create a new one.
+  /// </summary>
   public class ReverseTypeCache : IReverseTypeCache
   {
+    private readonly ConcurrentDictionary<ReverseConstructionKey, Delegate> _constructorCalls =
+        new ConcurrentDictionary<ReverseConstructionKey, Delegate>();
+
     private readonly IReverseTypeCacheSynchronizationPoint _reverseTypeCacheSynchronizationPoint;
 
     public ReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
@@ -37,10 +43,13 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      // What about particpants calling ReflectionServe.InstantiateAssembledType API and deadlocking?
+      var reverseConstructionKey = new ReverseConstructionKey (assembledType, delegateType, allowNonPublic);
 
+      Delegate constructorCall;
+      if (_constructorCalls.TryGetValue (reverseConstructionKey, out constructorCall))
+        return constructorCall;
 
-      throw new NotImplementedException();
+      return _reverseTypeCacheSynchronizationPoint.GetOrGenerateConstructorCall (_constructorCalls, reverseConstructionKey);
     }
   }
 }

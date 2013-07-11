@@ -59,6 +59,7 @@
     <Compile Include="Caching\AssembledTypeIDTest.cs" />
     <Compile Include="Caching\ConstructionKeyTest.cs" />
     <Compile Include="Caching\ReverseConstructionKeyTest.cs" />
+    <Compile Include="Caching\ReverseTypeCacheTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
