@@ -22,32 +22,32 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Caching
 {
   /// <summary>
-  /// A data structure that can be used as a key for constructor delegates with the main component of the key being an <see cref="AssembledTypeID"/>.
+  /// A data structure that can be used as a key for constructor delegates with the main component of the key being an the assembled type itself.
   /// </summary>
-  public struct ConstructionKey : IEquatable<ConstructionKey>
+  public struct ReverseConstructionKey : IEquatable<ReverseConstructionKey>
   {
-    private readonly AssembledTypeID _typeID;
+    private readonly Type _assembledType;
     private readonly Type _delegateType;
     private readonly bool _allowNonPublic;
 
     private readonly int _hashCode;
 
-    public ConstructionKey (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
+    public ReverseConstructionKey (Type assembledType, Type delegateType, bool allowNonPublic)
     {
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (delegateType != null);
 
-      _typeID = typeID;
+      _assembledType = assembledType;
       _delegateType = delegateType;
       _allowNonPublic = allowNonPublic;
 
       // Pre-compute hash code.
-      _hashCode = EqualityUtility.GetRotatedHashCode (_typeID.GetHashCode(), delegateType, allowNonPublic);
+      _hashCode = EqualityUtility.GetRotatedHashCode (_assembledType.GetHashCode(), delegateType, allowNonPublic);
     }
 
-    public AssembledTypeID TypeID
+    public Type AssembledType
     {
-      get { return _typeID; }
+      get { return _assembledType; }
     }
 
     public Type DelegateType
@@ -60,9 +60,9 @@ namespace Remotion.TypePipe.Caching
       get { return _allowNonPublic; }
     }
 
-    public bool Equals (ConstructionKey other)
+    public bool Equals (ReverseConstructionKey other)
     {
-      return _typeID.Equals (other._typeID)
+      return _assembledType == other._assembledType
              && _delegateType == other._delegateType
              && _allowNonPublic == other._allowNonPublic;
     }
