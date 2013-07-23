@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.20617.1 PREVIEW
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5B3CB3F6-DE69-41D6-8BBC-EFF4932F0F7E}"
 	ProjectSection(FolderStartupServices) = postProject
 		{B4F97281-0DBD-4835-9ED8-7DFB966E87FF} = {B4F97281-0DBD-4835-9ED8-7DFB966E87FF}
