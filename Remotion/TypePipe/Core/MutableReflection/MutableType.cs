@@ -486,6 +486,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     private bool HasAbstractMethods ()
     {
+      // TODO 5370 PERF: This is really slow due to GetBaseDefinitions.
       return GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
           .Where (m => m.IsAbstract)
           .Select (m => m.GetBaseDefinition())
