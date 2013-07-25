@@ -149,6 +149,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void AddExplicitBaseDefinition_TriggersEvent ()
+    {
+      var overriddenMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
+
+      ExplicitBaseDefinitionsAddedEventArgs actualArgs = null;
+      _virtualMethod.ExplicitBaseDefinitionAdded += (sender, args) => actualArgs = args;
+
+      _virtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+
+      Assert.That (actualArgs, Is.Not.Null);
+      Assert.That (actualArgs.AddedExplicitBaseDefinition, Is.SameAs (overriddenMethodDefinition));
+    }
+
+    [Test]
     public void AddExplicitBaseDefinition_AllowsMethodsFromHierarchy ()
     {
       Assert.That (_declaringType.GetInterfaces(), Has.Member (typeof (IExistingInterface)));
@@ -295,6 +309,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           });
 
       Assert.That (method.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void SetBody_TriggersEvent ()
+    {
+      var method = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
+
+      BodyChangedEventArgs actualArgs = null;
+      method.BodyChanged += (sender, args) => actualArgs = args;
+
+      var oldBody = method.Body;
+      var newBody = ExpressionTreeObjectMother.GetSomeExpression (method.ReturnType);
+      
+      method.SetBody (ctx => newBody);
+
+      Assert.That (actualArgs, Is.Not.Null);
+      Assert.That (actualArgs.OldBody, Is.SameAs (oldBody));
+      Assert.That (actualArgs.NewBody, Is.SameAs (newBody));
     }
 
     [Test]

@@ -583,18 +583,124 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetAttributeFlagsImpl_Abstract ()
+    public void GetAttributeFlagsImpl_Abstract_Cached ()
     {
       var allMethods = GetAllMethods (_mutableType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var fakeMethods = new[] { ReflectionObjectMother.GetSomeAbstractMethod() };
       _memberSelectorMock
           .Expect (mock => mock.SelectMethods (Arg<IEnumerable<MethodInfo>>.List.Equal (allMethods), Arg.Is (bindingFlags), Arg.Is ((_mutableType))))
-          .Return (fakeMethods).Repeat.Times (2);
+          .Return (fakeMethods).Repeat.Times (1);
 
       Assert.That (_mutableType.IsAbstract, Is.True);
+      // This second call does not invoke SelectMethods for a second time because the abstract flag is cached.
       Assert.That (_mutableType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract));
       _memberSelectorMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_AbstractCache_Updated_WhenAddingAbstractMethod_ToNonAbstractType ()
+    {
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
+      Assert.That (proxyType.IsAbstract, Is.False);
+
+      proxyType.AddMethod ("NonAbstractMethod", returnType: typeof (void), bodyProvider: c => Expression.Default (typeof (void)));
+      Assert.That (proxyType.IsAbstract, Is.False);
+
+      proxyType.AddMethod ("AbstractMethod", attributes: MethodAttributes.Abstract | MethodAttributes.Virtual);
+      Assert.That (proxyType.IsAbstract, Is.True);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_AbstractCache_Updated_WhenSettingBody ()
+    {
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
+      Assert.That (proxyType.IsAbstract, Is.False);
+
+      var nonAbstractMethod = proxyType.AddMethod ("NonAbstractMethod", returnType: typeof (void), bodyProvider: c => Expression.Default (typeof (void)));
+      Assert.That (proxyType.IsAbstract, Is.False);
+
+      var abstractMethod = proxyType.AddMethod ("AbstractMethod", attributes: MethodAttributes.Abstract | MethodAttributes.Virtual);
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      nonAbstractMethod.SetBody (c => ExpressionTreeObjectMother.GetSomeExpression (c.ReturnType));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      abstractMethod.SetBody (b => Expression.Default (b.ReturnType));
+      Assert.That (proxyType.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_AbstractCache_Updated_WhenAddingNonAbstractMethod_ThatOverridesAbstractMethod ()
+    {
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (AbstractTypeBase));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      proxyType
+          .AddMethod (
+              "AbstractMethod1",
+              MethodAttributes.Public | MethodAttributes.Virtual,
+              MethodDeclaration.CreateEquivalent (MemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase t) => t.AbstractMethod1 ())),
+              bodyProvider: c => Expression.Default (c.ReturnType));
+      Assert.That (proxyType.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_AbstractCache_Updated_WhenAddingNonAbstractMethod_ThatExplicitlyOverridesAbstractMethod ()
+    {
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (AbstractTypeBase));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      proxyType
+          .AddExplicitOverride (
+              MemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase t) => t.AbstractMethod1 ()),
+              bodyProvider: c => Expression.Default (c.ReturnType));
+      Assert.That (proxyType.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_AbstractCache_Updated_WhenSettingBodyOfAbstractOverride ()
+    {
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (AbstractTypeBase));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      var addedOverride = proxyType.GetOrAddOverride (MemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase t) => t.AbstractMethod1 ()));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      addedOverride
+          .SetBody(c => Expression.Default(c.ReturnType));
+      Assert.That (proxyType.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_AbstractCache_Updated_WhenAddingNonAbstractExplicitOverride ()
+    {
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (AbstractTypeBase));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      proxyType.AddExplicitOverride (
+          MemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase t) => t.AbstractMethod1 ()), 
+          c => Expression.Default (c.ReturnType));
+      Assert.That (proxyType.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void GetAttributeFlagsImpl_AbstractCache_Updated_WhenAddingNonAbstractExplicitOverride_Later ()
+    {
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (AbstractTypeBase));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      var abstractBaseMethod = MemberInfoFromExpressionUtility.GetMethod ((AbstractTypeBase t) => t.AbstractMethod1());
+      var addedMethod = proxyType
+          .AddMethod (
+              "Override",
+              MethodAttributes.Public | MethodAttributes.Virtual,
+              MethodDeclaration.CreateEquivalent (abstractBaseMethod),
+              bodyProvider: c => Expression.Default (c.ReturnType));
+      Assert.That (proxyType.IsAbstract, Is.True);
+
+      addedMethod.AddExplicitBaseDefinition (abstractBaseMethod);
+      Assert.That (proxyType.IsAbstract, Is.False);
     }
 
     [Test]
@@ -838,6 +944,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       public abstract void AbstractMethod1 ();
     }
+
     public abstract class AbstractType : AbstractTypeBase
     {
       public override abstract void AbstractMethod1 ();

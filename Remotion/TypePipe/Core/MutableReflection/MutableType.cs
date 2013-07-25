@@ -50,6 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
     private MutableConstructorInfo _typeInitializer;
+    private bool? _hasAbstractMethods = null;
 
     public MutableType (
         IMemberSelector memberSelector,
@@ -254,7 +255,7 @@ namespace Remotion.TypePipe.MutableReflection
       // Body provider may be null (for abstract methods).
 
       var method = _mutableMemberFactory.CreateMethod (this, name, attributes, genericParameters, returnTypeProvider, parameterProvider, bodyProvider);
-      _addedMethods.Add (method);
+      AddTrackedMethod (method);
 
       return method;
     }
@@ -265,7 +266,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var overrideMethod = _mutableMemberFactory.CreateExplicitOverride (this, overriddenMethodBaseDefinition, bodyProvider);
-      _addedMethods.Add (overrideMethod);
+      AddTrackedMethod(overrideMethod);
 
       return overrideMethod;
     }
@@ -285,7 +286,7 @@ namespace Remotion.TypePipe.MutableReflection
       bool isNewlyCreated;
       var method = _mutableMemberFactory.GetOrCreateOverride (this, overriddenMethod, out isNewlyCreated);
       if (isNewlyCreated)
-        _addedMethods.Add (method);
+        AddTrackedMethod (method);
 
       return method;
     }
@@ -316,7 +317,7 @@ namespace Remotion.TypePipe.MutableReflection
       bool isNewlyCreated;
       var method = _mutableMemberFactory.GetOrCreateImplementation (this, interfaceMethod, out isNewlyCreated);
       if (isNewlyCreated)
-        _addedMethods.Add (method);
+        AddTrackedMethod (method);
 
       return method;
     }
@@ -339,9 +340,9 @@ namespace Remotion.TypePipe.MutableReflection
       _addedProperties.Add (property);
 
       if (property.MutableGetMethod != null)
-        _addedMethods.Add (property.MutableGetMethod);
+        AddTrackedMethod (property.MutableGetMethod);
       if (property.MutableSetMethod != null)
-        _addedMethods.Add (property.MutableSetMethod);
+        AddTrackedMethod (property.MutableSetMethod);
 
       return property;
     }
@@ -376,10 +377,10 @@ namespace Remotion.TypePipe.MutableReflection
           this, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
       _addedEvents.Add (event_);
 
-      _addedMethods.Add (event_.MutableAddMethod);
-      _addedMethods.Add (event_.MutableRemoveMethod);
+      AddTrackedMethod (event_.MutableAddMethod);
+      AddTrackedMethod (event_.MutableRemoveMethod);
       if (event_.MutableRaiseMethod != null)
-        _addedMethods.Add (event_.MutableRaiseMethod);
+        AddTrackedMethod(event_.MutableRaiseMethod);
 
       return event_;
     }
@@ -486,12 +487,15 @@ namespace Remotion.TypePipe.MutableReflection
 
     private bool HasAbstractMethods ()
     {
-      // TODO 5370 PERF: This is really slow due to GetBaseDefinition calls here and in MutableType.GetAllMethods.
-      return GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-          .Where (m => m.IsAbstract)
-          .Select (m => m.GetBaseDefinition())
-          .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
-          .Any();
+      if (_hasAbstractMethods == null)
+      {
+        _hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            .Where (m => m.IsAbstract)
+            .Select (m => m.GetBaseDefinition())
+            .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
+            .Any();
+      }
+      return _hasAbstractMethods.Value;
     }
 
     private IEnumerable<T> GetAllMembers<T, TMutable> (IEnumerable<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
@@ -501,6 +505,49 @@ namespace Remotion.TypePipe.MutableReflection
         return addedMembers.Cast<T>();
 
       return addedMembers.Cast<T>().Concat (baseMemberProvider (BaseType));
+    }
+
+    private void AddTrackedMethod (MutableMethodInfo mutableMethod)
+    {
+      _addedMethods.Add (mutableMethod);
+
+      // Cases when adding a method:
+      // - We add an abstract method
+      //   + We had abstract methods (flag == true) => no change (flag = true)
+      //   + We had no abstract methods (flag == false) => we now have abstract nethods (flag = true)
+      //   => Set to true in any case
+
+      // - We add a non-abstract method 
+      //   + We had abstract methods (flag == true) => recalculate if (and only if) it overrides an abstract method (flag = null)
+      //   + We had no abstract methods (flag == false) => no change (flag = false)
+
+      if (mutableMethod.IsAbstract)
+        _hasAbstractMethods = true;
+      else if (mutableMethod.BaseMethod != null && mutableMethod.BaseMethod.IsAbstract)
+        _hasAbstractMethods = null;
+      else if (mutableMethod.AddedExplicitBaseDefinitions.Any (m => m.IsAbstract))
+        _hasAbstractMethods = null;
+
+      // Cases when setting a body:
+      // - The body was null and no longer is => recalculate (flag = null)
+      // - The body is null and wasn't before => we now have abstract methods (flag = true) [cannot currently happen]
+      // - The body is null/not null as it was before => no change
+
+      mutableMethod.BodyChanged += (sender, args) =>
+      {
+        Assertion.IsNotNull (args.NewBody);
+        if (args.OldBody == null && args.NewBody != null)
+          _hasAbstractMethods = null;
+      };
+
+      // Cases when setting an explicit base definition:
+      // - The base definition is abstract and the overrider is not => recalculate (flag = null)
+      // - Otherwise => no change
+      mutableMethod.ExplicitBaseDefinitionAdded += (sender, args) =>
+      {
+        if (args.AddedExplicitBaseDefinition.IsAbstract && !((MutableMethodInfo) sender).IsAbstract)
+          _hasAbstractMethods = null;
+      };
     }
   }
 }
