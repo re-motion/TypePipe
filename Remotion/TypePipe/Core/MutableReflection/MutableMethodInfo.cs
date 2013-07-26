@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo GetBaseDefinition ()
     {
-      return _baseMethod != null ? _baseMethod.GetBaseDefinition () : this;
+      return _baseMethod != null ? MethodBaseDefinitionCache.GetBaseDefinition (_baseMethod) : this;
     }
 
     /// <summary>
@@ -197,7 +197,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!overriddenMethodBaseDefinition.DeclaringType.IsTypePipeAssignableFrom (DeclaringType))
         throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
 
-      if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)
+      if (MethodBaseDefinitionCache.GetBaseDefinition (overriddenMethodBaseDefinition) != overriddenMethodBaseDefinition)
       {
         throw new ArgumentException (
             "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)",

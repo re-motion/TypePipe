@@ -73,6 +73,7 @@
     <Compile Include="MutableReflection\BodyChangedEventArgs.cs" />
     <Compile Include="MutableReflection\ExplicitBaseDefinitionsAddedEventArgs.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitialization.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCache.cs" />
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\IDeserializationMethodInvoker.cs" />
     <Compile Include="TypeAssembly\IAdditionalTypeAssemblyContext.cs" />

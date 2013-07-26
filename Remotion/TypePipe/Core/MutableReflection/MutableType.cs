@@ -470,8 +470,8 @@ namespace Remotion.TypePipe.MutableReflection
           _addedMethods,
           baseType =>
           {
-            var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
-            return baseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
+            var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (MethodBaseDefinitionCache.GetBaseDefinition));
+            return baseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (MethodBaseDefinitionCache.GetBaseDefinition (m)));
           });
     }
 
@@ -491,7 +491,7 @@ namespace Remotion.TypePipe.MutableReflection
       {
         _hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
             .Where (m => m.IsAbstract)
-            .Select (m => m.GetBaseDefinition())
+            .Select (MethodBaseDefinitionCache.GetBaseDefinition)
             .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
             .Any();
       }

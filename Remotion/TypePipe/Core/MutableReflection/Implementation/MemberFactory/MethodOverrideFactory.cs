@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         throw new ArgumentException (message, "overriddenMethod");
       }
 
-      var baseDefinition = overriddenMethod.GetBaseDefinition();
+      var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (overriddenMethod);
       var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AddedMethods);
       if (existingMutableOverride != null)
       {
