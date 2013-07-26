@@ -98,15 +98,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _baseType = baseType;
     }
 
+    // ReSharper disable AssignNullToNotNullAttribute
     public override Assembly Assembly
     {
       get { return null; }
     }
+    // ReSharper restore AssignNullToNotNullAttribute
 
+    // ReSharper disable AssignNullToNotNullAttribute
     public override Module Module
     {
       get { return null; }
     }
+    // ReSharper restore AssignNullToNotNullAttribute
 
     public override Type DeclaringType
     {
@@ -323,6 +327,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
+      if (bindingAttr == (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+        return GetAllMethods().ToArray();
+
       return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray();
     }
 

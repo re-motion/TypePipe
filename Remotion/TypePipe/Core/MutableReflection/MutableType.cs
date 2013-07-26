@@ -489,7 +489,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       if (_hasAbstractMethods == null)
       {
-        _hasAbstractMethods = GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        // Note: GetAllMethods is used because this is faster than GetMethods (...), even though static methods aren't required.
+        _hasAbstractMethods = GetAllMethods()
             .Where (m => m.IsAbstract)
             .Select (MethodBaseDefinitionCache.GetBaseDefinition)
             .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
