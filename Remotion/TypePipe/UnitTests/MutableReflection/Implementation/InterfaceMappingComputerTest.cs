@@ -141,25 +141,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       var mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType), memberSelector: memberSelectorMock);
-      memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]).Repeat.Once();
+
+      // This interface contains Method21, Method22, Method23
+      mutableType.AddInterface (typeof (IAddedInterface));
       mutableType.AddMethod ("Method21", MethodAttributes.Public | MethodAttributes.Virtual);
 
-      // TODO 5059: fix (use simple GetMethods with name)
-      var baseMethod = typeof (DomainType).GetMethods().Single (m => m.Name == "Method23" && m.DeclaringType == typeof (DomainType));
-      var methods = GetAllMethods (mutableType).ToArray();
-      var baseMethodIndex = Array.IndexOf (methods, baseMethod);
-      // Change sequence so that base method comes at start.
-      var mixedMethods = methods.Skip (baseMethodIndex).Concat (methods.Take (baseMethodIndex)).ToArray();
-      Assert.That (mixedMethods[0], Is.SameAs (baseMethod));
-      Assert.That (mixedMethods, Is.EquivalentTo (methods));
+      // The mutableType now has Method21 (added), Method22 (inherited), Method23 (inherited), and a few methods not related to IAddedInterface.
+      var methods = GetAllMethods (mutableType).ToArray ();
 
-      mutableType.AddInterface (typeof (IAddedInterface));
+      // Shuffle the methods return by member selector to demonstrate that method order is irrelevant.
+      var r = new Random (47);
+      var unorderedMethods = methods.OrderBy (m => r);
+      Assert.That (unorderedMethods, Is.EquivalentTo (methods));
       memberSelectorMock
           .Expect (
-              mock =>
-              mock.SelectMethods (
+              mock => mock.SelectMethods (
                   Arg<IEnumerable<MethodInfo>>.List.Equal (methods), Arg.Is (BindingFlags.Public | BindingFlags.Instance), Arg.Is (mutableType)))
-          .Return (mixedMethods);
+          .Return (unorderedMethods);
 
       CallComputeMappingAndCheckResult (
           mutableType,
@@ -167,7 +165,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           Tuple.Create (_addedInterfaceMethod1, methods.First (m => m.Name == "Method21")),
           Tuple.Create (_addedInterfaceMethod2, methods.First (m => m.Name == "Method22")),
           Tuple.Create (_addedInterfaceMethod3, methods.First (m => m.Name == "Method23")));
-      memberSelectorMock.VerifyAllExpectations();
+
+      memberSelectorMock.VerifyAllExpectations ();
     }
 
     [Test]

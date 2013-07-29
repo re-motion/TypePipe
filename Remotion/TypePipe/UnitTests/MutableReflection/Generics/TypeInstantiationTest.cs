@@ -197,7 +197,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition)).Return (fields);
       memberSelectorMock.Expect (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition)).Return (ctors);
-      memberSelectorMock.Expect (mock => mock.SelectMethods (methods, bindingFlags, genericTypeDefinition)).Return (methods);
+      // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
       memberSelectorMock.Expect (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition)).Return (properties);
       memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition)).Return (events);
 

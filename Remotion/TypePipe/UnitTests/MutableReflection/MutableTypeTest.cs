@@ -583,19 +583,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetAttributeFlagsImpl_Abstract_Cached ()
+    public void GetAttributeFlagsImpl_Abstract ()
     {
-      var allMethods = GetAllMethods (_mutableType);
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-      var fakeMethods = new[] { ReflectionObjectMother.GetSomeAbstractMethod() };
-      _memberSelectorMock
-          .Expect (mock => mock.SelectMethods (Arg<IEnumerable<MethodInfo>>.List.Equal (allMethods), Arg.Is (bindingFlags), Arg.Is ((_mutableType))))
-          .Return (fakeMethods).Repeat.Times (1);
+      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (AbstractType));
 
-      Assert.That (_mutableType.IsAbstract, Is.True);
-      // This second call does not invoke SelectMethods for a second time because the abstract flag is cached.
-      Assert.That (_mutableType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract));
-      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (proxyType.IsAbstract, Is.True);
+      Assert.That (proxyType.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit | TypeAttributes.Abstract));
     }
 
     [Test]
@@ -912,11 +905,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       // Note: ToDebugString() is implemented in CustomType base class.
       Assert.That (_mutableType.ToDebugString (), Is.EqualTo ("MutableType = \"MyAbcType\""));
-    }
-
-    private IEnumerable<MethodInfo> GetAllMethods (MutableType mutableType)
-    {
-      return (IEnumerable<MethodInfo>) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetAllMethods");
     }
 
     public class DomainTypeBase
