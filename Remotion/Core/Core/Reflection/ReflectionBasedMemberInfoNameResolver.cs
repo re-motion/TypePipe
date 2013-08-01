@@ -27,10 +27,10 @@ namespace Remotion.Reflection
   /// </summary>
   public class ReflectionBasedMemberInfoNameResolver : IMemberInfoNameResolver
   {
-    private static readonly LockingCacheDecorator<IPropertyInformation, string> s_propertyNameCache =
+    private readonly LockingCacheDecorator<IPropertyInformation, string> s_propertyNameCache =
         CacheFactory.CreateWithLocking<IPropertyInformation, string>();
 
-    private static readonly LockingCacheDecorator<ITypeInformation, string> s_typeNameCache =
+    private readonly LockingCacheDecorator<ITypeInformation, string> s_typeNameCache =
         CacheFactory.CreateWithLocking<ITypeInformation, string> ();
 
     /// <summary>

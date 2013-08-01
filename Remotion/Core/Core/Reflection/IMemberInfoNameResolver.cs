@@ -20,7 +20,7 @@ using Remotion.ServiceLocation;
 
 namespace Remotion.Reflection
 {
-  [ConcreteImplementation (typeof (ReflectionBasedMemberInfoNameResolver))]
+  [ConcreteImplementation (typeof (ReflectionBasedMemberInfoNameResolver), Lifetime = LifetimeKind.Singleton)]
   public interface IMemberInfoNameResolver
   {
     /// <summary>
