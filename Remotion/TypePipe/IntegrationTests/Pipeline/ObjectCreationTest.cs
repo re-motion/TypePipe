@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -25,51 +26,128 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   [TestFixture]
   public class ObjectCreationTest : IntegrationTestBase
   {
+    private IPipeline _modifyingPipeline;
+    private IPipeline _nonModifyingPipeline;
+
+    public override void SetUp ()
+    {
+      base.SetUp ();
+
+      _modifyingPipeline = CreatePipeline ();
+      _nonModifyingPipeline = PipelineFactory.Create ("no-modifications");
+    }
+
     [Test]
     public void ConstructorArguments_Generic ()
     {
-      var pipeline = CreatePipeline();
-
-      var instance = pipeline.CreateObject<DomainType>();
+      var instance = _modifyingPipeline.Create<DomainType>();
       Assert.That (instance.String, Is.EqualTo ("default .ctor"));
 
       var obj = new object();
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create (obj));
+      instance = _modifyingPipeline.Create<DomainType> (ParamList.Create (obj));
       Assert.That (instance.Obj, Is.SameAs (obj));
 
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create ("abc"));
+      instance = _modifyingPipeline.Create<DomainType> (ParamList.Create ("abc"));
       Assert.That (instance.String, Is.EqualTo ("abc"));
 
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create ((IEnumerable<char>) "abc"));
+      instance = _modifyingPipeline.Create<DomainType> (ParamList.Create ((IEnumerable<char>) "abc"));
       Assert.That (instance.Enumerable, Is.EqualTo ("abc"));
       Assert.That (instance.String, Is.Null);
 
-      instance = pipeline.CreateObject<DomainType> (ParamList.Create (new[] { 'a', 'b', 'c' }));
+      instance = _modifyingPipeline.Create<DomainType> (ParamList.Create (new[] { 'a', 'b', 'c' }));
       Assert.That (instance.CharArray, Is.EqualTo (new[] { 'a', 'b', 'c' }));
     }
 
     [Test]
     public void NonGeneric ()
     {
-      var pipeline = CreatePipeline();
-
-      var instance = (DomainType) pipeline.CreateObject (typeof (DomainType));
+      var instance = (DomainType) _modifyingPipeline.Create (typeof (DomainType));
       Assert.That (instance.String, Is.EqualTo ("default .ctor"));
 
-      instance = (DomainType) pipeline.CreateObject (typeof (DomainType), ParamList.Create ("abc"));
+      instance = (DomainType) _modifyingPipeline.Create (typeof (DomainType), ParamList.Create ("abc"));
       Assert.That (instance.String, Is.EqualTo ("abc"));
     }
 
     [Test]
-    public void AllowNonPublic ()
+    public void AllowNonPublic_True ()
     {
-      var pipeline = CreatePipeline();
-
-      var instance1 = pipeline.CreateObject<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
-      var instance2 = (DomainType) pipeline.CreateObject (typeof (DomainType), ParamList.Create (8), allowNonPublicConstructor: true);
+      var instance1 = _modifyingPipeline.Create<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
+      var instance2 = (DomainType) _modifyingPipeline.Create (typeof (DomainType), ParamList.Create (8), allowNonPublicConstructor: true);
 
       Assert.That (instance1.String, Is.EqualTo ("7"));
       Assert.That (instance2.String, Is.EqualTo ("8"));
+    }
+
+    [Test]
+    public void AllowNonPublic_True_WithoutModifications ()
+    {
+      var instance1 = _nonModifyingPipeline.Create<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
+      var instance2 = (DomainType) _nonModifyingPipeline.Create (typeof (DomainType), ParamList.Create (8), allowNonPublicConstructor: true);
+
+      Assert.That (instance1.String, Is.EqualTo ("7"));
+      Assert.That (instance2.String, Is.EqualTo ("8"));
+    }
+
+    [Test]
+    public void CreatingAnAssembledType_Throws ()
+    {
+      var assembledType1 = _nonModifyingPipeline.ReflectionService.GetAssembledType (typeof (DomainType));
+      var assembledType2 = _modifyingPipeline.ReflectionService.GetAssembledType (typeof (DomainType));
+
+      Assert.That (() => _nonModifyingPipeline.Create (assembledType1), Throws.Nothing);
+      Assert.That (
+          () => _modifyingPipeline.Create (assembledType2),
+          Throws.ArgumentException.With.Message.EqualTo ("The provided requested type '" + assembledType2.Name + "' is already an assembled type."));
+    }
+
+    [Test]
+    public void AllowNonPublic_False_Throws ()
+    {
+      Assert.That (
+          () => _modifyingPipeline.Create<DomainType> (ParamList.Create (7), allowNonPublicConstructor: false),
+          Throws.TypeOf<MissingMethodException>().With.Message.EqualTo (
+              "Type 'Remotion.TypePipe.IntegrationTests.Pipeline.ObjectCreationTest+DomainType' contains a constructor with the required signature, "
+              + "but it is not public (and the allowNonPublic flag is not set)."));
+      Assert.That (
+          () => _modifyingPipeline.Create (typeof (DomainType), ParamList.Create (7), allowNonPublicConstructor: false),
+          Throws.TypeOf<MissingMethodException> ().With.Message.EqualTo (
+              "Type 'Remotion.TypePipe.IntegrationTests.Pipeline.ObjectCreationTest+DomainType' contains a constructor with the required signature, "
+              + "but it is not public (and the allowNonPublic flag is not set)."));
+    }
+
+    [Test]
+    public void AllowNonPublic_False_WithNoModifications_Throws ()
+    {
+      Assert.That (
+          () => _nonModifyingPipeline.Create<DomainType> (ParamList.Create (7), allowNonPublicConstructor: false),
+          Throws.TypeOf<MissingMethodException> ().With.Message.EqualTo (
+              "Type 'Remotion.TypePipe.IntegrationTests.Pipeline.ObjectCreationTest+DomainType' contains a constructor with the required signature, "
+              + "but it is not public (and the allowNonPublic flag is not set)."));
+      Assert.That (
+          () => _nonModifyingPipeline.Create (typeof (DomainType), ParamList.Create (7), allowNonPublicConstructor: false),
+          Throws.TypeOf<MissingMethodException> ().With.Message.EqualTo (
+              "Type 'Remotion.TypePipe.IntegrationTests.Pipeline.ObjectCreationTest+DomainType' contains a constructor with the required signature, "
+              + "but it is not public (and the allowNonPublic flag is not set)."));
+    }
+
+    [Test]
+    public void Abstract_Throws ()
+    {
+      Assert.That (
+          () => _modifyingPipeline.Create (typeof (AbstractDomainType), ParamList.Create (12), allowNonPublicConstructor: true),
+          Throws.TypeOf<InvalidOperationException> ().With.Message.EqualTo (
+            "The type 'Remotion.TypePipe.IntegrationTests.Pipeline.ObjectCreationTest+AbstractDomainType' cannot be constructed because the "
+              + "assembled type is abstract."));
+    }
+
+    [Test]
+    public void Abstract_NoModifications_Throws ()
+    {
+      Assert.That (
+          () => _nonModifyingPipeline.Create (typeof (AbstractDomainType), ParamList.Create (12), allowNonPublicConstructor: true),
+          Throws.TypeOf<InvalidOperationException> ().With.Message.EqualTo (
+              "The type 'Remotion.TypePipe.IntegrationTests.Pipeline.ObjectCreationTest+AbstractDomainType' cannot be constructed because the "
+              + "assembled type is abstract."));
     }
 
     public class DomainType
@@ -86,6 +164,16 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       public DomainType (char[] charArray) { CharArray = charArray; }
 
       protected DomainType (int i) { String = "" + i; }
+    }
+
+    public abstract class AbstractDomainType
+    {
+      protected AbstractDomainType (int i)
+      {
+        Dev.Null = i;
+      }
+
+      public abstract void M ();
     }
   }
 }

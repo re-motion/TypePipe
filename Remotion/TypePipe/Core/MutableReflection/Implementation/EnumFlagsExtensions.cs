@@ -30,8 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("attributes", attributes);
       ArgumentUtility.CheckNotNull ("flags", flags);
 
-      Assertion.IsTrue (attributes.GetType() == flags.GetType());
-      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (attributes.GetType(), false));
+      Assertion.DebugAssert (attributes.GetType() == flags.GetType());
 
       var attributesAsInt = (int) (object) attributes;
       var flagsAsInt = (int) (object) flags;
@@ -46,8 +45,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("mask", mask);
       ArgumentUtility.CheckNotNull ("flags", flags);
 
-      Assertion.IsTrue (attributes.GetType() == typeof (T));
-      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+      Assertion.DebugAssert (attributes.GetType () == typeof (T));
 
       var attributesAsInt = (int) (object) attributes;
       var maskAsInt = (int) (object) mask;
@@ -70,8 +68,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("attributes", attributes);
       ArgumentUtility.CheckNotNull ("flags", flags);
 
-      Assertion.IsTrue (attributes.GetType() == typeof (T));
-      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+      Assertion.DebugAssert (attributes.GetType () == typeof (T));
 
       return (T) (object) ((int) (object) attributes | (int) (object) flags);
     }
@@ -81,8 +78,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("attributes", attributes);
       ArgumentUtility.CheckNotNull ("flags", flags);
 
-      Assertion.IsTrue (attributes.GetType() == typeof (T));
-      Assertion.IsTrue (AttributeUtility.IsDefined<FlagsAttribute> (typeof (T), false));
+      Assertion.DebugAssert (attributes.GetType () == typeof (T));
 
       return (T) (object) ((int) (object) attributes & ~(int) (object) flags);
     }

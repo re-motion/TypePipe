@@ -18,10 +18,11 @@
 using System;
 using System.Reflection.Emit;
 using Remotion.Diagnostics;
+using Remotion.Reflection.TypeDiscovery;
 using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.Implementation.Remotion;
 
 namespace Remotion.Development.TypePipe
 {
@@ -29,11 +30,13 @@ namespace Remotion.Development.TypePipe
   /// Use this <see cref="PipelineFactory"/> as a workaround for the Reflection.Emit bug that causes calls to <see cref="TypeBuilder.CreateType"/>
   /// take a very long time to complete when the debugger is attached and a large number of types is generated into the same
   /// <see cref="AssemblyBuilder"/>.
+  /// In addition, this class creates pipelines that automatically add the <see cref="NonApplicationAssemblyAttribute"/> to an in-memory assembly
+  /// immediately after it has been created.
   /// <para>
   /// To use this workaround register <see cref="DebuggerWorkaroundPipelineFactory"/> for <see cref="IPipelineFactory"/> in your IoC container.
   /// </para>
   /// </summary>
-  public class DebuggerWorkaroundPipelineFactory : PipelineFactory
+  public class DebuggerWorkaroundPipelineFactory : RemotionPipelineFactory
   {
     public DebuggerWorkaroundPipelineFactory ()
     {
@@ -50,11 +53,11 @@ namespace Remotion.Development.TypePipe
     public int MaximumTypesPerAssembly { get; set; }
 
     [CLSCompliant (false)]
-    protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (IConfigurationProvider configurationProvider)
+    protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (bool forceStrongNaming, string keyFilePath)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
-      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, configurationProvider, DebuggerInterface, MaximumTypesPerAssembly);
+      return new DebuggerWorkaroundCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, DebuggerInterface, MaximumTypesPerAssembly);
     }
   }
 }

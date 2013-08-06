@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using System.Linq;
+using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -37,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var ifcMethod = ifc.AddAbstractMethod ("InterfaceMethod", returnType: typeof (string));
 
             typeContext.ProxyType.AddInterface (ifc);
-            typeContext.ProxyType.GetOrAddOverride (ifcMethod).SetBody (ctx => Expression.Constant ("new interface implemented"));
+            typeContext.ProxyType.GetOrAddImplementation (ifcMethod).SetBody (ctx => Expression.Constant ("new interface implemented"));
           });
 
       var newInterface = type.GetInterfaces().Single();

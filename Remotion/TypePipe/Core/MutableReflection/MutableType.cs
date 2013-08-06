@@ -40,7 +40,8 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly IMutableMemberFactory _mutableMemberFactory;
 
     private readonly CustomAttributeContainer _customAttributes = new CustomAttributeContainer();
-    private readonly List<Expression> _initializations = new List<Expression>();
+    private readonly List<MutableType> _addedNestedTypes = new List<MutableType>();
+    private readonly InstanceInitialization _initialization = new InstanceInitialization();
     private readonly List<Type> _addedInterfaces = new List<Type>();
     private readonly List<MutableFieldInfo> _addedFields = new List<MutableFieldInfo>();
     private readonly List<MutableConstructorInfo> _addedConstructors = new List<MutableConstructorInfo>();
@@ -49,6 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
     private MutableConstructorInfo _typeInitializer;
+    private bool? _hasAbstractMethods = null;
 
     public MutableType (
         IMemberSelector memberSelector,
@@ -56,15 +58,17 @@ namespace Remotion.TypePipe.MutableReflection
         string name,
         string @namespace,
         TypeAttributes attributes,
+        Type declaringType,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
         : base (memberSelector, name, @namespace, attributes, null, EmptyTypes)
     {
       // Base type may be null (for interfaces).
+      // Declaring type may be null.
       ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
       ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
 
-      SetDeclaringType (null);
+      SetDeclaringType (declaringType);
       SetBaseType (baseType);
 
       _interfaceMappingComputer = interfaceMappingComputer;
@@ -76,14 +80,19 @@ namespace Remotion.TypePipe.MutableReflection
       get { return (MutableType) DeclaringType; }
     }
 
+    public ReadOnlyCollection<MutableType> AddedNestedTypes
+    {
+      get { return _addedNestedTypes.AsReadOnly(); }
+    } 
+
     public MutableConstructorInfo MutableTypeInitializer
     {
       get { return _typeInitializer; }
     }
 
-    public ReadOnlyCollection<Expression> Initializations
+    public InstanceInitialization Initialization
     {
-      get { return _initializations.AsReadOnly(); }
+      get { return _initialization; }
     }
 
     public ReadOnlyCollection<Type> AddedInterfaces
@@ -139,6 +148,17 @@ namespace Remotion.TypePipe.MutableReflection
       return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
+    public MutableType AddNestedType (string typeName, TypeAttributes attributes, Type baseType)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("typeName", typeName);
+      // Base type can be null
+
+      var nestedType = _mutableMemberFactory.CreateNestedType (this, typeName, attributes, baseType);
+      _addedNestedTypes.Add (nestedType);
+
+      return nestedType;
+    }
+
     public MutableConstructorInfo AddTypeInitializer (Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
@@ -147,8 +167,8 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Adds instance initialization code.
-    /// The initialization code is executed exactly once after object creation or deserialization.
+    /// Adds instance initialization code. The initialization code is executed exactly once after object creation or deserialization.
+    /// Use <see cref="InitializationBodyContext.InitializationSemantics"/> to distinguish between object creation and deserialization.
     /// </summary>
     /// <remarks>
     /// <note type="warning">
@@ -162,16 +182,16 @@ namespace Remotion.TypePipe.MutableReflection
     /// </para>
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>
-    /// <seealso cref="Initializations"/>
+    /// <seealso cref="Initialization"/>
     public void AddInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
       var initialization = _mutableMemberFactory.CreateInitialization (this, initializationProvider);
-      _initializations.Add (initialization);
+      _initialization.Expressions.Add (initialization);
     }
 
-    public void AddInterface (Type interfaceType)
+    public void AddInterface (Type interfaceType, bool throwIfAlreadyImplemented = true)
     {
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
@@ -180,13 +200,15 @@ namespace Remotion.TypePipe.MutableReflection
 
       // TODO 4744: Check that interface is visible.
 
-      if (_addedInterfaces.Contains (interfaceType))
+      var alreadyImplemented = _addedInterfaces.Contains (interfaceType);
+      if (alreadyImplemented && throwIfAlreadyImplemented)
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
         throw new ArgumentException (message, "interfaceType");
       }
 
-      _addedInterfaces.Add (interfaceType);
+      if (!alreadyImplemented)
+        _addedInterfaces.Add (interfaceType);
     }
 
     public MutableFieldInfo AddField (string name, FieldAttributes attributes, Type type)
@@ -233,7 +255,7 @@ namespace Remotion.TypePipe.MutableReflection
       // Body provider may be null (for abstract methods).
 
       var method = _mutableMemberFactory.CreateMethod (this, name, attributes, genericParameters, returnTypeProvider, parameterProvider, bodyProvider);
-      _addedMethods.Add (method);
+      AddTrackedMethod (method);
 
       return method;
     }
@@ -244,46 +266,19 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
 
       var overrideMethod = _mutableMemberFactory.CreateExplicitOverride (this, overriddenMethodBaseDefinition, bodyProvider);
-      _addedMethods.Add (overrideMethod);
+      AddTrackedMethod(overrideMethod);
 
       return overrideMethod;
     }
 
     /// <summary>
-    /// Returns a <see cref="MutableMethodInfo"/> that can be used to modify the behavior of the given <paramref name="overriddenMethod"/>.
+    /// Returns an existing or creates a new override (implicit; or explicit if necessary) for <paramref name="overriddenMethod"/>.
     /// </summary>
-    /// <param name="overriddenMethod">The <see cref="MethodInfo"/> to get a <see cref="MutableMethodInfo"/> for.</param>
-    /// <returns>
-    /// The <see cref="MutableMethodInfo"/> corresponding to <paramref name="overriddenMethod"/>, an override for a base method or an implementation for 
-    /// an interface method.
-    /// </returns>
-    /// <remarks>
-    /// Depending on the <see cref="MemberInfo.DeclaringType"/> of <paramref name="overriddenMethod"/> this method returns the following.
-    /// <list type="number">
-    ///   <item>
-    ///     Proxy type
-    ///     <list type="bullet">
-    ///       <item>The corresponding <see cref="MutableMethodInfo"/> from the <see cref="AddedMethods"/> collection.</item>
-    ///     </list>
-    ///   </item>
-    ///   <item>
-    ///     Base type
-    ///     <list type="bullet">
-    ///       <item>An existing mutable override for the base method, or</item>
-    ///       <item>a newly created override (implicit; or explicit if necessary).</item>
-    ///     </list>
-    ///   </item>
-    ///   <item>
-    ///     Interface type
-    ///     <list type="bullet">
-    ///       <item>An existing mutable implementation, or</item>
-    ///       <item>a newly created implementation, or</item>
-    ///       <item>an existing mutable override for a base implementation, or</item>
-    ///       <item>a newly created override for a base implementation (implicit; or explicit if necessary).</item>
-    ///     </list>
-    ///   </item>
-    /// </list>
-    /// </remarks>
+    /// <param name="overriddenMethod">The base method that should be overridden.</param>
+    /// <returns>A <see cref="MutableMethodInfo"/> that is an override of the base method.</returns>
+    /// <exception cref="NotSupportedException">
+    /// If the specified method cannot be overridden, e.g., it is final or not accessible from the proxy.
+    /// </exception>
     public MutableMethodInfo GetOrAddOverride (MethodInfo overriddenMethod)
     {
       ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
@@ -291,7 +286,38 @@ namespace Remotion.TypePipe.MutableReflection
       bool isNewlyCreated;
       var method = _mutableMemberFactory.GetOrCreateOverride (this, overriddenMethod, out isNewlyCreated);
       if (isNewlyCreated)
-        _addedMethods.Add (method);
+        AddTrackedMethod (method);
+
+      return method;
+    }
+
+    /// <summary>
+    /// Returns an existing or creates a new implementation (or re-implementation) for <paramref name="interfaceMethod"/>.
+    /// Note that the specified implementation is not invoked if a final base implementation is invoked directly (not via the interface).
+    /// </summary>
+    /// <param name="interfaceMethod">The interface method that should be implemented.</param>
+    /// <returns>A <see cref="MutableMethodInfo"/> that is an implementation of the interface method.</returns>
+    /// <exception cref="NotSupportedException">
+    /// If the specified method cannot be implemented (or re-implemented), e.g., it is not accessible from the proxy.
+    /// </exception>
+    /// <remarks>
+    /// This method returns one of the following:
+    /// <list type="number">
+    ///   <item>An existing mutable implementation.</item>
+    ///   <item>A newly created implementation (if no base implementation).</item>
+    ///   <item>An existing mutable override for a base implementation.</item>
+    ///   <item>A newly created override (implicit; or explicit if necessary) for a base implementation (if base implementation is not final).</item>
+    ///   <item>A newly created re-implementation which calls the base implementation.</item>
+    /// </list>
+    /// </remarks>
+    public MutableMethodInfo GetOrAddImplementation (MethodInfo interfaceMethod)
+    {
+      ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
+
+      bool isNewlyCreated;
+      var method = _mutableMemberFactory.GetOrCreateImplementation (this, interfaceMethod, out isNewlyCreated);
+      if (isNewlyCreated)
+        AddTrackedMethod (method);
 
       return method;
     }
@@ -314,9 +340,9 @@ namespace Remotion.TypePipe.MutableReflection
       _addedProperties.Add (property);
 
       if (property.MutableGetMethod != null)
-        _addedMethods.Add (property.MutableGetMethod);
+        AddTrackedMethod (property.MutableGetMethod);
       if (property.MutableSetMethod != null)
-        _addedMethods.Add (property.MutableSetMethod);
+        AddTrackedMethod (property.MutableSetMethod);
 
       return property;
     }
@@ -351,10 +377,10 @@ namespace Remotion.TypePipe.MutableReflection
           this, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
       _addedEvents.Add (event_);
 
-      _addedMethods.Add (event_.MutableAddMethod);
-      _addedMethods.Add (event_.MutableRemoveMethod);
+      AddTrackedMethod (event_.MutableAddMethod);
+      AddTrackedMethod (event_.MutableRemoveMethod);
       if (event_.MutableRaiseMethod != null)
-        _addedMethods.Add (event_.MutableRaiseMethod);
+        AddTrackedMethod(event_.MutableRaiseMethod);
 
       return event_;
     }
@@ -416,6 +442,11 @@ namespace Remotion.TypePipe.MutableReflection
         return attributes & ~TypeAttributes.Abstract;
     }
 
+    protected override IEnumerable<Type> GetAllNestedTypes()
+    {
+      return GetAllMembers(_addedNestedTypes, b => EmptyTypes);
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       return GetAllMembers (_addedInterfaces, b => b.GetInterfaces()).Distinct();
@@ -439,8 +470,8 @@ namespace Remotion.TypePipe.MutableReflection
           _addedMethods,
           baseType =>
           {
-            var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (mi => mi.GetBaseDefinition()));
-            return baseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (m.GetBaseDefinition()));
+            var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (MethodBaseDefinitionCache.GetBaseDefinition));
+            return baseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (MethodBaseDefinitionCache.GetBaseDefinition (m)));
           });
     }
 
@@ -456,14 +487,19 @@ namespace Remotion.TypePipe.MutableReflection
 
     private bool HasAbstractMethods ()
     {
-      return GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-          .Where (m => m.IsAbstract)
-          .Select (m => m.GetBaseDefinition())
-          .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
-          .Any();
+      if (_hasAbstractMethods == null)
+      {
+        // Note: GetAllMethods is used because this is faster than GetMethods (...), even though static methods aren't required.
+        _hasAbstractMethods = GetAllMethods()
+            .Where (m => m.IsAbstract)
+            .Select (MethodBaseDefinitionCache.GetBaseDefinition)
+            .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
+            .Any();
+      }
+      return _hasAbstractMethods.Value;
     }
 
-    private IEnumerable<T> GetAllMembers<T, TMutable> (List<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
+    private IEnumerable<T> GetAllMembers<T, TMutable> (IEnumerable<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
         where TMutable : T
     {
       if (BaseType == null)
@@ -471,5 +507,48 @@ namespace Remotion.TypePipe.MutableReflection
 
       return addedMembers.Cast<T>().Concat (baseMemberProvider (BaseType));
     }
-  } 
+
+    private void AddTrackedMethod (MutableMethodInfo mutableMethod)
+    {
+      _addedMethods.Add (mutableMethod);
+
+      // Cases when adding a method:
+      // - We add an abstract method
+      //   + We had abstract methods (flag == true) => no change (flag = true)
+      //   + We had no abstract methods (flag == false) => we now have abstract nethods (flag = true)
+      //   => Set to true in any case
+
+      // - We add a non-abstract method 
+      //   + We had abstract methods (flag == true) => recalculate if (and only if) it overrides an abstract method (flag = null)
+      //   + We had no abstract methods (flag == false) => no change (flag = false)
+
+      if (mutableMethod.IsAbstract)
+        _hasAbstractMethods = true;
+      else if (mutableMethod.BaseMethod != null && mutableMethod.BaseMethod.IsAbstract)
+        _hasAbstractMethods = null;
+      else if (mutableMethod.AddedExplicitBaseDefinitions.Any (m => m.IsAbstract))
+        _hasAbstractMethods = null;
+
+      // Cases when setting a body:
+      // - The body was null and no longer is => recalculate (flag = null)
+      // - The body is null and wasn't before => we now have abstract methods (flag = true) [cannot currently happen]
+      // - The body is null/not null as it was before => no change
+
+      mutableMethod.BodyChanged += (sender, args) =>
+      {
+        Assertion.IsNotNull (args.NewBody);
+        if (args.OldBody == null && args.NewBody != null)
+          _hasAbstractMethods = null;
+      };
+
+      // Cases when setting an explicit base definition:
+      // - The base definition is abstract and the overrider is not => recalculate (flag = null)
+      // - Otherwise => no change
+      mutableMethod.ExplicitBaseDefinitionAdded += (sender, args) =>
+      {
+        if (args.AddedExplicitBaseDefinition.IsAbstract && !((MutableMethodInfo) sender).IsAbstract)
+          _hasAbstractMethods = null;
+      };
+    }
+  }
 }

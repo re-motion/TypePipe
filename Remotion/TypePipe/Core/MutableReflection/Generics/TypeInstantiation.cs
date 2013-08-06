@@ -130,6 +130,12 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return TypePipeCustomAttributeData.GetCustomAttributes (GetGenericTypeDefinition());
     }
 
+    protected override IEnumerable<Type> GetAllNestedTypes ()
+    {
+      // REVIEW: sure? this is a protected method called from GetNestedTypes
+      throw new NotSupportedException ("Method GetNestedTypes is not supported.");
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       return _interfaces;

@@ -21,17 +21,16 @@ using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
@@ -307,62 +306,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    public void GetOrCreateOverride_InterfaceMethod_AddImplementation ()
-    {
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.AddedInterfaceMethod (7));
-      _mutableType.AddInterface (typeof (IAddedInterface));
-
-      var fakeResult = SetupExpectationsForCreateMethod (
-          _methodFactoryMock,
-          _mutableType,
-          baseMethod: interfaceMethod,
-          expectedParameterName: "addedInterface",
-          expectedOverrideMethodName: "AddedInterfaceMethod",
-          expectedOverrideAttributes: MethodAttributes.Public | MethodAttributes.Abstract | MethodAttributes.NewSlot,
-          skipBodyProviderCheck: true);
-
-      var result = _factory.GetOrCreateOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
-
-      _methodFactoryMock.VerifyAllExpectations();
-      Assert.That (_isNewlyCreated, Is.True);
-      Assert.That (result, Is.SameAs (fakeResult));
-    }
-
-    [Test]
-    public void GetOrCreateOverride_InterfaceMethod_OverrideImplementationInBase ()
-    {
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.InterfaceMethod (7));
-      var implementation = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.InterfaceMethod (7));
-
-      CallAndCheckGetOrAddOverride (
-          implementation,
-          interfaceMethod,
-          implementation,
-          false,
-          "interfaceMethodOnDomainType",
-          new MethodInfo[0],
-          "InterfaceMethod",
-          MethodAttributes.Public | MethodAttributes.ReuseSlot);
-    }
-
-    [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
-        + "Use MutableType.AddExplicitOverride to create an explicit implementation.")]
-    public void GetOrCreateOverride_InterfaceMethod_InvalidCandidate ()
-    {
-      _mutableType.AddInterface (typeof (IAddedInterface));
-      _mutableType.AddMethod ("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.InvalidCandidate ());
-
-      _methodFactoryMock
-          .Expect (mock => mock.CreateMethod (null, "", 0, null, null, null, null)).IgnoreArguments()
-          .Throw (new InvalidOperationException());
-
-      _factory.GetOrCreateOverride (_mutableType, interfaceMethod, out _isNewlyCreated);
-    }
-
-    [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Only virtual methods can be overridden.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_NonVirtualMethod ()
     {
@@ -382,7 +325,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of the proxy base class hierarchy: 'IDisposable'.\r\nParameter name: overriddenMethod")]
+        "Method is declared by type 'IDisposable' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
@@ -391,7 +334,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by a type outside of the proxy base class hierarchy: 'MyAbcType'.\r\nParameter name: overriddenMethod")]
+        "Method is declared by type 'MyAbcType' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
       var method = _mutableType.AddMethod ("method", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
@@ -399,17 +342,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void GetOrCreateOverride_FinalBaseMethod ()
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
+        "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
+        + "Use AddExplicitOverride to create an explicit implementation.")]
+    public void GetOrAddImplementation_InterfaceMethod_InvalidCandidate ()
     {
-      var baseDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((A obj) => obj.FinalBaseMethodInB (7));
-      var inputMethod = baseDefinition;
-      var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
-      var isBaseDefinitionShadowed = BooleanObjectMother.GetRandomBoolean ();
+      _mutableType.AddInterface(typeof(IAddedInterface));
+      _mutableType.AddMethod("InvalidCandidate"); // Not virtual, therefore no implicit override/implementation.
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod((IAddedInterface obj) => obj.InvalidCandidate());
 
-      SetupExpectationsForGetOrAddMethod (baseDefinition, baseMethod, isBaseDefinitionShadowed, null);
+      _methodFactoryMock
+          .Expect(mock => mock.CreateMethod(null, "", 0, null, null, null, null)).IgnoreArguments()
+          .Throw(new InvalidOperationException());
 
-      _factory.GetOrCreateOverride (_mutableType, inputMethod, out _isNewlyCreated);
+      _factory.GetOrCreateImplementation(_mutableType, interfaceMethod, out _isNewlyCreated);
     }
 
     private void CallAndCheckGetOrAddOverride (
@@ -500,33 +446,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       return fakeResult;
     }
 
-    private void SetupExpectationsForGetOrAddMethod (
-        MethodInfo baseDefinition, MethodInfo baseMethod, bool isBaseDefinitionShadowed, MethodInfo fakeBaseMethod, MutableType mutableType = null)
-    {
-      mutableType = mutableType ?? _mutableType;
-
-      _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (mutableType.AddedMethods)))
-          .Return (null);
-      _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedOverride (baseDefinition, mutableType.BaseType))
-          .Return (baseMethod);
-      _relatedMethodFinderMock
-          .Expect (
-              mock => mock.IsShadowed (
-                  Arg.Is (baseDefinition),
-                  Arg<IEnumerable<MethodInfo>>.List.Equivalent (
-                      mutableType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods"))))
-          .Return (isBaseDefinitionShadowed);
-      // Needed for CreateMethod (will only be called for implicit overrides)
-      if (!isBaseDefinitionShadowed)
-      {
-        _relatedMethodFinderMock
-            .Expect (mock => mock.GetMostDerivedVirtualMethod (baseMethod.Name, MethodSignature.Create (baseMethod), mutableType.BaseType))
-            .Return (fakeBaseMethod);
-      }
-    }
-
     private MethodBodyCreationContext CreateMethodBodyCreationContext (MethodInfo baseMethod)
     {
       var parameterExpressions = baseMethod.GetParameters().Select (p => Expression.Parameter (p.ParameterType, p.Name));
@@ -548,38 +467,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       // base definition
       public virtual void OverrideHierarchy (int aaa) { }
-
-      public virtual void FinalBaseMethodInB (int i) { }
     }
-
     public class B : A
     {
       // CreateMethodOverride input
       public override void OverrideHierarchy (int bbb) { }
 
       protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int protectedOrInternal) { }
-      public override sealed void FinalBaseMethodInB (int i) { }
     }
-
     public class C : B
     {
       // base inputMethod
       public override void OverrideHierarchy (int ccc) { }
     }
-
-    public class DomainType : C, IDomainInterface
+    public class DomainType : C
     {
       public virtual void InterfaceMethod (int interfaceMethodOnDomainType) {}
       public virtual TPar GenericMethod<TPar> (int arg1, TPar arg2) where TPar : DomainType, IDisposable, new () { return arg2; }
+
+      public void InvalidCandidate () {}
     }
 
-    public interface IDomainInterface
-    {
-      void InterfaceMethod (int i);
-    }
     public interface IAddedInterface
     {
-      void AddedInterfaceMethod (int addedInterface);
       void InvalidCandidate ();
     }
 

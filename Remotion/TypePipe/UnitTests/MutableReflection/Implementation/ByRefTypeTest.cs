@@ -18,6 +18,8 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
@@ -76,6 +78,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAllXXX ()
     {
+      Assert.That (_type.Invoke ("GetAllNestedTypes"), Is.Empty);
       Assert.That (_type.Invoke ("GetAllInterfaces"), Is.Empty);
       Assert.That (_type.Invoke ("GetAllFields"), Is.Empty);
       Assert.That (_type.Invoke ("GetAllConstructors"), Is.Empty);

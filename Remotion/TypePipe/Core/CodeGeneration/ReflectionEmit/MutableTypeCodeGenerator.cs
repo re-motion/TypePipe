@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Remotion.Collections;
@@ -33,11 +34,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class MutableTypeCodeGenerator : IMutableTypeCodeGenerator
   {
     private readonly MutableType _mutableType;
+    private readonly IMutableNestedTypeCodeGeneratorFactory _nestedTypeCodeGeneratorFactory;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
+    private readonly List<IMutableTypeCodeGenerator> _nestedTypeCodeGenerators = new List<IMutableTypeCodeGenerator> ();
 
     private int _state;
     private CodeGenerationContext _context;
@@ -45,6 +48,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     public MutableTypeCodeGenerator (
         MutableType mutableType,
+        IMutableNestedTypeCodeGeneratorFactory nestedTypeCodeGeneratorFactory,
         IReflectionEmitCodeGenerator codeGenerator,
         IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter,
@@ -52,6 +56,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("nestedTypeCodeGeneratorFactory", nestedTypeCodeGeneratorFactory);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
@@ -59,6 +64,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _mutableType = mutableType;
+      _nestedTypeCodeGeneratorFactory = nestedTypeCodeGeneratorFactory;
       _codeGenerator = codeGenerator;
       _emittableOperandProvider = emittableOperandProvider;
       _memberEmitter = memberEmitter;
@@ -74,11 +80,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void DeclareType ()
     {
       EnsureState (0);
-
-      var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProvider);
+      
+      var typeBuilder = DefineType (_codeGenerator, _emittableOperandProvider);
+      //var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProvider);
       typeBuilder.RegisterWith (_emittableOperandProvider, _mutableType);
 
       _context = new CodeGenerationContext (_mutableType, typeBuilder, _codeGenerator.DebugInfoGenerator, _emittableOperandProvider);
+
+      // TODO 5550
+      foreach (var nestedType in _mutableType.AddedNestedTypes)
+      {
+        var nestedTypeCodeGenerator = _nestedTypeCodeGeneratorFactory.Create (nestedType, typeBuilder, _memberEmitter, _emittableOperandProvider);
+        _nestedTypeCodeGenerators.Add (nestedTypeCodeGenerator);
+        nestedTypeCodeGenerator.DeclareType();
+      }
     }
 
     public void DefineTypeFacets ()
@@ -87,6 +102,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       if (_mutableType.BaseType != null)
         _context.TypeBuilder.SetParent (_mutableType.BaseType);
+
+      foreach (var codeGenerator in _nestedTypeCodeGenerators)
+        codeGenerator.DefineTypeFacets();
+      
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
 
@@ -116,9 +135,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       EnsureState (2);
 
+      foreach (var codeGenerator in _nestedTypeCodeGenerators)
+        codeGenerator.CreateType ();
+
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();
+    }
+
+    [CLSCompliant (false)]
+    protected virtual ITypeBuilder DefineType (IReflectionEmitCodeGenerator codeGenerator, IEmittableOperandProvider emittableOperandProvider)
+    {
+      return codeGenerator.DefineType (MutableType.FullName, MutableType.Attributes, emittableOperandProvider);
     }
 
     private void WireAndAddConstructor (

@@ -27,7 +27,8 @@ namespace Remotion.TypePipe.Configuration
 
     public static readonly string ExampleConfiguration =
         "<typePipe xmlns=\"" + c_xmlNamespace + "\">" + Environment.NewLine +
-        "  <forceStrongNaming keyFilePath=\"keyFile.snk\" />" + Environment.NewLine +
+        "  <forceStrongNaming keyFilePath=\"keyFile.snk\"/>" + Environment.NewLine +
+        "  <enableSerializationWithoutAssemblySaving/>" + Environment.NewLine +
         "</typePipe>";
 
     [ConfigurationProperty ("xmlns")]
@@ -40,6 +41,12 @@ namespace Remotion.TypePipe.Configuration
     public ForceStrongNamingConfigurationElement ForceStrongNaming
     {
       get { return (ForceStrongNamingConfigurationElement) this["forceStrongNaming"]; }
+    }
+
+    [ConfigurationProperty ("enableSerializationWithoutAssemblySaving")]
+    public EnableSerializationWithoutAssemblySavingConfigurationElement EnableSerializationWithoutAssemblySaving
+    {
+      get { return (EnableSerializationWithoutAssemblySavingConfigurationElement) this["enableSerializationWithoutAssemblySaving"]; }
     }
 
     protected override bool OnDeserializeUnrecognizedElement (string elementName, XmlReader reader)

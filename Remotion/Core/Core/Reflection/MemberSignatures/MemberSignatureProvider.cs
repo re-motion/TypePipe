@@ -37,6 +37,8 @@ namespace Remotion.Reflection.MemberSignatures
           return PropertySignature.Create ((PropertyInfo) memberInfo);
         case MemberTypes.Event:
           return EventSignature.Create ((EventInfo) memberInfo);
+        case MemberTypes.NestedType:
+          return NestedTypeSignature.Create ((Type) memberInfo);
 
         default:
           var message = string.Format (

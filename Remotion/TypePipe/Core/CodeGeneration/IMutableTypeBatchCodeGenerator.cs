@@ -17,13 +17,13 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// Defines an interface for classes generating types from a <see cref="TypeAssemblyContext"/>.
+  /// Defines an interface for classes generating types from a <see cref="ProxyTypeAssemblyContext"/>.
   /// </summary>
   public interface IMutableTypeBatchCodeGenerator
   {

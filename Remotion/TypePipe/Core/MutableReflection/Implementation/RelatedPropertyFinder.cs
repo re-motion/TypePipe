@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private bool SafeHasSameBaseDefinition (MethodInfo a, MethodInfo b)
     {
-      return a != null && b != null && a.GetBaseDefinition() == b.GetBaseDefinition();
+      return a != null && b != null && MethodBaseDefinitionCache.GetBaseDefinition (a) == MethodBaseDefinitionCache.GetBaseDefinition (b);
     }
   }
 }

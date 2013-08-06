@@ -20,6 +20,9 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection.MemberSignatures;
@@ -27,7 +30,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -247,6 +249,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
+    public void CreateMethod_ImplicitOverride_FinalBaseMethod ()
+    {
+      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
+          .Return (fakeBaseMethod);
+
+      CallCreateMethod (
+          _mutableType,
+          "MethodName",
+          MethodAttributes.Public | MethodAttributes.Virtual,
+          typeof (void),
+          ParameterDeclaration.None,
+          ctx => Expression.Empty());
+    }
+
+    [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "Cannot override method 'B.InaccessibleBaseMethodInB' as it is not visible from the proxy.")]
+    public void CreateMethod_ImplicitOverride_InaccessibleBaseMethod ()
+    {
+      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
+      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.InaccessibleBaseMethodInB (7));
+      _relatedMethodFinderMock
+          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
+          .Return (fakeBaseMethod);
+
+      CallCreateMethod (
+          _mutableType,
+          "MethodName",
+          MethodAttributes.Public | MethodAttributes.Virtual,
+          typeof (void),
+          ParameterDeclaration.None,
+          ctx => Expression.Empty());
+    }
+
+    [Test]
     [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Non-abstract methods must have a body.\r\nParameter name: bodyProvider")]
     public void CreateMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
     {
@@ -347,25 +388,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           Throws.InvalidOperationException.With.Message.EqualTo ("Method with equal name and signature already exists."));
     }
 
-    [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
-    public void CreateMethod_ThrowsIfOverridingFinalMethod ()
-    {
-      var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
-      var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
-      _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
-          .Return (fakeBaseMethod);
-
-      CallCreateMethod (
-          _mutableType,
-          "MethodName",
-          MethodAttributes.Public | MethodAttributes.Virtual,
-          typeof (void),
-          ParameterDeclaration.None,
-          ctx => Expression.Empty ());
-    }
-
     private MutableMethodInfo CreateMethod (MutableType mutableType, MethodAttributes attributes)
     {
       return CallCreateMethod (
@@ -404,6 +426,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       protected internal virtual void ProtectedOrInternalVirtualNewSlotMethodInB (int protectedOrInternal) { }
       public override sealed void FinalBaseMethodInB (int i) { }
+      internal virtual void InaccessibleBaseMethodInB (int i) { }
     }
 
     public class C : B

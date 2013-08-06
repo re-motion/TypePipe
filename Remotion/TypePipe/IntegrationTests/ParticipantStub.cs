@@ -17,43 +17,62 @@
 
 using System;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.TypeAssembly;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
   public class ParticipantStub : IParticipant
   {
-    private readonly ICacheKeyProvider _cacheKeyProvider;
-    private readonly Action<ITypeAssemblyContext> _participateAction;
+    private readonly ITypeIdentifierProvider _typeIdentifierProvider;
+    private readonly Action<object, IProxyTypeAssemblyContext> _participateAction;
     private readonly Action<LoadedTypesContext> _rebuildStateAction;
+    private readonly Action<Type> _handleNonSubclassableTypeAction;
+    private readonly Func<object, IAdditionalTypeAssemblyContext, Type> _getOrCreateAdditionalTypeFunc;
 
     public ParticipantStub (
-        ICacheKeyProvider cacheKeyProvider, Action<ITypeAssemblyContext> participateAction, Action<LoadedTypesContext> rebuildStateAction)
-    
+        ITypeIdentifierProvider typeIdentifierProvider,
+        Action<object, IProxyTypeAssemblyContext> participateAction,
+        Action<LoadedTypesContext> rebuildStateAction,
+        Action<Type> handleNonSubclassableTypeAction,
+        Func<object, IAdditionalTypeAssemblyContext, Type> getOrCreateAdditionalTypeFunc)
     {
-      // Cache key provider may be null.
+      // Type identifier provider may be null.
       ArgumentUtility.CheckNotNull ("participateAction", participateAction);
       ArgumentUtility.CheckNotNull ("rebuildStateAction", rebuildStateAction);
+      ArgumentUtility.CheckNotNull ("handleNonSubclassableTypeAction", handleNonSubclassableTypeAction);
+      ArgumentUtility.CheckNotNull ("getOrCreateAdditionalTypeFunc", getOrCreateAdditionalTypeFunc);
 
-      _cacheKeyProvider = cacheKeyProvider;
+      _typeIdentifierProvider = typeIdentifierProvider;
       _participateAction = participateAction;
       _rebuildStateAction = rebuildStateAction;
+      _handleNonSubclassableTypeAction = handleNonSubclassableTypeAction;
+      _getOrCreateAdditionalTypeFunc = getOrCreateAdditionalTypeFunc;
     }
 
-    public ICacheKeyProvider PartialCacheKeyProvider
+    public ITypeIdentifierProvider PartialTypeIdentifierProvider
     {
-      get { return _cacheKeyProvider; }
+      get { return _typeIdentifierProvider; }
     }
 
-    public void Participate (ITypeAssemblyContext typeAssemblyContext)
+    public void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext)
     {
-      _participateAction (typeAssemblyContext);
+      _participateAction (id, proxyTypeAssemblyContext);
     }
 
     public void RebuildState (LoadedTypesContext loadedTypesContext)
     {
       _rebuildStateAction (loadedTypesContext);
+    }
+
+    public void HandleNonSubclassableType (Type requestedType)
+    {
+      _handleNonSubclassableTypeAction (requestedType);
+    }
+
+    public Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
+    {
+      return _getOrCreateAdditionalTypeFunc (additionalTypeID, additionalTypeAssemblyContext);
     }
   }
 }

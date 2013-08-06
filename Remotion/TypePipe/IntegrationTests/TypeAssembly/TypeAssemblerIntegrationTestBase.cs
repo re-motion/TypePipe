@@ -18,12 +18,14 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {
@@ -34,16 +36,16 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     protected Type AssembleType<T> (params Action<MutableType>[] participantActions)
     {
-      var actions = participantActions.Select (a => (Action<ITypeAssemblyContext>) (ctx => a (ctx.ProxyType))).ToArray();
+      var actions = participantActions.Select (a => (Action<IProxyTypeAssemblyContext>) (ctx => a (ctx.ProxyType))).ToArray();
       return AssembleType (typeof (T), actions);
     }
 
-    protected Type AssembleType<T> (params Action<ITypeAssemblyContext>[] participantActions)
+    protected Type AssembleType<T> (params Action<IProxyTypeAssemblyContext>[] participantActions)
     {
       return AssembleType (typeof (T), participantActions);
     }
 
-    protected Type AssembleType (Type requestedType, params Action<ITypeAssemblyContext>[] participantActions)
+    protected Type AssembleType (Type requestedType, params Action<IProxyTypeAssemblyContext>[] participantActions)
     {
       var participants = participantActions.Select (a => CreateParticipant (a)).ToArray();
       var pipeline = CreatePipeline (participants);

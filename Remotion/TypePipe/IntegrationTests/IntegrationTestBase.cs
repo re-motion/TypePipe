@@ -20,28 +20,44 @@ using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.TypeAssembly;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
   public abstract class IntegrationTestBase
   {
-    protected static IParticipant CreateParticipant (
-        Action<MutableType> typeModification, ICacheKeyProvider cacheKeyProvider = null, Action<LoadedTypesContext> rebuildStateAction = null)
+    protected static IParticipant CreateParticipant (Action<MutableType> typeModification)
     {
-      return CreateParticipant (ctx => typeModification (ctx.ProxyType), cacheKeyProvider, rebuildStateAction);
+      return CreateParticipant (ctx => typeModification (ctx.ProxyType));
+    }
+
+    protected static IParticipant CreateParticipant (Action<IProxyTypeAssemblyContext> participateAction)
+    {
+      return CreateParticipant ((id, ctx) => participateAction (ctx));
     }
 
     protected static IParticipant CreateParticipant (
-        Action<ITypeAssemblyContext> participateAction = null,
-        ICacheKeyProvider cacheKeyProvider = null,
-        Action<LoadedTypesContext> rebuildStateAction = null)
+        Action<object, IProxyTypeAssemblyContext> participateAction = null,
+        ITypeIdentifierProvider typeIdentifierProvider = null,
+        Action<LoadedTypesContext> rebuildStateAction = null,
+        Func<object, IAdditionalTypeAssemblyContext, Type> additionalTypeFunc = null,
+        Action<Type> handleNonSubclassableTypeAction = null)
     {
-      return new ParticipantStub (cacheKeyProvider, participateAction ?? (ctx => { }), rebuildStateAction ?? (ctx => { }));
+      participateAction = participateAction ?? ((id, ctx) => { });
+      rebuildStateAction = rebuildStateAction ?? (ctx => { });
+      handleNonSubclassableTypeAction = handleNonSubclassableTypeAction ?? (ctx => { });
+      additionalTypeFunc = additionalTypeFunc ?? ((id, ctx) => null);
+
+      // Avoid no-modification optimization.
+      participateAction = CreateModifyingAction (participateAction);
+
+      return new ParticipantStub (typeIdentifierProvider, participateAction, rebuildStateAction, handleNonSubclassableTypeAction, additionalTypeFunc);
     }
 
 
@@ -111,19 +127,22 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IPipeline CreatePipeline (string participantConfigurationID, params IParticipant[] participants)
     {
-      return CreatePipeline (participantConfigurationID, participants, null);
+      return CreatePipeline (participantConfigurationID, PipelineSettings.Defaults, participants);
     }
 
-    protected IPipeline CreatePipeline (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider = null)
+    protected IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
     {
-      var objectFactory = PipelineFactory.Create (participantConfigurationID, participants, configurationProvider);
+      // Avoid no-modification optimization.
+      if (participants.Length == 0)
+        participants = new[] { CreateParticipant (CreateModifyingAction ((id, ctx) => { })) };
 
-      _codeManager = objectFactory.CodeManager;
+      var pipeline = PipelineFactory.Create (participantConfigurationID, settings, participants);
+
+      _codeManager = pipeline.CodeManager;
       _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
       _codeManager.SetAssemblyNamePattern (participantConfigurationID + "_{counter}");
 
-      return objectFactory;
+      return pipeline;
     }
 
     protected string Flush (IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
@@ -168,5 +187,24 @@ namespace Remotion.TypePipe.IntegrationTests
 
       return typeName + '.' + methodName;
     }
+
+    private static Action<object, IProxyTypeAssemblyContext> CreateModifyingAction (Action<object, IProxyTypeAssemblyContext> participateAction)
+    {
+      return (id, ctx) =>
+      {
+        participateAction (id, ctx);
+
+        if (ctx.ProxyType.AddedCustomAttributes.Count == 0)
+        {
+          var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new TypeAssembledByIntegrationTestAttribute());
+          var attribute = new CustomAttributeDeclaration (constructor, new object[0]);
+
+          ctx.ProxyType.AddCustomAttribute (attribute);
+        }
+      };
+    }
+
+    [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    public class TypeAssembledByIntegrationTestAttribute : Attribute {}
   }
 }

@@ -20,12 +20,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.Expressions;
 using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private MutableTypeFactory _factory;
 
     private Type _domainType;
+    private Type _declaringType;
 
     [SetUp]
     public void SetUp ()
@@ -52,13 +53,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var @namespace = "MyNamespace";
       var attributes = (TypeAttributes) 7;
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
+      var declaringType = ReflectionObjectMother.GetSomeType();
 
-      var result = _factory.CreateType (name, @namespace, attributes, baseType);
+      var result = _factory.CreateType (name, @namespace, attributes, baseType, declaringType);
 
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Namespace, Is.EqualTo (@namespace));
       Assert.That (result.Attributes, Is.EqualTo (attributes));
       Assert.That (result.BaseType, Is.SameAs (baseType));
+      Assert.That (result.DeclaringType, Is.SameAs (declaringType));
+    }
+
+    [Test]
+    public void CreateType_NamespaceCanBeNull ()
+    {
+      var result = _factory.CreateType ("Name", null, TypeAttributes.Class, typeof (object), typeof (object));
+
+      Assert.That (result.Namespace, Is.Null);
+    }
+
+    [Test]
+    public void CreateType_DeclaringTypeCanBeNull ()
+    {
+      var result = _factory.CreateType ("Name", "ns", TypeAttributes.Class, typeof (object), null);
+
+      Assert.That (result.DeclaringType, Is.Null);
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type cannot be null.\r\nParameter name: baseType")]
+    public void CreateType_BaseType_CannotBeNull ()
+    {
+      _factory.CreateType ("Name", "ns", TypeAttributes.Class, null, typeof (object));
+    }
+
+    [Test]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type must be null for interfaces.\r\nParameter name: baseType")]
+    public void CreateType_BaseType_MustBeNullForInterfaces ()
+    {
+      _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), typeof (object));
     }
 
     [Test]
@@ -87,41 +120,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Cannot create interface type. Use CreateInterface instead.\r\nParameter name: attributes")]
-    public void CreateType_InterfaceAttributes ()
-    {
-      _factory.CreateType ("name", null, TypeAttributes.Interface, typeof (object));
-    }
-
-    [Test]
-    public void CreateInterface ()
-    {
-      var result = _factory.CreateInterface ("IAbc", "MyNs");
-
-      Assert.That (result.IsInterface, Is.True);
-      Assert.That (result.BaseType, Is.Null);
-      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract));
-      Assert.That (result.Name, Is.EqualTo ("IAbc"));
-      Assert.That (result.Namespace, Is.EqualTo ("MyNs"));
-    }
-
-    [Test]
     public void CreateProxy ()
     {
       var result = _factory.CreateProxy (_domainType);
 
-      Assert.That (result.BaseType, Is.SameAs (_domainType));
-      Assert.That (result.Name, Is.EqualTo (@"DomainType_Proxy1"));
-      Assert.That (result.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
-      Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+      var type = result.Type;
+      Assert.That (type.BaseType, Is.SameAs (_domainType));
+      Assert.That (type.Name, Is.EqualTo (@"DomainType_Proxy_1"));
+      Assert.That (type.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
+      Assert.That (type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
+      Assert.That (type.DeclaringType, Is.Null);
+
+      Assert.That (result, Is.TypeOf<ProxyTypeModificationTracker> ());
+      Assert.That (result.As<ProxyTypeModificationTracker> ().ConstructorBodies, Is.EqualTo (type.AddedConstructors.Select (c => c.Body)));
     }
 
     [Test]
     public void CreateProxy_UniqueNames ()
     {
-      var result1 = _factory.CreateProxy (_domainType);
-      var result2 = _factory.CreateProxy (_domainType);
+      var result1 = _factory.CreateProxy (_domainType).Type;
+      var result2 = _factory.CreateProxy (_domainType).Type;
 
       Assert.That (result1.Name, Is.Not.EqualTo (result2.Name));
     }
@@ -129,22 +147,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy_Serializable ()
     {
-      var result = _factory.CreateProxy (typeof (SerializableType));
+      var result = _factory.CreateProxy (typeof (SerializableType)).Type;
 
       Assert.That (result.IsSerializable, Is.True);
     }
 
     [Test]
-    public void CreateProxy_CopiesAccessibleInstanceConstructors ()
+    public void CreateProxy_CopiesAccessibleInstanceConstructors_WithPublicVisibility ()
     {
-      var result = _factory.CreateProxy (_domainType);
+      var result = _factory.CreateProxy (_domainType).Type;
 
       Assert.That (result.AddedConstructors, Has.Count.EqualTo (1));
-
       var ctor = result.AddedConstructors.Single();
       Assert.That (ctor.IsStatic, Is.False);
-      Assert.That (ctor.IsFamily, Is.True);
-      Assert.That (ctor.IsAssembly, Is.False);
+      Assert.That (ctor.IsPublic, Is.True, "Changed from 'family or assembly'.");
+      Assert.That (ctor.IsHideBySig, Is.True);
 
       var parameter = ctor.GetParameters().Single();
       CustomParameterInfoTest.CheckParameter (parameter, ctor, 0, "i", typeof (int).MakeByRefType(), ParameterAttributes.Out);
@@ -157,14 +174,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private void CheckCreateType (Type validBaseType)
     {
-      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, validBaseType), Throws.Nothing);
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, validBaseType, null), Throws.Nothing);
     }
 
     private void CheckThrowsForInvalidBaseType (Type invalidBaseType)
     {
       var message = "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
                     + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
-      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType), Throws.ArgumentException.With.Message.EqualTo (message));
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType, null), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 
     public class DomainType

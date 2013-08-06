@@ -141,7 +141,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       return type.GetFields (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
           .Select (field => field.Name)
-          .ToArray (); // better error message
+          .Where(n => n != "__typeID") // Exclude '__typeID' field.
+          .ToArray (); // Better error message.
     }
 
     public class OriginalType

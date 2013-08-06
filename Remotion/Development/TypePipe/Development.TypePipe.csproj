@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F6FAF727-9405-4BCC-9153-803F73853E67}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Remotion.Development.TypePipe</RootNamespace>
+    <AssemblyName>Remotion.Development.TypePipe</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Remotion.Development.TypePipe.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Remotion.Development.TypePipe.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\prereq\Assemblies\CommonServiceLocator-1.0\net-2.0\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\AssemblyInfoShared.cs">
+      <Link>Properties\AssemblyInfoShared.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTesting\Expressions\Assert2.cs" />
+    <Compile Include="UnitTesting\Expressions\ExpressionTreeComparer.cs" />
+    <Compile Include="UnitTesting\ModifyingParticipant.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\Caching\AssembledTypeIDObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\TypeAssemblyContextBaseObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\TestableTypeAssemblyContextBase.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\Expressions\ExpressionTreeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\LoadedTypesContextObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\CodeGeneration\ProxyTypeAssemblyContextObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\CustomAttributeDeclarationObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\CustomAttributeReflectionObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\GenericParameterDeclarationObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Generics\MethodInstantiationObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Generics\MethodOnTypeInstantiationObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Generics\MutableGenericParameterObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Generics\TypeInstantiationObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\ArrayTypeBaseObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\ByRefTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\ConstructorOnCustomTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomConstructorInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomEventInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomFieldInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomMethodInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomParameterInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomPropertyInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\MethodOnCustomTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\MultiDimensionalArrayTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\ParameterOnCustomMemberObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableArrayTypeBase.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableCustomConstructorInfo.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableCustomEventInfo.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableCustomFieldInfo.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableCustomMethodInfo.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableCustomParameterInfo.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableCustomPropertyInfo.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\TestableCustomType.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\VectorTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableConstructorInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableEventInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableFieldInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableMethodInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableParameterInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutablePropertyInfoObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\MutableTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\ParameterDeclarationObjectMother.cs" />
+    <Compile Include="UnitTesting\PipelineRegistryTestHelper.cs" />
+    <Compile Include="UnitTesting\Serialization\FlatValueStub.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\remotion.snk">
+      <Link>remotion.snk</Link>
+    </None>
+    <None Include="..\..\Remotion LGPL.licenseheader">
+      <Link>Remotion LGPL.licenseheader</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">
+      <Project>{2aa369ec-a4e7-4d75-9101-efa90e902625}</Project>
+      <Name>Core.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TypePipe\Core\TypePipe.Core.csproj">
+      <Project>{98e7f7aa-12b2-4a6b-8922-52c8e53b378e}</Project>
+      <Name>TypePipe.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Development.Core.csproj">
+      <Project>{b719a305-0493-4c72-88fe-9a2fc6964578}</Project>
+      <Name>Development.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

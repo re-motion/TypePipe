@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType =>
           {
             proxyType.AddInterface (typeof (IAddedInterface));
-            var method = proxyType.GetOrAddOverride (interfaceMethod);
+            var method = proxyType.GetOrAddImplementation (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           proxyType =>
           {
             proxyType.AddInterface (typeof (IAddedInterfaceWithGenericMethod));
-            var mutableMethod = proxyType.GetOrAddOverride (interfaceMethod);
+            var mutableMethod = proxyType.GetOrAddImplementation (interfaceMethod);
 
             Assert.That (mutableMethod.BaseMethod, Is.Null);
             Assert.That (mutableMethod.IsGenericMethodDefinition, Is.True);
@@ -107,13 +107,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             proxyType.AddInterface (typeof (IInvalidCandidates));
 
-            var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already "
-                                + "exists. Use MutableType.AddExplicitOverride to create an explicit implementation.";
+            var messageFormat = "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
+                                + "Use AddExplicitOverride to create an explicit implementation.";
             Assert.That (
-                () => proxyType.GetOrAddOverride (interfaceMethod1),
+                () => proxyType.GetOrAddImplementation (interfaceMethod1),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod1.Name)));
             Assert.That (
-                () => proxyType.GetOrAddOverride (interfaceMethod2),
+                () => proxyType.GetOrAddImplementation (interfaceMethod2),
                 Throws.InvalidOperationException.With.Message.EqualTo (string.Format (messageFormat, interfaceMethod2.Name)));
 
             // Implement the interface, otherwise the type is invalid and cannot be generated.
@@ -127,7 +127,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.Method());
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (interfaceMethod)
+          p => p.GetOrAddImplementation (interfaceMethod)
                 .SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"))));
 
       var instance = (IDomainInterface) Activator.CreateInstance (type);
@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((IDomainInterface o) => o.GenericMethod<Dev.T>());
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (interfaceMethod)
+          p => p.GetOrAddImplementation (interfaceMethod)
                 .SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified"))));
 
       var instance = (IDomainInterface) Activator.CreateInstance (type);
@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var explicitImplementation = proxyType.GetOrAddOverride (baseMethod);
             explicitImplementation.AddExplicitBaseDefinition (interfaceMethod);
 
-            proxyType.GetOrAddOverride (interfaceMethod)
+            proxyType.GetOrAddImplementation (interfaceMethod)
                      .SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" modified")));
           });
 
@@ -169,23 +169,21 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "Cannot override final method 'DomainType.Remotion.TypePipe.IntegrationTests.TypeAssembly.InterfaceImplementationTest."
-                          + "IDomainInterface.ExplicitlyImplemented'.")]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "Cannot re-implement interface method 'ExplicitlyImplemented' because its base implementation on 'DomainType' is not accessible.")]
     public void Modify_Explicit_Existing ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.ExplicitlyImplemented());
-      AssembleType<DomainType> (p => p.GetOrAddOverride (interfaceMethod));
+      AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod));
     }
 
     [Test]
+    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
+        "Cannot re-implement interface method 'ExplicitlyImplemented' because its base implementation on 'DomainTypeBase' is not accessible.")]
     public void Modify_Explicit_ExistingOnBase ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.ExplicitlyImplemented());
-      var message = "Cannot override final method 'DomainTypeBase.Remotion.TypePipe.IntegrationTests.TypeAssembly."
-                    + "InterfaceImplementationTest.IBaseInterface.ExplicitlyImplemented'.";
-      AssembleType<DomainType> (
-          p => Assert.That (() => p.GetOrAddOverride (interfaceMethod), Throws.TypeOf<NotSupportedException>().With.Message.EqualTo (message)));
+      AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod));
     }
 
     [Test]
@@ -193,7 +191,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.BaseMethod());
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (interfaceMethod)
+          p => p.GetOrAddImplementation (interfaceMethod)
                 .SetBody (
                     ctx =>
                     {
@@ -212,7 +210,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var interfaceMethod =
           NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((IBaseInterface o) => o.GenericBaseMethod<Dev.T>());
       var type = AssembleType<DomainType> (
-          p => p.GetOrAddOverride (interfaceMethod)
+          p => p.GetOrAddImplementation (interfaceMethod)
                 .SetBody (
                     ctx =>
                     {
@@ -232,7 +230,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           proxyType =>
           {
-            var method = proxyType.GetOrAddOverride (interfaceMethod);
+            var method = proxyType.GetOrAddImplementation (interfaceMethod);
             method.SetBody (
                 ctx =>
                 {

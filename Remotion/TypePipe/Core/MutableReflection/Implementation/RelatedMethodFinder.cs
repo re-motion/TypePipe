@@ -46,9 +46,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
-      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition());
+      Assertion.DebugAssert (baseDefinition == MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition));
 
-      Func<MethodInfo, bool> predicate = m => m.GetBaseDefinition().Equals (baseDefinition);
+      Func<MethodInfo, bool> predicate = m => MethodBaseDefinitionCache.GetBaseDefinition (m).Equals (baseDefinition);
       return FirstOrDefaultFromOrderedBaseMethods (typeToStartSearch, predicate);
     }
 
@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("method", method);
       Assertion.IsNotNull (method.DeclaringType);
 
-      var baseDefinition = method.GetBaseDefinition();
+      var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
       if (baseDefinition.DeclaringType.BaseType == null)
         return null;
 
@@ -70,13 +70,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("shadowingCandidates", shadowingCandidates);
-      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition ());
+      Assertion.DebugAssert (baseDefinition == MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition));
 
       return shadowingCandidates.Any (
           m => m.Name == baseDefinition.Name
                && MethodSignature.AreEqual (m, baseDefinition)
                && baseDefinition.DeclaringType.IsTypePipeAssignableFrom (m.DeclaringType.BaseType)
-               && m.GetBaseDefinition() != baseDefinition);
+               && MethodBaseDefinitionCache.GetBaseDefinition (m) != baseDefinition);
     }
 
     /// <inheritdoc />
@@ -84,10 +84,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("overrideCandidates", overrideCandidates);
-      Assertion.IsTrue (baseDefinition == baseDefinition.GetBaseDefinition());
+      Assertion.DebugAssert (baseDefinition == MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition));
 
       return overrideCandidates.SingleOrDefault (
-          m => m.GetBaseDefinition().Equals (baseDefinition)
+          m => MethodBaseDefinitionCache.GetBaseDefinition (m).Equals (baseDefinition)
                || m.AddedExplicitBaseDefinitions.Contains (baseDefinition));
     }
 

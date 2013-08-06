@@ -14,16 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
@@ -42,26 +41,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     private class ModuleContext
     {
-      private readonly Func<bool> _forceStrongNamingFunc;
-      private bool? _forceStrongNaming;
-
-      // TODO 5057: Use Lazy<T>.
-      public ModuleContext (Func<bool> forceStrongNamingFunc)
-      {
-        _forceStrongNamingFunc = forceStrongNamingFunc;
-      }
-
-      public bool ForceStrongNaming
-      {
-        get
-        {
-          if (!_forceStrongNaming.HasValue)
-            _forceStrongNaming = _forceStrongNamingFunc();
-
-          return _forceStrongNaming.Value;
-        }
-      }
-
       public IModuleBuilder ModuleBuilder { get; set; }
       public DebugInfoGenerator DebugInfoGenerator { get; set; }
     }
@@ -72,20 +51,22 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private static int s_counter;
 
     private readonly IModuleBuilderFactory _moduleBuilderFactory;
-    private readonly IConfigurationProvider _configurationProvider;
+    private readonly bool _forceStrongNaming;
+    private readonly string _keyFilePath;
 
     private string _assemblyDirectory;
     private string _assemblyNamePattern = c_defaultAssemblyNamePattern;
     private ModuleContext _moduleContext;
 
     [CLSCompliant (false)]
-    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, IConfigurationProvider configurationProvider)
+    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, bool forceStrongNaming, string keyFilePath)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
-      ArgumentUtility.CheckNotNull ("configurationProvider", configurationProvider);
+      // Key file path may be null.
 
       _moduleBuilderFactory = moduleBuilderFactory;
-      _configurationProvider = configurationProvider;
+      _forceStrongNaming = forceStrongNaming;
+      _keyFilePath = keyFilePath;
 
       ResetModuleContext();
     }
@@ -138,7 +119,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public IEmittableOperandProvider CreateEmittableOperandProvider ()
     {
       IEmittableOperandProvider emittableOperandProvider = new EmittableOperandProvider (new DelegateProvider());
-      return _moduleContext.ForceStrongNaming
+      return _forceStrongNaming
                  ? new StrongNameCheckingEmittableOperandProviderDecorator (emittableOperandProvider, new TypeAnalyzer (new AssemblyAnalyzer()))
                  : emittableOperandProvider;
     }
@@ -152,10 +133,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (_moduleContext.ModuleBuilder == null)
       {
         var assemblyName = GetNextAssemblyName();
-        var strongName = _moduleContext.ForceStrongNaming;
-        var keyFilePathOrNull = _configurationProvider.KeyFilePath;
-
-        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (assemblyName, _assemblyDirectory, strongName, keyFilePathOrNull);
+        _moduleContext.ModuleBuilder = _moduleBuilderFactory.CreateModuleBuilder (assemblyName, _assemblyDirectory, _forceStrongNaming, _keyFilePath);
       }
 
       var typeBuilder = _moduleContext.ModuleBuilder.DefineType (name, attributes);
@@ -165,7 +143,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     // Used by DebuggerWorkaroundCodeGenerator.
     protected void ResetModuleContext ()
     {
-      _moduleContext = new ModuleContext (() => _configurationProvider.ForceStrongNaming);
+      _moduleContext = new ModuleContext();
     }
 
     private string GetNextAssemblyName ()

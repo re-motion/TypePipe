@@ -81,6 +81,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       throw new NotSupportedException ("Method GetCustomAttributeData is not supported.");
     }
 
+    protected override IEnumerable<Type> GetAllNestedTypes ()
+    {
+      throw new NotSupportedException ("Method GetAllNestedTypes is not supported.");
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       throw new NotSupportedException ("Method GetAllInterfaces is not supported.");

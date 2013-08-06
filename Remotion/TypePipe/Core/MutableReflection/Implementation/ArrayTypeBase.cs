@@ -113,6 +113,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return true;
     }
 
+    // TODO: mko
+    protected override IEnumerable<Type> GetAllNestedTypes()
+    {
+      throw new NotImplementedException();
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       return _interfaces.Value;

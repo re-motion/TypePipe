@@ -19,11 +19,11 @@ using System;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.StrongNaming;
-using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit

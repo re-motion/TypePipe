@@ -14,15 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
@@ -72,6 +73,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 
       _operandProvider.VerifyAllExpectations();
       _innerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void DefineNestedType ()
+    {
+      var name = "type";
+      var attributes = (TypeAttributes) 7;
+
+      var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
+      _innerMock.Expect (mock => mock.DefineNestedType (name, attributes)).Return (fakeTypeBuilder);
+
+      var result = _decorator.DefineNestedType (name, attributes);
+
+      _operandProvider.VerifyAllExpectations();
+      _innerMock.VerifyAllExpectations();
+      Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
+      Assert.That (result.As<TypeBuilderDecorator>().DecoratedTypeBuilder, Is.SameAs (fakeTypeBuilder));
     }
 
     [Test]

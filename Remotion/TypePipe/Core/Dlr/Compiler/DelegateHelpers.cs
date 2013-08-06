@@ -14,6 +14,7 @@
  * ***************************************************************************/
 
 using System;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -34,7 +35,7 @@ namespace System.Linq.Expressions.Compiler {
             Type[] parameters = types.RemoveLast();
 
             if (types.Any (t => t is Remotion.TypePipe.MutableReflection.Implementation.CustomType))
-                return new Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.DelegateTypePlaceholder (returnType, parameters);
+                return new DelegateTypePlaceholder (returnType, parameters);
 
             TypeBuilder builder = AssemblyGen.DefineDelegateType("Delegate" + types.Length);
             builder.DefineConstructor(CtorAttributes, CallingConventions.Standard, _DelegateCtorSignature).SetImplementationFlags(ImplAttributes);

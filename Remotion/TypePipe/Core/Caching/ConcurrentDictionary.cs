@@ -87,6 +87,20 @@ namespace Remotion.TypePipe.Caching
       }
     }
 
+    public TValue GetOrAdd (TKey key, Func<TKey, TValue> valueProvider)
+    {
+      lock (_lock)
+      {
+        TValue result;
+        if (!_dictionary.TryGetValue (key, out result))
+        {
+          result = valueProvider (key);
+          _dictionary.Add (key, result);
+        }
+        return result;
+      }
+    }
+
     IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator ()
     {
       throw new NotImplementedException ();

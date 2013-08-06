@@ -36,7 +36,10 @@ namespace Remotion.Reflection
       var invokeMethod = delegateType.GetMethod ("Invoke");
       Assertion.IsNotNull (invokeMethod, "Delegate has no Invoke() method.");
 
-      return Tuple.Create (invokeMethod.GetParameters().Select (p => p.ParameterType).ToArray(), invokeMethod.ReturnType);
+      var parameterTypes = invokeMethod.GetParameters().Select (p => p.ParameterType).ToArray();
+      var returnType = invokeMethod.ReturnType;
+
+      return Tuple.Create (parameterTypes, returnType);
     }
 
     public Delegate CreateConstructorCall (ConstructorInfo constructor, Type delegateType)

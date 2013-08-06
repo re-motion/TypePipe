@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -55,6 +56,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
 
       _typeBuilder.AddInterfaceImplementation (interfaceType);
+    }
+
+    [CLSCompliant (false)]
+    public ITypeBuilder DefineNestedType (string name, TypeAttributes attributes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var typeBuilder = _typeBuilder.DefineNestedType (name, attributes);
+      return new TypeBuilderAdapter (typeBuilder);
     }
 
     [CLSCompliant (false)]

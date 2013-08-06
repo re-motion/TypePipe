@@ -23,30 +23,36 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// A <see cref="IPipelineRegistry"/> implementation that registers a new pipeline containing the specified participants and sets it as the
-  /// default pipeline. This ensures that the <see cref="PipelineRegistry.DefaultPipeline"/> property is populated.
+  /// A <see cref="IPipelineRegistry"/> implementation that registers the provided pipeline and sets it as the default pipeline.
+  /// This ensures that the <see cref="PipelineRegistry.DefaultPipeline"/> property is populated.
   /// </summary>
   public class PipelineRegistry : IPipelineRegistry
   {
-    private const string c_defaultPipelineKey = "<default participant configuration>";
+    private readonly object _lock = new object();
+    private readonly Dictionary<string, IPipeline> _pipelines = new Dictionary<string, IPipeline>();
 
-    private readonly object _lock = new object ();
-    private readonly IDataStore<string, IPipeline> _pipelines = DataStoreFactory.CreateWithLocking<string, IPipeline> ();
+    private string _defaultPipelineID;
 
-    public PipelineRegistry (IEnumerable<IParticipant> defaultPipelineParticipants)
+    public PipelineRegistry (IPipeline defaultPipeline)
     {
-      ArgumentUtility.CheckNotNull ("defaultPipelineParticipants", defaultPipelineParticipants);
+      ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
 
-      var defaultPipeline = PipelineFactory.Create (c_defaultPipelineKey, defaultPipelineParticipants);
-      Register (defaultPipeline);
+      SetDefaultPipeline (defaultPipeline);
     }
 
     public IPipeline DefaultPipeline
     {
-      get
+      get { return Get (_defaultPipelineID); }
+    }
+
+    public void SetDefaultPipeline (IPipeline defaultPipeline)
+    {
+      ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
+
+      lock (_lock)
       {
-        var notFoundMessage = "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.";
-        return Get (c_defaultPipelineKey, notFoundMessage);
+        _defaultPipelineID = defaultPipeline.ParticipantConfigurationID;
+        _pipelines[_defaultPipelineID] = defaultPipeline;
       }
     }
 
@@ -71,34 +77,30 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      _pipelines.Remove (participantConfigurationID);
+      lock (_lock)
+      {
+        if (participantConfigurationID == _defaultPipelineID)
+          throw new InvalidOperationException ("The default pipeline cannot be unregistered.");
+
+        _pipelines.Remove (participantConfigurationID);
+      }
     }
 
     public IPipeline Get (string participantConfigurationID)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      var notFoundMessage = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
-      return Get (participantConfigurationID, notFoundMessage);
-    }
-
-    public void SetDefaultPipeline (string participantConfigurationID)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-
+      IPipeline pipeline;
       lock (_lock)
       {
-        var newDefaultPipeline = Get (participantConfigurationID);
-        _pipelines[c_defaultPipelineKey] = newDefaultPipeline;
+        pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
       }
-    }
-
-    private IPipeline Get (string participantConfigurationID, string notFoundMessage)
-    {
-      var pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
 
       if (pipeline == null)
-        throw new InvalidOperationException (notFoundMessage);
+      {
+        var message = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
+        throw new InvalidOperationException (message);
+      }
 
       return pipeline;
     }

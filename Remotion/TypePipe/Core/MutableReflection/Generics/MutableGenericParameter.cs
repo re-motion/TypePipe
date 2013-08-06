@@ -148,6 +148,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
+    protected override IEnumerable<Type> GetAllNestedTypes ()
+    {
+      throw new NotImplementedException();
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
       Assertion.IsNotNull (BaseType);

@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Generics;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics

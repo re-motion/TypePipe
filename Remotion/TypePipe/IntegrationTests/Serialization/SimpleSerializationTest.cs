@@ -27,11 +27,11 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   {
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      var participants = participantProviders.Select (pp => pp()).ToArray();
-      var factory = CreatePipeline (participants);
-      factory.CodeManager.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
+      var participants = participantProviders.Select (pp => pp());
+      var pipeline = CreatePipeline (participants.ToArray());
+      pipeline.CodeManager.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
 
-      return factory;
+      return pipeline;
     }
 
     protected override Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context)

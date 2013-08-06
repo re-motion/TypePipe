@@ -30,7 +30,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
   {
     private MutableType _mutableType;
 
-    private MethodInfo _existingBaseInterfaceMethod;
     private MethodInfo _existingInterfaceMethod;
     private MethodInfo _addedInterfaceMethod;
     private MethodInfo _otherAddedInterfaceMethod;
@@ -40,7 +39,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       _mutableType = MutableTypeObjectMother.Create (typeof (DomainType));
 
-      _existingBaseInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingBaseInterface obj) => obj.MethodOnExistingBaseInterface());
       _existingInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IExistingInterface obj) => obj.MethodOnExistingInterface());
       _addedInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IAddedInterface obj) => obj.MethodOnAddedInterface());
       _otherAddedInterfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IOtherAddedInterface obj) => obj.MethodOnOtherAddedInterface());
@@ -58,11 +56,27 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void ExistingInterface_AddedMethod ()
     {
       // Although we add a method that could be used as an implementation (no override!), the existing base implementation is returned.
-      AddSimiliarMethod (_mutableType, _existingBaseInterfaceMethod);
-      var implementationOnBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingBaseInterface());
-      Assert.That (implementationOnBase.DeclaringType, Is.SameAs (typeof (DomainTypeBase)));
+      AddSimiliarMethod (_mutableType, _existingInterfaceMethod);
+      var implementationOnBase = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.MethodOnExistingInterface());
 
-      CheckGetInterfaceMap (_mutableType, _existingBaseInterfaceMethod, implementationOnBase);
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementationOnBase);
+    }
+
+    [Test]
+    public void ExistingInterface_AddedMethod_ReImplementation ()
+    {
+      _mutableType.AddInterface (typeof (IExistingInterface));
+      var implementation = AddSimiliarMethod (_mutableType, _existingInterfaceMethod);
+
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
+    }
+
+    [Test]
+    public void ExistingInterface_AddedMethod_Override ()
+    {
+      var implementation = AddSimiliarMethod (_mutableType, _existingInterfaceMethod, vtableLayout: MethodAttributes.ReuseSlot);
+
+      CheckGetInterfaceMap (_mutableType, _existingInterfaceMethod, implementation);
     }
 
     [Test]
@@ -169,12 +183,13 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (targetMethodIndex, Is.EqualTo (interfaceMethodIndex).And.Not.EqualTo (-1));
     }
 
-    private MutableMethodInfo AddSimiliarMethod (MutableType mutableType, MethodInfo template, string methodName = null)
+    private MutableMethodInfo AddSimiliarMethod (
+        MutableType mutableType, MethodInfo template, string methodName = null, MethodAttributes vtableLayout = MethodAttributes.NewSlot)
     {
       var methodDeclaration = MethodDeclaration.CreateEquivalent (template);
       return mutableType.AddMethod (
           methodName ?? template.Name,
-          MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+          MethodAttributes.Public | MethodAttributes.Virtual | vtableLayout,
           methodDeclaration,
           ctx => Expression.Default (template.ReturnType));
     }
@@ -191,14 +206,13 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       return explicitImplementation;
     }
 
-    public class DomainTypeBase : IExistingBaseInterface
+    public class DomainTypeBase
     {
-      public void MethodOnExistingBaseInterface () { }
       public virtual void MethodOnOtherAddedInterface () { }
     }
     public class DomainType : DomainTypeBase, IExistingInterface
     {
-      public void MethodOnExistingInterface () { }
+      public virtual void MethodOnExistingInterface () { }
       public void AdditionalMethodOnExistingInterface () { }
       public virtual void ExistingMethodMatchingAddedInterfaceMethod () { }
       public virtual void UnrelatedMethod () { }
@@ -216,10 +230,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public virtual void ExistingMethodMatchingAddedInterfaceMethod () { }
     }
 
-    public interface IExistingBaseInterface
-    {
-      void MethodOnExistingBaseInterface ();
-    }
     public interface IExistingInterface
     {
       void MethodOnExistingInterface ();

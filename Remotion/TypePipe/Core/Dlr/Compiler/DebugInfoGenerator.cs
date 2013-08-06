@@ -14,6 +14,7 @@
  * ***************************************************************************/
 
 #if TypePipe
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Dlr.Ast.Compiler;
 #else
@@ -31,7 +32,7 @@ using System.Reflection;
 
 namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 #if TypePipe || SILVERLIGHT
-    using ILGenerator = Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.IILGenerator;
+    using ILGenerator = IILGenerator;
 #endif
 
     /// <summary>

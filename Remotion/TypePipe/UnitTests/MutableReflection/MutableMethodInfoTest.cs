@@ -19,12 +19,15 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Generics;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
@@ -143,6 +146,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _virtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
 
       Assert.That (_virtualMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { overriddenMethodDefinition }));
+    }
+
+    [Test]
+    public void AddExplicitBaseDefinition_TriggersEvent ()
+    {
+      var overriddenMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
+
+      ExplicitBaseDefinitionsAddedEventArgs actualArgs = null;
+      _virtualMethod.ExplicitBaseDefinitionAdded += (sender, args) => actualArgs = args;
+
+      _virtualMethod.AddExplicitBaseDefinition (overriddenMethodDefinition);
+
+      Assert.That (actualArgs, Is.Not.Null);
+      Assert.That (actualArgs.AddedExplicitBaseDefinition, Is.SameAs (overriddenMethodDefinition));
     }
 
     [Test]
@@ -292,6 +309,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           });
 
       Assert.That (method.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void SetBody_TriggersEvent ()
+    {
+      var method = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
+
+      BodyChangedEventArgs actualArgs = null;
+      method.BodyChanged += (sender, args) => actualArgs = args;
+
+      var oldBody = method.Body;
+      var newBody = ExpressionTreeObjectMother.GetSomeExpression (method.ReturnType);
+      
+      method.SetBody (ctx => newBody);
+
+      Assert.That (actualArgs, Is.Not.Null);
+      Assert.That (actualArgs.OldBody, Is.SameAs (oldBody));
+      Assert.That (actualArgs.NewBody, Is.SameAs (newBody));
     }
 
     [Test]

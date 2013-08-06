@@ -49,12 +49,12 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void CachedTypesCanBeRetrievedAndInstantiated_DuringCodeGenerationOfAnotherType ()
     {
       // Generate type without blocking.
-      _pipeline.CreateObject<DomainType>();
+      _pipeline.Create<DomainType>();
 
-      var t = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
+      var t = StartAndWaitUntilBlocked (() => _pipeline.Create<DomainTypeCausingParticipantToBlock>());
 
       // Although code is generated in [t], which is blocked by the mutex, we can create instances of and retrieve already generated types.
-      _pipeline.CreateObject<DomainType>();
+      _pipeline.Create<DomainType>();
       _pipeline.ReflectionService.GetAssembledType (typeof (DomainType));
 
       _blockingMutex.ReleaseMutex();
@@ -64,8 +64,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CodeGenerationIsSerialized ()
     {
-      var t1 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
-      var t2 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainType>());
+      var t1 = StartAndWaitUntilBlocked (() => _pipeline.Create<DomainTypeCausingParticipantToBlock>());
+      var t2 = StartAndWaitUntilBlocked (() => _pipeline.Create<DomainType>());
 
       // Both threads are now blocked. [t1] is blocked by the mutex, [t2] is blocked by the code generation in [t1].
       Assert.That (t1.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
@@ -80,10 +80,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CodeManagerAPIs_CannotRunWhileCodeIsGenerated ()
     {
-      var t1 = StartAndWaitUntilBlocked (() => _pipeline.CreateObject<DomainTypeCausingParticipantToBlock>());
+      var t1 = StartAndWaitUntilBlocked (() => _pipeline.Create<DomainTypeCausingParticipantToBlock>());
       var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyDirectory);
       var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyNamePattern);
       var t4 = StartAndWaitUntilBlocked (() => Flush());
+      // TODO 5370: ReflectionService Methods.
 
       // All threads are now blocked. [t1] is blocked by the mutex, [t2, ...] are blocked by the code generation in [t1].
       Assert.That (t1.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
@@ -93,7 +94,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       _blockingMutex.ReleaseMutex();
 
-      // Now both threads run to completion (user APIs do not interfere with code generation).
+      // Now all threads run to completion (user APIs do not interfere with code generation).
       WaitUntilCompleted (t1, t2, t3, t4);
     }
 

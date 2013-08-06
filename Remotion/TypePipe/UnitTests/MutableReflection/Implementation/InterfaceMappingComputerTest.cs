@@ -20,9 +20,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -66,7 +66,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_ExistingInterface ()
     {
       var implicitImplementation1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method11());
-      var explicitImplementation = AddMethod (_mutableType, "ExplicitImpl", MethodAttributes.Virtual);
+      var implicitImplementation2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method12 ());
+      var explicitImplementation = _mutableType.AddMethod ("ExplicitImpl", MethodAttributes.Virtual);
       explicitImplementation.AddExplicitBaseDefinition (_existingInterfaceMethod2);
 
       _interfaceMapProviderMock
@@ -76,7 +77,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               {
                   InterfaceType = typeof (IExistingInterface),
                   InterfaceMethods = new[] { _existingInterfaceMethod1, _existingInterfaceMethod2 },
-                  TargetMethods = new[] { implicitImplementation1, null /* not used */ }
+                  TargetMethods = new[] { implicitImplementation1, implicitImplementation2 }
               });
 
       CallComputeMappingAndCheckResult (
@@ -87,15 +88,39 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void ComputeMapping_ExistingInterface_OverriddenBaseImplementation ()
+    {
+      var implicitImplementation1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method11());
+      var implicitImplementation2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method12());
+      var baseImplementationOverride = _mutableType.AddMethod ("Method12", MethodAttributes.Public | MethodAttributes.Virtual);
+
+      _interfaceMapProviderMock
+          .Expect (mock => mock.Get (typeof (IExistingInterface)))
+          .Return (
+              new InterfaceMapping
+              {
+                InterfaceType = typeof (IExistingInterface),
+                InterfaceMethods = new[] { _existingInterfaceMethod1, _existingInterfaceMethod2 },
+                TargetMethods = new[] { implicitImplementation1, implicitImplementation2 }
+              });
+
+      CallComputeMappingAndCheckResult (
+          _mutableType,
+          typeof (IExistingInterface),
+          Tuple.Create (_existingInterfaceMethod1, implicitImplementation1),
+          Tuple.Create (_existingInterfaceMethod2, (MethodInfo) baseImplementationOverride));
+    }
+
+    [Test]
     public void ComputeMapping_AddedInterface ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
-      var explicitImplementation = AddMethod (_mutableType, "ExplicitImpl", MethodAttributes.Virtual);
+      var explicitImplementation = _mutableType.AddMethod ("ExplicitImpl", MethodAttributes.Virtual);
       explicitImplementation.AddExplicitBaseDefinition (_addedInterfaceMethod1);
 
       var shadowedMethod = _mutableType.GetMethod ("Method22");
       Assert.That (shadowedMethod.DeclaringType, Is.SameAs (typeof (DomainType)));
-      var implicitImplementation2 = AddMethod (_mutableType, "Method22", MethodAttributes.NewSlot | MethodAttributes.Public | MethodAttributes.Virtual);
+      var implicitImplementation2 = _mutableType.AddMethod ("Method22", MethodAttributes.NewSlot | MethodAttributes.Public | MethodAttributes.Virtual);
       Assert.That (implicitImplementation2.BaseMethod, Is.Null);
       // TODO 5059: comment in
       //Assert.That (_mutableType.GetMethod ("Method22"), Is.Not.EqualTo (shadowedMethod).And.EqualTo (implicitImplementation2));
@@ -115,34 +140,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_CandidateOrder ()
     {
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var proxyType = MutableTypeObjectMother.Create (baseType: typeof (DomainType), memberSelector: memberSelectorMock);
-      memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]).Repeat.Once();
-      AddMethod (proxyType, "Method21", MethodAttributes.Public | MethodAttributes.Virtual);
+      var mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType), memberSelector: memberSelectorMock);
 
-      // TODO 5059: fix (use simple GetMethods with name)
-      var baseMethod = typeof (DomainType).GetMethods().Single (m => m.Name == "Method23" && m.DeclaringType == typeof (DomainType));
-      var methods = GetAllMethods (proxyType).ToArray();
-      var baseMethodIndex = Array.IndexOf (methods, baseMethod);
-      // Change sequence so that base method comes at start.
-      var mixedMethods = methods.Skip (baseMethodIndex).Concat (methods.Take (baseMethodIndex)).ToArray();
-      Assert.That (mixedMethods[0], Is.SameAs (baseMethod));
-      Assert.That (mixedMethods, Is.EquivalentTo (methods));
+      // This interface contains Method21, Method22, Method23
+      mutableType.AddInterface (typeof (IAddedInterface));
+      mutableType.AddMethod ("Method21", MethodAttributes.Public | MethodAttributes.Virtual);
 
-      proxyType.AddInterface (typeof (IAddedInterface));
+      // The mutableType now has Method21 (added), Method22 (inherited), Method23 (inherited), and a few methods not related to IAddedInterface.
+      var methods = GetAllMethods (mutableType).ToArray ();
+
+      // Shuffle the methods return by member selector to demonstrate that method order is irrelevant.
+      var r = new Random (47);
+      var unorderedMethods = methods.OrderBy (m => r);
+      Assert.That (unorderedMethods, Is.EquivalentTo (methods));
       memberSelectorMock
           .Expect (
-              mock =>
-              mock.SelectMethods (
-                  Arg<IEnumerable<MethodInfo>>.List.Equal (methods), Arg.Is (BindingFlags.Public | BindingFlags.Instance), Arg.Is (proxyType)))
-          .Return (mixedMethods);
+              mock => mock.SelectMethods (
+                  Arg<IEnumerable<MethodInfo>>.List.Equal (methods), Arg.Is (BindingFlags.Public | BindingFlags.Instance), Arg.Is (mutableType)))
+          .Return (unorderedMethods);
 
       CallComputeMappingAndCheckResult (
-          proxyType,
+          mutableType,
           typeof (IAddedInterface),
           Tuple.Create (_addedInterfaceMethod1, methods.First (m => m.Name == "Method21")),
           Tuple.Create (_addedInterfaceMethod2, methods.First (m => m.Name == "Method22")),
           Tuple.Create (_addedInterfaceMethod3, methods.First (m => m.Name == "Method23")));
-      memberSelectorMock.VerifyAllExpectations();
+
+      memberSelectorMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -201,11 +225,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
     }
 
-    private MutableMethodInfo AddMethod (MutableType mutableType, string name, MethodAttributes attributes)
-    {
-      return mutableType.AddMethod (name, attributes, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
-    }
-
     private IEnumerable<MethodInfo> GetAllMethods (MutableType mutableType)
     {
       return (IEnumerable<MethodInfo>) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetAllMethods");
@@ -227,7 +246,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public class DomainType : IExistingInterface
     {
       public void Method11 () { }
-      public void Method12 () { }
+      public virtual void Method12 () { }
 
       // This methods can be shadowed in the proxy type (via added methods), unordered implicit matching (without considering the type hierarchy)
       // would result in an ambigous match. 
