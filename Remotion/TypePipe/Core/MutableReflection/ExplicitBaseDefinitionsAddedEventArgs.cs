@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
     public ExplicitBaseDefinitionsAddedEventArgs (MethodInfo addedExplicitBaseDefinition)
     {
       ArgumentUtility.CheckNotNull ("addedExplicitBaseDefinition", addedExplicitBaseDefinition);
+
       _addedExplicitBaseDefinition = addedExplicitBaseDefinition;
     }
 

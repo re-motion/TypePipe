@@ -29,6 +29,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     public BodyChangedEventArgs (Expression oldBody, Expression newBody)
     {
+      // Old body may be null.
+      // New body may be null.
+
       _oldBody = oldBody;
       _newBody = newBody;
     }
