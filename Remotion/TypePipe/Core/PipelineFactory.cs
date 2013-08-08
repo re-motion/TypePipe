@@ -25,6 +25,7 @@ namespace Remotion.TypePipe
 {
   /// <summary>
   /// Provides static methods that create instances of <see cref="IPipeline"/>, which are the main entry point of the pipeline.
+  /// The used <see cref="IPipelineFactory"/> instance is resolved via the service locator and can be configured via your IoC container.
   /// </summary>
   public static class PipelineFactory
   {

@@ -27,7 +27,13 @@ using Remotion.Utilities;
 
 namespace Remotion.Development.TypePipe
 {
-  // TODO 5370
+  /// <summary>
+  /// Decorates a <see cref="ICodeManager"/> to track the generated assemblies.
+  /// Enables saving, verification and cleanup of generated assemblies, which is useful for testing.
+  /// <para>
+  /// To use assembly tracking register <see cref="AssemblyTrackingPipelineFactory"/> for <see cref="IPipelineFactory"/> in your IoC container.
+  /// </para>
+  /// </summary>
   public class AssemblyTrackingCodeManager : ICodeManager
   {
     private readonly List<string> _savedAssemblies = new List<string>();
