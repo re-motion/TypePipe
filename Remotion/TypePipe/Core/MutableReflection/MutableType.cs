@@ -49,8 +49,9 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutablePropertyInfo> _addedProperties = new List<MutablePropertyInfo>();
     private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
+    private readonly HashSet<MethodInfo> _baseDefinitionsOfAbstractMethods;
+
     private MutableConstructorInfo _typeInitializer;
-    private bool? _hasAbstractMethods = null;
 
     public MutableType (
         IMemberSelector memberSelector,
@@ -73,6 +74,8 @@ namespace Remotion.TypePipe.MutableReflection
 
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
+
+      _baseDefinitionsOfAbstractMethods = GetBaseDefinitionsOfAbstractMethods (baseType);
     }
 
     public MutableType MutableDeclaringType
@@ -485,20 +488,6 @@ namespace Remotion.TypePipe.MutableReflection
       return GetAllMembers (_addedEvents, b => b.GetEvents (c_allMembers));
     }
 
-    private bool HasAbstractMethods ()
-    {
-      if (_hasAbstractMethods == null)
-      {
-        // Note: GetAllMethods is used because this is faster than GetMethods (...), even though static methods aren't required.
-        _hasAbstractMethods = GetAllMethods()
-            .Where (m => m.IsAbstract)
-            .Select (MethodBaseDefinitionCache.GetBaseDefinition)
-            .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
-            .Any();
-      }
-      return _hasAbstractMethods.Value;
-    }
-
     private IEnumerable<T> GetAllMembers<T, TMutable> (IEnumerable<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
         where TMutable : T
     {
@@ -508,47 +497,48 @@ namespace Remotion.TypePipe.MutableReflection
       return addedMembers.Cast<T>().Concat (baseMemberProvider (BaseType));
     }
 
-    private void AddTrackedMethod (MutableMethodInfo mutableMethod)
+    private bool HasAbstractMethods ()
     {
-      _addedMethods.Add (mutableMethod);
+      return _baseDefinitionsOfAbstractMethods.Count != 0;
+    }
 
-      // Cases when adding a method:
-      // - We add an abstract method
-      //   + We had abstract methods (flag == true) => no change (flag = true)
-      //   + We had no abstract methods (flag == false) => we now have abstract nethods (flag = true)
-      //   => Set to true in any case
+    private HashSet<MethodInfo> GetBaseDefinitionsOfAbstractMethods (Type baseType)
+    {
+      if (baseType == null)
+        return new HashSet<MethodInfo>();
 
-      // - We add a non-abstract method 
-      //   + We had abstract methods (flag == true) => recalculate if (and only if) it overrides an abstract method (flag = null)
-      //   + We had no abstract methods (flag == false) => no change (flag = false)
+      var baseDefinitions = baseType
+          .GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+          .Where (m => m.IsAbstract)
+          .Select (MethodBaseDefinitionCache.GetBaseDefinition);
 
-      if (mutableMethod.IsAbstract)
-        _hasAbstractMethods = true;
-      else if (mutableMethod.BaseMethod != null && mutableMethod.BaseMethod.IsAbstract)
-        _hasAbstractMethods = null;
-      else if (mutableMethod.AddedExplicitBaseDefinitions.Any (m => m.IsAbstract))
-        _hasAbstractMethods = null;
+      return new HashSet<MethodInfo> (baseDefinitions);
+    }
 
-      // Cases when setting a body:
-      // - The body was null and no longer is => recalculate (flag = null)
-      // - The body is null and wasn't before => we now have abstract methods (flag = true) [cannot currently happen]
-      // - The body is null/not null as it was before => no change
+    private void AddTrackedMethod (MutableMethodInfo method)
+    {
+      _addedMethods.Add (method);
+      TrackMethod (method);
 
-      mutableMethod.BodyChanged += (sender, args) =>
+      method.BodyChanged += (sender, args) => TrackMethod ((MutableMethodInfo) sender);
+      method.ExplicitBaseDefinitionAdded += (sender, args) => TrackMethod ((MutableMethodInfo) sender);
+    }
+
+    private void TrackMethod (MutableMethodInfo method)
+    {
+      var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
+      var explicitBaseDefinitions = method.AddedExplicitBaseDefinitions;
+
+      if (method.IsAbstract)
       {
-        Assertion.IsNotNull (args.NewBody);
-        if (args.OldBody == null && args.NewBody != null)
-          _hasAbstractMethods = null;
-      };
-
-      // Cases when setting an explicit base definition:
-      // - The base definition is abstract and the overrider is not => recalculate (flag = null)
-      // - Otherwise => no change
-      mutableMethod.ExplicitBaseDefinitionAdded += (sender, args) =>
+        _baseDefinitionsOfAbstractMethods.Add (baseDefinition);
+        _baseDefinitionsOfAbstractMethods.UnionWith (explicitBaseDefinitions);
+      }
+      else
       {
-        if (args.AddedExplicitBaseDefinition.IsAbstract && !((MutableMethodInfo) sender).IsAbstract)
-          _hasAbstractMethods = null;
-      };
+        _baseDefinitionsOfAbstractMethods.Remove (baseDefinition);
+        _baseDefinitionsOfAbstractMethods.ExceptWith (explicitBaseDefinitions);
+      }
     }
   }
 }
