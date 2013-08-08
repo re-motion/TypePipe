@@ -117,6 +117,7 @@ namespace Remotion.TypePipe.Caching
       var assembledTypes = new List<Type>();
       var additionalTypes = new List<Type>();
 
+      // TODO 5370: Put this behind lock (access to IsAssembledType and ExtractTypeID), or create JIRA task.
       foreach (var type in generatedTypes)
       {
         if (_typeAssembler.IsAssembledType (type))

@@ -62,7 +62,6 @@ namespace Remotion.TypePipe
     T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
     object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
-    // TODO 5370: Remove?
     object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
     /// <summary>

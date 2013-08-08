@@ -100,7 +100,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         return _typeAssembler.GetRequestedType (assembledType);
     }
 
-    // TODO 5370: Remove?
     public AssembledTypeID GetTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
