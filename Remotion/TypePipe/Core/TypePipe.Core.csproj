@@ -72,6 +72,7 @@
     <Compile Include="Implementation\Synchronization\IReverseTypeCacheSynchronizationPoint.cs" />
     <Compile Include="MutableReflection\BodyChangedEventArgs.cs" />
     <Compile Include="MutableReflection\ExplicitBaseDefinitionsAddedEventArgs.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKey.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitialization.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCache.cs" />
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />

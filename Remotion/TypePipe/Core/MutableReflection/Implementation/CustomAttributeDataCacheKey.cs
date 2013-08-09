@@ -16,63 +16,42 @@
 // 
 
 using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A data structure that identifies an assembled type.
+  /// A data structure that is used as a key for caching <see cref="ICustomAttributeData"/> intances.
   /// </summary>
   /// <remarks>
   /// Note that the implementation of this struct is critical for performance.
-  /// Moreover, the length of the id parts (object array) is assumed to be equal.
   /// </remarks>
-  public struct AssembledTypeID : IEquatable<AssembledTypeID>
+  public struct CustomAttributeDataCacheKey : IEquatable<CustomAttributeDataCacheKey>
   {
-    private readonly Type _requestedType;
-    private readonly object[] _parts;
+    private readonly MemberInfo _member;
+    private readonly bool _inherit;
 
     private readonly int _hashCode;
 
-    public AssembledTypeID (Type requestedType, object[] parts)
+    public CustomAttributeDataCacheKey (MemberInfo member, bool inherit)
     {
       // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (requestedType != null);
-      Assertion.DebugAssert (parts != null);
+      Assertion.DebugAssert (member != null);
+      Assertion.DebugAssert (!(member is IMutableMember));
 
-      _requestedType = requestedType;
-      _parts = parts;
+      _member = member;
+      _inherit = inherit;
 
       // Pre-compute hash code.
-      _hashCode = requestedType.GetHashCode() ^ EqualityUtility.GetRotatedHashCode (_parts);
+      _hashCode = EqualityUtility.GetRotatedHashCode (RuntimeHelpers.GetHashCode (member), inherit);
     }
 
-    public Type RequestedType
+    public bool Equals (CustomAttributeDataCacheKey other)
     {
-      get { return _requestedType; }
-    }
-
-    public object[] Parts
-    {
-      get { return _parts; }
-    }
-
-    public bool Equals (AssembledTypeID other)
-    {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (_parts.Length == other._parts.Length);
-
-      if (_requestedType != other.RequestedType)
-        return false;
-
-      // ReSharper disable LoopCanBeConvertedToQuery // No LINQ for performance reasons.
-      for (int i = 0; i < _parts.Length; ++i)
-      {
-        if (!Equals (_parts[i], other._parts[i]))
-          return false;
-      }
-
-      return true;
+      return object.ReferenceEquals (_member, other._member)
+             && _inherit == other._inherit;
     }
 
     public override bool Equals (object obj)
