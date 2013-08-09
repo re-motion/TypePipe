@@ -16,12 +16,12 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -125,28 +125,46 @@ namespace Remotion.TypePipe.MutableReflection
       return s_customAttributeDataRetriever.GetCustomAttributeData (module);
     }
 
-    private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
+    //private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
+    //    where T : MemberInfo
+    //{
+    //  // TODO 5794
+    //  //ConcurrentDictionary<MemberInfo, IEnumerable<ICustomAttributeData>> d;
+    //  //if (!d.TryGetValue (member, out result))
+    //  //{
+    //  //  result = d.GetOrAdd (member, key => (T) key)
+    //  //}
+
+    //  var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
+    //  if (!inherit)
+    //    return attributes;
+
+    //  var baseMember = baseMemberProvider (member); // Base member may be null, which is ok.
+    //  var inheritedAttributes = baseMember
+    //      .CreateSequence (baseMemberProvider)
+    //      .SelectMany (s_customAttributeDataRetriever.GetCustomAttributeData)
+    //      .Where (d => AttributeUtility.IsAttributeInherited (d.Type));
+
+    //  var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
+    //  return EvaluateAllowMultiple (allAttributesWithInheritance);
+    //}
+
+    private static ReadOnlyCollection<ICustomAttributeData> GetCustomAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
         where T : MemberInfo
     {
-      // TODO 5794
-      //ConcurrentDictionary<MemberInfo, IEnumerable<ICustomAttributeData>> d;
-      //if (!d.TryGetValue (member, out result))
-      //{
-      //  result = d.GetOrAdd (member, key => (T) key)
-      //}
-
       var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
       if (!inherit)
-        return attributes;
+        return attributes.ToList().AsReadOnly();
 
       var baseMember = baseMemberProvider (member); // Base member may be null, which is ok.
-      var inheritedAttributes = baseMember
-          .CreateSequence (baseMemberProvider)
-          .SelectMany (s_customAttributeDataRetriever.GetCustomAttributeData)
-          .Where (d => AttributeUtility.IsAttributeInherited (d.Type));
+      if (baseMember == null)
+        return attributes.ToList().AsReadOnly();
+
+      var inheritedAttributes = GetCustomAttributes (baseMember, inherit, baseMemberProvider)
+          .Where (a => AttributeUtility.IsAttributeInherited (a.Type));
 
       var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
-      return EvaluateAllowMultiple (allAttributesWithInheritance);
+      return EvaluateAllowMultiple (allAttributesWithInheritance).ToList().AsReadOnly();
     }
 
     private static IEnumerable<ICustomAttributeData> EvaluateAllowMultiple (IEnumerable<ICustomAttributeData> attributesFromDerivedToBase)
