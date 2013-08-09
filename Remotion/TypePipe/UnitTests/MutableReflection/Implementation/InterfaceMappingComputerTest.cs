@@ -23,7 +23,6 @@ using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -147,7 +146,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       mutableType.AddMethod ("Method21", MethodAttributes.Public | MethodAttributes.Virtual);
 
       // The mutableType now has Method21 (added), Method22 (inherited), Method23 (inherited), and a few methods not related to IAddedInterface.
-      var methods = GetAllMethods (mutableType).ToArray ();
+      var methods = mutableType.GetAllMethods().ToArray();
 
       // Shuffle the methods return by member selector to demonstrate that method order is irrelevant.
       var r = new Random (47);
@@ -223,11 +222,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_NotImplemented ()
     {
       _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
-    }
-
-    private IEnumerable<MethodInfo> GetAllMethods (MutableType mutableType)
-    {
-      return (IEnumerable<MethodInfo>) PrivateInvoke.InvokeNonPublicMethod (mutableType, "GetAllMethods");
     }
 
     // Tuple means: 1) interface method, 2) implementation method

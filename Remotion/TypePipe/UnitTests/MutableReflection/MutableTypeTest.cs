@@ -22,7 +22,6 @@ using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -45,7 +44,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
     private MutableType _mutableType;
     private MutableType _mutableTypeWithoutMocks;
-    private MutableType _mutableInterfaceType;
 
     [SetUp]
     public void SetUp ()
@@ -62,8 +60,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           mutableMemberFactory: _mutableMemberFactoryMock);
 
       _mutableTypeWithoutMocks = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
-
-      _mutableInterfaceType = MutableTypeObjectMother.CreateInterface();
     }
 
     [Test]
@@ -90,6 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (proxyType.GetGenericArguments(), Is.Empty);
       Assert.That (proxyType.DeclaringType, Is.Null);
 
+      Assert.That (proxyType.AddedNestedTypes, Is.Empty);
       Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
       Assert.That (proxyType.Initialization, Is.Not.Null);
       Assert.That (proxyType.AddedInterfaces, Is.Empty);
@@ -127,6 +124,116 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       Assert.That (_mutableType.AddedCustomAttributes, Is.EqualTo (new[] { declaration }));
       Assert.That (_mutableType.GetCustomAttributeData().Select (a => a.Type), Is.EquivalentTo (new[] { typeof (ObsoleteAttribute) }));
+    }
+
+    [Test]
+    public void GetAllNestedTypes ()
+    {
+      Assertion.IsTrue (typeof (DomainType).GetNestedTypes().Length > 0);
+      var addedNestedType = _mutableTypeWithoutMocks.AddNestedType();
+
+      Assert.That (_mutableTypeWithoutMocks.GetAllNestedTypes(), Is.EqualTo (new[] { addedNestedType }));
+    }
+
+    [Test]
+    public void GetAllInterfaces ()
+    {
+      var baseInterfaces = typeof (DomainType).GetInterfaces();
+      Assert.That (baseInterfaces, Is.Not.Empty);
+      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
+      _mutableType.AddInterface (addedInterface);
+
+      Assert.That (_mutableType.GetAllInterfaces(), Is.EquivalentTo (new[] { addedInterface }.Concat (baseInterfaces)));
+    }
+
+    [Test]
+    public void GetAllInterfaces_Distinct ()
+    {
+      var baseInterface = typeof (DomainType).GetInterfaces().Single();
+      _mutableType.AddInterface (baseInterface);
+
+      Assert.That (_mutableType.GetInterfaces().Count (ifc => ifc == baseInterface), Is.EqualTo (1));
+    }
+
+    [Test]
+    public void GetAllFields ()
+    {
+      var baseFields = typeof (DomainType).GetFields (c_all);
+      Assert.That (baseFields, Is.Not.Empty);
+      var addedField = _mutableTypeWithoutMocks.AddField();
+
+      Assert.That (_mutableTypeWithoutMocks.GetAllFields(), Is.EquivalentTo (new[] { addedField }.Concat (baseFields)));
+    }
+
+    [Test]
+    public void GetAllConstructors ()
+    {
+      var baseCtors = typeof (DomainType).GetConstructors (c_all);
+      Assert.That (baseCtors, Is.Not.Empty);
+      var addedCtor = _mutableTypeWithoutMocks.AddConstructor();
+
+      Assert.That (_mutableTypeWithoutMocks.GetAllConstructors(), Is.EqualTo (new[] { addedCtor }));
+    }
+
+    [Test]
+    public void GetAllConstructors_TypeInitializer ()
+    {
+      var addedTypeInitializer = _mutableTypeWithoutMocks.AddConstructor (MethodAttributes.Static);
+      var addedCtor = _mutableTypeWithoutMocks.AddConstructor();
+
+      Assert.That (_mutableTypeWithoutMocks.GetAllConstructors(), Is.EqualTo (new[] { addedCtor, addedTypeInitializer }));
+    }
+
+    [Test]
+    public void GetAllMethods ()
+    {
+      var baseMethods = typeof (DomainType).GetMethods (c_all);
+      var addedMethod = _mutableTypeWithoutMocks.AddMethod();
+
+      Assert.That (_mutableTypeWithoutMocks.GetAllMethods(), Is.EquivalentTo (new[] { addedMethod }.Concat (baseMethods)));
+    }
+
+    [Test]
+    public void GetAllMethods_FiltersOverriddenMethods ()
+    {
+      var baseMethod = typeof (DomainType).GetMethod ("ToString");
+      var fakeOverride = MutableMethodInfoObjectMother.Create (
+          declaringType: _mutableType,
+          name: baseMethod.Name,
+          attributes: baseMethod.Attributes,
+          parameters: ParameterDeclaration.None,
+          baseMethod: baseMethod);
+      _mutableMemberFactoryMock
+          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null, null))
+          .IgnoreArguments()
+          .Return (fakeOverride);
+      _mutableType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.None, ctx => null);
+
+      var result = _mutableType.GetAllMethods();
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Has.Member (fakeOverride));
+      Assert.That (result, Has.No.Member (baseMethod));
+    }
+
+    [Test]
+    public void GetAllProperties ()
+    {
+      var baseProperties = typeof (DomainType).GetProperties (c_all);
+      Assert.That (baseProperties, Is.Not.Empty);
+      var addedProperty = _mutableTypeWithoutMocks.AddProperty();
+
+      Assert.That (_mutableTypeWithoutMocks.GetAllProperties(), Is.EquivalentTo (new[] { addedProperty }.Concat (baseProperties)));
+    }
+
+    [Test]
+    public void GetAllEvents ()
+    {
+      var baseEvents = typeof (DomainType).GetEvents (c_all);
+      Assert.That (baseEvents, Is.Not.Empty);
+      var addedEvent = _mutableTypeWithoutMocks.AddEvent();
+
+      Assert.That (_mutableTypeWithoutMocks.GetAllEvents(), Is.EquivalentTo (new[] { addedEvent }.Concat (baseEvents)));
     }
 
     [Test]
@@ -567,7 +674,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Method GetInterfaceMap is not supported by interface types.")]
     public void GetInterfaceMap_Interface_Throws ()
     {
-      _mutableInterfaceType.GetInterfaceMap (ReflectionObjectMother.GetSomeType());
+      var mutableInterfaceType = MutableTypeObjectMother.CreateInterface();
+      mutableInterfaceType.GetInterfaceMap (ReflectionObjectMother.GetSomeType());
     }
 
     [Test]
@@ -720,184 +828,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void GetAttributeFlagsImpl_Interface ()
     {
-      Assert.That (_mutableInterfaceType.Attributes.IsSet (TypeAttributes.Interface | TypeAttributes.Abstract), Is.True);
-    }
-
-    [Test]
-    public void GetAllNestedTypes ()
-    {
-      Assertion.IsTrue (typeof(DomainType).GetNestedTypes().Length > 0);
-      var addedNestedType = _mutableTypeWithoutMocks.AddNestedType();
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllNestedTypes");
-
-      Assert.That (result, Is.EqualTo(new[] { addedNestedType }));
-    }
-
-    [Test]
-    public void GetAllInterfaces ()
-    {
-      var baseInterfaces = typeof (DomainType).GetInterfaces();
-      Assert.That (baseInterfaces, Is.Not.Empty);
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      _mutableType.AddInterface (addedInterface);
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllInterfaces");
-
-      Assert.That (result, Is.EquivalentTo (new[] { addedInterface }.Concat (baseInterfaces)));
-    }
-
-    [Test]
-    public void GetAllInterfaces_Distinct ()
-    {
-      var baseInterface = typeof (DomainType).GetInterfaces().Single();
-      _mutableType.AddInterface (baseInterface);
-
-      Assert.That (_mutableType.GetInterfaces().Count (ifc => ifc == baseInterface), Is.EqualTo (1));
-    }
-
-    [Test]
-    public void GetAllInterfaces_Interface ()
-    {
-      var addedInterface = ReflectionObjectMother.GetSomeInterfaceType();
-      _mutableInterfaceType.AddInterface (addedInterface);
-
-      var result = _mutableInterfaceType.Invoke ("GetAllInterfaces");
-
-      Assert.That (result, Is.EqualTo (new[] { addedInterface }));
-    }
-
-    [Test]
-    public void GetAllFields ()
-    {
-      var baseFields = typeof (DomainType).GetFields (c_all);
-      Assert.That (baseFields, Is.Not.Empty);
-      var addedField = _mutableTypeWithoutMocks.AddField();
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllFields");
-
-      Assert.That (result, Is.EquivalentTo (new[] { addedField }.Concat (baseFields)));
-    }
-
-    [Test]
-    public void GetAllFields_Interface ()
-    {
-      var addedField = _mutableInterfaceType.AddField ();
-
-      var result = _mutableInterfaceType.Invoke ("GetAllFields");
-
-      Assert.That (result, Is.EqualTo (new[] { addedField }));
-    }
-
-    [Test]
-    public void GetAllConstructors ()
-    {
-      var baseCtors = typeof (DomainType).GetConstructors (c_all);
-      Assert.That (baseCtors, Is.Not.Empty);
-      var addedCtor = _mutableTypeWithoutMocks.AddConstructor();
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllConstructors");
-
-      Assert.That (result, Is.EqualTo (new[] { addedCtor }));
-    }
-
-    [Test]
-    public void GetAllConstructors_TypeInitializer ()
-    {
-      var addedTypeInitializer = _mutableTypeWithoutMocks.AddConstructor (MethodAttributes.Static);
-      var addedCtor = _mutableTypeWithoutMocks.AddConstructor();
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllConstructors");
-
-      Assert.That (result, Is.EqualTo (new[] { addedCtor, addedTypeInitializer }));
-    }
-
-    [Test]
-    public void GetAllMethods ()
-    {
-      var baseMethods = typeof (DomainType).GetMethods (c_all);
-      var addedMethod = _mutableTypeWithoutMocks.AddMethod();
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllMethods");
-
-      Assert.That (result, Is.EquivalentTo (new[] { addedMethod }.Concat (baseMethods)));
-    }
-
-    [Test]
-    public void GetAllMethods_FiltersOverriddenMethods ()
-    {
-      var baseMethod = typeof (DomainType).GetMethod ("ToString");
-      var fakeOverride = MutableMethodInfoObjectMother.Create (
-          declaringType: _mutableType,
-          name: baseMethod.Name,
-          attributes: baseMethod.Attributes,
-          parameters: ParameterDeclaration.None,
-          baseMethod: baseMethod);
-      _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null, null))
-          .IgnoreArguments()
-          .Return (fakeOverride);
-      _mutableType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.None, ctx => null);
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableType, "GetAllMethods");
-
-      _memberSelectorMock.VerifyAllExpectations();
-      Assert.That (result, Has.Member (fakeOverride));
-      Assert.That (result, Has.No.Member (baseMethod));
-    }
-
-    [Test]
-    public void GetAllMethods_Interface ()
-    {
-      var addedMethod = _mutableInterfaceType.AddMethod();
-
-      var result = _mutableInterfaceType.Invoke ("GetAllMethods");
-
-      Assert.That (result, Is.EqualTo (new[] { addedMethod }));
-    }
-    
-    [Test]
-    public void GetAllProperties ()
-    {
-      var baseProperties = typeof (DomainType).GetProperties (c_all);
-      Assert.That (baseProperties, Is.Not.Empty);
-      var addedProperty = _mutableTypeWithoutMocks.AddProperty();
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllProperties");
-
-      Assert.That (result, Is.EquivalentTo (new[] { addedProperty }.Concat (baseProperties)));
-    }
-
-    [Test]
-    public void GetAllProperties_Interface ()
-    {
-      var addedProperty = _mutableInterfaceType.AddProperty ();
-
-      var result = _mutableInterfaceType.Invoke ("GetAllProperties");
-
-      Assert.That (result, Is.EqualTo (new[] { addedProperty }));
-    }
-
-    [Test]
-    public void GetAllEvents ()
-    {
-      var baseEvents = typeof (DomainType).GetEvents (c_all);
-      Assert.That (baseEvents, Is.Not.Empty);
-      var addedEvent = _mutableTypeWithoutMocks.AddEvent();
-
-      var result = PrivateInvoke.InvokeNonPublicMethod (_mutableTypeWithoutMocks, "GetAllEvents");
-
-      Assert.That (result, Is.EquivalentTo (new[] { addedEvent }.Concat (baseEvents)));
-    }
-
-    [Test]
-    public void GetAllEvents_Interface ()
-    {
-      var addedEvent = _mutableInterfaceType.AddEvent ();
-
-      var result = _mutableInterfaceType.Invoke ("GetAllEvents");
-
-      Assert.That (result, Is.EqualTo (new[] { addedEvent }));
+      var mutableInterfaceType = MutableTypeObjectMother.CreateInterface();
+      Assert.That (mutableInterfaceType.Attributes.IsSet (TypeAttributes.Interface | TypeAttributes.Abstract), Is.True);
     }
 
     [Test]

@@ -24,7 +24,6 @@ using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
@@ -191,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, _mutableType.AddedMethods)).Return (null);
       _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, _mutableType.BaseType)).Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (_mutableType))))
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (_mutableType.GetAllMethods())))
           .Return (false);
 
       var fakeResult = CreateFakeGenericMethod ();
@@ -375,7 +374,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, mutableType.AddedMethods)).Return (null);
       _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, mutableType.BaseType)).Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (GetAllMethods (mutableType))))
+          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (mutableType.GetAllMethods())))
           .Return (isBaseDefinitionShadowed);
 
       var fakeResult = SetupExpectationsForCreateMethod (
@@ -394,11 +393,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (_isNewlyCreated, Is.True);
       Assert.That (result, Is.SameAs (fakeResult));
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
-    }
-
-    private static IEnumerable<MethodInfo> GetAllMethods (MutableType mutableType)
-    {
-      return mutableType.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods");
     }
 
     private MutableMethodInfo SetupExpectationsForCreateMethod (

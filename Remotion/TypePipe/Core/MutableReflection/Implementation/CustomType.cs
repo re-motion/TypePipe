@@ -77,13 +77,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
 
-    protected abstract IEnumerable<Type> GetAllNestedTypes (); 
-    protected abstract IEnumerable<Type> GetAllInterfaces ();
-    protected abstract IEnumerable<FieldInfo> GetAllFields ();
-    protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
-    protected abstract IEnumerable<MethodInfo> GetAllMethods ();
-    protected abstract IEnumerable<PropertyInfo> GetAllProperties ();
-    protected abstract IEnumerable<EventInfo> GetAllEvents ();
+    public abstract IEnumerable<Type> GetAllNestedTypes ();
+    public abstract IEnumerable<Type> GetAllInterfaces ();
+    public abstract IEnumerable<FieldInfo> GetAllFields ();
+    public abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
+    public abstract IEnumerable<MethodInfo> GetAllMethods ();
+    public abstract IEnumerable<PropertyInfo> GetAllProperties ();
+    public abstract IEnumerable<EventInfo> GetAllEvents ();
 
     protected void SetDeclaringType (Type declaringType)
     {

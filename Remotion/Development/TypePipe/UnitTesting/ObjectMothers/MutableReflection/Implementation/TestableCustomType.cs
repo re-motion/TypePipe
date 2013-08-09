@@ -60,37 +60,37 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       return CustomAttributeDatas;
     }
 
-    protected override IEnumerable<Type> GetAllNestedTypes ()
+    public override IEnumerable<Type> GetAllNestedTypes ()
     {
       return NestedTypes;
-    } 
+    }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
+    public override IEnumerable<Type> GetAllInterfaces ()
     {
       return Interfaces;
     }
 
-    protected override IEnumerable<FieldInfo> GetAllFields ()
+    public override IEnumerable<FieldInfo> GetAllFields ()
     {
       return Fields;
     }
 
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
       return Constructors;
     }
 
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    public override IEnumerable<MethodInfo> GetAllMethods ()
     {
       return Methods;
     }
 
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
     {
       return Properties;
     }
 
-    protected override IEnumerable<EventInfo> GetAllEvents ()
+    public override IEnumerable<EventInfo> GetAllEvents ()
     {
       return Events;
     }

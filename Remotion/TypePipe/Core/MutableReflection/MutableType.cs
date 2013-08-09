@@ -49,6 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutablePropertyInfo> _addedProperties = new List<MutablePropertyInfo>();
     private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
+    // Data structures for optimizations.
     private readonly HashSet<MethodInfo> _baseDefinitionsOfAbstractMethods;
 
     private MutableConstructorInfo _typeInitializer;
@@ -81,6 +82,11 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableType MutableDeclaringType
     {
       get { return (MutableType) DeclaringType; }
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    {
+      get { return _customAttributes.AddedCustomAttributes; }
     }
 
     public ReadOnlyCollection<MutableType> AddedNestedTypes
@@ -134,21 +140,59 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedEvents.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      get { return _customAttributes.AddedCustomAttributes; }
+      return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
+    }
+
+    public override IEnumerable<Type> GetAllNestedTypes ()
+    {
+      return GetAllMembers(_addedNestedTypes, b => EmptyTypes);
+    }
+
+    public override IEnumerable<Type> GetAllInterfaces ()
+    {
+      return GetAllMembers(_addedInterfaces, b => b.GetInterfaces()).Distinct();
+    }
+
+    public override IEnumerable<FieldInfo> GetAllFields ()
+    {
+      return GetAllMembers(_addedFields, b => b.GetFields(c_allMembers));
+    }
+
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    {
+      return _typeInitializer != null
+                 ? _addedConstructors.Cast<ConstructorInfo>().Concat(_typeInitializer)
+                 : _addedConstructors.Cast<ConstructorInfo>();
+    }
+
+    public override IEnumerable<MethodInfo> GetAllMethods ()
+    {
+      return GetAllMembers(
+          _addedMethods,
+          baseType =>
+          {
+            var overriddenBaseDefinitions = new HashSet<MethodInfo>(_addedMethods.Select(MethodBaseDefinitionCache.GetBaseDefinition));
+            return baseType.GetMethods(c_allMembers).Where(m => !overriddenBaseDefinitions.Contains(MethodBaseDefinitionCache.GetBaseDefinition(m)));
+          });
+    }
+
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
+    {
+      return GetAllMembers(_addedProperties, b => b.GetProperties(c_allMembers));
+    }
+
+    public override IEnumerable<EventInfo> GetAllEvents ()
+    {
+      return GetAllMembers(_addedEvents, b => b.GetEvents(c_allMembers));
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull("customAttribute", customAttribute);
 
-      _customAttributes.AddCustomAttribute (customAttribute);
-    }
-
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
+      _customAttributes.AddCustomAttribute(customAttribute);
     }
 
     public MutableType AddNestedType (string typeName, TypeAttributes attributes, Type baseType)
@@ -443,49 +487,6 @@ namespace Remotion.TypePipe.MutableReflection
         return attributes | TypeAttributes.Abstract;
       else
         return attributes & ~TypeAttributes.Abstract;
-    }
-
-    protected override IEnumerable<Type> GetAllNestedTypes()
-    {
-      return GetAllMembers(_addedNestedTypes, b => EmptyTypes);
-    }
-
-    protected override IEnumerable<Type> GetAllInterfaces ()
-    {
-      return GetAllMembers (_addedInterfaces, b => b.GetInterfaces()).Distinct();
-    }
-
-    protected override IEnumerable<FieldInfo> GetAllFields ()
-    {
-      return GetAllMembers (_addedFields, b => b.GetFields (c_allMembers));
-    }
-
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
-    {
-      return _typeInitializer != null
-                 ? _addedConstructors.Cast<ConstructorInfo>().Concat (_typeInitializer)
-                 : _addedConstructors.Cast<ConstructorInfo>();
-    }
-
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
-    {
-      return GetAllMembers (
-          _addedMethods,
-          baseType =>
-          {
-            var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (MethodBaseDefinitionCache.GetBaseDefinition));
-            return baseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (MethodBaseDefinitionCache.GetBaseDefinition (m)));
-          });
-    }
-
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
-    {
-      return GetAllMembers (_addedProperties, b => b.GetProperties (c_allMembers));
-    }
-
-    protected override IEnumerable<EventInfo> GetAllEvents ()
-    {
-      return GetAllMembers (_addedEvents, b => b.GetEvents (c_allMembers));
     }
 
     private IEnumerable<T> GetAllMembers<T, TMutable> (IEnumerable<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)

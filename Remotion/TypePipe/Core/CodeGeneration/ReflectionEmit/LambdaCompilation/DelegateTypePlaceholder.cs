@@ -81,37 +81,37 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       throw new NotSupportedException ("Method GetCustomAttributeData is not supported.");
     }
 
-    protected override IEnumerable<Type> GetAllNestedTypes ()
+    public override IEnumerable<Type> GetAllNestedTypes ()
     {
       throw new NotSupportedException ("Method GetAllNestedTypes is not supported.");
     }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
+    public override IEnumerable<Type> GetAllInterfaces ()
     {
       throw new NotSupportedException ("Method GetAllInterfaces is not supported.");
     }
 
-    protected override IEnumerable<FieldInfo> GetAllFields ()
+    public override IEnumerable<FieldInfo> GetAllFields ()
     {
       throw new NotSupportedException ("Method GetAllFields is not supported.");
     }
 
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
       throw new NotSupportedException ("Method GetAllConstructors is not supported.");
     }
 
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    public override IEnumerable<MethodInfo> GetAllMethods ()
     {
       return _methods;
     }
 
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
     {
       throw new NotSupportedException ("Method GetAllProperties is not supported.");
     }
 
-    protected override IEnumerable<EventInfo> GetAllEvents ()
+    public override IEnumerable<EventInfo> GetAllEvents ()
     {
       throw new NotSupportedException ("Method GetAllEvents is not supported.");
     }

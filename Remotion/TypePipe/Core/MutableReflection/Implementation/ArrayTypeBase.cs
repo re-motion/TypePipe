@@ -113,38 +113,37 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return true;
     }
 
-    // TODO: mko
-    protected override IEnumerable<Type> GetAllNestedTypes()
+    public override IEnumerable<Type> GetAllNestedTypes()
     {
-      throw new NotImplementedException();
+      return EmptyTypes;
     }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
+    public override IEnumerable<Type> GetAllInterfaces ()
     {
       return _interfaces.Value;
     }
 
-    protected override IEnumerable<FieldInfo> GetAllFields ()
+    public override IEnumerable<FieldInfo> GetAllFields ()
     {
       return typeof (Array).GetFields (c_all);
     }
 
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
       return _constructors.Value;
     }
 
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    public override IEnumerable<MethodInfo> GetAllMethods ()
     {
       return _methods.Value;
     }
 
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
     {
       return typeof (Array).GetProperties (c_all);
     }
 
-    protected override IEnumerable<EventInfo> GetAllEvents ()
+    public override IEnumerable<EventInfo> GetAllEvents ()
     {
       return typeof (Array).GetEvents (c_all);
     }

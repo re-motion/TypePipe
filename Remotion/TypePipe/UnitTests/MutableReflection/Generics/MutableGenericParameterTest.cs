@@ -27,7 +27,6 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
@@ -208,9 +207,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void GetAllInterfaces ()
     {
       Assert.That (_constrainedParameter.GetGenericParameterConstraints(), Contains.Item (_baseTypeConstraint));
-      var result = _constrainedParameter.Invoke ("GetAllInterfaces");
 
-      Assert.That (result, Is.EqualTo (new[] { _interfaceConstraint, typeof (IDomainInterface) }));
+      Assert.That (_constrainedParameter.GetAllInterfaces(), Is.EqualTo (new[] { _interfaceConstraint, typeof (IDomainInterface) }));
     }
 
     [Test]
@@ -219,15 +217,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (_baseTypeConstraint.GetInterfaces(), Contains.Item (typeof (IDomainInterface)));
       _parameter.SetGenericParameterConstraints (new[] { _baseTypeConstraint, typeof (IDomainInterface) });
 
-      var result = _parameter.Invoke ("GetAllInterfaces");
-
-      Assert.That (result, Is.EqualTo (new[] { typeof (IDomainInterface) }));
+      Assert.That (_parameter.GetAllInterfaces(), Is.EqualTo (new[] { typeof (IDomainInterface) }));
     }
 
     [Test]
     public void GetAllFields ()
     {
-      var result = _constrainedParameter.Invoke ("GetAllFields");
+      var result = _constrainedParameter.GetAllFields();
 
       var field = NormalizingMemberInfoFromExpressionUtility.GetField ((DomainType obj) => obj.Field);
       Assert.That (result, Has.Member (field));
@@ -238,9 +234,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void GetAllConstructors ()
     {
       Assert.That (typeof (DomainType).GetConstructors(), Is.Not.Empty);
-      var result = _constrainedParameter.Invoke ("GetAllConstructors");
 
-      Assert.That (result, Is.Empty);
+      Assert.That (_constrainedParameter.GetAllConstructors(), Is.Empty);
     }
 
     [Test]
@@ -257,7 +252,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllMethods ()
     {
-      var result = _constrainedParameter.Invoke ("GetAllMethods");
+      var result = _constrainedParameter.GetAllMethods();
 
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
       Assert.That (result, Has.Member (method));
@@ -267,7 +262,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllProperties ()
     {
-      var result = _constrainedParameter.Invoke<IEnumerable<PropertyInfo>> ("GetAllProperties");
+      var result = _constrainedParameter.GetAllProperties();
 
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DomainType obj) => obj.Property);
       Assert.That (result, Is.EqualTo (new[] { property }));
@@ -276,7 +271,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void GetAllEvents ()
     {
-      var result = _constrainedParameter.Invoke<IEnumerable<EventInfo>> ("GetAllEvents");
+      var result = _constrainedParameter.GetAllEvents();
 
       var event_ = typeof (DomainType).GetEvent ("Event");
       Assert.That (result, Is.EqualTo (new[] { event_ }));
@@ -301,19 +296,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       var parameter = MutableGenericParameterObjectMother.Create (constraints: new[] { baseTypeConstraint, _interfaceConstraint });
 
-      var fieldsResult = parameter.Invoke ("GetAllFields");
-      var methodsResult = parameter.Invoke ("GetAllMethods");
-      var propertiesResult = parameter.Invoke ("GetAllProperties");
-      var eventsResult = parameter.Invoke ("GetAllEvents");
+      Assert.That (parameter.GetAllFields(), Is.EqualTo (fields));
+      Assert.That (parameter.GetAllMethods(), Is.EqualTo (methods));
+      Assert.That (parameter.GetAllProperties(), Is.EqualTo (properties));
+      Assert.That (parameter.GetAllEvents(), Is.EqualTo (events));
 
       baseMemberSelectorMock.AssertWasNotCalled (
           mock => mock.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<Type>.Is.Anything));
       baseMemberSelectorMock.VerifyAllExpectations();
-
-      Assert.That (fieldsResult, Is.EqualTo (fields));
-      Assert.That (methodsResult, Is.EqualTo (methods));
-      Assert.That (propertiesResult, Is.EqualTo (properties));
-      Assert.That (eventsResult, Is.EqualTo (events));
     }
 
     class DomainType : IDomainInterface
