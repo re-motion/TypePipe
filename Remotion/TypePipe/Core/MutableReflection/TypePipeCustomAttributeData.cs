@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -120,24 +121,33 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("parameter", parameter);
 
-      // TODO 5794: Remove direct usage of attribute data retriever.
-      return s_customAttributeDataRetriever.GetCustomAttributeData (parameter);
+      return GetCachedAttributes (parameter, s_customAttributeDataRetriever.GetCustomAttributeData);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Assembly assembly)
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
 
-      // TODO 5794: Remove direct usage of attribute data retriever.
-      return s_customAttributeDataRetriever.GetCustomAttributeData (assembly);
+      return GetCachedAttributes (assembly, s_customAttributeDataRetriever.GetCustomAttributeData);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Module module)
     {
       ArgumentUtility.CheckNotNull ("module", module);
 
-      // TODO 5794: Remove direct usage of attribute data retriever.
-      return s_customAttributeDataRetriever.GetCustomAttributeData (module);
+      return GetCachedAttributes (module, s_customAttributeDataRetriever.GetCustomAttributeData);
+    }
+
+    private static ReadOnlyCollection<ICustomAttributeData> GetCachedAttributes<T> (
+        T target, Func<T, IEnumerable<ICustomAttributeData>> attributeDataRetriever)
+        where T : ICustomAttributeProvider
+    {
+      var key = new CustomAttributeDataCacheKey (target, inherit: false);
+      ReadOnlyCollection<ICustomAttributeData> attributes;
+      if (s_cache.TryGetValue (key, out attributes))
+        return attributes;
+
+      return s_cache.GetOrAdd (key, k => attributeDataRetriever ((T) k.AttributeTarget).ToList().AsReadOnly());
     }
 
     private static ReadOnlyCollection<ICustomAttributeData> GetCachedAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
@@ -151,10 +161,11 @@ namespace Remotion.TypePipe.MutableReflection
       if (s_cache.TryGetValue (key, out attributes))
         return attributes;
 
-      return s_cache.GetOrAdd (key, k => GetXX ((T) k.Member, k.Inherit, baseMemberProvider));
+      return s_cache.GetOrAdd (key, k => GetXX ((T) k.AttributeTarget, k.Inherit, baseMemberProvider));
     }
 
-    private static ReadOnlyCollection<ICustomAttributeData> GetXX<T> (T member, bool inherit, Func<T, T> baseMemberProvider) where T : MemberInfo
+    private static ReadOnlyCollection<ICustomAttributeData> GetXX<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
+        where T : MemberInfo
     {
       var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
       if (!inherit)
