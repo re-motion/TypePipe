@@ -50,6 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
     // Data structures for optimizations.
+    private readonly List<MethodInfo> _allMethods;
     private readonly HashSet<MethodInfo> _baseDefinitionsOfAbstractMethods;
 
     private MutableConstructorInfo _typeInitializer;
@@ -76,6 +77,7 @@ namespace Remotion.TypePipe.MutableReflection
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
 
+      _allMethods = GetAllBaseMethods (baseType);
       _baseDefinitionsOfAbstractMethods = GetBaseDefinitionsOfAbstractMethods (baseType);
     }
 
@@ -169,13 +171,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      return GetAllMembers(
-          _addedMethods,
-          baseType =>
-          {
-            var overriddenBaseDefinitions = new HashSet<MethodInfo>(_addedMethods.Select(MethodBaseDefinitionCache.GetBaseDefinition));
-            return baseType.GetMethods(c_allMembers).Where(m => !overriddenBaseDefinitions.Contains(MethodBaseDefinitionCache.GetBaseDefinition(m)));
-          });
+      return _allMethods;
     }
 
     public override IEnumerable<PropertyInfo> GetAllProperties ()
@@ -503,12 +499,20 @@ namespace Remotion.TypePipe.MutableReflection
       return _baseDefinitionsOfAbstractMethods.Count != 0;
     }
 
-    private HashSet<MethodInfo> GetBaseDefinitionsOfAbstractMethods (Type baseType)
+    private List<MethodInfo> GetAllBaseMethods (Type baseTypeOrNull)
     {
-      if (baseType == null)
+      if (baseTypeOrNull == null)
+        return new List<MethodInfo>();
+
+      return baseTypeOrNull.GetMethods (c_allMembers).ToList();
+    }
+
+    private HashSet<MethodInfo> GetBaseDefinitionsOfAbstractMethods (Type baseTypeOrNull)
+    {
+      if (baseTypeOrNull == null)
         return new HashSet<MethodInfo>();
 
-      var baseDefinitions = baseType
+      var baseDefinitions = baseTypeOrNull
           .GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
           .Where (m => m.IsAbstract)
           .Select (MethodBaseDefinitionCache.GetBaseDefinition);
@@ -519,13 +523,25 @@ namespace Remotion.TypePipe.MutableReflection
     private void AddTrackedMethod (MutableMethodInfo method)
     {
       _addedMethods.Add (method);
-      TrackMethod (method);
 
-      method.BodyChanged += (sender, args) => TrackMethod ((MutableMethodInfo) sender);
-      method.ExplicitBaseDefinitionAdded += (sender, args) => TrackMethod ((MutableMethodInfo) sender);
+      UpdateAllMethods (method);
+      UpdateAbstractMethods (method);
+
+      method.BodyChanged += (sender, args) => UpdateAbstractMethods ((MutableMethodInfo) sender);
+      method.ExplicitBaseDefinitionAdded += (sender, args) => UpdateAbstractMethods ((MutableMethodInfo) sender);
     }
 
-    private void TrackMethod (MutableMethodInfo method)
+    private void UpdateAllMethods (MutableMethodInfo method)
+    {
+      // Remove overridden methods.
+      var overriddenBaseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
+      _allMethods.RemoveAll (m => MethodBaseDefinitionCache.GetBaseDefinition (m) == overriddenBaseDefinition);
+
+      // TODO 5793: Use Add (append) or a linked list.
+      _allMethods.Insert (0, method);
+    }
+
+    private void UpdateAbstractMethods (MutableMethodInfo method)
     {
       var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
       var explicitBaseDefinitions = method.AddedExplicitBaseDefinitions;
