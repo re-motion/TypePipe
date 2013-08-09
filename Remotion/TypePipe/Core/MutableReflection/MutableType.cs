@@ -537,8 +537,7 @@ namespace Remotion.TypePipe.MutableReflection
       var overriddenBaseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
       _allMethods.RemoveAll (m => MethodBaseDefinitionCache.GetBaseDefinition (m) == overriddenBaseDefinition);
 
-      // TODO FS-TypePipe: Use List (Add). But this causes a weird failure in an integration test.
-      _allMethods.Insert (0, method);
+      _allMethods.Add (method);
     }
 
     private void UpdateAbstractMethods (MutableMethodInfo method)
