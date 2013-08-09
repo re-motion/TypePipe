@@ -76,9 +76,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
       var implementationCandidates = mutableType
-          .GetMethods (BindingFlags.Public | BindingFlags.Instance)
-          // TODO 5793
-          //.GetAllMethods().Where (m => m.IsPublic && m.IsStatic) // Optimization: Don't use GetMethods(BindingFlags).
+          .GetAllMethods().Where (m => m.IsPublic && !m.IsStatic) // Optimization: Don't use GetMethods(BindingFlags).
           .Where (m => m.IsVirtual)
           .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
       var interfaceMethods = interfaceType.GetMethods();

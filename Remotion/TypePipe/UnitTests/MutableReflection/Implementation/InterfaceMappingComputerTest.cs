@@ -16,13 +16,13 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Collections;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -138,34 +138,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void ComputeMapping_AddedInterface_CandidateOrder ()
     {
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      var mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType), memberSelector: memberSelectorMock);
-
       // This interface contains Method21, Method22, Method23
-      mutableType.AddInterface (typeof (IAddedInterface));
-      mutableType.AddMethod ("Method21", MethodAttributes.Public | MethodAttributes.Virtual);
+      _mutableType.AddInterface (typeof (IAddedInterface));
+      _mutableType.AddMethod ("Method21", MethodAttributes.Public | MethodAttributes.Virtual);
 
       // The mutableType now has Method21 (added), Method22 (inherited), Method23 (inherited), and a few methods not related to IAddedInterface.
-      var methods = mutableType.GetAllMethods().ToArray();
+      var methods = _mutableType.GetAllMethods().ToArray();
 
-      // Shuffle the methods return by member selector to demonstrate that method order is irrelevant.
+      // Shuffle the methods to demonstrate that method order is irrelevant.
       var r = new Random (47);
-      var unorderedMethods = methods.OrderBy (m => r);
-      Assert.That (unorderedMethods, Is.EquivalentTo (methods));
-      memberSelectorMock
-          .Expect (
-              mock => mock.SelectMethods (
-                  Arg<IEnumerable<MethodInfo>>.List.Equal (methods), Arg.Is (BindingFlags.Public | BindingFlags.Instance), Arg.Is (mutableType)))
-          .Return (unorderedMethods);
+      var shuffledMethods = methods.OrderBy (m => r.Next()).ToList();
+      PrivateInvoke.SetNonPublicField (_mutableType, "_allMethods", shuffledMethods);
 
       CallComputeMappingAndCheckResult (
-          mutableType,
+          _mutableType,
           typeof (IAddedInterface),
           Tuple.Create (_addedInterfaceMethod1, methods.First (m => m.Name == "Method21")),
           Tuple.Create (_addedInterfaceMethod2, methods.First (m => m.Name == "Method22")),
           Tuple.Create (_addedInterfaceMethod3, methods.First (m => m.Name == "Method23")));
-
-      memberSelectorMock.VerifyAllExpectations ();
     }
 
     [Test]
