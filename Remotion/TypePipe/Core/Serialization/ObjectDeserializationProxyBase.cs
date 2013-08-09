@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Diagnostics;
 using System.Runtime.Serialization;
 using Remotion.ServiceLocation;
 using Remotion.Utilities;
@@ -57,7 +56,7 @@ namespace Remotion.TypePipe.Serialization
 
     public object GetRealObject (StreamingContext context)
     {
-      Debug.Assert (context.Equals (_streamingContext));
+      Assertion.DebugAssert (context.Equals(_streamingContext));
 
       // Do not move this code into the constructor (although it belongs there logically).
       // Reason: The deserialization constructor is called by .NET infrastructure via reflection. If we create the instance in the constructor,

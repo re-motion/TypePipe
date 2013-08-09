@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Diagnostics;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -34,8 +33,8 @@ namespace Remotion.TypePipe.Caching
 
     public ReverseConstructionKey (Type assembledType, Type delegateType, bool allowNonPublic)
     {
-      // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (delegateType != null);
+      // Using Assertion.DebugAssert because it will be compiled away.
+      Assertion.DebugAssert (delegateType != null);
 
       _assembledType = assembledType;
       _delegateType = delegateType;

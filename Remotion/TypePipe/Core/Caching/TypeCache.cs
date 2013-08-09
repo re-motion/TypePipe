@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation.Synchronization;
@@ -67,8 +66,8 @@ namespace Remotion.TypePipe.Caching
 
     public Type GetOrCreateType (Type requestedType)
     {
-      // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (requestedType != null);
+      // Using Assertion.DebugAssert because it will be compiled away.
+      Assertion.DebugAssert(requestedType != null);
 
       var typeID = _typeAssembler.ComputeTypeID (requestedType);
 
@@ -86,9 +85,9 @@ namespace Remotion.TypePipe.Caching
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
     {
-      // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (requestedType != null);
-      Debug.Assert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
+      // Using Assertion.DebugAssert because it will be compiled away.
+      Assertion.DebugAssert (requestedType != null);
+      Assertion.DebugAssert (delegateType != null && typeof(Delegate).IsAssignableFrom(delegateType));
 
       var typeID = _typeAssembler.ComputeTypeID (requestedType);
 
@@ -97,8 +96,8 @@ namespace Remotion.TypePipe.Caching
 
     public Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
     {
-      // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
+      // Using Assertion.DebugAssert because it will be compiled away.
+      Assertion.DebugAssert (delegateType != null && typeof(Delegate).IsAssignableFrom(delegateType));
 
       var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
 
