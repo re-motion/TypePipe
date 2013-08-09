@@ -327,8 +327,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
-      // Optimization for default binding flags.
-      if (bindingAttr == (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+      var allBindingFlags = (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      if (bindingAttr == allBindingFlags)
         return GetAllMethods().ToArray();
 
       return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray();
