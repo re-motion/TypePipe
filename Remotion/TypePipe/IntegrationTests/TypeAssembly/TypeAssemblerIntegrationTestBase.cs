@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     protected Type AssembleType (Type requestedType, params Action<IProxyTypeAssemblyContext>[] participantActions)
     {
-      var participants = participantActions.Select (a => CreateParticipant (a)).ToArray();
+      var participants = participantActions.Select (CreateParticipant).ToArray();
       var pipeline = CreatePipeline (participants);
 
       return pipeline.ReflectionService.GetAssembledType (requestedType);
