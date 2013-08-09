@@ -34,12 +34,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      var member = ReflectionObjectMother.GetSomeType();
+      var attributeTarget = ReflectionObjectMother.GetSomeType();
 
-      _key1 = new CustomAttributeDataCacheKey (member, inherit: true);
-      _key2 = new CustomAttributeDataCacheKey (ReflectionObjectMother.GetSomeMethod(), true);
-      _key3 = new CustomAttributeDataCacheKey (member, false);
-      _key4 = new CustomAttributeDataCacheKey (member, true);
+      _key1 = new CustomAttributeDataCacheKey (attributeTarget, inherit: true);
+      _key2 = new CustomAttributeDataCacheKey (ReflectionObjectMother.GetSomeParameter(), true);
+      _key3 = new CustomAttributeDataCacheKey (attributeTarget, false);
+      _key4 = new CustomAttributeDataCacheKey (attributeTarget, true);
     }
 
     [Test]

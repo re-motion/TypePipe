@@ -30,27 +30,27 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </remarks>
   public struct CustomAttributeDataCacheKey : IEquatable<CustomAttributeDataCacheKey>
   {
-    private readonly MemberInfo _member;
+    private readonly ICustomAttributeProvider _attributeTarget;
     private readonly bool _inherit;
 
     private readonly int _hashCode;
 
-    public CustomAttributeDataCacheKey (MemberInfo member, bool inherit)
+    public CustomAttributeDataCacheKey (ICustomAttributeProvider attributeTarget, bool inherit)
     {
       // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (member != null);
-      Assertion.DebugAssert (!(member is IMutableMember));
+      Assertion.DebugAssert (attributeTarget != null);
+      Assertion.DebugAssert (!(attributeTarget is IMutableMember));
 
-      _member = member;
+      _attributeTarget = attributeTarget;
       _inherit = inherit;
 
       // Pre-compute hash code.
-      _hashCode = EqualityUtility.GetRotatedHashCode (RuntimeHelpers.GetHashCode (member), inherit);
+      _hashCode = EqualityUtility.GetRotatedHashCode (RuntimeHelpers.GetHashCode (attributeTarget), inherit);
     }
 
-    public MemberInfo Member
+    public ICustomAttributeProvider AttributeTarget
     {
-      get { return _member; }
+      get { return _attributeTarget; }
     }
 
     public bool Inherit
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public bool Equals (CustomAttributeDataCacheKey other)
     {
-      return object.ReferenceEquals (_member, other._member)
+      return object.ReferenceEquals (_attributeTarget, other._attributeTarget)
              && _inherit == other._inherit;
     }
 
