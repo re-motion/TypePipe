@@ -128,6 +128,13 @@ namespace Remotion.TypePipe.MutableReflection
     private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
         where T : MemberInfo
     {
+      // TODO 5794
+      //ConcurrentDictionary<MemberInfo, IEnumerable<ICustomAttributeData>> d;
+      //if (!d.TryGetValue (member, out result))
+      //{
+      //  result = d.GetOrAdd (member, key => (T) key)
+      //}
+
       var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
       if (!inherit)
         return attributes;
