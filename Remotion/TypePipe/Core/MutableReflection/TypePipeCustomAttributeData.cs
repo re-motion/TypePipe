@@ -43,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
     private static readonly ConcurrentDictionary<CustomAttributeDataCacheKey, ReadOnlyCollection<ICustomAttributeData>> s_cache =
         new ConcurrentDictionary<CustomAttributeDataCacheKey, ReadOnlyCollection<ICustomAttributeData>>();
 
+    private static readonly Func<Type, Type> s_baseTypeProvider = type => type.BaseType;
     private static readonly Func<MethodInfo, MethodInfo> s_baseMethodProvider = new RelatedMethodFinder().GetBaseMethod;
     private static readonly Func<PropertyInfo, PropertyInfo> s_basePropertyProvider = new RelatedPropertyFinder().GetBaseProperty;
     private static readonly Func<EventInfo, EventInfo> s_baseEventProvider = new RelatedEventFinder().GetBaseEvent;
@@ -56,14 +57,20 @@ namespace Remotion.TypePipe.MutableReflection
         case MemberTypes.TypeInfo:
         case MemberTypes.NestedType:
           return GetCustomAttributes ((Type) member, inherit);
+        case MemberTypes.Field:
+          return GetCustomAttributes ((FieldInfo) member);
+        case MemberTypes.Constructor:
+          return GetCustomAttributes ((ConstructorInfo) member);
         case MemberTypes.Method:
           return GetCustomAttributes ((MethodInfo) member, inherit);
         case MemberTypes.Property:
           return GetCustomAttributes ((PropertyInfo) member, inherit);
         case MemberTypes.Event:
           return GetCustomAttributes ((EventInfo) member, inherit);
+        case MemberTypes.Custom:
+          throw new NotSupportedException ("Member type 'Custom' is not supported.");
         default:
-          return s_customAttributeDataRetriever.GetCustomAttributeData (member);
+          throw new Exception ("unreachable");
       }
     }
 
@@ -71,48 +78,49 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return GetCustomAttributes (type, inherit, t => t.BaseType);
+      return GetCachedAttributes (type, inherit, s_baseTypeProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (FieldInfo field)
     {
       ArgumentUtility.CheckNotNull ("field", field);
 
-      return s_customAttributeDataRetriever.GetCustomAttributeData (field);
+      return GetCachedAttributes (field, inherit: false, baseMemberProvider: null);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ConstructorInfo constructor)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
 
-      return s_customAttributeDataRetriever.GetCustomAttributeData (constructor);
+      return GetCachedAttributes (constructor, inherit: false, baseMemberProvider: null);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MethodInfo method, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      return GetCustomAttributes (method, inherit, s_baseMethodProvider);
+      return GetCachedAttributes (method, inherit, s_baseMethodProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (PropertyInfo property, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("property", property);
 
-      return GetCustomAttributes (property, inherit, s_basePropertyProvider);
+      return GetCachedAttributes (property, inherit, s_basePropertyProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (EventInfo @event, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("event", @event);
 
-      return GetCustomAttributes (@event, inherit, s_baseEventProvider);
+      return GetCachedAttributes (@event, inherit, s_baseEventProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)
     {
       ArgumentUtility.CheckNotNull ("parameter", parameter);
 
+      // TODO 5794: Remove direct usage of attribute data retriever.
       return s_customAttributeDataRetriever.GetCustomAttributeData (parameter);
     }
 
@@ -120,6 +128,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
 
+      // TODO 5794: Remove direct usage of attribute data retriever.
       return s_customAttributeDataRetriever.GetCustomAttributeData (assembly);
     }
 
@@ -127,10 +136,11 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("module", module);
 
+      // TODO 5794: Remove direct usage of attribute data retriever.
       return s_customAttributeDataRetriever.GetCustomAttributeData (module);
     }
 
-    private static ReadOnlyCollection<ICustomAttributeData> GetCustomAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
+    private static ReadOnlyCollection<ICustomAttributeData> GetCachedAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
         where T : MemberInfo
     {
       if (member is IMutableMember)
@@ -154,7 +164,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (baseMember == null)
         return attributes.ToList().AsReadOnly();
 
-      var inheritedAttributes = GetCustomAttributes (baseMember, inherit, baseMemberProvider)
+      var inheritedAttributes = GetCachedAttributes (baseMember, inherit, baseMemberProvider)
           .Where (a => AttributeUtility.IsAttributeInherited (a.Type));
 
       var allAttributes = attributes.Concat (inheritedAttributes);
