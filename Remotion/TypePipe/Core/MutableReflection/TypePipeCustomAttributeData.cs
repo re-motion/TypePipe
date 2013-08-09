@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.ServiceLocation;
+using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -28,6 +29,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// <summary>
   /// Represents the TypePipe counterpart of <see cref="CustomAttributeData"/>.
   /// Can be used to retrieve attribute data from <see cref="MemberInfo"/>s and <see cref="ParameterInfo"/>s.
+  /// Note that the results returned by this class are cached.
   /// </summary>
   /// <remarks>
   /// The implementation is based on an instance of <see cref="ICustomAttributeDataRetriever"/> which is requested via 
@@ -38,9 +40,12 @@ namespace Remotion.TypePipe.MutableReflection
     private static readonly ICustomAttributeDataRetriever s_customAttributeDataRetriever =
         SafeServiceLocator.Current.GetInstance<ICustomAttributeDataRetriever>();
 
-    private static readonly IRelatedMethodFinder s_relatedMethodFinder = new RelatedMethodFinder();
-    private static readonly IRelatedPropertyFinder s_relatedPropertyFinder = new RelatedPropertyFinder();
-    private static readonly IRelatedEventFinder s_relatedEventFinder = new RelatedEventFinder();
+    private static readonly ConcurrentDictionary<CustomAttributeDataCacheKey, ReadOnlyCollection<ICustomAttributeData>> s_cache =
+        new ConcurrentDictionary<CustomAttributeDataCacheKey, ReadOnlyCollection<ICustomAttributeData>>();
+
+    private static readonly Func<MethodInfo, MethodInfo> s_baseMethodProvider = new RelatedMethodFinder().GetBaseMethod;
+    private static readonly Func<PropertyInfo, PropertyInfo> s_basePropertyProvider = new RelatedPropertyFinder().GetBaseProperty;
+    private static readonly Func<EventInfo, EventInfo> s_baseEventProvider = new RelatedEventFinder().GetBaseEvent;
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
@@ -87,21 +92,21 @@ namespace Remotion.TypePipe.MutableReflection
     {
       ArgumentUtility.CheckNotNull ("method", method);
 
-      return GetCustomAttributes (method, inherit, s_relatedMethodFinder.GetBaseMethod);
+      return GetCustomAttributes (method, inherit, s_baseMethodProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (PropertyInfo property, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("property", property);
 
-      return GetCustomAttributes (property, inherit, s_relatedPropertyFinder.GetBaseProperty);
+      return GetCustomAttributes (property, inherit, s_basePropertyProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (EventInfo @event, bool inherit)
     {
       ArgumentUtility.CheckNotNull ("event", @event);
 
-      return GetCustomAttributes (@event, inherit, s_relatedEventFinder.GetBaseEvent);
+      return GetCustomAttributes (@event, inherit, s_baseEventProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)
@@ -125,46 +130,35 @@ namespace Remotion.TypePipe.MutableReflection
       return s_customAttributeDataRetriever.GetCustomAttributeData (module);
     }
 
-    //private static IEnumerable<ICustomAttributeData> GetCustomAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
-    //    where T : MemberInfo
-    //{
-    //  // TODO 5794
-    //  //ConcurrentDictionary<MemberInfo, IEnumerable<ICustomAttributeData>> d;
-    //  //if (!d.TryGetValue (member, out result))
-    //  //{
-    //  //  result = d.GetOrAdd (member, key => (T) key)
-    //  //}
-
-    //  var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
-    //  if (!inherit)
-    //    return attributes;
-
-    //  var baseMember = baseMemberProvider (member); // Base member may be null, which is ok.
-    //  var inheritedAttributes = baseMember
-    //      .CreateSequence (baseMemberProvider)
-    //      .SelectMany (s_customAttributeDataRetriever.GetCustomAttributeData)
-    //      .Where (d => AttributeUtility.IsAttributeInherited (d.Type));
-
-    //  var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
-    //  return EvaluateAllowMultiple (allAttributesWithInheritance);
-    //}
-
     private static ReadOnlyCollection<ICustomAttributeData> GetCustomAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
         where T : MemberInfo
+    {
+      if (member is IMutableMember)
+        return GetXX (member, inherit, baseMemberProvider);
+
+      var key = new CustomAttributeDataCacheKey (member, inherit);
+      ReadOnlyCollection<ICustomAttributeData> attributes;
+      if (s_cache.TryGetValue (key, out attributes))
+        return attributes;
+
+      return s_cache.GetOrAdd (key, k => GetXX ((T) k.Member, k.Inherit, baseMemberProvider));
+    }
+
+    private static ReadOnlyCollection<ICustomAttributeData> GetXX<T> (T member, bool inherit, Func<T, T> baseMemberProvider) where T : MemberInfo
     {
       var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
       if (!inherit)
         return attributes.ToList().AsReadOnly();
 
-      var baseMember = baseMemberProvider (member); // Base member may be null, which is ok.
+      var baseMember = baseMemberProvider (member);
       if (baseMember == null)
         return attributes.ToList().AsReadOnly();
 
       var inheritedAttributes = GetCustomAttributes (baseMember, inherit, baseMemberProvider)
           .Where (a => AttributeUtility.IsAttributeInherited (a.Type));
 
-      var allAttributesWithInheritance = attributes.Concat (inheritedAttributes);
-      return EvaluateAllowMultiple (allAttributesWithInheritance).ToList().AsReadOnly();
+      var allAttributes = attributes.Concat (inheritedAttributes);
+      return EvaluateAllowMultiple (allAttributes).ToList().AsReadOnly();
     }
 
     private static IEnumerable<ICustomAttributeData> EvaluateAllowMultiple (IEnumerable<ICustomAttributeData> attributesFromDerivedToBase)
