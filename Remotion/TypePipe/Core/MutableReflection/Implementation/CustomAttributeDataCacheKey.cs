@@ -48,6 +48,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _hashCode = EqualityUtility.GetRotatedHashCode (RuntimeHelpers.GetHashCode (member), inherit);
     }
 
+    public MemberInfo Member
+    {
+      get { return _member; }
+    }
+
+    public bool Inherit
+    {
+      get { return _inherit; }
+    }
+
     public bool Equals (CustomAttributeDataCacheKey other)
     {
       return object.ReferenceEquals (_member, other._member)
