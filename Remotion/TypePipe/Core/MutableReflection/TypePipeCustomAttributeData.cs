@@ -143,6 +143,9 @@ namespace Remotion.TypePipe.MutableReflection
         where T : ICustomAttributeProvider
     {
       var key = new CustomAttributeDataCacheKey (target, inherit: false);
+
+      // Optimization: Do not extract code duplication into method with Func parameters. This would require creating a closure that captures
+      // variables from an outer scope, which is expensive.
       ReadOnlyCollection<ICustomAttributeData> attributes;
       if (s_cache.TryGetValue (key, out attributes))
         return attributes;
@@ -154,17 +157,20 @@ namespace Remotion.TypePipe.MutableReflection
         where T : MemberInfo
     {
       if (member is IMutableMember)
-        return GetXX (member, inherit, baseMemberProvider);
+        return GetAttributes (member, inherit, baseMemberProvider);
 
       var key = new CustomAttributeDataCacheKey (member, inherit);
+
+      // Optimization: Do not extract code duplication into method with Func parameters. This would require creating a closure that captures
+      // variables from an outer scope, which is expensive.
       ReadOnlyCollection<ICustomAttributeData> attributes;
       if (s_cache.TryGetValue (key, out attributes))
         return attributes;
 
-      return s_cache.GetOrAdd (key, k => GetXX ((T) k.AttributeTarget, k.Inherit, baseMemberProvider));
+      return s_cache.GetOrAdd (key, k => GetAttributes ((T) k.AttributeTarget, k.Inherit, baseMemberProvider));
     }
 
-    private static ReadOnlyCollection<ICustomAttributeData> GetXX<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
+    private static ReadOnlyCollection<ICustomAttributeData> GetAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
         where T : MemberInfo
     {
       var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);
@@ -175,7 +181,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (baseMember == null)
         return attributes.ToList().AsReadOnly();
 
-      var inheritedAttributes = GetCachedAttributes (baseMember, inherit, baseMemberProvider)
+      var inheritedAttributes = GetCachedAttributes (baseMember, true, baseMemberProvider)
           .Where (a => AttributeUtility.IsAttributeInherited (a.Type));
 
       var allAttributes = attributes.Concat (inheritedAttributes);
