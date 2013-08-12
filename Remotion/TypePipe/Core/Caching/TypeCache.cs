@@ -116,16 +116,16 @@ namespace Remotion.TypePipe.Caching
       var assembledTypes = new List<Type>();
       var additionalTypes = new List<Type>();
 
-      // TODO 5370: Put this behind lock (access to IsAssembledType and ExtractTypeID), or create JIRA task.
       foreach (var type in generatedTypes)
       {
-        if (_typeAssembler.IsAssembledType (type))
+        if (_typeCacheSynchronizationPoint.IsAssembledType (type))
           assembledTypes.Add (type);
         else
           additionalTypes.Add (type);
       }
 
-      var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeAssembler.ExtractTypeID (t), t));
+      var keysToAssembledTypes = assembledTypes
+          .Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeCacheSynchronizationPoint.ExtractTypeID (t), t));
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
     }
 
