@@ -30,15 +30,15 @@ namespace Remotion.TypePipe.PerformanceTests
 {
   [Explicit ("Performance measurement for caching")]
   [TestFixture]
-  public class CachePerformanceComparisonTest
+  public class CachePerformanceTest
   {
     [Test]
     public void TypePipe ()
     {
       var participants = new IParticipant[] { new DomainObjectParticipant(new TypeDefinitionProvider(), new InterceptedPropertyCollectorAdapter()), new MixinParticipant() };
 
-      var objectFactory = PipelineFactory.Create ("CachePerformanceComparisonTest", participants);
-      var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (objectFactory, "_typeCache");
+      var pipeline = PipelineFactory.Create ("CachePerformanceTest", participants);
+      var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (pipeline, "_typeCache");
 
       Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeof (DomainType));
       Func<Delegate> constructorDelegateCacheFunc = () => typeCache.GetOrCreateConstructorCall (typeof (DomainType), typeof (Func<object>), true);
