@@ -34,7 +34,9 @@ namespace Remotion.TypePipe.TypeAssembly
     /// </summary>
     event Action<GeneratedTypesContext> GenerationCompleted;
 
-    // TODO 5370
+    /// <summary>
+    /// Gets the participant configuration ID of the <see cref="IPipeline"/> which is currently invoking the participant.
+    /// </summary>
     string ParticipantConfigurationID { get; }
 
     /// <summary>
