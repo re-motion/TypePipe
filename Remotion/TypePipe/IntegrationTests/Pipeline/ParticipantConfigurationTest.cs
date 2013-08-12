@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void PipelineConfiguration ()
     {
       var configurationID = "configurationID";
-      var participant1 = CreateParticipant();
+      var participant1 = CreateParticipant ((id, ctx) => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
       var participant2 = CreateParticipant();
 
       var pipeline = PipelineFactory.Create (configurationID, participant1, participant2);

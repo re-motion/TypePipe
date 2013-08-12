@@ -34,6 +34,9 @@ namespace Remotion.TypePipe.TypeAssembly
     /// </summary>
     event Action<GeneratedTypesContext> GenerationCompleted;
 
+    // TODO 5370
+    string ParticipantConfigurationID { get; }
+
     /// <summary>
     /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.
     /// </summary>

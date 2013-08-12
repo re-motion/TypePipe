@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
   public class TypeAssemblyContextBaseTest
   {
     private IMutableTypeFactory _mutableTypeFactoryMock;
+    private string _participantConfigurationID;
     private IDictionary<string, object> _state;
 
     private TestableTypeAssemblyContextBase _context;
@@ -39,9 +40,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     public void SetUp ()
     {
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
+      _participantConfigurationID = "participant configuration ID";
       _state = new Dictionary<string, object>();
 
-      _context = new TestableTypeAssemblyContextBase (_mutableTypeFactoryMock, _state);
+      _context = new TestableTypeAssemblyContextBase (_mutableTypeFactoryMock, _participantConfigurationID, _state);
     }
 
     [Test]
@@ -49,6 +51,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     {
       Assert.That (_context.AdditionalTypes, Is.Empty);
       Assert.That (_context.State, Is.SameAs (_state));
+      Assert.That (_context.ParticipantConfigurationID, Is.EqualTo (_participantConfigurationID));
     }
 
     [Test]

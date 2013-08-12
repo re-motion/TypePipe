@@ -21,11 +21,13 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
 {
-  /// <inheritdoc />
+  /// <summary>
+  /// A context that provides functionality to assemble additional types.
+  /// </summary>
   public class AdditionalTypeAssemblyContext : TypeAssemblyContextBase, IAdditionalTypeAssemblyContext
   {
-    public AdditionalTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
-        : base (mutableTypeFactory, state)
+    public AdditionalTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IDictionary<string, object> state)
+        : base (mutableTypeFactory, participantConfigurationID, state)
     {
     }
   }

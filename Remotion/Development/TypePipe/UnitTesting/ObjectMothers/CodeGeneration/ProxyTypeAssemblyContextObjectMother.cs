@@ -30,6 +30,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
         Type requestedType = null,
         MutableType proxyType = null,
         IMutableTypeFactory mutableTypeFactory = null,
+        string participantConfigurationID = "participant configuration ID",
         IDictionary<string, object> state = null)
     {
       requestedType = requestedType ?? typeof (UnspecifiedRequestedType);
@@ -37,7 +38,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new ProxyTypeAssemblyContext (mutableTypeFactory, state, requestedType, proxyType);
+      return new ProxyTypeAssemblyContext (mutableTypeFactory, participantConfigurationID, state, requestedType, proxyType);
     }
 
     public class UnspecifiedRequestedType {}

@@ -122,7 +122,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         return requestedType;
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
-      var context = new ProxyTypeAssemblyContext (_mutableTypeFactory, participantState, requestedType, typeModificationTracker.Type);
+      var context = new ProxyTypeAssemblyContext (
+          _mutableTypeFactory, _participantConfigurationID, participantState, requestedType, typeModificationTracker.Type);
 
       foreach (var participant in _participants)
       {
@@ -146,7 +147,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       ArgumentUtility.CheckNotNull ("participantState", participantState);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
-      var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, participantState);
+      var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, _participantConfigurationID, participantState);
       var additionalType = _participants
           .Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context))
           .First (t => t != null, () => new NotSupportedException ("No participant provided an additional type for the given identifier."));
