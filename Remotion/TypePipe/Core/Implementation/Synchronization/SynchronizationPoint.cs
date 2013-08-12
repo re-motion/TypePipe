@@ -86,24 +86,24 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
     public bool IsAssembledType (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
-
       lock (_codeGenerationLock)
         return _typeAssembler.IsAssembledType (type);
     }
 
+    public AssembledTypeID ExtractTypeID (Type assembledType)
+    {
+      lock (_codeGenerationLock)
+        return _typeAssembler.ExtractTypeID (assembledType);
+    }
+
     public Type GetRequestedType (Type assembledType)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-
       lock (_codeGenerationLock)
         return _typeAssembler.GetRequestedType (assembledType);
     }
 
     public AssembledTypeID GetTypeID (Type assembledType)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-
       lock (_codeGenerationLock)
         return _typeAssembler.ExtractTypeID (assembledType);
     }

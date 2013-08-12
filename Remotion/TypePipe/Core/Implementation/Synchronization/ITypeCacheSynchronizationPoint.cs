@@ -27,6 +27,10 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   /// </summary>
   public interface ITypeCacheSynchronizationPoint
   {
+    bool IsAssembledType (Type type);
+
+    AssembledTypeID ExtractTypeID (Type assembledType);
+
     Type GetOrGenerateType (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         AssembledTypeID typeID,
