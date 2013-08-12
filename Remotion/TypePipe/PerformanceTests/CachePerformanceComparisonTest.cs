@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.PerformanceTests
     [Test]
     public void TypePipe ()
     {
+      // TODO 5370
       // Pipeline participant configuration is set similar to the current Remotion functionality.
       var restoreParticipantStub = MockRepository.GenerateStub<IParticipant>();
       var remixParticipantStub = MockRepository.GenerateStub<IParticipant>();
