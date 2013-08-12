@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.PerformanceTests
     [Test]
     public void TypePipe ()
     {
-      var participants = new IParticipant[] { new DomainObjectParticipant(new TypeDefinitionProvider(), new InterceptedPropertyCollectorAdapter()), new MixinParticipant() };
+      var participants = new IParticipant[] { new MixinParticipant(), new DomainObjectParticipant() };
 
       var pipeline = PipelineFactory.Create ("CachePerformanceTest", participants);
       var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (pipeline, "_typeCache");
