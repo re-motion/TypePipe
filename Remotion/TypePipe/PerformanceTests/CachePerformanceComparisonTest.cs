@@ -19,13 +19,12 @@ using System;
 using System.Globalization;
 using NUnit.Framework;
 using Remotion.Data.DomainObjects;
-using Remotion.Data.DomainObjects.Mapping;
+using Remotion.Data.DomainObjects.Infrastructure.TypePipe;
 using Remotion.Development.UnitTesting;
 using Remotion.Mixins;
+using Remotion.Mixins.CodeGeneration.TypePipe;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.PerformanceTests
 {
@@ -36,13 +35,7 @@ namespace Remotion.TypePipe.PerformanceTests
     [Test]
     public void TypePipe ()
     {
-      // TODO 5370
-      // Pipeline participant configuration is set similar to the current Remotion functionality.
-      var restoreParticipantStub = MockRepository.GenerateStub<IParticipant>();
-      var remixParticipantStub = MockRepository.GenerateStub<IParticipant>();
-      restoreParticipantStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (new RestoreTypeIdentifierProvider());
-      remixParticipantStub.Stub (stub => stub.PartialTypeIdentifierProvider).Return (new RemixTypeIdentifierProvider());
-      var participants = new[] { restoreParticipantStub, remixParticipantStub };
+      var participants = new IParticipant[] { new DomainObjectParticipant(new TypeDefinitionProvider(), new InterceptedPropertyCollectorAdapter()), new MixinParticipant() };
 
       var objectFactory = PipelineFactory.Create ("CachePerformanceComparisonTest", participants);
       var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (objectFactory, "_typeCache");
@@ -90,53 +83,6 @@ namespace Remotion.TypePipe.PerformanceTests
         }
       }
       Console.WriteLine();
-    }
-
-    public class RestoreTypeIdentifierProvider : ITypeIdentifierProvider
-    {
-      public object GetID (Type requestedType)
-      {
-        var mappingConfiguration = MappingConfiguration.Current;
-        return mappingConfiguration.ContainsTypeDefinition (requestedType) ? mappingConfiguration.GetTypeDefinition (requestedType) : null;
-      }
-
-      public Expression GetExpression (object id)
-      {
-        throw new NotImplementedException();
-      }
-
-      public Expression GetFlatValueExpressionForSerialization (object id)
-      {
-        throw new NotImplementedException();
-      }
-
-      public object DeserializeFlattenedID (object flattenedID)
-      {
-        throw new NotImplementedException();
-      }
-    }
-
-    public class RemixTypeIdentifierProvider : ITypeIdentifierProvider
-    {
-      public object GetID (Type requestedType)
-      {
-        return MixinConfiguration.ActiveConfiguration.GetContext (requestedType); // may be null
-      }
-
-      public Expression GetExpression (object id)
-      {
-        throw new NotImplementedException();
-      }
-
-      public Expression GetFlatValueExpressionForSerialization (object id)
-      {
-        throw new NotImplementedException();
-      }
-
-      public object DeserializeFlattenedID (object flattenedID)
-      {
-        throw new NotImplementedException();
-      }
     }
 
     [DBTable]
