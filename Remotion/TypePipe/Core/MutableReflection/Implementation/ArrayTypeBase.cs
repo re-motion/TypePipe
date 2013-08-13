@@ -60,6 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       SetBaseType (typeof (Array));
 
+      // TODO 5452: Use unification instead of endless recursion.
       // The lazy initialization of members is not only a performance optimization, but is needed to prevent eager evaluation of endless recursions.
       // Example: typeof (T[]).GetInterface ("ICollection`1").GetMethod ("CopyTo").GetParameters()[0] --> T[]
 
