@@ -189,6 +189,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var methods = _genericTypeDefinition.GetMethods (bindingFlags);
       var properties = _genericTypeDefinition.GetProperties (bindingFlags);
       var events = _genericTypeDefinition.GetEvents (bindingFlags);
+      // TODO 5550: nested types.
 
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       var typeParameters = new[] { ReflectionObjectMother.GetSomeType() };
@@ -204,7 +205,21 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
       var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
 
-      Dev.Null = new TypeInstantiation (memberSelectorMock, info, new TypeInstantiationContext());
+      var typeInstantiation = new TypeInstantiation (_memberSelector, info, new TypeInstantiationContext());
+
+      // Evaluation is lazy.
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition));
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition));
+      // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition));
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition));
+
+      // Trigger instantiation.
+      Dev.Null = typeInstantiation.GetFields();
+      Dev.Null = typeInstantiation.GetConstructors();
+      Dev.Null = typeInstantiation.GetMethods();
+      Dev.Null = typeInstantiation.GetProperties();
+      Dev.Null = typeInstantiation.GetEvents();
 
       memberSelectorMock.VerifyAllExpectations();
     }
