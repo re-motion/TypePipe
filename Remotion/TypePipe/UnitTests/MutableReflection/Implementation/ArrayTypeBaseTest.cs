@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -26,7 +25,6 @@ using Remotion.Reflection.MemberSignatures;
 using Remotion.Text;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
-using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -43,6 +41,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private ArrayTypeBase _type;
 
+    private Type _realArrayTypeForComparison;
+
     [SetUp]
     public void SetUp ()
     {
@@ -52,6 +52,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
       _type = new TestableArrayTypeBase (_elementType, _rank, memberSelectorMock);
+
+      _realArrayTypeForComparison = typeof (string[]);
     }
 
     [Test]
@@ -102,9 +104,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var type2 = ArrayTypeBaseObjectMother.Create (_elementType, 3);
       var type3 = ArrayTypeBaseObjectMother.Create (_elementType, _rank);
 
-      // ReSharper disable CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals ((object) null), Is.False);
-      // ReSharper restore CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals (new object()), Is.False);
       Assert.That (_type.Equals ((object) type1), Is.False);
       Assert.That (_type.Equals ((object) type2), Is.False);
@@ -118,9 +118,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var type2 = ArrayTypeBaseObjectMother.Create (_elementType, 3);
       var type3 = ArrayTypeBaseObjectMother.Create (_elementType, _rank);
 
-      // ReSharper disable CheckForReferenceEqualityInstead.1
+// ReSharper disable CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals (null), Is.False);
-      // ReSharper restore CheckForReferenceEqualityInstead.1
+// ReSharper restore CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals (type1), Is.False);
       Assert.That (_type.Equals (type2), Is.False);
       Assert.That (_type.Equals (type3), Is.True);
@@ -140,13 +140,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void GetAllNestedType ()
+    {
+      Assert.That (_realArrayTypeForComparison.GetNestedTypes (c_all), Is.Empty);
+
+      Assert.That (_type.GetAllNestedTypes(), Is.Empty);
+    }
+
+    [Test]
     public void GetAllFields ()
     {
-      var expectedFields = typeof (Array).GetFields (c_all);
+      Assert.That (_realArrayTypeForComparison.GetFields (c_all), Is.Empty);
 
-      var result = _type.Invoke<IEnumerable<FieldInfo>> ("GetAllFields");
-
-      Assert.That (result, Is.Not.Empty.And.EquivalentTo (expectedFields));
+      Assert.That (_type.GetAllFields().ToArray(), Is.Empty);
     }
 
     [Test]
@@ -161,18 +167,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               "Set(index0,index1,value), System.Void(System.Int32,System.Int32,MyNs.Abc)"
           };
       var expectedMethods = expectedDeclaredMethods.Concat (expectedBaseMethods);
-      
-      var result = _type.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods").Select (m => NameAndSignatureProvider (m));
+
+      var result = _type.GetAllMethods().Select (m => NameAndSignatureProvider (m)).ToArray();
 
       Assert.That (result, Is.EquivalentTo (expectedMethods));
+      // TODO: An array type has different methods (fewer!) than it's Array base class.
+      //Assert.That (result.Length, Is.EqualTo (_realArrayTypeForComparison.GetMethods (c_all).Length));
     }
 
     [Test]
     public void GetAllProperties ()
     {
+      // TODO
+      //var expectedProperties = _realArrayTypeForComparison.GetProperties (c_all);
       var expectedProperties = typeof (Array).GetProperties (c_all);
 
-      var result = _type.Invoke<IEnumerable<PropertyInfo>> ("GetAllProperties");
+      var result = _type.GetAllProperties();
 
       Assert.That (result, Is.Not.Empty.And.EquivalentTo (expectedProperties));
     }
@@ -180,7 +190,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAllEvents ()
     {
-      Assert.That (_type.Invoke ("GetAllEvents"), Is.Empty);
+      Assert.That(_realArrayTypeForComparison.GetEvents(c_all), Is.Empty);
+
+      Assert.That (_type.GetAllEvents(), Is.Empty);
     }
   }
 }

@@ -49,8 +49,11 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly List<MutablePropertyInfo> _addedProperties = new List<MutablePropertyInfo>();
     private readonly List<MutableEventInfo> _addedEvents = new List<MutableEventInfo>();
 
+    // Data structures for optimizations.
+    private readonly List<MethodInfo> _allMethods;
+    private readonly HashSet<MethodInfo> _baseDefinitionsOfAbstractMethods;
+
     private MutableConstructorInfo _typeInitializer;
-    private bool? _hasAbstractMethods = null;
 
     public MutableType (
         IMemberSelector memberSelector,
@@ -73,11 +76,19 @@ namespace Remotion.TypePipe.MutableReflection
 
       _interfaceMappingComputer = interfaceMappingComputer;
       _mutableMemberFactory = mutableMemberFactory;
+
+      _allMethods = GetAllBaseMethods (baseType);
+      _baseDefinitionsOfAbstractMethods = GetBaseDefinitionsOfAbstractMethods (baseType);
     }
 
     public MutableType MutableDeclaringType
     {
       get { return (MutableType) DeclaringType; }
+    }
+
+    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    {
+      get { return _customAttributes.AddedCustomAttributes; }
     }
 
     public ReadOnlyCollection<MutableType> AddedNestedTypes
@@ -131,21 +142,53 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _addedEvents.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
     {
-      get { return _customAttributes.AddedCustomAttributes; }
+      return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
+    }
+
+    public override IEnumerable<Type> GetAllNestedTypes ()
+    {
+      return GetAllMembers(_addedNestedTypes, b => EmptyTypes);
+    }
+
+    public override IEnumerable<Type> GetAllInterfaces ()
+    {
+      return GetAllMembers(_addedInterfaces, b => b.GetInterfaces()).Distinct();
+    }
+
+    public override IEnumerable<FieldInfo> GetAllFields ()
+    {
+      return GetAllMembers(_addedFields, b => b.GetFields(c_allMembers));
+    }
+
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    {
+      return _typeInitializer != null
+                 ? _addedConstructors.Cast<ConstructorInfo>().Concat(_typeInitializer)
+                 : _addedConstructors.Cast<ConstructorInfo>();
+    }
+
+    public override IEnumerable<MethodInfo> GetAllMethods ()
+    {
+      return _allMethods;
+    }
+
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
+    {
+      return GetAllMembers(_addedProperties, b => b.GetProperties(c_allMembers));
+    }
+
+    public override IEnumerable<EventInfo> GetAllEvents ()
+    {
+      return GetAllMembers(_addedEvents, b => b.GetEvents(c_allMembers));
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull("customAttribute", customAttribute);
 
-      _customAttributes.AddCustomAttribute (customAttribute);
-    }
-
-    public override IEnumerable<ICustomAttributeData> GetCustomAttributeData ()
-    {
-      return _customAttributes.AddedCustomAttributes.Cast<ICustomAttributeData>();
+      _customAttributes.AddCustomAttribute(customAttribute);
     }
 
     public MutableType AddNestedType (string typeName, TypeAttributes attributes, Type baseType)
@@ -442,63 +485,6 @@ namespace Remotion.TypePipe.MutableReflection
         return attributes & ~TypeAttributes.Abstract;
     }
 
-    protected override IEnumerable<Type> GetAllNestedTypes()
-    {
-      return GetAllMembers(_addedNestedTypes, b => EmptyTypes);
-    }
-
-    protected override IEnumerable<Type> GetAllInterfaces ()
-    {
-      return GetAllMembers (_addedInterfaces, b => b.GetInterfaces()).Distinct();
-    }
-
-    protected override IEnumerable<FieldInfo> GetAllFields ()
-    {
-      return GetAllMembers (_addedFields, b => b.GetFields (c_allMembers));
-    }
-
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
-    {
-      return _typeInitializer != null
-                 ? _addedConstructors.Cast<ConstructorInfo>().Concat (_typeInitializer)
-                 : _addedConstructors.Cast<ConstructorInfo>();
-    }
-
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
-    {
-      return GetAllMembers (
-          _addedMethods,
-          baseType =>
-          {
-            var overriddenBaseDefinitions = new HashSet<MethodInfo> (_addedMethods.Select (MethodBaseDefinitionCache.GetBaseDefinition));
-            return baseType.GetMethods (c_allMembers).Where (m => !overriddenBaseDefinitions.Contains (MethodBaseDefinitionCache.GetBaseDefinition (m)));
-          });
-    }
-
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
-    {
-      return GetAllMembers (_addedProperties, b => b.GetProperties (c_allMembers));
-    }
-
-    protected override IEnumerable<EventInfo> GetAllEvents ()
-    {
-      return GetAllMembers (_addedEvents, b => b.GetEvents (c_allMembers));
-    }
-
-    private bool HasAbstractMethods ()
-    {
-      if (_hasAbstractMethods == null)
-      {
-        // Note: GetAllMethods is used because this is faster than GetMethods (...), even though static methods aren't required.
-        _hasAbstractMethods = GetAllMethods()
-            .Where (m => m.IsAbstract)
-            .Select (MethodBaseDefinitionCache.GetBaseDefinition)
-            .Except (AddedMethods.SelectMany (m => m.AddedExplicitBaseDefinitions))
-            .Any();
-      }
-      return _hasAbstractMethods.Value;
-    }
-
     private IEnumerable<T> GetAllMembers<T, TMutable> (IEnumerable<TMutable> addedMembers, Func<Type, IEnumerable<T>> baseMemberProvider)
         where TMutable : T
     {
@@ -508,47 +494,67 @@ namespace Remotion.TypePipe.MutableReflection
       return addedMembers.Cast<T>().Concat (baseMemberProvider (BaseType));
     }
 
-    private void AddTrackedMethod (MutableMethodInfo mutableMethod)
+    private bool HasAbstractMethods ()
     {
-      _addedMethods.Add (mutableMethod);
+      return _baseDefinitionsOfAbstractMethods.Count != 0;
+    }
 
-      // Cases when adding a method:
-      // - We add an abstract method
-      //   + We had abstract methods (flag == true) => no change (flag = true)
-      //   + We had no abstract methods (flag == false) => we now have abstract nethods (flag = true)
-      //   => Set to true in any case
+    private List<MethodInfo> GetAllBaseMethods (Type baseTypeOrNull)
+    {
+      if (baseTypeOrNull == null)
+        return new List<MethodInfo>();
 
-      // - We add a non-abstract method 
-      //   + We had abstract methods (flag == true) => recalculate if (and only if) it overrides an abstract method (flag = null)
-      //   + We had no abstract methods (flag == false) => no change (flag = false)
+      return baseTypeOrNull.GetMethods (c_allMembers).ToList();
+    }
 
-      if (mutableMethod.IsAbstract)
-        _hasAbstractMethods = true;
-      else if (mutableMethod.BaseMethod != null && mutableMethod.BaseMethod.IsAbstract)
-        _hasAbstractMethods = null;
-      else if (mutableMethod.AddedExplicitBaseDefinitions.Any (m => m.IsAbstract))
-        _hasAbstractMethods = null;
+    private HashSet<MethodInfo> GetBaseDefinitionsOfAbstractMethods (Type baseTypeOrNull)
+    {
+      if (baseTypeOrNull == null)
+        return new HashSet<MethodInfo>();
 
-      // Cases when setting a body:
-      // - The body was null and no longer is => recalculate (flag = null)
-      // - The body is null and wasn't before => we now have abstract methods (flag = true) [cannot currently happen]
-      // - The body is null/not null as it was before => no change
+      var baseDefinitions = baseTypeOrNull
+          .GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+          .Where (m => m.IsAbstract)
+          .Select (MethodBaseDefinitionCache.GetBaseDefinition);
 
-      mutableMethod.BodyChanged += (sender, args) =>
+      return new HashSet<MethodInfo> (baseDefinitions);
+    }
+
+    private void AddTrackedMethod (MutableMethodInfo method)
+    {
+      _addedMethods.Add (method);
+
+      UpdateAllMethods (method);
+      UpdateAbstractMethods (method);
+
+      method.BodyChanged += (sender, args) => UpdateAbstractMethods ((MutableMethodInfo) sender);
+      method.ExplicitBaseDefinitionAdded += (sender, args) => UpdateAbstractMethods ((MutableMethodInfo) sender);
+    }
+
+    private void UpdateAllMethods (MutableMethodInfo method)
+    {
+      // Remove overridden methods.
+      var overriddenBaseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
+      _allMethods.RemoveAll (m => MethodBaseDefinitionCache.GetBaseDefinition (m) == overriddenBaseDefinition);
+
+      _allMethods.Add (method);
+    }
+
+    private void UpdateAbstractMethods (MutableMethodInfo method)
+    {
+      var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
+      var explicitBaseDefinitions = method.AddedExplicitBaseDefinitions;
+
+      if (method.IsAbstract)
       {
-        Assertion.IsNotNull (args.NewBody);
-        if (args.OldBody == null && args.NewBody != null)
-          _hasAbstractMethods = null;
-      };
-
-      // Cases when setting an explicit base definition:
-      // - The base definition is abstract and the overrider is not => recalculate (flag = null)
-      // - Otherwise => no change
-      mutableMethod.ExplicitBaseDefinitionAdded += (sender, args) =>
+        _baseDefinitionsOfAbstractMethods.Add (baseDefinition);
+        _baseDefinitionsOfAbstractMethods.UnionWith (explicitBaseDefinitions);
+      }
+      else
       {
-        if (args.AddedExplicitBaseDefinition.IsAbstract && !((MutableMethodInfo) sender).IsAbstract)
-          _hasAbstractMethods = null;
-      };
+        _baseDefinitionsOfAbstractMethods.Remove (baseDefinition);
+        _baseDefinitionsOfAbstractMethods.ExceptWith (explicitBaseDefinitions);
+      }
     }
   }
 }

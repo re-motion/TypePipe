@@ -25,6 +25,7 @@ namespace Remotion.TypePipe
 {
   /// <summary>
   /// Provides static methods that create instances of <see cref="IPipeline"/>, which are the main entry point of the pipeline.
+  /// The used <see cref="IPipelineFactory"/> instance is resolved via the service locator and can be configured via your IoC container.
   /// </summary>
   public static class PipelineFactory
   {
@@ -33,6 +34,9 @@ namespace Remotion.TypePipe
     /// <summary>
     /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants.
     /// </summary>
+    /// <remarks>
+    /// <see cref="IPipeline"/> instances with equal participant configuration IDs must generate equivalent types.
+    /// </remarks>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <param name="participants">The participants that should be used by this object factory.</param>
     /// <returns>An new instance of <see cref="IPipeline"/>.</returns>
@@ -49,6 +53,9 @@ namespace Remotion.TypePipe
     /// custom configuration provider. If the configuration provider is omitted, the <c>App.config</c>-based configuration provider
     /// (<see cref="AppConfigBasedSettingsProvider"/>) is used.
     /// </summary>
+    /// <remarks>
+    /// <see cref="IPipeline"/> instances with equal participant configuration IDs must generate equivalent types.
+    /// </remarks>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <param name="settings">The pipeline settings.</param>
     /// <param name="participants">The participants that should be used by this object factory.</param>

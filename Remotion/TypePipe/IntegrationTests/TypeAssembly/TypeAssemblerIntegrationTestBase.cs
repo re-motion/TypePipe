@@ -18,10 +18,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -47,7 +45,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     protected Type AssembleType (Type requestedType, params Action<IProxyTypeAssemblyContext>[] participantActions)
     {
-      var participants = participantActions.Select (a => CreateParticipant (a)).ToArray();
+      var participants = participantActions.Select (CreateParticipant).ToArray();
       var pipeline = CreatePipeline (participants);
 
       return pipeline.ReflectionService.GetAssembledType (requestedType);

@@ -22,7 +22,13 @@ using Remotion.TypePipe.Implementation.Synchronization;
 
 namespace Remotion.Development.TypePipe
 {
-  // TODO 5370
+  /// <summary>
+  /// This <see cref="IPipelineFactory"/> enables saving, verification and cleanup of generated assemblies, which is useful for testing.
+  /// The capabilities are available via <see cref="AssemblyTrackingCodeManager"/>.
+  /// <para>
+  /// To use assembly tracking register <see cref="AssemblyTrackingPipelineFactory"/> for <see cref="IPipelineFactory"/> in your IoC container.
+  /// </para>
+  /// </summary>
   public class AssemblyTrackingPipelineFactory : DefaultPipelineFactory
   {
     public AssemblyTrackingCodeManager AssemblyTrackingCodeManager { get; private set; }

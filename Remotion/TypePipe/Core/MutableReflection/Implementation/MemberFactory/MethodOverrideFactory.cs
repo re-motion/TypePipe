@@ -78,8 +78,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
       var bodyProvider = CreateBodyProvider (baseMethod);
 
-      var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-      var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, methods);
+      var needsExplicitOverride = _relatedMethodFinder.IsShadowed (baseDefinition, declaringType.GetAllMethods());
       if (needsExplicitOverride)
         return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProvider);
 

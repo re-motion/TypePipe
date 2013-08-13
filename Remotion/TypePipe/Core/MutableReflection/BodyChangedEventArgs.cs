@@ -16,6 +16,7 @@
 // 
 using System;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -29,6 +30,9 @@ namespace Remotion.TypePipe.MutableReflection
 
     public BodyChangedEventArgs (Expression oldBody, Expression newBody)
     {
+      // Old body may be null.
+      ArgumentUtility.CheckNotNull ("newBody", newBody);
+
       _oldBody = oldBody;
       _newBody = newBody;
     }

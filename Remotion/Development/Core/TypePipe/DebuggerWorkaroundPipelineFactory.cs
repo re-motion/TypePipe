@@ -27,7 +27,7 @@ using Remotion.TypePipe.Implementation.Remotion;
 namespace Remotion.Development.TypePipe
 {
   /// <summary>
-  /// Use this <see cref="PipelineFactory"/> as a workaround for the Reflection.Emit bug that causes calls to <see cref="TypeBuilder.CreateType"/>
+  /// Use this <see cref="IPipelineFactory"/> as a workaround for the Reflection.Emit bug that causes calls to <see cref="TypeBuilder.CreateType"/>
   /// take a very long time to complete when the debugger is attached and a large number of types is generated into the same
   /// <see cref="AssemblyBuilder"/>.
   /// In addition, this class creates pipelines that automatically add the <see cref="NonApplicationAssemblyAttribute"/> to an in-memory assembly

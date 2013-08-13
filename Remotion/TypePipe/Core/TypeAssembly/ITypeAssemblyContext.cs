@@ -35,6 +35,11 @@ namespace Remotion.TypePipe.TypeAssembly
     event Action<GeneratedTypesContext> GenerationCompleted;
 
     /// <summary>
+    /// Gets the participant configuration ID of the <see cref="IPipeline"/> which is currently invoking the participant.
+    /// </summary>
+    string ParticipantConfigurationID { get; }
+
+    /// <summary>
     /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.
     /// </summary>
     IDictionary<string, object> State { get; }

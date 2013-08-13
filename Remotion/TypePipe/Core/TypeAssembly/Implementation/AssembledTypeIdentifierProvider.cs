@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Caching;
@@ -60,8 +59,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public AssembledTypeID ComputeTypeID (Type requestedType)
     {
-      // Using Debug.Assert because it will be compiled away.
-      Debug.Assert (requestedType != null);
+      // Using Assertion.DebugAssert because it will be compiled away.
+      Assertion.DebugAssert(requestedType != null);
 
       var parts = new object[_identifierProviders.Length];
 

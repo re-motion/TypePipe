@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -186,7 +185,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     private bool IsEmittable (MemberInfo member)
     {
-      Debug.Assert (member is Type || member is FieldInfo || member is ConstructorInfo || member is MethodInfo);
+      Assertion.DebugAssert (member is Type || member is FieldInfo || member is ConstructorInfo || member is MethodInfo);
 
       return !(member is CustomType) && !(member is CustomFieldInfo) && !(member is CustomConstructorInfo) && !(member is CustomMethodInfo);
     }

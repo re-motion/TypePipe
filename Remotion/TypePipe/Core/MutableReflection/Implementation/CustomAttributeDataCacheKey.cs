@@ -16,63 +16,52 @@
 // 
 
 using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// A data structure that identifies an assembled type.
+  /// A data structure that is used as a key for caching <see cref="ICustomAttributeData"/> intances.
   /// </summary>
   /// <remarks>
   /// Note that the implementation of this struct is critical for performance.
-  /// Moreover, the length of the id parts (object array) is assumed to be equal.
   /// </remarks>
-  public struct AssembledTypeID : IEquatable<AssembledTypeID>
+  public struct CustomAttributeDataCacheKey : IEquatable<CustomAttributeDataCacheKey>
   {
-    private readonly Type _requestedType;
-    private readonly object[] _parts;
+    private readonly ICustomAttributeProvider _attributeTarget;
+    private readonly bool _inherit;
 
     private readonly int _hashCode;
 
-    public AssembledTypeID (Type requestedType, object[] parts)
+    public CustomAttributeDataCacheKey (ICustomAttributeProvider attributeTarget, bool inherit)
     {
       // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (requestedType != null);
-      Assertion.DebugAssert (parts != null);
+      Assertion.DebugAssert (attributeTarget != null);
+      Assertion.DebugAssert (!(attributeTarget is IMutableMember));
 
-      _requestedType = requestedType;
-      _parts = parts;
+      _attributeTarget = attributeTarget;
+      _inherit = inherit;
 
       // Pre-compute hash code.
-      _hashCode = requestedType.GetHashCode() ^ EqualityUtility.GetRotatedHashCode (_parts);
+      _hashCode = EqualityUtility.GetRotatedHashCode (RuntimeHelpers.GetHashCode (attributeTarget), inherit);
     }
 
-    public Type RequestedType
+    public ICustomAttributeProvider AttributeTarget
     {
-      get { return _requestedType; }
+      get { return _attributeTarget; }
     }
 
-    public object[] Parts
+    public bool Inherit
     {
-      get { return _parts; }
+      get { return _inherit; }
     }
 
-    public bool Equals (AssembledTypeID other)
+    public bool Equals (CustomAttributeDataCacheKey other)
     {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (_parts.Length == other._parts.Length);
-
-      if (_requestedType != other.RequestedType)
-        return false;
-
-      // ReSharper disable LoopCanBeConvertedToQuery // No LINQ for performance reasons.
-      for (int i = 0; i < _parts.Length; ++i)
-      {
-        if (!Equals (_parts[i], other._parts[i]))
-          return false;
-      }
-
-      return true;
+      return object.ReferenceEquals (_attributeTarget, other._attributeTarget)
+             && _inherit == other._inherit;
     }
 
     public override bool Equals (object obj)

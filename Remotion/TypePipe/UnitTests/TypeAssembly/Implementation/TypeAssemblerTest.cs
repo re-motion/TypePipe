@@ -174,9 +174,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
             mi =>
             {
               proxyTypeAssemblyContext = (IProxyTypeAssemblyContext) mi.Arguments[1];
+              Assert.That (proxyTypeAssemblyContext.ParticipantConfigurationID, Is.EqualTo (participantConfigurationID));
+              Assert.That (proxyTypeAssemblyContext.State, Is.SameAs (_participantState));
               Assert.That (proxyTypeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
               Assert.That (proxyTypeAssemblyContext.ProxyType, Is.SameAs (proxyType));
-              Assert.That (proxyTypeAssemblyContext.State, Is.SameAs (_participantState));
 
               proxyTypeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
 
@@ -322,6 +323,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       participantMock2.Stub (_ => _.PartialTypeIdentifierProvider);
       participantMock3.Stub (_ => _.PartialTypeIdentifierProvider);
 
+      var participantConfigurationID = "participant configuration ID";
       var additionalTypeID = new object();
       bool generationCompletedEventRaised = false;
       var fakeAdditionalType = ReflectionObjectMother.GetSomeType();
@@ -337,6 +339,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
                 mi =>
                 {
                   additionalTypeAssemblyContext = (IAdditionalTypeAssemblyContext) mi.Arguments[1];
+                  Assert.That (additionalTypeAssemblyContext.ParticipantConfigurationID, Is.EqualTo (participantConfigurationID));
                   Assert.That (additionalTypeAssemblyContext.State, Is.SameAs (_participantState));
 
                   additionalTypeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
@@ -362,7 +365,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
             .WhenCalled (mi => Assert.That (generationCompletedEventRaised, Is.False));
       }
       mockRepository.ReplayAll();
-      var typeAssembler = CreateTypeAssembler (mutableTypeFactoryMock, participants: new[] { participantMock1, participantMock2, participantMock3 });
+      var typeAssembler = CreateTypeAssembler (
+          mutableTypeFactoryMock,
+          configurationId: participantConfigurationID,
+          participants: new[] { participantMock1, participantMock2, participantMock3 });
 
       var result = typeAssembler.GetOrAssembleAdditionalType (additionalTypeID, _participantState, codeGeneratorMock);
 

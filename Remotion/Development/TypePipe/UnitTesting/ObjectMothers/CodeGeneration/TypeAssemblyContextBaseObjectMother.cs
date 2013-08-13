@@ -24,12 +24,15 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
 {
   public static class TypeAssemblyContextBaseObjectMother
   {
-    public static TypeAssemblyContextBase Create (IMutableTypeFactory mutableTypeFactory = null, IDictionary<string, object> state = null)
+    public static TypeAssemblyContextBase Create (
+        IMutableTypeFactory mutableTypeFactory = null,
+        string participantConfigurationID = "participant configuration ID",
+        IDictionary<string, object> state = null)
     {
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
       state = state ?? new Dictionary<string, object>();
 
-      return new TestableTypeAssemblyContextBase (mutableTypeFactory, state);
+      return new TestableTypeAssemblyContextBase (mutableTypeFactory, participantConfigurationID, state);
     }
   }
 }

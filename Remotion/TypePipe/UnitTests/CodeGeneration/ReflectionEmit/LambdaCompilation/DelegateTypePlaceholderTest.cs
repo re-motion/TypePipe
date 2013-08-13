@@ -16,14 +16,12 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -62,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void GetAllMethods ()
     {
-      var result = _type.Invoke<IEnumerable<MethodInfo>> ("GetAllMethods").ToList();
+      var result = _type.GetAllMethods().ToList();
 
       Assert.That (result, Has.Count.EqualTo (1));
       var invokeMethod = result.Single();
@@ -76,12 +74,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void UnsupportedMembers ()
     {
       UnsupportedMemberTestHelper.CheckMethod (() => _type.GetCustomAttributeData(), "GetCustomAttributeData");
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllNestedTypes"), "GetAllNestedTypes");
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllInterfaces"), "GetAllInterfaces");
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllFields"), "GetAllFields");
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllConstructors"), "GetAllConstructors");
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllProperties"), "GetAllProperties");
-      UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllEvents"), "GetAllEvents");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.GetAllNestedTypes(), "GetAllNestedTypes");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.GetAllInterfaces(), "GetAllInterfaces");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.GetAllFields(), "GetAllFields");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.GetAllConstructors(), "GetAllConstructors");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.GetAllProperties(), "GetAllProperties");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.GetAllEvents(), "GetAllEvents");
     }
   }
 }

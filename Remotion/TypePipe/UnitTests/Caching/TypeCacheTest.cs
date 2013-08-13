@@ -45,9 +45,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
     private ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls;
     private IDictionary<string, object> _participantState;
 
+    private readonly Type _requestedType = typeof (RequestedType);
     private readonly Type _assembledType = typeof (AssembledType);
     private readonly Delegate _generatedCtorCall = new Func<int> (() => 7);
-    private readonly Type _requestedType = typeof (RequestedType);
     private Type _delegateType;
     private bool _allowNonPublic;
 
@@ -159,10 +159,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void LoadTypes ()
     {
       var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_assembledType)).Return (true);
-      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
+      _typeCacheSynchronizationPointMock.Expect (mock => mock.IsAssembledType (_assembledType)).Return (true);
+      _typeCacheSynchronizationPointMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (_assembledType)).Return (typeID);
+      _typeCacheSynchronizationPointMock.Expect (mock => mock.ExtractTypeID (_assembledType)).Return (typeID);
       _typeCacheSynchronizationPointMock
           .Expect (
               mock => mock.RebuildParticipantState (
@@ -181,7 +181,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       _cache.LoadTypes (new[] { _assembledType, additionalGeneratedType });
 
-      _typeAssemblerMock.VerifyAllExpectations();
       _typeCacheSynchronizationPointMock.VerifyAllExpectations();
     }
 

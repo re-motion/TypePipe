@@ -30,13 +30,15 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     private readonly MutableType _proxyType;
 
     public ProxyTypeAssemblyContext (
-        IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state, Type requestedType, MutableType proxyType)
-        : base (mutableTypeFactory, state)
+        IMutableTypeFactory mutableTypeFactory,
+        string participantConfigurationID,
+        IDictionary<string, object> state,
+        Type requestedType,
+        MutableType proxyType)
+        : base (mutableTypeFactory, participantConfigurationID, state)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);
-      ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
-      ArgumentUtility.CheckNotNull ("state", state);
 
       _requestedType = requestedType;
       _proxyType = proxyType;

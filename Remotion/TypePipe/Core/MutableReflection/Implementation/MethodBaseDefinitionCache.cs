@@ -29,19 +29,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private static readonly ConcurrentDictionary<MethodInfo, MethodInfo> s_cache =
         new ConcurrentDictionary<MethodInfo, MethodInfo> (new ReferenceEqualityComparer<MethodInfo>());
 
-    public static MethodInfo GetBaseDefinition (MethodInfo methodInfo)
+    public static MethodInfo GetBaseDefinition (MethodInfo method)
     {
       // Debug assertion for performance reasons.
-      Assertion.DebugAssert (methodInfo != null);
+      Assertion.DebugAssert (method != null);
 
-      if (methodInfo is CustomMethodInfo)
-        return methodInfo.GetBaseDefinition();
+      if (method is CustomMethodInfo)
+        return method.GetBaseDefinition();
 
       MethodInfo baseDefinition;
-      if (s_cache.TryGetValue (methodInfo, out baseDefinition))
+      if (s_cache.TryGetValue (method, out baseDefinition))
         return baseDefinition;
 
-      return s_cache.GetOrAdd (methodInfo, mi => mi.GetBaseDefinition());
+      return s_cache.GetOrAdd (method, m => m.GetBaseDefinition());
     }
   }
 }

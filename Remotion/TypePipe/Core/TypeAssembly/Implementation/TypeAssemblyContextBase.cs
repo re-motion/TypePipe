@@ -32,19 +32,27 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   public abstract class TypeAssemblyContextBase : ITypeAssemblyContext
   {
     private readonly IMutableTypeFactory _mutableTypeFactory;
+    private readonly string _participantConfigurationID;
     private readonly IDictionary<string, object> _state;
     private readonly List<MutableType> _additionalTypes = new List<MutableType>();
 
-    protected TypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, IDictionary<string, object> state)
+    protected TypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IDictionary<string, object> state)
     {
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
+      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("state", state);
 
       _mutableTypeFactory = mutableTypeFactory;
+      _participantConfigurationID = participantConfigurationID;
       _state = state;
     }
 
     public event Action<GeneratedTypesContext> GenerationCompleted;
+
+    public string ParticipantConfigurationID
+    {
+      get { return _participantConfigurationID; }
+    }
 
     public IDictionary<string, object> State
     {
