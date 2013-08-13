@@ -119,9 +119,6 @@ namespace Remotion.TypePipe.MutableReflection
     /// <summary>
     /// Gets the added instance constructors. Use <see cref="MutableTypeInitializer"/> to retrieve the static constructor.
     /// </summary>
-    /// <value>
-    /// The added constructors.
-    /// </value>
     public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly(); }
@@ -149,7 +146,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override IEnumerable<Type> GetAllNestedTypes ()
     {
-      return GetAllMembers(_addedNestedTypes, b => EmptyTypes);
+      return _addedNestedTypes.Cast<Type>();
     }
 
     public override IEnumerable<Type> GetAllInterfaces ()
@@ -198,7 +195,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       var nestedType = _mutableMemberFactory.CreateNestedType (this, typeName, attributes, baseType);
       _addedNestedTypes.Add (nestedType);
-
+      
       return nestedType;
     }
 

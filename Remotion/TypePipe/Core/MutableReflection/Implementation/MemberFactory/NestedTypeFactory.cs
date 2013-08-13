@@ -33,11 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       _mutableTypeFactory = mutableTypeFactory;
     }
 
-    public MutableType CreateNestedType (
-        MutableType declaringType,
-        string name,
-        TypeAttributes attributes,
-        Type baseType)
+    public MutableType CreateNestedType (MutableType declaringType, string name, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
