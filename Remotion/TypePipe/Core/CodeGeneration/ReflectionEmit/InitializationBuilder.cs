@@ -14,14 +14,19 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Collections;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
+using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
@@ -30,11 +35,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class InitializationBuilder : IInitializationBuilder
   {
+    private static readonly MethodInfo s_interfaceMethod =
+        MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize (InitializationSemantics.Construction));
+
     public Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (MutableType mutableType)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
 
-      if (mutableType.Initializations.Count == 0)
+      var initialization = mutableType.Initialization;
+      if (initialization.Expressions.Count == 0)
         return null;
 
       mutableType.AddInterface (typeof (IInitializableObject));
@@ -43,11 +52,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var nonSerializedCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
       counter.AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedCtor, new object[0]));
 
-      var interfaceMethod = MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize());
-      var body = Expression.Block (interfaceMethod.ReturnType, mutableType.Initializations);
-      var initializationMethod = mutableType.AddExplicitOverride (interfaceMethod, ctx => body);
+      var initializationMethod = mutableType.AddExplicitOverride (s_interfaceMethod, ctx => CreateInitializationBody (ctx, initialization));
 
       return Tuple.Create<FieldInfo, MethodInfo> (counter, initializationMethod);
+    }
+
+    private Expression CreateInitializationBody (MethodBodyCreationContext ctx, InstanceInitialization initialization)
+    {
+      var replacements = new Dictionary<Expression, Expression> { { initialization.Semantics, ctx.Parameters[0] } };
+      var initializations = initialization.Expressions.Select (e => e.Replace (replacements));
+
+      return Expression.Block (typeof (void), initializations);
     }
 
     public void WireConstructorWithInitialization (
@@ -65,16 +80,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       constructor.SetBody (
           ctx =>
           {
+            var initilizationMethod = initializationMembers.Item2;
             var counter = Expression.Field (ctx.This, initializationMembers.Item1);
             var one = Expression.Constant (1);
+            var zero = Expression.Constant (0);
 
             return Expression.Block (
                 Expression.Assign (counter, Expression.Add (counter, one)),
                 constructor.Body,
                 Expression.Assign (counter, Expression.Subtract (counter, one)),
                 Expression.IfThen (
-                    Expression.Equal (counter, Expression.Constant (0)),
-                    Expression.Call (ctx.This, initializationMembers.Item2)));
+                    Expression.Equal (counter, zero),
+                    Expression.Call (ctx.This, initilizationMethod, Expression.Constant (InitializationSemantics.Construction))));
           });
     }
   }

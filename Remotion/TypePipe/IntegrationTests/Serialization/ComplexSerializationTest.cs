@@ -15,32 +15,36 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting;
+using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.Development.UnitTesting;
 using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Serialization;
+using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
   [TestFixture]
   public class ComplexSerializationTest : SerializationTestBase
   {
+    private const string c_participantConfigurationID = "ComplexSerializationTest";
+
     private Func<IParticipant>[] _participantProviders;
-    private string _participantConfigurationID;
 
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
     {
-      _participantProviders = participantProviders.Concat (() => new SerializationParticipant()).ToArray();
-      var allParticipants = _participantProviders.Select (pp => pp()).ToArray();
-      var factory = CreatePipeline (allParticipants);
+      _participantProviders = participantProviders;
 
-      _participantConfigurationID = factory.ParticipantConfigurationID;
+      var participants = _participantProviders.Select (pp => pp()).ToArray();
+      var settings = PipelineSettings.New().SetEnableSerializationWithoutAssemblySaving (true).Build();
 
-      return factory;
+      return CreatePipeline (c_participantConfigurationID, settings, participants);
     }
 
     protected override Func<SerializationTestContext<T>, T> CreateDeserializationCallback<T> (SerializationTestContext<T> context)
@@ -48,14 +52,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       // Do not flush generated assembly to disk to force complex serialization strategy.
 
       context.ParticipantProviders = _participantProviders;
-      context.ParticipantConfigurationID = _participantConfigurationID;
       return ctx =>
       {
-        var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
-
-        SetUpDeserialization (registry, ctx.ParticipantConfigurationID, ctx.ParticipantProviders);
-        var deserializedInstance = (T) Serializer.Deserialize (ctx.SerializedData);
-        TearDownDeserialization (registry, ctx.ParticipantConfigurationID);
+        var deserializedInstance = (T) DeserializeInstance (ctx.ParticipantProviders, ctx.SerializedData);
 
         // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
         var type = deserializedInstance.GetType();
@@ -65,26 +64,75 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
         // The generated type is always the single type in the assembly. Its name is therefore the same as the serialized type name, but with
         // "Proxy1" in the end.
-        var expectedFullName = Regex.Replace (ctx.SerializedTypeFullName, @"Proxy\d+$", "Proxy1");
+        var expectedFullName = Regex.Replace (ctx.SerializedTypeFullName, @"Proxy_\d+$", "Proxy_1");
         Assert.That (type.FullName, Is.EqualTo (expectedFullName));
 
         return deserializedInstance;
       };
     }
 
-    private static void SetUpDeserialization (
-        IPipelineRegistry registry, string participantConfigurationID, IEnumerable<Func<IParticipant>> participantProviders)
+    private static object DeserializeInstance (Func<IParticipant>[] participantProviders, byte[] serializedData)
     {
-      var participants = participantProviders.Select (pp => pp());
-      var factory = PipelineFactory.Create (participantConfigurationID, participants);
+      var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
+      var participants = participantProviders.Select (pp => pp()).Concat (new ModifyingParticipant()); // Avoid no-modification optimization.
+      var pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
 
       // Register a factory for deserialization in current (new) app domain.
-      registry.Register (factory);
+      registry.Register (pipeline);
+      try
+      {
+        return Serializer.Deserialize (serializedData);
+      }
+      finally
+      {
+        registry.Unregister (c_participantConfigurationID);
+      }
     }
 
-    private static void TearDownDeserialization (IPipelineRegistry registry, string participantConfigurationID)
+    [Test]
+    public void UsesTypeIdentifierProvider ()
     {
-      registry.Unregister (participantConfigurationID);
+      var pipeline = CreatePipelineForSerialization (CreateParticipantWithTypeIdentifierProvider);
+      var instance = pipeline.Create<RequestedType>();
+
+      CheckInstanceIsSerializable (instance, (deserializedInstance, ctx) => { });
+
+      var typeIdentifierProvider = (TypeIdentifierProviderStub) pipeline.Participants.Single().PartialTypeIdentifierProvider;
+      Assert.That (typeIdentifierProvider.GetFlattenedExpressionForSerializationWasCalled, Is.True);
     }
+
+    private static IParticipant CreateParticipantWithTypeIdentifierProvider ()
+    {
+      return CreateParticipant (typeIdentifierProvider: new TypeIdentifierProviderStub());
+    }
+
+    private class TypeIdentifierProviderStub : ITypeIdentifierProvider
+    {
+      public bool GetFlattenedExpressionForSerializationWasCalled;
+
+      public object GetID (Type requestedType)
+      {
+        return "identifier";
+      }
+
+      public Expression GetExpression (object id)
+      {
+        Assert.That (id, Is.EqualTo ("identifier"));
+
+        return Expression.Constant ("identifier from code");
+      }
+
+      public Expression GetFlatValueExpressionForSerialization (object id)
+      {
+        Assert.That (id, Is.EqualTo ("identifier"));
+        GetFlattenedExpressionForSerializationWasCalled = true;
+
+        var constructor = MemberInfoFromExpressionUtility.GetConstructor (() => new FlatValueStub ("real value"));
+        return Expression.New (constructor, Expression.Constant ("identifier"));
+      }
+    }
+
+    [Serializable]
+    public class RequestedType {}
   }
 }

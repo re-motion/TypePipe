@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
@@ -65,6 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           genericTypeDefinition: null,
           typeArguments: Type.EmptyTypes)
                     {
+                        NestedTypes = new[] { ReflectionObjectMother.GetSomeType() },
                         Interfaces = new[] { typeof (IDisposable) },
                         Fields = new[] { ReflectionObjectMother.GetSomeField() },
                         Constructors = new[] { ReflectionObjectMother.GetSomeConstructor() },
@@ -126,6 +129,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _customType.Invoke ("SetDeclaringType", declaringType);
 
       Assert.That (_customType.DeclaringType, Is.SameAs (declaringType));
+    }
+
+    [Test]
+    public void MemberType_TypeInfo_ForNullDeclaringType ()
+    {
+      Assert.That (_customType.MemberType, Is.EqualTo (MemberTypes.TypeInfo));
+    }
+
+    [Test]
+    public void MemberType_NestedType_ForNotNullDeclaringType ()
+    {
+      var declaringType = ReflectionObjectMother.GetSomeType ();
+
+      _customType.Invoke ("SetDeclaringType", declaringType);
+
+      Assert.That (_customType.MemberType, Is.EqualTo (MemberTypes.NestedType));
     }
 
     [Test]
@@ -268,6 +287,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       Assert.That (_customType.IsDefined (typeof (ObsoleteAttribute), false), Is.True);
       Assert.That (_customType.IsDefined (typeof (NonSerializedAttribute), false), Is.False);
+    }
+
+    [Test]
+    public void GetNestedTypes ()
+    {
+      Assert.That (_customType.NestedTypes, Is.Not.Null.And.Not.Empty);
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = new[] { ReflectionObjectMother.GetSomeType() };
+      _memberSelectorMock.Expect (mock => mock.SelectTypes (_customType.NestedTypes, bindingAttr)).Return (fakeResult);
+
+      var result = _customType.GetNestedTypes (bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeResult));
+    }
+
+    [Test]
+    public void GetNestedType ()
+    {
+      Assert.That (_customType.NestedTypes, Is.Not.Null.And.Not.Empty);
+      var name = "some name";
+      var bindingAttr = BindingFlags.NonPublic;
+      var fakeResult = ReflectionObjectMother.GetSomeType();
+      _memberSelectorMock.Expect (mock => mock.SelectSingleType (_customType.NestedTypes, bindingAttr, name)).Return (fakeResult);
+
+      var resultType = _customType.GetNestedType (name, bindingAttr);
+
+      _memberSelectorMock.VerifyAllExpectations();
+      Assert.That(resultType, Is.SameAs(fakeResult));
     }
 
     [Test]
@@ -579,6 +627,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void VirtualMethodsImplementedByType ()
     {
+      _memberSelectorMock
+          .Stub (stub => stub.SelectTypes (Arg<IEnumerable<Type>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
+          .Return(new Type[0]);
       _memberSelectorMock
           .Stub (stub => stub.SelectEvents (Arg<IEnumerable<EventInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
           .Return (new EventInfo[0]);

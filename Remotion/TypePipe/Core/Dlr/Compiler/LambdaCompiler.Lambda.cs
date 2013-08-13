@@ -15,12 +15,12 @@
 
 using System;
 using System.Diagnostics;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using System.Threading;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 #if TypePipe
 namespace Remotion.TypePipe.Dlr.Ast.Compiler {

@@ -18,11 +18,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 
 #if TypePipe
 namespace Remotion.TypePipe.Dlr.Ast.Compiler {

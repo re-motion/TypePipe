@@ -21,6 +21,7 @@ using JetBrains.Annotations;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.IntegrationTests.TypeAssembly;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -40,9 +41,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CreateObject ()
     {
-      var instance = _pipeline.CreateObject<DomainType>();
+      var instance = _pipeline.Create<DomainType>();
 
-      Assert.That (instance.String, Is.EqualTo ("initialized"));
+      Assert.That (instance.String, Is.EqualTo ("construction"));
       Assert.That (instance.CtorCalled, Is.True);
     }
 
@@ -52,7 +53,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var type = _pipeline.ReflectionService.GetAssembledType (typeof (DomainType));
       var instance = (DomainType) Activator.CreateInstance (type);
 
-      Assert.That (instance.String, Is.EqualTo ("initialized"));
+      Assert.That (instance.String, Is.EqualTo ("construction"));
       Assert.That (instance.CtorCalled, Is.True);
     }
 
@@ -65,10 +66,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (instance.CtorCalled, Is.False);
       Assert.That (instance.String, Is.Null);
 
-      _pipeline.PrepareExternalUninitializedObject (instance);
-      Assert.That (instance.String, Is.EqualTo ("initialized"));
-      _pipeline.PrepareExternalUninitializedObject (instance);
-      Assert.That (instance.String, Is.EqualTo ("initializedinitialized"));
+      _pipeline.PrepareExternalUninitializedObject (instance, InitializationSemantics.Construction);
+      Assert.That (instance.String, Is.EqualTo ("construction"));
+
+      _pipeline.PrepareExternalUninitializedObject (instance, InitializationSemantics.Deserialization);
+      Assert.That (instance.String, Is.EqualTo ("construction deserialization"));
     }
 
     public class DomainType
@@ -85,7 +87,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var participant = CreateParticipant (
           proxyType =>
           {
-            Assert.That (proxyType.Initializations, Is.Empty);
+            Assert.That (proxyType.Initialization.Expressions, Is.Empty);
 
             proxyType.AddInitialization (
                 ctx =>
@@ -93,10 +95,17 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
                   Assert.That (ctx.IsStatic, Is.False);
 
                   var fieldExpr = Expression.Field (ctx.This, field);
-                  return Expression.Assign (fieldExpr, ExpressionHelper.StringConcat (fieldExpr, Expression.Constant ("initialized")));
+                  return Expression.Assign (
+                      fieldExpr,
+                      ExpressionHelper.StringConcat (
+                          fieldExpr,
+                          Expression.Condition (
+                              Expression.Equal (ctx.InitializationSemantics, Expression.Constant (InitializationSemantics.Construction)),
+                              Expression.Constant ("construction"),
+                              Expression.Constant (" deserialization"))));
                 });
 
-            Assert.That (proxyType.Initializations, Is.Not.Empty);
+            Assert.That (proxyType.Initialization.Expressions, Is.Not.Empty);
           });
 
       return CreatePipeline (new[] { participant });

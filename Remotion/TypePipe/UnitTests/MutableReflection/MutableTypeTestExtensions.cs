@@ -19,7 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -29,6 +31,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   public static class MutableTypeTestExtensions
   {
     private static int s_counter;
+
+    public static void AddCustomAttribute (this MutableType mutableType, CustomAttributeDeclaration customAttributeDeclaration = null)
+    {
+      customAttributeDeclaration = customAttributeDeclaration ?? CustomAttributeDeclarationObjectMother.Create();
+
+      mutableType.AddCustomAttribute (customAttributeDeclaration);
+    }
+
+    public static MutableType AddNestedType (
+        this MutableType mutableType, string name = null, TypeAttributes attributes = TypeAttributes.NestedPublic, Type baseType = null)
+    {
+      name = name ?? "NestedType_" + ++s_counter;
+      baseType = baseType ?? typeof (object);
+
+      return mutableType.AddNestedType (name, attributes, baseType);
+    }
+
+    public static void AddInterface (this MutableType mutableType, Type interfaceType = null)
+    {
+      interfaceType = interfaceType ?? ReflectionObjectMother.GetSomeInterfaceType();
+
+      mutableType.AddInterface (interfaceType);
+    }
 
     public static MutableFieldInfo AddField (
         this MutableType mutableType, string name = null, FieldAttributes attributes = FieldAttributes.Private, Type type = null)

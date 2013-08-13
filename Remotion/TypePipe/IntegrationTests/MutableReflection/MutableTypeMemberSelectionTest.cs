@@ -491,6 +491,9 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (result, Is.Null);
     }
 
+    // TODO Events
+    // TODO 5550: Nested types
+
     public class DomainType
     {
       [UsedImplicitly]

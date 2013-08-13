@@ -85,12 +85,77 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             Assert.That (proxyType.IsAbstract, Is.True);
 
+            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
+            var method = proxyType.AddMethod (
+                abstractBaseMethod.Name,
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                MethodDeclaration.CreateEquivalent (abstractBaseMethod),
+                ctx => Expression.Empty());
+            Assert.That (method.IsAbstract, Is.False);
+
+            Assert.That (proxyType.IsAbstract, Is.False);
+          });
+
+      Assert.That (type.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void ImplementFully_BySettingBody_BecomesConcrete ()
+    {
+      var type = AssembleType<AbstractTypeWithOneMethod> (
+          proxyType =>
+          {
+            Assert.That (proxyType.IsAbstract, Is.True);
+
             var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method());
             var method = proxyType.GetOrAddOverride (abstractBaseMethod);
 
             Assert.That (method.IsAbstract, Is.True);
             method.SetBody (ctx => Expression.Empty());
             Assert.That (method.IsAbstract, Is.False);
+
+            Assert.That (proxyType.IsAbstract, Is.False);
+          });
+
+      Assert.That (type.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void ImplementFully_ByExplicitOverride_BecomesConcrete ()
+    {
+      var type = AssembleType<AbstractTypeWithOneMethod> (
+          proxyType =>
+          {
+            Assert.That (proxyType.IsAbstract, Is.True);
+
+            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
+            var method = proxyType.AddExplicitOverride (
+                abstractBaseMethod,
+                ctx => Expression.Empty());
+            Assert.That (method.IsAbstract, Is.False);
+
+            Assert.That (proxyType.IsAbstract, Is.False);
+          });
+
+      Assert.That (type.IsAbstract, Is.False);
+    }
+
+    [Test]
+    public void ImplementFully_ByAddingExplicitOverride_BecomesConcrete ()
+    {
+      var type = AssembleType<AbstractTypeWithOneMethod> (
+          proxyType =>
+          {
+            Assert.That (proxyType.IsAbstract, Is.True);
+
+            var abstractBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((AbstractTypeWithOneMethod obj) => obj.Method ());
+            var method = proxyType.AddMethod (
+               "Someting",
+               MethodAttributes.Public | MethodAttributes.Virtual,
+               MethodDeclaration.CreateEquivalent (abstractBaseMethod),
+               ctx => Expression.Empty ());
+            Assert.That (method.IsAbstract, Is.False);
+            method.AddExplicitBaseDefinition (abstractBaseMethod);
 
             Assert.That (proxyType.IsAbstract, Is.False);
           });

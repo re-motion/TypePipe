@@ -14,9 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -60,32 +58,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (!overriddenMethod.IsVirtual)
         throw new ArgumentException ("Only virtual methods can be overridden.", "overriddenMethod");
 
-      if (overriddenMethod.IsGenericMethodInstantiation())
-      {
-        throw new ArgumentException (
-            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
-            "overriddenMethod");
-      }
+      CheckIsNotMethodInstantiation (overriddenMethod, "overriddenMethod");
 
-      // ReSharper disable PossibleUnintendedReferenceComparison
-      if (!overriddenMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType) || declaringType == overriddenMethod.DeclaringType)
-          // ReSharper restore PossibleUnintendedReferenceComparison
+      if (!declaringType.IsSubclassOf (overriddenMethod.DeclaringType))
       {
-        var message = string.Format (
-            "Method is declared by a type outside of the proxy base class hierarchy: '{0}'.", overriddenMethod.DeclaringType.Name);
+        var message = string.Format ("Method is declared by type '{0}' outside of the proxy base class hierarchy.", overriddenMethod.DeclaringType.Name);
         throw new ArgumentException (message, "overriddenMethod");
       }
 
-      if (overriddenMethod.DeclaringType.IsInterface)
-      {
-        overriddenMethod = GetOrCreateImplementationMethod (declaringType, overriddenMethod, out isNewlyCreated);
-        if (overriddenMethod is MutableMethodInfo)
-          return (MutableMethodInfo) overriddenMethod;
-
-        Assertion.IsTrue (overriddenMethod.IsVirtual, "It's possible to get an interface implementation that is not virtual (in verifiable code).");
-      }
-
-      var baseDefinition = overriddenMethod.GetBaseDefinition();
+      var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (overriddenMethod);
       var existingMutableOverride = _relatedMethodFinder.GetOverride (baseDefinition, declaringType.AddedMethods);
       if (existingMutableOverride != null)
       {
@@ -94,7 +75,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       }
       isNewlyCreated = true;
 
-      var baseMethod = GetBaseMethod (declaringType, baseDefinition);
+      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
       var bodyProvider = CreateBodyProvider (baseMethod);
 
       var methods = declaringType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
@@ -103,32 +84,67 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         return PrivateCreateExplicitOverrideAllowAbstract (declaringType, baseDefinition, bodyProvider);
 
       var attributes = MethodOverrideUtility.GetAttributesForImplicitOverride (baseMethod);
-      return CreateOverride (baseMethod, declaringType, baseMethod.Name, attributes, bodyProvider);
+      return CreateMethod (declaringType, baseMethod, baseMethod.Name, attributes, bodyProvider);
     }
 
-    private MethodInfo GetBaseMethod (MutableType declaringType, MethodInfo baseDefinition)
+    public MutableMethodInfo GetOrCreateImplementation (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
     {
-      var baseMethod = _relatedMethodFinder.GetMostDerivedOverride (baseDefinition, declaringType.BaseType);
-      if (baseMethod.IsFinal)
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
+      Assertion.IsNotNull (interfaceMethod.DeclaringType);
+
+      if (!interfaceMethod.DeclaringType.IsInterface)
+        throw new ArgumentException ("The specified method is not an interface method.", "interfaceMethod");
+
+      CheckIsNotMethodInstantiation (interfaceMethod, "interfaceMethod");
+
+      // ReSharper disable PossibleUnintendedReferenceComparison
+      if (!interfaceMethod.DeclaringType.IsTypePipeAssignableFrom (declaringType))
+      // ReSharper restore PossibleUnintendedReferenceComparison
       {
-        Assertion.IsNotNull (baseMethod.DeclaringType);
-        var message = string.Format ("Cannot override final method '{0}.{1}'.", baseMethod.DeclaringType.Name, baseMethod.Name);
-        throw new NotSupportedException (message);
+        Assertion.IsNotNull (interfaceMethod.DeclaringType);
+        var message = string.Format (
+            "Method is declared by an interface that is not implemented by the proxy: '{0}'.", interfaceMethod.DeclaringType.Name);
+        throw new ArgumentException (message, "interfaceMethod");
       }
 
-      return baseMethod;
+      var baseImplementation = GetOrCreateImplementationMethod (declaringType, interfaceMethod, out isNewlyCreated);
+      if (baseImplementation is MutableMethodInfo)
+        return (MutableMethodInfo) baseImplementation;
+
+      Assertion.IsTrue (baseImplementation.IsVirtual, "It is not possible to get an interface implementation that is not virtual (in verifiable code).");
+
+      // Re-implement if final.
+      if (baseImplementation.IsFinal)
+      {
+        if (!SubclassFilterUtility.IsVisibleFromSubclass (baseImplementation))
+        {
+          Assertion.IsNotNull (baseImplementation.DeclaringType);
+          var message = string.Format (
+              "Cannot re-implement interface method '{0}' because its base implementation on '{1}' is not accessible.",
+              interfaceMethod.Name,
+              baseImplementation.DeclaringType.Name);
+          throw new NotSupportedException (message);
+        }
+
+        declaringType.AddInterface (interfaceMethod.DeclaringType, throwIfAlreadyImplemented: false);
+
+        var attributes = interfaceMethod.Attributes.Unset (MethodAttributes.Abstract);
+        Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => ctx.DelegateToBase (baseImplementation);
+
+        isNewlyCreated = true;
+        return CreateMethod (declaringType, interfaceMethod, interfaceMethod.Name, attributes, bodyProvider);
+      }
+
+      return GetOrCreateOverride (declaringType, baseImplementation, out isNewlyCreated);
     }
 
-    private static Func<MethodBodyCreationContext, Expression> CreateBodyProvider (MethodInfo baseMethod)
+    private Func<MethodBodyCreationContext, Expression> CreateBodyProvider (MethodInfo baseMethod)
     {
       if (baseMethod.IsAbstract)
         return null;
 
-      return ctx =>
-      {
-        var methodToCall = baseMethod.IsGenericMethodDefinition ? baseMethod.MakeTypePipeGenericMethod (ctx.GenericParameters.ToArray()) : baseMethod;
-        return ctx.CallBase (methodToCall, ctx.Parameters.Cast<Expression> ());
-      };
+      return ctx => ctx.DelegateToBase (baseMethod);
     }
 
     private MutableMethodInfo PrivateCreateExplicitOverrideAllowAbstract (
@@ -141,7 +157,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (bodyProviderOrNull != null)
         attributes = attributes.Unset (MethodAttributes.Abstract);
 
-      var method = CreateOverride (overriddenMethodBaseDefinition, declaringType, name, attributes, bodyProviderOrNull);
+      var method = CreateMethod (declaringType, overriddenMethodBaseDefinition, name, attributes, bodyProviderOrNull);
       method.AddExplicitBaseDefinition (overriddenMethodBaseDefinition);
 
       return method;
@@ -153,41 +169,47 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var index = Array.IndexOf (interfaceMap.InterfaceMethods, ifcMethod);
       var implementation = interfaceMap.TargetMethods[index];
 
-      if (implementation == null)
-      {
-        try
-        {
-          isNewlyCreated = true;
-          return CreateOverride (ifcMethod, declaringType, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
-        }
-        catch (InvalidOperationException)
-        {
-          var message = string.Format (
-              "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
-              + "Use {1}.{2} to create an explicit implementation.",
-              ifcMethod.Name,
-              typeof (MutableType).Name,
-              MemberInfoFromExpressionUtility.GetMethod ((MutableType obj) => obj.AddExplicitOverride (null, null)).Name);
-          throw new InvalidOperationException (message);
-        }
-      }
-      else
+      if (implementation != null)
       {
         isNewlyCreated = false;
         return implementation;
       }
+      isNewlyCreated = true;
+
+      try
+      {
+        return CreateMethod (declaringType, ifcMethod, ifcMethod.Name, ifcMethod.Attributes, bodyProvider: null);
+      }
+      catch (InvalidOperationException)
+      {
+        var message = string.Format (
+            "Interface method '{0}' cannot be implemented because a method with equal name and signature already exists. "
+            + "Use AddExplicitOverride to create an explicit implementation.",
+            ifcMethod.Name);
+        throw new InvalidOperationException (message);
+      }
     }
 
-    private MutableMethodInfo CreateOverride (
-        MethodInfo overriddenMethod,
+    private MutableMethodInfo CreateMethod (
         MutableType declaringType,
+        MethodInfo template,
         string name,
         MethodAttributes attributes,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      var md = MethodDeclaration.CreateEquivalent (overriddenMethod);
+      var md = MethodDeclaration.CreateEquivalent (template);
       return _methodFactory.CreateMethod (
           declaringType, name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
+    }
+
+    private static void CheckIsNotMethodInstantiation (MethodInfo method, string parameterName)
+    {
+      if (method.IsGenericMethodInstantiation ())
+      {
+        throw new ArgumentException (
+            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
+            parameterName);
+      }
     }
   }
 }

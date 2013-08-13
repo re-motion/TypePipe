@@ -31,6 +31,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// </remarks>
   public interface IMutableMemberFactory : IMethodFactory
   {
+    MutableType CreateNestedType (MutableType declaringType, string name, TypeAttributes attributes, Type baseType);
+
     Expression CreateInitialization (MutableType declaringType, Func<InitializationBodyContext, Expression> initializationProvider);
 
     MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes);
@@ -45,6 +47,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider);
 
     MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated);
+
+    MutableMethodInfo GetOrCreateImplementation (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated);
 
     MutablePropertyInfo CreateProperty (
         MutableType declaringType,

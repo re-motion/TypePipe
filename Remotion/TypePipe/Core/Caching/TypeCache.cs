@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Linq;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation.Synchronization;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
@@ -32,18 +33,8 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    // Storing the delegates as static readonly fields has two advantages for performance:
-    // 1) It ensures that no closure is created.
-    // 2) We do not create new delegate instances every time a cache key is computed.
-    private static readonly Func<ICacheKeyProvider, ITypeAssembler, Type, object> s_fromRequestedType =
-        (ckp, typeAssembler, requestedType) => ckp.GetCacheKey (requestedType);
-    private static readonly Func<ICacheKeyProvider, ITypeAssembler, Type, object> s_fromAssembledType =
-        (ckp, typeAssembler, assembledType) => ckp.RebuildCacheKey (typeAssembler.GetRequestedType (assembledType), assembledType);
-
-    private static readonly CompoundCacheKeyEqualityComparer s_comparer = new CompoundCacheKeyEqualityComparer();
-
-    private readonly ConcurrentDictionary<object[], Type> _types = new ConcurrentDictionary<object[], Type> (s_comparer);
-    private readonly ConcurrentDictionary<object[], Delegate> _constructorCalls = new ConcurrentDictionary<object[], Delegate> (s_comparer);
+    private readonly ConcurrentDictionary<AssembledTypeID, Type> _types = new ConcurrentDictionary<AssembledTypeID, Type>();
+    private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
@@ -79,8 +70,18 @@ namespace Remotion.TypePipe.Caching
       // Using Debug.Assert because it will be compiled away.
       Debug.Assert (requestedType != null);
 
-      var key = GetTypeKey (requestedType, s_fromRequestedType, requestedType);
-      return GetOrCreateType (key, requestedType);
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
+
+      return GetOrCreateType (typeID);
+    }
+
+    public Type GetOrCreateType (AssembledTypeID typeID)
+    {
+      Type assembledType;
+      if (_types.TryGetValue (typeID, out assembledType))
+        return assembledType;
+
+      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -89,8 +90,24 @@ namespace Remotion.TypePipe.Caching
       Debug.Assert (requestedType != null);
       Debug.Assert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
 
-      var key = GetConstructorKey (requestedType, delegateType, allowNonPublic);
-      return GetOrCreateConstructorCall (key, requestedType, delegateType, allowNonPublic);
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
+
+      return GetOrCreateConstructorCall (typeID, delegateType, allowNonPublic);
+    }
+
+    public Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
+    {
+      // Using Debug.Assert because it will be compiled away.
+      Debug.Assert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
+
+      var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
+
+      Delegate constructorCall;
+      if (_constructorCalls.TryGetValue (constructionKey, out constructorCall))
+        return constructorCall;
+
+      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
+          _constructorCalls, constructionKey, _types, _participantState, _mutableTypeBatchCodeGenerator);
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
@@ -108,71 +125,15 @@ namespace Remotion.TypePipe.Caching
           additionalTypes.Add (type);
       }
 
-      var keysToAssembledTypes = assembledTypes.Select (CreateKeyValuePair);
+      var keysToAssembledTypes = assembledTypes.Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeAssembler.ExtractTypeID (t), t));
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
     }
 
-    private KeyValuePair<object[], Type> CreateKeyValuePair (Type assembledType)
+    public Type GetOrCreateAdditionalType (object additionalTypeID)
     {
-      var requestedType = _typeAssembler.GetRequestedType (assembledType);
-      var key = GetTypeKey (requestedType, s_fromAssembledType, assembledType);
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      return new KeyValuePair<object[], Type> (key, assembledType);
-    }
-
-    private Type GetOrCreateType (object[] key, Type requestedType)
-    {
-      Type generatedType;
-      if (_types.TryGetValue (key, out generatedType))
-        return generatedType;
-
-      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, key, requestedType, _participantState, _mutableTypeBatchCodeGenerator);
-    }
-
-    private Delegate GetOrCreateConstructorCall (object[] key, Type requestedType, Type delegateType, bool allowNonPublic)
-    {
-      Delegate constructorCall;
-      if (_constructorCalls.TryGetValue (key, out constructorCall))
-        return constructorCall;
-
-      var typeKey = GetTypeKeyFromConstructorKey (key);
-      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
-          _constructorCalls,
-          key,
-          delegateType,
-          allowNonPublic,
-          _types,
-          typeKey,
-          requestedType,
-          _participantState,
-          _mutableTypeBatchCodeGenerator);
-    }
-
-    private object[] GetTypeKey (Type requestedType, Func<ICacheKeyProvider, ITypeAssembler, Type, object> cacheKeyProviderMethod, Type fromType)
-    {
-      var key = _typeAssembler.GetCompoundCacheKey (cacheKeyProviderMethod, fromType, freeSlotsAtStart: 1);
-      key[0] = requestedType;
-
-      return key;
-    }
-
-    private object[] GetConstructorKey (Type requestedType, Type delegateType, bool allowNonPublic)
-    {
-      var key = _typeAssembler.GetCompoundCacheKey (s_fromRequestedType, requestedType, freeSlotsAtStart: 3);
-      key[0] = requestedType;
-      key[1] = delegateType;
-      key[2] = allowNonPublic;
-
-      return key;
-    }
-
-    private object[] GetTypeKeyFromConstructorKey (object[] constructorKey)
-    {
-      var typeKey = new object[constructorKey.Length - 2];
-      typeKey[0] = constructorKey[0];
-      Array.Copy (constructorKey, 3, typeKey, 1, constructorKey.Length - 3);
-
-      return typeKey;
+      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID, _participantState, _mutableTypeBatchCodeGenerator);
     }
   }
 }

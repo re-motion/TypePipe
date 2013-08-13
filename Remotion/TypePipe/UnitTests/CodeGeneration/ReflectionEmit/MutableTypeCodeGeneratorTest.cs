@@ -14,19 +14,22 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using System.Linq;
@@ -36,43 +39,53 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class MutableTypeCodeGeneratorTest
   {
-    private MockRepository _mockRepository;
+    protected MockRepository MockRepository;
 
-    private MutableType _mutableType;
-    private IReflectionEmitCodeGenerator _codeGeneratorMock;
-    private IEmittableOperandProvider _emittableOperandProviderMock;
-    private IMemberEmitter _memberEmitterMock;
-    private IInitializationBuilder _initializationBuilderMock;
-    private IProxySerializationEnabler _proxySerializationEnablerMock;
+    protected MutableType MutableType;
+    protected IMutableNestedTypeCodeGeneratorFactory NestedTypeCodeGeneratorFactoryMock;
+    protected IReflectionEmitCodeGenerator CodeGeneratorMock;
+    protected IEmittableOperandProvider EmittableOperandProviderMock;
+    protected IMemberEmitter MemberEmitterMock;
+    protected IInitializationBuilder InitializationBuilderMock;
+    protected IProxySerializationEnabler ProxySerializationEnablerMock;
 
-    private MutableTypeCodeGenerator _generator;
+    protected MutableTypeCodeGenerator Generator;
 
     // Context members
-    private ITypeBuilder _typeBuilderMock;
-    private DebugInfoGenerator _debugInfoGeneratorMock;
+    protected ITypeBuilder TypeBuilderMock;
+    protected DebugInfoGenerator DebugInfoGeneratorMock;
+    protected IMutableTypeCodeGenerator NestedTypeCodeGeneratorMock;
 
     private FieldInfo _fakeInitializationField;
     private MethodInfo _fakeInitializationMethod;
     private Tuple<FieldInfo, MethodInfo> _fakeInitializationMembers;
 
     [SetUp]
-    public void SetUp ()
+    public virtual void SetUp ()
     {
-      _mockRepository = new MockRepository();
+      MockRepository = new MockRepository();
 
-      _mutableType = MutableTypeObjectMother.Create();
-      _codeGeneratorMock = _mockRepository.StrictMock<IReflectionEmitCodeGenerator>();
-      _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider> ();
-      _memberEmitterMock = _mockRepository.StrictMock<IMemberEmitter>();
-      _initializationBuilderMock = _mockRepository.StrictMock<IInitializationBuilder>();
-      _proxySerializationEnablerMock = _mockRepository.StrictMock<IProxySerializationEnabler>();
+      MutableType = MutableTypeObjectMother.Create();
+      NestedTypeCodeGeneratorFactoryMock = MockRepository.StrictMock<IMutableNestedTypeCodeGeneratorFactory>();
+      CodeGeneratorMock = MockRepository.StrictMock<IReflectionEmitCodeGenerator>();
+      EmittableOperandProviderMock = MockRepository.StrictMock<IEmittableOperandProvider> ();
+      MemberEmitterMock = MockRepository.StrictMock<IMemberEmitter>();
+      InitializationBuilderMock = MockRepository.StrictMock<IInitializationBuilder>();
+      ProxySerializationEnablerMock = MockRepository.StrictMock<IProxySerializationEnabler>();
 
-      _generator = new MutableTypeCodeGenerator (
-          _mutableType, _codeGeneratorMock, _emittableOperandProviderMock, _memberEmitterMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+      Generator = new MutableTypeCodeGenerator (
+          MutableType,
+          NestedTypeCodeGeneratorFactoryMock,
+          CodeGeneratorMock,
+          EmittableOperandProviderMock,
+          MemberEmitterMock,
+          InitializationBuilderMock,
+          ProxySerializationEnablerMock);
 
-      _typeBuilderMock = _mockRepository.StrictMock<ITypeBuilder>();
-      _debugInfoGeneratorMock = _mockRepository.StrictMock<DebugInfoGenerator>();
-      
+      TypeBuilderMock = MockRepository.StrictMock<ITypeBuilder>();
+      DebugInfoGeneratorMock = MockRepository.StrictMock<DebugInfoGenerator>();
+      NestedTypeCodeGeneratorMock = MockRepository.StrictMock<IMutableTypeCodeGenerator>();
+
       _fakeInitializationField = ReflectionObjectMother.GetSomeField();
       _fakeInitializationMethod = ReflectionObjectMother.GetSomeMethod();
       _fakeInitializationMembers = Tuple.Create (_fakeInitializationField, _fakeInitializationMethod);
@@ -81,117 +94,133 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization ()
     {
-      Assert.That (_generator.MutableType, Is.SameAs (_mutableType));
+      Assert.That (Generator.MutableType, Is.SameAs (MutableType));
     }
 
     [Test]
-    public void DeclareType ()
+    public virtual void DeclareType ()
     {
-      using (_mockRepository.Ordered())
+      var nestedType = MutableType.AddNestedType();
+
+      using (MockRepository.Ordered())
       {
-        _codeGeneratorMock
-            .Expect (mock => mock.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProviderMock))
-            .Return (_typeBuilderMock);
-        _typeBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, _mutableType));
-        _codeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
+        CodeGeneratorMock
+            .Expect (mock => mock.DefineType (MutableType.FullName, MutableType.Attributes, EmittableOperandProviderMock))
+            .Return (TypeBuilderMock);
+        TypeBuilderMock.Expect (mock => mock.RegisterWith (EmittableOperandProviderMock, MutableType));
+        CodeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (DebugInfoGeneratorMock);
+
+        NestedTypeCodeGeneratorFactoryMock
+            .Expect (mock => mock.Create (nestedType, TypeBuilderMock, MemberEmitterMock, EmittableOperandProviderMock))
+            .Return (NestedTypeCodeGeneratorMock);
+        NestedTypeCodeGeneratorMock.Expect (mock => mock.DeclareType());
       }
-      _mockRepository.ReplayAll();
+      MockRepository.ReplayAll();
 
-      _generator.DeclareType();
+      Generator.DeclareType();
 
-      _mockRepository.VerifyAll();
-      var context = (CodeGenerationContext) PrivateInvoke.GetNonPublicField (_generator, "_context");
+      MockRepository.VerifyAll();
+      var context = (CodeGenerationContext) PrivateInvoke.GetNonPublicField (Generator, "_context");
       Assert.That (context, Is.Not.Null);
-      Assert.That (context.MutableType, Is.SameAs (_mutableType));
-      Assert.That (context.TypeBuilder, Is.SameAs (_typeBuilderMock));
-      Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorMock));
-      Assert.That (context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
+      Assert.That (context.MutableType, Is.SameAs (MutableType));
+      Assert.That (context.TypeBuilder, Is.SameAs (TypeBuilderMock));
+      Assert.That (context.DebugInfoGenerator, Is.SameAs (DebugInfoGeneratorMock));
+      Assert.That (context.EmittableOperandProvider, Is.SameAs (EmittableOperandProviderMock));
     }
 
     [Test]
     public void DefineTypeFacets ()
     {
-      var typeInitializer = _mutableType.AddTypeInitializer (ctx => Expression.Empty());
+      var typeInitializer = MutableType.AddTypeInitializer (ctx => Expression.Empty());
 
       var instanceInitialization = ExpressionTreeObjectMother.GetSomeExpression();
-      _mutableType.AddInitialization (ctx => instanceInitialization);
+      MutableType.AddInitialization (ctx => instanceInitialization);
 
       var customAttribute = CustomAttributeDeclarationObjectMother.Create();
-      _mutableType.AddCustomAttribute (customAttribute);
+      MutableType.AddCustomAttribute (customAttribute);
 
       var @interface = typeof (IDisposable);
-      _mutableType.AddInterface (@interface);
+      MutableType.AddInterface (@interface);
 
-      var field = _mutableType.AddField();
-      var constructor = _mutableType.AddConstructor();
-      var method = _mutableType.AddMethod();
-      var property = _mutableType.AddProperty();
-      var event_ = _mutableType.AddEvent();
+      var field = MutableType.AddField();
+      var constructor = MutableType.AddConstructor();
+      var method = MutableType.AddMethod();
+      var property = MutableType.AddProperty();
+      var event_ = MutableType.AddEvent();
 
-      using (_mockRepository.Ordered())
+      using (MockRepository.Ordered())
       {
-        var context = PopulateContext (_generator, 1);
+        var context = PopulateContext (Generator, 1, new[] { NestedTypeCodeGeneratorMock });
 
-        _typeBuilderMock.Expect (mock => mock.SetParent (_mutableType.BaseType));
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (context, typeInitializer));
+        TypeBuilderMock.Expect (mock => mock.SetParent (MutableType.BaseType));
+        NestedTypeCodeGeneratorMock.Expect (mock => mock.DefineTypeFacets());
 
-        _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_mutableType)).Return (_fakeInitializationMembers);
-        _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
+        MemberEmitterMock.Expect (mock => mock.AddConstructor (context, typeInitializer));
 
-        _typeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
-        _typeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
-        _memberEmitterMock.Expect (mock => mock.AddField (context, field));
-        _initializationBuilderMock.Expect (
-            mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock));
-        _memberEmitterMock.Expect (mock => mock.AddConstructor (context, constructor));
-        _memberEmitterMock.Expect (mock => mock.AddMethod (context, method));
-        SetupExpectationsForAccessors (_memberEmitterMock, _mutableType.AddedMethods.Except (new[] { method }));
-        _memberEmitterMock.Expect (mock => mock.AddProperty (context, property));
-        _memberEmitterMock.Expect (mock => mock.AddEvent (context, event_));
+        InitializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (MutableType)).Return (_fakeInitializationMembers);
+        ProxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (MutableType, _fakeInitializationMethod));
+
+        TypeBuilderMock.Expect (mock => mock.SetCustomAttribute (customAttribute));
+        TypeBuilderMock.Expect (mock => mock.AddInterfaceImplementation (@interface));
+        MemberEmitterMock.Expect (mock => mock.AddField (context, field));
+        InitializationBuilderMock.Expect (
+            mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, ProxySerializationEnablerMock));
+        MemberEmitterMock.Expect (mock => mock.AddConstructor (context, constructor));
+        MemberEmitterMock.Expect (mock => mock.AddMethod (context, method));
+        SetupExpectationsForAccessors (MemberEmitterMock, MutableType.AddedMethods.Except (new[] { method }));
+        MemberEmitterMock.Expect (mock => mock.AddProperty (context, property));
+        MemberEmitterMock.Expect (mock => mock.AddEvent (context, event_));
       }
-      _mockRepository.ReplayAll();
+      MockRepository.ReplayAll();
 
-      _generator.DefineTypeFacets();
+      Generator.DefineTypeFacets();
 
-      _mockRepository.VerifyAll();
+      MockRepository.VerifyAll();
     }
 
     [Test]
-    public void DefineTypeFacet_NoParent_NoTypeInitializer_NoInitializations ()
+    public void DefineTypeFacet_NoParent_NoNestedTypes_NoTypeInitializer_NoInitializations ()
     {
       var mutableType = MutableTypeObjectMother.CreateInterface();
       Assert.That (mutableType.BaseType, Is.Null);
       Assert.That (mutableType.MutableTypeInitializer, Is.Null);
-      Assert.That (mutableType.Initializations, Is.Empty);
+      Assert.That (mutableType.Initialization.Expressions, Is.Empty);
 
       var generator = new MutableTypeCodeGenerator (
-          mutableType, _codeGeneratorMock, _emittableOperandProviderMock, _memberEmitterMock, _initializationBuilderMock, _proxySerializationEnablerMock);
-      PopulateContext (generator, 1);
+          mutableType,
+          NestedTypeCodeGeneratorFactoryMock,
+          CodeGeneratorMock,
+          EmittableOperandProviderMock,
+          MemberEmitterMock,
+          InitializationBuilderMock,
+          ProxySerializationEnablerMock);
+      PopulateContext (generator, 1, new IMutableTypeCodeGenerator[0]);
 
       // No call to SetParent because of null BaseType.
       // No call to AddConstructor because of null TypeInitializer.
-      _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (mutableType)).Return (null);
-      _proxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (mutableType, null));
-      _mockRepository.ReplayAll();
+      InitializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (mutableType)).Return (null);
+      ProxySerializationEnablerMock.Expect (mock => mock.MakeSerializable (mutableType, null));
+      MockRepository.ReplayAll();
 
       generator.DefineTypeFacets();
 
-      _mockRepository.VerifyAll();
+      MockRepository.VerifyAll();
     }
 
     [Test]
     public void CreateType ()
     {
-      var context = PopulateContext (_generator, 2);
+      var context = PopulateContext (Generator, 2, new [] { NestedTypeCodeGeneratorMock });
       bool wasCalled = false;
+      NestedTypeCodeGeneratorMock.Expect (mock => mock.CreateType());
       context.PostDeclarationsActionManager.AddAction (() => wasCalled = true);
       var fakeType = ReflectionObjectMother.GetSomeType();
-      _typeBuilderMock.Expect (mock => mock.CreateType()).Return (fakeType);
-      _mockRepository.ReplayAll();
+      TypeBuilderMock.Expect (mock => mock.CreateType()).Return (fakeType);
+      MockRepository.ReplayAll();
 
-      var result = _generator.CreateType();
+      var result = Generator.CreateType();
 
-      _mockRepository.VerifyAll();
+      MockRepository.VerifyAll();
       Assert.That (wasCalled, Is.True);
       Assert.That (result, Is.SameAs (fakeType));
     }
@@ -204,11 +233,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var memberEmitterStub = MockRepository.GenerateStub<IMemberEmitter>();
       var initializationBuilderStub = MockRepository.GenerateStub<IInitializationBuilder>();
       var proxySerializationEnablerStub = MockRepository.GenerateStub<IProxySerializationEnabler>();
-      codeGeneratorStub.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments().Return (_typeBuilderMock);
-      codeGeneratorStub.Stub (stub => stub.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
+      codeGeneratorStub.Stub (stub => stub.DefineType (null, 0, null)).IgnoreArguments().Return (TypeBuilderMock);
+      codeGeneratorStub.Stub (stub => stub.DebugInfoGenerator).Return (DebugInfoGeneratorMock);
 
       var generator = new MutableTypeCodeGenerator (
-          _mutableType, codeGeneratorStub, emittableOperandProviderStub, memberEmitterStub, initializationBuilderStub, proxySerializationEnablerStub);
+          MutableType,
+          NestedTypeCodeGeneratorFactoryMock,
+          codeGeneratorStub,
+          emittableOperandProviderStub,
+          memberEmitterStub,
+          initializationBuilderStub,
+          proxySerializationEnablerStub);
 
       CheckThrowsForInvalidOperation (generator.DefineTypeFacets);
       CheckThrowsForInvalidOperation (() => generator.CreateType());
@@ -223,11 +258,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (() => generator.CreateType(), Throws.Nothing);
     }
 
-    private CodeGenerationContext PopulateContext (MutableTypeCodeGenerator generator, int currentState)
+    private CodeGenerationContext PopulateContext (MutableTypeCodeGenerator generator, int currentState, IMutableTypeCodeGenerator[] nestedTypeCodeGenerators = null)
     {
-      var context = new CodeGenerationContext (_mutableType, _typeBuilderMock, _debugInfoGeneratorMock, _emittableOperandProviderMock);
+      nestedTypeCodeGenerators = nestedTypeCodeGenerators ?? new IMutableTypeCodeGenerator[0];
+
+      var context = new CodeGenerationContext (MutableType, TypeBuilderMock, DebugInfoGeneratorMock, EmittableOperandProviderMock);
       PrivateInvoke.SetNonPublicField (generator, "_context", context);
       PrivateInvoke.SetNonPublicField (generator, "_state", currentState);
+      PrivateInvoke.SetNonPublicField (generator, "_nestedTypeCodeGenerators", nestedTypeCodeGenerators.ToList());
 
       return context;
     }

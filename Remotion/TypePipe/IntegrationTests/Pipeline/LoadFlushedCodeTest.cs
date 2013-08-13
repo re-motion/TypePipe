@@ -21,6 +21,7 @@ using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 using System.Linq;
@@ -101,24 +102,30 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void LoadTypes_RebuiltCacheKey_MustMatchRequestedCacheKey_ToReturnLoadedType ()
+    public void LoadTypes_IdentifierSavedInType_MustMatchComputedIdentifier_ToReturnLoadedType ()
     {
-      var loadedTypeWithMatchingKeys = _assembly1.GetTypes().Single();
-      var loadedTypeWithNonMatchingKeys = _assembly2.GetTypes().Single();
+      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
+      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (DomainType1))).Return ("key1");
+      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (DomainType2))).Return ("key2").Repeat.Once();
+      typeIdentifierProviderStub.Stub (_ => _.GetExpression ("key1")).Return (Expression.Constant ("key1"));
+      typeIdentifierProviderStub.Stub (_ => _.GetExpression ("key2")).Return (Expression.Constant ("key2"));
+      var participant = CreateParticipant (typeIdentifierProvider: typeIdentifierProviderStub);
 
-      var cachKeyProviderStub = MockRepository.GenerateStub<ICacheKeyProvider>();
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithMatchingKeys)).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.RebuildCacheKey (loadedTypeWithMatchingKeys.BaseType, loadedTypeWithNonMatchingKeys)).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType1))).Return ("key");
-      cachKeyProviderStub.Stub (stub => stub.GetCacheKey (typeof (DomainType2))).Return ("runtime key differing from rebuilt key");
-      var participant = CreateParticipant (cacheKeyProvider: cachKeyProviderStub);
-      var pipeline = CreatePipeline (c_participantConfigurationID, participant);
+      var savingPipeline = CreatePipeline (c_participantConfigurationID, participant);
+      var assembly1 = GenerateTypeFlushAndLoadAssembly (savingPipeline, typeof (DomainType1));
+      var assembly2 = GenerateTypeFlushAndLoadAssembly (savingPipeline, typeof (DomainType2));
 
-      pipeline.CodeManager.LoadFlushedCode (_assembly1);
-      pipeline.CodeManager.LoadFlushedCode (_assembly2);
+      // Change returned identifier.
+      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (DomainType2))).Return ("other key");
 
-      Assert.That (pipeline.ReflectionService.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedTypeWithMatchingKeys));
-      Assert.That (pipeline.ReflectionService.GetAssembledType (typeof (DomainType2)), Is.Not.SameAs (loadedTypeWithNonMatchingKeys));
+      var loadingPipeline = CreatePipeline (c_participantConfigurationID, participant);
+      loadingPipeline.CodeManager.LoadFlushedCode (assembly1);
+      loadingPipeline.CodeManager.LoadFlushedCode (assembly2);
+
+      var loadedTypeWithMatchingIdentifier = assembly1.GetTypes().Single();
+      var loadedTypeWithNonMatchingIdentifier = assembly2.GetTypes().Single();
+      Assert.That (loadingPipeline.ReflectionService.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedTypeWithMatchingIdentifier));
+      Assert.That (loadingPipeline.ReflectionService.GetAssembledType (typeof (DomainType2)), Is.Not.SameAs (loadedTypeWithNonMatchingIdentifier));
     }
 
     [Test]
@@ -137,6 +144,14 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void LoadForeignAssembly ()
     {
       _codeManager.LoadFlushedCode (GetType ().Assembly);
+    }
+
+    private Assembly GenerateTypeFlushAndLoadAssembly (IPipeline pipeline, Type requestedType)
+    {
+      pipeline.ReflectionService.GetAssembledType (requestedType);
+      var assemblyPath = Flush();
+
+      return AssemblyLoader.LoadWithoutLocking (assemblyPath);
     }
 
     private void PreGenerateAssemblies ()

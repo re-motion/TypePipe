@@ -16,8 +16,6 @@
 // 
 using System;
 using NUnit.Framework;
-using Remotion.Collections;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 
@@ -26,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   [TestFixture]
   public class PipelineRegistryTest
   {
-    private IParticipant[] _defaultParticipants;
+    private IPipeline _defaultPipeline;
 
     private PipelineRegistry _registry;
 
@@ -35,34 +33,27 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _defaultParticipants = new[] { MockRepository.GenerateStub<IParticipant>() };
+      _defaultPipeline = CreatePipelineStub ("default id");
 
-      _registry = new PipelineRegistry (_defaultParticipants);
+      _registry = new PipelineRegistry (_defaultPipeline);
 
-      _somePipeline = CreatePipelineStub ("configId");
+      _somePipeline = CreatePipelineStub ("some id");
     }
 
     [Test]
     public void Initialization ()
     {
-      var pipelines = PrivateInvoke.GetNonPublicField (_registry, "_pipelines");
-      Assert.That (pipelines, Is.TypeOf<LockingDataStoreDecorator<string, IPipeline>>());
-
-      var defaultPipeline = _registry.DefaultPipeline;
-      Assert.That (defaultPipeline, Is.Not.Null);
-      Assert.That (defaultPipeline.ParticipantConfigurationID, Is.EqualTo ("<default participant configuration>"));
-      Assert.That (defaultPipeline.Participants, Is.EqualTo (_defaultParticipants));
-      Assert.That (_registry.Get ("<default participant configuration>"), Is.SameAs (defaultPipeline));
+      Assert.That (_registry.DefaultPipeline, Is.SameAs (_defaultPipeline));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "No default pipeline has been specified. Use SetDefaultPipeline in your Main method or IoC configuration.")]
-    public void DefaultPipeline ()
+    public void SetDefaultPipeline ()
     {
-      _registry.Unregister ("<default participant configuration>");
+      _registry.SetDefaultPipeline (_somePipeline);
 
-      Dev.Null = _registry.DefaultPipeline;
+      Assert.That (_registry.DefaultPipeline, Is.SameAs (_somePipeline));
+      Assert.That (_registry.Get ("some id"), Is.SameAs (_somePipeline));
+      Assert.That (() => _registry.SetDefaultPipeline (_somePipeline), Throws.Nothing);
     }
 
     [Test]
@@ -70,27 +61,34 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _registry.Register (_somePipeline);
 
-      Assert.That (_registry.Get ("configId"), Is.SameAs (_somePipeline));
+      Assert.That (_registry.Get ("some id"), Is.SameAs (_somePipeline));
     }
 
     [Test]
     public void RegisterAndUnregister ()
     {
       _registry.Register (_somePipeline);
-      Assert.That (_registry.Get ("configId"), Is.Not.Null);
+      Assert.That (_registry.Get ("some id"), Is.Not.Null);
 
-      _registry.Unregister ("configId");
+      _registry.Unregister ("some id");
 
-      Assert.That (() => _registry.Get ("configId"), Throws.InvalidOperationException);
-      Assert.That (() => _registry.Unregister ("configId"), Throws.Nothing);
+      Assert.That (() => _registry.Get ("some id"), Throws.InvalidOperationException);
+      Assert.That (() => _registry.Unregister ("some id"), Throws.Nothing);
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another pipeline is already registered for identifier 'configId'.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another pipeline is already registered for identifier 'some id'.")]
     public void Register_ExistingPipeline ()
     {
       Assert.That (() => _registry.Register (_somePipeline), Throws.Nothing);
       _registry.Register (_somePipeline);
+    }
+
+    [Test]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The default pipeline cannot be unregistered.")]
+    public void Unregister_DefaultPipeline ()
+    {
+      _registry.Unregister (_defaultPipeline.ParticipantConfigurationID);
     }
 
     [Test]
@@ -100,21 +98,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _registry.Get ("missingPipeline");
     }
 
-    [Test]
-    public void SetDefaultPipeline ()
-    {
-      _registry.Register (_somePipeline);
-
-      _registry.SetDefaultPipeline ("configId");
-
-      Assert.That (_registry.DefaultPipeline, Is.SameAs (_somePipeline));
-      Assert.That (_registry.Get ("<default participant configuration>"), Is.SameAs (_somePipeline));
-      Assert.That (() => _registry.SetDefaultPipeline ("configId"), Throws.Nothing);
-    }
-
     private IPipeline CreatePipelineStub (string participantConfigurationID)
     {
-      var pipelineStub = MockRepository.GenerateStub<IPipeline> ();
+      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
       pipelineStub.Stub (stub => stub.ParticipantConfigurationID).Return (participantConfigurationID);
 
       return pipelineStub;

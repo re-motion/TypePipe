@@ -20,6 +20,8 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
@@ -27,7 +29,6 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -60,7 +61,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void CallBaseConstructor ()
     {
-      var arguments = new ArgumentTestHelper ("string").Expressions;
+      var arguments = new Expression[] { Expression.Constant ("string") };
 
       var result = _context.CallBaseConstructor (arguments.AsOneTime());
 
@@ -81,7 +82,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void CallThisConstructor ()
     {
-      var arguments = new ArgumentTestHelper ("string").Expressions;
+      var arguments = new Expression[] { Expression.Constant ("string") };
 
       var result = _context.CallThisConstructor (arguments.AsOneTime());
 
@@ -106,7 +107,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     [Test]
     public void CallXXXConstructor_Exceptions ()
     {
-      var arguments = new ArgumentTestHelper (7, "8").Expressions;
+      var arguments = new Expression[] { Expression.Constant (7), Expression.Constant ("8") };
 
       Assert.That (
           () => _context.CallBaseConstructor (arguments),

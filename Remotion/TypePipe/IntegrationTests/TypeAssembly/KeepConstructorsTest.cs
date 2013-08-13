@@ -43,8 +43,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (GetCtorSignatures (type), Is.EquivalentTo (new[] { ".ctor(System.String)", ".ctor()", ".ctor(Double)" }));
 
       CheckConstructorUsage ("public", -10, MethodAttributes.Public, type, "public");
-      CheckConstructorUsage ("protected", -20, MethodAttributes.Family, type);
-      CheckConstructorUsage ("protected internal", -30, MethodAttributes.Family, type, 17.7);
+      CheckConstructorUsage ("protected", -20, MethodAttributes.Public, type);
+      CheckConstructorUsage ("protected internal", -30, MethodAttributes.Public, type, 17.7);
     }
 
     [Test]

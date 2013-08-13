@@ -45,6 +45,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void SelectTypes ()
+    {
+      var candidates = new[]
+                       {
+                           CreateTypeStub (attributes: TypeAttributes.NestedPublic),
+                           CreateTypeStub (attributes: TypeAttributes.NestedFamily),
+                           CreateTypeStub (attributes: TypeAttributes.Abstract)
+                       };
+      var bindingFlags = (BindingFlags) 1;
+
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[0].Attributes, bindingFlags)).Return (true);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[1].Attributes, bindingFlags)).Return (false);
+      _bindingFlagsEvaluatorMock.Expect (mock => mock.HasRightAttributes (candidates[2].Attributes, bindingFlags)).Return (true);
+
+      var result = _selector.SelectTypes (candidates, bindingFlags).ForceEnumeration();
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (new[] { candidates[0], candidates[2] }));
+    }
+
+    [Test]
     public void SelectFields ()
     {
       var candidates = new[]
@@ -200,6 +221,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (new[] { candidates[1] }));
+    }
+
+    [Test]
+    public void SelectSingleType ()
+    {
+      var types = new[]
+                  {
+                      CreateTypeStub ("type1", TypeAttributes.NestedAssembly),
+                      CreateTypeStub ("this type is removed because of its name", TypeAttributes.NestedFamily),
+                      CreateTypeStub ("type1", TypeAttributes.NestedPublic)
+                  };
+      var bindingFlags = (BindingFlags)1;
+
+      _bindingFlagsEvaluatorMock.Expect(mock => mock.HasRightAttributes(types[0].Attributes, bindingFlags)).Return(false);
+      _bindingFlagsEvaluatorMock.Expect(mock => mock.HasRightAttributes(types[2].Attributes, bindingFlags)).Return(true);
+
+      var result = _selector.SelectSingleType (types, bindingFlags, "type1");
+
+      _bindingFlagsEvaluatorMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (types[2]));
     }
 
     [Test]
@@ -472,6 +513,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           .Repeat.Twice();
 
       _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType);
+    }
+
+    private Type CreateTypeStub (string name = "Unspecified", TypeAttributes attributes = TypeAttributes.Public)
+    {
+      var typeStub = MockRepository.GenerateStub<Type>();
+      typeStub.Stub (stub => stub.Name).Return (name);
+      typeStub.Stub (stub => stub.Attributes).Return (attributes);
+
+      return typeStub;
     }
 
     private FieldInfo CreateFieldStub (

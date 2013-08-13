@@ -17,10 +17,10 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 using Remotion.Development.UnitTesting;
@@ -178,6 +178,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
           event_.GetRemoveMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetRemoveMethod (true)));
     }
 
+    // TODO 5550: Use outerCustomType to check that getNestedTypes returns _customType ... (which is correctly instantiated).
+
     [Test]
     public void Initialization_UsesAllBindingFlagsToRetrieveMembers ()
     {
@@ -195,7 +197,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 
       memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition)).Return (fields);
       memberSelectorMock.Expect (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition)).Return (ctors);
-      memberSelectorMock.Expect (mock => mock.SelectMethods (methods, bindingFlags, genericTypeDefinition)).Return (methods);
+      // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
       memberSelectorMock.Expect (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition)).Return (properties);
       memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition)).Return (events);
 
@@ -292,6 +294,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (type1, Is.EqualTo (_outerCustomType));
       Assert.That (type2, Is.EqualTo (_customType));
       Assert.That (type3, Is.EqualTo (_outerCustomType));
+    }
+
+    [Test]
+    public void UnsupportedMembers ()
+    {
+      UnsupportedMemberTestHelper.CheckMethod (() => _instantiation.GetNestedTypes(), "GetNestedTypes");
     }
 
     interface IMyInterface<T> { }

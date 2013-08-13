@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System;
 using System.Reflection.Emit;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions

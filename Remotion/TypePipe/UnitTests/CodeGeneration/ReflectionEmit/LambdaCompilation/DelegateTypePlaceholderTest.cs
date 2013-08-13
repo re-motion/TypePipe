@@ -76,6 +76,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void UnsupportedMembers ()
     {
       UnsupportedMemberTestHelper.CheckMethod (() => _type.GetCustomAttributeData(), "GetCustomAttributeData");
+      UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllNestedTypes"), "GetAllNestedTypes");
       UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllInterfaces"), "GetAllInterfaces");
       UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllFields"), "GetAllFields");
       UnsupportedMemberTestHelper.CheckMethod (() => _type.Invoke ("GetAllConstructors"), "GetAllConstructors");

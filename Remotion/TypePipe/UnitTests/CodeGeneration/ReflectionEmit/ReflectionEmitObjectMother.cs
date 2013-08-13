@@ -19,7 +19,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
-using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit

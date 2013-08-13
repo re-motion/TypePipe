@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public interface IBindingFlagsEvaluator
   {
+    bool HasRightAttributes (TypeAttributes typeAttributes, BindingFlags bindinFlags);
     bool HasRightAttributes (MethodAttributes methodAttributes, BindingFlags bindingFlags);
     bool HasRightAttributes (FieldAttributes fieldAttributes, BindingFlags bindingFlags);
   }

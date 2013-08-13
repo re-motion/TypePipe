@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
@@ -28,6 +29,7 @@ using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
+  // TODO 5552
   [TestFixture]
   public class ReflectionEmitCodeGeneratorTest
   {

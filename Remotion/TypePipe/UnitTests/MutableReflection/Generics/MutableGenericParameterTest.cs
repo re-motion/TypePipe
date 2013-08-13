@@ -20,10 +20,12 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -293,21 +295,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
           baseMemberSelectorMock, fields: fields, methods: methods, properties: properties, events: events);
 
       baseMemberSelectorMock.Expect (mock => mock.SelectFields (fields, c_allMembers, baseTypeConstraint)).Return (fields);
-      baseMemberSelectorMock.Expect (mock => mock.SelectMethods (methods, c_allMembers, baseTypeConstraint)).Return (methods);
+      // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
       baseMemberSelectorMock.Expect (mock => mock.SelectProperties (properties, c_allMembers, baseTypeConstraint)).Return (properties);
       baseMemberSelectorMock.Expect (mock => mock.SelectEvents (events, c_allMembers, baseTypeConstraint)).Return (events);
 
       var parameter = MutableGenericParameterObjectMother.Create (constraints: new[] { baseTypeConstraint, _interfaceConstraint });
 
-      parameter.Invoke ("GetAllFields");
-      parameter.Invoke ("GetAllConstructors");
-      parameter.Invoke ("GetAllMethods");
-      parameter.Invoke ("GetAllProperties");
-      parameter.Invoke ("GetAllEvents");
+      var fieldsResult = parameter.Invoke ("GetAllFields");
+      var methodsResult = parameter.Invoke ("GetAllMethods");
+      var propertiesResult = parameter.Invoke ("GetAllProperties");
+      var eventsResult = parameter.Invoke ("GetAllEvents");
 
       baseMemberSelectorMock.AssertWasNotCalled (
           mock => mock.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<Type>.Is.Anything));
       baseMemberSelectorMock.VerifyAllExpectations();
+
+      Assert.That (fieldsResult, Is.EqualTo (fields));
+      Assert.That (methodsResult, Is.EqualTo (methods));
+      Assert.That (propertiesResult, Is.EqualTo (properties));
+      Assert.That (eventsResult, Is.EqualTo (events));
     }
 
     class DomainType : IDomainInterface

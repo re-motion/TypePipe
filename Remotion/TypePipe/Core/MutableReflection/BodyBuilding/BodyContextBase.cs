@@ -74,6 +74,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     {
       ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
+
       EnsureNotStatic();
       CheckNotStatic (baseMethod);
       CheckNotAbstract (baseMethod);

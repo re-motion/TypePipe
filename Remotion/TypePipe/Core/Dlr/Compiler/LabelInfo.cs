@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection.Emit;
 
@@ -29,7 +30,7 @@ namespace Remotion.TypePipe.Dlr.Ast.Compiler {
 namespace System.Linq.Expressions.Compiler {
 #endif
 #if TypePipe || SILVERLIGHT
-    using ILGenerator = Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation.IILGenerator;
+    using ILGenerator = IILGenerator;
 #endif
 
     /// <summary>

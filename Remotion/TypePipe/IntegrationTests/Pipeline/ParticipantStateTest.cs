@@ -59,8 +59,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var pipeline = CreatePipeline (participant1, participant2);
 
-      Assert.That (() => pipeline.CreateObject<RequestedType1>(), Throws.Nothing);
-      Assert.That (() => pipeline.CreateObject<RequestedType2>(), Throws.Nothing);
+      Assert.That (() => pipeline.Create<RequestedType1>(), Throws.Nothing);
+      Assert.That (() => pipeline.Create<RequestedType2>(), Throws.Nothing);
 
       Assert.That (stateWasRead, Is.True);
     }
@@ -78,10 +78,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             Assert.That (loadedProxy.RequestedType, Is.SameAs (typeof (RequestedType1)));
             Assert.That (additionalType.FullName, Is.EqualTo ("MyNs.AdditionalType"));
 
-            loadedType = loadedProxy.GeneratedType;
+            loadedType = loadedProxy.AssembledType;
             ctx.State["key"] = "reconstructed state";
           },
-          participateAction: ctx =>
+          participateAction: (id, ctx) =>
           {
             Assert.That (ctx.State["key"], Is.EqualTo ("reconstructed state"));
             stateWasRead = true;
@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             rebuildStateWasCalled = true;
           });
       var pipeline = CreatePipeline (c_participantConfigurationID, participant);
-      pipeline.CreateObject<RequestedType1>(); // Put type 1 into cache.
+      pipeline.Create<RequestedType1>(); // Put type 1 into cache.
 
       pipeline.CodeManager.LoadFlushedCode (_assembly);
 
@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       var participant = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
       var pipeline = CreatePipeline (c_participantConfigurationID, participant);
-      pipeline.CreateObject<RequestedType1>(); // Trigger generation of types.
+      pipeline.Create<RequestedType1>(); // Trigger generation of types.
       var assemblyPath = Flush();
 
       return AssemblyLoader.LoadWithoutLocking (assemblyPath);

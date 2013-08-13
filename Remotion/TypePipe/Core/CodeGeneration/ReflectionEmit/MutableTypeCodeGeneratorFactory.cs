@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection;
@@ -27,6 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class MutableTypeCodeGeneratorFactory : IMutableTypeCodeGeneratorFactory
   {
+    private readonly IMutableNestedTypeCodeGeneratorFactory _nestedTypeCodeGeneratorFactory;
     private readonly IMemberEmitterFactory _memberEmitterFactory;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IInitializationBuilder _initializationBuilder;
@@ -34,16 +36,19 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public MutableTypeCodeGeneratorFactory (
+        IMutableNestedTypeCodeGeneratorFactory nestedTypeCodeGeneratorFactory,
         IMemberEmitterFactory memberEmitterFactory,
         IReflectionEmitCodeGenerator codeGenerator,
         IInitializationBuilder initializationBuilder,
         IProxySerializationEnabler proxySerializationEnabler)
     {
+      ArgumentUtility.CheckNotNull ("nestedTypeCodeGeneratorFactory", nestedTypeCodeGeneratorFactory);
       ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
+      _nestedTypeCodeGeneratorFactory = nestedTypeCodeGeneratorFactory;
       _memberEmitterFactory = memberEmitterFactory;
       _codeGenerator = codeGenerator;
       _initializationBuilder = initializationBuilder;
@@ -65,7 +70,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         MutableType mutableType, IEmittableOperandProvider emittableOperandProvider, IMemberEmitter memberEmitter)
     {
       return new MutableTypeCodeGenerator (
-          mutableType, _codeGenerator, emittableOperandProvider, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
+          mutableType,
+          _nestedTypeCodeGeneratorFactory,
+          _codeGenerator,
+          emittableOperandProvider,
+          memberEmitter,
+          _initializationBuilder,
+          _proxySerializationEnabler);
     }
   }
 }

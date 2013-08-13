@@ -72,9 +72,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return true;
     }
 
+    protected override IEnumerable<Type> GetAllNestedTypes()
+    {
+      return EmptyTypes;
+    }
+
     protected override IEnumerable<Type> GetAllInterfaces ()
     {
-      return Type.EmptyTypes;
+      return EmptyTypes;
     }
 
     protected override IEnumerable<FieldInfo> GetAllFields ()

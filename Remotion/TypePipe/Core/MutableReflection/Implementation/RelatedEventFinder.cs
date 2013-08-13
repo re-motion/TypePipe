@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private bool HasSameBaseDefinition (MethodInfo a, MethodInfo b)
     {
-      return a.GetBaseDefinition() == b.GetBaseDefinition();
+      return MethodBaseDefinitionCache.GetBaseDefinition (a) == MethodBaseDefinitionCache.GetBaseDefinition (b);
     }
   }
 }

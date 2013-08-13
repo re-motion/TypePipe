@@ -57,7 +57,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void GetGeneratedMember_Members_OnProxyType ()
     {
+      // TODO 5550: nested type
       // TODO 5461: MutableGenericParameters on MutableType.
+      Type nestedType = null;
       ConstructorInfo typeInitializer = null;
       FieldInfo field = null;
       ConstructorInfo ctor = null;
@@ -70,6 +72,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var proxyType = typeContext.ProxyType;
 
+            var addedNestedType = proxyType.AddNestedType ("MyNestedType", TypeAttributes.NestedPublic, typeof (object));
             var addedTypeInitializer = proxyType.AddTypeInitializer (ctx => Expression.Empty());
             var addedField = proxyType.AddField ("MyField", FieldAttributes.Public, typeof (int));
             var addedCtor = proxyType.AddedConstructors.Single();
@@ -83,6 +86,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             typeContext.GenerationCompleted +=
                 ctx =>
                 {
+                  nestedType = ctx.GetGeneratedNestedType (addedNestedType);
                   typeInitializer = ctx.GetGeneratedConstructor (addedTypeInitializer);
                   field = ctx.GetGeneratedField (addedField);
                   ctor = ctx.GetGeneratedConstructor (addedCtor);
@@ -92,6 +96,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 };
           });
 
+      Assert.That (nestedType, Is.EqualTo (type.GetNestedTypes().Single()));
       Assert.That (typeInitializer, Is.Not.Null.And.EqualTo (type.TypeInitializer));
       Assert.That (field, Is.EqualTo (type.GetFields().Single()));
       Assert.That (method, Is.EqualTo (type.GetMethods().Single (m => m.Name == "MyMethod")));

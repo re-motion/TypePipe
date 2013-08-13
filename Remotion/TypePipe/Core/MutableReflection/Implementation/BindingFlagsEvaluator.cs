@@ -27,6 +27,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class BindingFlagsEvaluator : IBindingFlagsEvaluator
   {
+    public bool HasRightAttributes (TypeAttributes typeAttributes, BindingFlags bindinFlags)
+    {
+      return HasRightVisibility (typeAttributes, bindinFlags);
+    }
+
     public bool HasRightAttributes (MethodAttributes methodAttributes, BindingFlags bindingFlags)
     {
       return HasRightVisibility (methodAttributes, bindingFlags) && HasRightInstanceOrStaticFlag (methodAttributes, bindingFlags);
@@ -36,6 +41,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       // It's safe to cast from FieldAttributes to MethodAttributes because the relevant flag values are the same. This is checked by a unit test.
       return HasRightAttributes ((MethodAttributes) fieldAttributes, bindingFlags);
+    }
+
+    public bool HasRightVisibility (TypeAttributes typeAttributes, BindingFlags bindingFlags)
+    {
+      var flag = typeAttributes.IsSet (TypeAttributes.VisibilityMask, TypeAttributes.NestedPublic) ? BindingFlags.Public : BindingFlags.NonPublic;
+
+      return IsFlagDefined (bindingFlags, flag);
     }
 
     public bool HasRightVisibility (MethodAttributes methodAttributes, BindingFlags bindingFlags)

@@ -14,19 +14,20 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -51,8 +52,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateInstanceInitializationMembers ()
     {
-      var initExpression = ExpressionTreeObjectMother.GetSomeExpression ();
-      _mutableType.AddInitialization (ctx => initExpression);
+      _mutableType.AddInitialization (ctx => Expression.Constant ("blub"));
+      _mutableType.AddInitialization (ctx => ctx.InitializationSemantics);
 
       var result = _builder.CreateInitializationMembers (_mutableType);
 
@@ -75,13 +76,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (initMethod.Name, Is.EqualTo ("Remotion.TypePipe.Implementation.IInitializableObject.Initialize"));
       Assert.That (initMethod.Attributes, Is.EqualTo (methodAttributes));
       Assert.That (initMethod.ReturnType, Is.SameAs (typeof (void)));
-      Assert.That (initMethod.GetParameters (), Is.Empty);
-      Assert.That (initMethod.Body.Type, Is.SameAs (typeof (void)));
-      Assert.That (initMethod.Body, Is.InstanceOf<BlockExpression> ());
-      var blockExpression = (BlockExpression) initMethod.Body;
-      Assert.That (blockExpression.Expressions, Is.EqualTo (new[] { initExpression }));
-      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize ());
+      var parameters = initMethod.GetParameters();
+      Assert.That (parameters, Has.Length.EqualTo (1));
+      Assert.That (parameters[0].ParameterType, Is.SameAs (typeof (InitializationSemantics)));
+
+      var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize (0));
       Assert.That (initMethod.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { interfaceMethod }));
+
+      var expectedBody = Expression.Block (typeof (void), Expression.Constant ("blub"), initMethod.ParameterExpressions[0]);
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, initMethod.Body);
     }
 
     [Test]
@@ -99,7 +102,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void WireConstructorWithInitialization ()
     {
       var counter = MutableFieldInfoObjectMother.Create (_mutableType, type: typeof (int));
-      var initMethod = MutableMethodInfoObjectMother.Create (_mutableType);
+      var initMethod = MutableMethodInfoObjectMother.Create (
+          _mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (InitializationSemantics)) });
       var initializationMembers = Tuple.Create<FieldInfo, MethodInfo> (counter, initMethod);
       var constructor = MutableConstructorInfoObjectMother.Create (_mutableType);
       var oldBody = constructor.Body;
@@ -119,7 +123,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               Expression.Subtract (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (1))),
           Expression.IfThen (
               Expression.Equal (Expression.Field (new ThisExpression (_mutableType), counter), Expression.Constant (0)),
-              Expression.Call (new ThisExpression (_mutableType), initMethod)));
+              Expression.Call (new ThisExpression (_mutableType), initMethod, Expression.Constant (InitializationSemantics.Construction))));
 
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, constructor.Body);
     }

@@ -14,11 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class MutableTypeCodeGeneratorFactoryTest
   {
+    private IMutableNestedTypeCodeGeneratorFactory _nestedTypeCodeGeneratorFactoryMock;
     private IProxySerializationEnabler _proxySerializationEnablerMock;
     private IReflectionEmitCodeGenerator _codeGeneratorMock;
     private IInitializationBuilder _initializationBuilderMock;
@@ -38,13 +40,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _memberEmitterFactoryMock = MockRepository.GenerateStrictMock<IMemberEmitterFactory> ();
+      _nestedTypeCodeGeneratorFactoryMock = MockRepository.GenerateStrictMock<IMutableNestedTypeCodeGeneratorFactory>();
+      _memberEmitterFactoryMock = MockRepository.GenerateStrictMock<IMemberEmitterFactory>();
       _codeGeneratorMock = MockRepository.GenerateStrictMock<IReflectionEmitCodeGenerator>();
-      _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder> ();
-      _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler> ();
+      _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder>();
+      _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
 
       _factory = new MutableTypeCodeGeneratorFactory (
-          _memberEmitterFactoryMock, _codeGeneratorMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+          _nestedTypeCodeGeneratorFactoryMock, _memberEmitterFactoryMock, _codeGeneratorMock, _initializationBuilderMock, _proxySerializationEnablerMock);
     }
 
     [Test]
@@ -62,6 +65,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (result, Has.Count.EqualTo (2));
       Assert.That (result[0], Is.TypeOf<MutableTypeCodeGenerator>());
       Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_mutableType"), Is.SameAs (mutableType1));
+      Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_nestedTypeCodeGeneratorFactory"), Is.SameAs (_nestedTypeCodeGeneratorFactoryMock));
       Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_codeGenerator"), Is.SameAs (_codeGeneratorMock));
       Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_memberEmitter"), Is.SameAs (fakeMemberEmitter));
       Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_initializationBuilder"), Is.SameAs (_initializationBuilderMock));

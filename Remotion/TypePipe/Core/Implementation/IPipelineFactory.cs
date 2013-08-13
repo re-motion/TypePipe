@@ -18,15 +18,16 @@
 using System.Collections.Generic;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Implementation.Remotion;
 
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// Creates instances of <see cref="IPipeline"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (PipelineFactory))]
+  [ConcreteImplementation (typeof (RemotionPipelineFactory))]
   public interface IPipelineFactory
   {
-    IPipeline CreatePipeline (string participantConfigurationID, IEnumerable<IParticipant> participants, IConfigurationProvider configurationProvider);
+    IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants);
   }
 }

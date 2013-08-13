@@ -44,48 +44,20 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!mutableType.GetInterfaces ().Contains (interfaceType))
         throw new ArgumentException ("Interface not found.", "interfaceType");
 
-      var remainingInterfaceMethods = new HashSet<MethodInfo> (interfaceType.GetMethods());
-      var explicitImplementations = new Dictionary<MethodInfo, MutableMethodInfo>();
+      var mapping = mutableType.AddedInterfaces.Contains (interfaceType)
+                        ? CreateForAdded (mutableType, interfaceType)
+                        : CreateForExisting (mutableType, interfacMappingProvider, interfaceType);
 
-      foreach (var method in mutableType.AddedMethods)
-      {
-        foreach (var explicitBaseDefinition in method.AddedExplicitBaseDefinitions)
-        {
-          if (remainingInterfaceMethods.Remove (explicitBaseDefinition))
-          {
-            explicitImplementations.Add (explicitBaseDefinition, method);
+      var targetMethods = mapping.TargetMethods;
+      var interfaceMethods = mapping.InterfaceMethods;
 
-            if (remainingInterfaceMethods.Count == 0)
-            {
-              // Keys and Values collections are guaranteed to have matching order.
-              var interfaceMethods = explicitImplementations.Keys.ToArray();
-              var targetMethods = explicitImplementations.Values.Cast<MethodInfo>().ToArray();
+      // Explicit implementations overrule implicit implementations.
+      var explicitImplementations = mutableType.AddedMethods
+          .SelectMany (m => m.AddedExplicitBaseDefinitions.Select (b => new { Base = b, Override = m }))
+          .ToDictionary (t => t.Base, t => (MethodInfo) t.Override);
 
-              return CreateInterfaceMapping (interfaceType, mutableType, interfaceMethods, targetMethods);
-            }
-          }
-        }
-      }
-
-      var isAddedInterface = mutableType.AddedInterfaces.Contains (interfaceType);
-      return isAddedInterface
-                 ? CreateForAdded (mutableType, interfaceType, explicitImplementations, allowPartialInterfaceMapping)
-                 : CreateForExisting (mutableType, interfacMappingProvider, interfaceType, explicitImplementations);
-    }
-
-    private InterfaceMapping CreateForAdded (
-        MutableType mutableType, Type interfaceType, Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations, bool allowPartialInterfaceMapping)
-    {
-      // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
-      var candidates = mutableType.GetMethods (BindingFlags.Public | BindingFlags.Instance)
-          .Where (m => m.IsVirtual)
-          .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
-      var interfaceMethods = interfaceType.GetMethods();
-      var targetMethods = interfaceMethods
-          .Select (
-              m => explicitImplementations.GetValueOrDefault (m)
-                   ?? GetMostDerivedOrDefault (candidates[new { m.Name, Signature = MethodSignature.Create (m) }]))
-          .ToArray();
+      for (int i = 0; i < targetMethods.Length; i++)
+        targetMethods[i] = explicitImplementations.GetValueOrDefault (interfaceMethods[i], targetMethods[i]);
 
       if (targetMethods.Contains (null) && !allowPartialInterfaceMapping)
       {
@@ -97,7 +69,27 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         throw new InvalidOperationException (message);
       }
 
-      return CreateInterfaceMapping (interfaceType, mutableType, interfaceMethods, targetMethods);
+      return mapping;
+    }
+
+    private InterfaceMapping CreateForAdded (MutableType mutableType, Type interfaceType)
+    {
+      // Only public virtual methods may implicitly implement interfaces, ignore shadowed methods. (ECMA-335, 6th edition, II.12.2) 
+      var implementationCandidates = mutableType.GetMethods (BindingFlags.Public | BindingFlags.Instance)
+          .Where (m => m.IsVirtual)
+          .ToLookup (m => new { m.Name, Signature = MethodSignature.Create (m) });
+      var interfaceMethods = interfaceType.GetMethods();
+      var targetMethods = interfaceMethods
+          .Select (m => GetMostDerivedOrDefault (implementationCandidates[new { m.Name, Signature = MethodSignature.Create (m) }]))
+          .ToArray();
+
+      return new InterfaceMapping
+             {
+                 InterfaceType = interfaceType,
+                 TargetType = mutableType,
+                 InterfaceMethods = interfaceMethods,
+                 TargetMethods = targetMethods
+             };
     }
 
     private MethodInfo GetMostDerivedOrDefault (IEnumerable<MethodInfo> candidates)
@@ -112,40 +104,20 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return mostDerived;
     }
 
-    private InterfaceMapping CreateForExisting (
-        MutableType mutableType,
-        Func<Type, InterfaceMapping> interfacMappingProvider,
-        Type interfaceType,
-        Dictionary<MethodInfo, MutableMethodInfo> explicitImplementations)
+    private InterfaceMapping CreateForExisting (MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType)
     {
       var mapping = interfacMappingProvider (interfaceType);
       mapping.TargetType = mutableType;
 
       for (int i = 0; i < mapping.InterfaceMethods.Length; i++)
       {
-        var interfaceMethod = mapping.InterfaceMethods[i];
-        var targetMethod = mapping.TargetMethods[i];
+        var baseImplementation = mapping.TargetMethods[i];
 
-        MutableMethodInfo explicitImplementation;
-        if (explicitImplementations.TryGetValue (interfaceMethod, out explicitImplementation))
-          mapping.TargetMethods[i] = explicitImplementation;
-        else
-          mapping.TargetMethods[i] = targetMethod;
+        // 1) Base implementation override.  2) Base implementation.
+        mapping.TargetMethods[i] = mutableType.AddedMethods.SingleOrDefault (m => baseImplementation.Equals (m.BaseMethod)) ?? baseImplementation;
       }
 
       return mapping;
-    }
-
-    private InterfaceMapping CreateInterfaceMapping (
-        Type interfaceType, MutableType targetType, MethodInfo[] interfaceMethods, MethodInfo[] targetMethods)
-    {
-      return new InterfaceMapping
-             {
-                 InterfaceType = interfaceType,
-                 TargetType = targetType,
-                 InterfaceMethods = interfaceMethods,
-                 TargetMethods = targetMethods
-             };
     }
   }
 }

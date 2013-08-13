@@ -17,8 +17,10 @@
 using System;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.UnitTests.MutableReflection;
+using System.Linq;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -48,6 +50,38 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       var result = Expression.NewDelegate (delegateType, null, staticMethod);
 
       Assert.That (result.Target, Is.Null);
+    }
+
+    [Test]
+    public void ArrayConstant ()
+    {
+      var constantValues = new IComparable[] { "7" };
+
+      var result = Expression.ArrayConstant (constantValues.AsOneTime());
+
+      Assert.That (result.Type, Is.SameAs (typeof (IComparable[])));
+      var constantValue = (ConstantExpression) result.Expressions.Single();
+      Assert.That (constantValue.Type, Is.SameAs (typeof (IComparable)));
+      Assert.That (constantValue.Value, Is.EqualTo ("7"));
+    }
+
+    [Test]
+    public void BlockOrEmpty_NonEmpty ()
+    {
+      var expressions = new[] { ExpressionTreeObjectMother.GetSomeExpression() };
+
+      var result = Expression.BlockOrEmpty (expressions.AsOneTime());
+
+      var block = (BlockExpression) result;
+      Assert.That (block.Expressions, Is.EqualTo (expressions));
+    }
+
+    [Test]
+    public void BlockOrEmpty_Empty ()
+    {
+      var result = Expression.BlockOrEmpty (new Expression[0]);
+
+      Assert.That (result, Is.TypeOf<DefaultExpression>().And.Property ("Type").SameAs (typeof (void)));
     }
 
     void Method () { }

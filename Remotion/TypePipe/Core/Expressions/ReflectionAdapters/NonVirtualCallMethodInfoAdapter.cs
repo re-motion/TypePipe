@@ -17,6 +17,7 @@
 using System;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Expressions.ReflectionAdapters
@@ -64,7 +65,7 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
 
     public override MethodInfo GetBaseDefinition ()
     {
-      return InnerMethod.GetBaseDefinition();
+      return MethodBaseDefinitionCache.GetBaseDefinition (InnerMethod);
     }
   }
 }

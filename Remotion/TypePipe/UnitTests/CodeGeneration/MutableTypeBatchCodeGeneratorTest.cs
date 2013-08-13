@@ -18,10 +18,10 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 
