@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -88,13 +87,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public IEnumerable<IMutableTypeCodeGenerator> CreateNestedTypeGenerators ()
     {
+      EnsureState (1);
+
       foreach (var nestedType in _mutableType.AddedNestedTypes)
         yield return _nestedTypeCodeGeneratorFactory.Create (_context.TypeBuilder, nestedType);
     }
 
     public void DefineTypeFacets ()
     {
-      EnsureState (1);
+      EnsureState (2);
 
       if (_mutableType.BaseType != null)
         _context.TypeBuilder.SetParent (_mutableType.BaseType);
@@ -126,7 +127,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type CreateType ()
     {
-      EnsureState (2);
+      EnsureState (3);
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
@@ -150,8 +151,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private void EnsureState (int expectedState)
     {
       if (_state != expectedState)
+      {
         throw new InvalidOperationException (
-            "Methods DeclareType, DefineTypeFacets and CreateType must be called exactly once and in the correct order.");
+            "Methods DeclareType, CreateNestedTypeGenerators, DefineTypeFacets and CreateType must be called exactly once and in the correct order.");
+      }
 
       _state++;
     }
