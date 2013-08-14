@@ -30,8 +30,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void AddSimpleType ()
     {
-      var type = AssembleType<DomainType> (
-          proxyType => proxyType.AddNestedType ("NestedType", TypeAttributes.NestedPublic, typeof (BaseType)));
+      var type = AssembleType<DomainType> (p => p.AddNestedType ("NestedType", TypeAttributes.NestedPublic, typeof (BaseType)));
     
       var addedNestedType = type.GetNestedTypes().Single();
       Assert.That (addedNestedType.Name, Is.EqualTo ("NestedType"));
@@ -44,8 +43,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void AddInterface ()
     {
-      var type = AssembleType<DomainType> (
-          proxyType => proxyType.AddNestedType ("NestedType", TypeAttributes.NestedPublic | TypeAttributes.Interface | TypeAttributes.Abstract, null));
+      var attributes = TypeAttributes.NestedPublic | TypeAttributes.Interface | TypeAttributes.Abstract;
+      var type = AssembleType<DomainType> (p => p.AddNestedType ("NestedType", attributes, null));
 
       var addedNestedType = type.GetNestedTypes ().Single ();
       Assert.That (addedNestedType.Name, Is.EqualTo ("NestedType"));
@@ -56,7 +55,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    public void CrossReferencing ()
+    public void NestedTypeUsedInSignature ()
     {
       var type = AssembleType<DomainType> (
           proxyType =>
@@ -83,8 +82,27 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.Not.Null.And.SameAs (instance));
     }
 
-    public class DomainType {}
+    [Ignore("TODO 5550")]
+    [Test]
+    public void NestedTypeUsedAsBaseType ()
+    {
+      // Using nested types as type dependencies (i.e., base type, interfaces) requires us to handle them like other top level types and not like
+      // members. This means that they need to be included in the MutableType ordering before code is generated.
 
+      var type = AssembleType<DomainType> (
+          ctx =>
+          {
+            var nestedType = ctx.ProxyType.AddNestedType ("NestedBaseType", TypeAttributes.NestedPublic, typeof (object));
+            ctx.CreateType ("TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
+          });
+
+      var nestedBaseType = type.GetNestedTypes().Single();
+      var typeWithNestedBaseType = type.Assembly.GetType ("MyNs.TypeWithNestedBaseType", throwOnError: true);
+
+      Assert.That (typeWithNestedBaseType.BaseType, Is.SameAs (nestedBaseType));
+    }
+
+    public class DomainType {}
     public class BaseType {}
   }
 }
