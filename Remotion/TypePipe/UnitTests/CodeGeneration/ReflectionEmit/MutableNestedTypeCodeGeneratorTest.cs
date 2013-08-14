@@ -8,57 +8,58 @@ using Remotion.Development.UnitTesting;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
-  [TestFixture]
-  public class MutableNestedTypeCodeGeneratorTest : MutableTypeCodeGeneratorTest
-  {
-    private ITypeBuilder _enclosingTypeBuilderMock;
+  // TODO 5550
+  //[TestFixture]
+  //public class MutableNestedTypeCodeGeneratorTest
+  //{
+  //  private ITypeBuilder _enclosingTypeBuilderMock;
 
-    [SetUp]
-    public override void SetUp ()
-    {
-      base.SetUp();
+  //  [SetUp]
+  //  public override void SetUp ()
+  //  {
+  //    base.SetUp();
 
-      _enclosingTypeBuilderMock = MockRepository.StrictMock<ITypeBuilder>();
+  //    _enclosingTypeBuilderMock = MockRepository.StrictMock<ITypeBuilder>();
 
-      Generator = new MutableNestedTypeCodeGenerator (_enclosingTypeBuilderMock, 
-          MutableType,
-          NestedTypeCodeGeneratorFactoryMock,
-          CodeGeneratorMock,
-          EmittableOperandProviderMock,
-          MemberEmitterMock,
-          InitializationBuilderMock, ProxySerializationEnablerMock);
-    }
+  //    _generator = new MutableNestedTypeCodeGenerator (_enclosingTypeBuilderMock, 
+  //        MutableType,
+  //        NestedTypeCodeGeneratorFactoryMock,
+  //        CodeGeneratorMock,
+  //        EmittableOperandProviderMock,
+  //        MemberEmitterMock,
+  //        InitializationBuilderMock, ProxySerializationEnablerMock);
+  //  }
 
-    [Ignore("TODO 5550")]
-    [Test]
-    public override void DeclareType ()
-    {
-      var nestedType = MutableType.AddNestedType();
+  //  [Ignore("TODO 5550")]
+  //  [Test]
+  //  public override void DeclareType ()
+  //  {
+  //    var nestedType = MutableType.AddNestedType();
 
-      using (MockRepository.Ordered())
-      {
-        _enclosingTypeBuilderMock
-            .Expect (mock => mock.DefineNestedType (MutableType.Name, MutableType.Attributes))
-            .Return (TypeBuilderMock);
-        TypeBuilderMock.Expect (mock => mock.RegisterWith (EmittableOperandProviderMock, MutableType));
-        CodeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (DebugInfoGeneratorMock);
+  //    using (MockRepository.Ordered())
+  //    {
+  //      _enclosingTypeBuilderMock
+  //          .Expect (mock => mock.DefineNestedType (MutableType.Name, MutableType.Attributes))
+  //          .Return (_typeBuilderMock);
+  //      _typeBuilderMock.Expect (mock => mock.RegisterWith (EmittableOperandProviderMock, MutableType));
+  //      CodeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
 
-        NestedTypeCodeGeneratorFactoryMock
-            .Expect (mock => mock.Create (TypeBuilderMock, nestedType))
-            .Return (NestedTypeCodeGeneratorMock);
-        NestedTypeCodeGeneratorMock.Expect (mock => mock.DeclareType ());
-      }
-      MockRepository.ReplayAll ();
+  //      NestedTypeCodeGeneratorFactoryMock
+  //          .Expect (mock => mock.Create (_typeBuilderMock, nestedType))
+  //          .Return (_nestedTypeCodeGeneratorMock);
+  //      _nestedTypeCodeGeneratorMock.Expect (mock => mock.DeclareType ());
+  //    }
+  //    MockRepository.ReplayAll ();
 
-      Generator.DeclareType ();
+  //    _generator.DeclareType ();
 
-      MockRepository.VerifyAll ();
-      var context = (CodeGenerationContext) PrivateInvoke.GetNonPublicField (Generator, "_context");
-      Assert.That (context, Is.Not.Null);
-      Assert.That (context.MutableType, Is.SameAs (MutableType));
-      Assert.That (context.TypeBuilder, Is.SameAs (TypeBuilderMock));
-      Assert.That (context.DebugInfoGenerator, Is.SameAs (DebugInfoGeneratorMock));
-      Assert.That (context.EmittableOperandProvider, Is.SameAs (EmittableOperandProviderMock));
-    }
-  }
+  //    MockRepository.VerifyAll ();
+  //    var context = (CodeGenerationContext) PrivateInvoke.GetNonPublicField (_generator, "_context");
+  //    Assert.That (context, Is.Not.Null);
+  //    Assert.That (context.MutableType, Is.SameAs (MutableType));
+  //    Assert.That (context.TypeBuilder, Is.SameAs (_typeBuilderMock));
+  //    Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorMock));
+  //    Assert.That (context.EmittableOperandProvider, Is.SameAs (EmittableOperandProviderMock));
+  //  }
+  //}
 }
