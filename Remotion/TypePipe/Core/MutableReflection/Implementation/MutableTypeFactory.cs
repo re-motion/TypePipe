@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private int _counter;
 
-    public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, Type declaringType)
+    public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Name space may be null.
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (isInterface && baseType != null)
         throw new ArgumentException ("Base type must be null for interfaces.", "baseType");
 
-      if (baseType != null && (!SubclassFilterUtility.IsSubclassable (baseType) || baseType.ContainsGenericParameters))
+      if (baseType != null && !IsValidBaseType (baseType))
       {
         throw new ArgumentException (
             "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
@@ -54,6 +54,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
 
       return CreateMutableType (name, @namespace, attributes, baseType, declaringType);
+    }
+
+    private static bool IsValidBaseType (Type baseType)
+    {
+      return SubclassFilterUtility.IsSubclassable (baseType) && !baseType.ContainsGenericParameters;
     }
 
     public ITypeModificationTracker CreateProxy (Type baseType)
@@ -70,13 +75,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return new ProxyTypeModificationTracker (proxyType, constructorBodies);
     }
 
-    private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType, Type declaringType)
+    private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
     {
       var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
-      return new MutableType (memberSelector, baseType, name, @namespace, attributes, declaringType, interfaceMappingComputer, mutableMemberFactory);
+      return new MutableType (memberSelector, declaringType, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private IEnumerable<Expression> CopyConstructors (Type baseType, MutableType proxyType)

@@ -65,55 +65,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [Test]
     public void Initialization ()
     {
+      var declaringType = MutableTypeObjectMother.Create (name: "DeclaringType");
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
       var name = "MyType";
       var @namespace = "MyNs";
       var attributes = (TypeAttributes) 7;
 
-      var proxyType = new MutableType (
-          _memberSelectorMock, baseType, name, @namespace, attributes, null, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+      var mutableType = new MutableType (
+          _memberSelectorMock, declaringType, baseType, name, @namespace, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
-      Assert.That (proxyType.DeclaringType, Is.Null);
-      Assert.That (proxyType.MutableDeclaringType, Is.Null);
-      Assert.That (proxyType.BaseType, Is.SameAs (baseType));
-      Assert.That (proxyType.Name, Is.EqualTo (name));
-      Assert.That (proxyType.Namespace, Is.EqualTo (@namespace));
-      Assert.That (proxyType.FullName, Is.EqualTo ("MyNs.MyType"));
+      Assert.That (mutableType.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (mutableType.MutableDeclaringType, Is.SameAs (declaringType));
+      Assert.That (mutableType.BaseType, Is.SameAs (baseType));
+      Assert.That (mutableType.Name, Is.EqualTo (name));
+      Assert.That (mutableType.Namespace, Is.EqualTo (@namespace));
+      Assert.That (mutableType.FullName, Is.EqualTo ("MyNs.DeclaringType+MyType"));
       _memberSelectorMock.Stub (mock => mock.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
-      Assert.That (proxyType.Attributes, Is.EqualTo (attributes));
-      Assert.That (proxyType.IsGenericType, Is.False);
-      Assert.That (proxyType.IsGenericTypeDefinition, Is.False);
-      Assert.That (proxyType.GetGenericArguments(), Is.Empty);
-      Assert.That (proxyType.DeclaringType, Is.Null);
+      Assert.That (mutableType.Attributes, Is.EqualTo (attributes));
+      Assert.That (mutableType.IsGenericType, Is.False);
+      Assert.That (mutableType.IsGenericTypeDefinition, Is.False);
+      Assert.That (mutableType.GetGenericArguments(), Is.Empty);
 
-      Assert.That (proxyType.AddedNestedTypes, Is.Empty);
-      Assert.That (proxyType.AddedCustomAttributes, Is.Empty);
-      Assert.That (proxyType.Initialization, Is.Not.Null);
-      Assert.That (proxyType.AddedInterfaces, Is.Empty);
-      Assert.That (proxyType.AddedFields, Is.Empty);
-      Assert.That (proxyType.AddedConstructors, Is.Empty);
-      Assert.That (proxyType.AddedMethods, Is.Empty);
-      Assert.That (proxyType.AddedProperties, Is.Empty);
-      Assert.That (proxyType.AddedEvents, Is.Empty);
+      Assert.That (mutableType.AddedNestedTypes, Is.Empty);
+      Assert.That (mutableType.AddedCustomAttributes, Is.Empty);
+      Assert.That (mutableType.Initialization, Is.Not.Null);
+      Assert.That (mutableType.AddedInterfaces, Is.Empty);
+      Assert.That (mutableType.AddedFields, Is.Empty);
+      Assert.That (mutableType.AddedConstructors, Is.Empty);
+      Assert.That (mutableType.AddedMethods, Is.Empty);
+      Assert.That (mutableType.AddedProperties, Is.Empty);
+      Assert.That (mutableType.AddedEvents, Is.Empty);
     }
 
     [Test]
     public void Initialization_NullNamespace ()
     {
-      var proxyType = MutableTypeObjectMother.Create (name: "MyType", @namespace: null);
+      var mutableType = MutableTypeObjectMother.Create (name: "MyType", @namespace: null);
 
-      Assert.That (proxyType.Namespace, Is.Null);
-      Assert.That (proxyType.FullName, Is.EqualTo ("MyType"));
+      Assert.That (mutableType.Namespace, Is.Null);
+      Assert.That (mutableType.FullName, Is.EqualTo ("MyType"));
     }
 
     [Test]
-    public void Initialization_NestedType ()
+    public void Initialization_NullDeclaringType ()
     {
-      var declaringType = ReflectionObjectMother.GetSomeType();
+      var mutableType = MutableTypeObjectMother.Create (declaringType: null);
 
-      var mutableType = MutableTypeObjectMother.Create (declaringType: declaringType);
-
-      Assert.That (mutableType.DeclaringType, Is.SameAs (declaringType));
+      Assert.That (mutableType.DeclaringType, Is.Null);
     }
 
     [Test]

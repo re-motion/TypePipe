@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
@@ -53,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var @namespace = "MyNamespace";
       var attributes = (TypeAttributes) 7;
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
-      var declaringType = ReflectionObjectMother.GetSomeType();
+      var declaringType = MutableTypeObjectMother.Create();
 
       var result = _factory.CreateType (name, @namespace, attributes, baseType, declaringType);
 
@@ -67,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateType_NamespaceCanBeNull ()
     {
-      var result = _factory.CreateType ("Name", null, TypeAttributes.Class, typeof (object), typeof (object));
+      var result = _factory.CreateType ("Name", null, TypeAttributes.Class, typeof (object), null);
 
       Assert.That (result.Namespace, Is.Null);
     }
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateType_DeclaringTypeCanBeNull ()
     {
-      var result = _factory.CreateType ("Name", "ns", TypeAttributes.Class, typeof (object), null);
+      var result = _factory.CreateType ("Name", "ns", TypeAttributes.Class, typeof (object), declaringType: null);
 
       Assert.That (result.DeclaringType, Is.Null);
     }
@@ -84,14 +85,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type cannot be null.\r\nParameter name: baseType")]
     public void CreateType_BaseType_CannotBeNull ()
     {
-      _factory.CreateType ("Name", "ns", TypeAttributes.Class, null, typeof (object));
+      _factory.CreateType ("Name", "ns", TypeAttributes.Class, baseType: null, declaringType: null);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type must be null for interfaces.\r\nParameter name: baseType")]
     public void CreateType_BaseType_MustBeNullForInterfaces ()
     {
-      _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), typeof (object));
+      _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), null);
     }
 
     [Test]

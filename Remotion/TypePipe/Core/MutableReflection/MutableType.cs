@@ -57,11 +57,11 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableType (
         IMemberSelector memberSelector,
+        MutableType declaringType,
         Type baseType,
         string name,
         string @namespace,
         TypeAttributes attributes,
-        Type declaringType,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
         : base (memberSelector, name, @namespace, attributes, null, EmptyTypes)
