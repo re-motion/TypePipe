@@ -42,6 +42,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     // TODO 5452: Use type unification.
     // TODO 5057: Use Lazy<>
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _nestedTypes;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _interfaces;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<FieldInfo>> _fields;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
@@ -85,6 +86,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (genericTypeDefinition.BaseType));
 
+      _nestedTypes = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateNestedType().ToList().AsReadOnly());
       _interfaces = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateInterfaces ().ToList().AsReadOnly());
       _fields = new DoubleCheckedLockingContainer<ReadOnlyCollection<FieldInfo>> (() => CreateFields ().Cast<FieldInfo>().ToList().AsReadOnly());
       _constructors = new DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors ().Cast<ConstructorInfo>().ToList().AsReadOnly());
@@ -126,8 +128,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override IEnumerable<Type> GetAllNestedTypes ()
     {
-      // TODO 5550
-      throw new NotSupportedException ("Method GetNestedTypes is not supported.");
+      return _nestedTypes.Value;
     }
 
     public override IEnumerable<Type> GetAllInterfaces ()
@@ -158,6 +159,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public override IEnumerable<EventInfo> GetAllEvents ()
     {
       return _events.Value;
+    }
+
+    private IEnumerable<Type> CreateNestedType ()
+    {
+      return _instantiationInfo.GenericTypeDefinition.GetNestedTypes (c_allMembers).Select (SubstituteGenericParameters);
     }
 
     private IEnumerable<Type> CreateInterfaces ()

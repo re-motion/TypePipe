@@ -67,6 +67,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void IsModified_AddedItem ()
     {
       CheckIsModified (p => p.AddCustomAttribute());
+      CheckIsModified (p => p.AddNestedType());
       CheckIsModified (p => p.AddInterface());
       CheckIsModified (p => p.AddField());
       CheckIsModified (p => p.AddConstructor());

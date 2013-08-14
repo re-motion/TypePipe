@@ -35,7 +35,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         string name = "MyMutableType",
         string @namespace = "MyNamespace",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
-        Type declaringType = null,
+        MutableType declaringType = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
@@ -51,7 +51,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
 
       var proxyType = new MutableType (
-          memberSelector, baseType, name, @namespace, attributes, declaringType, interfaceMappingComputer, mutableMemberFactory);
+          memberSelector, declaringType, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
       if (copyCtorsFromBase)
         CopyConstructors (baseType, proxyType);
 
@@ -62,7 +62,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         string name = "MyMutableInterface",
         string @namespace = "MyNamespace",
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract,
-        Type declaringType = null,
+        MutableType declaringType = null,
         IMemberSelector memberSelector = null,
         IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
@@ -76,7 +76,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
       Assertion.IsTrue (attributes.IsSet (TypeAttributes.Interface | TypeAttributes.Abstract));
 
-      return new MutableType (memberSelector, null, name, @namespace, attributes, declaringType, interfaceMappingComputer, mutableMemberFactory);
+      return new MutableType (memberSelector, declaringType, null, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private static void CopyConstructors (Type baseType, MutableType proxyType)

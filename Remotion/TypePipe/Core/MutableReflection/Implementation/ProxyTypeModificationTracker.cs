@@ -58,10 +58,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private bool HasAddedItems ()
     {
-      // TODO 5550: Nested types
       return _proxyType.AddedCustomAttributes.Count > 0
+             || _proxyType.AddedNestedTypes.Count > 0
              || _proxyType.AddedInterfaces.Count > 0
              || _proxyType.AddedFields.Count > 0
+             // There are always ctors because they are copied from the base type.
              || _proxyType.AddedConstructors.Count > _constructorBodies.Count
              || _proxyType.AddedMethods.Count > 0;
       // Properties and events are covered via methods.

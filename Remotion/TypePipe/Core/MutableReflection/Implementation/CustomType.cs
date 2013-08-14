@@ -149,7 +149,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           name.Append ('.');
         }
 
-        name.Append (SeparatedStringBuilder.Build ("+", this.CreateSequence<Type> (x => x.DeclaringType).Reverse(), t => t.Name));
+        var declaringTypes = this.CreateSequence<Type> (x => x.DeclaringType).Reverse();
+        name.Append (SeparatedStringBuilder.Build ("+", declaringTypes, t => t.Name));
 
         if (IsGenericType)
         {

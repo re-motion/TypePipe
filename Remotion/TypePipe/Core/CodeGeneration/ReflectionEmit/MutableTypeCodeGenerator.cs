@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -40,7 +39,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
-    private readonly List<IMutableTypeCodeGenerator> _nestedTypeCodeGenerators = new List<IMutableTypeCodeGenerator> ();
 
     private int _state;
     private CodeGenerationContext _context;
@@ -80,31 +78,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public void DeclareType ()
     {
       EnsureState (0);
-      
+
       var typeBuilder = DefineType (_codeGenerator, _emittableOperandProvider);
-      //var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProvider);
       typeBuilder.RegisterWith (_emittableOperandProvider, _mutableType);
 
       _context = new CodeGenerationContext (_mutableType, typeBuilder, _codeGenerator.DebugInfoGenerator, _emittableOperandProvider);
+    }
 
-      // TODO 5550
+    public IEnumerable<IMutableTypeCodeGenerator> CreateNestedTypeGenerators ()
+    {
+      EnsureState (1);
+
       foreach (var nestedType in _mutableType.AddedNestedTypes)
-      {
-        var nestedTypeCodeGenerator = _nestedTypeCodeGeneratorFactory.Create (nestedType, typeBuilder, _memberEmitter, _emittableOperandProvider);
-        _nestedTypeCodeGenerators.Add (nestedTypeCodeGenerator);
-        nestedTypeCodeGenerator.DeclareType();
-      }
+        yield return _nestedTypeCodeGeneratorFactory.Create (_context.TypeBuilder, nestedType);
     }
 
     public void DefineTypeFacets ()
     {
-      EnsureState (1);
+      EnsureState (2);
 
       if (_mutableType.BaseType != null)
         _context.TypeBuilder.SetParent (_mutableType.BaseType);
-
-      foreach (var codeGenerator in _nestedTypeCodeGenerators)
-        codeGenerator.DefineTypeFacets();
       
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
@@ -133,10 +127,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type CreateType ()
     {
-      EnsureState (2);
-
-      foreach (var codeGenerator in _nestedTypeCodeGenerators)
-        codeGenerator.CreateType ();
+      EnsureState (3);
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
@@ -146,7 +137,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     protected virtual ITypeBuilder DefineType (IReflectionEmitCodeGenerator codeGenerator, IEmittableOperandProvider emittableOperandProvider)
     {
-      return codeGenerator.DefineType (MutableType.FullName, MutableType.Attributes, emittableOperandProvider);
+      return codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, emittableOperandProvider);
     }
 
     private void WireAndAddConstructor (
@@ -160,8 +151,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private void EnsureState (int expectedState)
     {
       if (_state != expectedState)
+      {
         throw new InvalidOperationException (
-            "Methods DeclareType, DefineTypeFacets and CreateType must be called exactly once and in the correct order.");
+            "Methods DeclareType, CreateNestedTypeGenerators, DefineTypeFacets and CreateType must be called exactly once and in the correct order.");
+      }
 
       _state++;
     }
