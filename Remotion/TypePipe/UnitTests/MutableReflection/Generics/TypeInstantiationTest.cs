@@ -314,12 +314,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (type3, Is.EqualTo (_outerCustomType));
     }
 
-    [Test]
-    public void UnsupportedMembers ()
-    {
-      UnsupportedMemberTestHelper.CheckMethod (() => _instantiation.GetNestedTypes(), "GetNestedTypes");
-    }
-
     interface IMyInterface<T> { }
     class BaseType<T> { }
     class DeclaringType<TOuter>
