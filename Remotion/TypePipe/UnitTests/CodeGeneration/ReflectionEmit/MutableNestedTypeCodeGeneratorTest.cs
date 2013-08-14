@@ -20,15 +20,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _enclosingTypeBuilderMock = MockRepository.StrictMock<ITypeBuilder>();
 
-      Generator = new MutableNestedTypeCodeGenerator (
+      Generator = new MutableNestedTypeCodeGenerator (_enclosingTypeBuilderMock, 
           MutableType,
-          _enclosingTypeBuilderMock, 
           NestedTypeCodeGeneratorFactoryMock,
           CodeGeneratorMock,
           EmittableOperandProviderMock,
           MemberEmitterMock,
-          InitializationBuilderMock,
-          ProxySerializationEnablerMock);
+          InitializationBuilderMock, ProxySerializationEnablerMock);
     }
 
     [Test]
@@ -45,7 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         CodeGeneratorMock.Expect (mock => mock.DebugInfoGenerator).Return (DebugInfoGeneratorMock);
 
         NestedTypeCodeGeneratorFactoryMock
-            .Expect (mock => mock.Create (nestedType, TypeBuilderMock, MemberEmitterMock, EmittableOperandProviderMock))
+            .Expect (mock => mock.Create (TypeBuilderMock, nestedType))
             .Return (NestedTypeCodeGeneratorMock);
         NestedTypeCodeGeneratorMock.Expect (mock => mock.DeclareType ());
       }

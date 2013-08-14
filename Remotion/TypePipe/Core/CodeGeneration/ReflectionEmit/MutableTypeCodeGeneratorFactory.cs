@@ -28,7 +28,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class MutableTypeCodeGeneratorFactory : IMutableTypeCodeGeneratorFactory
   {
-    private readonly IMutableNestedTypeCodeGeneratorFactory _nestedTypeCodeGeneratorFactory;
     private readonly IMemberEmitterFactory _memberEmitterFactory;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IInitializationBuilder _initializationBuilder;
@@ -36,19 +35,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     [CLSCompliant (false)]
     public MutableTypeCodeGeneratorFactory (
-        IMutableNestedTypeCodeGeneratorFactory nestedTypeCodeGeneratorFactory,
         IMemberEmitterFactory memberEmitterFactory,
         IReflectionEmitCodeGenerator codeGenerator,
         IInitializationBuilder initializationBuilder,
         IProxySerializationEnabler proxySerializationEnabler)
     {
-      ArgumentUtility.CheckNotNull ("nestedTypeCodeGeneratorFactory", nestedTypeCodeGeneratorFactory);
       ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
-      _nestedTypeCodeGeneratorFactory = nestedTypeCodeGeneratorFactory;
       _memberEmitterFactory = memberEmitterFactory;
       _codeGenerator = codeGenerator;
       _initializationBuilder = initializationBuilder;
@@ -69,9 +65,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private IMutableTypeCodeGenerator CreateGenerator (
         MutableType mutableType, IEmittableOperandProvider emittableOperandProvider, IMemberEmitter memberEmitter)
     {
+      var nestedTypeCodeGeneratorFactory = new MutableNestedTypeCodeGeneratorFactory (
+          _codeGenerator, emittableOperandProvider, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
+
       return new MutableTypeCodeGenerator (
           mutableType,
-          _nestedTypeCodeGeneratorFactory,
+          nestedTypeCodeGeneratorFactory,
           _codeGenerator,
           emittableOperandProvider,
           memberEmitter,

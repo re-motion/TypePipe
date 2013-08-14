@@ -27,40 +27,45 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class MutableNestedTypeCodeGeneratorFactory : IMutableNestedTypeCodeGeneratorFactory
   {
     private readonly IReflectionEmitCodeGenerator _reflectionEmitCodeGenerator;
+    private readonly IEmittableOperandProvider _emittableOperandProvider;
+    private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
     private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     [CLSCompliant (false)]
     public MutableNestedTypeCodeGeneratorFactory (
         IReflectionEmitCodeGenerator reflectionEmitCodeGenerator,
+        IEmittableOperandProvider emittableOperandProvider,
+        IMemberEmitter memberEmitter,
         IInitializationBuilder initializationBuilder,
         IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("reflectionEmitCodeGenerator", reflectionEmitCodeGenerator);
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _reflectionEmitCodeGenerator = reflectionEmitCodeGenerator;
+      _emittableOperandProvider = emittableOperandProvider;
+      _memberEmitter = memberEmitter;
       _initializationBuilder = initializationBuilder;
       _proxySerializationEnabler = proxySerializationEnabler;
     }
 
     [CLSCompliant (false)]
-    public IMutableTypeCodeGenerator Create (
-        MutableType nestedType, ITypeBuilder enclosingTypeBuilder, IMemberEmitter memberEmitter, IEmittableOperandProvider emittableOperandProvider)
+    public IMutableTypeCodeGenerator Create (ITypeBuilder enclosingTypeBuilder, MutableType nestedType)
     {
-      ArgumentUtility.CheckNotNull ("nestedType", nestedType);
       ArgumentUtility.CheckNotNull ("enclosingTypeBuilder", enclosingTypeBuilder);
-      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull ("nestedType", nestedType);
 
       return new MutableNestedTypeCodeGenerator (
-          nestedType,
           enclosingTypeBuilder,
+          nestedType,
           this,
           _reflectionEmitCodeGenerator,
-          emittableOperandProvider,
-          memberEmitter,
+          _emittableOperandProvider,
+          _memberEmitter,
           _initializationBuilder,
           _proxySerializationEnabler);
     }

@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       // TODO 5550
       foreach (var nestedType in _mutableType.AddedNestedTypes)
       {
-        var nestedTypeCodeGenerator = _nestedTypeCodeGeneratorFactory.Create (nestedType, typeBuilder, _memberEmitter, _emittableOperandProvider);
+        var nestedTypeCodeGenerator = _nestedTypeCodeGeneratorFactory.Create (typeBuilder, nestedType);
         _nestedTypeCodeGenerators.Add (nestedTypeCodeGenerator);
         nestedTypeCodeGenerator.DeclareType();
       }
@@ -103,6 +103,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       if (_mutableType.BaseType != null)
         _context.TypeBuilder.SetParent (_mutableType.BaseType);
 
+      // TODO 5550
       foreach (var codeGenerator in _nestedTypeCodeGenerators)
         codeGenerator.DefineTypeFacets();
       
@@ -135,6 +136,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       EnsureState (2);
 
+      // TODO 5550
       foreach (var codeGenerator in _nestedTypeCodeGenerators)
         codeGenerator.CreateType ();
 

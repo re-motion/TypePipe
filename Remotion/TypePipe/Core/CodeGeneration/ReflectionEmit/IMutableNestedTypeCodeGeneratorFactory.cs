@@ -21,14 +21,13 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  // REVIEW: move to outer namespace?
+  // TODO 5550: move to outer namespace?
   /// <summary>
   /// Defines an interface for classes creating instances of <see cref="IMutableTypeCodeGenerator"/> for nested types.
   /// </summary>
   [CLSCompliant (false)]
   public interface IMutableNestedTypeCodeGeneratorFactory
   {
-    IMutableTypeCodeGenerator Create (
-        MutableType nestedType, ITypeBuilder enclosingTypeBuilder, IMemberEmitter memberEmitter, IEmittableOperandProvider emittableOperandProvider);
+    IMutableTypeCodeGenerator Create (ITypeBuilder enclosingTypeBuilder, MutableType nestedType);
   }
 }
