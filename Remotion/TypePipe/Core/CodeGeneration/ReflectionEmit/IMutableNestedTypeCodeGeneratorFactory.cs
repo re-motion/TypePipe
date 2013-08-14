@@ -21,7 +21,6 @@ using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-  // TODO 5550: move to outer namespace?
   /// <summary>
   /// Defines an interface for classes creating instances of <see cref="IMutableTypeCodeGenerator"/> for nested types.
   /// </summary>
