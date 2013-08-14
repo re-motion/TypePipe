@@ -34,6 +34,5 @@ namespace Remotion.TypePipe.CodeGeneration
     /// <exception cref="InvalidOperationException">A requested operation is invalid with this configuration (user configuration or participants).</exception>
     /// <exception cref="NotSupportedException">A requested operation is not supported by the code generator.</exception>
     IEnumerable<KeyValuePair<MutableType, Type>> GenerateTypes (IEnumerable<MutableType> mutableTypes);
-   // tODO 5550: Refactor this to be a GeneratedTypeContext
   }
 }
