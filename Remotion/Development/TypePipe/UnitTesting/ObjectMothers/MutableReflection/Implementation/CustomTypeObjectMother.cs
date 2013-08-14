@@ -34,6 +34,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         string @namespace = null,
         TypeAttributes attributes = (TypeAttributes) 7,
         IEnumerable<ICustomAttributeData> customAttributeDatas = null,
+        IEnumerable<Type> nestedTypes = null,
         IEnumerable<Type> interfaces = null,
         IEnumerable<FieldInfo> fields = null,
         IEnumerable<ConstructorInfo> constructors = null,
@@ -59,6 +60,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
               typeArgs)
           {
               CustomAttributeDatas = customAttributeDatas ?? new ICustomAttributeData[0],
+              NestedTypes = nestedTypes ?? Type.EmptyTypes,
               Interfaces = interfaces ?? Type.EmptyTypes,
               Fields = fields ?? new FieldInfo[0],
               Constructors = constructors ?? new ConstructorInfo[0],
