@@ -73,11 +73,11 @@ namespace Remotion.TypePipe.CodeGeneration
         yield return nestedGenerator;
     }
 
-    private IEnumerable<IMutableTypeCodeGenerator> SortGenerators (IEnumerable<IMutableTypeCodeGenerator> allGenerators)
+    private IEnumerable<IMutableTypeCodeGenerator> SortGenerators (IEnumerable<IMutableTypeCodeGenerator> generators)
     {
-      var generators = allGenerators.ToList();
-      var mapping = generators.ToDictionary (g => g.MutableType);
-      var sortedTypes = _dependentTypeSorter.Sort (generators.Select (g => g.MutableType));
+      var gens = generators.ToList();
+      var mapping = gens.ToDictionary (g => g.MutableType);
+      var sortedTypes = _dependentTypeSorter.Sort (gens.Select (g => g.MutableType).ToList());
 
       return sortedTypes.Select (t => mapping[t]);
     }
