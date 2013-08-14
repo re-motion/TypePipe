@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Ast;
@@ -117,6 +118,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (context.TypeBuilder, Is.SameAs (_typeBuilderMock));
       Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorMock));
       Assert.That (context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
+    }
+
+    [Test]
+    public void CreateNestedTypeGenerators ()
+    {
+      var nestedType = _mutableType.AddNestedType();
+      PopulateContext (_generator, 1);
+
+      var nestedCodeGeneratorStub = _mockRepository.Stub<IMutableTypeCodeGenerator>();
+      _nestedTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (_typeBuilderMock, nestedType)).Return (nestedCodeGeneratorStub);
+      _mockRepository.ReplayAll();
+
+      var result = _generator.CreateNestedTypeGenerators().ForceEnumeration();
+
+      _mockRepository.VerifyAll();
+      Assert.That (result, Is.EqualTo (new[] { nestedCodeGeneratorStub }));
     }
 
     [Test]
