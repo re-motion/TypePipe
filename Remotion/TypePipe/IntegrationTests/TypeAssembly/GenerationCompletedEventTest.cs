@@ -57,7 +57,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     [Test]
     public void GetGeneratedMember_Members_OnProxyType ()
     {
-      // TODO 5550: nested type
       // TODO 5461: MutableGenericParameters on MutableType.
       Type nestedType = null;
       ConstructorInfo typeInitializer = null;
