@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.Not.Null.And.SameAs (instance));
     }
 
-    [Ignore("TODO 5550")]
+    [Ignore ("TODO 5550")]
     [Test]
     public void NestedTypeUsedAsBaseType ()
     {
@@ -90,10 +90,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       // members. This means that they need to be included in the MutableType ordering before code is generated.
 
       var type = AssembleType<DomainType> (
-          ctx =>
+          assemblyContext =>
           {
-            var nestedType = ctx.ProxyType.AddNestedType ("NestedBaseType", TypeAttributes.NestedPublic, typeof (object));
-            ctx.CreateType ("TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
+            var nestedType = assemblyContext.ProxyType.AddNestedType ("NestedBaseType", TypeAttributes.NestedPublic, typeof (object));
+            nestedType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.None, ctx => Expression.Empty());
+            assemblyContext.CreateType ("TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
           });
 
       var nestedBaseType = type.GetNestedTypes().Single();
