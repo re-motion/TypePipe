@@ -82,7 +82,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (result, Is.Not.Null.And.SameAs (instance));
     }
 
-    [Ignore ("TODO 5550")]
     [Test]
     public void NestedTypeUsedAsBaseType ()
     {
@@ -93,7 +92,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           assemblyContext =>
           {
             var nestedType = assemblyContext.ProxyType.AddNestedType ("NestedBaseType", TypeAttributes.NestedPublic, typeof (object));
-            nestedType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.None, ctx => Expression.Empty());
+            nestedType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.None, ctx => ctx.CallBaseConstructor());
             assemblyContext.CreateType ("TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
           });
 
