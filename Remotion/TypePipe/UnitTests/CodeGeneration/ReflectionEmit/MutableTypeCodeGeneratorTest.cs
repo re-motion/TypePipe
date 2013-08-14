@@ -36,6 +36,7 @@ using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
+  [Ignore("TODO 5550")]
   [TestFixture]
   public class MutableTypeCodeGeneratorTest
   {
@@ -128,6 +129,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (context.EmittableOperandProvider, Is.SameAs (EmittableOperandProviderMock));
     }
 
+    [Ignore("TODO 5550")]
     [Test]
     public void DefineTypeFacets ()
     {
@@ -178,6 +180,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       MockRepository.VerifyAll();
     }
 
+    [Ignore("TODO 5550")]
     [Test]
     public void DefineTypeFacet_NoParent_NoNestedTypes_NoTypeInitializer_NoInitializations ()
     {
@@ -207,6 +210,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       MockRepository.VerifyAll();
     }
 
+    [Ignore("TODO 5550")]
     [Test]
     public void CreateType ()
     {

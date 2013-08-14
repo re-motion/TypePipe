@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -28,6 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// Note that the methods must be called in the following order.
   /// <list type="number">
   ///   <item><see cref="DeclareType"/></item>
+  ///   <item><see cref="CreateNestedTypeGenerators"/></item>
   ///   <item><see cref="DefineTypeFacets"/></item>
   ///   <item><see cref="CreateType"/></item>
   /// </list>
@@ -37,7 +39,11 @@ namespace Remotion.TypePipe.CodeGeneration
     MutableType MutableType { get; }
 
     void DeclareType ();
+
+    IEnumerable<IMutableTypeCodeGenerator> CreateNestedTypeGenerators ();
+
     void DefineTypeFacets ();
+
     Type CreateType ();
   }
 }

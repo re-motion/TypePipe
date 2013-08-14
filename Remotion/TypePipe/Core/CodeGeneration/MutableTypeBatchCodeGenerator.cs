@@ -47,18 +47,39 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("mutableTypes", mutableTypes);
 
-      var sortedTypes = _dependentTypeSorter.Sort (mutableTypes);
-      var generators = _mutableTypeCodeGeneratorFactory.CreateGenerators (sortedTypes).ToList();
+      // For all types, declare the types first (including nested types), then declare the members/base type/interfaces/etc.,
+      // then finish the type (including method bodies, etc.). That way, it is ensured that types can reference each other.
 
-      // For all types, declare the types first, then declare the members/base type/interfaces/etc., then finish the type (including bodies, etc.).
-      // That way, it is ensured that types can reference each other.
+      var topLevelGenerators = _mutableTypeCodeGeneratorFactory.CreateGenerators (mutableTypes);
+      var allGenerators = topLevelGenerators.SelectMany (DeclareTypeAndRecurseNestedTypes);
 
-      foreach (var g in generators)
-        g.DeclareType();
-      foreach (var g in generators)
+      var sortedGenerators = SortGenerators (allGenerators).ToList();
+
+      foreach (var g in sortedGenerators)
         g.DefineTypeFacets();
 
-      return generators.Select (g => new KeyValuePair<MutableType, Type> (g.MutableType, g.CreateType()));
+      return sortedGenerators
+          .Select (g => new KeyValuePair<MutableType, Type> (g.MutableType, g.CreateType()))
+          .Where (p => !p.Value.IsNested);
+    }
+
+    private IEnumerable<IMutableTypeCodeGenerator> DeclareTypeAndRecurseNestedTypes (IMutableTypeCodeGenerator generator)
+    {
+      generator.DeclareType();
+      yield return generator;
+
+      var nestedGenerators = generator.CreateNestedTypeGenerators().SelectMany (DeclareTypeAndRecurseNestedTypes);
+      foreach (var nestedGenerator in nestedGenerators)
+        yield return nestedGenerator;
+    }
+
+    private IEnumerable<IMutableTypeCodeGenerator> SortGenerators (IEnumerable<IMutableTypeCodeGenerator> allGenerators)
+    {
+      var generators = allGenerators.ToList();
+      var mapping = generators.ToDictionary (g => g.MutableType);
+      var sortedTypes = _dependentTypeSorter.Sort (generators.Select (g => g.MutableType));
+
+      return sortedTypes.Select (t => mapping[t]);
     }
   }
 }

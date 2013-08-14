@@ -46,6 +46,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _generator = new MutableTypeBatchCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
     }
 
+    [Ignore("TODO 5550")]
     [Test]
     public void GenerateTypes ()
     {

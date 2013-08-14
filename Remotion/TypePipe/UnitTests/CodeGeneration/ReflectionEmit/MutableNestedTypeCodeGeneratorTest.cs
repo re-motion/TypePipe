@@ -29,6 +29,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           InitializationBuilderMock, ProxySerializationEnablerMock);
     }
 
+    [Ignore("TODO 5550")]
     [Test]
     public override void DeclareType ()
     {
