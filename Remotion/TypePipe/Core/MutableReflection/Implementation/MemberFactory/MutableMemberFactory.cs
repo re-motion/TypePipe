@@ -43,8 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     {
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
-      var mutableTypeFactory = new MutableTypeFactory();
-      _nestedTypeFactory = new NestedTypeFactory (mutableTypeFactory);
+      _nestedTypeFactory = new NestedTypeFactory (new MutableTypeFactory());
       _initializationFactory = new InitializationFactory();
       _fieldFactory = new FieldFactory();
       _constructorFactory = new ConstructorFactory();
@@ -56,10 +55,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public MutableType CreateNestedType (MutableType declaringType, string name, TypeAttributes attributes, Type baseType)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Base type may be null
-
       return _nestedTypeFactory.CreateNestedType (declaringType, name, attributes, baseType);
     }
 
