@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       thread.Start();
 
       while (thread.ThreadState != ThreadState.WaitSleepJoin)
-        Thread.Sleep (10); // TODO 5057: Use Thread.Yield instead.
+        Thread.Yield();
 
       Assert.That (thread.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
 
