@@ -16,9 +16,9 @@
 // 
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Remotion.Collections;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     {
       var typeID = AssembledTypeIDObjectMother.Create();
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { typeID, assembledType } };
+      var types = CreateConcurrentDictionary (typeID, assembledType);
 
       var result = _point.GetOrGenerateType (types, typeID, _participantState, _mutableTypeBatchCodeGeneratorMock);
 
@@ -143,7 +143,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     {
       var constructionKey = CreateConstructionKey();
       var assembledConstructorCall = (Action) (() => { });
-      var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate> { { constructionKey, assembledConstructorCall } };
+      var constructorCalls = CreateConcurrentDictionary<ConstructionKey, Delegate> (constructionKey, assembledConstructorCall);
       var types = new ConcurrentDictionary<AssembledTypeID, Type>();
 
       var result = _point.GetOrGenerateConstructorCall (
@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var assembledConstructorCall = (Action) (() => { });
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
       var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
-      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { constructionKey.TypeID, assembledType } };
+      var types = CreateConcurrentDictionary (constructionKey.TypeID, assembledType);
       var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
       var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
 
@@ -190,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
       var cachedTypeKey = AssembledTypeIDObjectMother.Create (parts: new[] { new object() });
       var loadedTypeKey = AssembledTypeIDObjectMother.Create();
-      var types = new ConcurrentDictionary<AssembledTypeID, Type> { { cachedTypeKey, alreadyCachedAssembledType } };
+      var types = CreateConcurrentDictionary (cachedTypeKey, alreadyCachedAssembledType);
       var keysToAssembledTypes =
           new[]
           {
@@ -213,7 +213,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     {
       var reverseConstructionKey = CreateReverseConstructionKey();
       var assembledConstructorCall = (Action) (() => { });
-      var constructorCalls = new ConcurrentDictionary<ReverseConstructionKey, Delegate> { { reverseConstructionKey, assembledConstructorCall } };
+      var constructorCalls = CreateConcurrentDictionary<ReverseConstructionKey, Delegate> (reverseConstructionKey, assembledConstructorCall);
 
       var result = _point.GetOrGenerateConstructorCall (constructorCalls, reverseConstructionKey);
 
@@ -276,6 +276,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
 
       return new ReverseConstructionKey (assembledType, delegateType, allowNonPublic);
+    }
+
+    private ConcurrentDictionary<TKey, TValue> CreateConcurrentDictionary<TKey, TValue> (TKey key, TValue value)
+    {
+      var mapping = new[] { new KeyValuePair<TKey, TValue> (key, value) };
+      return new ConcurrentDictionary<TKey, TValue> (mapping);
     }
   }
 }

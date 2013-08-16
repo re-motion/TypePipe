@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
@@ -33,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     private ReverseTypeCache _cache;
 
-    private ConcurrentDictionary<ReverseConstructionKey, Delegate> _constructorCalls;
+    private IDictionary<ReverseConstructionKey, Delegate> _constructorCalls;
 
     private Type _assembledType;
     private Type _delegateType;
@@ -72,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _reverseTypeCacheSynchronizationPointMock
           .Expect (
               mock => mock.GetOrGenerateConstructorCall (
-                  Arg.Is (_constructorCalls),
+                  Arg.Is ((ConcurrentDictionary<ReverseConstructionKey, Delegate>) _constructorCalls),
                   Arg<ReverseConstructionKey>.Matches (key => key.Equals (reverseConstructionKey)))) // Use strongly typed overload.
           .Return (_generatedCtorCall);
 

@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Concurrent;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.Utilities;
 

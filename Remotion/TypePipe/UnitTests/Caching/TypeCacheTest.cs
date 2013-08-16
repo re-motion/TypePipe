@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using NUnit.Framework;
@@ -41,8 +42,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
     private TypeCache _cache;
 
-    private ConcurrentDictionary<AssembledTypeID, Type> _types;
-    private ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls;
+    private IDictionary<AssembledTypeID, Type> _types;
+    private IDictionary<ConstructionKey, Delegate> _constructorCalls;
     private IDictionary<string, object> _participantState;
 
     private readonly Type _requestedType = typeof (RequestedType);
@@ -106,7 +107,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeCacheSynchronizationPointMock
           .Expect (
               mock => mock.GetOrGenerateType (
-                  Arg.Is (_types),
+                  Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
                   Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),// Use strongly typed overload.
                   Arg.Is (_participantState),
                   Arg.Is (_codeGeneratorMock)))
@@ -141,9 +142,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeCacheSynchronizationPointMock
           .Expect (
               mock => mock.GetOrGenerateConstructorCall (
-                  Arg.Is (_constructorCalls),
+                  Arg.Is ((ConcurrentDictionary<ConstructionKey, Delegate>) _constructorCalls),
                   Arg<ConstructionKey>.Matches (key => key.Equals (constructionKey)), // Use strongly typed overload.
-                  Arg.Is (_types),
+                  Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
                   Arg.Is (_participantState),
                   Arg.Is (_codeGeneratorMock)))
           .Return (_generatedCtorCall);
@@ -166,7 +167,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeCacheSynchronizationPointMock
           .Expect (
               mock => mock.RebuildParticipantState (
-                  Arg.Is (_types),
+                  Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
                   Arg<IEnumerable<KeyValuePair<AssembledTypeID, Type>>>.Is.Anything,
                   Arg<IEnumerable<Type>>.List.Equal (new[] { additionalGeneratedType }),
                   Arg.Is (_participantState)))

@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Concurrent;
 using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Implementation.Synchronization

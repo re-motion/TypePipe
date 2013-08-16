@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Reflection;
@@ -125,7 +126,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
           return generatedType;
 
         generatedType = _typeAssembler.AssembleType (typeID, participantState, mutableTypeBatchCodeGenerator);
-        types.Add (typeID, generatedType);
+        AddTo (types, typeID, generatedType);
       }
 
       return generatedType;
@@ -153,7 +154,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         var assembledType = GetOrGenerateType (types, typeID, participantState, mutableTypeBatchCodeGenerator);
 
         constructorCall = CreateConstructorCall (typeID.RequestedType, constructionKey.DelegateType, constructionKey.AllowNonPublic, assembledType);
-        constructorCalls.Add (constructionKey, constructorCall);
+        AddTo (constructorCalls, constructionKey, constructorCall);
       }
 
       return constructorCall;
@@ -176,7 +177,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       {
         foreach (var p in keysToAssembledTypes.Where (p => !types.ContainsKey (p.Key)))
         {
-          types.Add (p.Key, p.Value);
+          AddTo (types, p.Key, p.Value);
           loadedAssembledTypes.Add (p.Value);
         }
 
@@ -210,7 +211,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         var requestedType = _typeAssembler.GetRequestedType (assembledType);
 
         constructorCall = CreateConstructorCall (requestedType, reverseConstructionKey.DelegateType, reverseConstructionKey.AllowNonPublic, assembledType);
-        constructorCalls.Add (reverseConstructionKey, constructorCall);
+        AddTo (constructorCalls, reverseConstructionKey, constructorCall);
       }
 
       return constructorCall;
@@ -222,6 +223,12 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, allowNonPublic, assembledType);
 
       return _delegateFactory.CreateConstructorCall (constructor, delegateType);
+    }
+
+    private void AddTo<TKey, TValue> (ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
+    {
+      if (!concurrentDictionary.TryAdd (key, value))
+        throw new ArgumentException ("Key already exists.");
     }
   }
 }
