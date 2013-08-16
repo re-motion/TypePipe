@@ -25,6 +25,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
 {
@@ -37,7 +38,6 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
         TypeAttributes attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit,
         MutableType declaringType = null,
         IMemberSelector memberSelector = null,
-        IRelatedMethodFinder relatedMethodFinder = null,
         IInterfaceMappingComputer interfaceMappingComputer = null,
         IMutableMemberFactory mutableMemberFactory = null,
         bool copyCtorsFromBase = false)
@@ -47,11 +47,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
 
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
       interfaceMappingComputer = interfaceMappingComputer ?? new InterfaceMappingComputer();
-      // XXXX Related method finder unneccessary?
-      relatedMethodFinder = relatedMethodFinder ?? new RelatedMethodFinder();
-      mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
+      mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (new RelatedMethodFinder());
 
-      var mutableType = CreateMutableType (declaringType, baseType, name, @namespace, attributes, memberSelector, interfaceMappingComputer, mutableMemberFactory);
+      var mutableType = new MutableType (declaringType, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      mutableType.SetMemberSelector (memberSelector);
+
       if (copyCtorsFromBase)
         CopyConstructors (baseType, mutableType);
 
@@ -76,24 +76,12 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       mutableMemberFactory = mutableMemberFactory ?? new MutableMemberFactory (relatedMethodFinder);
       Assertion.IsTrue (attributes.IsSet (TypeAttributes.Interface | TypeAttributes.Abstract));
 
-      return CreateMutableType (declaringType, null, name, @namespace, attributes, memberSelector, interfaceMappingComputer, mutableMemberFactory);
-    }
+      var mutableType = new MutableType (declaringType, null, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      mutableType.SetMemberSelector (memberSelector);
 
-
-    private static MutableType CreateMutableType (
-        MutableType declaringType,
-        Type baseType,
-        string name,
-        string @namespace,
-        TypeAttributes attributes,
-        IMemberSelector memberSelector,
-        IInterfaceMappingComputer interfaceMappingComputer,
-        IMutableMemberFactory mutableMemberFactory)
-    {
-      var mutableType = new MutableType (declaringType, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
-      PrivateInvoke.SetNonPublicField (mutableType, "_memberSelector", memberSelector);
       return mutableType;
     }
+
 
     private static void CopyConstructors (Type baseType, MutableType proxyType)
     {
