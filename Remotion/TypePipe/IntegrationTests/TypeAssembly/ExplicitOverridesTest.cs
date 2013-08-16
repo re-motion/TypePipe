@@ -59,8 +59,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             var allMethods = proxyType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.That (allMethods, Has.Member (typeof (B).GetMethod ("OverridableMethod")));
-            // TODO 5057: Comment in.
-            //Assert.That (allMethods, Has.Member (mutableMethod));
+            Assert.That (allMethods, Has.Member (mutableMethod));
           });
 
       A instance = (B) Activator.CreateInstance (type);
@@ -252,8 +251,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             var allMethods = proxyType.GetMethods (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.That (allMethods, Has.Member (typeof (B).GetMethod ("OverridableMethod")));
-            // TODO 5057: Comment in.
-            //Assert.That (allMethods, Has.Member (mutableMethod));
+            Assert.That (allMethods, Has.Member (mutableMethod));
           });
 
       A instance = (B) Activator.CreateInstance (type);
