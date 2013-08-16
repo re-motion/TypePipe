@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = (TypeAttributes) 7;
 
       var mutableType = new MutableType (
-          _memberSelectorMock, declaringType, baseType, name, @namespace, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+          declaringType, baseType, name, @namespace, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
 
       Assert.That (mutableType.DeclaringType, Is.SameAs (declaringType));
       Assert.That (mutableType.MutableDeclaringType, Is.SameAs (declaringType));
@@ -80,7 +80,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (mutableType.Name, Is.EqualTo (name));
       Assert.That (mutableType.Namespace, Is.EqualTo (@namespace));
       Assert.That (mutableType.FullName, Is.EqualTo ("MyNs.DeclaringType+MyType"));
-      _memberSelectorMock.Stub (mock => mock.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
       Assert.That (mutableType.Attributes, Is.EqualTo (attributes));
       Assert.That (mutableType.IsGenericType, Is.False);
       Assert.That (mutableType.IsGenericTypeDefinition, Is.False);

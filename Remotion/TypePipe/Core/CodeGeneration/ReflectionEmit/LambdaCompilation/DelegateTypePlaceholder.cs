@@ -32,18 +32,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   /// </summary>
   public class DelegateTypePlaceholder : CustomType
   {
+    private const TypeAttributes c_delegateTypeAttributes = TypeAttributes.Public | TypeAttributes.Sealed;
+
     private readonly Type _returnType;
     private readonly ReadOnlyCollection<Type> _parameterTypes;
     private readonly ReadOnlyCollection<MethodInfo> _methods;
 
     public DelegateTypePlaceholder (Type returnType, IEnumerable<Type> parameterTypes)
-        : base (
-            new MemberSelector (new BindingFlagsEvaluator()),
-            "DelegateTypePlaceholder",
-            null,
-            TypeAttributes.Public | TypeAttributes.Sealed,
-            null,
-            EmptyTypes)
+        : base ("DelegateTypePlaceholder", null, c_delegateTypeAttributes, null, EmptyTypes)
     {
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);

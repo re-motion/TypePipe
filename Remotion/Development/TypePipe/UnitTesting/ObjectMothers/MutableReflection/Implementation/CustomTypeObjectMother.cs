@@ -52,7 +52,6 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
 
       var customType =
           new TestableCustomType (
-              memberSelector,
               name,
               @namespace,
               attributes,
@@ -68,6 +67,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
               Properties = properties ?? new PropertyInfo[0],
               Events = events ?? new EventInfo[0]
           };
+      customType.SetMemberSelector (memberSelector);
       customType.CallSetBaseType (baseType);
       customType.CallSetDeclaringType (declaringType);
 

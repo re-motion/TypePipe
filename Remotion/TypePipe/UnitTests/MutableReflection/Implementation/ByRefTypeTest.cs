@@ -21,7 +21,6 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -39,8 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _elementType = CustomTypeObjectMother.Create (
           name: "Abc", @namespace: "MyNs", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
 
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _type = new ByRefType (_elementType, memberSelectorMock);
+      _type = new ByRefType (_elementType);
     }
 
     [Test]

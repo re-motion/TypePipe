@@ -49,9 +49,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var customAttributes = new[] { CustomAttributeDeclarationObjectMother.Create () };
       _elementType = CustomTypeObjectMother.Create (name: "Abc", @namespace: "MyNs", customAttributeDatas: customAttributes);
       _rank = 2;
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _type = new TestableArrayTypeBase (_elementType, _rank, memberSelectorMock);
+      _type = new TestableArrayTypeBase (_elementType, _rank);
 
       _realArrayTypeForComparison = typeof (string[]);
     }

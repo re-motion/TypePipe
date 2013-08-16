@@ -30,9 +30,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private readonly CustomType _elementType;
 
-    public ByRefType (CustomType elementType, IMemberSelector memberSelector)
+    public ByRefType (CustomType elementType)
         : base (
-            memberSelector,
             ArgumentUtility.CheckNotNull ("elementType", elementType).Name + "&",
             elementType.Namespace,
             TypeAttributes.NotPublic,

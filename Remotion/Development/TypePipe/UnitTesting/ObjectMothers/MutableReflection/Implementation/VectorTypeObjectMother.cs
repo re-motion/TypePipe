@@ -22,12 +22,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
 {
   public static class VectorTypeObjectMother
   {
-    public static VectorType Create (CustomType elementType = null, IMemberSelector memberSelector = null)
+    public static VectorType Create (CustomType elementType = null)
     {
       elementType = elementType ?? CustomTypeObjectMother.Create (name: "UnspecifiedType");
-      memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
-      return new VectorType (elementType, memberSelector);
+      return new VectorType (elementType);
     }
   }
 }

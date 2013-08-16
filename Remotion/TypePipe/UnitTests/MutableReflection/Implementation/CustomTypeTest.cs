@@ -60,7 +60,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _attributes = (TypeAttributes) 7;
 
       _customType = new TestableCustomType (
-          _memberSelectorMock,
           _name,
           _namespace,
           _attributes,
@@ -75,6 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
                         Properties = new[] { ReflectionObjectMother.GetSomeProperty() },
                         Events = new[] { ReflectionObjectMother.GetSomeEvent() }
                     };
+      _customType.SetMemberSelector (_memberSelectorMock);
 
       _typeArgument = ReflectionObjectMother.GetSomeType();
       _genericTypeUnderlyingDefinition = typeof (IList<>);

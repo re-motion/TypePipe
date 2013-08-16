@@ -22,12 +22,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
 {
   public static class ByRefTypeObjectMother
   {
-    public static ByRefType Create (CustomType elementType = null, IMemberSelector memberSelector = null)
+    public static ByRefType Create (CustomType elementType = null)
     {
       elementType = elementType ?? CustomTypeObjectMother.Create(name: "UnspecifiedType");
-      memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
-      return new ByRefType (elementType, memberSelector);
+      return new ByRefType (elementType);
     }
   }
 }

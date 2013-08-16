@@ -25,8 +25,8 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
 {
   public class TestableArrayTypeBase : ArrayTypeBase
   {
-    public TestableArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelectorMock)
-        : base (elementType, rank, memberSelectorMock) {}
+    public TestableArrayTypeBase (CustomType elementType, int rank)
+        : base (elementType, rank) {}
 
     protected override IEnumerable<Type> CreateInterfaces (CustomType elementType)
     {

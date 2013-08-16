@@ -37,7 +37,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       constraints = constraints ?? Type.EmptyTypes;
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
-      var genericParameter = new MutableGenericParameter (memberSelector, position, name, @namespace, genericParameterAttributes);
+      var genericParameter = new MutableGenericParameter (position, name, @namespace, genericParameterAttributes);
       genericParameter.SetGenericParameterConstraints (constraints);
 
       return genericParameter;

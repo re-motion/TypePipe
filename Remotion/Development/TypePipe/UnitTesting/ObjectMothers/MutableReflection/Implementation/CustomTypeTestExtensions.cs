@@ -15,18 +15,20 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 
-using System;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation
 {
-  public static class MultiDimensionalArrayTypeObjectMother
+  public static class CustomTypeTestExtensions
   {
-    public static MultiDimensionalArrayType Create (CustomType elementType = null, int rank = 2)
+    public static void SetMemberSelector (this CustomType customType, IMemberSelector memberSelector)
     {
-      elementType = elementType ?? CustomTypeObjectMother.Create (name: "UnspecifiedType");
+      ArgumentUtility.CheckNotNull ("customType", customType);
+      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
 
-      return new MultiDimensionalArrayType (elementType, rank);
+      PrivateInvoke.SetNonPublicField (customType, "_memberSelector", memberSelector);
     }
   }
 }

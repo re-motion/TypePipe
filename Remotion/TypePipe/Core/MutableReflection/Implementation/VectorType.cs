@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class VectorType : ArrayTypeBase
   {
-    public VectorType (CustomType elementType, IMemberSelector memberSelector)
-        : base (elementType, 1, memberSelector)
+    public VectorType (CustomType elementType)
+        : base (elementType, 1)
     {
     }
 

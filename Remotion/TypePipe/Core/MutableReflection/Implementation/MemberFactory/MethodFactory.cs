@@ -118,9 +118,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider)
     {
       var genericParameterDeclarations = genericParameters.ConvertToCollection();
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var genericParams = genericParameterDeclarations
-          .Select ((p, i) => new MutableGenericParameter (memberSelector, i, p.Name, declaringType.Namespace, p.Attributes)).ToList();
+          .Select ((p, i) => new MutableGenericParameter (i, p.Name, declaringType.Namespace, p.Attributes)).ToList();
 
       var genericParameterContext = new GenericParameterContext (genericParams.Cast<Type>());
       foreach (var paraAndDecl in genericParams.Zip (genericParameterDeclarations, (p, d) => new { Parameter = p, Declaration = d }))

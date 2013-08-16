@@ -22,7 +22,6 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -37,9 +36,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void SetUp ()
     {
       _elementType = CustomTypeObjectMother.Create();
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _type = new VectorType (_elementType, memberSelectorMock);
+      _type = new VectorType (_elementType);
     }
 
     [Test]

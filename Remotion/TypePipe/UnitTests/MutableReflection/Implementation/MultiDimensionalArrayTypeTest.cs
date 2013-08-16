@@ -37,9 +37,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _elementType = CustomTypeObjectMother.Create();
       _rank = 2;
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _type = new MultiDimensionalArrayType (_elementType, _rank, memberSelectorMock);
+      _type = new MultiDimensionalArrayType (_elementType, _rank);
     }
 
     [Test]

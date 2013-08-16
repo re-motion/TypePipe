@@ -492,7 +492,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     // TODO Events
-    // TODO 5550: Nested types
+    // TODO 5816: Nested types
 
     public class DomainType
     {

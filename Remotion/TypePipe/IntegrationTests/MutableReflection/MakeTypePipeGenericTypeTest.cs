@@ -164,7 +164,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       Assert.That (remover.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (genericRemover));
     }
 
-    // TODO 5550: Nested generic types
+    // TODO 5816: Nested generic types
 
     [Test]
     public void GenericType_WrappedInSignature_TypeInstantiation ()

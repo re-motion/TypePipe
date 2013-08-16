@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Collections;
-using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
@@ -45,8 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (genTypeDef.IsRuntimeType() && typeArgs.All (a => a.IsRuntimeType()))
         return genTypeDef.MakeGenericType (typeArgs.ToArray());
 
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-      return new TypeInstantiation (memberSelector, instantiationInfo, this);
+      return new TypeInstantiation (instantiationInfo, this);
     }
 
     public void Add (TypeInstantiationInfo instantiationInfo, TypeInstantiation typeInstantiation)
