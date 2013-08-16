@@ -26,13 +26,12 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
   public class TestableCustomType : CustomType
   {
     public TestableCustomType (
-        IMemberSelector memberSelector,
         string name,
         string @namespace,
         TypeAttributes attributes,
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
-        : base (memberSelector, name, @namespace, attributes, genericTypeDefinition, typeArguments)
+        : base (name, @namespace, attributes, genericTypeDefinition, typeArguments)
     {
     }
 

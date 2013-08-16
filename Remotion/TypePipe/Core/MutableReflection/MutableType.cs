@@ -56,7 +56,6 @@ namespace Remotion.TypePipe.MutableReflection
     private MutableConstructorInfo _typeInitializer;
 
     public MutableType (
-        IMemberSelector memberSelector,
         MutableType declaringType,
         Type baseType,
         string name,
@@ -64,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
         TypeAttributes attributes,
         IInterfaceMappingComputer interfaceMappingComputer,
         IMutableMemberFactory mutableMemberFactory)
-        : base (memberSelector, name, @namespace, attributes, null, EmptyTypes)
+        : base (name, @namespace, attributes, null, EmptyTypes)
     {
       // Base type may be null (for interfaces).
       // Declaring type may be null.

@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
-    private readonly IMemberSelector _memberSelector;
+    private readonly IMemberSelector _memberSelector = new MemberSelector (new BindingFlagsEvaluator());
 
     private readonly string _name;
     private readonly string _namespace;
@@ -51,21 +51,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private Type _baseType;
 
     protected CustomType (
-        IMemberSelector memberSelector,
         string name,
         string @namespace,
         TypeAttributes attributes,
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       // Generic type definition may be null (for non-generic types and generic type definitions).
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
 
-      _memberSelector = memberSelector;
       _name = name;
       _namespace = @namespace;
       _attributes = attributes;
@@ -236,12 +232,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type MakeByRefType ()
     {
-      return new ByRefType (this, _memberSelector);
+      return new ByRefType (this);
     }
 
     public override Type MakeArrayType ()
     {
-      return new VectorType (this, _memberSelector);
+      return new VectorType (this);
     }
 
     public override Type MakeArrayType (int rank)
@@ -249,7 +245,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (rank <= 0)
         throw new ArgumentOutOfRangeException ("rank", "Array rank must be greater than zero.");
 
-      return new MultiDimensionalArrayType (this, rank, _memberSelector);
+      return new MultiDimensionalArrayType (this, rank);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)

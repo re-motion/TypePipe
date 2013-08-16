@@ -81,6 +81,7 @@
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomParameterInfoObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomPropertyInfoObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomTypeObjectMother.cs" />
+    <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\CustomTypeTestExtensions.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\MethodOnCustomTypeObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\MultiDimensionalArrayTypeObjectMother.cs" />
     <Compile Include="UnitTesting\ObjectMothers\MutableReflection\Implementation\ParameterOnCustomMemberObjectMother.cs" />

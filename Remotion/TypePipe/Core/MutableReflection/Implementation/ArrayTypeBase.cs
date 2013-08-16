@@ -45,9 +45,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<MethodInfo>> _methods;
 
-    protected ArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelector)
+    protected ArrayTypeBase (CustomType elementType, int rank)
         : base (
-            memberSelector,
             GetArrayTypeName (ArgumentUtility.CheckNotNull ("elementType", elementType).Name, rank),
             elementType.Namespace,
             TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.Serializable,

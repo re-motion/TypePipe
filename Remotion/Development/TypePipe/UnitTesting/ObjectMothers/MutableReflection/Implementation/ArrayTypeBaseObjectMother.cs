@@ -22,12 +22,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
 {
   public static class ArrayTypeBaseObjectMother
   {
-    public static ArrayTypeBase Create (CustomType elementType = null, int rank = 1, IMemberSelector memberSelector = null)
+    public static ArrayTypeBase Create (CustomType elementType = null, int rank = 1)
     {
       elementType = elementType ?? CustomTypeObjectMother.Create (name: "UnspecifiedType");
-      memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
-      return new TestableArrayTypeBase (elementType, rank, memberSelector);
+      return new TestableArrayTypeBase (elementType, rank);
     }
   }
 }

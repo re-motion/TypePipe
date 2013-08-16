@@ -77,11 +77,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
     {
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
 
-      return new MutableType (memberSelector, declaringType, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
+      return new MutableType (declaringType, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
     private IEnumerable<Expression> CopyConstructors (Type baseType, MutableType proxyType)

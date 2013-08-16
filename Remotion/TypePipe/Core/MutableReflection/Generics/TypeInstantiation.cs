@@ -50,9 +50,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<PropertyInfo>> _properties;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<EventInfo>> _events;
 
-    public TypeInstantiation (IMemberSelector memberSelector, TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
+    public TypeInstantiation (TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
         : base (
-            memberSelector,
             ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
             instantiationInfo.GenericTypeDefinition.Attributes,

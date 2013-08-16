@@ -49,13 +49,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [SetUp]
     public void SetUp ()
     {
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       _position = 7;
       _name = "_parameter";
       _namespace = "namespace";
       _genericParameterAttributes = (GenericParameterAttributes) 7;
 
-      _parameter = new MutableGenericParameter (memberSelectorMock, _position, _name, _namespace, _genericParameterAttributes);
+      _parameter = new MutableGenericParameter (_position, _name, _namespace, _genericParameterAttributes);
 
       _baseTypeConstraint = typeof (DomainType);
       _interfaceConstraint = ReflectionObjectMother.GetSomeInterfaceType();

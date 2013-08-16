@@ -41,16 +41,12 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private ReadOnlyCollection<Type> _constraints = EmptyTypes.ToList().AsReadOnly();
 
     public MutableGenericParameter (
-        IMemberSelector memberSelector,
         int position,
         string name,
         string @namespace,
         GenericParameterAttributes genericParameterAttributes)
-        : base (memberSelector, name, @namespace, attributes: TypeAttributes.Public, genericTypeDefinition: null, typeArguments: EmptyTypes)
+        : base (name, @namespace, attributes: TypeAttributes.Public, genericTypeDefinition: null, typeArguments: EmptyTypes)
     {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Namespace may be null.
       Assertion.IsTrue (position >= 0);
 
       _position = position;

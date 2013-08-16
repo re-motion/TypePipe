@@ -21,6 +21,7 @@ using System.Linq;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics
 {
@@ -38,7 +39,11 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       instantiationContext = instantiationContext ?? new TypeInstantiationContext();
       memberSelector = memberSelector ?? new MemberSelector (new BindingFlagsEvaluator());
 
-      return new TypeInstantiation (memberSelector, instantiationInfo, instantiationContext);
+      var typeInstantiation = new TypeInstantiation (instantiationInfo, instantiationContext);
+      typeInstantiation.SetMemberSelector (memberSelector);
+
+      return typeInstantiation;
+
     }
 
     private class MyGenericType<T> {}
