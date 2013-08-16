@@ -64,12 +64,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _instantiationInfo = instantiationInfo;
       _instantiationContext = instantiationContext;
 
+      var genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
+      var declaringType = genericTypeDefinition.DeclaringType;
+
       // Even though the _genericTypeDefinition includes the type parameters of the enclosing type(s) (if any), declaringType.GetGenericArguments() 
       // will return objects not equal to this type's generic parameters. Since the call to SetDeclaringType below needs to replace the those type 
       // parameters with type arguments, add a mapping for the declaring type's generic parameters in addition to this type's generic parameters.
 
-      var genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
-      var declaringType = genericTypeDefinition.DeclaringType;
       // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here, declaringType can be null.
       var outerMapping = declaringType != null ? declaringType.GetGenericArguments().Zip (instantiationInfo.TypeArguments) : new Tuple<Type, Type>[0];
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
@@ -163,18 +164,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     private IEnumerable<Type> CreateNestedType ()
     {
-      return _instantiationInfo
-          .GenericTypeDefinition
-          .GetNestedTypes (c_allMembers)
-          .Select (
-              nestedGenericTypeDefinition =>
-              {
-                var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-                var instantiationInfo = new TypeInstantiationInfo (nestedGenericTypeDefinition, _instantiationInfo.TypeArguments);
-
-                return new TypeInstantiation (memberSelector, instantiationInfo, _instantiationContext);
-              })
-          .Cast<Type>();
+      throw new NotImplementedException ("TODO 5816");
     }
 
     private IEnumerable<Type> CreateInterfaces ()
