@@ -163,7 +163,18 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     private IEnumerable<Type> CreateNestedType ()
     {
-      return _instantiationInfo.GenericTypeDefinition.GetNestedTypes (c_allMembers).Select (SubstituteGenericParameters);
+      return _instantiationInfo
+          .GenericTypeDefinition
+          .GetNestedTypes (c_allMembers)
+          .Select (
+              nestedGenericTypeDefinition =>
+              {
+                var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
+                var instantiationInfo = new TypeInstantiationInfo (nestedGenericTypeDefinition, _instantiationInfo.TypeArguments);
+
+                return new TypeInstantiation (memberSelector, instantiationInfo, _instantiationContext);
+              })
+          .Cast<Type>();
     }
 
     private IEnumerable<Type> CreateInterfaces ()
