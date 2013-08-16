@@ -23,8 +23,7 @@ namespace Remotion.TypePipe.StrongNaming
 {
   public static class FallbackKey
   {
-    // TODO 5057: Use Lazy<T>
-    private static readonly DoubleCheckedLockingContainer<StrongNameKeyPair> s_instance = new DoubleCheckedLockingContainer<StrongNameKeyPair> (Load);
+    private static readonly Lazy<StrongNameKeyPair> s_instance = new Lazy<StrongNameKeyPair> (Load);
 
     public static StrongNameKeyPair KeyPair
     {
