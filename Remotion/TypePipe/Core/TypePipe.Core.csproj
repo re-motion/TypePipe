@@ -58,7 +58,6 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\AssembledTypeID.cs" />
-    <Compile Include="Caching\ConcurrentDictionary.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
     <Compile Include="Caching\ReverseConstructionKey.cs" />
     <Compile Include="Caching\IReverseTypeCache.cs" />

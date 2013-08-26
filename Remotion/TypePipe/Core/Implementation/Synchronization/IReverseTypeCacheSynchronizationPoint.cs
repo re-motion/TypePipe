@@ -17,6 +17,7 @@
 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
