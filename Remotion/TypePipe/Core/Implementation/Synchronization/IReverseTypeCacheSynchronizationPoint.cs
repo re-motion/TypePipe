@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Concurrent;
 using Remotion.TypePipe.Caching;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
