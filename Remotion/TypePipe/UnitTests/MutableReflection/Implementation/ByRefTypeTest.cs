@@ -18,9 +18,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -38,8 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _elementType = CustomTypeObjectMother.Create (
           name: "Abc", @namespace: "MyNs", typeArguments: new[] { typeof (int) }, customAttributeDatas: customAttributes);
 
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _type = new ByRefType (_elementType, memberSelectorMock);
+      _type = new ByRefType (_elementType);
     }
 
     [Test]
@@ -76,12 +75,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAllXXX ()
     {
-      Assert.That (_type.Invoke ("GetAllInterfaces"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllFields"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllConstructors"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllMethods"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllProperties"), Is.Empty);
-      Assert.That (_type.Invoke ("GetAllEvents"), Is.Empty);
+      Assert.That (_type.GetAllNestedTypes(), Is.Empty);
+      Assert.That (_type.GetAllInterfaces(), Is.Empty);
+      Assert.That (_type.GetAllFields(), Is.Empty);
+      Assert.That (_type.GetAllConstructors(), Is.Empty);
+      Assert.That (_type.GetAllMethods(), Is.Empty);
+      Assert.That (_type.GetAllProperties(), Is.Empty);
+      Assert.That (_type.GetAllEvents(), Is.Empty);
     }
 
     [Test]

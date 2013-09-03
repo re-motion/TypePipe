@@ -26,6 +26,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public interface IMemberSelector
   {
+    IEnumerable<Type> SelectTypes (IEnumerable<Type> types, BindingFlags bindingAttr);
+
     IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, Type declaringType);
 
     IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
@@ -35,6 +37,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     IEnumerable<EventInfo> SelectEvents (IEnumerable<EventInfo> events, BindingFlags bindingAttr, Type declaringType);
 
+
+    Type SelectSingleType (IEnumerable<Type> types, BindingFlags bindingAttr, string name);
 
     FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType);
 

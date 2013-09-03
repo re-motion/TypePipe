@@ -45,9 +45,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
     private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<MethodInfo>> _methods;
 
-    protected ArrayTypeBase (CustomType elementType, int rank, IMemberSelector memberSelector)
+    protected ArrayTypeBase (CustomType elementType, int rank)
         : base (
-            memberSelector,
             GetArrayTypeName (ArgumentUtility.CheckNotNull ("elementType", elementType).Name, rank),
             elementType.Namespace,
             TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.Serializable,
@@ -60,6 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       SetBaseType (typeof (Array));
 
+      // TODO 5452: Use unification instead of endless recursion.
       // The lazy initialization of members is not only a performance optimization, but is needed to prevent eager evaluation of endless recursions.
       // Example: typeof (T[]).GetInterface ("ICollection`1").GetMethod ("CopyTo").GetParameters()[0] --> T[]
 
@@ -113,32 +113,37 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return true;
     }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
+    public override IEnumerable<Type> GetAllNestedTypes()
+    {
+      return EmptyTypes;
+    }
+
+    public override IEnumerable<Type> GetAllInterfaces ()
     {
       return _interfaces.Value;
     }
 
-    protected override IEnumerable<FieldInfo> GetAllFields ()
+    public override IEnumerable<FieldInfo> GetAllFields ()
     {
       return typeof (Array).GetFields (c_all);
     }
 
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
       return _constructors.Value;
     }
 
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    public override IEnumerable<MethodInfo> GetAllMethods ()
     {
       return _methods.Value;
     }
 
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
     {
       return typeof (Array).GetProperties (c_all);
     }
 
-    protected override IEnumerable<EventInfo> GetAllEvents ()
+    public override IEnumerable<EventInfo> GetAllEvents ()
     {
       return typeof (Array).GetEvents (c_all);
     }

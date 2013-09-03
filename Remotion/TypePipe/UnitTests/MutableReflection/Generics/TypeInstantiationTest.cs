@@ -17,10 +17,10 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using System.Linq;
 using Remotion.Development.UnitTesting;
@@ -31,10 +31,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
   [TestFixture]
   public class TypeInstantiationTest
   {
-    private const BindingFlags c_allMembers = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance;
-
-    private MemberSelector _memberSelector;
-
     private Type _genericTypeDefinition;
     private CustomType _outerCustomType;
     private CustomType _customType;
@@ -46,15 +42,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [SetUp]
     public void SetUp ()
     {
-      _memberSelector = new MemberSelector (new BindingFlagsEvaluator());
-
       _genericTypeDefinition = typeof (DeclaringType<>.GenericType<>);
       _outerCustomType = CustomTypeObjectMother.Create();
       _customType = CustomTypeObjectMother.Create();
       _typeArguments = new Type[] { _outerCustomType, _customType };
       _instantiationInfo = new TypeInstantiationInfo (_genericTypeDefinition, _typeArguments);
 
-      _instantiation = new TypeInstantiation (_memberSelector, _instantiationInfo, new TypeInstantiationContext());
+      _instantiation = new TypeInstantiation (_instantiationInfo, new TypeInstantiationContext());
     }
 
     [Test]
@@ -103,9 +97,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization_Fields ()
     {
-      var field = _instantiation.GetField ("Field", c_allMembers);
+      var field = _instantiation.GetField ("Field");
 
-      var fieldOnGenericType = _genericTypeDefinition.GetField ("Field", c_allMembers);
+      var fieldOnGenericType = _genericTypeDefinition.GetField ("Field");
       Assertion.IsNotNull (field);
       Assert.That (field, Is.TypeOf<FieldOnTypeInstantiation> ());
       Assert.That (field.DeclaringType, Is.SameAs (_instantiation));
@@ -115,7 +109,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization_Constructors ()
     {
-      var constructor = _instantiation.GetConstructors (c_allMembers).Single();
+      var constructor = _instantiation.GetConstructors().Single();
 
       var constructorOnGenericType = _genericTypeDefinition.GetConstructors().Single();
       Assert.That (constructor, Is.TypeOf<ConstructorOnTypeInstantiation>());
@@ -126,9 +120,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization_Methods ()
     {
-      var method = _instantiation.GetMethod ("Method", c_allMembers);
+      var method = _instantiation.GetMethod ("Method");
 
-      var methodOnGenericType = _genericTypeDefinition.GetMethod ("Method", c_allMembers);
+      var methodOnGenericType = _genericTypeDefinition.GetMethod ("Method");
       Assert.That (method, Is.TypeOf<MethodOnTypeInstantiation>());
       Assert.That (method.DeclaringType, Is.SameAs (_instantiation));
       Assert.That (method.As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (methodOnGenericType));
@@ -137,9 +131,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization_Properties ()
     {
-      var property = _instantiation.GetProperty ("Property", c_allMembers);
+      var property = _instantiation.GetProperty ("Property");
 
-      var propertyOnGenericType = _genericTypeDefinition.GetProperty ("Property", c_allMembers);
+      var propertyOnGenericType = _genericTypeDefinition.GetProperty ("Property");
       Assert.That (property, Is.TypeOf<PropertyOnTypeInstantiation> ());
       Assert.That (property.DeclaringType, Is.SameAs (_instantiation));
       Assert.That (property.As<PropertyOnTypeInstantiation>().PropertyOnGenericType, Is.EqualTo (propertyOnGenericType));
@@ -153,10 +147,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     public void Initialization_ReadOnlyAndWriteOnlyProperty ()
     {
       var info1 = new TypeInstantiationInfo (typeof (GenericTypeWithProperties<>), new Type[] { _customType });
-      var instantiation = new TypeInstantiation (_memberSelector, info1, new TypeInstantiationContext());
+      var instantiation = new TypeInstantiation (info1, new TypeInstantiationContext());
 
-      var property1 = instantiation.GetProperty ("ReadOnlyProperty", c_allMembers);
-      var property2 = instantiation.GetProperty ("WriteOnlyProperty", c_allMembers);
+      var property1 = instantiation.GetProperty ("ReadOnlyProperty");
+      var property2 = instantiation.GetProperty ("WriteOnlyProperty");
       Assert.That (property1.GetSetMethod (true), Is.Null);
       Assert.That (property2.GetGetMethod (true), Is.Null);
     }
@@ -164,10 +158,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void Initialization_Events ()
     {
-      var event_ = _instantiation.GetEvent ("Event", c_allMembers);
+      var event_ = _instantiation.GetEvent ("Event");
       Assertion.IsNotNull (event_);
 
-      var eventOnGenericType = _genericTypeDefinition.GetEvent ("Event", c_allMembers);
+      var eventOnGenericType = _genericTypeDefinition.GetEvent ("Event");
       Assertion.IsNotNull (eventOnGenericType);
       Assert.That (event_, Is.TypeOf<EventOnTypeInstantiation>());
       Assert.That (event_.DeclaringType, Is.SameAs (_instantiation));
@@ -178,10 +172,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
           event_.GetRemoveMethod (true).As<MethodOnTypeInstantiation>().MethodOnGenericType, Is.EqualTo (eventOnGenericType.GetRemoveMethod (true)));
     }
 
+    [Ignore("TODO 5816")]
     [Test]
-    public void Initialization_UsesAllBindingFlagsToRetrieveMembers ()
+    public void Initialization_NestedTypes ()
+    {
+      var nestedType = _instantiation.GetNestedType ("NestedType");
+      Assertion.IsNotNull (nestedType);
+
+      var nestedTypeOnGenericType = _genericTypeDefinition.GetNestedType ("NestedType");
+      Assertion.IsNotNull (nestedTypeOnGenericType);
+      Assert.That (nestedType, Is.TypeOf<TypeInstantiation>());
+      Assert.That (nestedType.DeclaringType, Is.SameAs (_instantiation));
+      Assert.That (nestedType.GetGenericTypeDefinition(), Is.EqualTo (nestedTypeOnGenericType));
+      var genericArgument = nestedType.GetField ("FieldInNestedType").FieldType;
+      Assert.That (genericArgument, Is.SameAs (_customType));
+    }
+
+    [Ignore("TODO 5816")]
+    [Test]
+    public void Initialization_NestedTypes_WithAdditionalGenericParameter ()
+    {
+      Dev.Null = _instantiation.GetNestedType ("NestedTypeWithAdditionalyGenericParameter");
+      // TODO 5816
+    }
+
+    [Test]
+    public void Initialization_MemberInitializationIsLazy_AndUsesAllBindingFlagsToRetrieveMembers ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+      var nestedTypes = _genericTypeDefinition.GetNestedTypes (bindingFlags);
       var fields = _genericTypeDefinition.GetFields (bindingFlags);
       var ctors = _genericTypeDefinition.GetConstructors (bindingFlags);
       var methods = _genericTypeDefinition.GetMethods (bindingFlags);
@@ -191,18 +210,37 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
       var typeParameters = new[] { ReflectionObjectMother.GetSomeType() };
       var genericTypeDefinition = CustomTypeObjectMother.Create (memberSelectorMock, typeArguments: typeParameters,
-          fields: fields, constructors: ctors, methods: methods, properties: properties, events: events);
+          nestedTypes: nestedTypes, fields: fields, constructors: ctors, methods: methods, properties: properties, events: events);
 
+      // TODO 5816
+      //memberSelectorMock.Expect (mock => mock.SelectTypes (nestedTypes, bindingFlags)).Return (nestedTypes);
       memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition)).Return (fields);
       memberSelectorMock.Expect (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition)).Return (ctors);
-      memberSelectorMock.Expect (mock => mock.SelectMethods (methods, bindingFlags, genericTypeDefinition)).Return (methods);
+      // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
       memberSelectorMock.Expect (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition)).Return (properties);
       memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition)).Return (events);
 
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
       var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
 
-      Dev.Null = new TypeInstantiation (memberSelectorMock, info, new TypeInstantiationContext());
+      var typeInstantiation = new TypeInstantiation (info, new TypeInstantiationContext());
+
+      // Evaluation is lazy.
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectTypes (nestedTypes, bindingFlags));
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition));
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition));
+      // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition));
+      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition));
+
+      // Trigger instantiation.
+      // TODO 5816
+      //Dev.Null = typeInstantiation.GetNestedTypes();
+      Dev.Null = typeInstantiation.GetFields();
+      Dev.Null = typeInstantiation.GetConstructors();
+      Dev.Null = typeInstantiation.GetMethods();
+      Dev.Null = typeInstantiation.GetProperties();
+      Dev.Null = typeInstantiation.GetEvents();
 
       memberSelectorMock.VerifyAllExpectations();
     }
@@ -225,8 +263,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (info1, Is.Not.EqualTo (_instantiationInfo));
       Assert.That (info2, Is.EqualTo (_instantiationInfo));
 
-      var instantiation1 = new TypeInstantiation (_memberSelector, info1, new TypeInstantiationContext());
-      var instantiation2 = new TypeInstantiation (_memberSelector, info2, new TypeInstantiationContext());
+      var instantiation1 = new TypeInstantiation (info1, new TypeInstantiationContext());
+      var instantiation2 = new TypeInstantiation (info2, new TypeInstantiationContext());
 
       Assert.That (_instantiation.Equals ((object) null), Is.False);
       Assert.That (_instantiation.Equals (new object()), Is.False);
@@ -242,8 +280,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (info1, Is.Not.EqualTo (_instantiationInfo));
       Assert.That (info2, Is.EqualTo (_instantiationInfo));
 
-      var instantiation1 = new TypeInstantiation (_memberSelector, info1, new TypeInstantiationContext());
-      var instantiation2 = new TypeInstantiation (_memberSelector, info2, new TypeInstantiationContext());
+      var instantiation1 = new TypeInstantiation (info1, new TypeInstantiationContext());
+      var instantiation2 = new TypeInstantiation (info2, new TypeInstantiationContext());
 
       // ReSharper disable CheckForReferenceEqualityInstead.1
       Assert.That (_instantiation.Equals (null), Is.False);
@@ -276,7 +314,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var genericTypeDefinition = typeof (RecursiveGenericType<>);
       var typeArguments = new Type[] { _customType };
       var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
-      var instantiation = new TypeInstantiation (_memberSelector, info, new TypeInstantiationContext());
+      var instantiation = new TypeInstantiation (info, new TypeInstantiationContext());
 
       Assertion.IsNotNull (instantiation.BaseType);
       Assert.That (instantiation, Is.SameAs (instantiation.BaseType.GetGenericArguments().Single()));
@@ -309,6 +347,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
         public T Property { get; internal set; }
         public event EventHandler Event;
         public TOuter FieldOfOuterType;
+
+        public class NestedType
+        {
+          public T FieldInNestedType;
+        }
+        //public class NestedTypeWithAdditionalyGenericParameter<TNested> {}
       }
     }
     class GenericTypeWithProperties<T>

@@ -40,16 +40,18 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly TypeInstantiationContext _instantiationContext;
     private readonly IDictionary<Type, Type> _parametersToArguments;
 
-    private readonly ReadOnlyCollection<Type> _interfaces;
-    private readonly ReadOnlyCollection<FieldInfo> _fields;
-    private readonly ReadOnlyCollection<ConstructorInfo> _constructors;
-    private readonly ReadOnlyCollection<MethodInfo> _methods;
-    private readonly ReadOnlyCollection<PropertyInfo> _properties;
-    private readonly ReadOnlyCollection<EventInfo> _events;
+    // TODO 5452: Use type unification.
+    // TODO 5057: Use Lazy<>
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _nestedTypes;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _interfaces;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<FieldInfo>> _fields;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<MethodOnTypeInstantiation>> _methods;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<PropertyInfo>> _properties;
+    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<EventInfo>> _events;
 
-    public TypeInstantiation (IMemberSelector memberSelector, TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
+    public TypeInstantiation (TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
         : base (
-            memberSelector,
             ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
             instantiationInfo.GenericTypeDefinition.Attributes,
@@ -61,12 +63,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       _instantiationInfo = instantiationInfo;
       _instantiationContext = instantiationContext;
 
+      var genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
+      var declaringType = genericTypeDefinition.DeclaringType;
+
       // Even though the _genericTypeDefinition includes the type parameters of the enclosing type(s) (if any), declaringType.GetGenericArguments() 
       // will return objects not equal to this type's generic parameters. Since the call to SetDeclaringType below needs to replace the those type 
       // parameters with type arguments, add a mapping for the declaring type's generic parameters in addition to this type's generic parameters.
 
-      var genericTypeDefinition = instantiationInfo.GenericTypeDefinition;
-      var declaringType = genericTypeDefinition.DeclaringType;
       // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here, declaringType can be null.
       var outerMapping = declaringType != null ? declaringType.GetGenericArguments().Zip (instantiationInfo.TypeArguments) : new Tuple<Type, Type>[0];
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
@@ -83,20 +86,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (genericTypeDefinition.BaseType));
 
-      var interfaces = genericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
-      var fields = genericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
-      var constructors = genericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
-      var methods = genericTypeDefinition.GetMethods (c_allMembers).Select (m => new MethodOnTypeInstantiation (this, m)).ToList();
-      var methodMapping = methods.ToDictionary (m => m.MethodOnGenericType);
-      var properties = genericTypeDefinition.GetProperties (c_allMembers).Select (p => CreateProperty (p, methodMapping));
-      var events = genericTypeDefinition.GetEvents (c_allMembers).Select (e => CreateEvent (e, methodMapping));
-
-      _interfaces = interfaces.ToList().AsReadOnly();
-      _fields = fields.Cast<FieldInfo>().ToList().AsReadOnly();
-      _constructors = constructors.Cast<ConstructorInfo>().ToList().AsReadOnly();
-      _methods = methods.Cast<MethodInfo>().ToList().AsReadOnly();
-      _properties = properties.Cast<PropertyInfo>().ToList().AsReadOnly();
-      _events = events.Cast<EventInfo>().ToList().AsReadOnly();
+      _nestedTypes = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateNestedType().ToList().AsReadOnly());
+      _interfaces = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateInterfaces ().ToList().AsReadOnly());
+      _fields = new DoubleCheckedLockingContainer<ReadOnlyCollection<FieldInfo>> (() => CreateFields ().Cast<FieldInfo>().ToList().AsReadOnly());
+      _constructors = new DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors ().Cast<ConstructorInfo>().ToList().AsReadOnly());
+      _methods = new DoubleCheckedLockingContainer<ReadOnlyCollection<MethodOnTypeInstantiation>> (() => CreateMethods().ToList().AsReadOnly());
+      _properties =new DoubleCheckedLockingContainer<ReadOnlyCollection<PropertyInfo>> (() => CreateProperties().Cast<PropertyInfo>().ToList().AsReadOnly());
+      _events = new DoubleCheckedLockingContainer<ReadOnlyCollection<EventInfo>> (() => CreateEvents().Cast<EventInfo>().ToList().AsReadOnly());
     }
 
     public Type SubstituteGenericParameters (Type type)
@@ -130,54 +126,101 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return TypePipeCustomAttributeData.GetCustomAttributes (GetGenericTypeDefinition());
     }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
+    public override IEnumerable<Type> GetAllNestedTypes ()
     {
-      return _interfaces;
+      return _nestedTypes.Value;
     }
 
-    protected override IEnumerable<FieldInfo> GetAllFields ()
+    public override IEnumerable<Type> GetAllInterfaces ()
     {
-      return _fields;
+      return _interfaces.Value;
     }
 
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    public override IEnumerable<FieldInfo> GetAllFields ()
     {
-      return _constructors;
+      return _fields.Value;
     }
 
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
-      return _methods;
+      return _constructors.Value;
     }
 
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    public override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      return _properties;
+      return _methods.Value.Cast<MethodInfo>();
     }
 
-    protected override IEnumerable<EventInfo> GetAllEvents ()
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
     {
-      return _events;
+      return _properties.Value;
     }
 
-    private PropertyOnTypeInstantiation CreateProperty (PropertyInfo genericProperty, Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping)
+    public override IEnumerable<EventInfo> GetAllEvents ()
     {
-      var getMethod = GetMethodOrNull (methodMapping, genericProperty.GetGetMethod (true));
-      var setMethod = GetMethodOrNull (methodMapping, genericProperty.GetSetMethod (true));
+      return _events.Value;
+    }
+
+    private IEnumerable<Type> CreateNestedType ()
+    {
+      throw new NotImplementedException ("TODO 5816");
+    }
+
+    private IEnumerable<Type> CreateInterfaces ()
+    {
+      return _instantiationInfo.GenericTypeDefinition.GetInterfaces().Select (SubstituteGenericParameters);
+    }
+
+    private IEnumerable<FieldOnTypeInstantiation> CreateFields ()
+    {
+      return _instantiationInfo.GenericTypeDefinition.GetFields (c_allMembers).Select (f => new FieldOnTypeInstantiation (this, f));
+    }
+
+    private IEnumerable<ConstructorOnTypeInstantiation> CreateConstructors ()
+    {
+      return _instantiationInfo.GenericTypeDefinition.GetConstructors (c_allMembers).Select (c => new ConstructorOnTypeInstantiation (this, c));
+    }
+
+    private IEnumerable<MethodOnTypeInstantiation> CreateMethods ()
+    {
+      return _instantiationInfo.GenericTypeDefinition.GetMethods (c_allMembers).Select (m => new MethodOnTypeInstantiation (this, m));
+    }
+
+    private IEnumerable<PropertyOnTypeInstantiation> CreateProperties ()
+    {
+      return _instantiationInfo.GenericTypeDefinition.GetProperties (c_allMembers).Select (CreateProperty);
+    }
+
+    private IEnumerable<EventOnTypeInstantiation> CreateEvents ()
+    {
+      return _instantiationInfo.GenericTypeDefinition.GetEvents (c_allMembers).Select (CreateEvent);
+    }
+
+    private PropertyOnTypeInstantiation CreateProperty (PropertyInfo genericProperty)
+    {
+      var mapping = GetGenericMethodToInstantiationMapping();
+      var getMethod = GetMethodOrNull (mapping, genericProperty.GetGetMethod (true));
+      var setMethod = GetMethodOrNull (mapping, genericProperty.GetSetMethod (true));
 
       return new PropertyOnTypeInstantiation (this, genericProperty, getMethod, setMethod);
     }
 
-    private EventOnTypeInstantiation CreateEvent (EventInfo genericEvent, Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping)
+    private EventOnTypeInstantiation CreateEvent (EventInfo genericEvent)
     {
-      var addMethod = GetMethodOrNull (methodMapping, genericEvent.GetAddMethod (true));
-      var removeMethod = GetMethodOrNull (methodMapping, genericEvent.GetRemoveMethod (true));
-      var raiseMethod = GetMethodOrNull (methodMapping, genericEvent.GetRaiseMethod (true));
+      var mapping = GetGenericMethodToInstantiationMapping();
+      var addMethod = GetMethodOrNull (mapping, genericEvent.GetAddMethod (true));
+      var removeMethod = GetMethodOrNull (mapping, genericEvent.GetRemoveMethod (true));
+      var raiseMethod = GetMethodOrNull (mapping, genericEvent.GetRaiseMethod (true));
 
       return new EventOnTypeInstantiation (this, genericEvent, addMethod, removeMethod, raiseMethod);
     }
 
-    private static MethodOnTypeInstantiation GetMethodOrNull (Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping, MethodInfo genericMethod)
+    private Dictionary<MethodInfo, MethodOnTypeInstantiation> GetGenericMethodToInstantiationMapping ()
+    {
+      return _methods.Value.ToDictionary (m => m.MethodOnGenericType);
+    }
+
+    private MethodOnTypeInstantiation GetMethodOrNull (Dictionary<MethodInfo, MethodOnTypeInstantiation> methodMapping, MethodInfo genericMethod)
     {
       return genericMethod != null ? methodMapping[genericMethod] : null;
     }

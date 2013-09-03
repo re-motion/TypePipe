@@ -14,8 +14,8 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Remotion.Collections;
@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   public class MutableTypeCodeGenerator : IMutableTypeCodeGenerator
   {
     private readonly MutableType _mutableType;
+    private readonly IMutableNestedTypeCodeGeneratorFactory _nestedTypeCodeGeneratorFactory;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMemberEmitter _memberEmitter;
@@ -45,6 +46,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     public MutableTypeCodeGenerator (
         MutableType mutableType,
+        IMutableNestedTypeCodeGeneratorFactory nestedTypeCodeGeneratorFactory,
         IReflectionEmitCodeGenerator codeGenerator,
         IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter,
@@ -52,6 +54,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("nestedTypeCodeGeneratorFactory", nestedTypeCodeGeneratorFactory);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
@@ -59,6 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _mutableType = mutableType;
+      _nestedTypeCodeGeneratorFactory = nestedTypeCodeGeneratorFactory;
       _codeGenerator = codeGenerator;
       _emittableOperandProvider = emittableOperandProvider;
       _memberEmitter = memberEmitter;
@@ -75,18 +79,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     {
       EnsureState (0);
 
-      var typeBuilder = _codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProvider);
+      var typeBuilder = DefineType (_codeGenerator, _emittableOperandProvider);
       typeBuilder.RegisterWith (_emittableOperandProvider, _mutableType);
 
       _context = new CodeGenerationContext (_mutableType, typeBuilder, _codeGenerator.DebugInfoGenerator, _emittableOperandProvider);
     }
 
-    public void DefineTypeFacets ()
+    public IEnumerable<IMutableTypeCodeGenerator> CreateNestedTypeGenerators ()
     {
       EnsureState (1);
 
+      foreach (var nestedType in _mutableType.AddedNestedTypes)
+        yield return _nestedTypeCodeGeneratorFactory.Create (_context.TypeBuilder, nestedType);
+    }
+
+    public void DefineTypeFacets ()
+    {
+      EnsureState (2);
+
       if (_mutableType.BaseType != null)
         _context.TypeBuilder.SetParent (_mutableType.BaseType);
+      
       if (_mutableType.MutableTypeInitializer != null)
         _memberEmitter.AddConstructor (_context, _mutableType.MutableTypeInitializer);
 
@@ -114,11 +127,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type CreateType ()
     {
-      EnsureState (2);
+      EnsureState (3);
 
       _context.PostDeclarationsActionManager.ExecuteAllActions();
 
       return _context.TypeBuilder.CreateType();
+    }
+
+    [CLSCompliant (false)]
+    protected virtual ITypeBuilder DefineType (IReflectionEmitCodeGenerator codeGenerator, IEmittableOperandProvider emittableOperandProvider)
+    {
+      return codeGenerator.DefineType (_mutableType.FullName, _mutableType.Attributes, emittableOperandProvider);
     }
 
     private void WireAndAddConstructor (
@@ -132,8 +151,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private void EnsureState (int expectedState)
     {
       if (_state != expectedState)
+      {
         throw new InvalidOperationException (
-            "Methods DeclareType, DefineTypeFacets and CreateType must be called exactly once and in the correct order.");
+            "Methods DeclareType, CreateNestedTypeGenerators, DefineTypeFacets and CreateType must be called exactly once and in the correct order.");
+      }
 
       _state++;
     }

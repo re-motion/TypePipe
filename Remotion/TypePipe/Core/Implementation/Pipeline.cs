@@ -19,6 +19,7 @@ using System;
 using System.Collections.ObjectModel;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -28,16 +29,19 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class Pipeline : IPipeline
   {
+    private readonly PipelineSettings _settings;
     private readonly ITypeCache _typeCache;
     private readonly ICodeManager _codeManager;
     private readonly IReflectionService _reflectionService;
 
-    public Pipeline (ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
     {
+      ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
       ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
 
+      _settings = settings;
       _typeCache = typeCache;
       _codeManager = codeManager;
       _reflectionService = reflectionService;
@@ -46,6 +50,11 @@ namespace Remotion.TypePipe.Implementation
     public string ParticipantConfigurationID
     {
       get { return _typeCache.ParticipantConfigurationID; }
+    }
+
+    public PipelineSettings Settings
+    {
+      get { return _settings; }
     }
 
     public ReadOnlyCollection<IParticipant> Participants
@@ -63,13 +72,13 @@ namespace Remotion.TypePipe.Implementation
       get { return _reflectionService; }
     }
 
-    public T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    public T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class
     {
-      return (T) CreateObject (typeof (T), constructorArguments, allowNonPublicConstructor);
+      return (T) Create (typeof (T), constructorArguments, allowNonPublicConstructor);
     }
 
-    public object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       constructorArguments = constructorArguments ?? ParamList.Empty;
@@ -80,13 +89,23 @@ namespace Remotion.TypePipe.Implementation
       return instance;
     }
 
-    public void PrepareExternalUninitializedObject (object instance)
+    public object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
+    {
+      constructorArguments = constructorArguments ?? ParamList.Empty;
+
+      var constructorCall = _typeCache.GetOrCreateConstructorCall (typeID, constructorArguments.FuncType, allowNonPublicConstructor);
+      var instance = constructorArguments.InvokeFunc (constructorCall);
+
+      return instance;
+    }
+
+    public void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics)
     {
       ArgumentUtility.CheckNotNull ("instance", instance);
 
       var initializableInstance = instance as IInitializableObject;
       if (initializableInstance != null)
-        initializableInstance.Initialize();
+        initializableInstance.Initialize (initializationSemantics);
     }
   }
 }

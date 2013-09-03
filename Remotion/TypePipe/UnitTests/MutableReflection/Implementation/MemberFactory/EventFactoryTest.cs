@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;

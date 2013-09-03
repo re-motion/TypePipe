@@ -14,14 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Collections;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization.Implementation;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 using System.Linq;
 
@@ -32,12 +34,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// </summary>
   public class ProxySerializationEnabler : IProxySerializationEnabler
   {
-    private static readonly MethodInfo s_getObjectDataMetod =
+    private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
+
+    private static readonly ConstructorInfo s_serializationExceptionConstructor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new SerializationException ("message"));
 
     private readonly ISerializableFieldFinder _serializableFieldFinder;
 
@@ -61,7 +66,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var deserializationConstructor = GetDeserializationConstructor (proxyType);
 
       // If the base type implements ISerializable but has no deserialization constructor, we can't implement ISerializable correctly, so
-      // we don't even try. (SerializationParticipant relies on this behavior.)
+      // we don't even try. (ComplexSerializationEnabler relies on this behavior.)
       var needsCustomFieldSerialization =
           serializedFieldMapping.Length != 0 && typeof (ISerializable).IsTypePipeAssignableFrom (proxyType) && deserializationConstructor != null;
 
@@ -90,18 +95,26 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       try
       {
         proxyType
-            .GetOrAddOverride (s_getObjectDataMetod)
+            .GetOrAddImplementation (s_getObjectDataMethod)
             .SetBody (
                 ctx => Expression.Block (
                     typeof (void),
                     new[] { ctx.PreviousBody }.Concat (BuildFieldSerializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
       }
-      catch (NotSupportedException exception)
+      catch (NotSupportedException)
       {
-        throw new NotSupportedException (
-            "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
-            + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.",
-            exception);
+        // Overriding and re-implementation failed because the base implementation is not accessible from the proxy.
+        // Do nothing here; error reporting code will be generated in the ProxySerializationEnabler.
+        // Add an explicit re-implementation that throws exception (instead of simply throwing an exception here).
+        // Reasoning: Users often cannot influence the requested type and do not care about any serialization problem.
+
+        proxyType.AddInterface (typeof (ISerializable), throwIfAlreadyImplemented: false);
+
+        var message = "The requested type implements ISerializable but GetObjectData is not accessible from the proxy. "
+                      + "Make sure that GetObjectData is implemented implicitly (not explicitly).";
+        proxyType.AddExplicitOverride (
+            s_getObjectDataMethod,
+            ctx => Expression.Throw (Expression.New (s_serializationExceptionConstructor, Expression.Constant (message))));
       }
     }
 
@@ -121,26 +134,42 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
                   new[] { ctx.PreviousBody }.Concat (BuildFieldDeserializationExpressions (ctx.This, ctx.Parameters[0], serializedFieldMapping))));
     }
 
-    private static void OverrideOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
+    private void OverrideOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
     {
       try
       {
-        proxyType.GetOrAddOverride (s_onDeserializationMethod)
-                   .SetBody (ctx => Expression.Block (typeof (void), ctx.PreviousBody, Expression.Call (ctx.This, initializationMethod)));
+        proxyType.GetOrAddImplementation (s_onDeserializationMethod)
+                 .SetBody (
+                     ctx => Expression.Block (
+                         typeof (void),
+                         ctx.PreviousBody,
+                         CallInitializationMethod (ctx.This, initializationMethod)));
       }
-      catch (NotSupportedException exception)
+      catch (NotSupportedException)
       {
-        throw new NotSupportedException (
-            "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
-            + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.",
-            exception);
+        // Overriding and re-implementation failed because the base implementation is not accessible from the proxy.
+        // Add an explicit re-implementation that throws exception (instead of simply throwing an exception here).
+        // Reasoning: Users often cannot influence the requested type and do not care about any serialization problem.
+
+        proxyType.AddInterface (typeof (IDeserializationCallback), throwIfAlreadyImplemented: false);
+
+        var message = "The requested type implements IDeserializationCallback but OnDeserialization is not accessible from the proxy. "
+                      + "Make sure that OnDeserialization is implemented implicitly (not explicitly).";
+        proxyType.AddExplicitOverride (
+            s_onDeserializationMethod,
+            ctx => Expression.Throw (Expression.New (s_serializationExceptionConstructor, Expression.Constant (message))));
       }
     }
 
-    private static void ExplicitlyImplementOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
+    private void ExplicitlyImplementOnDeserialization (MutableType proxyType, MethodInfo initializationMethod)
     {
       proxyType.AddInterface (typeof (IDeserializationCallback));
-      proxyType.AddExplicitOverride (s_onDeserializationMethod, ctx => Expression.Call (ctx.This, initializationMethod));
+      proxyType.AddExplicitOverride (s_onDeserializationMethod, ctx => CallInitializationMethod (ctx.This, initializationMethod));
+    }
+
+    private static MethodCallExpression CallInitializationMethod (Expression @this, MethodInfo initializationMethod)
+    {
+      return Expression.Call (@this, initializationMethod, Expression.Constant (InitializationSemantics.Deserialization));
     }
 
     private IEnumerable<Expression> BuildFieldSerializationExpressions (

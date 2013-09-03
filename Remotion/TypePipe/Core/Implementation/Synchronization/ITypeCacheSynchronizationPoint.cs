@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
@@ -27,28 +28,30 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   /// </summary>
   public interface ITypeCacheSynchronizationPoint
   {
+    bool IsAssembledType (Type type);
+
+    AssembledTypeID ExtractTypeID (Type assembledType);
+
     Type GetOrGenerateType (
-        ConcurrentDictionary<object[], Type> types,
-        object[] typeKey,
-        Type requestedType,
+        ConcurrentDictionary<AssembledTypeID, Type> types,
+        AssembledTypeID typeID,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
 
     Delegate GetOrGenerateConstructorCall (
-        ConcurrentDictionary<object[], Delegate> constructorCalls,
-        object[] constructorKey,
-        Type delegateType,
-        bool allowNonPublic,
-        ConcurrentDictionary<object[], Type> types,
-        object[] typeKey,
-        Type requestedType,
+        ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
+        ConstructionKey constructionKey,
+        ConcurrentDictionary<AssembledTypeID, Type> types,
         IDictionary<string, object> participantState,
         IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
 
     void RebuildParticipantState (
-        ConcurrentDictionary<object[], Type> types,
-        IEnumerable<KeyValuePair<object[], Type>> keysToAssembledTypes,
+        ConcurrentDictionary<AssembledTypeID, Type> types,
+        IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,
         IEnumerable<Type> additionalTypes,
         IDictionary<string, object> participantState);
+
+    Type GetOrGenerateAdditionalType (
+        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
   }
 }

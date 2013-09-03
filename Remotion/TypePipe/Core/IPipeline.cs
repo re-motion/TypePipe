@@ -18,6 +18,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
 using Remotion.Reflection;
+using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe
@@ -35,6 +37,11 @@ namespace Remotion.TypePipe
     string ParticipantConfigurationID { get; }
 
     /// <summary>
+    /// Gets the configuration settings of the pipeline.
+    /// </summary>
+    PipelineSettings Settings { get; }
+
+    /// <summary>
     /// Gets the participants used by this <see cref="IPipeline"/> instance.
     /// </summary>
     ReadOnlyCollection<IParticipant> Participants { get; }
@@ -49,14 +56,18 @@ namespace Remotion.TypePipe
     /// </summary>
     IReflectionService ReflectionService { get; }
 
-    T CreateObject<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
-    object CreateObject (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+    T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
+    object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+
+    object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
     /// <summary>
     /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.
-    /// For example, an instance that was created via <see cref="FormatterServices"/>.<see cref="FormatterServices.GetUninitializedObject"/>.
+    /// For example, an instance that was created via <see cref="FormatterServices"/>.<see cref="FormatterServices.GetUninitializedObject"/>
+    /// during deserialization.
     /// </summary>
     /// <param name="instance">The assembled type instance which should be prepared.</param>
-    void PrepareExternalUninitializedObject (object instance);
+    /// <param name="initializationSemantics">The semantics to apply during initialization.</param>
+    void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics);
   }
 }

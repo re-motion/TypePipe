@@ -14,23 +14,25 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization.Implementation;
-using Remotion.TypePipe.UnitTests.Expressions;
-using Remotion.TypePipe.UnitTests.MutableReflection;
+using Remotion.TypePipe.Serialization;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
@@ -155,8 +157,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void MakeSerializable_SerializableType_WithInitializations ()
     {
       StubFilterWithNoSerializedFields();
-      var initMethod = MutableMethodInfoObjectMother.Create (
-          _serializableProxy, returnType: typeof (void), parameters: ParameterDeclaration.None);
+      var initMethod = CreateInitializationMethod (_serializableProxy);
 
       _enabler.MakeSerializable (_serializableProxy, initMethod);
 
@@ -166,7 +167,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = _serializableProxy.AddedMethods.Single();
       Assert.That (method.Name, Is.EqualTo ("System.Runtime.Serialization.IDeserializationCallback.OnDeserialization"));
       Assert.That (method.GetParameters ().Select (p => p.ParameterType), Is.EqualTo (new[] { typeof (object) }));
-      var expectedBody = MethodCallExpression.Call (new ThisExpression (_serializableProxy), initMethod);
+      var expectedBody = MethodCallExpression.Call (
+          new ThisExpression (_serializableProxy), initMethod, Expression.Constant (InitializationSemantics.Deserialization));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -174,8 +176,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void MakeSerializable_DeserializationCallbackType_WithInitializations ()
     {
       StubFilterWithNoSerializedFields();
-      var initMethod = MutableMethodInfoObjectMother.Create (
-          _deserializationCallbackProxy, returnType: typeof (void), parameters: ParameterDeclaration.None);
+      var initMethod = CreateInitializationMethod (_deserializationCallbackProxy);
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_deserializationCallbackProxy, initMethod);
@@ -188,7 +189,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               new ThisExpression (_deserializationCallbackProxy),
               new NonVirtualCallMethodInfoAdapter (baseMethod),
               method.ParameterExpressions.Cast<Expression>()),
-          MethodCallExpression.Call (new ThisExpression (_deserializationCallbackProxy), initMethod));
+          Expression.Call (
+              new ThisExpression (_deserializationCallbackProxy),
+              initMethod,
+              Expression.Constant (InitializationSemantics.Deserialization)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -207,8 +211,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void MakeSerializable_SerializableWithDeserializationCallbackType_WithInitializations ()
     {
       StubFilterWithNoSerializedFields();
-      var initMethod = MutableMethodInfoObjectMother.Create (
-          _serializableInterfaceWithDeserializationCallbackProxy, returnType: typeof (void), parameters: ParameterDeclaration.None);
+      var initMethod = CreateInitializationMethod (_serializableInterfaceWithDeserializationCallbackProxy);
       var baseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((SerializableWithDeserializationCallbackType obj) => obj.OnDeserialization (null));
 
       _enabler.MakeSerializable (_serializableInterfaceWithDeserializationCallbackProxy, initMethod);
@@ -221,7 +224,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
               new ThisExpression (_serializableInterfaceWithDeserializationCallbackProxy),
               new NonVirtualCallMethodInfoAdapter (baseMethod),
               method.ParameterExpressions.Cast<Expression>()),
-          MethodCallExpression.Call (new ThisExpression (_serializableInterfaceWithDeserializationCallbackProxy), initMethod));
+          Expression.Call (
+              new ThisExpression (_serializableInterfaceWithDeserializationCallbackProxy),
+              initMethod,
+              Expression.Constant (InitializationSemantics.Deserialization)));
       ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
@@ -238,27 +244,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The proxy type implements ISerializable but GetObjectData cannot be overridden. "
-        + "Make sure that GetObjectData is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_ISerializable_SerializedFields_CannotOverrideGetObjectData ()
+    public void MakeSerializable_ISerializable_SerializedFields_InaccessibleGetObjectData ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitSerializableInterfaceType), copyCtorsFromBase: true);
       StubFilterWithSerializedFields (proxyType);
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
+
+      var method = proxyType.AddedMethods.Single();
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new SerializationException ("message"));
+      var message = "The requested type implements ISerializable but GetObjectData is not accessible from the proxy. "
+                    + "Make sure that GetObjectData is implemented implicitly (not explicitly).";
+      var expectedBody = Expression.Throw (Expression.New (constructor, Expression.Constant (message)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "The proxy type implements IDeserializationCallback but OnDeserialization cannot be overridden. "
-        + "Make sure that OnDeserialization is implemented implicitly (not explicitly) and virtual.")]
-    public void MakeSerializable_IDeserializationCallback_CannotOverrideGetObjectData ()
+    public void MakeSerializable_IDeserializationCallback_InaccessibleOnDeserialization ()
     {
       var proxyType = MutableTypeObjectMother.Create (typeof (ExplicitDeserializationCallbackType));
-      StubFilterWithNoSerializedFields ();
+      StubFilterWithNoSerializedFields();
 
       _enabler.MakeSerializable (proxyType, _someInitializationMethod);
+
+      var method = proxyType.AddedMethods.Single();
+      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new SerializationException ("message"));
+      var message = "The requested type implements IDeserializationCallback but OnDeserialization is not accessible from the proxy. "
+                    + "Make sure that OnDeserialization is implemented implicitly (not explicitly).";
+      var expectedBody = Expression.Throw (Expression.New (constructor, Expression.Constant (message)));
+      ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, method.Body);
     }
 
     [Test]
@@ -283,6 +297,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _serializableFieldFinderMock
           .Stub (stub => stub.GetSerializableFieldMapping (Arg<IEnumerable<FieldInfo>>.Is.Anything))
           .Return (new[] { Tuple.Create<string, FieldInfo> ("someField", MutableFieldInfoObjectMother.Create (declaringType)) });
+    }
+
+    private MutableMethodInfo CreateInitializationMethod (MutableType declaringType)
+    {
+      return MutableMethodInfoObjectMother.Create(
+          declaringType, returnType: typeof(void), parameters: new[] { ParameterDeclarationObjectMother.Create(typeof(InitializationSemantics)) });
     }
 
     public class SomeType { }

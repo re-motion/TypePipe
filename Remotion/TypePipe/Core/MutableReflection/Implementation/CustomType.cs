@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   [DebuggerDisplay ("{ToDebugString(),nq}")]
   public abstract class CustomType : Type, ICustomAttributeDataProvider
   {
-    private readonly IMemberSelector _memberSelector;
+    private readonly IMemberSelector _memberSelector = new MemberSelector (new BindingFlagsEvaluator());
 
     private readonly string _name;
     private readonly string _namespace;
@@ -51,21 +51,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private Type _baseType;
 
     protected CustomType (
-        IMemberSelector memberSelector,
         string name,
         string @namespace,
         TypeAttributes attributes,
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
       // Generic type definition may be null (for non-generic types and generic type definitions).
       ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
 
-      _memberSelector = memberSelector;
       _name = name;
       _namespace = @namespace;
       _attributes = attributes;
@@ -77,12 +73,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public abstract IEnumerable<ICustomAttributeData> GetCustomAttributeData ();
 
-    protected abstract IEnumerable<Type> GetAllInterfaces ();
-    protected abstract IEnumerable<FieldInfo> GetAllFields ();
-    protected abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
-    protected abstract IEnumerable<MethodInfo> GetAllMethods ();
-    protected abstract IEnumerable<PropertyInfo> GetAllProperties ();
-    protected abstract IEnumerable<EventInfo> GetAllEvents ();
+    public abstract IEnumerable<Type> GetAllNestedTypes ();
+    public abstract IEnumerable<Type> GetAllInterfaces ();
+    public abstract IEnumerable<FieldInfo> GetAllFields ();
+    public abstract IEnumerable<ConstructorInfo> GetAllConstructors ();
+    public abstract IEnumerable<MethodInfo> GetAllMethods ();
+    public abstract IEnumerable<PropertyInfo> GetAllProperties ();
+    public abstract IEnumerable<EventInfo> GetAllEvents ();
 
     protected void SetDeclaringType (Type declaringType)
     {
@@ -97,19 +94,28 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _baseType = baseType;
     }
 
+    // ReSharper disable AssignNullToNotNullAttribute
     public override Assembly Assembly
     {
       get { return null; }
     }
+    // ReSharper restore AssignNullToNotNullAttribute
 
+    // ReSharper disable AssignNullToNotNullAttribute
     public override Module Module
     {
       get { return null; }
     }
+    // ReSharper restore AssignNullToNotNullAttribute
 
     public override Type DeclaringType
     {
       get { return _declaringType; }
+    }
+
+    public override MemberTypes MemberType
+    {
+      get { return _declaringType == null ? MemberTypes.TypeInfo : MemberTypes.NestedType; }
     }
 
     public override Type BaseType
@@ -139,7 +145,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           name.Append ('.');
         }
 
-        name.Append (SeparatedStringBuilder.Build ("+", this.CreateSequence<Type> (x => x.DeclaringType).Reverse(), t => t.Name));
+        var declaringTypes = this.CreateSequence<Type> (x => x.DeclaringType).Reverse();
+        name.Append (SeparatedStringBuilder.Build ("+", declaringTypes, t => t.Name));
 
         if (IsGenericType)
         {
@@ -225,12 +232,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type MakeByRefType ()
     {
-      return new ByRefType (this, _memberSelector);
+      return new ByRefType (this);
     }
 
     public override Type MakeArrayType ()
     {
-      return new VectorType (this, _memberSelector);
+      return new VectorType (this);
     }
 
     public override Type MakeArrayType (int rank)
@@ -238,7 +245,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (rank <= 0)
         throw new ArgumentOutOfRangeException ("rank", "Array rank must be greater than zero.");
 
-      return new MultiDimensionalArrayType (this, rank, _memberSelector);
+      return new MultiDimensionalArrayType (this, rank);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (bool inherit)
@@ -263,6 +270,23 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("attributeType", attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
+    }
+
+    public override Type[] GetNestedTypes(BindingFlags bindingAttr)
+    {
+      return _memberSelector.SelectTypes (GetAllNestedTypes(), bindingAttr).ToArray();
+    }
+
+    public override Type GetNestedType(string name, BindingFlags bindingAttr)
+    {
+      // TODO 4744
+      // When we implement this we need to use a "NestedTypeOnTypeInstantiation" similiar to othe other MemberXXXOnTypeInstantiation.
+      // Note that a generic type definition is not instantiated (at least not fully) and should "stay" a generic type definition.
+      // See MethodOnTypeInstantiation constructor and GetGenericMethodDefinition. (Should work similiar for NestedTypeOnTypeInstantiation).
+      // Create an integration test for this!
+      ArgumentUtility.CheckNotNullOrEmpty("name", name);
+
+      return _memberSelector.SelectSingleType (GetAllNestedTypes(), bindingAttr, name);
     }
 
     public override Type[] GetInterfaces ()
@@ -300,6 +324,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo[] GetMethods (BindingFlags bindingAttr)
     {
+      // Performance optimization.
+      var allBindingFlags = (BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+      if (bindingAttr == allBindingFlags)
+        return GetAllMethods().ToArray();
+
       return _memberSelector.SelectMethods (GetAllMethods(), bindingAttr, this).ToArray();
     }
 
@@ -443,22 +472,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override MemberInfo[] GetMember (string name, MemberTypes type, BindingFlags bindingAttr)
     {
       return new MemberInfo[0]; // Needed for GetMember(..) - virtual method check
-    }
-
-    public override Type[] GetNestedTypes (BindingFlags bindingAttr)
-    {
-      return new Type[0]; // Needed for virtual method check
-    }
-
-    public override Type GetNestedType (string name, BindingFlags bindingAttr)
-    {
-      // TODO 4744
-      // When we implement this we need to use a "NestedTypeOnTypeInstantiation" similiar to othe other MemberXXXOnTypeInstantiation.
-      // Note that a generic type definition is not instantiated (at least not fully) and should "stay" a generic type definition.
-      // See MethodOnTypeInstantiation constructor and GetGenericMethodDefinition. (Should work similiar for NestedTypeOnTypeInstantiation).
-      // Create an integration test for this!
-
-      throw new NotImplementedException ();
     }
 
     #endregion

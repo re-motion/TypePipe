@@ -39,6 +39,18 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
+    public IEnumerable<Type> SelectTypes(IEnumerable<Type> types, BindingFlags bindingAttr)
+    {
+      ArgumentUtility.CheckNotNull("types", types);
+
+      return SelectTypes (types, bindingAttr, null);
+    }
+
+    private IEnumerable<Type> SelectTypes(IEnumerable<Type> types, BindingFlags bindingAttr, Type declaringType)
+    {
+      return FilterByFlags(types, bindingAttr, null, t => _bindingFlagsEvaluator.HasRightAttributes(t.Attributes, bindingAttr));
+    }
+
     public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, Type declaringType)
     {
       ArgumentUtility.CheckNotNull ("fields", fields);
@@ -72,6 +84,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       Func<EventInfo, bool> predicate = e => _bindingFlagsEvaluator.HasRightAttributes (e.GetAddMethod (true).Attributes, bindingAttr);
       return FilterByFlags (events, bindingAttr, declaringType, predicate);
+    }
+
+    public Type SelectSingleType (IEnumerable<Type> types, BindingFlags bindingAttr, string name)
+    {
+      ArgumentUtility.CheckNotNull("types", types);
+      ArgumentUtility.CheckNotNullOrEmpty("name", name);
+
+      return SelectSingle (types, name, bindingAttr, null, SelectTypes, "nested type");
     }
 
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType)

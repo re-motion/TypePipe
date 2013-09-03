@@ -41,16 +41,12 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private ReadOnlyCollection<Type> _constraints = EmptyTypes.ToList().AsReadOnly();
 
     public MutableGenericParameter (
-        IMemberSelector memberSelector,
         int position,
         string name,
         string @namespace,
         GenericParameterAttributes genericParameterAttributes)
-        : base (memberSelector, name, @namespace, attributes: TypeAttributes.Public, genericTypeDefinition: null, typeArguments: EmptyTypes)
+        : base (name, @namespace, attributes: TypeAttributes.Public, genericTypeDefinition: null, typeArguments: EmptyTypes)
     {
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Namespace may be null.
       Assertion.IsTrue (position >= 0);
 
       _position = position;
@@ -148,41 +144,46 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       return _customAttributeContainer.AddedCustomAttributes.Cast<ICustomAttributeData>();
     }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
+    public override IEnumerable<Type> GetAllNestedTypes ()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override IEnumerable<Type> GetAllInterfaces ()
     {
       Assertion.IsNotNull (BaseType);
 
       return _constraints.Where (c => c.IsInterface).Concat (BaseType.GetInterfaces()).Distinct();
     }
 
-    protected override IEnumerable<FieldInfo> GetAllFields ()
+    public override IEnumerable<FieldInfo> GetAllFields ()
     {
       Assertion.IsNotNull (BaseType);
 
       return BaseType.GetFields (c_allMembers);
     }
 
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
       if (_genericParameterAttributes.IsSet (GenericParameterAttributes.DefaultConstructorConstraint))
         yield return new GenericParameterDefaultConstructor (this);
     }
 
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    public override IEnumerable<MethodInfo> GetAllMethods ()
     {
       Assertion.IsNotNull (BaseType);
 
       return BaseType.GetMethods (c_allMembers);
     }
 
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
     {
       Assertion.IsNotNull (BaseType);
 
       return BaseType.GetProperties (c_allMembers);
     }
 
-    protected override IEnumerable<EventInfo> GetAllEvents ()
+    public override IEnumerable<EventInfo> GetAllEvents ()
     {
       Assertion.IsNotNull (BaseType);
 

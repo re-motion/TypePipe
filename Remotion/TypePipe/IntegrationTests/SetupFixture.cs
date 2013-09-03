@@ -21,6 +21,7 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using System.Linq;
+using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.Utilities;
 
@@ -63,6 +64,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
       CopyModuleToOutputDirectory (GetType().Assembly.ManifestModule);
       CopyModuleToOutputDirectory (typeof (Closure).Assembly.ManifestModule);
+      CopyModuleToOutputDirectory (typeof (FlatValueStub).Assembly.ManifestModule);
     }
 
     private void CopyModuleToOutputDirectory (Module copiedModule)

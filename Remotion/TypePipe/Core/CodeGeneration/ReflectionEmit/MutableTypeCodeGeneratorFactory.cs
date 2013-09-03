@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection;
@@ -64,8 +65,17 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private IMutableTypeCodeGenerator CreateGenerator (
         MutableType mutableType, IEmittableOperandProvider emittableOperandProvider, IMemberEmitter memberEmitter)
     {
+      var nestedTypeCodeGeneratorFactory = new MutableNestedTypeCodeGeneratorFactory (
+          _codeGenerator, emittableOperandProvider, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
+
       return new MutableTypeCodeGenerator (
-          mutableType, _codeGenerator, emittableOperandProvider, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
+          mutableType,
+          nestedTypeCodeGeneratorFactory,
+          _codeGenerator,
+          emittableOperandProvider,
+          memberEmitter,
+          _initializationBuilder,
+          _proxySerializationEnabler);
     }
   }
 }

@@ -34,6 +34,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void HasRightAttributes_TypeAttributes ()
+    {
+      Assert.That (_bindingFlagsEvaluator.HasRightAttributes (TypeAttributes.NestedPublic, BindingFlags.Public), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightAttributes (TypeAttributes.NestedPublic, BindingFlags.NonPublic), Is.False);
+    }
+
+    [Test]
     public void HasRightAttributes_MethodAttributes ()
     {
       Assert.That (_bindingFlagsEvaluator.HasRightAttributes (MethodAttributes.Public, BindingFlags.Public | BindingFlags.Instance), Is.True);
@@ -65,6 +72,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That ((int) FieldAttributes.PrivateScope, Is.EqualTo ((int) MethodAttributes.PrivateScope));
 
       Assert.That ((int) FieldAttributes.Static, Is.EqualTo ((int) MethodAttributes.Static));
+    }
+
+    [Test]
+    public void HasRightVisibility_Types_Public ()
+    {
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedPublic, BindingFlags.Public), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedFamORAssem, BindingFlags.Public), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedFamily, BindingFlags.Public), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedAssembly, BindingFlags.Public), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedFamANDAssem, BindingFlags.Public), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedPrivate, BindingFlags.Public), Is.False);
+    }
+
+    [Test]
+    public void HasRightVisibility_Types_NonPublic ()
+    {
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedPublic, BindingFlags.NonPublic), Is.False);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedFamORAssem, BindingFlags.NonPublic), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedFamily, BindingFlags.NonPublic), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedAssembly, BindingFlags.NonPublic), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedFamANDAssem, BindingFlags.NonPublic), Is.True);
+      Assert.That (_bindingFlagsEvaluator.HasRightVisibility (TypeAttributes.NestedPrivate, BindingFlags.NonPublic), Is.True);
     }
 
     [Test]

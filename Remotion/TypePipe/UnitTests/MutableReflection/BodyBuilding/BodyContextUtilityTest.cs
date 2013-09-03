@@ -17,8 +17,9 @@
 using System;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding

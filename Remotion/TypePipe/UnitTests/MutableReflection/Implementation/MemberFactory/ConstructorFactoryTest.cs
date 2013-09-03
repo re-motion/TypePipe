@@ -19,11 +19,13 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Remotion.TypePipe.UnitTests.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {

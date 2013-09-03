@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 

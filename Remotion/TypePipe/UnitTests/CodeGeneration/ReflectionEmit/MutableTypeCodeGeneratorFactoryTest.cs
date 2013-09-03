@@ -14,11 +14,12 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using Remotion.Development.UnitTesting.Enumerables;
 using System.Linq;
@@ -38,10 +39,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _memberEmitterFactoryMock = MockRepository.GenerateStrictMock<IMemberEmitterFactory> ();
+      _memberEmitterFactoryMock = MockRepository.GenerateStrictMock<IMemberEmitterFactory>();
       _codeGeneratorMock = MockRepository.GenerateStrictMock<IReflectionEmitCodeGenerator>();
-      _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder> ();
-      _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler> ();
+      _initializationBuilderMock = MockRepository.GenerateStrictMock<IInitializationBuilder>();
+      _proxySerializationEnablerMock = MockRepository.GenerateStrictMock<IProxySerializationEnabler>();
 
       _factory = new MutableTypeCodeGeneratorFactory (
           _memberEmitterFactoryMock, _codeGeneratorMock, _initializationBuilderMock, _proxySerializationEnablerMock);

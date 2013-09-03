@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.MutableReflection
     private readonly MutableParameterInfo _returnParameter;
     private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
     private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    // Note: If this is made mutable, MutableType's _hasAbstractMethods cache invalidation needs to be updated.
     private readonly MethodInfo _baseMethod;
 
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
@@ -79,6 +80,9 @@ namespace Remotion.TypePipe.MutableReflection
       _baseMethod = baseMethod;
       _body = body;
     }
+
+    public event EventHandler<BodyChangedEventArgs> BodyChanged;
+    public event EventHandler<ExplicitBaseDefinitionsAddedEventArgs> ExplicitBaseDefinitionAdded;
 
     public MutableType MutableDeclaringType
     {
@@ -162,7 +166,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override MethodInfo GetBaseDefinition ()
     {
-      return _baseMethod != null ? _baseMethod.GetBaseDefinition() : this;
+      return _baseMethod != null ? MethodBaseDefinitionCache.GetBaseDefinition (_baseMethod) : this;
     }
 
     /// <summary>
@@ -193,7 +197,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (!overriddenMethodBaseDefinition.DeclaringType.IsTypePipeAssignableFrom (DeclaringType))
         throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
 
-      if (overriddenMethodBaseDefinition.GetBaseDefinition () != overriddenMethodBaseDefinition)
+      if (MethodBaseDefinitionCache.GetBaseDefinition (overriddenMethodBaseDefinition) != overriddenMethodBaseDefinition)
       {
         throw new ArgumentException (
             "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)",
@@ -205,6 +209,8 @@ namespace Remotion.TypePipe.MutableReflection
         throw new InvalidOperationException ("The given method has already been added to the list of explicit base definitions.");
 
       _addedExplicitBaseDefinitions.Add (overriddenMethodBaseDefinition);
+      if (ExplicitBaseDefinitionAdded != null)
+        ExplicitBaseDefinitionAdded (this, new ExplicitBaseDefinitionsAddedEventArgs (overriddenMethodBaseDefinition));
     }
 
     public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
@@ -215,7 +221,11 @@ namespace Remotion.TypePipe.MutableReflection
           MutableDeclaringType, IsStatic, _parameterExpressions, _genericParameters.Cast<Type>(), ReturnType, _baseMethod, _body);
       var newBody = BodyProviderUtility.GetTypedBody (ReturnType, bodyProvider, context);
 
+      var oldBody = _body;
       _body = newBody;
+
+      if (BodyChanged != null)
+        BodyChanged (this, new BodyChangedEventArgs (oldBody, _body));
     }
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)

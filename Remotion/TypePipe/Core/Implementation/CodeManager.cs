@@ -62,16 +62,22 @@ namespace Remotion.TypePipe.Implementation
 
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
+      // Assembly directory may be null (to use the current directory).
+
       _codeManagerSynchronizationPoint.SetAssemblyDirectory (assemblyDirectory);
     }
 
     public void SetAssemblyNamePattern (string assemblyNamePattern)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
+
       _codeManagerSynchronizationPoint.SetAssemblyNamePattern (assemblyNamePattern);
     }
 
     public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
+      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
+
       var participantConfigurationID = _typeCache.ParticipantConfigurationID;
       var typePipeAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { participantConfigurationID });
       var attributes = assemblyAttributes.Concat (typePipeAttribute);

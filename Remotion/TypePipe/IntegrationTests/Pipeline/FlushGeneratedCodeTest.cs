@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var assembly = AssemblyLoader.LoadWithoutLocking (path);
       var attributes = assembly.GetCustomAttributes (inherit: true);
-      Assert.That (attributes, Has.Length.EqualTo (2));
+      Assert.That (attributes, Has.Length.GreaterThan (2)); // RemotionPipelineFactoryImplementation also adds [NonApplicationAssembly].
 
       var typePipeAttribute = attributes.OfType<TypePipeAssemblyAttribute>().Single();
       var obsoleteAttribute = attributes.OfType<ObsoleteAttribute>().Single();
@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (codeManager.AssemblyDirectory, Is.Null); // Current directory.
       Assert.That (codeManager.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
 
-      pipeline.CreateObject<RequestedType>();
+      pipeline.Create<RequestedType>();
       var path = codeManager.FlushCodeToDisk();
 
       var counter = (int) PrivateInvoke.GetNonPublicStaticField (typeof (ReflectionEmitCodeGenerator), "s_counter");

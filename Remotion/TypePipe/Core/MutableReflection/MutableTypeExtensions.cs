@@ -30,8 +30,19 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public static class MutableTypeExtensions
   {
+    public static void AddTypeInitialization (this MutableType declaringType, Expression typeInitialization)
+    {
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull ("typeInitialization", typeInitialization);
+
+      if (declaringType.MutableTypeInitializer == null)
+        declaringType.AddTypeInitializer (ctx => typeInitialization);
+      else
+        declaringType.MutableTypeInitializer.SetBody (ctx => Expression.Block (ctx.PreviousBody, typeInitialization));
+    }
+
     public static MutableMethodInfo AddMethod (
-        this MutableType mutableType,
+        this MutableType declaringType,
         string name,
         MethodAttributes attributes = MethodAttributes.Public,
         Type returnType = null,
@@ -43,39 +54,39 @@ namespace Remotion.TypePipe.MutableReflection
       parameters = parameters ?? ParameterDeclaration.None;
       // Body provider may be null (for abstract methods).
 
-      return mutableType.AddMethod (name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
+      return declaringType.AddMethod (name, attributes, GenericParameterDeclaration.None, ctx => returnType, ctx => parameters, bodyProvider);
     }
 
     public static MutableMethodInfo AddMethod (
-        this MutableType mutableType,
+        this MutableType declaringType,
         string name,
         MethodAttributes attributes,
         MethodDeclaration methodDeclaration,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("methodDeclaration", methodDeclaration);
       // Body provider may be null (for abstract methods).
 
       var md = methodDeclaration;
-      return mutableType.AddMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
+      return declaringType.AddMethod (name, attributes, md.GenericParameters, md.ReturnTypeProvider, md.ParameterProvider, bodyProvider);
     }
 
     public static MutableMethodInfo AddAbstractMethod (
-        this MutableType mutableType,
+        this MutableType declaringType,
         string name,
         MethodAttributes attributes = MethodAttributes.Public,
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       returnType = returnType ?? typeof (void);
       parameters = parameters ?? ParameterDeclaration.None;
 
       var abstractAttributes = attributes.Set (MethodAttributes.Abstract | MethodAttributes.Virtual);
-      return mutableType.AddMethod (name, abstractAttributes, returnType, parameters, bodyProvider: null);
+      return declaringType.AddMethod (name, abstractAttributes, returnType, parameters, bodyProvider: null);
     }
   }
 }

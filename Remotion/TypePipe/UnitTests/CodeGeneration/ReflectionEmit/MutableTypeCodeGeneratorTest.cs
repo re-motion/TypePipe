@@ -14,22 +14,26 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Collections;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.Expressions;
 using Remotion.TypePipe.UnitTests.MutableReflection;
 using Rhino.Mocks;
 using System.Linq;
+using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -37,8 +41,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public class MutableTypeCodeGeneratorTest
   {
     private MockRepository _mockRepository;
-
+    
     private MutableType _mutableType;
+    private IMutableNestedTypeCodeGeneratorFactory _nestedTypeCodeGeneratorFactoryMock;
     private IReflectionEmitCodeGenerator _codeGeneratorMock;
     private IEmittableOperandProvider _emittableOperandProviderMock;
     private IMemberEmitter _memberEmitterMock;
@@ -56,11 +61,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private Tuple<FieldInfo, MethodInfo> _fakeInitializationMembers;
 
     [SetUp]
-    public void SetUp ()
+    public virtual void SetUp ()
     {
       _mockRepository = new MockRepository();
 
       _mutableType = MutableTypeObjectMother.Create();
+      _nestedTypeCodeGeneratorFactoryMock = _mockRepository.StrictMock<IMutableNestedTypeCodeGeneratorFactory>();
       _codeGeneratorMock = _mockRepository.StrictMock<IReflectionEmitCodeGenerator>();
       _emittableOperandProviderMock = _mockRepository.StrictMock<IEmittableOperandProvider> ();
       _memberEmitterMock = _mockRepository.StrictMock<IMemberEmitter>();
@@ -68,11 +74,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _proxySerializationEnablerMock = _mockRepository.StrictMock<IProxySerializationEnabler>();
 
       _generator = new MutableTypeCodeGenerator (
-          _mutableType, _codeGeneratorMock, _emittableOperandProviderMock, _memberEmitterMock, _initializationBuilderMock, _proxySerializationEnablerMock);
+          _mutableType,
+          _nestedTypeCodeGeneratorFactoryMock,
+          _codeGeneratorMock,
+          _emittableOperandProviderMock,
+          _memberEmitterMock,
+          _initializationBuilderMock,
+          _proxySerializationEnablerMock);
 
       _typeBuilderMock = _mockRepository.StrictMock<ITypeBuilder>();
       _debugInfoGeneratorMock = _mockRepository.StrictMock<DebugInfoGenerator>();
-      
+
       _fakeInitializationField = ReflectionObjectMother.GetSomeField();
       _fakeInitializationMethod = ReflectionObjectMother.GetSomeMethod();
       _fakeInitializationMembers = Tuple.Create (_fakeInitializationField, _fakeInitializationMethod);
@@ -85,7 +97,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void DeclareType ()
+    public virtual void DeclareType ()
     {
       using (_mockRepository.Ordered())
       {
@@ -106,6 +118,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (context.TypeBuilder, Is.SameAs (_typeBuilderMock));
       Assert.That (context.DebugInfoGenerator, Is.SameAs (_debugInfoGeneratorMock));
       Assert.That (context.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
+    }
+
+    [Test]
+    public void CreateNestedTypeGenerators ()
+    {
+      var nestedType = _mutableType.AddNestedType();
+      PopulateContext (_generator, 1);
+
+      var nestedCodeGeneratorStub = _mockRepository.Stub<IMutableTypeCodeGenerator>();
+      _nestedTypeCodeGeneratorFactoryMock.Expect (mock => mock.Create (_typeBuilderMock, nestedType)).Return (nestedCodeGeneratorStub);
+      _mockRepository.ReplayAll();
+
+      var result = _generator.CreateNestedTypeGenerators().ForceEnumeration();
+
+      _mockRepository.VerifyAll();
+      Assert.That (result, Is.EqualTo (new[] { nestedCodeGeneratorStub }));
     }
 
     [Test]
@@ -130,9 +158,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       using (_mockRepository.Ordered())
       {
-        var context = PopulateContext (_generator, 1);
+        var context = PopulateContext (_generator, 2);
 
         _typeBuilderMock.Expect (mock => mock.SetParent (_mutableType.BaseType));
+
         _memberEmitterMock.Expect (mock => mock.AddConstructor (context, typeInitializer));
 
         _initializationBuilderMock.Expect (mock => mock.CreateInitializationMembers (_mutableType)).Return (_fakeInitializationMembers);
@@ -157,16 +186,22 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
-    public void DefineTypeFacet_NoParent_NoTypeInitializer_NoInitializations ()
+    public void DefineTypeFacet_NoParent_NoNestedTypes_NoTypeInitializer_NoInitializations ()
     {
       var mutableType = MutableTypeObjectMother.CreateInterface();
       Assert.That (mutableType.BaseType, Is.Null);
       Assert.That (mutableType.MutableTypeInitializer, Is.Null);
-      Assert.That (mutableType.Initializations, Is.Empty);
+      Assert.That (mutableType.Initialization.Expressions, Is.Empty);
 
       var generator = new MutableTypeCodeGenerator (
-          mutableType, _codeGeneratorMock, _emittableOperandProviderMock, _memberEmitterMock, _initializationBuilderMock, _proxySerializationEnablerMock);
-      PopulateContext (generator, 1);
+          mutableType,
+          _nestedTypeCodeGeneratorFactoryMock,
+          _codeGeneratorMock,
+          _emittableOperandProviderMock,
+          _memberEmitterMock,
+          _initializationBuilderMock,
+          _proxySerializationEnablerMock);
+      PopulateContext (generator, 2);
 
       // No call to SetParent because of null BaseType.
       // No call to AddConstructor because of null TypeInitializer.
@@ -182,7 +217,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateType ()
     {
-      var context = PopulateContext (_generator, 2);
+      var context = PopulateContext (_generator, 3);
       bool wasCalled = false;
       context.PostDeclarationsActionManager.AddAction (() => wasCalled = true);
       var fakeType = ReflectionObjectMother.GetSomeType();
@@ -208,17 +243,31 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       codeGeneratorStub.Stub (stub => stub.DebugInfoGenerator).Return (_debugInfoGeneratorMock);
 
       var generator = new MutableTypeCodeGenerator (
-          _mutableType, codeGeneratorStub, emittableOperandProviderStub, memberEmitterStub, initializationBuilderStub, proxySerializationEnablerStub);
+          _mutableType,
+          _nestedTypeCodeGeneratorFactoryMock,
+          codeGeneratorStub,
+          emittableOperandProviderStub,
+          memberEmitterStub,
+          initializationBuilderStub,
+          proxySerializationEnablerStub);
 
       CheckThrowsForInvalidOperation (generator.DefineTypeFacets);
+      CheckThrowsForInvalidOperation (() => generator.CreateNestedTypeGenerators().ForceEnumeration());
       CheckThrowsForInvalidOperation (() => generator.CreateType());
       Assert.That (() => generator.DeclareType(), Throws.Nothing);
 
       CheckThrowsForInvalidOperation (generator.DeclareType);
+      CheckThrowsForInvalidOperation (generator.DefineTypeFacets);
+      CheckThrowsForInvalidOperation (() => generator.CreateType());
+      Assert.That (() => generator.CreateNestedTypeGenerators().ForceEnumeration(), Throws.Nothing);
+
+      CheckThrowsForInvalidOperation (generator.DeclareType);
+      CheckThrowsForInvalidOperation (() => generator.CreateNestedTypeGenerators().ForceEnumeration());
       CheckThrowsForInvalidOperation (() => generator.CreateType());
       Assert.That (() => generator.DefineTypeFacets(), Throws.Nothing);
 
       CheckThrowsForInvalidOperation (generator.DeclareType);
+      CheckThrowsForInvalidOperation (() => generator.CreateNestedTypeGenerators().ForceEnumeration());
       CheckThrowsForInvalidOperation (generator.DefineTypeFacets);
       Assert.That (() => generator.CreateType(), Throws.Nothing);
     }
@@ -246,7 +295,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (
           () => action(),
           Throws.InvalidOperationException.With.Message.EqualTo (
-              "Methods DeclareType, DefineTypeFacets and CreateType must be called exactly once and in the correct order."));
+              "Methods DeclareType, CreateNestedTypeGenerators, DefineTypeFacets and CreateType must be called exactly once and in the correct order."));
     }
   }
 }

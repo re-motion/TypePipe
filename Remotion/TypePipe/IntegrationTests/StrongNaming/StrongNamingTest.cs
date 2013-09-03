@@ -24,7 +24,6 @@ using JetBrains.Annotations;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.Configuration;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
@@ -287,7 +286,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
           + "Strong-naming is enabled but a participant used the type '" + unsignedType.FullName + "' which comes from the unsigned assembly "
           + "'" + unsignedType.Assembly.GetName().Name + "'.\r\n"
           + @"The following participants are currently configured and may have caused the error: 'ParticipantStub'.";
-      Assert.That (() => objectFactory.CreateObject (requestedType), Throws.InvalidOperationException.With.Message.EqualTo (message));
+      Assert.That (() => objectFactory.Create (requestedType), Throws.InvalidOperationException.With.Message.EqualTo (message));
     }
 
     private void CheckStrongNamingExpressionException (Expression methodBody)
@@ -297,15 +296,12 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 
     private IPipeline CreateObjectFactoryForStrongNaming (IParticipant participant, bool forceStrongNaming, string keyFilePath = null)
     {
-      var configurationProvider = new AppConfigBasedConfigurationProvider();
-      var configSection = new TypePipeConfigurationSection();
-      var config = forceStrongNaming
-                       ? string.Format ("<typePipe><forceStrongNaming keyFilePath=\"{0}\" /></typePipe>", keyFilePath)
-                       : "<typePipe/>";
-      ConfigurationHelper.DeserializeSection (configSection, config);
-      PrivateInvoke.SetNonPublicField (configurationProvider, "_section", configSection);
-
-      return CreatePipeline (GetType().Name, new[] { participant }, configurationProvider);
+      var settings = PipelineSettings
+          .New()
+          .SetForceStrongNaming (forceStrongNaming)
+          .SetKeyFilePath (keyFilePath)
+          .Build();
+      return CreatePipeline ("StrongNamingTest", settings, participant);
     }
 
     private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)

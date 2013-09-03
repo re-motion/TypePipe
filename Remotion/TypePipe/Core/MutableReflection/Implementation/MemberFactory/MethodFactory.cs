@@ -118,9 +118,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider)
     {
       var genericParameterDeclarations = genericParameters.ConvertToCollection();
-      var memberSelector = new MemberSelector (new BindingFlagsEvaluator());
       var genericParams = genericParameterDeclarations
-          .Select ((p, i) => new MutableGenericParameter (memberSelector, i, p.Name, declaringType.Namespace, p.Attributes)).ToList();
+          .Select ((p, i) => new MutableGenericParameter (i, p.Name, declaringType.Namespace, p.Attributes)).ToList();
 
       var genericParameterContext = new GenericParameterContext (genericParams.Cast<Type>());
       foreach (var paraAndDecl in genericParams.Zip (genericParameterDeclarations, (p, d) => new { Parameter = p, Declaration = d }))
@@ -138,10 +137,19 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         return null;
 
       var baseMethod = _relatedMethodFinder.GetMostDerivedVirtualMethod (name, signature, declaringType.BaseType);
+
       if (baseMethod != null && baseMethod.IsFinal)
       {
         Assertion.IsNotNull (baseMethod.DeclaringType);
         var message = string.Format ("Cannot override final method '{0}.{1}'.", baseMethod.DeclaringType.Name, baseMethod.Name);
+        throw new NotSupportedException (message);
+      }
+
+      if (baseMethod != null && !SubclassFilterUtility.IsVisibleFromSubclass (baseMethod))
+      {
+        Assertion.IsNotNull (baseMethod.DeclaringType);
+        var message = string.Format (
+            "Cannot override method '{0}.{1}' as it is not visible from the proxy.", baseMethod.DeclaringType.Name, baseMethod.Name);
         throw new NotSupportedException (message);
       }
 

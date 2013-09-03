@@ -24,7 +24,6 @@ using Remotion.Diagnostics;
 using Remotion.Logging;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
@@ -54,10 +53,11 @@ namespace Remotion.Development.TypePipe
     [CLSCompliant (false)]
     public DebuggerWorkaroundCodeGenerator (
         IModuleBuilderFactory moduleBuilderFactory,
-        IConfigurationProvider configurationProvider,
+        bool forceStrongNaming,
+        string keyFilePath,
         IDebuggerInterface debuggerInterface,
         int maximumTypesPerAssembly)
-        : base (moduleBuilderFactory, configurationProvider)
+        : base (moduleBuilderFactory, forceStrongNaming, keyFilePath)
     {
       ArgumentUtility.CheckNotNull ("debuggerInterface", debuggerInterface);
       Debug.Assert (maximumTypesPerAssembly > 0);

@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   /// </summary>
   public class MutableMemberFactory : IMutableMemberFactory
   {
+    private readonly NestedTypeFactory _nestedTypeFactory;
     private readonly InitializationFactory _initializationFactory;
     private readonly FieldFactory _fieldFactory;
     private readonly ConstructorFactory _constructorFactory;
@@ -42,6 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     {
       ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
 
+      _nestedTypeFactory = new NestedTypeFactory (new MutableTypeFactory());
       _initializationFactory = new InitializationFactory();
       _fieldFactory = new FieldFactory();
       _constructorFactory = new ConstructorFactory();
@@ -49,6 +51,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       _methodOverrideFactory = new MethodOverrideFactory (relatedMethodFinder, _methodFactory);
       _propertyFactory = new PropertyFactory (_methodFactory);
       _eventFactory = new EventFactory (_methodFactory);
+    }
+
+    public MutableType CreateNestedType (MutableType declaringType, string name, TypeAttributes attributes, Type baseType)
+    {
+      return _nestedTypeFactory.CreateNestedType (declaringType, name, attributes, baseType);
     }
 
     public Expression CreateInitialization (MutableType declaringType, Func<InitializationBodyContext, Expression> initializationProvider)
@@ -91,6 +98,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     public MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated)
     {
       return _methodOverrideFactory.GetOrCreateOverride (declaringType, overriddenMethod, out isNewlyCreated);
+    }
+
+    public MutableMethodInfo GetOrCreateImplementation (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
+    {
+      return _methodOverrideFactory.GetOrCreateImplementation (declaringType, interfaceMethod, out isNewlyCreated);
     }
 
     public MutablePropertyInfo CreateProperty (

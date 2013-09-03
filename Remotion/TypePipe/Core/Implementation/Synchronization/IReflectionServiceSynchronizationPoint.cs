@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
@@ -27,5 +28,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     bool IsAssembledType (Type type);
 
     Type GetRequestedType (Type assembledType);
+
+    AssembledTypeID GetTypeID (Type assembledType);
   }
 }

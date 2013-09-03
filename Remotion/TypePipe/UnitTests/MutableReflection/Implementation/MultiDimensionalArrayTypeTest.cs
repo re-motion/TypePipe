@@ -16,11 +16,9 @@
 // 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
 
@@ -39,9 +37,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       _elementType = CustomTypeObjectMother.Create();
       _rank = 2;
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
 
-      _type = new MultiDimensionalArrayType (_elementType, _rank, memberSelectorMock);
+      _type = new MultiDimensionalArrayType (_elementType, _rank);
     }
 
     [Test]
@@ -71,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
               ".ctor(lowerBound0,length0,lowerBound1,length1), System.Void(System.Int32,System.Int32,System.Int32,System.Int32)",
           };
 
-      var result = _type.Invoke<IEnumerable<ConstructorInfo>> ("GetAllConstructors").Select (c => ArrayTypeBaseTest.NameAndSignatureProvider (c));
+      var result = _type.GetAllConstructors().Select (c => ArrayTypeBaseTest.NameAndSignatureProvider (c));
 
       Assert.That (result, Is.EqualTo (expectedConstructors));
     }

@@ -60,6 +60,7 @@
     <Compile Include="..\..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="Pipeline\AdditionalTypeTest.cs" />
     <Compile Include="Pipeline\CachingTest.cs" />
     <Compile Include="Pipeline\ConcurrencyTest.cs" />
     <Compile Include="Pipeline\FlushGeneratedCodeTest.cs" />
@@ -69,6 +70,8 @@
     <Compile Include="MutableReflection\MakeTypePipeGenericTypeTest.cs" />
     <Compile Include="MutableReflection\MutableTypeMemberSelectionTest.cs" />
     <Compile Include="Pipeline\LoadFlushedCodeTest.cs" />
+    <Compile Include="Pipeline\NoModificationOptimizationTest.cs" />
+    <Compile Include="Pipeline\NonSubclassableTypeTest.cs" />
     <Compile Include="Pipeline\ObjectCreationTest.cs" />
     <Compile Include="Pipeline\ObjectInitializationTest.cs" />
     <Compile Include="Pipeline\ParticipantConfigurationTest.cs" />
@@ -88,6 +91,7 @@
     <Compile Include="TypeAssembly\AddInterfaceTest.cs" />
     <Compile Include="TypeAssembly\AddMethodTest.cs" />
     <Compile Include="TypeAssembly\AddExplicitOverrideTest.cs" />
+    <Compile Include="TypeAssembly\AddNestedTypesTest.cs" />
     <Compile Include="TypeAssembly\AddPropertyTest.cs" />
     <Compile Include="TypeAssembly\ArrayTypeTest.cs" />
     <Compile Include="TypeAssembly\ByReferenceTypeTest.cs" />
@@ -99,12 +103,14 @@
     <Compile Include="TypeAssembly\GenericParameterConversionsTest.cs" />
     <Compile Include="TypeAssembly\GenericParameterMemberAccessTest.cs" />
     <Compile Include="TypeAssembly\InterfaceImplementationTest.cs" />
+    <Compile Include="TypeAssembly\MethodAttributesOnOverrideTest.cs" />
     <Compile Include="TypeAssembly\MethodInstantiationInExpressionTreesTest.cs" />
     <Compile Include="TypeAssembly\MutableTypeInSignaturesTest.cs" />
     <Compile Include="Pipeline\ParticipantStateTest.cs" />
+    <Compile Include="TypeAssembly\ReImplementInterfaceMethodTest.cs" />
     <Compile Include="TypeAssembly\StackSpillerTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblerIntegrationTestBase.cs" />
-    <Compile Include="TypeAssembly\TypeConstantDlrBugTest.cs" />
+    <Compile Include="TypeAssembly\ConstantRuntimeInfosDlrBugTest.cs" />
     <Compile Include="TypeAssembly\TypeInitializerTest.cs" />
     <Compile Include="TypeAssembly\CopyMethodBodyTest.cs" />
     <Compile Include="TypeAssembly\DelegateInstantiationTest.cs" />
@@ -149,6 +155,10 @@
     <ProjectReference Include="..\..\Development\Core\Development.Core.csproj">
       <Project>{B719A305-0493-4C72-88FE-9A2FC6964578}</Project>
       <Name>Development.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Development\TypePipe\Development.TypePipe.csproj">
+      <Project>{f6faf727-9405-4bcc-9153-803f73853e67}</Project>
+      <Name>Development.TypePipe</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core\TypePipe.Core.csproj">
       <Project>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</Project>

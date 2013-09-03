@@ -17,6 +17,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Dlr.Ast.Compiler;
@@ -26,6 +27,7 @@ using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 {
@@ -60,10 +62,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       var emittableValue = GetEmittableValue (node.Value);
       if (emittableValue != node.Value)
       {
-        if (!node.Type.IsInstanceOfType (emittableValue))
-          throw NewNotSupportedExceptionWithDescriptiveMessage (node);
-
-        return Expression.Constant (emittableValue, node.Type);
+        var emittableType = GetEmittableType (node.Type, emittableValue.GetType());
+        return Expression.Constant (emittableValue, emittableType);
       }
 
       return base.VisitConstant (node);
@@ -183,24 +183,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
       return value;
     }
 
-    private NotSupportedException NewNotSupportedExceptionWithDescriptiveMessage (ConstantExpression node)
+    private Type GetEmittableType (Type originalType, Type emittableValueType)
     {
-      var message =
-          string.Format (
-              "It is not supported to have a ConstantExpression of type '{0}' because instances of '{0}' exist only at code generation "
-              + "time, not at runtime." + Environment.NewLine
-              + "To embed a reference to a generated method or type, construct the ConstantExpression as follows: "
-              + "Expression.Constant (myMutableMethod, typeof (MethodInfo)) or "
-              + "Expression.Constant (myProxyType, typeof (Type))." + Environment.NewLine
-              + "To embed a reference to another reflection object, embed a method call to the Reflection APIs, like this: " + Environment.NewLine
-              + "Expression.Call (" + Environment.NewLine
-              + "    Expression.Constant (myMutableField.DeclaringType, typeof (Type))," + Environment.NewLine
-              + "    typeof (Type).GetMethod (\"GetField\", new[] {{ typeof (string), typeof (BindingFlags) }})," + Environment.NewLine
-              + "    Expression.Constant (myMutableField.Name)," + Environment.NewLine
-              + "    Expression.Constant (BindingFlags.NonPublic | BindingFlags.Instance)). (BindingFlags depend on the visibility of the member.)",
-              node.Type.Name);
-
-      return new NotSupportedException (message);
+      // Get most-derived base of the two types.
+      return emittableValueType.CreateSequence (t => t.BaseType).First (t => t.IsTypePipeAssignableFrom (originalType));
     }
 
     private Expression GetAdaptedConvertExpression (UnaryExpression node)

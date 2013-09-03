@@ -16,9 +16,10 @@
 // 
 
 using System;
+using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation.Synchronization;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -30,14 +31,18 @@ namespace Remotion.TypePipe.Implementation
   {
     private readonly IReflectionServiceSynchronizationPoint _reflectionServiceSynchronizationPoint;
     private readonly ITypeCache _typeCache;
+    private readonly IReverseTypeCache _reverseTypeCache;
 
-    public ReflectionService (IReflectionServiceSynchronizationPoint reflectionServiceSynchronizationPoint, ITypeCache typeCache)
+    public ReflectionService (
+        IReflectionServiceSynchronizationPoint reflectionServiceSynchronizationPoint, ITypeCache typeCache, IReverseTypeCache reverseTypeCache)
     {
       ArgumentUtility.CheckNotNull ("reflectionServiceSynchronizationPoint", reflectionServiceSynchronizationPoint);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
+      ArgumentUtility.CheckNotNull ("reverseTypeCache", reverseTypeCache);
 
       _reflectionServiceSynchronizationPoint = reflectionServiceSynchronizationPoint;
       _typeCache = typeCache;
+      _reverseTypeCache = reverseTypeCache;
     }
 
     public bool IsAssembledType (Type type)
@@ -54,11 +59,41 @@ namespace Remotion.TypePipe.Implementation
       return _reflectionServiceSynchronizationPoint.GetRequestedType (assembledType);
     }
 
+    public AssembledTypeID GetTypeID (Type assembledType)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
+      return _reflectionServiceSynchronizationPoint.GetTypeID (assembledType);
+    }
+
     public Type GetAssembledType (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
       return _typeCache.GetOrCreateType (requestedType);
+    }
+
+    public Type GetAssembledType (AssembledTypeID typeID)
+    {
+      return _typeCache.GetOrCreateType (typeID);
+    }
+
+    public Type GetAdditionalType (object additionalTypeID)
+    {
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+
+      return _typeCache.GetOrCreateAdditionalType (additionalTypeID);
+    }
+
+    public object InstantiateAssembledType (Type assembledType, ParamList constructorArguments, bool allowNonPublicConstructor)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      constructorArguments = constructorArguments ?? ParamList.Empty;
+
+      var constructorCall = _reverseTypeCache.GetOrCreateConstructorCall (assembledType, constructorArguments.FuncType, allowNonPublicConstructor);
+      var instance = constructorArguments.InvokeFunc (constructorCall);
+
+      return instance;
     }
   }
 }

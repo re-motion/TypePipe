@@ -30,9 +30,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private readonly CustomType _elementType;
 
-    public ByRefType (CustomType elementType, IMemberSelector memberSelector)
+    public ByRefType (CustomType elementType)
         : base (
-            memberSelector,
             ArgumentUtility.CheckNotNull ("elementType", elementType).Name + "&",
             elementType.Namespace,
             TypeAttributes.NotPublic,
@@ -72,32 +71,37 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return true;
     }
 
-    protected override IEnumerable<Type> GetAllInterfaces ()
+    public override IEnumerable<Type> GetAllNestedTypes()
     {
-      return Type.EmptyTypes;
+      return EmptyTypes;
     }
 
-    protected override IEnumerable<FieldInfo> GetAllFields ()
+    public override IEnumerable<Type> GetAllInterfaces ()
+    {
+      return EmptyTypes;
+    }
+
+    public override IEnumerable<FieldInfo> GetAllFields ()
     {
       return Enumerable.Empty<FieldInfo> ();
     }
 
-    protected override IEnumerable<ConstructorInfo> GetAllConstructors ()
+    public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
       return Enumerable.Empty<ConstructorInfo>();
     }
 
-    protected override IEnumerable<MethodInfo> GetAllMethods ()
+    public override IEnumerable<MethodInfo> GetAllMethods ()
     {
       return Enumerable.Empty<MethodInfo> ();
     }
 
-    protected override IEnumerable<PropertyInfo> GetAllProperties ()
+    public override IEnumerable<PropertyInfo> GetAllProperties ()
     {
       return Enumerable.Empty<PropertyInfo> ();
     }
 
-    protected override IEnumerable<EventInfo> GetAllEvents ()
+    public override IEnumerable<EventInfo> GetAllEvents ()
     {
       return Enumerable.Empty<EventInfo>();
     }

@@ -27,8 +27,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class MultiDimensionalArrayType : ArrayTypeBase
   {
-    public MultiDimensionalArrayType (CustomType elementType, int rank, IMemberSelector memberSelector)
-        : base (elementType, rank, memberSelector)
+    public MultiDimensionalArrayType (CustomType elementType, int rank)
+        : base (elementType, rank)
     {
     }
 

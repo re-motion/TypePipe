@@ -14,20 +14,21 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
+using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 using Remotion.Utilities;
 using Rhino.Mocks;
 

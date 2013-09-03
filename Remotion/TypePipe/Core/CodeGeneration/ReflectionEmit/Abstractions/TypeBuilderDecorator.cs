@@ -69,6 +69,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       _typeBuilder.AddInterfaceImplementation (emittableInterfaceType);
     }
 
+    [CLSCompliant (false)]    
+    public ITypeBuilder DefineNestedType (string name, TypeAttributes attributes)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+
+      var typeBuilder = _typeBuilder.DefineNestedType (name, attributes);
+
+      return new TypeBuilderDecorator (typeBuilder, EmittableOperandProvider);
+    }
+
     public IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);

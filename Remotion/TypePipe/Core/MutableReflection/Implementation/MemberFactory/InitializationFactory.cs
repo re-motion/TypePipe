@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       ArgumentUtility.CheckNotNull ("declaringType", declaringType);
       ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
 
-      var context = new InitializationBodyContext (declaringType);
+      var context = new InitializationBodyContext (declaringType, isStatic: false, initializationSemantics: declaringType.Initialization.Semantics);
       return ProviderUtility.GetNonNullValue (initializationProvider, context, "initializationProvider");
     }
   }
