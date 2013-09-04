@@ -96,10 +96,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override bool Equals (Type type)
     {
-      var other = type as ArrayTypeBase;
-      if (other == null)
+      // ReSharper disable PossibleMistakenCallToGetType.2
+      if (type == null || type.GetType() != GetType())
         return false;
+      // ReSharper restore PossibleMistakenCallToGetType.2
 
+      var other = (ArrayTypeBase) type;
       return Equals (_elementType, other._elementType) && _rank == other._rank;
     }
 
