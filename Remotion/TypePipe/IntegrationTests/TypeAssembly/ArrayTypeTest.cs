@@ -202,6 +202,59 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
+    [Ignore("TODO 5832")]
+    public void Override_VectorOfVectorMethod_WithRuntimeTypes ()
+    {
+      var type = AssembleType<DomainType> (
+          typeContext =>
+          {
+            var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType dt) => dt.TransformByteVectorVector (null));
+            var mutableMethod = typeContext.ProxyType.GetOrAddOverride (overriddenMethod);
+
+            mutableMethod.SetBody (
+                ctx => Expression.Convert (Expression.Call (typeof (Array), "Reverese", Type.EmptyTypes, ctx.PreviousBody), ctx.ReturnType));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance(type);
+      var vector = new byte[2][];
+      vector[0] = new byte[] { 1, 2, 3 };
+      vector[1] = new byte[] { 4, 5, 6 };
+
+      var result = instance.TransformByteVectorVector(vector);
+
+      Assert.That (result, Is.TypeOf<byte[][]>());
+      Assert.That (result, Has.Length.EqualTo (2));
+      Assert.That (result[0], Is.EqualTo (new[] { 6, 5, 4 }));
+      Assert.That (result[1], Is.EqualTo (new[] { 3, 2, 1 }));
+    }
+
+    [Test]
+    [Ignore("TODO 5838")]
+    public void Override_MultidimensionalArrayMethod_WithRuntimeTypes ()
+    {
+      var type = AssembleType<DomainType> (
+          typeContext =>
+          {
+            var overriddenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod((DomainType dt) => dt.TransformByteMultiDimensionalArray(null));
+            var multiplyMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod(() => DomainType.MultiplyByteMultiDimensionalArray(null, 0));
+            
+            var mutableMethod = typeContext.ProxyType.GetOrAddOverride (overriddenMethod);
+            mutableMethod.SetBody (ctx => Expression.Call (multiplyMethod, ctx.PreviousBody, Expression.Constant(2)));
+          });
+
+      var instance = (DomainType) Activator.CreateInstance (type);
+      var array = new byte[,] { { 1, 2, 3 }, { 4, 5, 6 } };
+
+      var result = instance.TransformByteMultiDimensionalArray (array);
+
+      SkipDeletion();
+
+      Assert.That(result, Is.TypeOf<byte[,]>());
+      Assert.That (result, Is.EqualTo (new byte[,] { { 4, 6, 8 }, { 10, 12, 14 } }));
+
+    }
+
+    [Test]
     public void UnsupportedArrayMembers ()
     {
       SkipSavingAndPeVerification ();
@@ -244,6 +297,42 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       public virtual T[] CreateGenericVector<T> () { return null; }
       public virtual T[] CopyGenericListToArray<T> (List<T[]> list) { return null; }
+      
+      public virtual byte[][] TransformByteVectorVector (byte[][] vector)
+      {
+        var result = new byte[vector.Length][];
+        for (int i = 0; i < result.Length; i++)
+        {
+          result[i] = vector[i].Reverse().ToArray();
+        }
+        return result;
+      }
+
+      public virtual byte[,] TransformByteMultiDimensionalArray (byte[,] array)
+      {
+        var result = new byte[array.GetLength(0), array.GetLength(1)];
+        for (int i = 0; i < result.GetLength(0); i++)
+        {
+          for (int j = 0; j < result.GetLength (1); j++)
+          {
+            result[i, j] = (byte) (array[i, j] + 1);
+          }
+        }
+        return result;
+      }
+
+      public static byte[,] MultiplyByteMultiDimensionalArray (byte[,] array, int factor)
+      {
+        var result = new byte[array.GetLength(0), array.GetLength(1)];
+        for (int i = 0; i < result.GetLength(0); i++)
+        {
+          for (int j = 0; j < result.GetLength(1); j++)
+          {
+            result[i, j] = (byte) (result[i, j] * factor);
+          }
+        }
+        return result;
+      }
     }
   }
 }
