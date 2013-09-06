@@ -19,6 +19,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
@@ -30,20 +31,19 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   /// <summary>
   /// Guards all access to code generation capabilities.
   /// </summary>
+  // TODO 5840: Inline in callers (TypeCache, RevTypeCache, CodeManager), inject AssemblyContextPool in those places.
   public class SynchronizationPoint : ISynchronizationPoint
   {
-    private readonly object _codeGenerationLock = new object();
-
     private readonly ITypeAssembler _typeAssembler;
-    private readonly AssemblyContext _assemblyContext;
+    private readonly IAssemblyContextPool _assemblyContextPool;
 
-    public SynchronizationPoint (ITypeAssembler typeAssembler, AssemblyContext assemblyContext)
+    public SynchronizationPoint (ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
-
+      ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
+      
       _typeAssembler = typeAssembler;
-      _assemblyContext = assemblyContext;
+      _assemblyContextPool = assemblyContextPool;
     }
 
     //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
@@ -73,10 +73,10 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     }
 
     //TODO 5840: Affects all AssemblyContexts in the pool.
-    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
+    public string[] FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
-      lock (_codeGenerationLock)
-        return _assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
+      // Dequeue all contexts, flush them, enqueue again.
+      return _assemblyContextPool.FlushAll (assemblyAttributes);
     }
 
     // TODO 5840: Move out from SyncPoint to caller.
@@ -108,13 +108,18 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       ArgumentUtility.CheckNotNull ("types", types);
 
       Type generatedType;
-      lock (_codeGenerationLock)
+      var assemblyContext = _assemblyContextPool.DequeueNextAssemblyContext();
+      try
       {
         if (types.TryGetValue (typeID, out generatedType))
           return generatedType;
 
-        generatedType = _typeAssembler.AssembleType (typeID, _assemblyContext.ParticipantState, _assemblyContext.MutableTypeBatchCodeGenerator);
+        generatedType = _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
         AddTo (types, typeID, generatedType);
+      }
+      finally
+      {
+        _assemblyContextPool.EnqueueAssemblyContext (assemblyContext);
       }
 
       return generatedType;
@@ -160,6 +165,46 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     {
       if (!concurrentDictionary.TryAdd (key, value))
         throw new ArgumentException ("Key already exists.");
+    }
+  }
+
+  public interface IAssemblyContextPool
+  {
+    AssemblyContext[] DequeueAll ();
+    void Enqueue (AssemblyContext context);
+    AssemblyContext Dequeue ();
+  }
+
+  class AssemblyContextPool : IAssemblyContextPool
+  {
+    private readonly BlockingCollection<AssemblyContext> _queue = new BlockingCollection<AssemblyContext>(new ConcurrentQueue<AssemblyContext>());
+    
+    // Thread-safe set (for multiple readers, no writer).
+    private readonly Dictionary<AssemblyContext, AssemblyContext> _allContexts;
+
+    public AssemblyContextPool (IEnumerable<AssemblyContext> assemblyContexts)
+    {
+      _allContexts = assemblyContexts.ToDictionary(c => c);
+    }
+
+    public AssemblyContext[] DequeueAll ()
+    {
+      return _queue.GetConsumingEnumerable().Take (_allContexts.Count).ToArray();
+    }
+
+    public void Enqueue (AssemblyContext context)
+    {
+      ArgumentUtility.CheckNotNull ("context", context);
+
+      if (!_allContexts.ContainsKey (context))
+        throw new ArgumentException();
+
+      _queue.Add(context);
+    }
+
+    public AssemblyContext Dequeue ()
+    {
+      return _queue.Take();
     }
   }
 }

@@ -42,18 +42,22 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("participants", participants);
 
-      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
-      var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
-      var assemblyContext = new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var constructorDelegateFactory = NewConstructorDelegateFactory();
-      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, assemblyContext);
+      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, settings);
       var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, synchronizationPoint);
       var reverseTypeCache = NewReverseTypeCache (typeAssembler, constructorDelegateFactory);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
       var reflectionService = NewReflectionService (synchronizationPoint, typeCache, reverseTypeCache);
 
       return NewPipeline (settings, typeCache, codeManager, reflectionService);
+    }
+
+    private AssemblyContext NewAssemblyContext (PipelineSettings settings)
+    {
+      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
+      var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
+      return new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
     }
 
     protected virtual IPipeline NewPipeline (
@@ -87,9 +91,11 @@ namespace Remotion.TypePipe.Implementation
       return new ReverseTypeCache (typeAssembler, constructorDelegateFactory);
     }
 
-    protected virtual ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, AssemblyContext assemblyContext)
+    protected virtual ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, PipelineSettings settings)
     {
-      return new SynchronizationPoint (typeAssembler, assemblyContext);
+      var assemblyContext = NewAssemblyContext (settings);
+      var assemblyContextPool = new AssemblyContextPool (new[] { assemblyContext });
+      return new SynchronizationPoint (typeAssembler, assemblyContextPool);
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (
