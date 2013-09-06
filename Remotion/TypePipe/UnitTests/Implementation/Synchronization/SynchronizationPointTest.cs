@@ -188,8 +188,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var alreadyCachedAssembledType = ReflectionObjectMother.GetSomeType();
       var loadedAssembledType = ReflectionObjectMother.GetSomeOtherType();
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
-      var cachedTypeKey = AssembledTypeIDObjectMother.Create (parts: new[] { new object() });
-      var loadedTypeKey = AssembledTypeIDObjectMother.Create();
+      var cachedTypeKey = AssembledTypeIDObjectMother.Create (parts: new object[] { "1" });
+      var loadedTypeKey = AssembledTypeIDObjectMother.Create (parts: new object[] { "2" });
       var types = CreateConcurrentDictionary (cachedTypeKey, alreadyCachedAssembledType);
       var keysToAssembledTypes =
           new[]
