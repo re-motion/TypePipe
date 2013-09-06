@@ -18,12 +18,15 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation.Synchronization;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 using Rhino.Mocks;
 
@@ -32,8 +35,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
   [TestFixture]
   public class ReverseTypeCacheTest
   {
-    private IReverseTypeCacheSynchronizationPoint _reverseTypeCacheSynchronizationPointMock;
-
+    private ITypeAssembler _typeAssemblerMock;
+    private IConstructorDelegateFactory _constructorDelegateFactoryMock;
+    
     private ReverseTypeCache _cache;
 
     private IDictionary<ReverseConstructionKey, Delegate> _constructorCalls;
@@ -46,9 +50,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [SetUp]
     public void SetUp ()
     {
-      _reverseTypeCacheSynchronizationPointMock = MockRepository.GenerateStrictMock<IReverseTypeCacheSynchronizationPoint>();
+      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
+      _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
 
-      _cache = new ReverseTypeCache (_reverseTypeCacheSynchronizationPointMock);
+      _cache = new ReverseTypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock);
 
       _constructorCalls = (ConcurrentDictionary<ReverseConstructionKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
 
@@ -71,18 +76,20 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void GetOrCreateConstructorCall_CacheMiss ()
     {
-      var reverseConstructionKey = new ReverseConstructionKey (_assembledType, _delegateType, _allowNonPublic);
-      _reverseTypeCacheSynchronizationPointMock
-          .Expect (
-              mock => mock.GetOrGenerateConstructorCall (
-                  Arg.Is ((ConcurrentDictionary<ReverseConstructionKey, Delegate>) _constructorCalls),
-                  Arg<ReverseConstructionKey>.Matches (key => key.Equals (reverseConstructionKey)))) // Use strongly typed overload.
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      _typeAssemblerMock.Expect (mock => mock.GetRequestedType (_assembledType)).Return (requestedType);
+
+      _constructorDelegateFactoryMock
+          .Expect (mock => mock.CreateConstructorCall (requestedType, _assembledType, _delegateType, _allowNonPublic))
           .Return (_generatedCtorCall);
 
       var result = _cache.GetOrCreateConstructorCall (_assembledType, _delegateType, _allowNonPublic);
 
-      _reverseTypeCacheSynchronizationPointMock.VerifyAllExpectations();
+      _constructorDelegateFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_generatedCtorCall));
+      
+      var reverseConstructionKey = new ReverseConstructionKey (_assembledType, _delegateType, _allowNonPublic);
+      Assert.That (_constructorCalls[reverseConstructionKey], Is.SameAs (_generatedCtorCall));
     }
   }
 }

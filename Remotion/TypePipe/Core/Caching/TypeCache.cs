@@ -37,22 +37,23 @@ namespace Remotion.TypePipe.Caching
     private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
     private readonly IConstructorDelegateFactory _constructorDelegateFactory;
+    private readonly ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
 
     private readonly Func<ConstructionKey, Delegate> _createConstructorCallFunc;
 
-    public TypeCache (ITypeAssembler typeAssembler,
-        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
-        IConstructorDelegateFactory constructorDelegateFactory)
+    public TypeCache (
+        ITypeAssembler typeAssembler,
+        IConstructorDelegateFactory constructorDelegateFactory,
+        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
       ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
+      ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
 
       _typeAssembler = typeAssembler;
-      _typeCacheSynchronizationPoint = typeCacheSynchronizationPoint;
       _constructorDelegateFactory = constructorDelegateFactory;
+      _typeCacheSynchronizationPoint = typeCacheSynchronizationPoint;
 
       _createConstructorCallFunc = CreateConstructorCall;
     }

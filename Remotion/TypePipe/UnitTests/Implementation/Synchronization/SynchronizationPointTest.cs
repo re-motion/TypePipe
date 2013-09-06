@@ -37,7 +37,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
   {
     private IGeneratedCodeFlusher _generatedCodeFlusherMock;
     private ITypeAssembler _typeAssemblerMock;
-    private IConstructorDelegateFactory _constructorDelegateFactoryMock;
     
     private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGeneratorMock;
     private IDictionary<string, object> _participantState;
@@ -55,9 +54,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       _mutableTypeBatchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGeneratorMock, _generatedCodeFlusherMock);
       _participantState = assemblyContext.ParticipantState;
-      _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
 
-      _point = new SynchronizationPoint (_typeAssemblerMock, _constructorDelegateFactoryMock, assemblyContext);
+      _point = new SynchronizationPoint (_typeAssemblerMock, assemblyContext);
 
       _codeGeneratorLock = PrivateInvoke.GetNonPublicField (_point, "_codeGenerationLock");
     }
@@ -161,70 +159,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
 
       _typeAssemblerMock.VerifyAllExpectations();
     }
-
-    [Test]
-    public void GetOrGenerateConstructorCall_Reverse_CacheHit ()
-    {
-      var reverseConstructionKey = CreateReverseConstructionKey();
-      var assembledConstructorCall = (Action) (() => { });
-      var constructorCalls = CreateConcurrentDictionary<ReverseConstructionKey, Delegate> (reverseConstructionKey, assembledConstructorCall);
-
-      var result = _point.GetOrGenerateConstructorCall (constructorCalls, reverseConstructionKey);
-
-      Assert.That (result, Is.SameAs (assembledConstructorCall));
-    }
-
-    [Test]
-    public void GetOrCreateConstructorCall_Reverse_CacheMiss ()
-    {
-      var reverseConstructionKey = CreateReverseConstructionKey();
-      var constructorCalls = new ConcurrentDictionary<ReverseConstructionKey, Delegate>();
-      var fakeRequestedType = ReflectionObjectMother.GetSomeType();
-
-      _typeAssemblerMock
-          .Expect (mock => mock.GetRequestedType (reverseConstructionKey.AssembledType)).Return (fakeRequestedType)
-          .WhenCalled (_ => CheckLockIsHeld());
-
-      var assembledConstructorCall = (Action) (() => { });
-      _constructorDelegateFactoryMock
-          .Expect (
-              mock => mock.CreateConstructorCall (
-                  fakeRequestedType,
-                  reverseConstructionKey.AssembledType,
-                  reverseConstructionKey.DelegateType,
-                  reverseConstructionKey.AllowNonPublic))
-          .Return (assembledConstructorCall)
-          .WhenCalled (_ => CheckLockIsHeld());
-
-      var result = _point.GetOrGenerateConstructorCall (constructorCalls, reverseConstructionKey);
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      _constructorDelegateFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (assembledConstructorCall));
-      Assert.That (constructorCalls[reverseConstructionKey], Is.SameAs (assembledConstructorCall));
-    }
-
+    
     private void CheckLockIsHeld ()
     {
       LockTestHelper.CheckLockIsHeld (_codeGeneratorLock);
-    }
-
-    private ConstructionKey CreateConstructionKey ()
-    {
-      var typeID = AssembledTypeIDObjectMother.Create();
-      var delegateType = ReflectionObjectMother.GetSomeDelegateType();
-      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-
-      return new ConstructionKey (typeID, delegateType, allowNonPublic);
-    }
-
-    private ReverseConstructionKey CreateReverseConstructionKey ()
-    {
-      var assembledType = ReflectionObjectMother.GetSomeType();
-      var delegateType = ReflectionObjectMother.GetSomeDelegateType();
-      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-
-      return new ReverseConstructionKey (assembledType, delegateType, allowNonPublic);
     }
 
     private ConcurrentDictionary<TKey, TValue> CreateConcurrentDictionary<TKey, TValue> (TKey key, TValue value)

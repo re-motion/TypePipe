@@ -110,6 +110,11 @@ namespace Remotion.TypePipe.IntegrationTests
       }
     }
 
+    protected void EnableSavingAndPeVerification () 
+    {
+      _skipSavingAndVerification = false;
+    }
+
     protected void SkipSavingAndPeVerification ()
     {
       _skipSavingAndVerification = true;

@@ -35,20 +35,14 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     private readonly object _codeGenerationLock = new object();
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
     private readonly AssemblyContext _assemblyContext;
 
-    public SynchronizationPoint (
-        ITypeAssembler typeAssembler,
-        IConstructorDelegateFactory constructorDelegateFactory,
-        AssemblyContext assemblyContext)
+    public SynchronizationPoint (ITypeAssembler typeAssembler, AssemblyContext assemblyContext)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
       ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
 
       _typeAssembler = typeAssembler;
-      _constructorDelegateFactory = constructorDelegateFactory;
       _assemblyContext = assemblyContext;
     }
 
@@ -155,31 +149,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
             _assemblyContext.ParticipantState,
             _assemblyContext.MutableTypeBatchCodeGenerator);
       }
-    }
-
-    public Delegate GetOrGenerateConstructorCall (
-        ConcurrentDictionary<ReverseConstructionKey, Delegate> constructorCalls, ReverseConstructionKey reverseConstructionKey)
-    {
-      ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
-
-      Delegate constructorCall;
-      lock (_codeGenerationLock)
-      {
-        if (constructorCalls.TryGetValue (reverseConstructionKey, out constructorCall))
-          return constructorCall;
-
-        var assembledType = reverseConstructionKey.AssembledType;
-        var requestedType = _typeAssembler.GetRequestedType (assembledType);
-
-        constructorCall = _constructorDelegateFactory.CreateConstructorCall (
-            requestedType,
-            assembledType,
-            reverseConstructionKey.DelegateType,
-            reverseConstructionKey.AllowNonPublic);
-        AddTo (constructorCalls, reverseConstructionKey, constructorCall);
-      }
-
-      return constructorCall;
     }
 
     private void AddTo<TKey, TValue> (ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
