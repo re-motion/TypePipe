@@ -72,6 +72,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         _assemblyContext.GeneratedCodeFlusher.SetAssemblyNamePattern (assemblyNamePattern);
     }
 
+    //TODO 5840: Affects all AssemblyContexts in the pool.
     public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
       lock (_codeGenerationLock)
