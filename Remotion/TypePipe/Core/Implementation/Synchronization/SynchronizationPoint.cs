@@ -46,22 +46,26 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       _assemblyContext = assemblyContext;
     }
 
+    //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
     public string AssemblyDirectory
     {
       get { lock (_codeGenerationLock) return _assemblyContext.GeneratedCodeFlusher.AssemblyDirectory; }
     }
 
+    //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
     public string AssemblyNamePattern
     {
       get { lock (_codeGenerationLock) return _assemblyContext.GeneratedCodeFlusher.AssemblyNamePattern; }
     }
 
+    //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
       lock (_codeGenerationLock)
         _assemblyContext.GeneratedCodeFlusher.SetAssemblyDirectory (assemblyDirectory);
     }
 
+    //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
     public void SetAssemblyNamePattern (string assemblyNamePattern)
     {
       lock (_codeGenerationLock)
@@ -74,28 +78,28 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         return _assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
     }
 
+    // TODO 5840: Move out from SyncPoint to caller.
     public bool IsAssembledType (Type type)
     {
-      lock (_codeGenerationLock)
-        return _typeAssembler.IsAssembledType (type);
+      return _typeAssembler.IsAssembledType (type);
     }
 
+    // TODO 5840: Move out from SyncPoint.
     public AssembledTypeID ExtractTypeID (Type assembledType)
     {
-      lock (_codeGenerationLock)
-        return _typeAssembler.ExtractTypeID (assembledType);
+      return _typeAssembler.ExtractTypeID (assembledType);
     }
 
+    // TODO 5840: Move out from SyncPoint.
     public Type GetRequestedType (Type assembledType)
     {
-      lock (_codeGenerationLock)
-        return _typeAssembler.GetRequestedType (assembledType);
+      return _typeAssembler.GetRequestedType (assembledType);
     }
 
+    // TODO 5840: Move out from SyncPoint.
     public AssembledTypeID GetTypeID (Type assembledType)
     {
-      lock (_codeGenerationLock)
-        return _typeAssembler.ExtractTypeID (assembledType);
+      return _typeAssembler.ExtractTypeID (assembledType);
     }
 
     public Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID)

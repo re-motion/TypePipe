@@ -117,12 +117,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var newAssembledTypeID = new AssembledTypeID (newRequestedType, new object[0]);
 
       var t1 = StartAndWaitUntilBlocked (() => _pipeline.Create<DomainTypeCausingParticipantToBlock>());
-      var t2 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.IsAssembledType (cachedAssembledType));
-      var t3 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetRequestedType (cachedAssembledType));
-      var t4 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetTypeID (cachedAssembledType));
-      var t5 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetAssembledType (newRequestedType));
-      var t6 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetAssembledType (newAssembledTypeID));
-      var t7 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetAdditionalType ("additional type id"));
+      var t2 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetAssembledType (newRequestedType));
+      var t3 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetAssembledType (newAssembledTypeID));
+      var t4 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetAdditionalType ("additional type id"));
 
       // Operations that only return cached results are not blocked.
       Assert.That (_pipeline.ReflectionService.GetAssembledType (typeof (DomainType)), Is.SameAs (cachedAssembledType));
@@ -134,7 +131,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       _blockingMutex.ReleaseMutex();
 
       // Now all threads run to completion (user APIs do not interfere with code generation).
-      WaitUntilCompleted (t1, t2, t3, t4, t5, t6, t7);
+      WaitUntilCompleted (t1, t2, t3, t4);
     }
 
     private Thread StartAndWaitUntilBlocked (ThreadStart action)

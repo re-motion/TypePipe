@@ -73,20 +73,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyNamePattern ("set name pattern")).WhenCalled (_ => CheckLockIsHeld());
       _point.SetAssemblyNamePattern ("set name pattern");
 
-      var type = ReflectionObjectMother.GetSomeType();
-      var fakeIsAssembledType = BooleanObjectMother.GetRandomBoolean();
-      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (type)).Return (fakeIsAssembledType).WhenCalled (_ => CheckLockIsHeld());
-      Assert.That (_point.IsAssembledType (type), Is.EqualTo (fakeIsAssembledType));
-
-      var fakeRequestedType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAssemblerMock.Expect (mock => mock.GetRequestedType (type)).Return (fakeRequestedType).WhenCalled (_ => CheckLockIsHeld());
-      Assert.That (_point.GetRequestedType (type), Is.SameAs (fakeRequestedType));
-
-      var assembledType = ReflectionObjectMother.GetSomeType();
-      var fakeTypeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect(mock => mock.ExtractTypeID(assembledType)).Return(fakeTypeID).WhenCalled(_ => CheckLockIsHeld());
-      Assert.That(_point.GetTypeID(assembledType), Is.EqualTo(fakeTypeID));
-
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
       _typeAssemblerMock
