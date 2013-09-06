@@ -43,10 +43,10 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("participants", participants);
 
       var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
-      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
-      var assemblyContext = new AssemblyContext (mutableTypeBatchCodeGenerator);
-      var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler, assemblyContext);
+      var assemblyContext = new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
+      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
+      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, assemblyContext);
       var typeCache = NewTypeCache (typeAssembler, synchronizationPoint);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
       var reverseTypeCache = NewReverseTypeCache (synchronizationPoint);
@@ -83,15 +83,12 @@ namespace Remotion.TypePipe.Implementation
       return new ReverseTypeCache (reverseTypeCacheSynchronizationPoint);
     }
 
-    protected virtual ISynchronizationPoint NewSynchronizationPoint (
-        IGeneratedCodeFlusher generatedCodeFlusher,
-        ITypeAssembler typeAssembler,
-        AssemblyContext assemblyContext)
+    protected virtual ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, AssemblyContext assemblyContext)
     {
       var constructorFinder = NewConstructorFinder();
       var delegateFactory = NewDelegateFactory();
 
-      return new SynchronizationPoint (generatedCodeFlusher, typeAssembler, constructorFinder, delegateFactory, assemblyContext);
+      return new SynchronizationPoint (typeAssembler, constructorFinder, delegateFactory, assemblyContext);
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (

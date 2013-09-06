@@ -35,26 +35,22 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   {
     private readonly object _codeGenerationLock = new object();
 
-    private readonly IGeneratedCodeFlusher _generatedCodeFlusher;
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
     private readonly AssemblyContext _assemblyContext;
 
     public SynchronizationPoint (
-        IGeneratedCodeFlusher generatedCodeFlusher,
         ITypeAssembler typeAssembler,
         IConstructorFinder constructorFinder,
         IDelegateFactory delegateFactory,
         AssemblyContext assemblyContext)
     {
-      ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
       ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
       ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
 
-      _generatedCodeFlusher = generatedCodeFlusher;
       _typeAssembler = typeAssembler;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
@@ -63,30 +59,30 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
     public string AssemblyDirectory
     {
-      get { lock (_codeGenerationLock) return _generatedCodeFlusher.AssemblyDirectory; }
+      get { lock (_codeGenerationLock) return _assemblyContext.GeneratedCodeFlusher.AssemblyDirectory; }
     }
 
     public string AssemblyNamePattern
     {
-      get { lock (_codeGenerationLock) return _generatedCodeFlusher.AssemblyNamePattern; }
+      get { lock (_codeGenerationLock) return _assemblyContext.GeneratedCodeFlusher.AssemblyNamePattern; }
     }
 
     public void SetAssemblyDirectory (string assemblyDirectory)
     {
       lock (_codeGenerationLock)
-        _generatedCodeFlusher.SetAssemblyDirectory (assemblyDirectory);
+        _assemblyContext.GeneratedCodeFlusher.SetAssemblyDirectory (assemblyDirectory);
     }
 
     public void SetAssemblyNamePattern (string assemblyNamePattern)
     {
       lock (_codeGenerationLock)
-        _generatedCodeFlusher.SetAssemblyNamePattern (assemblyNamePattern);
+        _assemblyContext.GeneratedCodeFlusher.SetAssemblyNamePattern (assemblyNamePattern);
     }
 
     public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
       lock (_codeGenerationLock)
-        return _generatedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
+        return _assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
     }
 
     public bool IsAssembledType (Type type)

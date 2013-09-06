@@ -27,11 +27,15 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
     private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
+    private readonly IGeneratedCodeFlusher _generatedCodeFlusher;
 
-    public AssemblyContext (IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+    public AssemblyContext (IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator, IGeneratedCodeFlusher generatedCodeFlusher)
     {
       ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
+      ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
+      
       _mutableTypeBatchCodeGenerator = mutableTypeBatchCodeGenerator;
+      _generatedCodeFlusher = generatedCodeFlusher;
     }
 
     public Dictionary<string, object> ParticipantState
@@ -42,6 +46,11 @@ namespace Remotion.TypePipe.CodeGeneration
     public IMutableTypeBatchCodeGenerator MutableTypeBatchCodeGenerator
     {
       get { return _mutableTypeBatchCodeGenerator; }
+    }
+
+    public IGeneratedCodeFlusher GeneratedCodeFlusher
+    {
+      get { return _generatedCodeFlusher; }
     }
   }
 }

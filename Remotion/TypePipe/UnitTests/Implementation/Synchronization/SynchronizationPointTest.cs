@@ -58,10 +58,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
       _mutableTypeBatchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
-      var assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGeneratorMock);
+      var assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGeneratorMock, _generatedCodeFlusherMock);
       _participantState = assemblyContext.ParticipantState;
 
-      _point = new SynchronizationPoint (_generatedCodeFlusherMock, _typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock, assemblyContext);
+      _point = new SynchronizationPoint (_typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock, assemblyContext);
 
       _codeGeneratorLock = PrivateInvoke.GetNonPublicField (_point, "_codeGenerationLock");
     }
