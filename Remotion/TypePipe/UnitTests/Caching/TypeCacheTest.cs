@@ -25,10 +25,8 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Remotion.Utilities;
 using Rhino.Mocks;
 using System.Linq;
 
@@ -39,13 +37,11 @@ namespace Remotion.TypePipe.UnitTests.Caching
   {
     private ITypeAssembler _typeAssemblerMock;
     private ITypeCacheSynchronizationPoint _typeCacheSynchronizationPointMock;
-    private IMutableTypeBatchCodeGenerator _codeGeneratorMock;
 
     private TypeCache _cache;
 
     private IDictionary<AssembledTypeID, Type> _types;
     private IDictionary<ConstructionKey, Delegate> _constructorCalls;
-    private IDictionary<string, object> _participantState;
 
     private readonly Type _requestedType = typeof (RequestedType);
     private readonly Type _assembledType = typeof (AssembledType);
@@ -58,13 +54,11 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _typeCacheSynchronizationPointMock = MockRepository.GenerateStrictMock<ITypeCacheSynchronizationPoint>();
-      _codeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _typeCacheSynchronizationPointMock, _codeGeneratorMock);
+      _cache = new TypeCache (_typeAssemblerMock, _typeCacheSynchronizationPointMock);
 
       _types = (ConcurrentDictionary<AssembledTypeID, Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (ConcurrentDictionary<ConstructionKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
-      _participantState = (IDictionary<string, object>) PrivateInvoke.GetNonPublicField (_cache, "_participantState");
 
       _delegateType = ReflectionObjectMother.GetSomeDelegateType();
       _allowNonPublic = BooleanObjectMother.GetRandomBoolean();
@@ -109,9 +103,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .Expect (
               mock => mock.GetOrGenerateType (
                   Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),// Use strongly typed overload.
-                  Arg.Is (_participantState),
-                  Arg.Is (_codeGeneratorMock)))
+                  // Use strongly typed Equals overload.
+                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
           .Return (_assembledType);
 
       var result = _cache.GetOrCreateType (_requestedType);
@@ -144,10 +137,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .Expect (
               mock => mock.GetOrGenerateConstructorCall (
                   Arg.Is ((ConcurrentDictionary<ConstructionKey, Delegate>) _constructorCalls),
-                  Arg<ConstructionKey>.Matches (key => key.Equals (constructionKey)), // Use strongly typed overload.
-                  Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
-                  Arg.Is (_participantState),
-                  Arg.Is (_codeGeneratorMock)))
+                   // Use strongly typed Equals overload.
+                  Arg<ConstructionKey>.Matches (key => key.Equals (constructionKey)),
+                  Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types)))
           .Return (_generatedCtorCall);
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
@@ -170,8 +162,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
               mock => mock.RebuildParticipantState (
                   Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
                   Arg<IEnumerable<KeyValuePair<AssembledTypeID, Type>>>.Is.Anything,
-                  Arg<IEnumerable<Type>>.List.Equal (new[] { additionalGeneratedType }),
-                  Arg.Is (_participantState)))
+                  Arg<IEnumerable<Type>>.List.Equal (new[] { additionalGeneratedType })))
           .WhenCalled (
               mi =>
               {
@@ -192,7 +183,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
       _typeCacheSynchronizationPointMock
-          .Expect (mock => mock.GetOrGenerateAdditionalType (additionalTypeID, _participantState, _codeGeneratorMock))
+          .Expect (mock => mock.GetOrGenerateAdditionalType (additionalTypeID))
           .Return (additionalType);
 
       var result = _cache.GetOrCreateAdditionalType (additionalTypeID);

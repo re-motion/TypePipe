@@ -35,24 +35,17 @@ namespace Remotion.TypePipe.Caching
   {
     private readonly ConcurrentDictionary<AssembledTypeID, Type> _types = new ConcurrentDictionary<AssembledTypeID, Type>();
     private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
-    private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
-    private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
 
-    public TypeCache (
-        ITypeAssembler typeAssembler,
-        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
-        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+    public TypeCache (ITypeAssembler typeAssembler, ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
-      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
 
       _typeAssembler = typeAssembler;
       _typeCacheSynchronizationPoint = typeCacheSynchronizationPoint;
-      _mutableTypeBatchCodeGenerator = mutableTypeBatchCodeGenerator;
     }
 
     public string ParticipantConfigurationID
@@ -81,7 +74,7 @@ namespace Remotion.TypePipe.Caching
       if (_types.TryGetValue (typeID, out assembledType))
         return assembledType;
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID, _participantState, _mutableTypeBatchCodeGenerator);
+      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -106,8 +99,7 @@ namespace Remotion.TypePipe.Caching
       if (_constructorCalls.TryGetValue (constructionKey, out constructorCall))
         return constructorCall;
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
-          _constructorCalls, constructionKey, _types, _participantState, _mutableTypeBatchCodeGenerator);
+      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (_constructorCalls, constructionKey, _types);
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
@@ -127,14 +119,14 @@ namespace Remotion.TypePipe.Caching
 
       var keysToAssembledTypes = assembledTypes
           .Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeCacheSynchronizationPoint.ExtractTypeID (t), t));
-      _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
+      _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes);
     }
 
     public Type GetOrCreateAdditionalType (object additionalTypeID)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID, _participantState, _mutableTypeBatchCodeGenerator);
+      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID);
     }
   }
 }

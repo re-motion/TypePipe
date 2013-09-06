@@ -39,22 +39,26 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorFinder _constructorFinder;
     private readonly IDelegateFactory _delegateFactory;
+    private readonly AssemblyContext _assemblyContext;
 
     public SynchronizationPoint (
         IGeneratedCodeFlusher generatedCodeFlusher,
         ITypeAssembler typeAssembler,
         IConstructorFinder constructorFinder,
-        IDelegateFactory delegateFactory)
+        IDelegateFactory delegateFactory,
+        AssemblyContext assemblyContext)
     {
       ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
       ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
+      ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
 
       _generatedCodeFlusher = generatedCodeFlusher;
       _typeAssembler = typeAssembler;
       _constructorFinder = constructorFinder;
       _delegateFactory = delegateFactory;
+      _assemblyContext = assemblyContext;
     }
 
     public string AssemblyDirectory
@@ -109,15 +113,9 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         return _typeAssembler.ExtractTypeID (assembledType);
     }
 
-    public Type GetOrGenerateType (
-        ConcurrentDictionary<AssembledTypeID, Type> types,
-        AssembledTypeID typeID,
-        IDictionary<string, object> participantState,
-        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+    public Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID)
     {
       ArgumentUtility.CheckNotNull ("types", types);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
 
       Type generatedType;
       lock (_codeGenerationLock)
@@ -125,7 +123,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         if (types.TryGetValue (typeID, out generatedType))
           return generatedType;
 
-        generatedType = _typeAssembler.AssembleType (typeID, participantState, mutableTypeBatchCodeGenerator);
+        generatedType = _typeAssembler.AssembleType (typeID, _assemblyContext.ParticipantState, _assemblyContext.MutableTypeBatchCodeGenerator);
         AddTo (types, typeID, generatedType);
       }
 
@@ -135,14 +133,10 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     public Delegate GetOrGenerateConstructorCall (
         ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
         ConstructionKey constructionKey,
-        ConcurrentDictionary<AssembledTypeID, Type> types,
-        IDictionary<string, object> participantState,
-        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+        ConcurrentDictionary<AssembledTypeID, Type> types)
     {
       ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
       ArgumentUtility.CheckNotNull ("types", types);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
 
       Delegate constructorCall;
       lock (_codeGenerationLock)
@@ -151,7 +145,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
           return constructorCall;
 
         var typeID = constructionKey.TypeID;
-        var assembledType = GetOrGenerateType (types, typeID, participantState, mutableTypeBatchCodeGenerator);
+        var assembledType = GetOrGenerateType (types, typeID);
 
         constructorCall = CreateConstructorCall (typeID.RequestedType, constructionKey.DelegateType, constructionKey.AllowNonPublic, assembledType);
         AddTo (constructorCalls, constructionKey, constructorCall);
@@ -163,13 +157,11 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     public void RebuildParticipantState (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,
-        IEnumerable<Type> additionalTypes,
-        IDictionary<string, object> participantState)
+        IEnumerable<Type> additionalTypes)
     {
       ArgumentUtility.CheckNotNull ("types", types);
       ArgumentUtility.CheckNotNull ("keysToAssembledTypes", keysToAssembledTypes);
       ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
 
       var loadedAssembledTypes = new List<Type>();
 
@@ -181,19 +173,21 @@ namespace Remotion.TypePipe.Implementation.Synchronization
           loadedAssembledTypes.Add (p.Value);
         }
 
-        _typeAssembler.RebuildParticipantState (loadedAssembledTypes, additionalTypes, participantState);
+        _typeAssembler.RebuildParticipantState (loadedAssembledTypes, additionalTypes, _assemblyContext.ParticipantState);
       }
     }
 
-    public Type GetOrGenerateAdditionalType (
-        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+    public Type GetOrGenerateAdditionalType (object additionalTypeID)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
 
       lock (_codeGenerationLock)
-        return _typeAssembler.GetOrAssembleAdditionalType (additionalTypeID, participantState, mutableTypeBatchCodeGenerator);
+      {
+        return _typeAssembler.GetOrAssembleAdditionalType (
+            additionalTypeID,
+            _assemblyContext.ParticipantState,
+            _assemblyContext.MutableTypeBatchCodeGenerator);
+      }
     }
 
     public Delegate GetOrGenerateConstructorCall (

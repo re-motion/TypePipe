@@ -64,6 +64,7 @@
     <Compile Include="Caching\ReverseConstructionKey.cs" />
     <Compile Include="Caching\IReverseTypeCache.cs" />
     <Compile Include="Caching\ReverseTypeCache.cs" />
+    <Compile Include="CodeGeneration\AssemblyContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />

@@ -30,7 +30,6 @@ using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
@@ -43,11 +42,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     private IConstructorFinder _constructorFinderMock;
     private IDelegateFactory _delegateFactoryMock;
 
+    private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGeneratorMock;
+    private IDictionary<string, object> _participantState;
+
     private SynchronizationPoint _point;
 
     private object _codeGeneratorLock;
-    private IDictionary<string, object> _participantState;
-    private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGeneratorMock;
 
     [SetUp]
     public void SetUp ()
@@ -57,11 +57,13 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
       _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
-      _point = new SynchronizationPoint (_generatedCodeFlusherMock, _typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock);
+      _mutableTypeBatchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
+      var assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGeneratorMock);
+      _participantState = assemblyContext.ParticipantState;
+
+      _point = new SynchronizationPoint (_generatedCodeFlusherMock, _typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock, assemblyContext);
 
       _codeGeneratorLock = PrivateInvoke.GetNonPublicField (_point, "_codeGenerationLock");
-      _participantState = new Dictionary<string, object>();
-      _mutableTypeBatchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
     }
 
     [Test]
@@ -97,8 +99,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .Expect (mock => mock.GetOrAssembleAdditionalType (additionalTypeID, _participantState, _mutableTypeBatchCodeGeneratorMock))
           .Return (additionalType)
           .WhenCalled (_ => CheckLockIsHeld());
-      Assert.That (
-          _point.GetOrGenerateAdditionalType (additionalTypeID, _participantState, _mutableTypeBatchCodeGeneratorMock), Is.SameAs (additionalType));
+      Assert.That (_point.GetOrGenerateAdditionalType (additionalTypeID), Is.SameAs (additionalType));
 
       _generatedCodeFlusherMock.VerifyAllExpectations();
       _typeAssemblerMock.VerifyAllExpectations();
@@ -111,7 +112,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
       var types = CreateConcurrentDictionary (typeID, assembledType);
 
-      var result = _point.GetOrGenerateType (types, typeID, _participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _point.GetOrGenerateType (types, typeID);
 
       Assert.That (result, Is.SameAs (assembledType));
     }
@@ -132,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .Return (assembledType)
           .WhenCalled (_ => CheckLockIsHeld ());
 
-      var result = _point.GetOrGenerateType (types, typeID, _participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _point.GetOrGenerateType (types, typeID);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (assembledType));
@@ -147,8 +148,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var constructorCalls = CreateConcurrentDictionary<ConstructionKey, Delegate> (constructionKey, assembledConstructorCall);
       var types = new ConcurrentDictionary<AssembledTypeID, Type>();
 
-      var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls, constructionKey, types, _participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _point.GetOrGenerateConstructorCall (constructorCalls, constructionKey, types);
 
       Assert.That (result, Is.SameAs (assembledConstructorCall));
     }
@@ -174,8 +174,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .Return (assembledConstructorCall)
           .WhenCalled (_ => CheckLockIsHeld());
 
-      var result = _point.GetOrGenerateConstructorCall (
-          constructorCalls, constructionKey, types, _participantState, _mutableTypeBatchCodeGeneratorMock);
+      var result = _point.GetOrGenerateConstructorCall (constructorCalls, constructionKey, types);
 
       _delegateFactoryMock.VerifyAllExpectations();
       _constructorFinderMock.VerifyAllExpectations();
@@ -204,7 +203,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .Expect (mock => mock.RebuildParticipantState (new[] { loadedAssembledType }, new[] { additionalType }, _participantState))
           .WhenCalled (_ => CheckLockIsHeld());
 
-      _point.RebuildParticipantState (types, keysToAssembledTypes, additionalTypes, _participantState);
+      _point.RebuildParticipantState (types, keysToAssembledTypes, additionalTypes);
 
       _typeAssemblerMock.VerifyAllExpectations();
     }
@@ -239,7 +238,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
           .Return (fakeSignature)
           .WhenCalled (_ => CheckLockIsHeld());
       _constructorFinderMock
-          .Expect(mock => mock.GetConstructor(fakeRequestedType, fakeSignature.Item1, reverseConstructionKey.AllowNonPublic, reverseConstructionKey.AssembledType))
+          .Expect (
+              mock => mock.GetConstructor (
+                  fakeRequestedType,
+                  fakeSignature.Item1,
+                  reverseConstructionKey.AllowNonPublic,
+                  reverseConstructionKey.AssembledType))
           .Return (fakeConstructor)
           .WhenCalled (_ => CheckLockIsHeld());
       _delegateFactoryMock

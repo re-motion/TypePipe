@@ -19,8 +19,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
@@ -33,26 +31,18 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
     AssembledTypeID ExtractTypeID (Type assembledType);
 
-    Type GetOrGenerateType (
-        ConcurrentDictionary<AssembledTypeID, Type> types,
-        AssembledTypeID typeID,
-        IDictionary<string, object> participantState,
-        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
+    Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID);
 
     Delegate GetOrGenerateConstructorCall (
         ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
         ConstructionKey constructionKey,
-        ConcurrentDictionary<AssembledTypeID, Type> types,
-        IDictionary<string, object> participantState,
-        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
+        ConcurrentDictionary<AssembledTypeID, Type> types);
 
     void RebuildParticipantState (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,
-        IEnumerable<Type> additionalTypes,
-        IDictionary<string, object> participantState);
+        IEnumerable<Type> additionalTypes);
 
-    Type GetOrGenerateAdditionalType (
-        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator);
+    Type GetOrGenerateAdditionalType (object additionalTypeID);
   }
 }
