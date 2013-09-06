@@ -24,10 +24,8 @@ using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;
@@ -39,9 +37,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
   {
     private IGeneratedCodeFlusher _generatedCodeFlusherMock;
     private ITypeAssembler _typeAssemblerMock;
-    private IConstructorFinder _constructorFinderMock;
-    private IDelegateFactory _delegateFactoryMock;
-
+    private IConstructorDelegateFactory _constructorDelegateFactoryMock;
+    
     private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGeneratorMock;
     private IDictionary<string, object> _participantState;
 
@@ -54,14 +51,13 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     {
       _generatedCodeFlusherMock = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler> ();
-      _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
-      _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
       _mutableTypeBatchCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGeneratorMock, _generatedCodeFlusherMock);
       _participantState = assemblyContext.ParticipantState;
+      _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
 
-      _point = new SynchronizationPoint (_typeAssemblerMock, _constructorFinderMock, _delegateFactoryMock, assemblyContext);
+      _point = new SynchronizationPoint (_typeAssemblerMock, _constructorDelegateFactoryMock, assemblyContext);
 
       _codeGeneratorLock = PrivateInvoke.GetNonPublicField (_point, "_codeGenerationLock");
     }
@@ -157,27 +153,24 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     public void GetOrCreateConstructorCall_CacheMiss_CacheHitTypes ()
     {
       var constructionKey = CreateConstructionKey();
-      var assembledConstructorCall = (Action) (() => { });
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
       var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
       var types = CreateConcurrentDictionary (constructionKey.TypeID, assembledType);
-      var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
-      var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
 
-      _delegateFactoryMock.Expect (mock => mock.GetSignature (constructionKey.DelegateType)).Return (fakeSignature).WhenCalled (_ => CheckLockIsHeld());
-      _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (constructionKey.TypeID.RequestedType, fakeSignature.Item1, constructionKey.AllowNonPublic, assembledType))
-          .Return (fakeConstructor)
-          .WhenCalled (_ => CheckLockIsHeld());
-      _delegateFactoryMock
-          .Expect (mock => mock.CreateConstructorCall (fakeConstructor, constructionKey.DelegateType))
+      var assembledConstructorCall = (Action) (() => { });
+      _constructorDelegateFactoryMock
+          .Expect (
+              mock => mock.CreateConstructorCall (
+                  constructionKey.TypeID.RequestedType,
+                  assembledType,
+                  constructionKey.DelegateType,
+                  constructionKey.AllowNonPublic))
           .Return (assembledConstructorCall)
           .WhenCalled (_ => CheckLockIsHeld());
 
       var result = _point.GetOrGenerateConstructorCall (constructorCalls, constructionKey, types);
 
-      _delegateFactoryMock.VerifyAllExpectations();
-      _constructorFinderMock.VerifyAllExpectations();
+      _constructorDelegateFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (assembledConstructorCall));
       Assert.That (constructorCalls[constructionKey], Is.SameAs (assembledConstructorCall));
     }
@@ -224,38 +217,28 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     public void GetOrCreateConstructorCall_Reverse_CacheMiss ()
     {
       var reverseConstructionKey = CreateReverseConstructionKey();
-      var assembledConstructorCall = (Action) (() => { });
       var constructorCalls = new ConcurrentDictionary<ReverseConstructionKey, Delegate>();
       var fakeRequestedType = ReflectionObjectMother.GetSomeType();
-      var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
-      var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
 
       _typeAssemblerMock
           .Expect (mock => mock.GetRequestedType (reverseConstructionKey.AssembledType)).Return (fakeRequestedType)
           .WhenCalled (_ => CheckLockIsHeld());
-      _delegateFactoryMock
-          .Expect (mock => mock.GetSignature (reverseConstructionKey.DelegateType))
-          .Return (fakeSignature)
-          .WhenCalled (_ => CheckLockIsHeld());
-      _constructorFinderMock
+
+      var assembledConstructorCall = (Action) (() => { });
+      _constructorDelegateFactoryMock
           .Expect (
-              mock => mock.GetConstructor (
+              mock => mock.CreateConstructorCall (
                   fakeRequestedType,
-                  fakeSignature.Item1,
-                  reverseConstructionKey.AllowNonPublic,
-                  reverseConstructionKey.AssembledType))
-          .Return (fakeConstructor)
-          .WhenCalled (_ => CheckLockIsHeld());
-      _delegateFactoryMock
-          .Expect (mock => mock.CreateConstructorCall (fakeConstructor, reverseConstructionKey.DelegateType))
+                  reverseConstructionKey.AssembledType,
+                  reverseConstructionKey.DelegateType,
+                  reverseConstructionKey.AllowNonPublic))
           .Return (assembledConstructorCall)
           .WhenCalled (_ => CheckLockIsHeld());
 
       var result = _point.GetOrGenerateConstructorCall (constructorCalls, reverseConstructionKey);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _delegateFactoryMock.VerifyAllExpectations();
-      _constructorFinderMock.VerifyAllExpectations();
+      _constructorDelegateFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (assembledConstructorCall));
       Assert.That (constructorCalls[reverseConstructionKey], Is.SameAs (assembledConstructorCall));
     }

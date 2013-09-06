@@ -19,7 +19,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
@@ -36,24 +35,20 @@ namespace Remotion.TypePipe.Implementation.Synchronization
     private readonly object _codeGenerationLock = new object();
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly IConstructorFinder _constructorFinder;
-    private readonly IDelegateFactory _delegateFactory;
+    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
     private readonly AssemblyContext _assemblyContext;
 
     public SynchronizationPoint (
         ITypeAssembler typeAssembler,
-        IConstructorFinder constructorFinder,
-        IDelegateFactory delegateFactory,
+        IConstructorDelegateFactory constructorDelegateFactory,
         AssemblyContext assemblyContext)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
-      ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
+      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
       ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
 
       _typeAssembler = typeAssembler;
-      _constructorFinder = constructorFinder;
-      _delegateFactory = delegateFactory;
+      _constructorDelegateFactory = constructorDelegateFactory;
       _assemblyContext = assemblyContext;
     }
 
@@ -143,7 +138,11 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         var typeID = constructionKey.TypeID;
         var assembledType = GetOrGenerateType (types, typeID);
 
-        constructorCall = CreateConstructorCall (typeID.RequestedType, constructionKey.DelegateType, constructionKey.AllowNonPublic, assembledType);
+        constructorCall = _constructorDelegateFactory.CreateConstructorCall (
+            typeID.RequestedType,
+            assembledType,
+            constructionKey.DelegateType,
+            constructionKey.AllowNonPublic);
         AddTo (constructorCalls, constructionKey, constructorCall);
       }
 
@@ -200,19 +199,15 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         var assembledType = reverseConstructionKey.AssembledType;
         var requestedType = _typeAssembler.GetRequestedType (assembledType);
 
-        constructorCall = CreateConstructorCall (requestedType, reverseConstructionKey.DelegateType, reverseConstructionKey.AllowNonPublic, assembledType);
+        constructorCall = _constructorDelegateFactory.CreateConstructorCall (
+            requestedType,
+            assembledType,
+            reverseConstructionKey.DelegateType,
+            reverseConstructionKey.AllowNonPublic);
         AddTo (constructorCalls, reverseConstructionKey, constructorCall);
       }
 
       return constructorCall;
-    }
-
-    private Delegate CreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic, Type assembledType)
-    {
-      var ctorSignature = _delegateFactory.GetSignature (delegateType);
-      var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, allowNonPublic, assembledType);
-
-      return _delegateFactory.CreateConstructorCall (constructor, delegateType);
     }
 
     private void AddTo<TKey, TValue> (ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)

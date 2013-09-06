@@ -65,12 +65,14 @@
     <Compile Include="Caching\IReverseTypeCache.cs" />
     <Compile Include="Caching\ReverseTypeCache.cs" />
     <Compile Include="CodeGeneration\AssemblyContext.cs" />
+    <Compile Include="CodeGeneration\IConstructorDelegateFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="Configuration\EnableSerializationWithoutAssemblySavingConfigurationElement.cs" />
     <Compile Include="Implementation\InitializationSemantics.cs" />
     <Compile Include="Implementation\DefaultPipelineFactory.cs" />
+    <Compile Include="CodeGeneration\ConstructorDelegateFactory.cs" />
     <Compile Include="Implementation\Synchronization\IReverseTypeCacheSynchronizationPoint.cs" />
     <Compile Include="MutableReflection\BodyChangedEventArgs.cs" />
     <Compile Include="MutableReflection\ExplicitBaseDefinitionsAddedEventArgs.cs" />
