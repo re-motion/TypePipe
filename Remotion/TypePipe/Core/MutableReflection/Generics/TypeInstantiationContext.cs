@@ -86,10 +86,15 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     private Type SubstituteArrayElementType (Type arrayType, IDictionary<Type, Type> parametersToArguments)
     {
-      var isVector = arrayType.GetConstructors().Length == 1;
-      var elementType = SubstituteGenericParameters (arrayType.GetElementType(), parametersToArguments);
+      var elementType = arrayType.GetElementType();
+      Assertion.IsNotNull(elementType);
 
-      return isVector ? elementType.MakeArrayType() : elementType.MakeArrayType (arrayType.GetArrayRank());
+      // ReSharper disable CheckForReferenceEqualityInstead.1 - Equals because TypePipe does not unify types.
+      var isVector = arrayType.Equals(elementType.MakeArrayType());
+      // ReSharper restore CheckForReferenceEqualityInstead.1
+
+      var substitutedElementType = SubstituteGenericParameters(elementType, parametersToArguments);
+      return isVector ? substitutedElementType.MakeArrayType() : substitutedElementType.MakeArrayType (arrayType.GetArrayRank());
     }
 
     private Type SubstituteByRefElementType (Type byRefType, IDictionary<Type, Type> parametersToArguments)

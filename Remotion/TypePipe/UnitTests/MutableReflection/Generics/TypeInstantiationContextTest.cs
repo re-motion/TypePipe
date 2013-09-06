@@ -25,6 +25,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -158,6 +159,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (result.GetElementType(), Is.SameAs (_argument));
       Assert.That (result.GetArrayRank(), Is.EqualTo (1));
       Assert.That (result.GetConstructors().Length, Is.EqualTo (1), "Vectors have a single constructor.");
+    }
+
+    [Test]
+    public void SubstituteGenericParameters_VectorVectorType ()
+    {
+      var vectorType = _parameter.MakeArrayType().MakeArrayType();
+
+      var result = _context.SubstituteGenericParameters(vectorType, _parametersToArguments);
+
+      Assert.That(result, Is.EqualTo(_argument.MakeArrayType().MakeArrayType()));
     }
 
     [Test]
