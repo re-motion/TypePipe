@@ -85,10 +85,8 @@ namespace Remotion.TypePipe.Implementation
 
     protected virtual ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, AssemblyContext assemblyContext)
     {
-      var constructorFinder = NewConstructorFinder();
-      var delegateFactory = NewDelegateFactory();
-
-      return new SynchronizationPoint (typeAssembler, constructorFinder, delegateFactory, assemblyContext);
+      var constructorDelegateFactory = NewConstructorDelegateFactory();
+      return new SynchronizationPoint (typeAssembler, constructorDelegateFactory, assemblyContext);
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (
@@ -125,6 +123,14 @@ namespace Remotion.TypePipe.Implementation
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
       return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath);
+    }
+
+    protected virtual IConstructorDelegateFactory NewConstructorDelegateFactory ()
+    {
+      var constructorFinder = NewConstructorFinder();
+      var delegateFactory = NewDelegateFactory();
+
+      return new ConstructorDelegateFactory (constructorFinder, delegateFactory);
     }
 
     protected virtual IDelegateFactory NewDelegateFactory ()
