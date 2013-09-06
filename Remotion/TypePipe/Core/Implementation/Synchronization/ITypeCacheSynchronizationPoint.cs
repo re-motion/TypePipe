@@ -33,11 +33,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
 
     Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID);
 
-    Delegate GetOrGenerateConstructorCall (
-        ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
-        ConstructionKey constructionKey,
-        ConcurrentDictionary<AssembledTypeID, Type> types);
-
     void RebuildParticipantState (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,

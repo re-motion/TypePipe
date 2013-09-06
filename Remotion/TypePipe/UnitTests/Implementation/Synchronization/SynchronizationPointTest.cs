@@ -137,45 +137,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     }
 
     [Test]
-    public void GetOrGenerateConstructorCall_CacheHit ()
-    {
-      var constructionKey = CreateConstructionKey();
-      var assembledConstructorCall = (Action) (() => { });
-      var constructorCalls = CreateConcurrentDictionary<ConstructionKey, Delegate> (constructionKey, assembledConstructorCall);
-      var types = new ConcurrentDictionary<AssembledTypeID, Type>();
-
-      var result = _point.GetOrGenerateConstructorCall (constructorCalls, constructionKey, types);
-
-      Assert.That (result, Is.SameAs (assembledConstructorCall));
-    }
-
-    [Test]
-    public void GetOrCreateConstructorCall_CacheMiss_CacheHitTypes ()
-    {
-      var constructionKey = CreateConstructionKey();
-      var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
-      var types = CreateConcurrentDictionary (constructionKey.TypeID, assembledType);
-
-      var assembledConstructorCall = (Action) (() => { });
-      _constructorDelegateFactoryMock
-          .Expect (
-              mock => mock.CreateConstructorCall (
-                  constructionKey.TypeID.RequestedType,
-                  assembledType,
-                  constructionKey.DelegateType,
-                  constructionKey.AllowNonPublic))
-          .Return (assembledConstructorCall)
-          .WhenCalled (_ => CheckLockIsHeld());
-
-      var result = _point.GetOrGenerateConstructorCall (constructorCalls, constructionKey, types);
-
-      _constructorDelegateFactoryMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (assembledConstructorCall));
-      Assert.That (constructorCalls[constructionKey], Is.SameAs (assembledConstructorCall));
-    }
-
-    [Test]
     public void RebuildParticipantState ()
     {
       var alreadyCachedAssembledType = ReflectionObjectMother.GetSomeType();

@@ -20,6 +20,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
@@ -37,14 +38,23 @@ namespace Remotion.TypePipe.Caching
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
+    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
 
-    public TypeCache (ITypeAssembler typeAssembler, ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
+    private readonly Func<ConstructionKey, Delegate> _createConstructorCallFunc;
+
+    public TypeCache (ITypeAssembler typeAssembler,
+        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
+        IConstructorDelegateFactory constructorDelegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
+      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
 
       _typeAssembler = typeAssembler;
       _typeCacheSynchronizationPoint = typeCacheSynchronizationPoint;
+      _constructorDelegateFactory = constructorDelegateFactory;
+
+      _createConstructorCallFunc = CreateConstructorCall;
     }
 
     public string ParticipantConfigurationID
@@ -93,12 +103,7 @@ namespace Remotion.TypePipe.Caching
       Assertion.DebugAssert (delegateType != null && typeof(Delegate).IsAssignableFrom(delegateType));
 
       var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
-
-      Delegate constructorCall;
-      if (_constructorCalls.TryGetValue (constructionKey, out constructorCall))
-        return constructorCall;
-
-      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (_constructorCalls, constructionKey, _types);
+      return _constructorCalls.GetOrAdd (constructionKey, _createConstructorCallFunc);
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
@@ -126,6 +131,12 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
       return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID);
+    }
+
+    private Delegate CreateConstructorCall (ConstructionKey key)
+    {
+      var assembledType = GetOrCreateType (key.TypeID);
+      return _constructorDelegateFactory.CreateConstructorCall (key.TypeID.RequestedType, assembledType, key.DelegateType, key.AllowNonPublic);
     }
   }
 }

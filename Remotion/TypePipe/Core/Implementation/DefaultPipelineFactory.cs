@@ -46,8 +46,9 @@ namespace Remotion.TypePipe.Implementation
       var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
       var assemblyContext = new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
-      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, assemblyContext);
-      var typeCache = NewTypeCache (typeAssembler, synchronizationPoint);
+      var constructorDelegateFactory = NewConstructorDelegateFactory();
+      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, constructorDelegateFactory, assemblyContext);
+      var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, constructorDelegateFactory);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
       var reverseTypeCache = NewReverseTypeCache (synchronizationPoint);
       var reflectionService = NewReflectionService (synchronizationPoint, typeCache, reverseTypeCache);
@@ -73,9 +74,12 @@ namespace Remotion.TypePipe.Implementation
     }
 
     [CLSCompliant (false)]
-    protected virtual ITypeCache NewTypeCache (ITypeAssembler typeAssembler, ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
+    protected virtual ITypeCache NewTypeCache (
+        ITypeAssembler typeAssembler,
+        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
+        IConstructorDelegateFactory constructorDelegateFactory)
     {
-      return new TypeCache (typeAssembler, typeCacheSynchronizationPoint);
+      return new TypeCache (typeAssembler, typeCacheSynchronizationPoint, constructorDelegateFactory);
     }
 
     protected virtual IReverseTypeCache NewReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
@@ -83,9 +87,11 @@ namespace Remotion.TypePipe.Implementation
       return new ReverseTypeCache (reverseTypeCacheSynchronizationPoint);
     }
 
-    protected virtual ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, AssemblyContext assemblyContext)
+    protected virtual ISynchronizationPoint NewSynchronizationPoint (
+        ITypeAssembler typeAssembler,
+        IConstructorDelegateFactory constructorDelegateFactory,
+        AssemblyContext assemblyContext)
     {
-      var constructorDelegateFactory = NewConstructorDelegateFactory();
       return new SynchronizationPoint (typeAssembler, constructorDelegateFactory, assemblyContext);
     }
 

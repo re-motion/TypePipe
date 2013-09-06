@@ -121,34 +121,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       return generatedType;
     }
 
-    public Delegate GetOrGenerateConstructorCall (
-        ConcurrentDictionary<ConstructionKey, Delegate> constructorCalls,
-        ConstructionKey constructionKey,
-        ConcurrentDictionary<AssembledTypeID, Type> types)
-    {
-      ArgumentUtility.CheckNotNull ("constructorCalls", constructorCalls);
-      ArgumentUtility.CheckNotNull ("types", types);
-
-      Delegate constructorCall;
-      lock (_codeGenerationLock)
-      {
-        if (constructorCalls.TryGetValue (constructionKey, out constructorCall))
-          return constructorCall;
-
-        var typeID = constructionKey.TypeID;
-        var assembledType = GetOrGenerateType (types, typeID);
-
-        constructorCall = _constructorDelegateFactory.CreateConstructorCall (
-            typeID.RequestedType,
-            assembledType,
-            constructionKey.DelegateType,
-            constructionKey.AllowNonPublic);
-        AddTo (constructorCalls, constructionKey, constructorCall);
-      }
-
-      return constructorCall;
-    }
-
     public void RebuildParticipantState (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,
