@@ -94,15 +94,13 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void CodeManagerAPIs_CannotRunWhileCodeIsGenerated ()
     {
       var t1 = StartAndWaitUntilBlocked (() => _pipeline.Create<DomainTypeCausingParticipantToBlock>());
-      var t2 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyDirectory);
-      var t3 = StartAndWaitUntilBlocked (() => Dev.Null = _pipeline.CodeManager.AssemblyNamePattern);
-      var t4 = StartAndWaitUntilBlocked (() => Flush());
+      var t2 = StartAndWaitUntilBlocked (() => Flush());
 
       // All threads are now blocked. [t1] is blocked by the mutex, [t2, ...] are blocked by the code generation in [t1].
       _blockingMutex.ReleaseMutex();
 
       // Now all threads run to completion (user APIs do not interfere with code generation).
-      WaitUntilCompleted (t1, t2, t3, t4);
+      WaitUntilCompleted (t1, t2);
     }
 
     [Test]

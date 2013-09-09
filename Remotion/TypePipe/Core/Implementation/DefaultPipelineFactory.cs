@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -55,13 +56,20 @@ namespace Remotion.TypePipe.Implementation
 
     private AssemblyContext NewAssemblyContext (PipelineSettings settings)
     {
-      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
+      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (
+          settings.ForceStrongNaming,
+          settings.KeyFilePath,
+          settings.AssemblyDirectory,
+          settings.AssemblyNamePattern);
       var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
       return new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
     }
 
     protected virtual IPipeline NewPipeline (
-        PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+        PipelineSettings settings,
+        ITypeCache typeCache,
+        ICodeManager codeManager,
+        IReflectionService reflectionService)
     {
       return new Pipeline (settings, typeCache, codeManager, reflectionService);
     }
@@ -98,7 +106,9 @@ namespace Remotion.TypePipe.Implementation
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, bool enableSerializationWithoutAssemblySaving)
+        string participantConfigurationID,
+        IEnumerable<IParticipant> participants,
+        bool enableSerializationWithoutAssemblySaving)
     {
       var mutableTypeFactory = NewMutableTypeFactory();
       var complexSerializationEnabler = ComplexSerializationEnabler (enableSerializationWithoutAssemblySaving);
@@ -126,11 +136,15 @@ namespace Remotion.TypePipe.Implementation
     }
 
     [CLSCompliant (false)]
-    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (bool forceStrongNaming, string keyFilePath)
+    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (
+        bool forceStrongNaming,
+        [CanBeNull]string keyFilePath,
+        [CanBeNull]string assemblyDirectory,
+        [NotNull]string assemblyNamePattern)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
-      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath);
+      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, assemblyDirectory, assemblyNamePattern);
     }
 
     protected virtual IConstructorDelegateFactory NewConstructorDelegateFactory ()

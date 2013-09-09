@@ -62,16 +62,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     [Test]
     public void DelegatingMembers_GuardedByLock ()
     {
-      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyDirectory).Return ("get dir").WhenCalled (_ => CheckLockIsHeld());
-      Assert.That (_point.AssemblyDirectory, Is.EqualTo ("get dir"));
-      _generatedCodeFlusherMock.Expect (mock => mock.AssemblyNamePattern).Return ("get name pattern").WhenCalled (_ => CheckLockIsHeld());
-      Assert.That (_point.AssemblyNamePattern, Is.EqualTo ("get name pattern"));
-
-      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyDirectory ("set dir")).WhenCalled (_ => CheckLockIsHeld());
-      _point.SetAssemblyDirectory ("set dir");
-      _generatedCodeFlusherMock.Expect (mock => mock.SetAssemblyNamePattern ("set name pattern")).WhenCalled (_ => CheckLockIsHeld());
-      _point.SetAssemblyNamePattern ("set name pattern");
-
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
       _typeAssemblerMock

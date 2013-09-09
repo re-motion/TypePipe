@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -50,31 +49,7 @@ namespace Remotion.TypePipe.Implementation
       _typeCache = typeCache;
     }
 
-    public string AssemblyDirectory
-    {
-      get { return _codeManagerSynchronizationPoint.AssemblyDirectory; }
-    }
-
-    public string AssemblyNamePattern
-    {
-      get { return _codeManagerSynchronizationPoint.AssemblyNamePattern; }
-    }
-
-    public void SetAssemblyDirectory (string assemblyDirectory)
-    {
-      // Assembly directory may be null (to use the current directory).
-
-      _codeManagerSynchronizationPoint.SetAssemblyDirectory (assemblyDirectory);
-    }
-
-    public void SetAssemblyNamePattern (string assemblyNamePattern)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
-
-      _codeManagerSynchronizationPoint.SetAssemblyNamePattern (assemblyNamePattern);
-    }
-
-    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
+    public string FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
     {
       ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
@@ -83,13 +58,6 @@ namespace Remotion.TypePipe.Implementation
       var attributes = assemblyAttributes.Concat (typePipeAttribute);
 
       return _codeManagerSynchronizationPoint.FlushCodeToDisk (attributes);
-    }
-
-    public string FlushCodeToDisk (CustomAttributeDeclaration[] assemblyAttributes)
-    {
-      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
-
-      return FlushCodeToDisk ((IEnumerable<CustomAttributeDeclaration>) assemblyAttributes);
     }
 
     public void LoadFlushedCode (Assembly assembly)

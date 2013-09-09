@@ -132,10 +132,23 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IPipeline CreatePipeline (string participantConfigurationID, params IParticipant[] participants)
     {
-      return CreatePipeline (participantConfigurationID, PipelineSettings.Defaults, participants);
+      return CreatePipelineWithIntegrationTestAssemblyLocation (participantConfigurationID, PipelineSettings.Defaults, participants);
     }
 
-    protected IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
+    protected IPipeline CreatePipelineWithIntegrationTestAssemblyLocation (
+        string participantConfigurationID, 
+        PipelineSettings settings, 
+        params IParticipant[] participants)
+    {
+      var customSettings = PipelineSettings.From (settings)
+          .SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory)
+          .SetAssemblyNamePattern (participantConfigurationID + "_{counter}")
+          .Build();
+
+      return CreatePipelineExactAssemblyLocation (participantConfigurationID, customSettings, participants);
+    }
+
+    protected IPipeline CreatePipelineExactAssemblyLocation (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
     {
       // Avoid no-modification optimization.
       if (participants.Length == 0)
@@ -144,13 +157,11 @@ namespace Remotion.TypePipe.IntegrationTests
       var pipeline = PipelineFactory.Create (participantConfigurationID, settings, participants);
 
       _codeManager = pipeline.CodeManager;
-      _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _codeManager.SetAssemblyNamePattern (participantConfigurationID + "_{counter}");
 
       return pipeline;
     }
 
-    protected string Flush (IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
+    protected string Flush (CustomAttributeDeclaration[] assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
     {
       Assertion.IsNotNull (_codeManager, "Use IntegrationTestBase.CreatePipeline");
 

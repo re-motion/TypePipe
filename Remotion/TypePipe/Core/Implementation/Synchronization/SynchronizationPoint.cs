@@ -23,6 +23,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
+using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
@@ -44,35 +45,19 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       _assemblyContextPool = assemblyContextPool;
     }
 
-    public string AssemblyDirectory
-    {
-      //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
-      get { throw new NotSupportedException ("TODO 5840"); }
-    }
-
-    public string AssemblyNamePattern
-    {
-      //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
-      get { throw new NotSupportedException ("TODO 5840"); }
-    }
-
-    public void SetAssemblyDirectory (string assemblyDirectory)
-    {
-      //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
-      throw new NotSupportedException ("TODO 5840");
-    }
-
-    public void SetAssemblyNamePattern (string assemblyNamePattern)
-    {
-      //TODO 5840: Setting the AssemblyDirectory to PipelineFactory.Settings
-      throw new NotSupportedException ("TODO 5840");
-    }
-
     public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
       //TODO 5840: Affects all AssemblyContexts in the pool.
       // Dequeue all contexts, flush them, enqueue again and return string[] for the flushed assembly paths.
-      throw new NotSupportedException ("TODO 5840");
+      var assemblyContext = _assemblyContextPool.DequeueAll().Single(()=> new NotSupportedException ("Multiple AssemblyContext are not supported."));
+      try
+      {
+        return assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
+      }
+      finally
+      {
+        _assemblyContextPool.Enqueue (assemblyContext);
+      }
     }
 
     public Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID)

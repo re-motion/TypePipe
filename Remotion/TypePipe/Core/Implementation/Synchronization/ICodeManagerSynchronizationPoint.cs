@@ -16,14 +16,16 @@
 // 
 
 using System;
-using Remotion.TypePipe.CodeGeneration;
+using System.Collections.Generic;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Implementation.Synchronization
 {
   /// <summary>
   /// This interface is an implementation detail of <see cref="CodeManager"/> to enable synchronization of code generation functionalities in one place.
   /// </summary>
-  public interface ICodeManagerSynchronizationPoint : IGeneratedCodeFlusher
+  public interface ICodeManagerSynchronizationPoint
   {
+    string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes);
   }
 }

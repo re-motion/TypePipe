@@ -74,27 +74,7 @@ namespace Remotion.Development.TypePipe
       _savedAssemblies.Clear();
     }
 
-    public string AssemblyDirectory
-    {
-      get { return _codeManager.AssemblyDirectory; }
-    }
-
-    public string AssemblyNamePattern
-    {
-      get { return _codeManager.AssemblyNamePattern; }
-    }
-
-    public void SetAssemblyDirectory (string assemblyDirectory)
-    {
-      _codeManager.SetAssemblyDirectory (assemblyDirectory);
-    }
-
-    public void SetAssemblyNamePattern (string assemblyNamePattern)
-    {
-      _codeManager.SetAssemblyNamePattern (assemblyNamePattern);
-    }
-
-    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
+    public string FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
     {
       var assemblyPath = _codeManager.FlushCodeToDisk (assemblyAttributes);
 
@@ -102,11 +82,6 @@ namespace Remotion.Development.TypePipe
         _savedAssemblies.Add (assemblyPath);
 
       return assemblyPath;
-    }
-
-    public string FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
-    {
-      return FlushCodeToDisk ((IEnumerable<CustomAttributeDeclaration>) assemblyAttributes);
     }
 
     public void LoadFlushedCode (Assembly assembly)

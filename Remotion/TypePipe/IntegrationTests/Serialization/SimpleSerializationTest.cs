@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
@@ -27,9 +28,13 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
   {
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
     {
+      var settings = (PipelineSettings.New())
+          .SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory)
+          .Build();
+
       var participants = participantProviders.Select (pp => pp());
-      var pipeline = CreatePipeline (participants.ToArray());
-      pipeline.CodeManager.SetAssemblyDirectory (AppDomain.CurrentDomain.BaseDirectory);
+      
+      var pipeline = CreatePipelineExactAssemblyLocation ("standard", settings, participants.ToArray());
 
       return pipeline;
     }
