@@ -38,6 +38,8 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       ArgumentUtility.CheckNotNull ("assemblyContexts", assemblyContexts);
 
       _allContexts = assemblyContexts.ToDictionary (c => c);
+      foreach (var assemblyContext in _allContexts.Keys)
+        _queue.Add (assemblyContext);
     }
 
     public AssemblyContext[] DequeueAll ()

@@ -22,7 +22,6 @@ using NUnit.Framework;
 using Remotion.Development.RhinoMocks.UnitTesting.Threading;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -55,7 +54,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
       var assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGeneratorMock, _generatedCodeFlusherMock);
       _participantState = assemblyContext.ParticipantState;
 
-      _point = new SynchronizationPoint (_typeAssemblerMock, assemblyContext);
+      _point = new SynchronizationPoint (_typeAssemblerMock, new AssemblyContextPool (new []{assemblyContext}));
 
       _codeGeneratorLock = PrivateInvoke.GetNonPublicField (_point, "_codeGenerationLock");
     }

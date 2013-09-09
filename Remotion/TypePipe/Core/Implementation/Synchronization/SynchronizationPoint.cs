@@ -87,18 +87,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       return _typeAssembler.ExtractTypeID (assembledType);
     }
 
-    // TODO 5840: Move out from SyncPoint.
-    public Type GetRequestedType (Type assembledType)
-    {
-      return _typeAssembler.GetRequestedType (assembledType);
-    }
-
-    // TODO 5840: Move out from SyncPoint.
-    public AssembledTypeID GetTypeID (Type assembledType)
-    {
-      return _typeAssembler.ExtractTypeID (assembledType);
-    }
-
     public Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID)
     {
       ArgumentUtility.CheckNotNull ("types", types);

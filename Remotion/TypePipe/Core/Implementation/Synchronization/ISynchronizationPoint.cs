@@ -25,7 +25,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   /// </summary>
   public interface ISynchronizationPoint
       : ICodeManagerSynchronizationPoint,
-        IReflectionServiceSynchronizationPoint,
         ITypeCacheSynchronizationPoint
   {
   }

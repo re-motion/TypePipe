@@ -99,7 +99,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
-    <Compile Include="Implementation\Synchronization\IReflectionServiceSynchronizationPoint.cs" />
     <Compile Include="Implementation\Synchronization\ITypeCacheSynchronizationPoint.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
     <Compile Include="Implementation\IPipelineFactory.cs" />
