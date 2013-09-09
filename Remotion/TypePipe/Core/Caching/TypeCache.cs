@@ -133,19 +133,18 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID);
-      //var assemblyContext = _assemblyContextPool.Dequeue();
-      //try
-      //{
-      //  return _typeAssembler.GetOrAssembleAdditionalType (
-      //      additionalTypeID,
-      //      assemblyContext.ParticipantState,
-      //      assemblyContext.MutableTypeBatchCodeGenerator);
-      //}
-      //finally
-      //{
-      //  _assemblyContextPool.Enqueue (assemblyContext);
-      //}
+      var assemblyContext = _assemblyContextPool.Dequeue();
+      try
+      {
+        return _typeAssembler.GetOrAssembleAdditionalType (
+            additionalTypeID,
+            assemblyContext.ParticipantState,
+            assemblyContext.MutableTypeBatchCodeGenerator);
+      }
+      finally
+      {
+        _assemblyContextPool.Enqueue (assemblyContext);
+      }
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)

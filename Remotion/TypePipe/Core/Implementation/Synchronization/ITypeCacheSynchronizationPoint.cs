@@ -31,7 +31,5 @@ namespace Remotion.TypePipe.Implementation.Synchronization
         ConcurrentDictionary<AssembledTypeID, Type> types,
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,
         IEnumerable<Type> additionalTypes);
-
-    Type GetOrGenerateAdditionalType (object additionalTypeID);
   }
 }

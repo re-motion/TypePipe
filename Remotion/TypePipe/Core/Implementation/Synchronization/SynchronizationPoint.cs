@@ -91,27 +91,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       }
     }
 
-    public Type GetOrGenerateAdditionalType (object additionalTypeID)
-    {
-      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
-
-      // TODO 5840: Move to TypeCache
-      // TODO 5840: Test Dequeue.
-      // TODO 5840: Test Enqueue in finally-block.
-      var assemblyContext = _assemblyContextPool.Dequeue();
-      try
-      {
-        return _typeAssembler.GetOrAssembleAdditionalType (
-            additionalTypeID,
-            assemblyContext.ParticipantState,
-            assemblyContext.MutableTypeBatchCodeGenerator);
-      }
-      finally
-      {
-        _assemblyContextPool.Enqueue (assemblyContext);
-      }
-    }
-
     private void AddTo<TKey, TValue> (ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
     {
       if (!concurrentDictionary.TryAdd (key, value))

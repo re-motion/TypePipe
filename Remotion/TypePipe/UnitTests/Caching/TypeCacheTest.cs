@@ -324,14 +324,69 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
-      _typeCacheSynchronizationPointMock
-          .Expect (mock => mock.GetOrGenerateAdditionalType (additionalTypeID))
-          .Return (additionalType);
+
+      var assemblyContext = new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+
+      bool isDequeued = false;
+      _assemblyContextPool
+          .Expect (mock => mock.Dequeue())
+          .Return (assemblyContext)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _typeAssemblerMock
+          .Expect (
+              mock => mock.GetOrAssembleAdditionalType (
+                  additionalTypeID,
+                  assemblyContext.ParticipantState,
+                  assemblyContext.MutableTypeBatchCodeGenerator))
+          .Return (additionalType)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _assemblyContextPool
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       var result = _cache.GetOrCreateAdditionalType (additionalTypeID);
 
-      _typeCacheSynchronizationPointMock.VerifyAllExpectations();
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (additionalType));
+    }
+
+    [Test]
+    public void GetOrCreateAdditionalType_AndExceptionDuringAssembleType_ReturnsAssemblyContextToPool ()
+    {
+      var expectedException = new Exception();
+      var additionalTypeID = new object();
+
+      var assemblyContext = new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+
+      bool isDequeued = false;
+      _assemblyContextPool
+          .Expect (mock => mock.Dequeue())
+          .Return (assemblyContext)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _typeAssemblerMock
+          .Expect (mock => mock.GetOrAssembleAdditionalType (null, null, null))
+          .IgnoreArguments()
+          .Throw (expectedException)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _assemblyContextPool
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
+
+      Assert.That (
+          () => _cache.GetOrCreateAdditionalType (additionalTypeID),
+          Throws.Exception.SameAs (expectedException));
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
     }
 
     private class RequestedType {}

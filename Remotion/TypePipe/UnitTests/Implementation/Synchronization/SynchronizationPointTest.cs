@@ -60,21 +60,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     }
 
     [Test]
-    public void DelegatingMembers_GuardedByLock ()
-    {
-      var additionalTypeID = new object();
-      var additionalType = ReflectionObjectMother.GetSomeType();
-      _typeAssemblerMock
-          .Expect (mock => mock.GetOrAssembleAdditionalType (additionalTypeID, _participantState, _mutableTypeBatchCodeGeneratorMock))
-          .Return (additionalType)
-          .WhenCalled (_ => CheckLockIsHeld());
-      Assert.That (_point.GetOrGenerateAdditionalType (additionalTypeID), Is.SameAs (additionalType));
-
-      _generatedCodeFlusherMock.VerifyAllExpectations();
-      _typeAssemblerMock.VerifyAllExpectations();
-    }
-
-    [Test]
     public void RebuildParticipantState ()
     {
       var alreadyCachedAssembledType = ReflectionObjectMother.GetSomeType();
