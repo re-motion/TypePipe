@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.Caching
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorDelegateFactory _constructorDelegateFactory;
+    private readonly IAssemblyContextPool _assemblyContextPool;
     private readonly ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
 
     private readonly Func<ConstructionKey, Delegate> _createConstructorCallFunc;
@@ -46,14 +47,17 @@ namespace Remotion.TypePipe.Caching
     public TypeCache (
         ITypeAssembler typeAssembler,
         IConstructorDelegateFactory constructorDelegateFactory,
+        IAssemblyContextPool assemblyContextPool,
         ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
+      ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
       ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
 
       _typeAssembler = typeAssembler;
       _constructorDelegateFactory = constructorDelegateFactory;
+      _assemblyContextPool = assemblyContextPool;
       _typeCacheSynchronizationPoint = typeCacheSynchronizationPoint;
 
       _createConstructorCallFunc = CreateConstructorCall;
@@ -85,7 +89,18 @@ namespace Remotion.TypePipe.Caching
       if (_types.TryGetValue (typeID, out assembledType))
         return assembledType;
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID);
+      var assemblyContext = _assemblyContextPool.Dequeue();
+      try
+      {
+        assembledType = _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
+        AddTo (_types, typeID, assembledType);
+
+        return assembledType;
+      }
+      finally
+      {
+        _assemblyContextPool.Enqueue (assemblyContext);
+      }
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -108,6 +123,31 @@ namespace Remotion.TypePipe.Caching
       return _constructorCalls.GetOrAdd (constructionKey, _createConstructorCallFunc);
     }
 
+    private Delegate CreateConstructorCall (ConstructionKey key)
+    {
+      var assembledType = GetOrCreateType (key.TypeID);
+      return _constructorDelegateFactory.CreateConstructorCall (key.TypeID.RequestedType, assembledType, key.DelegateType, key.AllowNonPublic);
+    }
+
+    public Type GetOrCreateAdditionalType (object additionalTypeID)
+    {
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+
+      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID);
+      //var assemblyContext = _assemblyContextPool.Dequeue();
+      //try
+      //{
+      //  return _typeAssembler.GetOrAssembleAdditionalType (
+      //      additionalTypeID,
+      //      assemblyContext.ParticipantState,
+      //      assemblyContext.MutableTypeBatchCodeGenerator);
+      //}
+      //finally
+      //{
+      //  _assemblyContextPool.Enqueue (assemblyContext);
+      //}
+    }
+
     public void LoadTypes (IEnumerable<Type> generatedTypes)
     {
       ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
@@ -128,17 +168,10 @@ namespace Remotion.TypePipe.Caching
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes);
     }
 
-    public Type GetOrCreateAdditionalType (object additionalTypeID)
+    private void AddTo<TKey, TValue> (ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
     {
-      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
-
-      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID);
-    }
-
-    private Delegate CreateConstructorCall (ConstructionKey key)
-    {
-      var assembledType = GetOrCreateType (key.TypeID);
-      return _constructorDelegateFactory.CreateConstructorCall (key.TypeID.RequestedType, assembledType, key.DelegateType, key.AllowNonPublic);
+      if (!concurrentDictionary.TryAdd (key, value))
+        throw new ArgumentException ("Key already exists.");
     }
   }
 }

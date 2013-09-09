@@ -60,31 +60,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       }
     }
 
-    public Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID)
-    {
-      ArgumentUtility.CheckNotNull ("types", types);
-
-      // TODO 5840: Move to TypeCache
-      // TODO 5840: Test Dequeue.
-      // TODO 5840: Test Enqueue in finally-block.
-      var assemblyContext = _assemblyContextPool.Dequeue();
-      try
-      {
-        Type generatedType;
-        if (types.TryGetValue (typeID, out generatedType))
-          return generatedType;
-
-        generatedType = _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
-        AddTo (types, typeID, generatedType);
-
-        return generatedType;
-      }
-      finally
-      {
-        _assemblyContextPool.Enqueue (assemblyContext);
-      }
-    }
-
     public void RebuildParticipantState (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,

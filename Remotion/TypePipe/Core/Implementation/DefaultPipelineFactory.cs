@@ -45,24 +45,14 @@ namespace Remotion.TypePipe.Implementation
 
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var constructorDelegateFactory = NewConstructorDelegateFactory();
-      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, settings);
-      var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, synchronizationPoint);
+      var assemblyContextPool = NewAssemblyContextPool (settings);
+      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, assemblyContextPool);
+      var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool, synchronizationPoint);
       var reverseTypeCache = NewReverseTypeCache (typeAssembler, constructorDelegateFactory);
       var codeManager = NewCodeManager (synchronizationPoint, typeCache);
       var reflectionService = NewReflectionService (typeAssembler, typeCache, reverseTypeCache);
 
       return NewPipeline (settings, typeCache, codeManager, reflectionService);
-    }
-
-    private AssemblyContext NewAssemblyContext (PipelineSettings settings)
-    {
-      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (
-          settings.ForceStrongNaming,
-          settings.KeyFilePath,
-          settings.AssemblyDirectory,
-          settings.AssemblyNamePattern);
-      var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
-      return new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
     }
 
     protected virtual IPipeline NewPipeline (
@@ -88,20 +78,37 @@ namespace Remotion.TypePipe.Implementation
     protected virtual ITypeCache NewTypeCache (
         ITypeAssembler typeAssembler,
         IConstructorDelegateFactory constructorDelegateFactory,
+        IAssemblyContextPool assemblyContextPool,
         ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
     {
-      return new TypeCache (typeAssembler, constructorDelegateFactory, typeCacheSynchronizationPoint);
+      return new TypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool, typeCacheSynchronizationPoint);
     }
 
     protected virtual IReverseTypeCache NewReverseTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
     {
       return new ReverseTypeCache (typeAssembler, constructorDelegateFactory);
     }
-
-    protected virtual ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, PipelineSettings settings)
+    
+    private AssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)
     {
       var assemblyContext = NewAssemblyContext (settings);
       var assemblyContextPool = new AssemblyContextPool (new[] { assemblyContext });
+      return assemblyContextPool;
+    }
+
+    private AssemblyContext NewAssemblyContext (PipelineSettings settings)
+    {
+      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (
+          settings.ForceStrongNaming,
+          settings.KeyFilePath,
+          settings.AssemblyDirectory,
+          settings.AssemblyNamePattern);
+      var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
+      return new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
+    }
+
+    private ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
+    {
       return new SynchronizationPoint (typeAssembler, assemblyContextPool);
     }
 

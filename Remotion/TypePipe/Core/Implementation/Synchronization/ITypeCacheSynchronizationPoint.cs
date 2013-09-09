@@ -27,8 +27,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   /// </summary>
   public interface ITypeCacheSynchronizationPoint
   {
-    Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID);
-
     void RebuildParticipantState (
         ConcurrentDictionary<AssembledTypeID, Type> types,
         IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,

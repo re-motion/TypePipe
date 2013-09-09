@@ -75,41 +75,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Synchronization
     }
 
     [Test]
-    public void GetOrGenerateType_CacheHit ()
-    {
-      var typeID = AssembledTypeIDObjectMother.Create();
-      var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var types = CreateConcurrentDictionary (typeID, assembledType);
-
-      var result = _point.GetOrGenerateType (types, typeID);
-
-      Assert.That (result, Is.SameAs (assembledType));
-    }
-
-    [Test]
-    public void GetOrGenerateType_CacheMiss ()
-    {
-      var typeID = AssembledTypeIDObjectMother.Create();
-      var assembledType = ReflectionObjectMother.GetSomeOtherType();
-      var types = new ConcurrentDictionary<AssembledTypeID, Type>();
-
-      _typeAssemblerMock
-          .Expect (
-              mock => mock.AssembleType (
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)), // Use strongly typed Equals overload.
-                  Arg.Is(_participantState),
-                  Arg.Is(_mutableTypeBatchCodeGeneratorMock)))
-          .Return (assembledType)
-          .WhenCalled (_ => CheckLockIsHeld ());
-
-      var result = _point.GetOrGenerateType (types, typeID);
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (assembledType));
-      Assert.That (types[typeID], Is.SameAs (assembledType));
-    }
-
-    [Test]
     public void RebuildParticipantState ()
     {
       var alreadyCachedAssembledType = ReflectionObjectMother.GetSomeType();

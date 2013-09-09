@@ -38,6 +38,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
   {
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorDelegateFactory _constructorDelegateFactoryMock;
+    private IAssemblyContextPool _assemblyContextPool;
     private ITypeCacheSynchronizationPoint _typeCacheSynchronizationPointMock;
 
     private TypeCache _cache;
@@ -56,9 +57,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
+      _assemblyContextPool = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
       _typeCacheSynchronizationPointMock = MockRepository.GenerateStrictMock<ITypeCacheSynchronizationPoint>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _typeCacheSynchronizationPointMock);
+      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPool, _typeCacheSynchronizationPointMock);
 
       _types = (ConcurrentDictionary<AssembledTypeID, Type>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (ConcurrentDictionary<ConstructionKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
@@ -94,27 +96,77 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var result = _cache.GetOrCreateType (_requestedType);
 
       _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
     }
 
     [Test]
-    public void GetOrCreateType_CacheMiss ()
+    public void GetOrCreateType_CacheMiss_UsesAssemblyContextFromPool ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
       _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
-      _typeCacheSynchronizationPointMock
+      var assemblyContext = new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+
+      bool isDequeued = false;
+      _assemblyContextPool
+          .Expect (mock => mock.Dequeue())
+          .Return (assemblyContext)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _typeAssemblerMock
           .Expect (
-              mock => mock.GetOrGenerateType (
-                  Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
+              mock => mock.AssembleType (
                   // Use strongly typed Equals overload.
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
-          .Return (_assembledType);
+                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
+                  Arg.Is (assemblyContext.ParticipantState),
+                  Arg.Is (assemblyContext.MutableTypeBatchCodeGenerator)))
+          .Return (_assembledType)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _assemblyContextPool
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       var result = _cache.GetOrCreateType (_requestedType);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _typeCacheSynchronizationPointMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
+    }
+
+    [Test]
+    public void GetOrCreateType_CacheMiss_AndExceptionDuringAssembleType_ReturnsAssemblyContextToPool ()
+    {
+      var expectedException = new Exception();
+      var typeID = AssembledTypeIDObjectMother.Create();
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
+
+      var assemblyContext = new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+
+      bool isDequeued = false;
+      _assemblyContextPool
+          .Expect (mock => mock.Dequeue())
+          .Return (assemblyContext)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleType (new AssembledTypeID(), null, null))
+          .IgnoreArguments()
+          .Throw (expectedException)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _assemblyContextPool
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
+
+      Assert.That (() => _cache.GetOrCreateType (_requestedType), Throws.Exception.SameAs (expectedException));
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
     }
 
     [Test]
@@ -159,13 +211,29 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var typeID = AssembledTypeIDObjectMother.Create();
       _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
-      _typeCacheSynchronizationPointMock
+      var assemblyContext = new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+
+      bool isDequeued = false;
+      _assemblyContextPool
+          .Expect (mock => mock.Dequeue())
+          .Return (assemblyContext)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _typeAssemblerMock
           .Expect (
-              mock => mock.GetOrGenerateType (
-                  Arg.Is ((ConcurrentDictionary<AssembledTypeID, Type>) _types),
+              mock => mock.AssembleType (
                   // Use strongly typed Equals overload.
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
-          .Return (_assembledType);
+                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
+                  Arg.Is (assemblyContext.ParticipantState),
+                  Arg.Is (assemblyContext.MutableTypeBatchCodeGenerator)))
+          .Return (_assembledType)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _assemblyContextPool
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       _constructorDelegateFactoryMock
           .Expect (mock => mock.CreateConstructorCall (typeID.RequestedType, _assembledType, _delegateType, _allowNonPublic))
@@ -174,12 +242,52 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
       _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
       _constructorDelegateFactoryMock.VerifyAllExpectations();
       
       Assert.That (result, Is.SameAs (_generatedCtorCall));
 
       var key = new ConstructionKey (typeID, _delegateType, _allowNonPublic);
       Assert.That (_constructorCalls[key], Is.SameAs (_generatedCtorCall));
+    }
+
+    [Test]
+    public void GetOrCreateConstructorCall_CacheMiss_WithAssembledTypeCacheMiss_AndExceptionDuringAssembleType_ReturnsAssemblyContextToPool ()
+    {
+      var expectedException = new Exception();
+      var typeID = AssembledTypeIDObjectMother.Create();
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
+
+      var assemblyContext = new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+
+      bool isDequeued = false;
+      _assemblyContextPool
+          .Expect (mock => mock.Dequeue())
+          .Return (assemblyContext)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleType (new AssembledTypeID(), null, null))
+          .IgnoreArguments()
+          .Throw (expectedException)
+          .WhenCalled (mi => { isDequeued = true; });
+
+      _assemblyContextPool
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
+
+      Assert.That (
+          () => _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic),
+          Throws.Exception.SameAs (expectedException));
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
+      _constructorDelegateFactoryMock.VerifyAllExpectations();
+
+      var key = new ConstructionKey (typeID, _delegateType, _allowNonPublic);
+      Assert.That (_constructorCalls.ContainsKey(key), Is.False);
     }
 
     [Test]
