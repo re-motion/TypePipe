@@ -237,7 +237,8 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       _constructorDelegateFactoryMock
           .Expect (mock => mock.CreateConstructorCall (typeID.RequestedType, _assembledType, _delegateType, _allowNonPublic))
-          .Return (_generatedCtorCall);
+          .Return (_generatedCtorCall)
+          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
 
