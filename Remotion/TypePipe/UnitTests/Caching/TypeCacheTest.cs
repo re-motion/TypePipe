@@ -186,10 +186,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void LoadTypes ()
     {
       var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
-      _typeCacheSynchronizationPointMock.Expect (mock => mock.IsAssembledType (_assembledType)).Return (true);
-      _typeCacheSynchronizationPointMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
+      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_assembledType)).Return (true);
+      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeCacheSynchronizationPointMock.Expect (mock => mock.ExtractTypeID (_assembledType)).Return (typeID);
+      _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (_assembledType)).Return (typeID);
       _typeCacheSynchronizationPointMock
           .Expect (
               mock => mock.RebuildParticipantState (

@@ -75,18 +75,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       throw new NotSupportedException ("TODO 5840");
     }
 
-    // TODO 5840: Move out from SyncPoint to caller.
-    public bool IsAssembledType (Type type)
-    {
-      return _typeAssembler.IsAssembledType (type);
-    }
-
-    // TODO 5840: Move out from SyncPoint.
-    public AssembledTypeID ExtractTypeID (Type assembledType)
-    {
-      return _typeAssembler.ExtractTypeID (assembledType);
-    }
-
     public Type GetOrGenerateType (ConcurrentDictionary<AssembledTypeID, Type> types, AssembledTypeID typeID)
     {
       ArgumentUtility.CheckNotNull ("types", types);

@@ -117,14 +117,14 @@ namespace Remotion.TypePipe.Caching
 
       foreach (var type in generatedTypes)
       {
-        if (_typeCacheSynchronizationPoint.IsAssembledType (type))
+        if (_typeAssembler.IsAssembledType (type))
           assembledTypes.Add (type);
         else
           additionalTypes.Add (type);
       }
 
       var keysToAssembledTypes = assembledTypes
-          .Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeCacheSynchronizationPoint.ExtractTypeID (t), t));
+          .Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeAssembler.ExtractTypeID (t), t));
       _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes);
     }
 
