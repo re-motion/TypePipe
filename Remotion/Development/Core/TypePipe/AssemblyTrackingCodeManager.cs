@@ -74,18 +74,21 @@ namespace Remotion.Development.TypePipe
       _savedAssemblies.Clear();
     }
 
-    public string FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
+    public string[] FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
     {
-      var assemblyPath = _codeManager.FlushCodeToDisk (assemblyAttributes);
+      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
-      if (assemblyPath != null)
-        _savedAssemblies.Add (assemblyPath);
+      var assemblyPaths = _codeManager.FlushCodeToDisk (assemblyAttributes);
 
-      return assemblyPath;
+      _savedAssemblies.AddRange (assemblyPaths);
+
+      return assemblyPaths;
     }
 
     public void LoadFlushedCode (Assembly assembly)
     {
+      ArgumentUtility.CheckNotNull ("assembly", assembly);
+
       _codeManager.LoadFlushedCode (assembly);
     }
   }

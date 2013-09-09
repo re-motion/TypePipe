@@ -37,19 +37,19 @@ namespace Remotion.TypePipe.Implementation
     private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
         MemberInfoFromExpressionUtility.GetConstructor (() => new TypePipeAssemblyAttribute ("participantConfigurationID"));
 
-    private readonly ICodeManagerSynchronizationPoint _codeManagerSynchronizationPoint;
+    private readonly IAssemblyContextPool _assemblyContextPool;
     private readonly ITypeCache _typeCache;
 
-    public CodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
+    public CodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
     {
-      ArgumentUtility.CheckNotNull ("codeManagerSynchronizationPoint", codeManagerSynchronizationPoint);
+      ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
 
-      _codeManagerSynchronizationPoint = codeManagerSynchronizationPoint;
+      _assemblyContextPool = assemblyContextPool;
       _typeCache = typeCache;
     }
 
-    public string FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
+    public string[] FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
     {
       ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
@@ -57,7 +57,19 @@ namespace Remotion.TypePipe.Implementation
       var typePipeAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { participantConfigurationID });
       var attributes = assemblyAttributes.Concat (typePipeAttribute);
 
-      return _codeManagerSynchronizationPoint.FlushCodeToDisk (attributes);
+      AssemblyContext[] assemblyContexts = _assemblyContextPool.DequeueAll();
+      try
+      {
+        return assemblyContexts
+            .Select (assemblyContext => assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (attributes))
+            .Where (path => path != null)
+            .ToArray();
+      }
+      finally
+      {
+        foreach (var assemblyContext in assemblyContexts)
+          _assemblyContextPool.Enqueue (assemblyContext);
+      }
     }
 
     public void LoadFlushedCode (Assembly assembly)

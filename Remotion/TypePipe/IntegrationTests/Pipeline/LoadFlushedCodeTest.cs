@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       Assert.That (assembledType1.Assembly, Is.SameAs (_assembly1));
       Assert.That (assembledType2.Assembly, Is.SameAs (_assembly2));
-      Assert.That (Flush(), Is.Null, "No new code should generated.");
+      Assert.That (Flush(), Is.Empty, "No new code should generated.");
     }
 
     [Test]
@@ -77,12 +77,12 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var assembledType1 = _reflectionService.GetAssembledType (typeof (DomainType1));
 
       Assert.That (assembledType1.Assembly, Is.SameAs (_assembly1));
-      Assert.That (Flush(), Is.Null, "No new code should be generated.");
+      Assert.That (Flush(), Is.Empty, "No new code should be generated.");
 
       var assembledType2 = _reflectionService.GetAssembledType (typeof (DomainType2));
 
       Assert.That (assembledType2.Assembly.IsDynamic, Is.True);
-      Assert.That (Flush(), Is.Not.Null);
+      Assert.That (Flush(), Is.Not.Empty);
     }
 
     [Test]
@@ -149,7 +149,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     private Assembly GenerateTypeFlushAndLoadAssembly (IPipeline pipeline, Type requestedType)
     {
       pipeline.ReflectionService.GetAssembledType (requestedType);
-      var assemblyPath = Flush();
+      var assemblyPath = Flush().Single();
 
       return AssemblyLoader.LoadWithoutLocking (assemblyPath);
     }
@@ -159,9 +159,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var pipeline = CreatePipeline (c_participantConfigurationID);
 
       var assembledType1 = pipeline.ReflectionService.GetAssembledType (typeof (DomainType1));
-      var assemblyPath1 = Flush();
+      var assemblyPath1 = Flush().Single();
       var assembledType2 = pipeline.ReflectionService.GetAssembledType (typeof (DomainType2));
-      var assemblyPath2 = Flush();
+      var assemblyPath2 = Flush().Single();
 
       Assert.That (assembledType1.Assembly, Is.Not.SameAs (assembledType2.Assembly));
       Assert.That (assemblyPath1, Is.Not.Null.And.Not.EqualTo (assemblyPath2));

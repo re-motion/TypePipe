@@ -161,23 +161,29 @@ namespace Remotion.TypePipe.IntegrationTests
       return pipeline;
     }
 
-    protected string Flush (CustomAttributeDeclaration[] assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
+    protected string[] Flush (CustomAttributeDeclaration[] assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
     {
       Assertion.IsNotNull (_codeManager, "Use IntegrationTestBase.CreatePipeline");
 
-      var assemblyPath = _codeManager.FlushCodeToDisk (assemblyAttributes ?? new CustomAttributeDeclaration[0]);
-      if (assemblyPath == null)
-        return null;
+      var assemblyPaths = _codeManager.FlushCodeToDisk (assemblyAttributes ?? new CustomAttributeDeclaration[0]);
 
       if (!skipDeletion)
-        _assembliesToDelete.Add (assemblyPath);
+      {
+        _assembliesToDelete.AddRange (assemblyPaths);
+      }
       else
-        Console.WriteLine ("Skipping deletion of: {0}", assemblyPath);
+      {
+        foreach (var assemblyPath in assemblyPaths)
+          Console.WriteLine ("Skipping deletion of: {0}", assemblyPath);
+      }
 
       if (!skipPeVerification)
-        PeVerifyAssembly (assemblyPath);
+      {
+        foreach (var assemblyPath in assemblyPaths)
+          PeVerifyAssembly (assemblyPath);
+      }
 
-      return assemblyPath;
+      return assemblyPaths;
     }
 
     private static void PeVerifyAssembly (string assemblyPath)

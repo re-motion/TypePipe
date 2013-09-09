@@ -55,12 +55,12 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var pipeline = CreatePipeline();
       var codeManager = pipeline.CodeManager;
 
-      Assert.That (codeManager.FlushCodeToDisk(), Is.Null);
+      Assert.That (codeManager.FlushCodeToDisk(), Is.Empty);
 
       RequestTypeAndFlush (pipeline, typeof (RequestedType));
       RequestType (pipeline, typeof (RequestedType));
 
-      Assert.That (codeManager.FlushCodeToDisk(), Is.Null);
+      Assert.That (codeManager.FlushCodeToDisk(), Is.Empty);
     }
 
     [Test]
@@ -166,8 +166,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
     private string Flush (CustomAttributeDeclaration[] assemblyAttributes = null, bool skipPeVerification = false)
     {
-      var assemblyPath = base.Flush (assemblyAttributes, skipPeVerification: skipPeVerification);
-      Assert.That (assemblyPath, Is.Not.Null);
+      var assemblyPaths = base.Flush (assemblyAttributes, skipPeVerification: skipPeVerification);
+      Assert.That (assemblyPaths, Has.Length.EqualTo (1));
+
+      var assemblyPath = assemblyPaths.Single();
 
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (Path.ChangeExtension (assemblyPath, "pdb")), Is.True);

@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.Implementation
     /// If no new types have been generated since the last call to <see cref="FlushCodeToDisk"/>, this method does nothing
     /// and returns <see langword="null"/>.
     /// </remarks>
-    /// <returns>The absolute path to the saved assembly file, or <see langword="null"/> if no assembly was saved.</returns>
-    string FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes);
+    /// <returns>The absolute paths to the saved assembly files, or an empty array if no assembly was saved.</returns>
+    string[] FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes);
 
     /// <summary>
     /// Attempts to load all types in a previously flushed <see cref="Assembly"/>.

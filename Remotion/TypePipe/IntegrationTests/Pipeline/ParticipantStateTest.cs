@@ -124,7 +124,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var participant = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
       var pipeline = CreatePipeline (c_participantConfigurationID, participant);
       pipeline.Create<RequestedType1>(); // Trigger generation of types.
-      var assemblyPath = Flush();
+      var assemblyPath = Flush().Single();
 
       return AssemblyLoader.LoadWithoutLocking (assemblyPath);
     }

@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.Implementation
       var constructorDelegateFactory = NewConstructorDelegateFactory();
       var assemblyContextPool = NewAssemblyContextPool (settings);
       var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
-      var codeManager = NewCodeManager (typeAssembler, typeCache, assemblyContextPool);
+      var codeManager = NewCodeManager (typeCache, assemblyContextPool);
       var reflectionService = NewReflectionService (typeAssembler, typeCache, constructorDelegateFactory);
 
       return NewPipeline (settings, typeCache, codeManager, reflectionService);
@@ -62,10 +62,9 @@ namespace Remotion.TypePipe.Implementation
       return new Pipeline (settings, typeCache, codeManager, reflectionService);
     }
 
-    protected virtual ICodeManager NewCodeManager (ITypeAssembler typeAssembler, ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
+    protected virtual ICodeManager NewCodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
     {
-      var synchronizationPoint = new SynchronizationPoint (typeAssembler, assemblyContextPool);
-      return new CodeManager (synchronizationPoint, typeCache);
+      return new CodeManager (typeCache, assemblyContextPool);
     }
 
     protected virtual IReflectionService NewReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)
