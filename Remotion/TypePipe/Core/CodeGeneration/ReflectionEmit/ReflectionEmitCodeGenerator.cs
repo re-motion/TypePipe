@@ -25,7 +25,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
@@ -53,8 +52,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly bool _forceStrongNaming;
     private readonly string _keyFilePath;
 
-    private string _assemblyDirectory;
-    private string _assemblyNamePattern;
+    private readonly string _assemblyDirectory;
+    private readonly string _assemblyNamePattern;
     private ModuleContext _moduleContext;
 
     [CLSCompliant (false)]
@@ -138,17 +137,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         assemblyBuilder.SetCustomAttribute (attribute);
 
       return assemblyBuilder.SaveToDisk();
-    }
-
-    private void EnsureNoCurrentModuleBuilder (string propertyDescription)
-    {
-      if (_moduleContext.ModuleBuilder != null)
-      {
-        var flushMethod = MemberInfoFromExpressionUtility.GetMethod ((ICodeManager o) => o.FlushCodeToDisk());
-        var message = string.Format (
-            "Cannot set {0} after a type has been defined (use {1}() to start a new assembly).", propertyDescription, flushMethod.Name);
-        throw new InvalidOperationException (message);
-      }
     }
   }
 }
