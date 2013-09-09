@@ -95,11 +95,9 @@
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistry.cs" />
     <Compile Include="Implementation\Synchronization\ICodeManagerSynchronizationPoint.cs" />
     <Compile Include="Implementation\Synchronization\SynchronizationPoint.cs" />
-    <Compile Include="Implementation\Synchronization\ISynchronizationPoint.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
-    <Compile Include="Implementation\Synchronization\ITypeCacheSynchronizationPoint.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
     <Compile Include="Implementation\IPipelineFactory.cs" />
     <Compile Include="Implementation\IReflectionService.cs" />

@@ -20,6 +20,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
@@ -33,33 +34,30 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    //TODO 5840: use Lazy<Type> as dictionary value.
-    private readonly ConcurrentDictionary<AssembledTypeID, Type> _types = new ConcurrentDictionary<AssembledTypeID, Type>();
+    private readonly ConcurrentDictionary<AssembledTypeID, Lazy<Type>> _types = new ConcurrentDictionary<AssembledTypeID, Lazy<Type>>();
     private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorDelegateFactory _constructorDelegateFactory;
     private readonly IAssemblyContextPool _assemblyContextPool;
-    private readonly ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
 
+    private readonly Func<AssembledTypeID, Lazy<Type>> _createTypeFunc;
     private readonly Func<ConstructionKey, Delegate> _createConstructorCallFunc;
 
     public TypeCache (
         ITypeAssembler typeAssembler,
         IConstructorDelegateFactory constructorDelegateFactory,
-        IAssemblyContextPool assemblyContextPool,
-        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
+        IAssemblyContextPool assemblyContextPool)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
       ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
-      ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
 
       _typeAssembler = typeAssembler;
       _constructorDelegateFactory = constructorDelegateFactory;
       _assemblyContextPool = assemblyContextPool;
-      _typeCacheSynchronizationPoint = typeCacheSynchronizationPoint;
 
+      _createTypeFunc = CreateType;
       _createConstructorCallFunc = CreateConstructorCall;
     }
 
@@ -85,22 +83,37 @@ namespace Remotion.TypePipe.Caching
 
     public Type GetOrCreateType (AssembledTypeID typeID)
     {
-      Type assembledType;
-      if (_types.TryGetValue (typeID, out assembledType))
-        return assembledType;
+      var lazyType = _types.GetOrAdd (typeID, _createTypeFunc);
 
-      var assemblyContext = _assemblyContextPool.Dequeue();
       try
       {
-        assembledType = _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
-        AddTo (_types, typeID, assembledType);
-
-        return assembledType;
+        return lazyType.Value;
       }
-      finally
+      catch
       {
-        _assemblyContextPool.Enqueue (assemblyContext);
+        //TODO 5840: Either the exception is caught in the Lazy object or when removing the Lazy object, there could be a race-condition?
+        Lazy<Type> value;
+        _types.TryRemove (typeID, out value);
+        throw;
       }
+    }
+
+    private Lazy<Type> CreateType (AssembledTypeID typeID)
+    {
+      return new Lazy<Type> (
+          () =>
+          {
+            var assemblyContext = _assemblyContextPool.Dequeue();
+            try
+            {
+              return _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
+            }
+            finally
+            {
+              _assemblyContextPool.Enqueue (assemblyContext);
+            }
+          },
+          LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -162,15 +175,28 @@ namespace Remotion.TypePipe.Caching
           additionalTypes.Add (type);
       }
 
-      var keysToAssembledTypes = assembledTypes
-          .Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeAssembler.ExtractTypeID (t), t));
-      _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes);
-    }
+      // ReSharper disable LoopCanBeConvertedToQuery
+      var loadedAssembledTypes = new List<Type>();
+      foreach (var assembledType in assembledTypes)
+      {
+        var typeID = _typeAssembler.ExtractTypeID (assembledType);
+        Type assembledTypeForClosure = assembledType;
+        if (_types.TryAdd (typeID, new Lazy<Type> (() => assembledTypeForClosure, LazyThreadSafetyMode.None)))
+          loadedAssembledTypes.Add (assembledType);
+      }
+      // ReSharper restore LoopCanBeConvertedToQuery
 
-    private void AddTo<TKey, TValue> (ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
-    {
-      if (!concurrentDictionary.TryAdd (key, value))
-        throw new ArgumentException ("Key already exists.");
+      //TODO 5840: Reenable or completly remove RebuildParticipantState
+      //var assemblyContexts = _assemblyContextPool.DequeueAll();
+      //try
+      //{
+      //  _typeAssembler.RebuildParticipantState (loadedAssembledTypes, additionalTypes, assemblyContext.ParticipantState);
+      //}
+      //finally
+      //{
+      //  foreach (var assemblyContext in assemblyContexts)
+      //    _assemblyContextPool.Enqueue (assemblyContext);
+      //}
     }
   }
 }

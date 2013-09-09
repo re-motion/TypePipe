@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.Implementation.Synchronization
   /// Guards all access to code generation capabilities.
   /// </summary>
   // TODO 5840: Inline in callers (TypeCache, RevTypeCache, CodeManager), inject AssemblyContextPool in those places.
-  public class SynchronizationPoint : ISynchronizationPoint
+  public class SynchronizationPoint : ICodeManagerSynchronizationPoint
   {
     private readonly ITypeAssembler _typeAssembler;
     private readonly IAssemblyContextPool _assemblyContextPool;
@@ -58,43 +58,6 @@ namespace Remotion.TypePipe.Implementation.Synchronization
       {
         _assemblyContextPool.Enqueue (assemblyContext);
       }
-    }
-
-    public void RebuildParticipantState (
-        ConcurrentDictionary<AssembledTypeID, Type> types,
-        IEnumerable<KeyValuePair<AssembledTypeID, Type>> keysToAssembledTypes,
-        IEnumerable<Type> additionalTypes)
-    {
-      ArgumentUtility.CheckNotNull ("types", types);
-      ArgumentUtility.CheckNotNull ("keysToAssembledTypes", keysToAssembledTypes);
-      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
-
-      // TODO 5840: Move to TypeCache
-      // TODO 5840: Test Dequeue.
-      // TODO 5840: Test Enqueue in finally-block.
-      // TODO 5840: Figure out if this should be performed for all AssemblyContexts in the Pool, or only once but still locking all AssemblyContexts.
-      var assemblyContext = _assemblyContextPool.Dequeue();
-      try
-      {
-        var loadedAssembledTypes = new List<Type>();
-        foreach (var p in keysToAssembledTypes.Where (p => !types.ContainsKey (p.Key)))
-        {
-          AddTo (types, p.Key, p.Value);
-          loadedAssembledTypes.Add (p.Value);
-        }
-
-        _typeAssembler.RebuildParticipantState (loadedAssembledTypes, additionalTypes, assemblyContext.ParticipantState);
-      }
-      finally
-      {
-        _assemblyContextPool.Enqueue (assemblyContext);
-      }
-    }
-
-    private void AddTo<TKey, TValue> (ConcurrentDictionary<TKey, TValue> concurrentDictionary, TKey key, TValue value)
-    {
-      if (!concurrentDictionary.TryAdd (key, value))
-        throw new ArgumentException ("Key already exists.");
     }
   }
 }

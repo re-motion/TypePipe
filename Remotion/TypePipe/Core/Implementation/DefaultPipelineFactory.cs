@@ -46,11 +46,9 @@ namespace Remotion.TypePipe.Implementation
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var constructorDelegateFactory = NewConstructorDelegateFactory();
       var assemblyContextPool = NewAssemblyContextPool (settings);
-      var synchronizationPoint = NewSynchronizationPoint (typeAssembler, assemblyContextPool);
-      var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool, synchronizationPoint);
-      var reverseTypeCache = NewReverseTypeCache (typeAssembler, constructorDelegateFactory);
-      var codeManager = NewCodeManager (synchronizationPoint, typeCache);
-      var reflectionService = NewReflectionService (typeAssembler, typeCache, reverseTypeCache);
+      var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
+      var codeManager = NewCodeManager (typeAssembler, typeCache, assemblyContextPool);
+      var reflectionService = NewReflectionService (typeAssembler, typeCache, constructorDelegateFactory);
 
       return NewPipeline (settings, typeCache, codeManager, reflectionService);
     }
@@ -64,13 +62,15 @@ namespace Remotion.TypePipe.Implementation
       return new Pipeline (settings, typeCache, codeManager, reflectionService);
     }
 
-    protected virtual ICodeManager NewCodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
+    protected virtual ICodeManager NewCodeManager (ITypeAssembler typeAssembler, ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
     {
-      return new CodeManager (codeManagerSynchronizationPoint, typeCache);
+      var synchronizationPoint = new SynchronizationPoint (typeAssembler, assemblyContextPool);
+      return new CodeManager (synchronizationPoint, typeCache);
     }
 
-    protected virtual IReflectionService NewReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache, IReverseTypeCache reverseTypeCache)
+    protected virtual IReflectionService NewReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)
     {
+      var reverseTypeCache = NewReverseTypeCache (typeAssembler, constructorDelegateFactory);
       return new ReflectionService (typeAssembler, typeCache, reverseTypeCache);
     }
 
@@ -78,10 +78,9 @@ namespace Remotion.TypePipe.Implementation
     protected virtual ITypeCache NewTypeCache (
         ITypeAssembler typeAssembler,
         IConstructorDelegateFactory constructorDelegateFactory,
-        IAssemblyContextPool assemblyContextPool,
-        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint)
+        IAssemblyContextPool assemblyContextPool)
     {
-      return new TypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool, typeCacheSynchronizationPoint);
+      return new TypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
     }
 
     protected virtual IReverseTypeCache NewReverseTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
@@ -105,11 +104,6 @@ namespace Remotion.TypePipe.Implementation
           settings.AssemblyNamePattern);
       var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
       return new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
-    }
-
-    private ISynchronizationPoint NewSynchronizationPoint (ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
-    {
-      return new SynchronizationPoint (typeAssembler, assemblyContextPool);
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (
