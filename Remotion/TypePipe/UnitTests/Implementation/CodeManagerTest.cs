@@ -47,6 +47,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _manager = new CodeManager (_typeCacheMock, _assemblyContextPool);
     }
 
+    //TODO 5840: Test Exception in FlushCodeToDisk
+
     [Test]
     public void FlushCodeToDisk_FlushesMultipleAssemblies_ReturnsNonNullResultPaths ()
     {

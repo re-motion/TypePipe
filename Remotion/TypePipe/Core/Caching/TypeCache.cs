@@ -103,6 +103,7 @@ namespace Remotion.TypePipe.Caching
       return new Lazy<Type> (
           () =>
           {
+            //TODO 5840: Add timeout to Dequeue, log warning, return to Dequeuing without timeout.
             var assemblyContext = _assemblyContextPool.Dequeue();
             try
             {
