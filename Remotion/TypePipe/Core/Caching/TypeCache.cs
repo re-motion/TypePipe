@@ -92,8 +92,8 @@ namespace Remotion.TypePipe.Caching
       catch
       {
         //TODO 5840: Either the exception is caught in the Lazy object or when removing the Lazy object, there could be a race-condition?
-        Lazy<Type> value;
-        _types.TryRemove (typeID, out value);
+        //Lazy<Type> value;
+        //_types.TryRemove (typeID, out value);
         throw;
       }
     }

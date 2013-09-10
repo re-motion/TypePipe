@@ -172,7 +172,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
 
-      Assert.That (_types.ContainsKey (typeID), Is.False);
+        //TODO 5840: See current implementation preferring to leave the exception-throwing Lazy-object
+      //Assert.That (_types.ContainsKey (typeID), Is.False);
+      Assert.That (() => _types[typeID].Value, Throws.Exception.SameAs (expectedException));
     }
 
     [Test]
