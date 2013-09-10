@@ -19,7 +19,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.TypeAssembly.Implementation;
@@ -33,6 +33,7 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
+    private readonly string _typeCacheID = Guid.NewGuid().ToString();
     private readonly ConcurrentDictionary<AssembledTypeID, Lazy<Type>> _types = new ConcurrentDictionary<AssembledTypeID, Lazy<Type>>();
     private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
 
@@ -102,15 +103,15 @@ namespace Remotion.TypePipe.Caching
       return new Lazy<Type> (
           () =>
           {
-            //TODO 5840: Add timeout to Dequeue, log warning, return to Dequeuing without timeout.
-            var assemblyContext = _assemblyContextPool.Dequeue();
+            var isAssemblyContextEnqueueRequired = DequeueAssemblyContextOnDemand();
+            var assemblyContext = GetDequeuedAssemblyContext();
             try
             {
               return _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
             }
             finally
             {
-              _assemblyContextPool.Enqueue (assemblyContext);
+              EnqueueAssemblyContextOnDemand (isAssemblyContextEnqueueRequired);
             }
           },
           LazyThreadSafetyMode.ExecutionAndPublication);
@@ -146,7 +147,8 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      var assemblyContext = _assemblyContextPool.Dequeue();
+      var isAssemblyContextEnqueueRequired = DequeueAssemblyContextOnDemand();
+      var assemblyContext = GetDequeuedAssemblyContext();
       try
       {
         return _typeAssembler.GetOrAssembleAdditionalType (
@@ -156,7 +158,7 @@ namespace Remotion.TypePipe.Caching
       }
       finally
       {
-        _assemblyContextPool.Enqueue (assemblyContext);
+        EnqueueAssemblyContextOnDemand (isAssemblyContextEnqueueRequired);
       }
     }
 
@@ -197,6 +199,41 @@ namespace Remotion.TypePipe.Caching
       //  foreach (var assemblyContext in assemblyContexts)
       //    _assemblyContextPool.Enqueue (assemblyContext);
       //}
+    }
+
+    private AssemblyContext GetDequeuedAssemblyContext ()
+    {
+      // CallContext instead thread-static field is used to allow multiple instances of TypeCache to run on the same thread as a nested call-chain.
+      var assemblyContext = (AssemblyContext) CallContext.GetData (_typeCacheID);
+
+      Assertion.DebugAssert (assemblyContext != null, "No AssemblyContext was found in CallContext for this TypeCache instance.");
+
+      return assemblyContext;
+    }
+
+    private bool DequeueAssemblyContextOnDemand ()
+    {
+      if (CallContext.GetData (_typeCacheID) == null)
+      {
+        //TODO 5840: Add timeout to Dequeue, log warning, return to Dequeuing without timeout.
+        var assemblyContext = _assemblyContextPool.Dequeue();
+
+        CallContext.SetData (_typeCacheID, assemblyContext);
+        return true;
+      }
+      return false;
+    }
+
+    private void EnqueueAssemblyContextOnDemand (bool isAssemblyContextEnqueueRequired)
+    {
+      if (isAssemblyContextEnqueueRequired)
+      {
+        var assemblyContext = (AssemblyContext) CallContext.GetData (_typeCacheID);
+
+        _assemblyContextPool.Enqueue (assemblyContext);
+
+        CallContext.FreeNamedDataSlot (_typeCacheID);
+      }
     }
   }
 }
