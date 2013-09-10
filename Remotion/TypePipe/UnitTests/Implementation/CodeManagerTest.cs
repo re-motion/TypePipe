@@ -46,8 +46,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _manager = new CodeManager (_typeCacheMock, _assemblyContextPool);
     }
 
-    //TODO 5840: Test Exception in FlushCodeToDisk
-
     [Test]
     public void FlushCodeToDisk_FlushesMultipleAssemblies_ReturnsNonNullResultPaths ()
     {
@@ -123,6 +121,52 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       generatedCodeFlusherMock3.VerifyAllExpectations();
 
       Assert.That (result, Is.EqualTo (new[] { "path1", "path3" }));
+    }
+    
+    [Test]
+    public void FlushCodeToDisk_ReturnsAssemblyContextToPool ()
+    {
+      var expectedException = new Exception();
+      var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
+      var configID = "config";
+      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
+
+      var generatedCodeFlusherMock1 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
+      var assemblyContext1 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock1);
+
+      var generatedCodeFlusherMock2 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
+      var assemblyContext2 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock2);
+      
+      var generatedCodeFlusherMock3 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
+      var assemblyContext3 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock3);
+
+      _assemblyContextPool
+          .Expect (mock => mock.DequeueAll())
+          .Return (new[] { assemblyContext1, assemblyContext2, assemblyContext3 });
+
+      generatedCodeFlusherMock1
+          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
+          .Return ("path1");
+
+      generatedCodeFlusherMock2
+          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
+          .Throw (expectedException);
+
+      generatedCodeFlusherMock3
+          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
+          .Repeat.Never();
+
+      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext1));
+      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext2));
+      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext3));
+
+      Assert.That (() => _manager.FlushCodeToDisk (new[] { assemblyAttribute }), Throws.Exception.SameAs (expectedException));
+
+      _typeCacheMock.VerifyAllExpectations();
+      _assemblyContextPool.VerifyAllExpectations();
+      generatedCodeFlusherMock1.VerifyAllExpectations();
+      generatedCodeFlusherMock2.VerifyAllExpectations();
+      generatedCodeFlusherMock3.VerifyAllExpectations();
     }
 
     [Test]
