@@ -66,7 +66,10 @@ namespace Remotion.TypePipe.Implementation
       return new CodeManager (typeCache, assemblyContextPool);
     }
 
-    protected virtual IReflectionService NewReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)
+    protected virtual IReflectionService NewReflectionService (
+        ITypeAssembler typeAssembler,
+        ITypeCache typeCache,
+        IConstructorDelegateFactory constructorDelegateFactory)
     {
       var reverseTypeCache = NewReverseTypeCache (typeAssembler, constructorDelegateFactory);
       return new ReflectionService (typeAssembler, typeCache, reverseTypeCache);
@@ -85,12 +88,14 @@ namespace Remotion.TypePipe.Implementation
     {
       return new ReverseTypeCache (typeAssembler, constructorDelegateFactory);
     }
-    
+
     private AssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)
     {
-      var assemblyContext = NewAssemblyContext (settings);
-      var assemblyContextPool = new AssemblyContextPool (new[] { assemblyContext });
-      return assemblyContextPool;
+      var assemblyContexts = new List<AssemblyContext>();
+      for (int i = 0; i < settings.ParallelAssemblyCount; i++)
+        assemblyContexts.Add (NewAssemblyContext (settings));
+
+      return new AssemblyContextPool (assemblyContexts);
     }
 
     private AssemblyContext NewAssemblyContext (PipelineSettings settings)
@@ -100,7 +105,9 @@ namespace Remotion.TypePipe.Implementation
           settings.KeyFilePath,
           settings.AssemblyDirectory,
           settings.AssemblyNamePattern);
+      
       var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
+
       return new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
     }
 
