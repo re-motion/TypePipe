@@ -22,7 +22,7 @@ namespace Remotion.TypePipe.CodeGeneration
   public interface IAssemblyContextPool
   {
     AssemblyContext[] DequeueAll ();
-    void Enqueue (AssemblyContext context);
+    void Enqueue (AssemblyContext assemblyContext);
     AssemblyContext Dequeue ();
   }
 }

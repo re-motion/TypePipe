@@ -27,38 +27,55 @@ namespace Remotion.TypePipe.CodeGeneration
   {
     //TODO 5840: Tests
     //TODO 5840: Docs
-    private readonly BlockingCollection<AssemblyContext> _queue = new BlockingCollection<AssemblyContext> (new ConcurrentQueue<AssemblyContext>());
+    private readonly BlockingCollection<AssemblyContext> _contextPool;
 
     // Thread-safe set (for multiple readers, no writer).
-    private readonly Dictionary<AssemblyContext, AssemblyContext> _allContexts;
+    private readonly Dictionary<AssemblyContext, object> _registeredContexts;
+
+    private readonly ConcurrentDictionary<AssemblyContext, object> _enqueuedContexts;
 
     public AssemblyContextPool (IEnumerable<AssemblyContext> assemblyContexts)
     {
       ArgumentUtility.CheckNotNull ("assemblyContexts", assemblyContexts);
+      var allContexts = assemblyContexts.ToDictionary (c => c, c => (object) null);
+      if (allContexts.Count == 0)
+        throw new ArgumentException ("The AssemblyContextPool cannot be initialized with an empty list.", "assemblyContexts");
 
-      _allContexts = assemblyContexts.ToDictionary (c => c);
-      foreach (var assemblyContext in _allContexts.Keys)
-        _queue.Add (assemblyContext);
+      _registeredContexts = allContexts;
+      _enqueuedContexts = new ConcurrentDictionary<AssemblyContext, object> (allContexts);
+      _contextPool = new BlockingCollection<AssemblyContext> (new ConcurrentQueue<AssemblyContext> (allContexts.Keys));
     }
 
     public AssemblyContext[] DequeueAll ()
     {
-      return _queue.GetConsumingEnumerable().Take (_allContexts.Count).ToArray();
+      var assemblyContexts = _contextPool.GetConsumingEnumerable().Take (_registeredContexts.Count).ToArray();
+
+      _enqueuedContexts.Clear();
+
+      return assemblyContexts;
     }
 
-    public void Enqueue (AssemblyContext context)
+    public void Enqueue (AssemblyContext assemblyContext)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
 
-      if (!_allContexts.ContainsKey (context))
-        throw new ArgumentException();
+      if (!_registeredContexts.ContainsKey (assemblyContext))
+        throw new InvalidOperationException ("The provided AssemblyContext is not registered with this AssemblyContextPool.");
 
-      _queue.Add (context);
+      if (!_enqueuedContexts.TryAdd (assemblyContext, null))
+        throw new InvalidOperationException ("The provided AssemblyContext is already enqueued in this AssemblyContextPool.");
+
+      _contextPool.Add (assemblyContext);
     }
 
     public AssemblyContext Dequeue ()
     {
-      return _queue.Take();
+      var assemblyContext = _contextPool.Take();
+
+      object value;
+      _enqueuedContexts.TryRemove (assemblyContext, out value);
+
+      return assemblyContext;
     }
   }
 }
