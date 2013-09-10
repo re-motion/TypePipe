@@ -17,12 +17,12 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Configuration;
-using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
@@ -42,60 +42,72 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("participants", participants);
 
-      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (settings.ForceStrongNaming, settings.KeyFilePath);
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
-      var synchronizationPoint = NewSynchronizationPoint (reflectionEmitCodeGenerator, typeAssembler);
-      var typeCache = NewTypeCache (typeAssembler, synchronizationPoint, reflectionEmitCodeGenerator);
-      var codeManager = NewCodeManager (synchronizationPoint, typeCache);
-      var reverseTypeCache = NewReverseTypeCache (synchronizationPoint);
-      var reflectionService = NewReflectionService (synchronizationPoint, typeCache, reverseTypeCache);
+      var constructorDelegateFactory = NewConstructorDelegateFactory();
+      var assemblyContextPool = NewAssemblyContextPool (settings);
+      var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
+      var codeManager = NewCodeManager (typeCache, assemblyContextPool);
+      var reflectionService = NewReflectionService (typeAssembler, typeCache, constructorDelegateFactory);
 
       return NewPipeline (settings, typeCache, codeManager, reflectionService);
     }
 
     protected virtual IPipeline NewPipeline (
-        PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+        PipelineSettings settings,
+        ITypeCache typeCache,
+        ICodeManager codeManager,
+        IReflectionService reflectionService)
     {
       return new Pipeline (settings, typeCache, codeManager, reflectionService);
     }
 
-    protected virtual ICodeManager NewCodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
+    protected virtual ICodeManager NewCodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
     {
-      return new CodeManager (codeManagerSynchronizationPoint, typeCache);
+      return new CodeManager (typeCache, assemblyContextPool);
     }
 
-    protected virtual IReflectionService NewReflectionService (
-        IReflectionServiceSynchronizationPoint reflectionServiceSynchronizationPoint, ITypeCache typeCache, IReverseTypeCache reverseTypeCache)
+    protected virtual IReflectionService NewReflectionService (ITypeAssembler typeAssembler, ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)
     {
-      return new ReflectionService (reflectionServiceSynchronizationPoint, typeCache, reverseTypeCache);
+      var reverseTypeCache = NewReverseTypeCache (typeAssembler, constructorDelegateFactory);
+      return new ReflectionService (typeAssembler, typeCache, reverseTypeCache);
     }
 
     [CLSCompliant (false)]
     protected virtual ITypeCache NewTypeCache (
         ITypeAssembler typeAssembler,
-        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
-        IReflectionEmitCodeGenerator reflectionEmitCodeGenerator)
+        IConstructorDelegateFactory constructorDelegateFactory,
+        IAssemblyContextPool assemblyContextPool)
     {
+      return new TypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
+    }
+
+    protected virtual IReverseTypeCache NewReverseTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
+    {
+      return new ReverseTypeCache (typeAssembler, constructorDelegateFactory);
+    }
+    
+    private AssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)
+    {
+      var assemblyContext = NewAssemblyContext (settings);
+      var assemblyContextPool = new AssemblyContextPool (new[] { assemblyContext });
+      return assemblyContextPool;
+    }
+
+    private AssemblyContext NewAssemblyContext (PipelineSettings settings)
+    {
+      var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (
+          settings.ForceStrongNaming,
+          settings.KeyFilePath,
+          settings.AssemblyDirectory,
+          settings.AssemblyNamePattern);
       var mutableTypeBatchCodeGenerator = NewMutableTypeBatchCodeGenerator (reflectionEmitCodeGenerator);
-
-      return new TypeCache (typeAssembler, typeCacheSynchronizationPoint, mutableTypeBatchCodeGenerator);
-    }
-
-    protected virtual IReverseTypeCache NewReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
-    {
-      return new ReverseTypeCache (reverseTypeCacheSynchronizationPoint);
-    }
-
-    protected virtual ISynchronizationPoint NewSynchronizationPoint (IGeneratedCodeFlusher generatedCodeFlusher, ITypeAssembler typeAssembler)
-    {
-      var constructorFinder = NewConstructorFinder();
-      var delegateFactory = NewDelegateFactory();
-
-      return new SynchronizationPoint (generatedCodeFlusher, typeAssembler, constructorFinder, delegateFactory);
+      return new AssemblyContext (mutableTypeBatchCodeGenerator, reflectionEmitCodeGenerator);
     }
 
     protected virtual ITypeAssembler NewTypeAssembler (
-        string participantConfigurationID, IEnumerable<IParticipant> participants, bool enableSerializationWithoutAssemblySaving)
+        string participantConfigurationID,
+        IEnumerable<IParticipant> participants,
+        bool enableSerializationWithoutAssemblySaving)
     {
       var mutableTypeFactory = NewMutableTypeFactory();
       var complexSerializationEnabler = ComplexSerializationEnabler (enableSerializationWithoutAssemblySaving);
@@ -123,11 +135,23 @@ namespace Remotion.TypePipe.Implementation
     }
 
     [CLSCompliant (false)]
-    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (bool forceStrongNaming, string keyFilePath)
+    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (
+        bool forceStrongNaming,
+        [CanBeNull]string keyFilePath,
+        [CanBeNull]string assemblyDirectory,
+        [NotNull]string assemblyNamePattern)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory();
 
-      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath);
+      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, assemblyDirectory, assemblyNamePattern);
+    }
+
+    protected virtual IConstructorDelegateFactory NewConstructorDelegateFactory ()
+    {
+      var constructorFinder = NewConstructorFinder();
+      var delegateFactory = NewDelegateFactory();
+
+      return new ConstructorDelegateFactory (constructorFinder, delegateFactory);
     }
 
     protected virtual IDelegateFactory NewDelegateFactory ()

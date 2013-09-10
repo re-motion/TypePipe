@@ -301,7 +301,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
           .SetForceStrongNaming (forceStrongNaming)
           .SetKeyFilePath (keyFilePath)
           .Build();
-      return CreatePipeline ("StrongNamingTest", settings, participant);
+      return CreatePipelineWithIntegrationTestAssemblyLocation ("StrongNamingTest", settings, participant);
     }
 
     private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)

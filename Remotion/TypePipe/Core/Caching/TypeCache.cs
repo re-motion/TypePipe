@@ -19,9 +19,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
@@ -33,26 +33,32 @@ namespace Remotion.TypePipe.Caching
   /// </summary>
   public class TypeCache : ITypeCache
   {
-    private readonly ConcurrentDictionary<AssembledTypeID, Type> _types = new ConcurrentDictionary<AssembledTypeID, Type>();
+    private readonly string _typeCacheID = Guid.NewGuid().ToString();
+    private readonly ConcurrentDictionary<AssembledTypeID, Lazy<Type>> _types = new ConcurrentDictionary<AssembledTypeID, Lazy<Type>>();
     private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
-    private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly ITypeCacheSynchronizationPoint _typeCacheSynchronizationPoint;
-    private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
+    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
+    private readonly IAssemblyContextPool _assemblyContextPool;
+
+    private readonly Func<AssembledTypeID, Lazy<Type>> _createTypeFunc;
+    private readonly Func<ConstructionKey, Delegate> _createConstructorCallFunc;
 
     public TypeCache (
         ITypeAssembler typeAssembler,
-        ITypeCacheSynchronizationPoint typeCacheSynchronizationPoint,
-        IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator)
+        IConstructorDelegateFactory constructorDelegateFactory,
+        IAssemblyContextPool assemblyContextPool)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("typeCacheSynchronizationPoint", typeCacheSynchronizationPoint);
-      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
+      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
+      ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
 
       _typeAssembler = typeAssembler;
-      _typeCacheSynchronizationPoint = typeCacheSynchronizationPoint;
-      _mutableTypeBatchCodeGenerator = mutableTypeBatchCodeGenerator;
+      _constructorDelegateFactory = constructorDelegateFactory;
+      _assemblyContextPool = assemblyContextPool;
+
+      _createTypeFunc = CreateType;
+      _createConstructorCallFunc = CreateConstructorCall;
     }
 
     public string ParticipantConfigurationID
@@ -77,11 +83,38 @@ namespace Remotion.TypePipe.Caching
 
     public Type GetOrCreateType (AssembledTypeID typeID)
     {
-      Type assembledType;
-      if (_types.TryGetValue (typeID, out assembledType))
-        return assembledType;
+      var lazyType = _types.GetOrAdd (typeID, _createTypeFunc);
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateType (_types, typeID, _participantState, _mutableTypeBatchCodeGenerator);
+      try
+      {
+        return lazyType.Value;
+      }
+      catch
+      {
+        //TODO 5840: Either the exception is caught in the Lazy object or when removing the Lazy object, there could be a race-condition?
+        //Lazy<Type> value;
+        //_types.TryRemove (typeID, out value);
+        throw;
+      }
+    }
+
+    private Lazy<Type> CreateType (AssembledTypeID typeID)
+    {
+      return new Lazy<Type> (
+          () =>
+          {
+            var isAssemblyContextEnqueueRequired = DequeueAssemblyContextOnDemand();
+            var assemblyContext = GetDequeuedAssemblyContext();
+            try
+            {
+              return _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
+            }
+            finally
+            {
+              EnqueueAssemblyContextOnDemand (isAssemblyContextEnqueueRequired);
+            }
+          },
+          LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
@@ -101,13 +134,32 @@ namespace Remotion.TypePipe.Caching
       Assertion.DebugAssert (delegateType != null && typeof(Delegate).IsAssignableFrom(delegateType));
 
       var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
+      return _constructorCalls.GetOrAdd (constructionKey, _createConstructorCallFunc);
+    }
 
-      Delegate constructorCall;
-      if (_constructorCalls.TryGetValue (constructionKey, out constructorCall))
-        return constructorCall;
+    private Delegate CreateConstructorCall (ConstructionKey key)
+    {
+      var assembledType = GetOrCreateType (key.TypeID);
+      return _constructorDelegateFactory.CreateConstructorCall (key.TypeID.RequestedType, assembledType, key.DelegateType, key.AllowNonPublic);
+    }
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateConstructorCall (
-          _constructorCalls, constructionKey, _types, _participantState, _mutableTypeBatchCodeGenerator);
+    public Type GetOrCreateAdditionalType (object additionalTypeID)
+    {
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+
+      var isAssemblyContextEnqueueRequired = DequeueAssemblyContextOnDemand();
+      var assemblyContext = GetDequeuedAssemblyContext();
+      try
+      {
+        return _typeAssembler.GetOrAssembleAdditionalType (
+            additionalTypeID,
+            assemblyContext.ParticipantState,
+            assemblyContext.MutableTypeBatchCodeGenerator);
+      }
+      finally
+      {
+        EnqueueAssemblyContextOnDemand (isAssemblyContextEnqueueRequired);
+      }
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
@@ -119,22 +171,69 @@ namespace Remotion.TypePipe.Caching
 
       foreach (var type in generatedTypes)
       {
-        if (_typeCacheSynchronizationPoint.IsAssembledType (type))
+        if (_typeAssembler.IsAssembledType (type))
           assembledTypes.Add (type);
         else
           additionalTypes.Add (type);
       }
 
-      var keysToAssembledTypes = assembledTypes
-          .Select (t => new KeyValuePair<AssembledTypeID, Type> (_typeCacheSynchronizationPoint.ExtractTypeID (t), t));
-      _typeCacheSynchronizationPoint.RebuildParticipantState (_types, keysToAssembledTypes, additionalTypes, _participantState);
+      // ReSharper disable LoopCanBeConvertedToQuery
+      var loadedAssembledTypes = new List<Type>();
+      foreach (var assembledType in assembledTypes)
+      {
+        var typeID = _typeAssembler.ExtractTypeID (assembledType);
+        Type assembledTypeForClosure = assembledType;
+        if (_types.TryAdd (typeID, new Lazy<Type> (() => assembledTypeForClosure, LazyThreadSafetyMode.None)))
+          loadedAssembledTypes.Add (assembledType);
+      }
+      // ReSharper restore LoopCanBeConvertedToQuery
+
+      //TODO 5840: Reenable or completly remove RebuildParticipantState
+      //var assemblyContexts = _assemblyContextPool.DequeueAll();
+      //try
+      //{
+      //  _typeAssembler.RebuildParticipantState (loadedAssembledTypes, additionalTypes, assemblyContext.ParticipantState);
+      //}
+      //finally
+      //{
+      //  foreach (var assemblyContext in assemblyContexts)
+      //    _assemblyContextPool.Enqueue (assemblyContext);
+      //}
     }
 
-    public Type GetOrCreateAdditionalType (object additionalTypeID)
+    private AssemblyContext GetDequeuedAssemblyContext ()
     {
-      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+      // CallContext instead thread-static field is used to allow multiple instances of TypeCache to run on the same thread as a nested call-chain.
+      var assemblyContext = (AssemblyContext) CallContext.GetData (_typeCacheID);
 
-      return _typeCacheSynchronizationPoint.GetOrGenerateAdditionalType (additionalTypeID, _participantState, _mutableTypeBatchCodeGenerator);
+      Assertion.DebugAssert (assemblyContext != null, "No AssemblyContext was found in CallContext for this TypeCache instance.");
+
+      return assemblyContext;
+    }
+
+    private bool DequeueAssemblyContextOnDemand ()
+    {
+      if (CallContext.GetData (_typeCacheID) == null)
+      {
+        //TODO 5840: Add timeout to Dequeue, log warning, return to Dequeuing without timeout.
+        var assemblyContext = _assemblyContextPool.Dequeue();
+
+        CallContext.SetData (_typeCacheID, assemblyContext);
+        return true;
+      }
+      return false;
+    }
+
+    private void EnqueueAssemblyContextOnDemand (bool isAssemblyContextEnqueueRequired)
+    {
+      if (isAssemblyContextEnqueueRequired)
+      {
+        var assemblyContext = (AssemblyContext) CallContext.GetData (_typeCacheID);
+
+        _assemblyContextPool.Enqueue (assemblyContext);
+
+        CallContext.FreeNamedDataSlot (_typeCacheID);
+      }
     }
   }
 }

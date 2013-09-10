@@ -61,10 +61,13 @@
     <Compile Include="Caching\ReverseConstructionKeyTest.cs" />
     <Compile Include="Caching\ReverseTypeCacheTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
+    <Compile Include="CodeGeneration\AssemblyContextPoolTest.cs" />
+    <Compile Include="CodeGeneration\AssemblyContextTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCacheTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\ConstructorDelegateFactoryTest.cs" />
     <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
     <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
@@ -121,7 +124,6 @@
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecoratorTest.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactoryTest.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistryTest.cs" />
-    <Compile Include="Implementation\Synchronization\SynchronizationPointTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
     <Compile Include="TypeAssembly\LoadedTypesContextTest.cs" />
     <Compile Include="Implementation\ReflectionServiceTest.cs" />

@@ -17,8 +17,8 @@
 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.Implementation.Synchronization;
 
 namespace Remotion.Development.TypePipe
 {
@@ -33,9 +33,9 @@ namespace Remotion.Development.TypePipe
   {
     public AssemblyTrackingCodeManager AssemblyTrackingCodeManager { get; private set; }
 
-    protected override ICodeManager NewCodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
+    protected override ICodeManager NewCodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
     {
-      var codeManager = base.NewCodeManager (codeManagerSynchronizationPoint, typeCache);
+      var codeManager = base.NewCodeManager (typeCache, assemblyContextPool);
       AssemblyTrackingCodeManager = new AssemblyTrackingCodeManager (codeManager);
 
       return AssemblyTrackingCodeManager;

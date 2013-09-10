@@ -14,21 +14,15 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using Remotion.TypePipe.Caching;
 
-namespace Remotion.TypePipe.Implementation.Synchronization
+namespace Remotion.TypePipe.CodeGeneration
 {
   /// <summary>
-  /// This interface is an implementation detail of <see cref="ReflectionService"/> to enable synchronization of code generation functionalities in one place.
+  /// Interface for classes creating delegates for constructing instances of assembled types.
   /// </summary>
-  public interface IReflectionServiceSynchronizationPoint
+  public interface IConstructorDelegateFactory
   {
-    bool IsAssembledType (Type type);
-
-    Type GetRequestedType (Type assembledType);
-
-    AssembledTypeID GetTypeID (Type assembledType);
+    Delegate CreateConstructorCall (Type requestedType, Type assembledType, Type delegateType, bool allowNonPublic);
   }
 }

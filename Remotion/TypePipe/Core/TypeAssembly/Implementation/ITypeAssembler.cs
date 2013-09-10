@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation.Synchronization;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
 {
@@ -37,8 +36,6 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     /// <summary>
     /// Computes the <see cref="AssembledTypeID"/> from a requested type.
-    /// This is the only method in the <see cref="ITypeAssembler"/> interface which we guarantee to be thread safe, i.e., there is no need to access
-    /// it via <see cref="ISynchronizationPoint"/>. This is important for <see cref="TypeCache"/> lookup performance.
     /// </summary>
     AssembledTypeID ComputeTypeID (Type requestedType);
     AssembledTypeID ExtractTypeID (Type assembledType);

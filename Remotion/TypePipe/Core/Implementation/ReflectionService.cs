@@ -18,7 +18,6 @@
 using System;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
@@ -29,18 +28,18 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class ReflectionService : IReflectionService
   {
-    private readonly IReflectionServiceSynchronizationPoint _reflectionServiceSynchronizationPoint;
+    private readonly ITypeAssembler _typeAssembler;
     private readonly ITypeCache _typeCache;
     private readonly IReverseTypeCache _reverseTypeCache;
 
     public ReflectionService (
-        IReflectionServiceSynchronizationPoint reflectionServiceSynchronizationPoint, ITypeCache typeCache, IReverseTypeCache reverseTypeCache)
+        ITypeAssembler typeAssembler, ITypeCache typeCache, IReverseTypeCache reverseTypeCache)
     {
-      ArgumentUtility.CheckNotNull ("reflectionServiceSynchronizationPoint", reflectionServiceSynchronizationPoint);
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("reverseTypeCache", reverseTypeCache);
 
-      _reflectionServiceSynchronizationPoint = reflectionServiceSynchronizationPoint;
+      _typeAssembler = typeAssembler;
       _typeCache = typeCache;
       _reverseTypeCache = reverseTypeCache;
     }
@@ -49,21 +48,21 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return _reflectionServiceSynchronizationPoint.IsAssembledType (type);
+      return _typeAssembler.IsAssembledType (type);
     }
 
     public Type GetRequestedType (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return _reflectionServiceSynchronizationPoint.GetRequestedType (assembledType);
+      return _typeAssembler.GetRequestedType (assembledType);
     }
 
     public AssembledTypeID GetTypeID (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return _reflectionServiceSynchronizationPoint.GetTypeID (assembledType);
+      return _typeAssembler.ExtractTypeID (assembledType);
     }
 
     public Type GetAssembledType (Type requestedType)
