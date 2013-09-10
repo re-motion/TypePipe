@@ -19,10 +19,33 @@ using System;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
+  /// <summary>Represents a synchronized pool of <see cref="AssemblyContext"/> objects.</summary>
+  /// <remarks>
+  /// An <see cref="AssemblyContext"/> can be removed from the pool via the <see cref="Dequeue"/> operation 
+  /// and returned to the pool via the <see cref="Enqueue"/> operation.
+  /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   public interface IAssemblyContextPool
   {
-    AssemblyContext[] DequeueAll ();
+    /// <summary>
+    /// Returns a registered <see cref="AssemblyContext"/> to the pool.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the <paramref name="assemblyContext"/> is not registered with the pool 
+    /// or if an attempt is made to enqueue the same <see cref="AssemblyContext"/> twice.
+    /// </exception>
     void Enqueue (AssemblyContext assemblyContext);
+
+    /// <summary>
+    /// Removes an <see cref="AssemblyContext"/> from the pool. If the pool is empty, the operation blocks until an <see cref="AssemblyContext"/> is 
+    /// returned to the pool via another thread.
+    /// </summary>
     AssemblyContext Dequeue ();
+
+    /// <summary>
+    /// Removes all registered <see cref="AssemblyContext"/> objects from the pool.  The method blocks until all registered contexts 
+    /// have been returned from their respective consuming threads and are once again available for dequeuing.
+    /// </summary>
+    AssemblyContext[] DequeueAll ();
   }
 }

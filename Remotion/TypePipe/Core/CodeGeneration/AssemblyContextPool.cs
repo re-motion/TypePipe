@@ -23,9 +23,11 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
 {
+  ///<summary>Holds a synchronized pool of <see cref="AssemblyContext"/> objects.</summary>
+  /// <threadsafety static="true" instance="true"/>
   public class AssemblyContextPool : IAssemblyContextPool
   {
-    //TODO 5840: Tests
+    //TODO 5840: Multithreaded Tests
     //TODO 5840: Docs
     private readonly BlockingCollection<AssemblyContext> _contextPool;
 
