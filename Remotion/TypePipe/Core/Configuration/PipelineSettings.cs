@@ -51,7 +51,8 @@ namespace Remotion.TypePipe.Configuration
           .SetKeyFilePath (settings.KeyFilePath)
           .SetEnableSerializationWithoutAssemblySaving (settings.EnableSerializationWithoutAssemblySaving)
           .SetAssemblyDirectory (settings.AssemblyDirectory)
-          .SetAssemblyNamePattern (settings.AssemblyNamePattern);
+          .SetAssemblyNamePattern (settings.AssemblyNamePattern)
+          .SetParallelAssemblyCount (settings.ParallelAssemblyCount);
     }
 
     private readonly bool _forceStrongNaming;
@@ -66,12 +67,15 @@ namespace Remotion.TypePipe.Configuration
 
     private readonly string _assemblyNamePattern;
 
+    private readonly int _parallelAssemblyCount;
+
     public PipelineSettings (
         bool forceStrongNaming,
         [CanBeNull] string keyFilePath,
         bool enableSerializationWithoutAssemblySaving,
         [CanBeNull] string assemblyDirectory,
-        string assemblyNamePattern)
+        string assemblyNamePattern,
+        int parallelAssemblyCount)
     {
       ArgumentUtility.CheckNotNull ("assemblyNamePattern", assemblyNamePattern);
 
@@ -80,6 +84,7 @@ namespace Remotion.TypePipe.Configuration
       _enableSerializationWithoutAssemblySaving = enableSerializationWithoutAssemblySaving;
       _assemblyDirectory = assemblyDirectory;
       _assemblyNamePattern = assemblyNamePattern;
+      _parallelAssemblyCount = parallelAssemblyCount;
     }
 
     /// <summary>
@@ -132,6 +137,11 @@ namespace Remotion.TypePipe.Configuration
       get { return _enableSerializationWithoutAssemblySaving; }
     }
 
+    public int ParallelAssemblyCount
+    {
+      get { return _parallelAssemblyCount; }
+    }
+
     public class Builder
     {
       private const string c_defaultAssemblyNamePattern = "TypePipe_GeneratedAssembly_{counter}";
@@ -148,6 +158,8 @@ namespace Remotion.TypePipe.Configuration
 
       [CanBeNull]
       private string _assemblyNamePattern;
+
+      private int _parallelAssemblyCount;
 
       public Builder SetForceStrongNaming (bool value)
       {
@@ -179,6 +191,12 @@ namespace Remotion.TypePipe.Configuration
         return this;
       }
 
+      public Builder SetParallelAssemblyCount (int value)
+      {
+        _parallelAssemblyCount = value;
+        return this;
+      }
+
       public PipelineSettings Build ()
       {
         return new PipelineSettings (
@@ -186,7 +204,8 @@ namespace Remotion.TypePipe.Configuration
             _keyFilePath,
             _enableSerializationWithoutAssemblySaving,
             _assemblyDirectory,
-            _assemblyNamePattern ?? c_defaultAssemblyNamePattern);
+            _assemblyNamePattern ?? c_defaultAssemblyNamePattern,
+            _parallelAssemblyCount);
       }
     }
   }
