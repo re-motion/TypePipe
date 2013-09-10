@@ -78,6 +78,8 @@ namespace Remotion.TypePipe.Configuration
         int parallelAssemblyCount)
     {
       ArgumentUtility.CheckNotNull ("assemblyNamePattern", assemblyNamePattern);
+      if (parallelAssemblyCount < 1)
+        throw new ArgumentOutOfRangeException ("parallelAssemblyCount", parallelAssemblyCount, "The parallelAssemblyCount must be greater than 0.");
 
       _forceStrongNaming = forceStrongNaming;
       _keyFilePath = keyFilePath;
@@ -159,7 +161,7 @@ namespace Remotion.TypePipe.Configuration
       [CanBeNull]
       private string _assemblyNamePattern;
 
-      private int _parallelAssemblyCount;
+      private int _parallelAssemblyCount = 1;
 
       public Builder SetForceStrongNaming (bool value)
       {
@@ -193,6 +195,9 @@ namespace Remotion.TypePipe.Configuration
 
       public Builder SetParallelAssemblyCount (int value)
       {
+        if (value < 1)
+          throw new ArgumentOutOfRangeException ("value", value, "The ParallelAssemblyCount must be greater than 0.");
+
         _parallelAssemblyCount = value;
         return this;
       }
