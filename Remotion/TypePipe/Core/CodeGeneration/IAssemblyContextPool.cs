@@ -14,10 +14,10 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using Remotion.TypePipe.CodeGeneration;
 
-namespace Remotion.TypePipe.Implementation.Synchronization
+using System;
+
+namespace Remotion.TypePipe.CodeGeneration
 {
   public interface IAssemblyContextPool
   {

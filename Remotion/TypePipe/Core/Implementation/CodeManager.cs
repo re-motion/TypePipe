@@ -22,7 +22,6 @@ using System.Runtime.InteropServices;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 

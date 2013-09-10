@@ -17,8 +17,8 @@
 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.Implementation.Synchronization;
 
 namespace Remotion.Development.TypePipe
 {

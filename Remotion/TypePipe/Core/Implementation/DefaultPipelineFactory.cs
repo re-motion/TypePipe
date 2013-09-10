@@ -23,7 +23,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Configuration;
-using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;

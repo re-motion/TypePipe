@@ -19,10 +19,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Implementation.Synchronization
+namespace Remotion.TypePipe.CodeGeneration
 {
   public class AssemblyContextPool : IAssemblyContextPool
   {
