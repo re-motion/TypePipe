@@ -28,7 +28,6 @@ namespace Remotion.TypePipe.CodeGeneration
   public class AssemblyContextPool : IAssemblyContextPool
   {
     //TODO 5840: Multithreaded Tests
-    //TODO 5840: Docs
     private readonly BlockingCollection<AssemblyContext> _contextPool;
 
     // Thread-safe set (for multiple readers, no writer).
