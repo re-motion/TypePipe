@@ -60,6 +60,10 @@
     <Compile Include="Caching\ConstructionKeyTest.cs" />
     <Compile Include="Caching\ReverseConstructionKeyTest.cs" />
     <Compile Include="Caching\ReverseTypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\LoadTypes_TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\GetOrCreateAdditionalType_TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\GetOrCreateConstructorCall_TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\GetOrCreateType_TypeCacheTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\AssemblyContextPoolTest.cs" />
     <Compile Include="CodeGeneration\AssemblyContextTest.cs" />
@@ -241,7 +245,7 @@
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
-    <Compile Include="Caching\TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\Common_TypeCacheTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">
