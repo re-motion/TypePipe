@@ -202,7 +202,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [Ignore("TODO 5832")]
     public void Override_VectorOfVectorMethod_WithRuntimeTypes ()
     {
       var type = AssembleType<DomainType> (
@@ -212,7 +211,15 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var mutableMethod = typeContext.ProxyType.GetOrAddOverride (overriddenMethod);
 
             mutableMethod.SetBody (
-                ctx => Expression.Convert (Expression.Call (typeof (Array), "Reverese", Type.EmptyTypes, ctx.PreviousBody), ctx.ReturnType));
+                ctx =>
+                {
+                  var array = Expression.Variable (ctx.ReturnType);
+                  return Expression.Block (
+                      new[] { array },
+                      Expression.Assign (array, ctx.PreviousBody),
+                      Expression.Call (typeof (Array), "Reverse", Type.EmptyTypes, array),
+                      array);
+                });
           });
 
       var instance = (DomainType) Activator.CreateInstance(type);
