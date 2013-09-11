@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var expectedAssemblyContext2 = CreateAssemblyContext();
       var assemblyContextPool = new AssemblyContextPool (new[] { expectedAssemblyContext1, expectedAssemblyContext2 });
 
-      Assert.That (assemblyContextPool.Dequeue(), Is.EqualTo (expectedAssemblyContext1));
       Assert.That (assemblyContextPool.Dequeue(), Is.EqualTo (expectedAssemblyContext2));
+      Assert.That (assemblyContextPool.Dequeue(), Is.EqualTo (expectedAssemblyContext1));
     }
 
     [Test]
@@ -62,8 +62,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var expectedAssemblyContext2 = CreateAssemblyContext();
       var assemblyContextPool = new AssemblyContextPool (new[] { expectedAssemblyContext1, expectedAssemblyContext2 });
 
-      Assert.That (assemblyContextPool.Dequeue(), Is.EqualTo (expectedAssemblyContext1));
-      assemblyContextPool.Enqueue (expectedAssemblyContext1);
+      Assert.That (assemblyContextPool.Dequeue(), Is.EqualTo (expectedAssemblyContext2));
+      assemblyContextPool.Enqueue (expectedAssemblyContext2);
       Assert.That (assemblyContextPool.Dequeue(), Is.EqualTo (expectedAssemblyContext2));
       Assert.That (assemblyContextPool.Dequeue(), Is.EqualTo (expectedAssemblyContext1));
     }

@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
       _registeredContexts = allContexts;
       _enqueuedContexts = new ConcurrentDictionary<AssemblyContext, object> (allContexts);
-      _contextPool = new BlockingCollection<AssemblyContext> (new ConcurrentQueue<AssemblyContext> (allContexts.Keys));
+      _contextPool = new BlockingCollection<AssemblyContext> (new ConcurrentStack<AssemblyContext> (allContexts.Keys));
     }
 
     public AssemblyContext[] DequeueAll ()
