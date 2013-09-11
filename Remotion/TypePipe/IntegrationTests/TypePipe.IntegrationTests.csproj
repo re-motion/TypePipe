@@ -62,7 +62,8 @@
     </Compile>
     <Compile Include="Pipeline\AdditionalTypeTest.cs" />
     <Compile Include="Pipeline\CachingTest.cs" />
-    <Compile Include="Pipeline\ConcurrencyTest.cs" />
+    <Compile Include="Pipeline\ConcurrencyTest_WithSingleGenerationThread.cs" />
+    <Compile Include="Pipeline\ConcurrencyTest_WithMultipleGenerationThreads.cs" />
     <Compile Include="Pipeline\FlushGeneratedCodeTest.cs" />
     <Compile Include="MutableReflection\GetInterfaceMapTest.cs" />
     <Compile Include="MutableReflection\IsAssignableFromTest.cs" />

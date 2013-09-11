@@ -18,14 +18,14 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   [Timeout (1000)] // Set timeout for all tests.
-  public class ConcurrencyTest : IntegrationTestBase
+  public class ConcurrencyTest_WithSingleGenerationThread : IntegrationTestBase
   {
     private Mutex _blockingMutex;
 
@@ -45,7 +45,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
           },
           additionalTypeFunc: (additionalTypeID, ctx) => typeof (OtherDomainType));
 
-      _pipeline = CreatePipeline (blockingParticipant);
+      var settings = PipelineSettings.New().SetDegreeOfParallelism (1).Build();
+      _pipeline = CreatePipelineWithIntegrationTestAssemblyLocation ("ConcurrencyTest_WithSingleGenerationThread", settings, blockingParticipant);
 
       // Disable saving - it would deadlock with a failing test while threads are blocked.
       SkipSavingAndPeVerification();
