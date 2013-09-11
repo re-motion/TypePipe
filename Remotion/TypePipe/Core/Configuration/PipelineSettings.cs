@@ -29,7 +29,8 @@ namespace Remotion.TypePipe.Configuration
   /// <seealso cref="IPipeline.Settings"/>
   public class PipelineSettings
   {
-    //TODO 5840: Test
+    internal const string CounterPattern = "{counter}";
+
     private static readonly PipelineSettings s_defaults = New().Build();
 
     public static PipelineSettings Defaults
@@ -52,7 +53,7 @@ namespace Remotion.TypePipe.Configuration
           .SetEnableSerializationWithoutAssemblySaving (settings.EnableSerializationWithoutAssemblySaving)
           .SetAssemblyDirectory (settings.AssemblyDirectory)
           .SetAssemblyNamePattern (settings.AssemblyNamePattern)
-          .SetParallelAssemblyCount (settings.ParallelAssemblyCount);
+          .SetDegreeOfParallelism (settings.DegreeOfParallelism);
     }
 
     private readonly bool _forceStrongNaming;
@@ -67,7 +68,7 @@ namespace Remotion.TypePipe.Configuration
 
     private readonly string _assemblyNamePattern;
 
-    private readonly int _parallelAssemblyCount;
+    private readonly int _degreeOfParallelism;
 
     public PipelineSettings (
         bool forceStrongNaming,
@@ -75,18 +76,24 @@ namespace Remotion.TypePipe.Configuration
         bool enableSerializationWithoutAssemblySaving,
         [CanBeNull] string assemblyDirectory,
         string assemblyNamePattern,
-        int parallelAssemblyCount)
+        int degreeOfParallelism)
     {
       ArgumentUtility.CheckNotNull ("assemblyNamePattern", assemblyNamePattern);
-      if (parallelAssemblyCount < 1)
-        throw new ArgumentOutOfRangeException ("parallelAssemblyCount", parallelAssemblyCount, "The parallelAssemblyCount must be greater than 0.");
+      if (degreeOfParallelism < 1)
+        throw new ArgumentOutOfRangeException ("degreeOfParallelism", degreeOfParallelism, "The degree of parallelism must be greater than 0.");
+      if (degreeOfParallelism > 1 && !assemblyNamePattern.Contains (CounterPattern))
+      {
+        throw new ArgumentException (
+            "When a degree of parallelism greater than 1 is specified, the '{counter}' placeholder must be included in the assembly name pattern.",
+            "assemblyNamePattern");
+      }
 
       _forceStrongNaming = forceStrongNaming;
       _keyFilePath = keyFilePath;
       _enableSerializationWithoutAssemblySaving = enableSerializationWithoutAssemblySaving;
       _assemblyDirectory = assemblyDirectory;
       _assemblyNamePattern = assemblyNamePattern;
-      _parallelAssemblyCount = parallelAssemblyCount;
+      _degreeOfParallelism = degreeOfParallelism;
     }
 
     /// <summary>
@@ -139,9 +146,9 @@ namespace Remotion.TypePipe.Configuration
       get { return _enableSerializationWithoutAssemblySaving; }
     }
 
-    public int ParallelAssemblyCount
+    public int DegreeOfParallelism
     {
-      get { return _parallelAssemblyCount; }
+      get { return _degreeOfParallelism; }
     }
 
     public class Builder
@@ -161,7 +168,7 @@ namespace Remotion.TypePipe.Configuration
       [CanBeNull]
       private string _assemblyNamePattern;
 
-      private int _parallelAssemblyCount = 1;
+      private int _degreeOfParallelism = 1;
 
       public Builder SetForceStrongNaming (bool value)
       {
@@ -193,12 +200,12 @@ namespace Remotion.TypePipe.Configuration
         return this;
       }
 
-      public Builder SetParallelAssemblyCount (int value)
+      public Builder SetDegreeOfParallelism (int value)
       {
         if (value < 1)
-          throw new ArgumentOutOfRangeException ("value", value, "The ParallelAssemblyCount must be greater than 0.");
+          throw new ArgumentOutOfRangeException ("value", value, "The degree of parallelism must be greater than 0.");
 
-        _parallelAssemblyCount = value;
+        _degreeOfParallelism = value;
         return this;
       }
 
@@ -210,7 +217,7 @@ namespace Remotion.TypePipe.Configuration
             _enableSerializationWithoutAssemblySaving,
             _assemblyDirectory,
             _assemblyNamePattern ?? c_defaultAssemblyNamePattern,
-            _parallelAssemblyCount);
+            _degreeOfParallelism);
       }
     }
   }

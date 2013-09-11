@@ -24,6 +24,7 @@ using JetBrains.Annotations;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
@@ -128,7 +129,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private string GetNextAssemblyName ()
     {
       var uniqueCounterValue = Interlocked.Increment (ref s_counter);
-      return _assemblyNamePattern.Replace ("{counter}", uniqueCounterValue.ToString (CultureInfo.InvariantCulture));
+      return _assemblyNamePattern.Replace (PipelineSettings.CounterPattern, uniqueCounterValue.ToString (CultureInfo.InvariantCulture));
     }
 
     private string SaveToDisk (IAssemblyBuilder assemblyBuilder, IEnumerable<CustomAttributeDeclaration> assemblyAttributes)

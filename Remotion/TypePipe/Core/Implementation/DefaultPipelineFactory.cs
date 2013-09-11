@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.Implementation
     private AssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)
     {
       var assemblyContexts = new List<AssemblyContext>();
-      for (int i = 0; i < settings.ParallelAssemblyCount; i++)
+      for (int i = 0; i < settings.DegreeOfParallelism; i++)
         assemblyContexts.Add (NewAssemblyContext (settings));
 
       return new AssemblyContextPool (assemblyContexts);
