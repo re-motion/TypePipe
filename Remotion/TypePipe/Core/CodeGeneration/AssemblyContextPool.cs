@@ -35,6 +35,8 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private readonly ConcurrentDictionary<AssemblyContext, object> _enqueuedContexts;
 
+    private readonly object _dequeueAllLockObject = new object();
+
     public AssemblyContextPool (IEnumerable<AssemblyContext> assemblyContexts)
     {
       ArgumentUtility.CheckNotNull ("assemblyContexts", assemblyContexts);
@@ -49,11 +51,14 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public AssemblyContext[] DequeueAll ()
     {
-      var assemblyContexts = _contextPool.GetConsumingEnumerable().Take (_registeredContexts.Count).ToArray();
+      lock (_dequeueAllLockObject)
+      {
+        var assemblyContexts = _contextPool.GetConsumingEnumerable().Take (_registeredContexts.Count).ToArray();
 
-      _enqueuedContexts.Clear();
+        _enqueuedContexts.Clear();
 
-      return assemblyContexts;
+        return assemblyContexts;
+      }
     }
 
     public void Enqueue (AssemblyContext assemblyContext)
