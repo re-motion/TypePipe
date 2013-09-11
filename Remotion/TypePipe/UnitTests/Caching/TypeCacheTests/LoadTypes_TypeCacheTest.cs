@@ -18,12 +18,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -42,13 +39,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     private TypeCache _cache;
 
     private IDictionary<AssembledTypeID, Lazy<Type>> _types;
-    private IDictionary<ConstructionKey, Delegate> _constructorCalls;
 
-    private readonly Type _requestedType = typeof (RequestedType);
     private readonly Type _assembledType = typeof (AssembledType);
-    private readonly Delegate _generatedCtorCall = new Func<int> (() => 7);
-    private Type _delegateType;
-    private bool _allowNonPublic;
 
     [SetUp]
     public void SetUp ()
@@ -60,10 +52,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPool);
 
       _types = (ConcurrentDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_types");
-      _constructorCalls = (ConcurrentDictionary<ConstructionKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
-
-      _delegateType = ReflectionObjectMother.GetSomeDelegateType();
-      _allowNonPublic = BooleanObjectMother.GetRandomBoolean();
     }
 
     [Test]
@@ -81,9 +69,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       Assert.That (_types[typeID].Value, Is.SameAs (_assembledType));
     }
 
-    private class RequestedType {}
-    private class RequestedType2 {}
     private class AssembledType {}
-    private class AssembledType2 {}
   }
 }
