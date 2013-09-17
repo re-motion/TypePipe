@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.ObjectMothers;
@@ -26,20 +25,19 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
-  public class ReverseTypeCacheTest
+  public class ConstructorForAssembledTypeCacheTest
   {
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorDelegateFactory _constructorDelegateFactoryMock;
     
-    private ReverseTypeCache _cache;
+    private ConstructorForAssembledTypeCache _cache;
 
-    private IDictionary<ReverseConstructionKey, Delegate> _constructorCalls;
+    private IDictionary<ConstructorForAssembledTypeCacheKey, Delegate> _constructorCalls;
 
     private Type _assembledType;
     private Type _delegateType;
@@ -52,9 +50,9 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
 
-      _cache = new ReverseTypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock);
+      _cache = new ConstructorForAssembledTypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock);
 
-      _constructorCalls = (ConcurrentDictionary<ReverseConstructionKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
+      _constructorCalls = (ConcurrentDictionary<ConstructorForAssembledTypeCacheKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
 
       _assembledType = ReflectionObjectMother.GetSomeType();
       _delegateType = ReflectionObjectMother.GetSomeDelegateType();
@@ -65,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [Test]
     public void GetOrCreateConstructorCall_CacheHit ()
     {
-      _constructorCalls.Add (new ReverseConstructionKey (_assembledType, _delegateType, _allowNonPublic), _generatedCtorCall);
+      _constructorCalls.Add (new ConstructorForAssembledTypeCacheKey (_assembledType, _delegateType, _allowNonPublic), _generatedCtorCall);
 
       var result = _cache.GetOrCreateConstructorCall (_assembledType, _delegateType, _allowNonPublic);
 
@@ -87,7 +85,7 @@ namespace Remotion.TypePipe.UnitTests.Caching
       _constructorDelegateFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_generatedCtorCall));
       
-      var reverseConstructionKey = new ReverseConstructionKey (_assembledType, _delegateType, _allowNonPublic);
+      var reverseConstructionKey = new ConstructorForAssembledTypeCacheKey (_assembledType, _delegateType, _allowNonPublic);
       Assert.That (_constructorCalls[reverseConstructionKey], Is.SameAs (_generatedCtorCall));
     }
   }

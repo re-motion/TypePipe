@@ -30,18 +30,18 @@ namespace Remotion.TypePipe.Implementation
   {
     private readonly ITypeAssembler _typeAssembler;
     private readonly ITypeCache _typeCache;
-    private readonly IReverseTypeCache _reverseTypeCache;
+    private readonly IConstructorForAssembledTypeCache _constructorForAssembledTypeCache;
 
     public ReflectionService (
-        ITypeAssembler typeAssembler, ITypeCache typeCache, IReverseTypeCache reverseTypeCache)
+        ITypeAssembler typeAssembler, ITypeCache typeCache, IConstructorForAssembledTypeCache constructorForAssembledTypeCache)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
-      ArgumentUtility.CheckNotNull ("reverseTypeCache", reverseTypeCache);
+      ArgumentUtility.CheckNotNull ("constructorForAssembledTypeCache", constructorForAssembledTypeCache);
 
       _typeAssembler = typeAssembler;
       _typeCache = typeCache;
-      _reverseTypeCache = reverseTypeCache;
+      _constructorForAssembledTypeCache = constructorForAssembledTypeCache;
     }
 
     public bool IsAssembledType (Type type)
@@ -89,7 +89,11 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
       constructorArguments = constructorArguments ?? ParamList.Empty;
 
-      var constructorCall = _reverseTypeCache.GetOrCreateConstructorCall (assembledType, constructorArguments.FuncType, allowNonPublicConstructor);
+      var constructorCall = _constructorForAssembledTypeCache.GetOrCreateConstructorCall (
+          assembledType,
+          constructorArguments.FuncType,
+          allowNonPublicConstructor);
+
       var instance = constructorArguments.InvokeFunc (constructorCall);
 
       return instance;

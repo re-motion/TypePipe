@@ -84,9 +84,9 @@ namespace Remotion.TypePipe.Implementation
       return new TypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
     }
 
-    protected virtual IReverseTypeCache NewReverseTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
+    protected virtual IConstructorForAssembledTypeCache NewReverseTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
     {
-      return new ReverseTypeCache (typeAssembler, constructorDelegateFactory);
+      return new ConstructorForAssembledTypeCache (typeAssembler, constructorDelegateFactory);
     }
 
     private AssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)

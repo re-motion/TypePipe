@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   {
     private ITypeAssembler _typeAssemblerMock;
     private ITypeCache _typeCacheMock;
-    private IReverseTypeCache _reverseTypeCacheMock;
+    private IConstructorForAssembledTypeCache _constructorForAssembledTypeCacheMock;
 
     private ReflectionService _service;
 
@@ -41,9 +41,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
-      _reverseTypeCacheMock = MockRepository.GenerateStrictMock<IReverseTypeCache>();
+      _constructorForAssembledTypeCacheMock = MockRepository.GenerateStrictMock<IConstructorForAssembledTypeCache>();
 
-      _service = new ReflectionService (_typeAssemblerMock, _typeCacheMock, _reverseTypeCacheMock);
+      _service = new ReflectionService (_typeAssemblerMock, _typeCacheMock, _constructorForAssembledTypeCacheMock);
     }
 
     [Test]
@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var assembledType = ReflectionObjectMother.GetSomeType();
       var arguments = ParamList.Create ("abc", 7);
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      _reverseTypeCacheMock
+      _constructorForAssembledTypeCacheMock
           .Expect (mock => mock.GetOrCreateConstructorCall (assembledType, arguments.FuncType, allowNonPublic))
           .Return (new Func<string, int, object> ((s, i) => "blub"));
 
@@ -144,7 +144,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void InstantiateAssembledType_NoConstructorArguments ()
     {
       var assembledType = ReflectionObjectMother.GetSomeType();
-      _reverseTypeCacheMock
+      _constructorForAssembledTypeCacheMock
           .Expect (mock => mock.GetOrCreateConstructorCall (assembledType, typeof (Func<object>), allowNonPublic: false))
           .Return (new Func<object> (() => "blub"));
 

@@ -61,9 +61,9 @@
     </Compile>
     <Compile Include="Caching\AssembledTypeID.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
-    <Compile Include="Caching\ReverseConstructionKey.cs" />
-    <Compile Include="Caching\IReverseTypeCache.cs" />
-    <Compile Include="Caching\ReverseTypeCache.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCacheKey.cs" />
+    <Compile Include="Caching\IConstructorForAssembledTypeCache.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCache.cs" />
     <Compile Include="CodeGeneration\AssemblyContext.cs" />
     <Compile Include="CodeGeneration\IConstructorDelegateFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMutableNestedTypeCodeGeneratorFactory.cs" />

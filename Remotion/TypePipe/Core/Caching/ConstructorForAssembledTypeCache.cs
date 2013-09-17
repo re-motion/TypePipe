@@ -37,17 +37,17 @@ namespace Remotion.TypePipe.Caching
   /// (Required for re-mix's feature of saying ObjectFactory.Create (assembledType).)
   /// </para>
   /// </remarks>
-  public class ReverseTypeCache : IReverseTypeCache
+  public class ConstructorForAssembledTypeCache : IConstructorForAssembledTypeCache
   {
     private readonly ITypeAssembler _typeAssembler;
     private readonly IConstructorDelegateFactory _constructorDelegateFactory;
 
-    private readonly ConcurrentDictionary<ReverseConstructionKey, Delegate> _constructorCalls =
-        new ConcurrentDictionary<ReverseConstructionKey, Delegate>();
+    private readonly ConcurrentDictionary<ConstructorForAssembledTypeCacheKey, Delegate> _constructorCalls =
+        new ConcurrentDictionary<ConstructorForAssembledTypeCacheKey, Delegate>();
 
-    private readonly Func<ReverseConstructionKey, Delegate> _createConstructorCallFunc;
+    private readonly Func<ConstructorForAssembledTypeCacheKey, Delegate> _createConstructorCallFunc;
 
-    public ReverseTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
+    public ConstructorForAssembledTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
@@ -62,12 +62,12 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      var reverseConstructionKey = new ReverseConstructionKey (assembledType, delegateType, allowNonPublic);
+      var reverseConstructionKey = new ConstructorForAssembledTypeCacheKey (assembledType, delegateType, allowNonPublic);
 
       return _constructorCalls.GetOrAdd (reverseConstructionKey, _createConstructorCallFunc);
     }
 
-    private Delegate CreateConstructorCall (ReverseConstructionKey key)
+    private Delegate CreateConstructorCall (ConstructorForAssembledTypeCacheKey key)
     {
       var requestedType = _typeAssembler.GetRequestedType (key.AssembledType);
       return _constructorDelegateFactory.CreateConstructorCall (requestedType, key.AssembledType, key.DelegateType, key.AllowNonPublic);
