@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
   /// <see cref="ITypeIdentifierProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class TypeAssembler : ITypeAssembler
   {
     private static readonly ConstructorInfo s_assembledTypeAttributeCtor =

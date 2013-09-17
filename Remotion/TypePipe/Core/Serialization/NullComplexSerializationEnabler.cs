@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.Serialization
   /// <summary>
   /// An implementation of <see cref="IComplexSerializationEnabler"/> that does nothing.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class NullComplexSerializationEnabler : IComplexSerializationEnabler
   {
     public void MakeSerializable (

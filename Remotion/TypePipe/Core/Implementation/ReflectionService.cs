@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.Implementation
   /// <summary>
   /// Implements <see cref="IReflectionService"/> by delegating to the contained <see cref="ITypeAssembler"/> and <see cref="ITypeCache"/> instances.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class ReflectionService : IReflectionService
   {
     private readonly ITypeAssembler _typeAssembler;

@@ -31,6 +31,7 @@ namespace Remotion.TypePipe.Caching
   /// Retrieves the generated type or its constructors for the requested type from the cache or delegates to the contained
   /// <see cref="ITypeAssembler"/> instance.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class TypeCache : ITypeCache
   {
     private readonly string _typeCacheID = Guid.NewGuid().ToString();

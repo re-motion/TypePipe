@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Extends the <see cref="IGeneratedCodeFlusher"/> interface with Reflection.Emit-specifc operations.
   /// </summary>
+  /// <threadsafety static="true" instance="false"/>
   [CLSCompliant (false)]
   public interface IReflectionEmitCodeGenerator : IGeneratedCodeFlusher
   {

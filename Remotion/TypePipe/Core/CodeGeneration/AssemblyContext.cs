@@ -23,6 +23,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   ///  Holds all objects for code generation associated with a dynamically generated assembly.
   /// </summary>
+  /// <threadsafety static="true" instance="false"/>
   public class AssemblyContext
   {
     private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();

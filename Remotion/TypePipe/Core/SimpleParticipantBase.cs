@@ -28,6 +28,7 @@ namespace Remotion.TypePipe
   /// If one of these features is required the participant may override the appropriate method in this base class or implement
   /// <see cref="IParticipant"/> directly.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public abstract class SimpleParticipantBase : IParticipant
   {
     public virtual ITypeIdentifierProvider PartialTypeIdentifierProvider

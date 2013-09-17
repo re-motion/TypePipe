@@ -17,7 +17,7 @@
 
 using System;
 using System.Reflection;
-using Remotion.Collections;
+using JetBrains.Annotations;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -26,11 +26,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// Helps with building initializations for a <see cref="MutableType"/>.
   /// </summary>
   /// <remarks>This interface is an implementation detail of <see cref="MutableTypeCodeGenerator"/>.</remarks>
+  /// <threadsafety static="true" instance="true"/>
   public interface IInitializationBuilder
   {
-    Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (MutableType mutableType);
+    [CanBeNull] Tuple<FieldInfo, MethodInfo> CreateInitializationMembers ([NotNull] MutableType mutableType);
 
     void WireConstructorWithInitialization (
-        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler);
+        [NotNull] MutableConstructorInfo constructor,
+        [CanBeNull] Tuple<FieldInfo, MethodInfo> initializationMembers,
+        [NotNull] IProxySerializationEnabler proxySerializationEnabler);
   }
 }

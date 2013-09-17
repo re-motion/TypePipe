@@ -16,6 +16,7 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
@@ -40,6 +41,7 @@ namespace Remotion.TypePipe
   /// If there is the need to hold state a participant should use <see cref="ITypeAssemblyContext.State"/>.
   /// </para>
   /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   [ConcreteImplementation ("Remotion.Mixins.CodeGeneration.TypePipe.MixinParticipant, Remotion.Mixins, "
                            + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true, Position = 1)]
   [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
@@ -54,6 +56,7 @@ namespace Remotion.TypePipe
     /// <value>
     /// The partial type identifier provider, or <see langword="null"/>.
     /// </value>
+    [CanBeNull]
     ITypeIdentifierProvider PartialTypeIdentifierProvider { get; }
 
     /// <summary>
@@ -85,6 +88,7 @@ namespace Remotion.TypePipe
     /// A participant may retrieve a cached additional type from the state cache available via <see cref="ITypeAssemblyContext.State"/> on
     /// <paramref name="additionalTypeAssemblyContext"/> or create a new <see cref="MutableType"/> and return it.
     /// </remarks>
+    [CanBeNull]
     Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext);
 
     /// <summary>

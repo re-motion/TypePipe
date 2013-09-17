@@ -19,6 +19,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using JetBrains.Annotations;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
@@ -31,14 +32,13 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <remarks> The module will be created with <see cref="AssemblyBuilderAccess.RunAndSave"/> and the <c>emitSymbolInfo</c> flag set to
   /// <see langword="true"/>.
   /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   public class ModuleBuilderFactory : IModuleBuilderFactory
   {
     [CLSCompliant (false)]
     public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
-      // assemblyDirectoryOrNull may be null
-      // keyFilePath may be null
 
       var assemName = new AssemblyName (assemblyName);
       if (strongNamed)
@@ -51,7 +51,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return new ModuleBuilderAdapter (moduleBuilder);
     }
 
-    private StrongNameKeyPair GetKeyPair (string keyFilePathOrNull)
+    [NotNull]
+    private StrongNameKeyPair GetKeyPair ([CanBeNull]string keyFilePathOrNull)
     {
       if (string.IsNullOrEmpty (keyFilePathOrNull))
         return FallbackKey.KeyPair;

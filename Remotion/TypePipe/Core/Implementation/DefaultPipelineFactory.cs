@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.Implementation
   /// Default implementation of <see cref="IPipelineFactory"/>. Derive from this class and override the appropriate methods to configure how
   /// <see cref="IPipeline"/> instances are built.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class DefaultPipelineFactory : IPipelineFactory
   {
     public virtual IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants)

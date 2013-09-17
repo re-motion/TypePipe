@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// and calling their staged Define***- interleaved and in the correct order.
   /// This is necessary to allow the generation of types and method bodies which reference each other.
   /// </summary>
+  /// <threadsafety static="true" instance="false"/>
   public class MutableTypeBatchCodeGenerator : IMutableTypeBatchCodeGenerator
   {
     private readonly IDependentTypeSorter _dependentTypeSorter;

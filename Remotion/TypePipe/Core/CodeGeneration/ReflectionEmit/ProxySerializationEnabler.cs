@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.Collections;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
@@ -32,12 +31,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Implements <see cref="IProxySerializationEnabler"/>.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class ProxySerializationEnabler : IProxySerializationEnabler
   {
     private static readonly MethodInfo s_getObjectDataMethod =
         MemberInfoFromExpressionUtility.GetMethod ((ISerializable obj) => obj.GetObjectData (null, new StreamingContext()));
+
     private static readonly MethodInfo s_getValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo obj) => obj.GetValue ("", null));
+
     private static readonly MethodInfo s_onDeserializationMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IDeserializationCallback obj) => obj.OnDeserialization (null));
 

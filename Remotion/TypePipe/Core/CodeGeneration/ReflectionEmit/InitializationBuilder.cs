@@ -19,8 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.Collections;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
@@ -33,10 +33,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Implements <see cref="IInitializationBuilder"/>.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class InitializationBuilder : IInitializationBuilder
   {
     private static readonly MethodInfo s_interfaceMethod =
         MemberInfoFromExpressionUtility.GetMethod ((IInitializableObject obj) => obj.Initialize (InitializationSemantics.Construction));
+
+    public InitializationBuilder ()
+    {
+    }
 
     public Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (MutableType mutableType)
     {
@@ -66,10 +71,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     public void WireConstructorWithInitialization (
-        MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers, IProxySerializationEnabler proxySerializationEnabler)
+        MutableConstructorInfo constructor,
+        Tuple<FieldInfo, MethodInfo> initializationMembers,
+        IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      // initializationMembers may be null
       ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       if (initializationMembers == null || proxySerializationEnabler.IsDeserializationConstructor (constructor))

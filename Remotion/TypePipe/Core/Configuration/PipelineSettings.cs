@@ -27,9 +27,10 @@ namespace Remotion.TypePipe.Configuration
   /// </summary>
   /// <seealso cref="PipelineFactory.Create(string,Remotion.TypePipe.Configuration.PipelineSettings,Remotion.TypePipe.IParticipant[])"/>
   /// <seealso cref="IPipeline.Settings"/>
+  /// <threadsafety static="true" instance="true"/>
   public class PipelineSettings
   {
-    internal const string CounterPattern = "{counter}";
+    public const string CounterPattern = "{counter}";
 
     private static readonly PipelineSettings s_defaults = New().Build();
 
@@ -151,6 +152,7 @@ namespace Remotion.TypePipe.Configuration
       get { return _degreeOfParallelism; }
     }
 
+    /// <threadsafety static="true" instance="false"/>
     public class Builder
     {
       private const string c_defaultAssemblyNamePattern = "TypePipe_GeneratedAssembly_{counter}";

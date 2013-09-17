@@ -8,6 +8,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Creates delegates for constructing instances of assembled types.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class ConstructorDelegateFactory : IConstructorDelegateFactory
   {
     private readonly IConstructorFinder _constructorFinder;

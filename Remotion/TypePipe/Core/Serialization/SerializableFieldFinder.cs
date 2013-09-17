@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
@@ -29,6 +28,7 @@ namespace Remotion.TypePipe.Serialization
   /// This class filters fields, retains the serializable ones and creates a mapping so that the field values can be stored or retrieved from a
   /// <see cref="SerializationInfo"/> instance.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class SerializableFieldFinder : ISerializableFieldFinder
   {
     public IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields)

@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.Implementation
   /// <summary>
   /// Provides functionality for retrieving assembled types and analyzing them.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IReflectionService
   {
     /// <summary>

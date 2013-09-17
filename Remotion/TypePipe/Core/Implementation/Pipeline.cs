@@ -27,6 +27,7 @@ namespace Remotion.TypePipe.Implementation
   /// <summary>
   /// Implements <see cref="IPipeline"/> to act as a main entry point into the pipeline for generating types and instantiating them.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class Pipeline : IPipeline
   {
     private readonly PipelineSettings _settings;

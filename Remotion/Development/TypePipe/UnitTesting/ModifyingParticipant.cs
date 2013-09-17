@@ -18,16 +18,15 @@
 using System;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe;
-using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
 
 namespace Remotion.Development.TypePipe.UnitTesting
 {
   /// <summary>
-  /// Adds a custom attribute to the proxy type. Use this participant to avoid the pipelines no-modification optimization in tests.
+  /// Adds a custom attribute to the proxy type. Use this participant to avoid the pipeline's no-modification optimization in tests.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class ModifyingParticipant : SimpleParticipantBase
   {
     [AttributeUsage (AttributeTargets.Class, Inherited = false, AllowMultiple = false)]

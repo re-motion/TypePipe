@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   /// <summary>
   /// Generates types for requested types and computes compound identifiers to enabled efficient caching of generated types.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface ITypeAssembler
   {
     string ParticipantConfigurationID { get; }

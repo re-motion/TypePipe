@@ -31,6 +31,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <threadsafety static="true" instance="true" />
   public class MutableTypeFactory : IMutableTypeFactory
   {
+    /// <summary>
+    /// Assembly number counter. Will be incremented using <see cref="Interlocked.Increment(ref int)"/>.
+    /// </summary>
     private int _counter;
 
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)

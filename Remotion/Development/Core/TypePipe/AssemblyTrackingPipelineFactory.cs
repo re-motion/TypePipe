@@ -29,6 +29,7 @@ namespace Remotion.Development.TypePipe
   /// To use assembly tracking register <see cref="AssemblyTrackingPipelineFactory"/> for <see cref="IPipelineFactory"/> in your IoC container.
   /// </para>
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class AssemblyTrackingPipelineFactory : DefaultPipelineFactory
   {
     public AssemblyTrackingCodeManager AssemblyTrackingCodeManager { get; private set; }

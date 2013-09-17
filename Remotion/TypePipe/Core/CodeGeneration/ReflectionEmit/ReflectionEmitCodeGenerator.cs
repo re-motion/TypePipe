@@ -38,6 +38,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <remarks>
   /// This class is not thread-safe. Thread-safety will be enforced by the <see cref="TypeCache"/>.
   /// </remarks>
+  /// <threadsafety static="true" instance="false"/>
   public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
   {
     private class ModuleContext

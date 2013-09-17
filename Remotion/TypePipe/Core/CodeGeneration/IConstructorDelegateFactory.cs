@@ -21,6 +21,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Interface for classes creating delegates for constructing instances of assembled types.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IConstructorDelegateFactory
   {
     Delegate CreateConstructorCall (Type requestedType, Type assembledType, Type delegateType, bool allowNonPublic);

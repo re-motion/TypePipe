@@ -16,6 +16,7 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
@@ -23,6 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Implementations of this interface create instances of <see cref="IModuleBuilder"/>.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   [CLSCompliant (false)]
   public interface IModuleBuilderFactory
   {
@@ -37,6 +39,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     /// <returns>
     /// The created module builder.
     /// </returns>
-    IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull);
+    IModuleBuilder CreateModuleBuilder (
+        [NotNull] string assemblyName,
+        [CanBeNull] string assemblyDirectoryOrNull,
+        bool strongNamed,
+        [CanBeNull] string keyFilePathOrNull);
   }
 }

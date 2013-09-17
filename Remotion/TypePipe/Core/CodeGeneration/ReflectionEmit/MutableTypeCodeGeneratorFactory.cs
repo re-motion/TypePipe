@@ -26,6 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Serves as a factory for instances of <see cref="IMutableTypeCodeGenerator"/>.
   /// </summary>
+  /// <threadsafety static="true" instance="false"/>
   public class MutableTypeCodeGeneratorFactory : IMutableTypeCodeGeneratorFactory
   {
     private readonly IMemberEmitterFactory _memberEmitterFactory;

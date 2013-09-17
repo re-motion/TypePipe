@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.Caching
   /// (Required for re-mix's feature of saying ObjectFactory.Create (assembledType).)
   /// </para>
   /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   public class ConstructorForAssembledTypeCache : IConstructorForAssembledTypeCache
   {
     private readonly ITypeAssembler _typeAssembler;

@@ -29,6 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <remarks>
   /// Implementations of this interface must not use other pipeline APIs themselves as this could cause deadlocks in a multi-threaded environment.
   /// </remarks>
+  /// <threadsafety static="true" instance="false"/>
   public interface IGeneratedCodeFlusher
   {
     /// <summary>

@@ -22,6 +22,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// Defines an interface for <see cref="IMemberEmitter"/> factories.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IMemberEmitterFactory
   {
     IMemberEmitter CreateMemberEmitter (IEmittableOperandProvider emittableOperandProvider);

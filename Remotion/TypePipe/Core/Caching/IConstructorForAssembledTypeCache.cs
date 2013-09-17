@@ -22,6 +22,7 @@ namespace Remotion.TypePipe.Caching
   /// <summary>
   /// Caches constructor delegates for assembled types, i.e., the assembled type is part of the key.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IConstructorForAssembledTypeCache
   {
     Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic);
