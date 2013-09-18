@@ -64,12 +64,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var assemblyContext3 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock3);
 
       bool isDequeued = false;
-      bool isFlushed = false;
       _assemblyContextPool
           .Expect (mock => mock.DequeueAll())
           .Return (new[] { assemblyContext1, assemblyContext2, assemblyContext3 })
           .WhenCalled (mi => { isDequeued = true; });
 
+      bool isFlushed1 = false;
       generatedCodeFlusherMock1
           .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
           .Return ("path1")
@@ -77,9 +77,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
               mi =>
               {
                 Assert.That (isDequeued, Is.True);
-                Assert.That (isFlushed, Is.False);
+                isFlushed1 = true;
               });
 
+      bool isFlushed2 = false;
       generatedCodeFlusherMock2
           .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
           .Return (null)
@@ -87,9 +88,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
               mi =>
               {
                 Assert.That (isDequeued, Is.True);
-                Assert.That (isFlushed, Is.False);
+                isFlushed2 = true;
               });
 
+      bool isFlushed3 = false;
       generatedCodeFlusherMock3
           .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
           .Return ("path3")
@@ -97,21 +99,20 @@ namespace Remotion.TypePipe.UnitTests.Implementation
               mi =>
               {
                 Assert.That (isDequeued, Is.True);
-                Assert.That (isFlushed, Is.False);
-                isFlushed = true;
+                isFlushed3 = true;
               });
 
       _assemblyContextPool
           .Expect (mock => mock.Enqueue (assemblyContext1))
-          .WhenCalled (mi => Assert.That (isFlushed, Is.True));
+          .WhenCalled (mi => Assert.That (isFlushed1, Is.True));
 
       _assemblyContextPool
           .Expect (mock => mock.Enqueue (assemblyContext2))
-          .WhenCalled (mi => Assert.That (isFlushed, Is.True));
+          .WhenCalled (mi => Assert.That (isFlushed2, Is.True));
 
       _assemblyContextPool
           .Expect (mock => mock.Enqueue (assemblyContext3))
-          .WhenCalled (mi => Assert.That (isFlushed, Is.True));
+          .WhenCalled (mi => Assert.That (isFlushed3, Is.True));
 
       var result = _manager.FlushCodeToDisk (new[] { assemblyAttribute });
 
