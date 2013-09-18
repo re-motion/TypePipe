@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <threadsafety static="true" instance="true"/>
   public class AssemblyContextPool : IAssemblyContextPool
   {
-    //TODO 5840: Multithreaded Tests
+    //TODO RM-5849: Multithreaded Tests
     private readonly BlockingCollection<AssemblyContext> _contextPool;
 
     // Thread-safe set (for multiple readers, no writer).
@@ -76,6 +76,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public AssemblyContext Dequeue ()
     {
+      //TODO RM-5849: Add timeout to Dequeue, log warning, return to Dequeuing without timeout.
       var assemblyContext = _contextPool.Take();
 
       object value;

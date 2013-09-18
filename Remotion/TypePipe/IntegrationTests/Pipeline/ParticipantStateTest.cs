@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    [Ignore ("TODO 5840: RebuildParticipantState is currently disabled")]
+    [Ignore ("TODO RM-5849: RebuildParticipantState is currently disabled")]
     public void RebuildState_FromLoadedTypes ()
     {
       Type loadedType = null;
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    [Ignore ("TODO 5840: RebuildParticipantState is currently disabled")]
+    [Ignore ("TODO RM-5849: RebuildParticipantState is currently disabled")]
     public void RebuildState_ContextDoesNotContainProxyTypesAlreadyInCacheWhenLoadingAssembly ()
     {
       var rebuildStateWasCalled = false;

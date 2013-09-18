@@ -198,7 +198,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
 
-        //TODO 5840: See current implementation preferring to leave the exception-throwing Lazy-object
+        //TODO RM-5849: See current implementation preferring to leave the exception-throwing Lazy-object
       //Assert.That (_types.ContainsKey (typeID), Is.False);
       Assert.That (() => _types[typeID].Value, Throws.Exception.SameAs (expectedException));
     }
@@ -323,7 +323,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     }
 
     [Test]
-    [Ignore("TODO 5840: RhinoMocks causes a deadlock, preventing the multithreaded test from completing")]
+    [Ignore("TODO RM-5849: RhinoMocks causes a deadlock, preventing the multithreaded test from completing")]
     public void CacheMiss_UsesAssemblyContextFromPool_ParallelCallsUseSeparateAssemblyContexts ()
     {
       var typeID1 = AssembledTypeIDObjectMother.Create (_requestedType);

@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.Caching
       }
       catch
       {
-        //TODO 5840: Either the exception is caught in the Lazy object or when removing the Lazy object, there could be a race-condition?
+        //TODO RM-5849: Either the exception is caught in the Lazy object or when removing the Lazy object, there could be a race-condition?
         //Lazy<Type> value;
         //_types.TryRemove (typeID, out value);
         throw;
@@ -189,7 +189,7 @@ namespace Remotion.TypePipe.Caching
       }
       // ReSharper restore LoopCanBeConvertedToQuery
 
-      //TODO 5840: Reenable or completly remove RebuildParticipantState
+      //TODO RM-5849: Reenable or completly remove RebuildParticipantState
       //var assemblyContexts = _assemblyContextPool.DequeueAll();
       //try
       //{
@@ -216,7 +216,6 @@ namespace Remotion.TypePipe.Caching
     {
       if (CallContext.GetData (_typeCacheID) == null)
       {
-        //TODO 5840: Add timeout to Dequeue, log warning, return to Dequeuing without timeout.
         var assemblyContext = _assemblyContextPool.Dequeue();
 
         CallContext.SetData (_typeCacheID, assemblyContext);
