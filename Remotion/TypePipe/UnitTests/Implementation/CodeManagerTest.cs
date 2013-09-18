@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
@@ -120,11 +121,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       generatedCodeFlusherMock2.VerifyAllExpectations();
       generatedCodeFlusherMock3.VerifyAllExpectations();
 
-      Assert.That (result, Is.EqualTo (new[] { "path1", "path3" }));
+      Assert.That (result, Is.EquivalentTo (new[] { "path1", "path3" }));
     }
     
     [Test]
-    public void FlushCodeToDisk_ReturnsAssemblyContextToPool ()
+    public void FlushCodeToDisk_WithException_ReturnsAssemblyContextToPool ()
     {
       var expectedException = new Exception();
       var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
@@ -154,13 +155,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
       generatedCodeFlusherMock3
           .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
-          .Repeat.Never();
+          .Return ("path3");
 
       _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext1));
       _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext2));
       _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext3));
 
-      Assert.That (() => _manager.FlushCodeToDisk (new[] { assemblyAttribute }), Throws.Exception.SameAs (expectedException));
+      var aggregateException = Assert.Throws<AggregateException> (() => _manager.FlushCodeToDisk (new[] { assemblyAttribute }));
+      Assert.That (aggregateException.InnerExceptions, Is.EquivalentTo (new [] { expectedException }));
 
       _typeCacheMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();

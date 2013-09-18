@@ -61,6 +61,7 @@ namespace Remotion.TypePipe.Implementation
       try
       {
         return assemblyContexts
+            .AsParallel()
             .Select (assemblyContext => assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (attributes))
             .Where (path => path != null)
             .ToArray();
