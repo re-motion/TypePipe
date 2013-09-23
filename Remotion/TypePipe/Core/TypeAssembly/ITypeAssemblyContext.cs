@@ -47,6 +47,7 @@ namespace Remotion.TypePipe.TypeAssembly
     /// <summary>
     /// Gets the additional <see cref="MutableType"/>s that should be generated.
     /// </summary>
+    //TODO RM-5849: change to dictionary
     ReadOnlyCollection<MutableType> AdditionalTypes { get; }
 
     /// <summary>
@@ -57,6 +58,7 @@ namespace Remotion.TypePipe.TypeAssembly
     /// <param name="attributes">The type attributes.</param>
     /// <param name="baseType">The base type of the new type.</param>
     /// <returns>A new mutable type.</returns>
+    //TODO RM-5849: add parameter of type object, name=addtionalTypeID, rename method to CreateAddtionalType
     MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
 
     /// <summary>
@@ -65,6 +67,7 @@ namespace Remotion.TypePipe.TypeAssembly
     /// </summary>
     /// <param name="baseType">The proxied type.</param>
     /// <returns>A new mutable proxy type.</returns>
+    //TODO RM-5849: add parameter of type object, name=addtionalTypeID, rename method to CreateAddtionalProxyType
     MutableType CreateProxy (Type baseType);
   }
 }
