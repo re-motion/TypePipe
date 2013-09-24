@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.Implementation
       return new ConstructorForAssembledTypeCache (typeAssembler, constructorDelegateFactory);
     }
 
-    private AssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)
+    protected virtual IAssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)
     {
       var assemblyContexts = new List<AssemblyContext>();
       for (int i = 0; i < settings.DegreeOfParallelism; i++)
@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.Implementation
       return new AssemblyContextPool (assemblyContexts);
     }
 
-    private AssemblyContext NewAssemblyContext (PipelineSettings settings)
+    protected AssemblyContext NewAssemblyContext (PipelineSettings settings)
     {
       var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (
           settings.ForceStrongNaming,
