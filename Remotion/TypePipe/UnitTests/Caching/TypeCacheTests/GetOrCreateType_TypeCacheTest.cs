@@ -166,6 +166,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     }
 
     [Test]
+    [Ignore ("TODO RM-5849")]
     public void CacheMiss_AndExceptionDuringAssembleType_ReturnsAssemblyContextToPool ()
     {
       var expectedException = new Exception();

@@ -92,10 +92,15 @@ namespace Remotion.TypePipe.Caching
       }
       catch
       {
-        //TODO RM-5849: Either the exception is caught in the Lazy object or when removing the Lazy object, there could be a race-condition?
-        //Lazy<Type> value;
-        //_types.TryRemove (typeID, out value);
-        throw;
+        // Lazy<T> with ExecutionAndPublication and a create-function caches the exception. 
+        // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _types dictionary
+        // still holds the original Lazy (that cached the exception). This avoids a race with a parallel thread that requested the same type.
+        if (_types.TryUpdate (typeID, CreateType (typeID), lazyType))
+          throw; //TODO RM-5849 Test 
+
+        // Can theoretically cause a StackOverflowException in case of starvation. We are ignoring this very remote possiblity.
+        // This code path cannot be tested.
+        return GetOrCreateType (typeID);
       }
     }
 
