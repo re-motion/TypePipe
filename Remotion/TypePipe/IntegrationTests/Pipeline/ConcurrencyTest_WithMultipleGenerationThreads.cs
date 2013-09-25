@@ -75,6 +75,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       _pipeline.Create<DomainType>();
 
       // [t] is blocked by the mutex, main thread can continue with the code generation.
+      Assert.That (t.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
       _blockingMutexA.ReleaseMutex();
 
       // Now both threads run to completion (code generation is serialized).
@@ -99,6 +100,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       WaitUntilCompleted (t1, t3);
 
       // [t2] is still blocked by the mutex-B.
+      Assert.That (t2.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
       _blockingMutexB.ReleaseMutex();
 
       // Now threads [t2] can run to completion.
