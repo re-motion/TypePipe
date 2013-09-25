@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Remotion.Utilities;
 
@@ -27,7 +28,9 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <threadsafety static="true" instance="true"/>
   public class AssemblyContextPool : IAssemblyContextPool
   {
-    //TODO RM-5849: Multithreaded Tests
+    // Multi-threading behavior of the AssemblyContextPool can not be verified using unit testing.
+    // The code has been reviewed and should not be changed without being reviewed
+
     private readonly BlockingCollection<AssemblyContext> _contextPool;
 
     // Thread-safe set (for multiple readers, no writer).
@@ -80,7 +83,8 @@ namespace Remotion.TypePipe.CodeGeneration
       var assemblyContext = _contextPool.Take();
 
       object value;
-      _enqueuedContexts.TryRemove (assemblyContext, out value);
+      var result = _enqueuedContexts.TryRemove (assemblyContext, out value);
+      Assertion.IsTrue (result);
 
       return assemblyContext;
     }
