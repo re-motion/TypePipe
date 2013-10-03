@@ -30,6 +30,25 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// </summary>
   public class RelatedMethodFinder : IRelatedMethodFinder
   {
+    private class TypePipeMethodInfoEuqalityComparer : IEqualityComparer<MethodInfo>
+    {
+      private readonly IEqualityComparer<MethodInfo> _innerEqualityComparer = MemberInfoEqualityComparer<MethodInfo>.Instance;
+
+      public bool Equals (MethodInfo x, MethodInfo y)
+      {
+        if (x is CustomMethodInfo || y is CustomMethodInfo)
+          return object.Equals (x, y);
+        return _innerEqualityComparer.Equals (x, y);
+      }
+
+      public int GetHashCode (MethodInfo obj)
+      {
+        return _innerEqualityComparer.GetHashCode (obj);
+      }
+    }
+
+    private static readonly IEqualityComparer<MethodInfo> s_memberInfoEqualityComparer = new TypePipeMethodInfoEuqalityComparer();
+
     /// <inheritdoc />
     public MethodInfo GetMostDerivedVirtualMethod (string name, MethodSignature signature, Type typeToStartSearch)
     {
@@ -46,9 +65,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
-      Assertion.DebugAssert (baseDefinition == MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition));
-
-      Func<MethodInfo, bool> predicate = m => MethodBaseDefinitionCache.GetBaseDefinition (m).Equals (baseDefinition);
+      Assertion.DebugAssert (s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition)));
+      
+      Func<MethodInfo, bool> predicate = m => 
+          s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (m));
       return FirstOrDefaultFromOrderedBaseMethods (typeToStartSearch, predicate);
     }
 
@@ -70,13 +90,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("shadowingCandidates", shadowingCandidates);
-      Assertion.DebugAssert (baseDefinition == MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition));
+      Assertion.DebugAssert (s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition)));
 
       return shadowingCandidates.Any (
           m => m.Name == baseDefinition.Name
                && MethodSignature.AreEqual (m, baseDefinition)
                && baseDefinition.DeclaringType.IsTypePipeAssignableFrom (m.DeclaringType.BaseType)
-               && MethodBaseDefinitionCache.GetBaseDefinition (m) != baseDefinition);
+               && !s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (m)));
     }
 
     /// <inheritdoc />
@@ -84,11 +104,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
       ArgumentUtility.CheckNotNull ("overrideCandidates", overrideCandidates);
-      Assertion.DebugAssert (baseDefinition == MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition));
+      Assertion.DebugAssert (s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition)));
 
       return overrideCandidates.SingleOrDefault (
-          m => MethodBaseDefinitionCache.GetBaseDefinition (m).Equals (baseDefinition)
-               || m.AddedExplicitBaseDefinitions.Contains (baseDefinition));
+          m => s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (m))
+               || m.AddedExplicitBaseDefinitions.Contains (baseDefinition, s_memberInfoEqualityComparer));
     }
 
     private MethodInfo FirstOrDefaultFromOrderedBaseMethods (Type typeToStartSearch, Func<MethodInfo, bool> predicate)
