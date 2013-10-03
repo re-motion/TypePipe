@@ -36,9 +36,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       public bool Equals (MethodInfo x, MethodInfo y)
       {
-        if (x is CustomMethodInfo || y is CustomMethodInfo)
-          return object.Equals (x, y);
-        return _innerEqualityComparer.Equals (x, y);
+        if (x is CustomMethodInfo && y is CustomMethodInfo)
+          return x.Equals (y);
+        if (!(x is CustomMethodInfo) && !(y is CustomMethodInfo))
+          return _innerEqualityComparer.Equals (x, y);
+        return false;
       }
 
       public int GetHashCode (MethodInfo obj)
