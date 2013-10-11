@@ -53,12 +53,13 @@ namespace Remotion.Development.TypePipe
 
     [CLSCompliant (false)]
     protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (
+        string participantConfigurationID,
         bool forceStrongNaming,
         string keyFilePath,
         string assemblyDirectory,
         string assemblyNamePattern)
     {
-      var moduleBuilderFactory = NewModuleBuilderFactory();
+      var moduleBuilderFactory = NewModuleBuilderFactory (participantConfigurationID);
 
       return new DebuggerWorkaroundCodeGenerator (
           moduleBuilderFactory,

@@ -28,9 +28,9 @@ namespace Remotion.TypePipe.Implementation.Remotion
   public class RemotionPipelineFactory : DefaultPipelineFactory
   {
     [CLSCompliant (false)]
-    protected override IModuleBuilderFactory NewModuleBuilderFactory ()
+    protected override IModuleBuilderFactory NewModuleBuilderFactory (string participantConfigurationID)
     {
-      var moduleBuilderFactory = base.NewModuleBuilderFactory();
+      var moduleBuilderFactory = base.NewModuleBuilderFactory (participantConfigurationID);
       return new RemotionModuleBuilderFactoryDecorator (moduleBuilderFactory);
     }
   }

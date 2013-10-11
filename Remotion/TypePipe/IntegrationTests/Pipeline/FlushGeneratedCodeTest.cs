@@ -45,8 +45,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (path1, Is.Not.EqualTo (path2));
       Assert.That (assembledType1.FullName, Is.Not.EqualTo (assembledType2.FullName));
 
-      CheckSavedAssembly (path1, assembledType1.FullName);
-      CheckSavedAssembly (path2, assembledType2.FullName);
+      CheckSavedAssembly (pipeline.ParticipantConfigurationID, path1, assembledType1.FullName);
+      CheckSavedAssembly (pipeline.ParticipantConfigurationID, path2, assembledType2.FullName);
     }
 
     [Test]
@@ -177,11 +177,16 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       return assemblyPath;
     }
 
-    private void CheckSavedAssembly (string assemblyPath, string assembledTypeFullName)
+    private void CheckSavedAssembly (string participantConfigurationID, string assemblyPath, string assembledTypeFullName)
     {
       Assert.That (File.Exists (assemblyPath), Is.True);
 
       var assembly = AssemblyLoader.LoadWithoutLocking (assemblyPath);
+      var typePipeAssemblyAttribute = 
+          (TypePipeAssemblyAttribute) assembly.GetCustomAttributes (typeof (TypePipeAssemblyAttribute), false).SingleOrDefault();
+      Assert.That (typePipeAssemblyAttribute, Is.Not.Null);
+      Assert.That (typePipeAssemblyAttribute.ParticipantConfigurationID, Is.EqualTo (participantConfigurationID));
+
       var typeNames = assembly.GetExportedTypes().Select (t => t.FullName);
 
       Assert.That (typeNames, Is.EqualTo (new[] { assembledTypeFullName }));

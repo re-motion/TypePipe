@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.Implementation
 
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var constructorDelegateFactory = NewConstructorDelegateFactory();
-      var assemblyContextPool = NewAssemblyContextPool (settings);
+      var assemblyContextPool = NewAssemblyContextPool (participantConfigurationID, settings);
       var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
       var codeManager = NewCodeManager (typeCache, assemblyContextPool);
       var reflectionService = NewReflectionService (typeAssembler, typeCache, constructorDelegateFactory);
@@ -90,18 +90,19 @@ namespace Remotion.TypePipe.Implementation
       return new ConstructorForAssembledTypeCache (typeAssembler, constructorDelegateFactory);
     }
 
-    protected virtual IAssemblyContextPool NewAssemblyContextPool (PipelineSettings settings)
+    protected virtual IAssemblyContextPool NewAssemblyContextPool (string participantConfigurationID, PipelineSettings settings)
     {
       var assemblyContexts = new List<AssemblyContext>();
       for (int i = 0; i < settings.DegreeOfParallelism; i++)
-        assemblyContexts.Add (NewAssemblyContext (settings));
+        assemblyContexts.Add (NewAssemblyContext (participantConfigurationID, settings));
 
       return new AssemblyContextPool (assemblyContexts);
     }
 
-    protected AssemblyContext NewAssemblyContext (PipelineSettings settings)
+    protected AssemblyContext NewAssemblyContext (string participantConfigurationID, PipelineSettings settings)
     {
       var reflectionEmitCodeGenerator = NewReflectionEmitCodeGenerator (
+          participantConfigurationID,
           settings.ForceStrongNaming,
           settings.KeyFilePath,
           settings.AssemblyDirectory,
@@ -144,12 +145,13 @@ namespace Remotion.TypePipe.Implementation
 
     [CLSCompliant (false)]
     protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (
+        string participantConfigurationID,
         bool forceStrongNaming,
         [CanBeNull]string keyFilePath,
         [CanBeNull]string assemblyDirectory,
         [NotNull]string assemblyNamePattern)
     {
-      var moduleBuilderFactory = NewModuleBuilderFactory();
+      var moduleBuilderFactory = NewModuleBuilderFactory (participantConfigurationID);
 
       return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, assemblyDirectory, assemblyNamePattern);
     }
@@ -200,9 +202,9 @@ namespace Remotion.TypePipe.Implementation
     }
 
     [CLSCompliant (false)]
-    protected virtual IModuleBuilderFactory NewModuleBuilderFactory ()
+    protected virtual IModuleBuilderFactory NewModuleBuilderFactory (string participantConfigurationID)
     {
-      return new ModuleBuilderFactory();
+      return new ModuleBuilderFactory (participantConfigurationID);
     }
 
     protected virtual IMemberEmitterFactory NewMemberEmitterFactory ()

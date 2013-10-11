@@ -21,6 +21,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using JetBrains.Annotations;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
+using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
 
@@ -35,6 +37,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <threadsafety static="true" instance="true"/>
   public class ModuleBuilderFactory : IModuleBuilderFactory
   {
+    private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new TypePipeAssemblyAttribute ("participantConfigurationID"));
+
+    private readonly string _participantConfigurationID;
+
+    public ModuleBuilderFactory (string participantConfigurationID)
+    {
+      _participantConfigurationID = participantConfigurationID;
+    }
+
     [CLSCompliant (false)]
     public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull)
     {
@@ -48,7 +60,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var moduleName = assemblyName + ".dll";
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
 
-      return new ModuleBuilderAdapter (moduleBuilder);
+      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
+
+      var typePipeAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { _participantConfigurationID });
+      moduleBuilderAdapter.AssemblyBuilder.SetCustomAttribute (typePipeAttribute);
+
+      return moduleBuilderAdapter;
     }
 
     [NotNull]

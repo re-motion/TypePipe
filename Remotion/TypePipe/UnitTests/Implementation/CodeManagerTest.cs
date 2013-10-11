@@ -51,8 +51,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void FlushCodeToDisk_FlushesMultipleAssemblies_ReturnsNonNullResultPaths ()
     {
       var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
-      var configID = "config";
-      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
 
       var generatedCodeFlusherMock1 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
       var assemblyContext1 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock1);
@@ -116,7 +114,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
       var result = _manager.FlushCodeToDisk (new[] { assemblyAttribute });
 
-      _typeCacheMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
       generatedCodeFlusherMock1.VerifyAllExpectations();
       generatedCodeFlusherMock2.VerifyAllExpectations();
@@ -130,8 +127,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var expectedException = new Exception();
       var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
-      var configID = "config";
-      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return (configID);
 
       var generatedCodeFlusherMock1 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
       var assemblyContext1 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock1);
@@ -165,7 +160,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var aggregateException = Assert.Throws<AggregateException> (() => _manager.FlushCodeToDisk (new[] { assemblyAttribute }));
       Assert.That (aggregateException.InnerExceptions, Is.EquivalentTo (new [] { expectedException }));
 
-      _typeCacheMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
       generatedCodeFlusherMock1.VerifyAllExpectations();
       generatedCodeFlusherMock2.VerifyAllExpectations();

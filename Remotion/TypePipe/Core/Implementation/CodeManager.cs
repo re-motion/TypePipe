@@ -19,7 +19,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
@@ -34,9 +33,6 @@ namespace Remotion.TypePipe.Implementation
   /// <threadsafety static="true" instance="true"/>
   public class CodeManager : ICodeManager
   {
-    private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
-        MemberInfoFromExpressionUtility.GetConstructor (() => new TypePipeAssemblyAttribute ("participantConfigurationID"));
-
     private readonly IAssemblyContextPool _assemblyContextPool;
     private readonly ITypeCache _typeCache;
 
@@ -53,16 +49,12 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
-      var participantConfigurationID = _typeCache.ParticipantConfigurationID;
-      var typePipeAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { participantConfigurationID });
-      var attributes = assemblyAttributes.Concat (typePipeAttribute);
-
       AssemblyContext[] assemblyContexts = _assemblyContextPool.DequeueAll();
       try
       {
         return assemblyContexts
             .AsParallel()
-            .Select (assemblyContext => assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (attributes))
+            .Select (assemblyContext => assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (assemblyAttributes))
             .Where (path => path != null)
             .ToArray();
       }
