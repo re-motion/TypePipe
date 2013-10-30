@@ -31,7 +31,6 @@ namespace Remotion.TypePipe.Caching
     string ParticipantConfigurationID { get; }
     ReadOnlyCollection<IParticipant> Participants { get; }
 
-    Type GetOrCreateType (Type requestedType);
     Type GetOrCreateType (AssembledTypeID typeID);
 
     Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic);

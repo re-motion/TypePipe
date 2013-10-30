@@ -70,7 +70,8 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      return _typeCache.GetOrCreateType (requestedType);
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
+      return _typeCache.GetOrCreateType (typeID);
     }
 
     public Type GetAssembledType (AssembledTypeID typeID)
