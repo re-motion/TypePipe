@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     private ITypeCache _typeCacheMock;
     private ICodeManager _codeManagerMock;
     private IReflectionService _reflectionServiceMock;
-    private ITypeAssembler _typeAssemberMock;
+    private ITypeAssembler _typeAssemblerMock;
 
     private Pipeline _pipeline;
 
@@ -51,12 +51,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
       _reflectionServiceMock = MockRepository.GenerateStrictMock<IReflectionService>();
-      _typeAssemberMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
+      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
 
-      _pipeline = new Pipeline (_settings, _typeCacheMock, _codeManagerMock, _reflectionServiceMock, _typeAssemberMock);
+      _pipeline = new Pipeline (_settings, _typeCacheMock, _codeManagerMock, _reflectionServiceMock, _typeAssemblerMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
-      _typeID = new AssembledTypeID (_requestedType, new object[0]);
+      _typeID = AssembledTypeIDObjectMother.Create();
     }
 
     [Test]
@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void CreateObject_NoConstructorArguments ()
     {
-      _typeAssemberMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
       _typeCacheMock
           .Expect (
               mock => mock.GetOrCreateConstructorCall (
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void CreateObject_ConstructorArguments ()
     {
-      _typeAssemberMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
       var arguments = ParamList.Create ("abc", 7);
       _typeCacheMock
           .Expect (
@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void CreateObject_NonPublicConstructor ()
     {
-      _typeAssemberMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
       const bool allowNonPublic = true;
       _typeCacheMock
           .Expect (
@@ -148,7 +148,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void CreateObject_Generic ()
     {
       var typeID = new AssembledTypeID (typeof (RequestedType), new object[0]);
-      _typeAssemberMock.Expect (mock => mock.ComputeTypeID (typeof (RequestedType))).Return (typeID);
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (typeof (RequestedType))).Return (typeID);
       var assembledInstance = new AssembledType();
       _typeCacheMock
           .Expect (
