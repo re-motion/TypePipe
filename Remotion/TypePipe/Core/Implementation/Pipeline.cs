@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -34,18 +35,21 @@ namespace Remotion.TypePipe.Implementation
     private readonly ITypeCache _typeCache;
     private readonly ICodeManager _codeManager;
     private readonly IReflectionService _reflectionService;
+    private readonly ITypeAssembler _typeAssembler;
 
-    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService, ITypeAssembler typeAssembler)
     {
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
       ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
-
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      
       _settings = settings;
       _typeCache = typeCache;
       _codeManager = codeManager;
       _reflectionService = reflectionService;
+      _typeAssembler = typeAssembler;
     }
 
     public string ParticipantConfigurationID
@@ -76,18 +80,16 @@ namespace Remotion.TypePipe.Implementation
     public T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class
     {
-      return (T) Create (typeof (T), constructorArguments, allowNonPublicConstructor);
+      var typeID = _typeAssembler.ComputeTypeID (typeof (T));
+      return (T) Create (typeID, constructorArguments, allowNonPublicConstructor);
     }
 
     public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      constructorArguments = constructorArguments ?? ParamList.Empty;
 
-      var constructorCall = _typeCache.GetOrCreateConstructorCall (requestedType, constructorArguments.FuncType, allowNonPublicConstructor);
-      var instance = constructorArguments.InvokeFunc (constructorCall);
-
-      return instance;
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
+      return Create (typeID, constructorArguments, allowNonPublicConstructor);
     }
 
     public object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)

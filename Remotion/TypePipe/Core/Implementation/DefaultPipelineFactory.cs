@@ -50,16 +50,17 @@ namespace Remotion.TypePipe.Implementation
       var codeManager = NewCodeManager (typeCache, assemblyContextPool);
       var reflectionService = NewReflectionService (typeAssembler, typeCache, constructorDelegateFactory);
 
-      return NewPipeline (settings, typeCache, codeManager, reflectionService);
+      return NewPipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
     }
 
     protected virtual IPipeline NewPipeline (
         PipelineSettings settings,
         ITypeCache typeCache,
         ICodeManager codeManager,
-        IReflectionService reflectionService)
+        IReflectionService reflectionService,
+        ITypeAssembler typeAssembler)
     {
-      return new Pipeline (settings, typeCache, codeManager, reflectionService);
+      return new Pipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
     }
 
     protected virtual ICodeManager NewCodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
