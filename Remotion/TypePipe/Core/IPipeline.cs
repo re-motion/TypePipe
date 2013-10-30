@@ -17,6 +17,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
+using JetBrains.Annotations;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
@@ -57,10 +58,11 @@ namespace Remotion.TypePipe
     /// </summary>
     IReflectionService ReflectionService { get; }
 
-    T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
-    object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+    T Create<T> ([CanBeNull] ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
 
-    object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+    object Create ([NotNull]Type requestedType, [CanBeNull] ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+
+    object Create (AssembledTypeID typeID, [CanBeNull] ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
 
     /// <summary>
     /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.

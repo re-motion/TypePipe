@@ -86,9 +86,10 @@ namespace Remotion.TypePipe.Implementation
       return _typeCache.GetOrCreateAdditionalType (additionalTypeID);
     }
 
-    public object InstantiateAssembledType (Type assembledType, ParamList constructorArguments, bool allowNonPublicConstructor)
+    public object InstantiateAssembledType (Type assembledType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+
       constructorArguments = constructorArguments ?? ParamList.Empty;
 
       var constructorCall = _constructorForAssembledTypeCache.GetOrCreateConstructorCall (

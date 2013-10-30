@@ -16,6 +16,7 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 
@@ -96,6 +97,6 @@ namespace Remotion.TypePipe.Implementation
     /// <param name="constructorArguments">The constructor arguments.</param>
     /// <param name="allowNonPublicConstructor">Determines if non-public constructors will be used to create the instance.</param>
     /// <returns>A newly constructed instance of the assembled type.</returns>
-    object InstantiateAssembledType (Type assembledType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
+    object InstantiateAssembledType (Type assembledType, [CanBeNull] ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
   }
 }
