@@ -72,16 +72,6 @@ namespace Remotion.TypePipe.Caching
       get { return _typeAssembler.Participants; }
     }
 
-    public Type GetOrCreateType (Type requestedType)
-    {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert(requestedType != null);
-
-      var typeID = _typeAssembler.ComputeTypeID (requestedType);
-
-      return GetOrCreateType (typeID);
-    }
-
     public Type GetOrCreateType (AssembledTypeID typeID)
     {
       var lazyType = _types.GetOrAdd (typeID, _createTypeFunc);
@@ -121,17 +111,6 @@ namespace Remotion.TypePipe.Caching
             }
           },
           LazyThreadSafetyMode.ExecutionAndPublication);
-    }
-
-    public Delegate GetOrCreateConstructorCall (Type requestedType, Type delegateType, bool allowNonPublic)
-    {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (requestedType != null);
-      Assertion.DebugAssert (delegateType != null && typeof(Delegate).IsAssignableFrom(delegateType));
-
-      var typeID = _typeAssembler.ComputeTypeID (requestedType);
-
-      return GetOrCreateConstructorCall (typeID, delegateType, allowNonPublic);
     }
 
     public Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)

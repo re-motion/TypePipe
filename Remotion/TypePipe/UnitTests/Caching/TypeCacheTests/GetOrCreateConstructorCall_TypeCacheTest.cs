@@ -43,7 +43,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     private IDictionary<AssembledTypeID, Lazy<Type>> _types;
     private IDictionary<ConstructionKey, Delegate> _constructorCalls;
 
-    private readonly Type _requestedType = typeof (RequestedType);
     private readonly Type _assembledType = typeof (AssembledType);
     private readonly Delegate _generatedCtorCall = new Func<int> (() => 7);
     private Type _delegateType;
@@ -70,9 +69,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     {
       var typeID = AssembledTypeIDObjectMother.Create();
       _constructorCalls.Add (new ConstructionKey (typeID, _delegateType, _allowNonPublic), _generatedCtorCall);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
-      var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
+      var result = _cache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_generatedCtorCall));
@@ -82,7 +80,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_WithAssembledTypeCacheHit ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
       _types.Add (typeID, new Lazy<Type> (() => _assembledType, LazyThreadSafetyMode.None));
 
@@ -90,7 +87,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Expect (mock => mock.CreateConstructorCall (typeID.RequestedType, _assembledType, _delegateType, _allowNonPublic))
           .Return (_generatedCtorCall);
 
-      var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
+      var result = _cache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _constructorDelegateFactoryMock.VerifyAllExpectations();
@@ -105,7 +102,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_WithAssembledTypeCacheMiss ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
       var assemblyContext = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -141,7 +137,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Return (_generatedCtorCall)
           .WhenCalled (mi => Assert.That (isDequeued, Is.False));
 
-      var result = _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic);
+      var result = _cache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
@@ -158,7 +154,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     {
       var expectedException = new Exception();
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
       var assemblyContext = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -186,7 +181,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
               });
 
       Assert.That (
-          () => _cache.GetOrCreateConstructorCall (_requestedType, _delegateType, _allowNonPublic),
+          () => _cache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic),
           Throws.Exception.SameAs (expectedException));
 
       _typeAssemblerMock.VerifyAllExpectations();
@@ -197,7 +192,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       Assert.That (_constructorCalls.ContainsKey(key), Is.False);
     }
 
-    private class RequestedType {}
     private class AssembledType {}
   }
 }

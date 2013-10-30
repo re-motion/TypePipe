@@ -63,9 +63,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     {
       var typeID = AssembledTypeIDObjectMother.Create (_requestedType);
       _types.Add (typeID, new Lazy<Type> (() => _assembledType, LazyThreadSafetyMode.None));
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
-      var result = _cache.GetOrCreateType (_requestedType);
+      var result = _cache.GetOrCreateType (typeID);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
@@ -76,7 +75,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_UsesAssemblyContextFromPool ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
       var assemblyContext = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -102,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      var result = _cache.GetOrCreateType (_requestedType);
+      var result = _cache.GetOrCreateType (typeID);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
@@ -116,7 +114,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_UsesAssemblyContextFromPool_AssembleTwoTypes_UsesDifferentAssemblyContexts ()
     {
       var typeID1 = AssembledTypeIDObjectMother.Create (_requestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID1);
 
       var assemblyContext1 = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -137,7 +134,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
 
       var typeID2 = AssembledTypeIDObjectMother.Create (_otherRequestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_otherRequestedType)).Return (typeID2);
 
       var assemblyContext2 = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -156,8 +152,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext2));
 
-      var result1 = _cache.GetOrCreateType (_requestedType);
-      var result2 = _cache.GetOrCreateType (_otherRequestedType);
+      var result1 = _cache.GetOrCreateType (typeID1);
+      var result2 = _cache.GetOrCreateType (typeID2);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
@@ -172,7 +168,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var expectedException = new Exception();
 
       var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID);
 
       var assemblyContext = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -194,7 +189,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      Assert.That (() => _cache.GetOrCreateType (_requestedType), Throws.Exception.SameAs (expectedException));
+      Assert.That (() => _cache.GetOrCreateType (typeID), Throws.Exception.SameAs (expectedException));
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
@@ -208,10 +203,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_UsesAssemblyContextFromPool_ReusesAssemblyContextForNestedCallsToGetOrCreateType ()
     {
       var typeID1 = AssembledTypeIDObjectMother.Create (_requestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID1);
-
       var typeID2 = AssembledTypeIDObjectMother.Create (_otherRequestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_otherRequestedType)).Return (typeID2);
 
       var assemblyContext = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -235,7 +227,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
               mi =>
               {
                 Assert.That (isDequeued, Is.True);
-                _cache.GetOrCreateType (_otherRequestedType);
+                _cache.GetOrCreateType (typeID2);
               });
 
       _typeAssemblerMock
@@ -257,7 +249,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                 isDequeued = false;
               });
 
-      var result = _cache.GetOrCreateType (_requestedType);
+      var result = _cache.GetOrCreateType (typeID1);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
@@ -267,8 +259,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     [Test]
     public void CacheMiss_UsesAssemblyContextFromPool_ReusesAssemblyContextForNestedCallsToGetOrCreateAdditionalType ()
     {
-      var typeID1 = AssembledTypeIDObjectMother.Create (_requestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID1);
+      var typeID = AssembledTypeIDObjectMother.Create (_requestedType);
 
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
@@ -287,7 +278,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Expect (
               mock => mock.AssembleType (
                   // Use strongly typed Equals overload.
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID1)),
+                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
                   Arg.Is (assemblyContext.ParticipantState),
                   Arg.Is (assemblyContext.MutableTypeBatchCodeGenerator)))
           .Return (_assembledType)
@@ -316,7 +307,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                 isDequeued = false;
               });
 
-      var result = _cache.GetOrCreateType (_requestedType);
+      var result = _cache.GetOrCreateType (typeID);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();
@@ -328,10 +319,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_UsesAssemblyContextFromPool_ParallelCallsUseSeparateAssemblyContexts ()
     {
       var typeID1 = AssembledTypeIDObjectMother.Create (_requestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (typeID1);
-
       var typeID2 = AssembledTypeIDObjectMother.Create (_otherRequestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_otherRequestedType)).Return (typeID2);
 
       var assemblyContext1 = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -368,7 +356,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                 Assert.That (isDequeued1, Is.True);
                 var threadRunner =
                     ThreadRunner.WithTimeout (
-                        () => Assert.That (_cache.GetOrCreateType (_otherRequestedType), Is.SameAs (_otherAssembledType)),
+                        () => Assert.That (_cache.GetOrCreateType (typeID2), Is.SameAs (_otherAssembledType)),
                         TimeSpan.FromMilliseconds (100));
                 Assert.That (threadRunner.Run(), Is.False);
               });
@@ -401,7 +389,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                 isDequeued2 = false;
               });
 
-      var result = _cache.GetOrCreateType (_requestedType);
+      var result = _cache.GetOrCreateType (typeID1);
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPool.VerifyAllExpectations();

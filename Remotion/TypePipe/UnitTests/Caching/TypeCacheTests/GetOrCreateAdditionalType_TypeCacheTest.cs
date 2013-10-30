@@ -241,7 +241,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var requestedType = typeof (RequestedType);
       var assembledType = typeof (AssembledType);
       var typeID = AssembledTypeIDObjectMother.Create (requestedType);
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (requestedType)).Return (typeID);
 
       var assemblyContext = new AssemblyContext (
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
@@ -264,7 +263,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
               mi =>
               {
                 Assert.That (isDequeued, Is.True);
-                Assert.That (_cache.GetOrCreateType (requestedType), Is.SameAs (assembledType));
+                Assert.That (_cache.GetOrCreateType (typeID), Is.SameAs (assembledType));
               });
 
       _typeAssemblerMock
