@@ -91,6 +91,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock
           .Expect (
               mock => mock.GetOrCreateConstructorCall (
+                  // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID)),
                   Arg.Is (typeof (Func<object>)),
                   Arg.Is (false)))
@@ -109,6 +110,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock
           .Expect (
               mock => mock.GetOrCreateConstructorCall (
+                  // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID)),
                   Arg.Is (arguments.FuncType),
                   Arg.Is (false)))
@@ -134,6 +136,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock
           .Expect (
               mock => mock.GetOrCreateConstructorCall (
+                  // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID)),
                   Arg.Is (typeof (Func<object>)),
                   Arg.Is (allowNonPublic)))
@@ -153,6 +156,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock
           .Expect (
               mock => mock.GetOrCreateConstructorCall (
+                  // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
                   Arg.Is (ParamList.Empty.FuncType),
                   Arg.Is (false)))
@@ -171,7 +175,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _typeCacheMock
           .Expect (
               mock => mock.GetOrCreateConstructorCall (
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (assembledTypeID)), Arg.Is (ParamList.Empty.FuncType), Arg.Is (false)))
+                  // Use strongly typed Equals overload.
+                  Arg<AssembledTypeID>.Matches (id => id.Equals (assembledTypeID)),
+                  Arg.Is (ParamList.Empty.FuncType),
+                  Arg.Is (false)))
           .Return (new Func<object> (() => assembledInstance));
 
       var result = _pipeline.Create (assembledTypeID);
