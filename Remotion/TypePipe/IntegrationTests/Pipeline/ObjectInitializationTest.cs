@@ -66,10 +66,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (instance.CtorCalled, Is.False);
       Assert.That (instance.String, Is.Null);
 
-      _pipeline.PrepareExternalUninitializedObject (instance, InitializationSemantics.Construction);
+      _pipeline.ReflectionService.PrepareExternalUninitializedObject (instance, InitializationSemantics.Construction);
       Assert.That (instance.String, Is.EqualTo ("construction"));
 
-      _pipeline.PrepareExternalUninitializedObject (instance, InitializationSemantics.Deserialization);
+      _pipeline.ReflectionService.PrepareExternalUninitializedObject (instance, InitializationSemantics.Deserialization);
       Assert.That (instance.String, Is.EqualTo ("construction deserialization"));
     }
 

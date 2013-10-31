@@ -36,22 +36,25 @@ namespace Remotion.TypePipe.Implementation
     private readonly ICodeManager _codeManager;
     private readonly IReflectionService _reflectionService;
     private readonly ITypeAssembler _typeAssembler;
-    private readonly IConstructorCallCache _constructorCallCache;
 
-    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService, ITypeAssembler typeAssembler, IConstructorCallCache constructorCallCache)
+    public Pipeline (
+        PipelineSettings settings,
+        ITypeCache typeCache,
+        ICodeManager codeManager,
+        IReflectionService reflectionService,
+        ITypeAssembler typeAssembler)
     {
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
       ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      
+
       _settings = settings;
       _typeCache = typeCache;
       _codeManager = codeManager;
       _reflectionService = reflectionService;
       _typeAssembler = typeAssembler;
-      _constructorCallCache = constructorCallCache;
     }
 
     public string ParticipantConfigurationID
@@ -82,35 +85,16 @@ namespace Remotion.TypePipe.Implementation
     public T Create<T> (ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
         where T : class
     {
-      var typeID = _typeAssembler.ComputeTypeID (typeof (T));
-      return (T) Create (typeID, constructorArguments, allowNonPublicConstructor);
+      return (T) Create (typeof (T), constructorArguments, allowNonPublicConstructor);
     }
 
     public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-
-      var typeID = _typeAssembler.ComputeTypeID (requestedType);
-      return Create (typeID, constructorArguments, allowNonPublicConstructor);
-    }
-
-    public object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
-    {
       constructorArguments = constructorArguments ?? ParamList.Empty;
 
-      var constructorCall = _constructorCallCache.GetOrCreateConstructorCall (typeID, constructorArguments.FuncType, allowNonPublicConstructor);
-      var instance = constructorArguments.InvokeFunc (constructorCall);
-
-      return instance;
-    }
-
-    public void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics)
-    {
-      ArgumentUtility.CheckNotNull ("instance", instance);
-
-      var initializableInstance = instance as IInitializableObject;
-      if (initializableInstance != null)
-        initializableInstance.Initialize (initializationSemantics);
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
+      return _reflectionService.InstantiateAssembledType (typeID, constructorArguments, allowNonPublicConstructor);
     }
   }
 }

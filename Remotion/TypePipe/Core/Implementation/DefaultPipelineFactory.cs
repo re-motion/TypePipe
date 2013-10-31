@@ -44,14 +44,12 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("participants", participants);
 
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
-      var constructorDelegateFactory = NewConstructorDelegateFactory();
       var assemblyContextPool = NewAssemblyContextPool (participantConfigurationID, settings);
       var typeCache = NewTypeCache (typeAssembler, assemblyContextPool);
       var codeManager = NewCodeManager (typeCache, assemblyContextPool);
-      var constructorCallCache = NewConstructorCallCache(typeCache, constructorDelegateFactory);
-      var reflectionService = NewReflectionService (typeAssembler, typeCache, constructorDelegateFactory);
+      var reflectionService = NewReflectionService (typeCache, typeAssembler);
 
-      return NewPipeline (settings, typeCache, codeManager, reflectionService, typeAssembler, constructorCallCache);
+      return NewPipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
     }
 
     protected virtual IPipeline NewPipeline (
@@ -59,10 +57,9 @@ namespace Remotion.TypePipe.Implementation
         ITypeCache typeCache,
         ICodeManager codeManager,
         IReflectionService reflectionService,
-        ITypeAssembler typeAssembler,
-        IConstructorCallCache constructorCallCache)
+        ITypeAssembler typeAssembler)
     {
-      return new Pipeline (settings, typeCache, codeManager, reflectionService, typeAssembler, constructorCallCache);
+      return new Pipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
     }
 
     protected virtual ICodeManager NewCodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
@@ -70,13 +67,13 @@ namespace Remotion.TypePipe.Implementation
       return new CodeManager (typeCache, assemblyContextPool);
     }
 
-    protected virtual IReflectionService NewReflectionService (
-        ITypeAssembler typeAssembler,
-        ITypeCache typeCache,
-        IConstructorDelegateFactory constructorDelegateFactory)
+    protected virtual IReflectionService NewReflectionService (ITypeCache typeCache, ITypeAssembler typeAssembler)
     {
-      var reverseTypeCache = NewReverseTypeCache (typeAssembler, constructorDelegateFactory);
-      return new ReflectionService (typeAssembler, typeCache, reverseTypeCache);
+      var constructorDelegateFactory = NewConstructorDelegateFactory();
+      var constructorCallCache = NewConstructorCallCache (typeCache, constructorDelegateFactory);
+      var reverseTypeCache = NewConstructorForAssembledTypeCache (typeAssembler, constructorDelegateFactory);
+
+      return new ReflectionService (typeAssembler, typeCache, constructorCallCache, reverseTypeCache);
     }
 
     [CLSCompliant (false)]
@@ -85,7 +82,9 @@ namespace Remotion.TypePipe.Implementation
       return new TypeCache (typeAssembler, assemblyContextPool);
     }
 
-    protected virtual IConstructorForAssembledTypeCache NewReverseTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
+    protected virtual IConstructorForAssembledTypeCache NewConstructorForAssembledTypeCache (
+        ITypeAssembler typeAssembler,
+        IConstructorDelegateFactory constructorDelegateFactory)
     {
       return new ConstructorForAssembledTypeCache (typeAssembler, constructorDelegateFactory);
     }

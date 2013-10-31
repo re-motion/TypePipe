@@ -61,16 +61,5 @@ namespace Remotion.TypePipe
     T Create<T> ([CanBeNull] ParamList constructorArguments = null, bool allowNonPublicConstructor = false) where T : class;
 
     object Create ([NotNull]Type requestedType, [CanBeNull] ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
-
-    object Create (AssembledTypeID typeID, [CanBeNull] ParamList constructorArguments = null, bool allowNonPublicConstructor = false);
-
-    /// <summary>
-    /// Prepares an externally created instance of an assembled type that was not created by invoking a constructor.
-    /// For example, an instance that was created via <see cref="FormatterServices"/>.<see cref="FormatterServices.GetUninitializedObject"/>
-    /// during deserialization.
-    /// </summary>
-    /// <param name="instance">The assembled type instance which should be prepared.</param>
-    /// <param name="initializationSemantics">The semantics to apply during initialization.</param>
-    void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics);
   }
 }

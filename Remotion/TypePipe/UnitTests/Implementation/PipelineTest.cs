@@ -19,7 +19,6 @@ using System;
 using System.Collections.ObjectModel;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
-using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
@@ -43,7 +42,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
     private Type _requestedType;
     private AssembledTypeID _typeID;
-    private IConstructorCallCache _constructorCallCacheMock;
 
     [SetUp]
     public void SetUp ()
@@ -53,9 +51,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
       _reflectionServiceMock = MockRepository.GenerateStrictMock<IReflectionService>();
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
-      _constructorCallCacheMock = MockRepository.GenerateStrictMock<IConstructorCallCache>();
 
-      _pipeline = new Pipeline (_settings, _typeCacheMock, _codeManagerMock, _reflectionServiceMock, _typeAssemblerMock, _constructorCallCacheMock);
+      _pipeline = new Pipeline (_settings, _typeCacheMock, _codeManagerMock, _reflectionServiceMock, _typeAssemblerMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
       _typeID = AssembledTypeIDObjectMother.Create();
@@ -90,14 +87,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void CreateObject_NoConstructorArguments ()
     {
       _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
-      _constructorCallCacheMock
+      _reflectionServiceMock
           .Expect (
-              mock => mock.GetOrCreateConstructorCall (
+              mock => mock.InstantiateAssembledType (
                   // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID)),
-                  Arg.Is (typeof (Func<object>)),
+                  Arg.Is (ParamList.Empty),
                   Arg.Is (false)))
-          .Return (new Func<object> (() => "default .ctor"));
+          .Return ("default .ctor");
 
       var result = _pipeline.Create (_requestedType);
 
@@ -109,21 +106,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
       var arguments = ParamList.Create ("abc", 7);
-      _constructorCallCacheMock
+      _reflectionServiceMock
           .Expect (
-              mock => mock.GetOrCreateConstructorCall (
+              mock => mock.InstantiateAssembledType (
                   // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID)),
-                  Arg.Is (arguments.FuncType),
+                  Arg.Is (arguments),
                   Arg.Is (false)))
-          .Return (
-              new Func<string, int, object> (
-                  (s, i) =>
-                  {
-                    Assert.That (s, Is.EqualTo ("abc"));
-                    Assert.That (i, Is.EqualTo (7));
-                    return "abc, 7";
-                  }));
+          .Return ("abc, 7");
 
       var result = _pipeline.Create (_requestedType, arguments);
 
@@ -135,14 +125,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (_requestedType)).Return (_typeID);
       const bool allowNonPublic = true;
-      _constructorCallCacheMock
+      _reflectionServiceMock
           .Expect (
-              mock => mock.GetOrCreateConstructorCall (
+              mock => mock.InstantiateAssembledType (
                   // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (_typeID)),
-                  Arg.Is (typeof (Func<object>)),
+                  Arg.Is (ParamList.Empty),
                   Arg.Is (allowNonPublic)))
-          .Return (new Func<object> (() => "non-public .ctor"));
+          .Return ("non-public .ctor");
 
       var result = _pipeline.Create (_requestedType, allowNonPublicConstructor: allowNonPublic);
 
@@ -155,54 +145,18 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var typeID = new AssembledTypeID (typeof (RequestedType), new object[0]);
       _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (typeof (RequestedType))).Return (typeID);
       var assembledInstance = new AssembledType();
-      _constructorCallCacheMock
+      _reflectionServiceMock
           .Expect (
-              mock => mock.GetOrCreateConstructorCall (
+              mock => mock.InstantiateAssembledType (
                   // Use strongly typed Equals overload.
                   Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
-                  Arg.Is (ParamList.Empty.FuncType),
+                  Arg.Is (ParamList.Empty),
                   Arg.Is (false)))
-          .Return (new Func<object> (() => assembledInstance));
+          .Return (assembledInstance);
 
       var result = _pipeline.Create<RequestedType>();
 
       Assert.That (result, Is.SameAs (assembledInstance));
-    }
-
-    [Test]
-    public void CreateObject_AssembledTypeID ()
-    {
-      var assembledInstance = new AssembledType();
-      var assembledTypeID = AssembledTypeIDObjectMother.Create();
-      _constructorCallCacheMock
-          .Expect (
-              mock => mock.GetOrCreateConstructorCall (
-                  // Use strongly typed Equals overload.
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (assembledTypeID)),
-                  Arg.Is (ParamList.Empty.FuncType),
-                  Arg.Is (false)))
-          .Return (new Func<object> (() => assembledInstance));
-
-      var result = _pipeline.Create (assembledTypeID);
-
-      Assert.That (result, Is.SameAs (assembledInstance));
-    }
-
-    [Test]
-    public void PrepareAssembledTypeInstance_Initializable ()
-    {
-      var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
-      var reason = BooleanObjectMother.GetRandomBoolean() ? InitializationSemantics.Construction : InitializationSemantics.Deserialization;
-
-      _pipeline.PrepareExternalUninitializedObject (initializableObjectMock, reason);
-
-      initializableObjectMock.AssertWasCalled (mock => mock.Initialize (reason));
-    }
-
-    [Test]
-    public void PrepareAssembledTypeInstance_NonInitializable ()
-    {
-      Assert.That (() => _pipeline.PrepareExternalUninitializedObject (new object(), 0), Throws.Nothing);
     }
 
     class RequestedType { }

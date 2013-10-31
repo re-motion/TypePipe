@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.FunctionalProgramming;
+using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
@@ -217,7 +218,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <para>
     /// The added initializations are not executed when instances of the type are created directly through the
     /// <see cref="FormatterServices.GetUninitializedObject"/> API, which creates an object of a type without invoking any constructor.
-    /// Such instances must be prepared with <see cref="IPipeline.PrepareExternalUninitializedObject"/> before usage.
+    /// Such instances must be prepared with <see cref="IReflectionService.PrepareExternalUninitializedObject"/> before usage.
     /// </para>
     /// </remarks>
     /// <param name="initializationProvider">A provider returning an instance initialization.</param>

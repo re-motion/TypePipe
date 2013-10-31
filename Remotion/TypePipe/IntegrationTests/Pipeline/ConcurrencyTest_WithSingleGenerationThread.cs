@@ -18,8 +18,10 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
+using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -123,7 +125,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       // Operations that only return cached results are not blocked.
       Assert.That (_pipeline.ReflectionService.GetAssembledType (typeof (DomainType)), Is.SameAs (cachedAssembledType));
       Assert.That (_pipeline.ReflectionService.GetAssembledType (cachedAssembledTypeID), Is.SameAs (cachedAssembledType));
-      Assert.That (_pipeline.ReflectionService.InstantiateAssembledType (otherCachedAssembledType), Is.Not.Null);
+      Assert.That (_pipeline.ReflectionService.InstantiateAssembledType (cachedAssembledTypeID, ParamList.Empty, false), Is.Not.Null);
+      Assert.That (_pipeline.ReflectionService.InstantiateAssembledType (otherCachedAssembledType, ParamList.Empty, false), Is.Not.Null);
+      Assert.That (
+          () => _pipeline.ReflectionService.PrepareExternalUninitializedObject (new object(), InitializationSemantics.Construction),
+          Throws.Nothing);
 
       // All threads that cannot be served purely by the cache are now blocked.
       // [t1] is blocked by the mutex, [t2, ...] are blocked by the code generation in [t1].
