@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
   {
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorDelegateFactory _constructorDelegateFactoryMock;
-    private IAssemblyContextPool _assemblyContextPool;
+    private IAssemblyContextPool _assemblyContextPoolMock;
 
     private TypeCache _cache;
 
@@ -51,9 +51,9 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
-      _assemblyContextPool = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
+      _assemblyContextPoolMock = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPool);
+      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPoolMock);
 
       _types = (ConcurrentDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_types");
     }
@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var result = _cache.GetOrCreateType (typeID);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
     }
 
@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
       bool isDequeued = false;
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext)
           .WhenCalled (mi => { isDequeued = true; });
@@ -96,14 +96,14 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Return (_assembledType)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       var result = _cache.GetOrCreateType (typeID);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
 
       Assert.That (_types[typeID].IsValueCreated, Is.True);
@@ -119,7 +119,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
-      _assemblyContextPool.Expect (mock => mock.Dequeue()).Return (assemblyContext1);
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext1);
 
       _typeAssemblerMock
           .Expect (
@@ -130,7 +130,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                   Arg.Is (assemblyContext1.MutableTypeBatchCodeGenerator)))
           .Return (_assembledType);
 
-      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext1));
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext1));
 
 
       var typeID2 = AssembledTypeIDObjectMother.Create (_otherRequestedType);
@@ -139,7 +139,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
-      _assemblyContextPool.Expect (mock => mock.Dequeue()).Return (assemblyContext2);
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext2);
 
       _typeAssemblerMock
           .Expect (
@@ -150,13 +150,13 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                   Arg.Is (assemblyContext2.MutableTypeBatchCodeGenerator)))
           .Return (_otherAssembledType);
 
-      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext2));
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext2));
 
       var result1 = _cache.GetOrCreateType (typeID1);
       var result2 = _cache.GetOrCreateType (typeID2);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result1, Is.SameAs (_assembledType));
       Assert.That (result2, Is.SameAs (_otherAssembledType));
     }
@@ -174,7 +174,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
       bool isDequeued = false;
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext)
           .WhenCalled (mi => { isDequeued = true; });
@@ -185,14 +185,14 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Throw (expectedException)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       Assert.That (() => _cache.GetOrCreateType (typeID), Throws.Exception.SameAs (expectedException));
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
 
         //TODO RM-5849: See current implementation preferring to leave the exception-throwing Lazy-object
       //Assert.That (_types.ContainsKey (typeID), Is.False);
@@ -210,7 +210,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
       bool isDequeued = false;
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext)
           .WhenCalled (mi => { isDequeued = true; });
@@ -240,7 +240,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Return (_otherAssembledType)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (
               mi =>
@@ -252,7 +252,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var result = _cache.GetOrCreateType (typeID1);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
     }
 
@@ -269,7 +269,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
       bool isDequeued = false;
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext)
           .WhenCalled (mi => { isDequeued = true; });
@@ -298,7 +298,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Return (additionalType)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (
               mi =>
@@ -310,7 +310,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var result = _cache.GetOrCreateType (typeID);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
     }
 
@@ -332,12 +332,12 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       bool isDequeued1 = false;
       bool isDequeued2 = false;
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext1)
           .WhenCalled (mi => { isDequeued1 = true; });
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext2)
           .WhenCalled (mi => { isDequeued2 = true; });
@@ -371,7 +371,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Return (_otherAssembledType)
           .WhenCalled (mi => Assert.That (isDequeued2, Is.True));
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext1))
           .WhenCalled (
               mi =>
@@ -380,7 +380,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                 isDequeued1 = false;
               });
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext2))
           .WhenCalled (
               mi =>
@@ -392,7 +392,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var result = _cache.GetOrCreateType (typeID1);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
     }
 

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
   {
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorDelegateFactory _constructorDelegateFactoryMock;
-    private IAssemblyContextPool _assemblyContextPool;
+    private IAssemblyContextPool _assemblyContextPoolMock;
 
     private TypeCache _cache;
 
@@ -53,9 +53,9 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
-      _assemblyContextPool = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
+      _assemblyContextPoolMock = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPool);
+      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPoolMock);
 
       _types = (ConcurrentDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_types");
       _constructorCalls = (ConcurrentDictionary<ConstructionKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
@@ -108,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
       bool isDequeued = false;
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext)
           .WhenCalled (mi => { isDequeued = true; });
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Return (_assembledType)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (
               mi =>
@@ -140,7 +140,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var result = _cache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic);
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       _constructorDelegateFactoryMock.VerifyAllExpectations();
       
       Assert.That (result, Is.SameAs (_generatedCtorCall));
@@ -160,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
 
       bool isDequeued = false;
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Dequeue())
           .Return (assemblyContext)
           .WhenCalled (mi => { isDequeued = true; });
@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .Throw (expectedException)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
-      _assemblyContextPool
+      _assemblyContextPoolMock
           .Expect (mock => mock.Enqueue (assemblyContext))
           .WhenCalled (
               mi =>
@@ -185,7 +185,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           Throws.Exception.SameAs (expectedException));
 
       _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPool.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
       _constructorDelegateFactoryMock.VerifyAllExpectations();
 
       var key = new ConstructionKey (typeID, _delegateType, _allowNonPublic);

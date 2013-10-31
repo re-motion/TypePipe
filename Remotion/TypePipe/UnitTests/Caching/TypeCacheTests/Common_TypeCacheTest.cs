@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
   {
     private ITypeAssembler _typeAssemblerMock;
     private IConstructorDelegateFactory _constructorDelegateFactoryMock;
-    private IAssemblyContextPool _assemblyContextPool;
+    private IAssemblyContextPool _assemblyContextPoolMock;
 
     private TypeCache _cache;
 
@@ -39,9 +39,9 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
-      _assemblyContextPool = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
+      _assemblyContextPoolMock = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPool);
+      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPoolMock);
     }
 
     [Test]
