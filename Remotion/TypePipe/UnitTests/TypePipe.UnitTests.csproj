@@ -68,6 +68,7 @@
     <Compile Include="CodeGeneration\AssemblyContextPoolTest.cs" />
     <Compile Include="CodeGeneration\AssemblyContextTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecoratorTest.cs" />
     <Compile Include="Configuration\PipelineSettingsTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />

@@ -71,6 +71,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\IMutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
+    <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecorator.cs" />
     <Compile Include="Configuration\EnableSerializationWithoutAssemblySavingConfigurationElement.cs" />
     <Compile Include="Implementation\InitializationSemantics.cs" />
     <Compile Include="Implementation\DefaultPipelineFactory.cs" />
