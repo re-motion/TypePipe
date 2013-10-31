@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting;
@@ -50,8 +49,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
 
       var result = _constructorCallCache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic);
 
-      _typeCacheMock.VerifyAllExpectations();
-      _constructorDelegateFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_generatedCtorCall));
     }
 
@@ -72,9 +69,6 @@ namespace Remotion.TypePipe.UnitTests.Caching
           .Return (_generatedCtorCall);
 
       var result = _constructorCallCache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic);
-
-      _typeCacheMock.VerifyAllExpectations();
-      _constructorDelegateFactoryMock.VerifyAllExpectations();
 
       Assert.That (result, Is.SameAs (_generatedCtorCall));
 

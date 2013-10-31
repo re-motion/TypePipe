@@ -36,8 +36,9 @@ namespace Remotion.TypePipe.Implementation
     private readonly ICodeManager _codeManager;
     private readonly IReflectionService _reflectionService;
     private readonly ITypeAssembler _typeAssembler;
+    private readonly IConstructorCallCache _constructorCallCache;
 
-    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService, ITypeAssembler typeAssembler)
+    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService, ITypeAssembler typeAssembler, IConstructorCallCache constructorCallCache)
     {
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
@@ -50,6 +51,7 @@ namespace Remotion.TypePipe.Implementation
       _codeManager = codeManager;
       _reflectionService = reflectionService;
       _typeAssembler = typeAssembler;
+      _constructorCallCache = constructorCallCache;
     }
 
     public string ParticipantConfigurationID
@@ -96,7 +98,7 @@ namespace Remotion.TypePipe.Implementation
     {
       constructorArguments = constructorArguments ?? ParamList.Empty;
 
-      var constructorCall = _typeCache.GetOrCreateConstructorCall (typeID, constructorArguments.FuncType, allowNonPublicConstructor);
+      var constructorCall = _constructorCallCache.GetOrCreateConstructorCall (typeID, constructorArguments.FuncType, allowNonPublicConstructor);
       var instance = constructorArguments.InvokeFunc (constructorCall);
 
       return instance;

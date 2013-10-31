@@ -48,9 +48,10 @@ namespace Remotion.TypePipe.Implementation
       var assemblyContextPool = NewAssemblyContextPool (participantConfigurationID, settings);
       var typeCache = NewTypeCache (typeAssembler, constructorDelegateFactory, assemblyContextPool);
       var codeManager = NewCodeManager (typeCache, assemblyContextPool);
+      var constructorCallCache = NewConstructorCallCache(typeCache, constructorDelegateFactory);
       var reflectionService = NewReflectionService (typeAssembler, typeCache, constructorDelegateFactory);
 
-      return NewPipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
+      return NewPipeline (settings, typeCache, codeManager, reflectionService, typeAssembler, constructorCallCache);
     }
 
     protected virtual IPipeline NewPipeline (
@@ -58,9 +59,10 @@ namespace Remotion.TypePipe.Implementation
         ITypeCache typeCache,
         ICodeManager codeManager,
         IReflectionService reflectionService,
-        ITypeAssembler typeAssembler)
+        ITypeAssembler typeAssembler,
+        IConstructorCallCache constructorCallCache)
     {
-      return new Pipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
+      return new Pipeline (settings, typeCache, codeManager, reflectionService, typeAssembler, constructorCallCache);
     }
 
     protected virtual ICodeManager NewCodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
@@ -155,6 +157,11 @@ namespace Remotion.TypePipe.Implementation
       var moduleBuilderFactory = NewModuleBuilderFactory (participantConfigurationID);
 
       return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, assemblyDirectory, assemblyNamePattern);
+    }
+
+    protected virtual ConstructorCallCache NewConstructorCallCache (ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)
+    {
+      return new ConstructorCallCache (typeCache, constructorDelegateFactory);
     }
 
     protected virtual IConstructorDelegateFactory NewConstructorDelegateFactory ()
