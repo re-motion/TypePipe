@@ -40,11 +40,12 @@ namespace Remotion.TypePipe.PerformanceTests
 
       var pipeline = PipelineFactory.Create ("CachePerformanceTest", participants);
       var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (pipeline, "_typeCache");
+      var constructorCallCache = (IConstructorCallCache) PrivateInvoke.GetNonPublicField (pipeline, "_constructorCallCache");
       var typeAssembler = (ITypeAssembler) PrivateInvoke.GetNonPublicField (pipeline, "_typeAssembler");
       var typeID = typeAssembler.ComputeTypeID (typeof (DomainType));
 
       Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeID);
-      Func<Delegate> constructorDelegateCacheFunc = () => typeCache.GetOrCreateConstructorCall (typeID, typeof (Func<object>), true);
+      Func<Delegate> constructorDelegateCacheFunc = () => constructorCallCache.GetOrCreateConstructorCall (typeID, typeof (Func<object>), true);
 
       TimeThis ("TypePipe_Types", typeCacheFunc);
       TimeThis ("TypePipe_ConstructorDelegates", constructorDelegateCacheFunc);
