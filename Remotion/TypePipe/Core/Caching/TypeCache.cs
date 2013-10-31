@@ -36,30 +36,21 @@ namespace Remotion.TypePipe.Caching
   {
     private readonly string _typeCacheID = Guid.NewGuid().ToString();
     private readonly ConcurrentDictionary<AssembledTypeID, Lazy<Type>> _types = new ConcurrentDictionary<AssembledTypeID, Lazy<Type>>();
-    private readonly ConcurrentDictionary<ConstructionKey, Delegate> _constructorCalls = new ConcurrentDictionary<ConstructionKey, Delegate>();
 
     private readonly ITypeAssembler _typeAssembler;
-    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
     private readonly IAssemblyContextPool _assemblyContextPool;
 
     private readonly Func<AssembledTypeID, Lazy<Type>> _createTypeFunc;
-    private readonly Func<ConstructionKey, Delegate> _createConstructorCallFunc;
 
-    public TypeCache (
-        ITypeAssembler typeAssembler,
-        IConstructorDelegateFactory constructorDelegateFactory,
-        IAssemblyContextPool assemblyContextPool)
+    public TypeCache (ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
     {
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
       ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
 
       _typeAssembler = typeAssembler;
-      _constructorDelegateFactory = constructorDelegateFactory;
       _assemblyContextPool = assemblyContextPool;
 
       _createTypeFunc = CreateType;
-      _createConstructorCallFunc = CreateConstructorCall;
     }
 
     public string ParticipantConfigurationID
@@ -111,21 +102,6 @@ namespace Remotion.TypePipe.Caching
             }
           },
           LazyThreadSafetyMode.ExecutionAndPublication);
-    }
-
-    public Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
-    {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (delegateType != null && typeof(Delegate).IsAssignableFrom(delegateType));
-
-      var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
-      return _constructorCalls.GetOrAdd (constructionKey, _createConstructorCallFunc);
-    }
-
-    private Delegate CreateConstructorCall (ConstructionKey key)
-    {
-      var assembledType = GetOrCreateType (key.TypeID);
-      return _constructorDelegateFactory.CreateConstructorCall (key.TypeID.RequestedType, assembledType, key.DelegateType, key.AllowNonPublic);
     }
 
     public Type GetOrCreateAdditionalType (object additionalTypeID)

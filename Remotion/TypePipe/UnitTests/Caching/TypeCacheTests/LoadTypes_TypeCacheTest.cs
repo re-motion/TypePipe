@@ -33,7 +33,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
   public class LoadTypes_TypeCacheTest
   {
     private ITypeAssembler _typeAssemblerMock;
-    private IConstructorDelegateFactory _constructorDelegateFactoryMock;
     private IAssemblyContextPool _assemblyContextPoolMock;
 
     private TypeCache _cache;
@@ -46,10 +45,9 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void SetUp ()
     {
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
-      _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
       _assemblyContextPoolMock = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
 
-      _cache = new TypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock, _assemblyContextPoolMock);
+      _cache = new TypeCache (_typeAssemblerMock, _assemblyContextPoolMock);
 
       _types = (ConcurrentDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_types");
     }

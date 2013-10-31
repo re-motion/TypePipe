@@ -63,7 +63,6 @@
     <Compile Include="Caching\ConstructorForAssembledTypeCacheTest.cs" />
     <Compile Include="Caching\TypeCacheTests\LoadTypes_TypeCacheTest.cs" />
     <Compile Include="Caching\TypeCacheTests\GetOrCreateAdditionalType_TypeCacheTest.cs" />
-    <Compile Include="Caching\TypeCacheTests\GetOrCreateConstructorCall_TypeCacheTest.cs" />
     <Compile Include="Caching\TypeCacheTests\GetOrCreateType_TypeCacheTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\AssemblyContextPoolTest.cs" />
