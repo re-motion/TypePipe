@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
 using Rhino.Mocks;
@@ -16,9 +17,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void SetUp ()
     {
       _assemblyContextPoolMock = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
-      _assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+      _assemblyContext = CreateAssemblyContext();
 
       _decorator = new ThreadLocalAssemblyContextPoolDecorator (_assemblyContextPoolMock);
     }
@@ -60,6 +59,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       Assert.That (hasDequeued, Is.False);
 
       Assert.That (actual2, Is.SameAs (actual1));
+    }
+
+    [Test]
+    public void Dequeue_WithDifferentThreads_ReturnsDifferentAssemblyContexts ()
+    {
+      var expectedAssemblyContextFromOtherThread = CreateAssemblyContext();
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (expectedAssemblyContextFromOtherThread);
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+
+      AssemblyContext actualAssemblyContextFromOtherThread = null;
+      var otherThread = new Thread (() => { actualAssemblyContextFromOtherThread = _decorator.Dequeue(); });
+      otherThread.Start();
+      otherThread.Join (TimeSpan.FromSeconds (1));
+
+      var actualAssemblyContextFromLocalThread = _decorator.Dequeue();
+
+      Assert.That (actualAssemblyContextFromOtherThread, Is.SameAs (expectedAssemblyContextFromOtherThread));
+      Assert.That (actualAssemblyContextFromLocalThread, Is.Not.SameAs (actualAssemblyContextFromOtherThread));
     }
 
     [Test]
@@ -113,9 +130,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       _decorator.Dequeue();
 
-      var otherAssemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+      var otherAssemblyContext = CreateAssemblyContext();
 
       Assert.That (
           () => _decorator.Enqueue (otherAssemblyContext),
@@ -147,6 +162,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       Assert.That (hasEnqueued, Is.True);
 
       _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    private AssemblyContext CreateAssemblyContext ()
+    {
+      return new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
     }
   }
 }
