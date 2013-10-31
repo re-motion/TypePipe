@@ -61,7 +61,9 @@
     </Compile>
     <Compile Include="Caching\AssembledTypeID.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
+    <Compile Include="Caching\ConstructorCallCache.cs" />
     <Compile Include="Caching\ConstructorForAssembledTypeCacheKey.cs" />
+    <Compile Include="Caching\IConstructorCallCache.cs" />
     <Compile Include="Caching\IConstructorForAssembledTypeCache.cs" />
     <Compile Include="Caching\ConstructorForAssembledTypeCache.cs" />
     <Compile Include="CodeGeneration\AssemblyContext.cs" />

@@ -58,6 +58,7 @@
     </Compile>
     <Compile Include="Caching\AssembledTypeIDTest.cs" />
     <Compile Include="Caching\ConstructionKeyTest.cs" />
+    <Compile Include="Caching\ConstructorCallCacheTest.cs" />
     <Compile Include="Caching\ConstructorForAssembledTypeCacheKeyTest.cs" />
     <Compile Include="Caching\ConstructorForAssembledTypeCacheTest.cs" />
     <Compile Include="Caching\TypeCacheTests\LoadTypes_TypeCacheTest.cs" />
