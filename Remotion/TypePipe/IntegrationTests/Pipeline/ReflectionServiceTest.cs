@@ -68,10 +68,24 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void GetAssembledType_ViaTypeID ()
+    public void GetAssembledType_ViaTypeIDForRequestedType ()
     {
       var assembledType = _reflectionService.GetAssembledType (typeof (RequestedType1));
-      var typeID = _reflectionService.GetTypeID (assembledType);
+      var typeID = _reflectionService.GetTypeIDForRequestedType (typeof (RequestedType1));
+      Assert.That (typeID.RequestedType, Is.SameAs (typeof (RequestedType1)));
+
+      var type1 = _reflectionService.GetAssembledType (typeID);
+      var type2 = _reflectionService.InstantiateAssembledType (typeID, ParamList.Empty, false).GetType();
+
+      Assert.That (type1, Is.SameAs (assembledType));
+      Assert.That (type2, Is.SameAs (assembledType));
+    }
+
+    [Test]
+    public void GetAssembledType_ViaTypeIDForAssembledType ()
+    {
+      var assembledType = _reflectionService.GetAssembledType (typeof (RequestedType1));
+      var typeID = _reflectionService.GetTypeIDForAssembledType (assembledType);
       Assert.That (typeID.RequestedType, Is.SameAs (typeof (RequestedType1)));
 
       var type1 = _reflectionService.GetAssembledType (typeID);

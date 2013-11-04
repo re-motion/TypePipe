@@ -90,10 +90,11 @@ namespace Remotion.TypePipe.Implementation
 
     public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      // Using Assertion.DebugAssert because it will be compiled away. Argument-check is performed by ReflectionService.
+      Assertion.DebugAssert (requestedType != null, "requestedType cannot be null.");
       constructorArguments = constructorArguments ?? ParamList.Empty;
 
-      var typeID = _typeAssembler.ComputeTypeID (requestedType);
+      var typeID = _reflectionService.GetTypeIDForRequestedType (requestedType);
       return _reflectionService.InstantiateAssembledType (typeID, constructorArguments, allowNonPublicConstructor);
     }
   }

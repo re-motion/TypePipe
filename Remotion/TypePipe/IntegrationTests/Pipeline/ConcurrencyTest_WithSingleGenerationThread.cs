@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       // Populate cache.
       var cachedAssembledType = _pipeline.ReflectionService.GetAssembledType (typeof (DomainType));
-      var cachedAssembledTypeID = _pipeline.ReflectionService.GetTypeID (cachedAssembledType);
+      var cachedAssembledTypeID = _pipeline.ReflectionService.GetTypeIDForAssembledType (cachedAssembledType);
       var otherCachedAssembledType = _pipeline.ReflectionService.GetAssembledType (typeof (OtherDomainType));
 
       var newRequestedType = typeof (object);
@@ -123,6 +123,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var t4 = StartAndWaitUntilBlocked (() => _pipeline.ReflectionService.GetAdditionalType ("additional type id"));
 
       // Operations that only return cached results are not blocked.
+      Assert.That (_pipeline.ReflectionService.GetTypeIDForRequestedType (typeof (DomainType)), Is.EqualTo (cachedAssembledTypeID));
+      Assert.That (_pipeline.ReflectionService.GetTypeIDForAssembledType (cachedAssembledType), Is.EqualTo (cachedAssembledTypeID));
       Assert.That (_pipeline.ReflectionService.GetAssembledType (typeof (DomainType)), Is.SameAs (cachedAssembledType));
       Assert.That (_pipeline.ReflectionService.GetAssembledType (cachedAssembledTypeID), Is.SameAs (cachedAssembledType));
       Assert.That (_pipeline.ReflectionService.InstantiateAssembledType (cachedAssembledTypeID, ParamList.Empty, false), Is.Not.Null);
