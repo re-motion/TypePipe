@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.Implementation
       for (int i = 0; i < settings.DegreeOfParallelism; i++)
         assemblyContexts.Add (NewAssemblyContext (participantConfigurationID, settings));
 
-      return new AssemblyContextPool (assemblyContexts);
+      return new ThreadLocalAssemblyContextPoolDecorator (new AssemblyContextPool (assemblyContexts));
     }
 
     protected AssemblyContext NewAssemblyContext (string participantConfigurationID, PipelineSettings settings)
