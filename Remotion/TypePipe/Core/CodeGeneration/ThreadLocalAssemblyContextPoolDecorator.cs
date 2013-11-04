@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 using Remotion.Utilities;
 
@@ -49,18 +50,76 @@ namespace Remotion.TypePipe.CodeGeneration
       _assemblyContextPool = assemblyContextPool;
     }
 
+    public AssemblyContext[] DequeueAll ()
+    {
+      var data = CallContext.GetData (_instanceID);
+
+      if (data is ThreadLocalAssemblyContext)
+      {
+        throw new InvalidOperationException (
+            "DequeueAll() cannot be invoked from the same thread as Dequeue() until all dequeued AssemblyContext have been returned to the pool.");
+      }
+
+      if (data is HashSet<AssemblyContext>)
+      {
+        throw new InvalidOperationException (
+            "DequeueAll() cannot be invoked from the same thread as a previous call to DequeueAll() "
+            + "until all dequeued AssemblyContext have been returned to the pool.");
+      }
+
+      Assertion.IsNull (data, "No information should be available for pool-ID '{0}'.", _instanceID);
+
+      var assemblyContexts = _assemblyContextPool.DequeueAll();
+      CallContext.SetData (_instanceID, new HashSet<AssemblyContext> (assemblyContexts));
+
+      return assemblyContexts;
+    }
+
+    public AssemblyContext Dequeue ()
+    {
+      var data = CallContext.GetData (_instanceID);
+      if (data is HashSet<AssemblyContext>)
+      {
+        throw new InvalidOperationException (
+            "Dequeue() cannot be invoked from the same thread as DequeueAll() until all dequeued AssemblyContext have been returned to the pool.");
+      }
+
+      var threadLocalAssemblyContext = data as ThreadLocalAssemblyContext;
+      if (threadLocalAssemblyContext == null)
+      {
+        var assemblyContext = _assemblyContextPool.Dequeue();
+        threadLocalAssemblyContext = new ThreadLocalAssemblyContext (assemblyContext);
+        CallContext.SetData (_instanceID, threadLocalAssemblyContext);
+      }
+
+      threadLocalAssemblyContext.IncrementCount();
+      return threadLocalAssemblyContext.Value;
+    }
+
     public void Enqueue (AssemblyContext assemblyContext)
     {
       ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
 
-      var threadLocalAssemblyContext = (ThreadLocalAssemblyContext) CallContext.GetData (_instanceID);
-      if (threadLocalAssemblyContext == null)
+      var data = CallContext.GetData (_instanceID);
+      if (data == null)
       {
         throw new InvalidOperationException (
             "No AssemblyContext has been dequeued on the current thread. "
             + "An AssemblyContext must be enqueued on the same thread it was dequeued from.");
       }
 
+      bool isComplete;
+      if (data is ThreadLocalAssemblyContext)
+        isComplete = EnqueueAfterDequeue ((ThreadLocalAssemblyContext) data, assemblyContext);
+      else
+        isComplete = EnqueueAfterDequeueAll ((HashSet<AssemblyContext>) data, assemblyContext);
+
+      if (isComplete)
+        CallContext.FreeNamedDataSlot (_instanceID);
+    }
+
+    private bool EnqueueAfterDequeue (ThreadLocalAssemblyContext threadLocalAssemblyContext, AssemblyContext assemblyContext)
+    {
       if (threadLocalAssemblyContext.Value != assemblyContext)
       {
         throw new InvalidOperationException (
@@ -81,28 +140,16 @@ namespace Remotion.TypePipe.CodeGeneration
           threadLocalAssemblyContext.IncrementCount();
           throw;
         }
-
-        CallContext.FreeNamedDataSlot (_instanceID);
-      }
-    }
-
-    public AssemblyContext Dequeue ()
-    {
-      var threadLocalAssemblyContext = (ThreadLocalAssemblyContext) CallContext.GetData (_instanceID);
-      if (threadLocalAssemblyContext == null)
-      {
-        var assemblyContext = _assemblyContextPool.Dequeue();
-        threadLocalAssemblyContext = new ThreadLocalAssemblyContext (assemblyContext);
-        CallContext.SetData (_instanceID, threadLocalAssemblyContext);
       }
 
-      threadLocalAssemblyContext.IncrementCount();
-      return threadLocalAssemblyContext.Value;
+      return threadLocalAssemblyContext.Count == 0;
     }
 
-    public AssemblyContext[] DequeueAll ()
+    private bool EnqueueAfterDequeueAll (HashSet<AssemblyContext> dequeuedAssemblyContexts, AssemblyContext assemblyContext)
     {
-      return _assemblyContextPool.DequeueAll();
+      _assemblyContextPool.Enqueue (assemblyContext);
+      dequeuedAssemblyContexts.Remove (assemblyContext);
+      return dequeuedAssemblyContexts.Count == 0;
     }
   }
 }
