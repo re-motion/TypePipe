@@ -106,7 +106,32 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     }
 
     [Test]
-    [Ignore ("TODO RM-5849")]
+    public void CacheMiss_AndExceptionDuringAssembleType_DoesNotCacheException ()
+    {
+      var expectedException = new Exception();
+
+      var typeID = AssembledTypeIDObjectMother.Create();
+
+      var assemblyContext = new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
+      _typeAssemblerMock.Expect (mock => mock.AssembleType (new AssembledTypeID(), null, null)).IgnoreArguments().Throw (expectedException);
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
+
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
+      _typeAssemblerMock.Expect (mock => mock.AssembleType (new AssembledTypeID(), null, null)).IgnoreArguments().Return (_assembledType);
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
+
+      Assert.That (() => _cache.GetOrCreateType (typeID), Throws.Exception.SameAs (expectedException));
+      Assert.That (_cache.GetOrCreateType (typeID), Is.SameAs (_assembledType));
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void CacheMiss_AndExceptionDuringAssembleType_ReturnsAssemblyContextToPool ()
     {
       var expectedException = new Exception();
@@ -137,10 +162,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPoolMock.VerifyAllExpectations();
-
-        //TODO RM-5849: See current implementation preferring to leave the exception-throwing Lazy-object
-      //Assert.That (_types.ContainsKey (typeID), Is.False);
-      Assert.That (() => _types[typeID].Value, Throws.Exception.SameAs (expectedException));
     }
 
     private class RequestedType {}

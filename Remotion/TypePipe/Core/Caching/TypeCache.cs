@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.Caching
         // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _types dictionary
         // still holds the original Lazy (that cached the exception). This avoids a race with a parallel thread that requested the same type.
         if (_types.TryUpdate (typeID, CreateType (typeID), lazyType))
-          throw; //TODO RM-5849 Test 
+          throw;
 
         // Can theoretically cause a StackOverflowException in case of starvation. We are ignoring this very remote possiblity.
         // This code path cannot be tested.
