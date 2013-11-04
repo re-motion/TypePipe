@@ -17,8 +17,8 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using Remotion.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
@@ -32,26 +32,22 @@ namespace Remotion.TypePipe.Implementation
   public class Pipeline : IPipeline
   {
     private readonly PipelineSettings _settings;
-    private readonly ITypeCache _typeCache;
     private readonly ICodeManager _codeManager;
     private readonly IReflectionService _reflectionService;
     private readonly ITypeAssembler _typeAssembler;
 
     public Pipeline (
         PipelineSettings settings,
-        ITypeCache typeCache,
         ICodeManager codeManager,
         IReflectionService reflectionService,
         ITypeAssembler typeAssembler)
     {
       ArgumentUtility.CheckNotNull ("settings", settings);
-      ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
       ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
       ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
 
       _settings = settings;
-      _typeCache = typeCache;
       _codeManager = codeManager;
       _reflectionService = reflectionService;
       _typeAssembler = typeAssembler;
@@ -59,7 +55,7 @@ namespace Remotion.TypePipe.Implementation
 
     public string ParticipantConfigurationID
     {
-      get { return _typeCache.ParticipantConfigurationID; }
+      get { return _typeAssembler.ParticipantConfigurationID; }
     }
 
     public PipelineSettings Settings
@@ -69,7 +65,7 @@ namespace Remotion.TypePipe.Implementation
 
     public ReadOnlyCollection<IParticipant> Participants
     {
-      get { return _typeCache.Participants; }
+      get { return _typeAssembler.Participants; }
     }
 
     public ICodeManager CodeManager

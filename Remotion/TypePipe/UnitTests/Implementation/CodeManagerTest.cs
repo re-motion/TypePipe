@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Runtime.Remoting;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
@@ -26,6 +25,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
@@ -34,6 +34,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   public class CodeManagerTest
   {
     private ITypeCache _typeCacheMock;
+    private ITypeAssembler _typeAssemblerMock;
     private IAssemblyContextPool _assemblyContextPool;
 
     private CodeManager _manager;
@@ -42,9 +43,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void SetUp ()
     {
       _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
+      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
       _assemblyContextPool = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
 
-      _manager = new CodeManager (_typeCacheMock, _assemblyContextPool);
+      _manager = new CodeManager (_typeCacheMock, _typeAssemblerMock, _assemblyContextPool);
     }
 
     [Test]
@@ -171,13 +173,14 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var type = ReflectionObjectMother.GetSomeType ();
       var assemblyMock = CreateAssemblyMock ("config", type);
-      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return ("config");
+      _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return ("config");
       _typeCacheMock.Expect (mock => mock.LoadTypes (new[] { type }));
 
       _manager.LoadFlushedCode (assemblyMock);
 
       assemblyMock.VerifyAllExpectations ();
       _typeCacheMock.VerifyAllExpectations ();
+      _typeAssemblerMock.VerifyAllExpectations ();
     }
 
     [Test]
@@ -193,7 +196,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
         "The specified assembly was generated with a different participant configuration: 'different config'.\r\nParameter name: assembly")]
     public void LoadFlushedCode_InvalidParticipantConfigurationID ()
     {
-      _typeCacheMock.Stub (stub => stub.ParticipantConfigurationID).Return ("config");
+      _typeAssemblerMock.Stub (stub => stub.ParticipantConfigurationID).Return ("config");
       var assemblyMock = CreateAssemblyMock ("different config");
 
       _manager.LoadFlushedCode (assemblyMock);

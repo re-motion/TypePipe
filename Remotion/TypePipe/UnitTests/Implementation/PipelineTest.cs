@@ -33,7 +33,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
   public class PipelineTest
   {
     private PipelineSettings _settings;
-    private ITypeCache _typeCacheMock;
     private ICodeManager _codeManagerMock;
     private IReflectionService _reflectionServiceMock;
     private ITypeAssembler _typeAssemblerMock;
@@ -47,12 +46,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void SetUp ()
     {
       _settings = PipelineSettings.New().Build();
-      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
       _codeManagerMock = MockRepository.GenerateStrictMock<ICodeManager>();
       _reflectionServiceMock = MockRepository.GenerateStrictMock<IReflectionService>();
       _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
 
-      _pipeline = new Pipeline (_settings, _typeCacheMock, _codeManagerMock, _reflectionServiceMock, _typeAssemblerMock);
+      _pipeline = new Pipeline (_settings, _codeManagerMock, _reflectionServiceMock, _typeAssemblerMock);
 
       _requestedType = ReflectionObjectMother.GetSomeType();
       _typeID = AssembledTypeIDObjectMother.Create();
@@ -69,7 +67,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void ParticipantConfigurationID ()
     {
-      _typeCacheMock.Expect (mock => mock.ParticipantConfigurationID).Return ("configId");
+      _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return ("configId");
 
       Assert.That (_pipeline.ParticipantConfigurationID, Is.EqualTo ("configId"));
     }
@@ -78,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Participants ()
     {
       var participants = new ReadOnlyCollection<IParticipant> (new IParticipant[0]);
-      _typeCacheMock.Expect (mock => mock.Participants).Return (participants);
+      _typeAssemblerMock.Expect (mock => mock.Participants).Return (participants);
 
       Assert.That (_pipeline.Participants, Is.SameAs (participants));
     }

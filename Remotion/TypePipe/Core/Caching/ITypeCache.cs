@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -27,9 +26,6 @@ namespace Remotion.TypePipe.Caching
   /// <threadsafety static="true" instance="true"/>
   public interface ITypeCache
   {
-    string ParticipantConfigurationID { get; }
-    ReadOnlyCollection<IParticipant> Participants { get; }
-
     Type GetOrCreateType (AssembledTypeID typeID);
 
     void LoadTypes (IEnumerable<Type> generatedTypes);

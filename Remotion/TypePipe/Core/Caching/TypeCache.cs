@@ -52,16 +52,6 @@ namespace Remotion.TypePipe.Caching
       _createTypeFunc = CreateType;
     }
 
-    public string ParticipantConfigurationID
-    {
-      get { return _typeAssembler.ParticipantConfigurationID; }
-    }
-
-    public ReadOnlyCollection<IParticipant> Participants
-    {
-      get { return _typeAssembler.Participants; }
-    }
-
     public Type GetOrCreateType (AssembledTypeID typeID)
     {
       var lazyType = _types.GetOrAdd (typeID, _createTypeFunc);

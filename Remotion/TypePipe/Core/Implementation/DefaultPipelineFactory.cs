@@ -96,25 +96,24 @@ namespace Remotion.TypePipe.Implementation
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var assemblyContextPool = NewAssemblyContextPool (participantConfigurationID, settings);
       var typeCache = NewTypeCache (typeAssembler, assemblyContextPool);
-      var codeManager = NewCodeManager (typeCache, assemblyContextPool);
+      var codeManager = NewCodeManager (typeCache, typeAssembler, assemblyContextPool);
       var reflectionService = NewReflectionService (typeCache, typeAssembler);
 
-      return NewPipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
+      return NewPipeline (settings, codeManager, reflectionService, typeAssembler);
     }
 
     protected virtual IPipeline NewPipeline (
         PipelineSettings settings,
-        ITypeCache typeCache,
         ICodeManager codeManager,
         IReflectionService reflectionService,
         ITypeAssembler typeAssembler)
     {
-      return new Pipeline (settings, typeCache, codeManager, reflectionService, typeAssembler);
+      return new Pipeline (settings, codeManager, reflectionService, typeAssembler);
     }
 
-    protected virtual ICodeManager NewCodeManager (ITypeCache typeCache, IAssemblyContextPool assemblyContextPool)
+    protected virtual ICodeManager NewCodeManager (ITypeCache typeCache, ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
     {
-      return new CodeManager (typeCache, assemblyContextPool);
+      return new CodeManager (typeCache, typeAssembler, assemblyContextPool);
     }
 
     protected virtual IReflectionService NewReflectionService (ITypeCache typeCache, ITypeAssembler typeAssembler)
