@@ -16,13 +16,18 @@
 // 
 
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
@@ -37,6 +42,51 @@ namespace Remotion.TypePipe.Implementation
   /// <threadsafety static="true" instance="true"/>
   public class DefaultPipelineFactory : IPipelineFactory
   {
+    /// <summary>
+    /// Combines the interfaces <see cref="IReflectionEmitCodeGenerator"/> and <see cref="IGeneratedCodeFlusher"/> 
+    /// to be used as return type of the factory method.
+    /// </summary>
+    [CLSCompliant (false)]
+    protected interface IReflectionEmitCodeGeneratorAndGeneratedCodeFlusher : IReflectionEmitCodeGenerator, IGeneratedCodeFlusher
+    {
+    }
+
+    /// <summary>
+    /// Implements the interface <see cref="IReflectionEmitCodeGeneratorAndGeneratedCodeFlusher"/> 
+    /// as a decorator for <see cref="ReflectionEmitCodeGenerator"/>.
+    /// </summary>
+    protected class ReflectionEmitCodeGeneratorDecoratorWithGeneratedCodeFlusherSemantics : IReflectionEmitCodeGeneratorAndGeneratedCodeFlusher
+    {
+      private readonly ReflectionEmitCodeGenerator _reflectionEmitCodeGenerator;
+
+      public ReflectionEmitCodeGeneratorDecoratorWithGeneratedCodeFlusherSemantics (ReflectionEmitCodeGenerator reflectionEmitCodeGenerator)
+      {
+        ArgumentUtility.CheckNotNull ("reflectionEmitCodeGenerator", reflectionEmitCodeGenerator);
+        
+        _reflectionEmitCodeGenerator = reflectionEmitCodeGenerator;
+      }
+
+      DebugInfoGenerator IReflectionEmitCodeGenerator.DebugInfoGenerator
+      {
+        get { return _reflectionEmitCodeGenerator.DebugInfoGenerator; }
+      }
+
+      IEmittableOperandProvider IReflectionEmitCodeGenerator.CreateEmittableOperandProvider ()
+      {
+        return _reflectionEmitCodeGenerator.CreateEmittableOperandProvider();
+      }
+
+      ITypeBuilder IReflectionEmitCodeGenerator.DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
+      {
+        return _reflectionEmitCodeGenerator.DefineType (name, attributes, emittableOperandProvider);
+      }
+
+      string IGeneratedCodeFlusher.FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
+      {
+        return _reflectionEmitCodeGenerator.FlushCodeToDisk (assemblyAttributes);
+      }
+    }
+
     public virtual IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
@@ -143,16 +193,17 @@ namespace Remotion.TypePipe.Implementation
     }
 
     [CLSCompliant (false)]
-    protected virtual IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (
+    protected virtual IReflectionEmitCodeGeneratorAndGeneratedCodeFlusher NewReflectionEmitCodeGenerator (
         string participantConfigurationID,
         bool forceStrongNaming,
-        [CanBeNull]string keyFilePath,
-        [CanBeNull]string assemblyDirectory,
-        [NotNull]string assemblyNamePattern)
+        [CanBeNull] string keyFilePath,
+        [CanBeNull] string assemblyDirectory,
+        [NotNull] string assemblyNamePattern)
     {
       var moduleBuilderFactory = NewModuleBuilderFactory (participantConfigurationID);
 
-      return new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, assemblyDirectory, assemblyNamePattern);
+      return new ReflectionEmitCodeGeneratorDecoratorWithGeneratedCodeFlusherSemantics (
+          new ReflectionEmitCodeGenerator (moduleBuilderFactory, forceStrongNaming, keyFilePath, assemblyDirectory, assemblyNamePattern));
     }
 
     protected virtual ConstructorCallCache NewConstructorCallCache (ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)

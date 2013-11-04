@@ -52,7 +52,7 @@ namespace Remotion.Development.TypePipe
     public int MaximumTypesPerAssembly { get; set; }
 
     [CLSCompliant (false)]
-    protected override IReflectionEmitCodeGenerator NewReflectionEmitCodeGenerator (
+    protected override IReflectionEmitCodeGeneratorAndGeneratedCodeFlusher NewReflectionEmitCodeGenerator (
         string participantConfigurationID,
         bool forceStrongNaming,
         string keyFilePath,
@@ -61,14 +61,15 @@ namespace Remotion.Development.TypePipe
     {
       var moduleBuilderFactory = NewModuleBuilderFactory (participantConfigurationID);
 
-      return new DebuggerWorkaroundCodeGenerator (
-          moduleBuilderFactory,
-          forceStrongNaming,
-          keyFilePath,
-          DebuggerInterface,
-          MaximumTypesPerAssembly,
-          assemblyDirectory,
-          assemblyNamePattern);
+      return new ReflectionEmitCodeGeneratorDecoratorWithGeneratedCodeFlusherSemantics (
+          new DebuggerWorkaroundCodeGenerator (
+              moduleBuilderFactory,
+              forceStrongNaming,
+              keyFilePath,
+              DebuggerInterface,
+              MaximumTypesPerAssembly,
+              assemblyDirectory,
+              assemblyNamePattern));
     }
   }
 }
