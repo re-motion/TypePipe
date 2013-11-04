@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 
-    Type GetOrAssembleAdditionalType (
+    Type AssembleAdditionalType (
         object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 
     void RebuildParticipantState (IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> participantState);

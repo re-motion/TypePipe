@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
           ctx =>
           {
             if (ctx.RequestedType == typeof (RequestedType1))
-              ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object));
+              ctx.CreateAdditionalType (new object(), "AdditionalType", "MyNs", TypeAttributes.Class, typeof (object));
           });
 
       _pipeline = CreatePipeline (participant);

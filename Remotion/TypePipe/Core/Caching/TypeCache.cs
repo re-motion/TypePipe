@@ -99,7 +99,7 @@ namespace Remotion.TypePipe.Caching
       var assemblyContext = _assemblyContextPool.Dequeue();
       try
       {
-        return _typeAssembler.GetOrAssembleAdditionalType (
+        return _typeAssembler.AssembleAdditionalType (
             additionalTypeID,
             assemblyContext.ParticipantState,
             assemblyContext.MutableTypeBatchCodeGenerator);

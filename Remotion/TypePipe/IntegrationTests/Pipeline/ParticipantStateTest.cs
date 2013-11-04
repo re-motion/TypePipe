@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
     private Assembly PreGenerateAssembly ()
     {
-      var participant = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
+      var participant = CreateParticipant (ctx => ctx.CreateAdditionalType (new object(), "AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
       var pipeline = CreatePipeline (c_participantConfigurationID, participant);
       pipeline.Create<RequestedType1>(); // Trigger generation of types.
       var assemblyPath = Flush().Single();

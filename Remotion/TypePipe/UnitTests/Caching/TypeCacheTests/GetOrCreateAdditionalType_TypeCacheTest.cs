@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _typeAssemblerMock
           .Expect (
-              mock => mock.GetOrAssembleAdditionalType (
+              mock => mock.AssembleAdditionalType (
                   additionalTypeID,
                   assemblyContext.ParticipantState,
                   assemblyContext.MutableTypeBatchCodeGenerator))
@@ -100,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .WhenCalled (mi => { isDequeued = true; });
 
       _typeAssemblerMock
-          .Expect (mock => mock.GetOrAssembleAdditionalType (null, null, null))
+          .Expect (mock => mock.AssembleAdditionalType (null, null, null))
           .IgnoreArguments()
           .Throw (expectedException)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));

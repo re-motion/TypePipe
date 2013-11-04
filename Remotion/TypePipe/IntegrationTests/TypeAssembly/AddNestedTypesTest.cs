@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var nestedType = assemblyContext.ProxyType.AddNestedType ("NestedBaseType", TypeAttributes.NestedPublic, typeof (object));
             nestedType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.None, ctx => ctx.CallBaseConstructor());
-            assemblyContext.CreateType ("TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
+            assemblyContext.CreateAdditionalType (new object(), "TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
           });
 
       var nestedBaseType = type.GetNestedTypes().Single();

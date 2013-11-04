@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       return _assembledTypeIdentifierProvider.ExtractTypeID (assembledType);
     }
 
-    // RM-8549: change participantState to complex type ParticipantState {AdditionalTypeCache{object,Type} get or add API, State{string,object}}
+    // RM-5849: change participantState to complex type ParticipantState {AdditionalTypeCache{object,Type} get or add API, State{string,object}}
     // Adding to AdditionalTypeCache also adds to global AdditionalTypeCache (concurrently)
     //TODO: RM-5849: Reset ParticipantState upon flush. AdditionalTypeCache will be empty for new assembly.
     public Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
@@ -141,14 +141,14 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       var generatedTypesContext = GenerateTypes (typeID, context, codeGenerator);
       context.OnGenerationCompleted (generatedTypesContext);
 
-      context.AdditionalTypes.Select (mt => generatedTypesContext.GetGeneratedType (mt));
+      context.AdditionalTypes.Values.Select (generatedTypesContext.GetGeneratedType);
       //TODO RM-5849: complex return type {Type, AddtionalTypes{object,Type}}
 
       return generatedTypesContext.GetGeneratedType (context.ProxyType);
     }
 
-    //TODO RM-5849: Rename to AssembleAdditionalType, change participantState to same API as AssembleType
-    public Type GetOrAssembleAdditionalType (
+    //TODO RM-5849: Change participantState to same API as AssembleType
+    public Type AssembleAdditionalType (
         object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
@@ -160,7 +160,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
           .Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context))
           .First (t => t != null, () => new NotSupportedException ("No participant provided an additional type for the given identifier."));
 
-      var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes, additionalTypeID.ToString());
+      var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes.Values, additionalTypeID.ToString());
       context.OnGenerationCompleted (generatedTypesContext);
 
       if (additionalType is MutableType)
@@ -218,7 +218,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       // Enable complex serialization.
       _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID,_assembledTypeIdentifierProvider, typeID);
 
-      var mutableTypes = context.AdditionalTypes.Concat (context.ProxyType);
+      var mutableTypes = context.AdditionalTypes.Values.Concat (context.ProxyType);
       return GenerateTypesWithDiagnostics (codeGenerator, mutableTypes, context.RequestedType.Name);
     }
 

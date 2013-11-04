@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var addedType = typeContext.CreateType ("MyType", "MyNamespace", TypeAttributes.Public, typeof (List<int>));
+            var addedType = typeContext.CreateAdditionalType (new object(), "MyType", "MyNamespace", TypeAttributes.Public, typeof (List<int>));
 
             typeContext.GenerationCompleted += ctx =>
             {
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var newType = typeContext.CreateType ("MyType", null, TypeAttributes.Public, typeof (object));
+            var newType = typeContext.CreateAdditionalType (new object(), "MyType", null, TypeAttributes.Public, typeof (object));
             var addedField = newType.AddField ("MyField", FieldAttributes.Public, typeof (int));
             var addedMethod = newType.AddMethod (
                 "MyMethod", MethodAttributes.Public, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());

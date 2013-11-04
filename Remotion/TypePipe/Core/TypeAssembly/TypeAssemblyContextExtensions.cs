@@ -17,6 +17,7 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -31,34 +32,47 @@ namespace Remotion.TypePipe.TypeAssembly
     /// Creates an additional <see cref="MutableType"/> representing an public top-level class.
     /// </summary>
     /// <param name="context">A type assembly context.</param>
+    /// <param name="additionalTypeID">The ID of the type.</param>
     /// <param name="name">The class name.</param>
     /// <param name="namespace">The namespace of the class.</param>
     /// <param name="baseType">The base type of the class.</param>
     /// <returns>A new mutable type representing a class.</returns>
-    public static MutableType CreateClass (this ITypeAssemblyContext context, string name, string @namespace, Type baseType)
+    public static MutableType CreateClass (
+        [NotNull] this ITypeAssemblyContext context,
+        [NotNull] object additionalTypeID,
+        [NotNull] string name,
+        [CanBeNull] string @namespace,
+        [NotNull] Type baseType)
     {
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Name space may be null.
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
       var attributes = TypeAttributes.Public | TypeAttributes.Class;
-      return context.CreateType (name, @namespace, attributes, baseType);
+      return context.CreateAdditionalType (additionalTypeID, name, @namespace, attributes, baseType);
     }
 
     /// <summary>
     /// Creates an additional <see cref="MutableType"/> representing an public interface.
     /// </summary>
     /// <param name="context">A type assembly context.</param>
+    /// <param name="additionalTypeID">The ID of the type.</param>
     /// <param name="name">The interface name.</param>
     /// <param name="namespace">The namespace of the interface.</param>
     /// <returns>A new mutable type representing an interface.</returns>
-    public static MutableType CreateInterface (this ITypeAssemblyContext context, string name, string @namespace)
+    public static MutableType CreateInterface (
+        [NotNull] this ITypeAssemblyContext context,
+        [NotNull] object additionalTypeID,
+        [NotNull] string name,
+        [CanBeNull] string @namespace)
     {
+      ArgumentUtility.CheckNotNull ("context", context);
+      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      // Name space may be null.
 
       var attributes = TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract;
-      return context.CreateType (name, @namespace, attributes, baseType: null);
+      return context.CreateAdditionalType (additionalTypeID, name, @namespace, attributes, baseType: null);
     }
   }
 }

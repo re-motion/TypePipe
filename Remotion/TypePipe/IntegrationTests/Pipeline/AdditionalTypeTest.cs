@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
         if (ctx.State.ContainsKey ("key"))
           return (Type) ctx.State["key"];
 
-        var myClass = ctx.CreateClass ("Class", "My", typeof (object));
+        var myClass = ctx.CreateClass (new object(), "Class", "My", typeof (object));
         ctx.GenerationCompleted += generatedTypeContext => { ctx.State["key"] = generatedTypeContext.GetGeneratedType (myClass); };
 
         return myClass;

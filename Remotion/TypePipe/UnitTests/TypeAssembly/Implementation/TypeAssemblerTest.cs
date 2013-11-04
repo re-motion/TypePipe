@@ -150,6 +150,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
       var participantConfigurationID = "participant configuration id";
       var typeID = AssembledTypeIDObjectMother.Create (_requestedType, new object[] { "type id part" });
+      var additionalTypeID = new object();
       var generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
 
@@ -179,7 +180,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
               Assert.That (proxyTypeAssemblyContext.RequestedType, Is.SameAs (_requestedType));
               Assert.That (proxyTypeAssemblyContext.ProxyType, Is.SameAs (proxyType));
 
-              proxyTypeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
+              proxyTypeAssemblyContext.CreateAdditionalType (additionalTypeID, "AdditionalType", null, 0, typeof (int));
 
               proxyTypeAssemblyContext.GenerationCompleted += ctx =>
               {
@@ -342,7 +343,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
                   Assert.That (additionalTypeAssemblyContext.ParticipantConfigurationID, Is.EqualTo (participantConfigurationID));
                   Assert.That (additionalTypeAssemblyContext.State, Is.SameAs (_participantState));
 
-                  additionalTypeAssemblyContext.CreateType ("AdditionalType", null, 0, typeof (int));
+                  additionalTypeAssemblyContext.CreateAdditionalType (additionalTypeID, "AdditionalType", null, 0, typeof (int));
 
                   additionalTypeAssemblyContext.GenerationCompleted += ctx =>
                   {
@@ -370,7 +371,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
           configurationId: participantConfigurationID,
           participants: new[] { participantMock1, participantMock2, participantMock3 });
 
-      var result = typeAssembler.GetOrAssembleAdditionalType (additionalTypeID, _participantState, codeGeneratorMock);
+      var result = typeAssembler.AssembleAdditionalType (additionalTypeID, _participantState, codeGeneratorMock);
 
       mockRepository.VerifyAll();
       Assert.That (generationCompletedEventRaised, Is.True);
@@ -387,7 +388,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       codeGeneratorStub.Stub (_ => _.GenerateTypes (new MutableType[0])).Return (new KeyValuePair<MutableType, Type>[0]);
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantStub });
 
-      var result = typeAssembler.GetOrAssembleAdditionalType (new object(), _participantState, codeGeneratorStub);
+      var result = typeAssembler.AssembleAdditionalType (new object(), _participantState, codeGeneratorStub);
 
       Assert.That (result, Is.SameAs (fakeType));
     }
@@ -399,7 +400,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var codeGeneratorStub = MockRepository.GenerateStub<IMutableTypeBatchCodeGenerator>();
       var typeAssembler = CreateTypeAssembler();
 
-      typeAssembler.GetOrAssembleAdditionalType (new object(), _participantState, codeGeneratorStub);
+      typeAssembler.AssembleAdditionalType (new object(), _participantState, codeGeneratorStub);
     }
 
     [Test]
