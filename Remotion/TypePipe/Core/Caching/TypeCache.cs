@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.Caching
       }
       // ReSharper restore LoopCanBeConvertedToQuery
 
-      //TODO RM-5849: Reenable or completly remove RebuildParticipantState
+      //TODO RM-5895: Reenable or completly remove RebuildParticipantState
       //var assemblyContexts = _assemblyContextPool.DequeueAll();
       //try
       //{

@@ -110,9 +110,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       return _assembledTypeIdentifierProvider.ExtractTypeID (assembledType);
     }
 
-    // RM-5849: change participantState to complex type ParticipantState {AdditionalTypeCache{object,Type} get or add API, State{string,object}}
+    // TODO RM-5895: change participantState to complex type ParticipantState {AdditionalTypeCache{object,Type} get or add API, State{string,object}}
     // Adding to AdditionalTypeCache also adds to global AdditionalTypeCache (concurrently)
-    //TODO: RM-5849: Reset ParticipantState upon flush. AdditionalTypeCache will be empty for new assembly.
+    //TODO: RM-5895: Reset ParticipantState upon flush. AdditionalTypeCache will be empty for new assembly.
     public Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("typeID", typeID);
@@ -142,12 +142,12 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       context.OnGenerationCompleted (generatedTypesContext);
 
       context.AdditionalTypes.Values.Select (generatedTypesContext.GetGeneratedType);
-      //TODO RM-5849: complex return type {Type, AddtionalTypes{object,Type}}
+      //TODO RM-5895: complex return type {Type, AddtionalTypes{object,Type}}
 
       return generatedTypesContext.GetGeneratedType (context.ProxyType);
     }
 
-    //TODO RM-5849: Change participantState to same API as AssembleType
+    //TODO RM-5895: Change participantState to same API as AssembleType
     public Type AssembleAdditionalType (
         object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
@@ -169,7 +169,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         return additionalType;
     }
 
-    //TODO RM-5849: Replace with GetAdditionalTypeID (type)::object, use when loading flushed assembly
+    //TODO RM-5895: Replace with GetAdditionalTypeID (type)::object, use when loading flushed assembly
     //First participant returning non-null for the type provides the ID. If it is null, ignore the type
     public void RebuildParticipantState (
         IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> participantState)
