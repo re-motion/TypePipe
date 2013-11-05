@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 
-namespace Remotion.TypePipe.TypeAssembly.Implementation
+namespace Remotion.TypePipe.TypeAssembly
 {
   /// <threadsafety static="true" instance="false"/>
   public class ParticipantState : IParticipantState

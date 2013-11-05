@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Remotion.TypePipe.TypeAssembly.Implementation
+namespace Remotion.TypePipe.TypeAssembly
 {
   public interface IParticipantState
   {
