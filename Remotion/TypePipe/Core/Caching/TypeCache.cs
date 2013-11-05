@@ -18,8 +18,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.TypeAssembly.Implementation;
@@ -34,12 +32,14 @@ namespace Remotion.TypePipe.Caching
   /// <threadsafety static="true" instance="true"/>
   public class TypeCache : ITypeCache
   {
-    private readonly ConcurrentDictionary<AssembledTypeID, Lazy<Type>> _types = new ConcurrentDictionary<AssembledTypeID, Lazy<Type>>();
+    private readonly ConcurrentDictionary<AssembledTypeID, Lazy<Type>> _assembledTypes = new ConcurrentDictionary<AssembledTypeID, Lazy<Type>>();
+    private readonly ConcurrentDictionary<object, Lazy<Type>> _additionalTypes = new ConcurrentDictionary<object, Lazy<Type>>();
 
     private readonly ITypeAssembler _typeAssembler;
     private readonly IAssemblyContextPool _assemblyContextPool;
 
-    private readonly Func<AssembledTypeID, Lazy<Type>> _createTypeFunc;
+    private readonly Func<AssembledTypeID, Lazy<Type>> _createAssembledTypeFunc;
+    private readonly Func<object, Lazy<Type>> _createAdditionalTypeFunc;
 
     public TypeCache (ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
     {
@@ -49,12 +49,13 @@ namespace Remotion.TypePipe.Caching
       _typeAssembler = typeAssembler;
       _assemblyContextPool = assemblyContextPool;
 
-      _createTypeFunc = CreateType;
+      _createAssembledTypeFunc = CreateType;
+      _createAdditionalTypeFunc = CreateAdditionalType;
     }
 
     public Type GetOrCreateType (AssembledTypeID typeID)
     {
-      var lazyType = _types.GetOrAdd (typeID, _createTypeFunc);
+      var lazyType = _assembledTypes.GetOrAdd (typeID, _createAssembledTypeFunc);
 
       try
       {
@@ -63,9 +64,9 @@ namespace Remotion.TypePipe.Caching
       catch
       {
         // Lazy<T> with ExecutionAndPublication and a create-function caches the exception. 
-        // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _types dictionary
+        // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _assembledTypes dictionary
         // still holds the original Lazy (that cached the exception). This avoids a race with a parallel thread that requested the same type.
-        if (_types.TryUpdate (typeID, CreateType (typeID), lazyType))
+        if (_assembledTypes.TryUpdate (typeID, CreateType (typeID), lazyType))
           throw;
 
         // Can theoretically cause a StackOverflowException in case of starvation. We are ignoring this very remote possiblity.
@@ -96,57 +97,86 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      var assemblyContext = _assemblyContextPool.Dequeue();
+      var lazyType = _additionalTypes.GetOrAdd (additionalTypeID, _createAdditionalTypeFunc);
+
       try
       {
-        return _typeAssembler.AssembleAdditionalType (
-            additionalTypeID,
-            assemblyContext.ParticipantState,
-            assemblyContext.MutableTypeBatchCodeGenerator);
+        return lazyType.Value;
       }
-      finally
+      catch
       {
-        _assemblyContextPool.Enqueue (assemblyContext);
+        // Lazy<T> with ExecutionAndPublication and a create-function caches the exception. 
+        // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _additionalTypes dictionary
+        // still holds the original Lazy (that cached the exception). This avoids a race with a parallel thread that requested the same type.
+        if (_additionalTypes.TryUpdate (additionalTypeID, CreateAdditionalType (additionalTypeID), lazyType))
+          throw;
+
+        // Can theoretically cause a StackOverflowException in case of starvation. We are ignoring this very remote possiblity.
+        // This code path cannot be tested.
+        return GetOrCreateAdditionalType (additionalTypeID);
       }
+    }
+
+    private Lazy<Type> CreateAdditionalType (object additionalTypeID)
+    {
+      return new Lazy<Type> (
+          () =>
+          {
+            var assemblyContext = _assemblyContextPool.Dequeue();
+            try
+            {
+              return _typeAssembler.AssembleAdditionalType (
+                  additionalTypeID,
+                  assemblyContext.ParticipantState,
+                  assemblyContext.MutableTypeBatchCodeGenerator);
+            }
+            finally
+            {
+              _assemblyContextPool.Enqueue (assemblyContext);
+            }
+          },
+          LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
     {
       ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
 
-      var assembledTypes = new List<Type>();
-      var additionalTypes = new List<Type>();
-
+      // Dequeuing all assembly contexts is not required for consistent loading of types 
+      // but helps to ensure that the pre-generated types are preferred.
+      var assemblyContexts = _assemblyContextPool.DequeueAll();
+      try
+      {
       foreach (var type in generatedTypes)
       {
         if (_typeAssembler.IsAssembledType (type))
-          assembledTypes.Add (type);
+          LoadAssembledType (type);
         else
-          additionalTypes.Add (type);
+          LoadAdditionalType (type);
       }
-
-      // ReSharper disable LoopCanBeConvertedToQuery
-      var loadedAssembledTypes = new List<Type>();
-      foreach (var assembledType in assembledTypes)
+      }
+      finally
       {
-        var typeID = _typeAssembler.ExtractTypeID (assembledType);
-        Type assembledTypeForClosure = assembledType;
-        if (_types.TryAdd (typeID, new Lazy<Type> (() => assembledTypeForClosure, LazyThreadSafetyMode.None)))
-          loadedAssembledTypes.Add (assembledType);
+        foreach (var assemblyContext in assemblyContexts)
+          _assemblyContextPool.Enqueue (assemblyContext);
       }
-      // ReSharper restore LoopCanBeConvertedToQuery
+    }
 
-      //TODO RM-5895: Reenable or completly remove RebuildParticipantState
-      //var assemblyContexts = _assemblyContextPool.DequeueAll();
-      //try
-      //{
-      //  _typeAssembler.RebuildParticipantState (loadedAssembledTypes, additionalTypes, assemblyContext.ParticipantState);
-      //}
-      //finally
-      //{
-      //  foreach (var assemblyContext in assemblyContexts)
-      //    _assemblyContextPool.Enqueue (assemblyContext);
-      //}
+    private void LoadAssembledType (Type assembledType)
+    {
+      var typeID = _typeAssembler.ExtractTypeID (assembledType);
+      var assembledTypeForClosure = assembledType;
+      _assembledTypes.TryAdd (typeID, new Lazy<Type> (() => assembledTypeForClosure, LazyThreadSafetyMode.None));
+    }
+
+    private void LoadAdditionalType (Type additionalType)
+    {
+      var additionalTypeID = _typeAssembler.GetAdditionalTypeID (additionalType);
+      if (additionalTypeID == null)
+        return;
+
+      var additionalTypeForClosure = additionalType;
+      _additionalTypes.TryAdd (additionalTypeID, new Lazy<Type> (() => additionalTypeForClosure, LazyThreadSafetyMode.None));
     }
   }
 }

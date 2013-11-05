@@ -32,7 +32,6 @@ using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;
 using System.Linq;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 {
@@ -404,26 +403,65 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     }
 
     [Test]
-    public void RebuildParticipantState ()
+    public void GetAdditionalTypeID_OneParticpantProvidesID_ReturnsResultFromParticipant ()
     {
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
+      var expectedAdditionalTypeID = new object();
+
+      var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
+      participantMock1.Stub (_ => _.PartialTypeIdentifierProvider);
+      participantMock1.Expect (_ => _.GetAdditionalTypeID (additionalType)).Return (null);
+
+      var participantMock2 = MockRepository.GenerateStrictMock<IParticipant>();
+      participantMock2.Stub (_ => _.PartialTypeIdentifierProvider);
+      participantMock2.Expect (_ => _.GetAdditionalTypeID (additionalType)).Return (expectedAdditionalTypeID);
+
+      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2 });
+      var additionalTypeID = typeAssembler.GetAdditionalTypeID (additionalType);
+
+      Assert.That (additionalTypeID, Is.SameAs (expectedAdditionalTypeID));
+      participantMock1.VerifyAllExpectations();
+      participantMock2.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void GetAdditionalTypeID_NoParticpantProvidesID_ReturnsNull ()
+    {
+      var additionalType = ReflectionObjectMother.GetSomeOtherType();
+
       var participantMock = MockRepository.GenerateStrictMock<IParticipant>();
       participantMock.Stub (_ => _.PartialTypeIdentifierProvider);
-      participantMock
-          .Expect (mock => mock.RebuildState (Arg<LoadedTypesContext>.Is.Anything))
-          .WhenCalled (
-              mi =>
-              {
-                var ctx = (LoadedTypesContext) mi.Arguments[0];
-                Assert.That (ctx.ProxyTypes, Is.EqualTo (new[] { new LoadedProxy (_requestedType, _assembledType) }));
-                Assert.That (ctx.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
-                Assert.That (ctx.State, Is.SameAs (_participantState));
-              });
+      participantMock.Expect (_ => _.GetAdditionalTypeID (additionalType)).Return (null);
+
       var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock });
+      var additionalTypeID = typeAssembler.GetAdditionalTypeID (additionalType);
 
-      typeAssembler.RebuildParticipantState (new[] { _assembledType }.AsReadOnly(), new[] { additionalType }.AsReadOnly(), _participantState);
+      Assert.That (additionalTypeID, Is.Null);
+    }
 
-      participantMock.VerifyAllExpectations();
+    [Test]
+    public void GetAdditionalTypeID_MultipleParticpantsProvidesID_ThrowsInvalidOperationException ()
+    {
+      var additionalType = ReflectionObjectMother.GetSomeOtherType();
+
+      var participantMock1 = MockRepository.GenerateStrictMock<IParticipant>();
+      participantMock1.Stub (_ => _.PartialTypeIdentifierProvider);
+      participantMock1.Expect (_ => _.GetAdditionalTypeID (additionalType)).Return (null);
+
+      var participantMock2 = MockRepository.GenerateStrictMock<IParticipant>();
+      participantMock2.Stub (_ => _.PartialTypeIdentifierProvider);
+      participantMock2.Expect (_ => _.GetAdditionalTypeID (additionalType)).Return (new object());
+
+      var participantMock3 = MockRepository.GenerateStrictMock<IParticipant>();
+      participantMock3.Stub (_ => _.PartialTypeIdentifierProvider);
+      participantMock3.Expect (_ => _.GetAdditionalTypeID (additionalType)).Return (new object());
+
+      var typeAssembler = CreateTypeAssembler (participants: new[] { participantMock1, participantMock2, participantMock3 });
+
+      Assert.That (
+          () => typeAssembler.GetAdditionalTypeID (additionalType),
+          Throws.InvalidOperationException
+              .And.Message.EqualTo (string.Format ("More than one participant returned an ID for the additional type '{0}'", additionalType.Name)));
     }
 
     private TypeAssembler CreateTypeAssembler (

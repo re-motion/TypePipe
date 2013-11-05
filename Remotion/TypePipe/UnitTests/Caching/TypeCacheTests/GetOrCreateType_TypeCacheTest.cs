@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
@@ -37,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
     private TypeCache _cache;
 
-    private IDictionary<AssembledTypeID, Lazy<Type>> _types;
+    private IDictionary<AssembledTypeID, Lazy<Type>> _assembledTypes;
 
     private readonly Type _requestedType = typeof (RequestedType);
     private readonly Type _assembledType = typeof (AssembledType);
@@ -50,14 +49,14 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _cache = new TypeCache (_typeAssemblerMock, _assemblyContextPoolMock);
 
-      _types = (ConcurrentDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_types");
+      _assembledTypes = (IDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_assembledTypes");
     }
 
     [Test]
     public void CacheHit ()
     {
       var typeID = AssembledTypeIDObjectMother.Create (_requestedType);
-      _types.Add (typeID, new Lazy<Type> (() => _assembledType, LazyThreadSafetyMode.None));
+      _assembledTypes.Add (typeID, new Lazy<Type> (() => _assembledType, LazyThreadSafetyMode.None));
 
       var result = _cache.GetOrCreateType (typeID);
 
@@ -70,10 +69,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_UsesAssemblyContextFromPool ()
     {
       var typeID = AssembledTypeIDObjectMother.Create();
-
-      var assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+      var assemblyContext = CreateAssemblyContext();
 
       bool isDequeued = false;
       _assemblyContextPoolMock
@@ -101,20 +97,16 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (_assembledType));
 
-      Assert.That (_types[typeID].IsValueCreated, Is.True);
-      Assert.That (_types[typeID].Value, Is.SameAs (_assembledType));
+      Assert.That (_assembledTypes[typeID].IsValueCreated, Is.True);
+      Assert.That (_assembledTypes[typeID].Value, Is.SameAs (_assembledType));
     }
 
     [Test]
     public void CacheMiss_AndExceptionDuringAssembleType_DoesNotCacheException ()
     {
       var expectedException = new Exception();
-
       var typeID = AssembledTypeIDObjectMother.Create();
-
-      var assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+      var assemblyContext = CreateAssemblyContext();
 
       _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
       _typeAssemblerMock.Expect (mock => mock.AssembleType (new AssembledTypeID(), null, null)).IgnoreArguments().Throw (expectedException);
@@ -135,12 +127,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     public void CacheMiss_AndExceptionDuringAssembleType_ReturnsAssemblyContextToPool ()
     {
       var expectedException = new Exception();
-
       var typeID = AssembledTypeIDObjectMother.Create();
-
-      var assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+      var assemblyContext = CreateAssemblyContext();
 
       bool isDequeued = false;
       _assemblyContextPoolMock
@@ -162,6 +150,13 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    private AssemblyContext CreateAssemblyContext ()
+    {
+      return new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
     }
 
     private class RequestedType {}

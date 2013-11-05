@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Caching;
@@ -32,6 +31,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   public class LoadFlushedCodeTest : IntegrationTestBase
   {
     private const string c_participantConfigurationID = "LoadFlushedCodeTest";
+    private const string c_additionalTypeID = "AdditionalTypeID";
 
     private Assembly _assembly1;
     private Assembly _assembly2;
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     {
       base.SetUp ();
 
-      var pipeline = CreatePipeline (c_participantConfigurationID);
+     var pipeline = CreatePipelineWithAdditionalTypeParticipant();
       _codeManager = pipeline.CodeManager;
       _reflectionService = pipeline.ReflectionService;
     }
@@ -93,12 +93,14 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var loadedType = _reflectionService.GetAssembledType (typeof (DomainType1));
       // Generate and get type 2.
       var generatedType = _reflectionService.GetAssembledType (typeof (DomainType2));
+      var additionalType = _reflectionService.GetAdditionalType (c_additionalTypeID);
 
       _codeManager.LoadFlushedCode (_assembly1);
       _codeManager.LoadFlushedCode (_assembly2);
 
       Assert.That (_reflectionService.GetAssembledType (typeof (DomainType1)), Is.SameAs (loadedType));
       Assert.That (_reflectionService.GetAssembledType (typeof (DomainType2)), Is.SameAs (generatedType));
+      Assert.That (_reflectionService.GetAdditionalType (c_additionalTypeID), Is.SameAs (additionalType));
     }
 
     [Test]
@@ -156,9 +158,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
     private void PreGenerateAssemblies ()
     {
-      var pipeline = CreatePipeline (c_participantConfigurationID);
+      var pipeline = CreatePipelineWithAdditionalTypeParticipant();
 
       var assembledType1 = pipeline.ReflectionService.GetAssembledType (typeof (DomainType1));
+      pipeline.ReflectionService.GetAdditionalType (c_additionalTypeID);
       var assemblyPath1 = Flush().Single();
       var assembledType2 = pipeline.ReflectionService.GetAssembledType (typeof (DomainType2));
       var assemblyPath2 = Flush().Single();
@@ -168,6 +171,23 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       _assembly1 = AssemblyLoader.LoadWithoutLocking (assemblyPath1);
       _assembly2 = AssemblyLoader.LoadWithoutLocking (assemblyPath2);
+    }
+
+    private IPipeline CreatePipelineWithAdditionalTypeParticipant ()
+    {
+      var defaultPipeline = CreatePipeline();
+      var additionalTypeParticipant =
+          CreateParticipant (
+              additionalTypeFunc: (id, ctx) =>
+              {
+                if ((string) id == c_additionalTypeID)
+                  return ctx.CreateAdditionalType (c_additionalTypeID, "AdditionalType", "MyNs", TypeAttributes.Class, typeof (object));
+                return null;
+              });
+
+      return CreatePipeline (
+          c_participantConfigurationID,
+          defaultPipeline.Participants.Concat (new[] { additionalTypeParticipant }).ToArray());
     }
 
     public class DomainType1 {}

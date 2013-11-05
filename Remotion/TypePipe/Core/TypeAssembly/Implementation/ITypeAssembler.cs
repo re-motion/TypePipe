@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using JetBrains.Annotations;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 
@@ -32,20 +33,31 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     string ParticipantConfigurationID { get; }
     ReadOnlyCollection<IParticipant> Participants { get; }
 
-    bool IsAssembledType (Type type);
-    Type GetRequestedType (Type assembledType);
+    bool IsAssembledType ([NotNull] Type type);
+
+    [NotNull]
+    Type GetRequestedType ([NotNull] Type assembledType);
 
     /// <summary>
     /// Computes the <see cref="AssembledTypeID"/> from a requested type.
     /// </summary>
-    AssembledTypeID ComputeTypeID (Type requestedType);
-    AssembledTypeID ExtractTypeID (Type assembledType);
+    AssembledTypeID ComputeTypeID ([NotNull] Type requestedType);
 
-    Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+    AssembledTypeID ExtractTypeID ([NotNull] Type assembledType);
 
+    [NotNull]
+    Type AssembleType (
+        AssembledTypeID typeID,
+        [NotNull] IDictionary<string, object> participantState,
+        [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);
+
+    [NotNull]
     Type AssembleAdditionalType (
-        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+        [NotNull] object additionalTypeID,
+        [NotNull] IDictionary<string, object> participantState,
+        [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);
 
-    void RebuildParticipantState (IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> participantState);
+    [CanBeNull]
+    object GetAdditionalTypeID ([NotNull] Type additionalType);
   }
 }

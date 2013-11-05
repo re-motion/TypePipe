@@ -45,19 +45,19 @@ namespace Remotion.TypePipe.IntegrationTests
     protected static IParticipant CreateParticipant (
         Action<object, IProxyTypeAssemblyContext> participateAction = null,
         ITypeIdentifierProvider typeIdentifierProvider = null,
-        Action<LoadedTypesContext> rebuildStateAction = null,
+        Func<Type, object> getAdditionalTypeIDFunc = null,
         Func<object, IAdditionalTypeAssemblyContext, Type> additionalTypeFunc = null,
         Action<Type> handleNonSubclassableTypeAction = null)
     {
       participateAction = participateAction ?? ((id, ctx) => { });
-      rebuildStateAction = rebuildStateAction ?? (ctx => { });
+      getAdditionalTypeIDFunc = getAdditionalTypeIDFunc ?? (ctx => null);
       handleNonSubclassableTypeAction = handleNonSubclassableTypeAction ?? (ctx => { });
       additionalTypeFunc = additionalTypeFunc ?? ((id, ctx) => null);
 
       // Avoid no-modification optimization.
       participateAction = CreateModifyingAction (participateAction);
 
-      return new ParticipantStub (typeIdentifierProvider, participateAction, rebuildStateAction, handleNonSubclassableTypeAction, additionalTypeFunc);
+      return new ParticipantStub (typeIdentifierProvider, participateAction, getAdditionalTypeIDFunc, handleNonSubclassableTypeAction, additionalTypeFunc);
     }
 
 

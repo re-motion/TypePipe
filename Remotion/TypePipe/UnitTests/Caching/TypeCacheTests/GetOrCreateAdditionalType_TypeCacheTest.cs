@@ -16,7 +16,10 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -33,6 +36,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
     private TypeCache _cache;
 
+    private IDictionary<object, Lazy<Type>> _additionalTypes;
+
     [SetUp]
     public void SetUp ()
     {
@@ -40,17 +45,29 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _assemblyContextPoolMock = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
 
       _cache = new TypeCache (_typeAssemblerMock, _assemblyContextPoolMock);
+      _additionalTypes = (IDictionary<object, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_additionalTypes");
     }
 
     [Test]
-    public void CalledOnce_UsesAssemblyContextFromPool ()
+    public void CacheHit ()
     {
       var additionalTypeID = new object();
       var additionalType = ReflectionObjectMother.GetSomeType();
+      _additionalTypes.Add (additionalTypeID, new Lazy<Type> (() => additionalType, LazyThreadSafetyMode.None));
 
-      var assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+      var result = _cache.GetOrCreateAdditionalType (additionalTypeID);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (additionalType));
+    }
+
+    [Test]
+    public void CacheMiss_UsesAssemblyContextFromPool ()
+    {
+      var additionalTypeID = new object();
+      var additionalType = ReflectionObjectMother.GetSomeType();
+      var assemblyContext = CreateAssemblyContext();
 
       bool isDequeued = false;
       _assemblyContextPoolMock
@@ -84,14 +101,34 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     }
 
     [Test]
-    public void WithExceptionDuringAssembleAdditionalType_ReturnsAssemblyContextToPool ()
+    public void CacheMiss_AndExceptionDuringAssembleType_DoesNotCacheException ()
     {
       var expectedException = new Exception();
       var additionalTypeID = new object();
+      var additionalType = ReflectionObjectMother.GetSomeType();
+      var assemblyContext = CreateAssemblyContext();
 
-      var assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
+      _typeAssemblerMock.Expect (mock => mock.AssembleAdditionalType (null, null, null)).IgnoreArguments().Throw (expectedException);
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
+
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
+      _typeAssemblerMock.Expect (mock => mock.AssembleAdditionalType (null, null, null)).IgnoreArguments().Return (additionalType);
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
+
+      Assert.That (() => _cache.GetOrCreateAdditionalType (additionalTypeID), Throws.Exception.SameAs (expectedException));
+      Assert.That (_cache.GetOrCreateAdditionalType (additionalTypeID), Is.SameAs (additionalType));
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void CacheMiss_WithExceptionDuringAssembleAdditionalType_ReturnsAssemblyContextToPool ()
+    {
+      var expectedException = new Exception();
+      var additionalTypeID = new object();
+      var assemblyContext = CreateAssemblyContext();
 
       bool isDequeued = false;
       _assemblyContextPoolMock
@@ -120,6 +157,13 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    private AssemblyContext CreateAssemblyContext ()
+    {
+      return new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
     }
   }
 }
