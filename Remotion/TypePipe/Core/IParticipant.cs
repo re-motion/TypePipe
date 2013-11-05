@@ -69,7 +69,7 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="id">The identifier returned by the type identifier provider or <see langword="null"/> if there is no such provider.</param>
     /// <param name="proxyTypeAssemblyContext">The type assembly context.</param>
-    void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext);
+    void Participate ([CanBeNull]object id, [NotNull]IProxyTypeAssemblyContext proxyTypeAssemblyContext);
 
     /// <summary>
     /// This method allows participants to react when the pipeline loads a set of types from a previously flushed assembly.
