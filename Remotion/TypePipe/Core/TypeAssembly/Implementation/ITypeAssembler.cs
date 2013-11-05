@@ -45,13 +45,13 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     AssembledTypeID ExtractTypeID ([NotNull] Type assembledType);
 
     [NotNull]
-    Type AssembleType (
+    TypeAssemblyResult AssembleType (
         AssembledTypeID typeID,
         [NotNull] IParticipantState participantState,
         [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);
 
     [NotNull]
-    Type AssembleAdditionalType (
+    TypeAssemblyResult AssembleAdditionalType (
         [NotNull] object additionalTypeID,
         [NotNull] IParticipantState participantState,
         [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);

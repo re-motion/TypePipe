@@ -83,7 +83,8 @@ namespace Remotion.TypePipe.Caching
             var assemblyContext = _assemblyContextPool.Dequeue();
             try
             {
-              return _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
+              var result = _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
+              return result.Type;
             }
             finally
             {
@@ -125,10 +126,11 @@ namespace Remotion.TypePipe.Caching
             var assemblyContext = _assemblyContextPool.Dequeue();
             try
             {
-              return _typeAssembler.AssembleAdditionalType (
+              var result = _typeAssembler.AssembleAdditionalType (
                   additionalTypeID,
                   assemblyContext.ParticipantState,
                   assemblyContext.MutableTypeBatchCodeGenerator);
+              return result.Type;
             }
             finally
             {

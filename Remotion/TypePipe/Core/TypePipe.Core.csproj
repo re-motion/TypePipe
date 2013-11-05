@@ -88,6 +88,7 @@
     <Compile Include="TypeAssembly\IAdditionalTypeAssemblyContext.cs" />
     <Compile Include="TypeAssembly\Implementation\IParticipantState.cs" />
     <Compile Include="TypeAssembly\Implementation\ParticipantState.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyResult.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyContext.cs" />
     <Compile Include="TypeAssembly\Implementation\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="TypeAssembly\Implementation\IAssembledTypeIdentifierProvider.cs" />

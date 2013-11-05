@@ -152,6 +152,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var additionalTypeID = new object();
       var generationCompletedEventRaised = false;
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
+      var fakeGeneratedAdditionalType = ReflectionObjectMother.GetSomeType();
 
       using (mockRepository.Ordered())
       {
@@ -208,7 +209,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
         codeGeneratorMock
             .Expect (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.List.Equal (new[] { additionalType, proxyType })))
-            .Return (new[] { new KeyValuePair<MutableType, Type> (proxyType, fakeGeneratedType) })
+            .Return (
+                new[]
+                {
+                    new KeyValuePair<MutableType, Type> (proxyType, fakeGeneratedType),
+                    new KeyValuePair<MutableType, Type> (additionalType, fakeGeneratedAdditionalType)
+                })
             .WhenCalled (
                 mi =>
                 {
@@ -233,7 +239,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
       mockRepository.VerifyAll();
       Assert.That (generationCompletedEventRaised, Is.True);
-      Assert.That (result, Is.SameAs (fakeGeneratedType));
+      Assert.That (result, Is.Not.Null);
+      Assert.That (result.Type, Is.SameAs (fakeGeneratedType));
     }
 
     [Test]
@@ -258,7 +265,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
       var result = typeAssembler.AssembleType (typeID, _participantStateMock, codeGeneratorStub);
 
-      Assert.That (result, Is.SameAs (nonSubclassableType));
+      Assert.That (result, Is.Not.Null);
+      Assert.That (result.Type, Is.SameAs (nonSubclassableType));
       participantMock.AssertWasCalled (mock => mock.HandleNonSubclassableType (nonSubclassableType));
       participantMock.AssertWasNotCalled (mock => mock.Participate (Arg.Is<object> (null), Arg<IProxyTypeAssemblyContext>.Is.Anything));
     }
@@ -275,7 +283,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
       var result = typeAssembler.AssembleType (_typeID, _participantStateMock, codeGeneratorMock);
 
-      Assert.That (result, Is.SameAs (_requestedType));
+      Assert.That (result, Is.Not.Null);
+      Assert.That (result.Type, Is.SameAs (_requestedType));
       codeGeneratorMock.AssertWasNotCalled (mock => mock.GenerateTypes (Arg<IEnumerable<MutableType>>.Is.Anything));
     }
 
@@ -374,7 +383,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
       mockRepository.VerifyAll();
       Assert.That (generationCompletedEventRaised, Is.True);
-      Assert.That (result, Is.SameAs (fakeAdditionalType));
+      Assert.That (result, Is.Not.Null);
+      Assert.That (result.Type, Is.SameAs (fakeAdditionalType));
     }
 
     [Test]
@@ -389,7 +399,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
       var result = typeAssembler.AssembleAdditionalType (new object(), _participantStateMock, codeGeneratorStub);
 
-      Assert.That (result, Is.SameAs (fakeType));
+      Assert.That (result, Is.Not.Null);
+      Assert.That (result.Type, Is.SameAs (fakeType));
     }
 
     [Test]

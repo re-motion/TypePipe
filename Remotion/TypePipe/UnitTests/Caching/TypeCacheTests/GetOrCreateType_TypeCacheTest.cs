@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                   Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
                   Arg.Is (assemblyContext.ParticipantState),
                   Arg.Is (assemblyContext.MutableTypeBatchCodeGenerator)))
-          .Return (_assembledType)
+          .Return (new TypeAssemblyResult (_assembledType))
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       _assemblyContextPoolMock
@@ -113,7 +113,10 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
 
       _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
-      _typeAssemblerMock.Expect (mock => mock.AssembleType (new AssembledTypeID(), null, null)).IgnoreArguments().Return (_assembledType);
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleType (new AssembledTypeID(), null, null))
+          .IgnoreArguments()
+          .Return (new TypeAssemblyResult (_assembledType));
       _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
 
       Assert.That (() => _cache.GetOrCreateType (typeID), Throws.Exception.SameAs (expectedException));
