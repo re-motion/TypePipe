@@ -17,19 +17,19 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.TypeAssembly;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
 {
   public static class LoadedTypesContextObjectMother
   {
     public static LoadedTypesContext Create (
-        IEnumerable<LoadedProxy> proxyTypes = null, IEnumerable<Type> additionalTypes = null, IDictionary<string, object> state = null)
+        IEnumerable<LoadedProxy> proxyTypes = null, IEnumerable<Type> additionalTypes = null, IParticipantState state = null)
     {
       proxyTypes = proxyTypes ?? new LoadedProxy[0];
       additionalTypes = additionalTypes ?? Type.EmptyTypes;
-      state = state ?? new Dictionary<string, object>();
+      state = state ?? new ParticipantState();
 
       return new LoadedTypesContext (proxyTypes, additionalTypes, state);
     }

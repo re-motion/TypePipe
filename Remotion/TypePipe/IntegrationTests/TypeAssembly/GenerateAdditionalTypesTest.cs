@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
@@ -34,7 +35,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var ifc = typeContext.CreateInterface ("INewInterface", "MyNamespace");
+            var ifc = typeContext.CreateInterface (new object(), "INewInterface", "MyNamespace");
             var ifcMethod = ifc.AddAbstractMethod ("InterfaceMethod", returnType: typeof (string));
 
             typeContext.ProxyType.AddInterface (ifc);
@@ -70,7 +71,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
             var proxy = typeContext.ProxyType;
             proxy.GetOrAddOverride (method).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" Proxy")));
 
-            var proxyProxy = typeContext.CreateProxy (proxy);
+            var proxyProxy = typeContext.CreateAddtionalProxyType (new object(), proxy);
             proxyProxy.GetOrAddOverride (method).SetBody (ctx => ExpressionHelper.StringConcat (ctx.PreviousBody, Expression.Constant (" ProxyProxy")));
             newClassName = proxyProxy.FullName;
           });
@@ -91,11 +92,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var addedInterface1 = typeContext.CreateInterface ("IInterface1", "ns");
-            var addedInterface2 = typeContext.CreateInterface ("IInterface2", "ns");
+            var additionalTypeID1 = new object();
+            var additionalTypeID2 = new object();
+            var addedInterface1 = typeContext.CreateInterface (additionalTypeID1, "IInterface1", "ns");
+            var addedInterface2 = typeContext.CreateInterface (additionalTypeID2, "IInterface2", "ns");
             addedInterface1.AddInterface (typeof (IComparable<>).MakeTypePipeGenericType (addedInterface2));
 
-            Assert.That (typeContext.AdditionalTypes, Is.EqualTo (new[] { addedInterface1, addedInterface2 }));
+            Assert.That (
+                typeContext.AdditionalTypes,
+                Is.EqualTo (
+                    new[]
+                    {
+                        new KeyValuePair<object, MutableType> (additionalTypeID1, addedInterface1),
+                        new KeyValuePair<object, MutableType> (additionalTypeID2, addedInterface2)
+                    }));
           });
       var assembly = type.Assembly;
       var interface1 = assembly.GetType ("ns.IInterface1");
@@ -124,7 +134,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           typeContext =>
           {
             var proxyType = typeContext.ProxyType;
-            var newClass = typeContext.CreateType ("NewClass", null, TypeAttributes.Public | TypeAttributes.Class, typeof (object));
+            var newClass = 
+                typeContext.CreateAdditionalType (new object(), "NewClass", null, TypeAttributes.Public | TypeAttributes.Class, typeof (object));
 
             var method1 = proxyType.AddAbstractMethod (
                 "Method1",
@@ -160,7 +171,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       var type = AssembleType<DomainType> (
           typeContext =>
           {
-            var newValueType = typeContext.CreateType ("MyValueType", null, TypeAttributes.Sealed, typeof (ValueType));
+            var newValueType = typeContext.CreateAdditionalType (new object(), "MyValueType", null, TypeAttributes.Sealed, typeof (ValueType));
             newValueType.AddField ("dummy", FieldAttributes.Private, typeof (int));
           });
       var assembly = type.Assembly;
@@ -189,8 +200,8 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       AssembleType<DomainType> (
           typeContext =>
           {
-            var interface1 = typeContext.CreateInterface ("IInterface1", "ns");
-            var interface2 = typeContext.CreateInterface ("IInterface2", "ns");
+            var interface1 = typeContext.CreateInterface (new object(), "IInterface1", "ns");
+            var interface2 = typeContext.CreateInterface (new object(), "IInterface2", "ns");
 
             interface1.AddInterface (interface2);
             interface2.AddInterface (interface1);

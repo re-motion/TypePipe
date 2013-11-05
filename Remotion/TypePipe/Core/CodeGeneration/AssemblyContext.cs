@@ -16,6 +16,7 @@
 // 
 
 using System.Collections.Generic;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -26,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <threadsafety static="true" instance="false"/>
   public class AssemblyContext
   {
-    private readonly Dictionary<string, object> _participantState = new Dictionary<string, object>();
+    private readonly ParticipantState _participantState = new ParticipantState();
     private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
     private readonly IGeneratedCodeFlusher _generatedCodeFlusher;
 
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration
       _generatedCodeFlusher = generatedCodeFlusher;
     }
 
-    public Dictionary<string, object> ParticipantState
+    public IParticipantState ParticipantState
     {
       get { return _participantState; }
     }

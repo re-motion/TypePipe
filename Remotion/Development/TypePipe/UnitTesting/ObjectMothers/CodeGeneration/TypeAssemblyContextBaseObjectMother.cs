@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 
@@ -27,10 +26,10 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
     public static TypeAssemblyContextBase Create (
         IMutableTypeFactory mutableTypeFactory = null,
         string participantConfigurationID = "participant configuration ID",
-        IDictionary<string, object> state = null)
+        IParticipantState state = null)
     {
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
-      state = state ?? new Dictionary<string, object>();
+      state = state ?? new ParticipantState();
 
       return new TestableTypeAssemblyContextBase (mutableTypeFactory, participantConfigurationID, state);
     }

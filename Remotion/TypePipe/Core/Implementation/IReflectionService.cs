@@ -45,6 +45,13 @@ namespace Remotion.TypePipe.Implementation
     /// <returns>The requested type for the assembled type.</returns>
     /// <exception cref="ArgumentException">If the argument type is not an assembled type.</exception>
     Type GetRequestedType ([NotNull] Type assembledType);
+    
+    /// <summary>
+    /// Gets the <see cref="AssembledTypeID"/> for the specified requested type.
+    /// </summary>
+    /// <param name="requestedType">A requested type. Must not be <see langword="null" />.</param>
+    /// <returns>An assembled type identifier.</returns>
+    AssembledTypeID GetTypeIDForRequestedType ([NotNull] Type requestedType);
 
     /// <summary>
     /// Gets the <see cref="AssembledTypeID"/> for the specified assembled type.
@@ -52,7 +59,7 @@ namespace Remotion.TypePipe.Implementation
     /// <param name="assembledType">An assembled type. Must not be <see langword="null" />.</param>
     /// <returns>An assembled type identifier.</returns>
     /// <exception cref="ArgumentException">If the argument type is not an assembled type.</exception>
-    AssembledTypeID GetTypeID ([NotNull] Type assembledType);
+    AssembledTypeID GetTypeIDForAssembledType ([NotNull] Type assembledType);
 
     /// <summary>
     /// Gets a cached or newly generates an assembled type for a requested type.

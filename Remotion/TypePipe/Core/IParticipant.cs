@@ -38,7 +38,7 @@ namespace Remotion.TypePipe
   /// <para>
   /// Note that implementations of this interface may be shared across multiple <see cref="IPipeline"/> instances.
   /// Participants therefore must not hold any mutable state directly.
-  /// If there is the need to hold state a participant should use <see cref="ITypeAssemblyContext.State"/>.
+  /// If there is the need to hold state a participant should use <see cref="ITypeAssemblyContext.ParticipantState"/>.
   /// </para>
   /// </remarks>
   /// <threadsafety static="true" instance="true"/>
@@ -85,7 +85,7 @@ namespace Remotion.TypePipe
     /// <param name="additionalTypeAssemblyContext">The additional type assembly context.</param>
     /// <returns>An additional type for the specified identifier; or <see langword="null"/>.</returns>
     /// <remarks>
-    /// A participant may retrieve a cached additional type from the state cache available via <see cref="ITypeAssemblyContext.State"/> on
+    /// A participant may retrieve a cached additional type from the state cache available via <see cref="ITypeAssemblyContext.ParticipantState"/> on
     /// <paramref name="additionalTypeAssemblyContext"/> or create a new <see cref="MutableType"/> and return it.
     /// </remarks>
     [CanBeNull]

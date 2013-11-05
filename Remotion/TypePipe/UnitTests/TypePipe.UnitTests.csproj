@@ -246,7 +246,6 @@
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
-    <Compile Include="Caching\TypeCacheTests\Common_TypeCacheTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

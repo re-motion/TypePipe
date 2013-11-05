@@ -75,13 +75,26 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    public void GetTypeID ()
+    public void GetTypeIDForRequestedType ()
+    {
+      var fakeRequestedType = ReflectionObjectMother.GetSomeOtherType();
+      var fakeTypeID = AssembledTypeIDObjectMother.Create();
+      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (fakeRequestedType)).Return (fakeTypeID);
+
+      var result = _service.GetTypeIDForRequestedType (fakeRequestedType);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      Assert.That (result, Is.EqualTo (fakeTypeID));
+    }
+
+    [Test]
+    public void GetTypeIDForAssembledType ()
     {
       var assembledType = ReflectionObjectMother.GetSomeType();
       var fakeTypeID = AssembledTypeIDObjectMother.Create();
       _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (assembledType)).Return (fakeTypeID);
 
-      var result = _service.GetTypeID (assembledType);
+      var result = _service.GetTypeIDForAssembledType (assembledType);
 
       _typeAssemblerMock.VerifyAllExpectations();
       Assert.That (result, Is.EqualTo (fakeTypeID));

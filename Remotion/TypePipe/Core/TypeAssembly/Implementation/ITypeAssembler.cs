@@ -41,11 +41,10 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     AssembledTypeID ComputeTypeID (Type requestedType);
     AssembledTypeID ExtractTypeID (Type assembledType);
 
-    Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+    Type AssembleType (AssembledTypeID typeID, IParticipantState participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 
-    Type GetOrAssembleAdditionalType (
-        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+    Type AssembleAdditionalType (object additionalTypeID, IParticipantState participantState, IMutableTypeBatchCodeGenerator codeGenerator);
 
-    void RebuildParticipantState (IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> participantState);
+    void RebuildParticipantState (IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IParticipantState participantState);
   }
 }

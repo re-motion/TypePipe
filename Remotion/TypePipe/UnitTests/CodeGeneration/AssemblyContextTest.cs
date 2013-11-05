@@ -36,7 +36,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           generatedCodeFlusher);
 
       Assert.That (assemblyContext.ParticipantState, Is.Not.Null);
-      Assert.That (assemblyContext.ParticipantState, Is.Empty);
       Assert.That (assemblyContext.ParticipantState, Is.SameAs (assemblyContext.ParticipantState));
 
       Assert.That (assemblyContext.MutableTypeBatchCodeGenerator, Is.SameAs (mutableTypeBatchCodeGenerator));

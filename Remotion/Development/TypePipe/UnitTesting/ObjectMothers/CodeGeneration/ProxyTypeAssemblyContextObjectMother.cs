@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -31,12 +30,12 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
         MutableType proxyType = null,
         IMutableTypeFactory mutableTypeFactory = null,
         string participantConfigurationID = "participant configuration ID",
-        IDictionary<string, object> state = null)
+        IParticipantState state = null)
     {
       requestedType = requestedType ?? typeof (UnspecifiedRequestedType);
       proxyType = proxyType ?? MutableTypeObjectMother.Create (requestedType);
       mutableTypeFactory = mutableTypeFactory ?? new MutableTypeFactory();
-      state = state ?? new Dictionary<string, object>();
+      state = state ?? new ParticipantState();
 
       return new ProxyTypeAssemblyContext (mutableTypeFactory, participantConfigurationID, state, requestedType, proxyType);
     }

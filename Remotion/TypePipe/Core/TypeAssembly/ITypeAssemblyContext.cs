@@ -19,7 +19,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
+using JetBrains.Annotations;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 
 namespace Remotion.TypePipe.TypeAssembly
 {
@@ -42,32 +44,31 @@ namespace Remotion.TypePipe.TypeAssembly
     /// <summary>
     /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.
     /// </summary>
-    IDictionary<string, object> State { get; }
+    IParticipantState ParticipantState { get; }
 
     /// <summary>
     /// Gets the additional <see cref="MutableType"/>s that should be generated.
     /// </summary>
-    //TODO RM-5849: change to dictionary
-    ReadOnlyCollection<MutableType> AdditionalTypes { get; }
+    IReadOnlyDictionary<object, MutableType> AdditionalTypes { get; }
 
     /// <summary>
     /// Creates an additional <see cref="MutableType"/> that should be generated.
     /// </summary>
+    /// <param name="additionalTypeID">The ID of the type.</param>
     /// <param name="name">The type name.</param>
     /// <param name="namespace">The namespace of the type.</param>
     /// <param name="attributes">The type attributes.</param>
     /// <param name="baseType">The base type of the new type.</param>
     /// <returns>A new mutable type.</returns>
-    //TODO RM-5849: add parameter of type object, name=addtionalTypeID, rename method to CreateAddtionalType
-    MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType);
+    MutableType CreateAdditionalType ([NotNull]object additionalTypeID, [NotNull]string name, [CanBeNull]string @namespace, TypeAttributes attributes, [CanBeNull]Type baseType);
 
     /// <summary>
     /// Creates an additional <see cref="MutableType"/> that represents a proxy type for the specified base type.
     /// This method copies all accessible constructors of the base type.
     /// </summary>
+    /// <param name="additionalTypeID">The ID of the type.</param>
     /// <param name="baseType">The proxied type.</param>
     /// <returns>A new mutable proxy type.</returns>
-    //TODO RM-5849: add parameter of type object, name=addtionalTypeID, rename method to CreateAddtionalProxyType
-    MutableType CreateProxy (Type baseType);
+    MutableType CreateAddtionalProxyType ([NotNull]object additionalTypeID, [NotNull]Type baseType);
   }
 }

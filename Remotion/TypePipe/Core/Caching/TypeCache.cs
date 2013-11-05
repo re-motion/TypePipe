@@ -34,7 +34,6 @@ namespace Remotion.TypePipe.Caching
   /// <threadsafety static="true" instance="true"/>
   public class TypeCache : ITypeCache
   {
-    private readonly string _typeCacheID = Guid.NewGuid().ToString();
     private readonly ConcurrentDictionary<AssembledTypeID, Lazy<Type>> _types = new ConcurrentDictionary<AssembledTypeID, Lazy<Type>>();
 
     private readonly ITypeAssembler _typeAssembler;
@@ -53,16 +52,6 @@ namespace Remotion.TypePipe.Caching
       _createTypeFunc = CreateType;
     }
 
-    public string ParticipantConfigurationID
-    {
-      get { return _typeAssembler.ParticipantConfigurationID; }
-    }
-
-    public ReadOnlyCollection<IParticipant> Participants
-    {
-      get { return _typeAssembler.Participants; }
-    }
-
     public Type GetOrCreateType (AssembledTypeID typeID)
     {
       var lazyType = _types.GetOrAdd (typeID, _createTypeFunc);
@@ -77,7 +66,7 @@ namespace Remotion.TypePipe.Caching
         // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _types dictionary
         // still holds the original Lazy (that cached the exception). This avoids a race with a parallel thread that requested the same type.
         if (_types.TryUpdate (typeID, CreateType (typeID), lazyType))
-          throw; //TODO RM-5849 Test 
+          throw;
 
         // Can theoretically cause a StackOverflowException in case of starvation. We are ignoring this very remote possiblity.
         // This code path cannot be tested.
@@ -90,15 +79,14 @@ namespace Remotion.TypePipe.Caching
       return new Lazy<Type> (
           () =>
           {
-            var isAssemblyContextEnqueueRequired = DequeueAssemblyContextOnDemand();
-            var assemblyContext = GetDequeuedAssemblyContext();
+            var assemblyContext = _assemblyContextPool.Dequeue();
             try
             {
               return _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
             }
             finally
             {
-              EnqueueAssemblyContextOnDemand (isAssemblyContextEnqueueRequired);
+              _assemblyContextPool.Enqueue (assemblyContext);
             }
           },
           LazyThreadSafetyMode.ExecutionAndPublication);
@@ -108,18 +96,17 @@ namespace Remotion.TypePipe.Caching
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
 
-      var isAssemblyContextEnqueueRequired = DequeueAssemblyContextOnDemand();
-      var assemblyContext = GetDequeuedAssemblyContext();
+      var assemblyContext = _assemblyContextPool.Dequeue();
       try
       {
-        return _typeAssembler.GetOrAssembleAdditionalType (
+        return _typeAssembler.AssembleAdditionalType (
             additionalTypeID,
             assemblyContext.ParticipantState,
             assemblyContext.MutableTypeBatchCodeGenerator);
       }
       finally
       {
-        EnqueueAssemblyContextOnDemand (isAssemblyContextEnqueueRequired);
+        _assemblyContextPool.Enqueue (assemblyContext);
       }
     }
 
@@ -149,7 +136,7 @@ namespace Remotion.TypePipe.Caching
       }
       // ReSharper restore LoopCanBeConvertedToQuery
 
-      //TODO RM-5849: Reenable or completly remove RebuildParticipantState
+      //TODO RM-5895: Reenable or completly remove RebuildParticipantState
       //var assemblyContexts = _assemblyContextPool.DequeueAll();
       //try
       //{
@@ -160,40 +147,6 @@ namespace Remotion.TypePipe.Caching
       //  foreach (var assemblyContext in assemblyContexts)
       //    _assemblyContextPool.Enqueue (assemblyContext);
       //}
-    }
-
-    private AssemblyContext GetDequeuedAssemblyContext ()
-    {
-      // CallContext instead thread-static field is used to allow multiple instances of TypeCache to run on the same thread as a nested call-chain.
-      var assemblyContext = (AssemblyContext) CallContext.GetData (_typeCacheID);
-
-      Assertion.DebugAssert (assemblyContext != null, "No AssemblyContext was found in CallContext for this TypeCache instance.");
-
-      return assemblyContext;
-    }
-
-    private bool DequeueAssemblyContextOnDemand ()
-    {
-      if (CallContext.GetData (_typeCacheID) == null)
-      {
-        var assemblyContext = _assemblyContextPool.Dequeue();
-
-        CallContext.SetData (_typeCacheID, assemblyContext);
-        return true;
-      }
-      return false;
-    }
-
-    private void EnqueueAssemblyContextOnDemand (bool isAssemblyContextEnqueueRequired)
-    {
-      if (isAssemblyContextEnqueueRequired)
-      {
-        var assemblyContext = (AssemblyContext) CallContext.GetData (_typeCacheID);
-
-        _assemblyContextPool.Enqueue (assemblyContext);
-
-        CallContext.FreeNamedDataSlot (_typeCacheID);
-      }
     }
   }
 }

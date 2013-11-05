@@ -25,8 +25,8 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
   public class TestableTypeAssemblyContextBase : TypeAssemblyContextBase
   {
     public TestableTypeAssemblyContextBase (
-        IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IDictionary<string, object> state)
-        : base (mutableTypeFactory, participantConfigurationID, state)
+        IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IParticipantState participantState)
+        : base (mutableTypeFactory, participantConfigurationID, participantState)
     {
     }
   }

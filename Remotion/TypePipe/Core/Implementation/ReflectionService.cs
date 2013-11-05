@@ -65,7 +65,14 @@ namespace Remotion.TypePipe.Implementation
       return _typeAssembler.GetRequestedType (assembledType);
     }
 
-    public AssembledTypeID GetTypeID (Type assembledType)
+    public AssembledTypeID GetTypeIDForRequestedType (Type requestedType)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      return _typeAssembler.ComputeTypeID (requestedType);
+    }
+
+    public AssembledTypeID GetTypeIDForAssembledType (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 

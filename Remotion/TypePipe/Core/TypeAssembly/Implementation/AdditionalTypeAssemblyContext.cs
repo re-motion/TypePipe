@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
@@ -26,8 +25,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   /// </summary>
   public class AdditionalTypeAssemblyContext : TypeAssemblyContextBase, IAdditionalTypeAssemblyContext
   {
-    public AdditionalTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IDictionary<string, object> state)
-        : base (mutableTypeFactory, participantConfigurationID, state)
+    public AdditionalTypeAssemblyContext (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IParticipantState participantState)
+        : base (mutableTypeFactory, participantConfigurationID, participantState)
     {
     }
   }

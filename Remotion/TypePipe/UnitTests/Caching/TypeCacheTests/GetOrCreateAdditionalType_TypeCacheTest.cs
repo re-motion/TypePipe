@@ -17,7 +17,6 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -61,7 +60,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _typeAssemblerMock
           .Expect (
-              mock => mock.GetOrAssembleAdditionalType (
+              mock => mock.AssembleAdditionalType (
                   additionalTypeID,
                   assemblyContext.ParticipantState,
                   assemblyContext.MutableTypeBatchCodeGenerator))
@@ -85,56 +84,6 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
     }
 
     [Test]
-    public void UsesDifferentAssemblyContextsForSubsequentCalls ()
-    {
-      var additionalTypeID1 = new object();
-      var additionalType1 = ReflectionObjectMother.GetSomeType();
-
-      var assemblyContext1 = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
-
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext1);
-
-      _typeAssemblerMock
-          .Expect (
-              mock => mock.GetOrAssembleAdditionalType (
-                  additionalTypeID1,
-                  assemblyContext1.ParticipantState,
-                  assemblyContext1.MutableTypeBatchCodeGenerator))
-          .Return (additionalType1);
-
-      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext1));
-
-      var additionalTypeID2 = new object();
-      var additionalType2 = ReflectionObjectMother.GetSomeType();
-
-      var assemblyContext2 = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
-
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext2);
-
-      _typeAssemblerMock
-          .Expect (
-              mock => mock.GetOrAssembleAdditionalType (
-                  additionalTypeID2,
-                  assemblyContext2.ParticipantState,
-                  assemblyContext2.MutableTypeBatchCodeGenerator))
-          .Return (additionalType2);
-
-      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext2));
-
-      var result1 = _cache.GetOrCreateAdditionalType (additionalTypeID1);
-      var result2 = _cache.GetOrCreateAdditionalType (additionalTypeID2);
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPoolMock.VerifyAllExpectations();
-      Assert.That (result1, Is.SameAs (additionalType1));
-      Assert.That (result2, Is.SameAs (additionalType2));
-    }
-
-    [Test]
     public void WithExceptionDuringAssembleAdditionalType_ReturnsAssemblyContextToPool ()
     {
       var expectedException = new Exception();
@@ -151,7 +100,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
           .WhenCalled (mi => { isDequeued = true; });
 
       _typeAssemblerMock
-          .Expect (mock => mock.GetOrAssembleAdditionalType (null, null, null))
+          .Expect (mock => mock.AssembleAdditionalType (null, null, null))
           .IgnoreArguments()
           .Throw (expectedException)
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
@@ -172,120 +121,5 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPoolMock.VerifyAllExpectations();
     }
-
-    [Test]
-    public void ReusesAssemblyContextForNestedCallsToGetOrCreateAdditionalType ()
-    {
-      var additionalTypeID1 = new object();
-      var additionalType1 = ReflectionObjectMother.GetSomeType();
-      var additionalTypeID2 = new object();
-      var additionalType2 = ReflectionObjectMother.GetSomeType();
-
-      var assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
-
-      bool isDequeued = false;
-      _assemblyContextPoolMock
-          .Expect (mock => mock.Dequeue())
-          .Return (assemblyContext)
-          .WhenCalled (mi => { isDequeued = true; });
-
-      _typeAssemblerMock
-          .Expect (
-              mock => mock.GetOrAssembleAdditionalType (
-                  additionalTypeID1,
-                  assemblyContext.ParticipantState,
-                  assemblyContext.MutableTypeBatchCodeGenerator))
-          .Return (additionalType1)
-          .WhenCalled (
-              mi =>
-              {
-                Assert.That (isDequeued, Is.True);
-                Assert.That (_cache.GetOrCreateAdditionalType (additionalTypeID2), Is.SameAs (additionalType2));
-              });
-
-      _typeAssemblerMock
-          .Expect (
-              mock => mock.GetOrAssembleAdditionalType (
-                  additionalTypeID2,
-                  assemblyContext.ParticipantState,
-                  assemblyContext.MutableTypeBatchCodeGenerator))
-          .Return (additionalType2)
-          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
-
-      _assemblyContextPoolMock
-          .Expect (mock => mock.Enqueue (assemblyContext))
-          .WhenCalled (
-              mi =>
-              {
-                Assert.That (isDequeued, Is.True);
-                isDequeued = false;
-              });
-
-      var result = _cache.GetOrCreateAdditionalType (additionalTypeID1);
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPoolMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (additionalType1));
-    }
-
-    [Test]
-    public void ReusesAssemblyContextForNestedCallsToGetOrCreateType ()
-    {
-      var additionalTypeID = new object();
-      var additionalType = ReflectionObjectMother.GetSomeType();
-
-      var requestedType = typeof (RequestedType);
-      var assembledType = typeof (AssembledType);
-      var typeID = AssembledTypeIDObjectMother.Create (requestedType);
-
-      var assemblyContext = new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
-
-      bool isDequeued = false;
-      _assemblyContextPoolMock
-          .Expect (mock => mock.Dequeue())
-          .Return (assemblyContext)
-          .WhenCalled (mi => { isDequeued = true; });
-
-      _typeAssemblerMock
-          .Expect (
-              mock => mock.GetOrAssembleAdditionalType (
-                  additionalTypeID,
-                  assemblyContext.ParticipantState,
-                  assemblyContext.MutableTypeBatchCodeGenerator))
-          .Return (additionalType)
-          .WhenCalled (
-              mi =>
-              {
-                Assert.That (isDequeued, Is.True);
-                Assert.That (_cache.GetOrCreateType (typeID), Is.SameAs (assembledType));
-              });
-
-      _typeAssemblerMock
-          .Expect (
-              mock => mock.AssembleType (
-                  // Use strongly typed Equals overload.
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
-                  Arg.Is (assemblyContext.ParticipantState),
-                  Arg.Is (assemblyContext.MutableTypeBatchCodeGenerator)))
-          .Return (assembledType)
-          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
-
-      _assemblyContextPoolMock
-          .Expect (mock => mock.Enqueue (assemblyContext))
-          .WhenCalled (mi => Assert.That (isDequeued, Is.True));
-
-      var result = _cache.GetOrCreateAdditionalType (additionalTypeID);
-
-      _typeAssemblerMock.VerifyAllExpectations();
-      _assemblyContextPoolMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (additionalType));
-    }
-
-    private class RequestedType {}
-    private class AssembledType {}
   }
 }
