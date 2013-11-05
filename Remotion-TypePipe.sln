@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Core", "Remotion\Core\Core\Core.Core.csproj", "{2AA369EC-A4E7-4D75-9101-EFA90E902625}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests", "Remotion\Core\UnitTests\Core.UnitTests.csproj", "{C216DEC9-8820-4298-B10F-FB4131466B69}"

@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
@@ -37,9 +36,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
     private TypeCache _cache;
 
-    private IDictionary<AssembledTypeID, Lazy<Type>> _types;
-
-    private readonly Type _assembledType = typeof (AssembledType);
+    private IDictionary<AssembledTypeID, Lazy<Type>> _assembledTypes;
+    private IDictionary<object, Lazy<Type>> _additionalTypes;
 
     [SetUp]
     public void SetUp ()
@@ -49,22 +47,149 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _cache = new TypeCache (_typeAssemblerMock, _assemblyContextPoolMock);
 
-      _types = (ConcurrentDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_types");
+      _assembledTypes = (IDictionary<AssembledTypeID, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_assembledTypes");
+      _additionalTypes = (IDictionary<object, Lazy<Type>>) PrivateInvoke.GetNonPublicField (_cache, "_additionalTypes");
     }
 
     [Test]
-    public void LoadTypes ()
+    public void LoadTypes_PopulatesAssembledTypeCache ()
+    {
+      var assembledType = typeof (AssembledType);
+      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (assembledType)).Return (true);
+
+      var assembledTypeID = AssembledTypeIDObjectMother.Create();
+      _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (assembledType)).Return (assembledTypeID);
+
+      _assemblyContextPoolMock.Stub (stub => stub.DequeueAll()).Return (new[] { CreateAssemblyContext() });
+      _assemblyContextPoolMock.Stub (stub => stub.Enqueue (null)).IgnoreArguments();
+
+      _cache.LoadTypes (new[] { assembledType });
+
+      Assert.That (_assembledTypes[assembledTypeID].IsValueCreated, Is.False);
+      Assert.That (_assembledTypes[assembledTypeID].Value, Is.SameAs (assembledType));
+
+      _typeAssemblerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void LoadTypes_PopulatesAdditionalTypeCache ()
     {
       var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (_assembledType)).Return (true);
       _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
-      var typeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (_assembledType)).Return (typeID);
 
-      _cache.LoadTypes (new[] { _assembledType, additionalGeneratedType });
+      object additionalTypeID = new object();
+      _typeAssemblerMock.Expect (mock => mock.GetAdditionalTypeID (additionalGeneratedType)).Return (additionalTypeID);
 
-      Assert.That (_types[typeID].IsValueCreated, Is.False);
-      Assert.That (_types[typeID].Value, Is.SameAs (_assembledType));
+      _assemblyContextPoolMock.Stub (stub => stub.DequeueAll()).Return (new[] { CreateAssemblyContext() });
+      _assemblyContextPoolMock.Stub (stub => stub.Enqueue (null)).IgnoreArguments();
+
+      _cache.LoadTypes (new[] { additionalGeneratedType });
+
+      Assert.That (_additionalTypes[additionalTypeID].IsValueCreated, Is.False);
+      Assert.That (_additionalTypes[additionalTypeID].Value, Is.SameAs (additionalGeneratedType));
+
+      _typeAssemblerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void LoadTypes_SkipsAdditionalTypesWithoutID ()
+    {
+      var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
+      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (additionalGeneratedType)).Return (false);
+
+      object additionalTypeID = new object();
+      _typeAssemblerMock.Expect (mock => mock.GetAdditionalTypeID (additionalGeneratedType)).Return (null);
+
+      _assemblyContextPoolMock.Stub (stub => stub.DequeueAll()).Return (new[] { CreateAssemblyContext() });
+      _assemblyContextPoolMock.Stub (stub => stub.Enqueue (null)).IgnoreArguments();
+
+      _cache.LoadTypes (new[] { additionalGeneratedType });
+
+      Assert.That (_additionalTypes.ContainsKey (additionalTypeID), Is.False);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void LoadTypes_DequeuesAllAssemblyContextDuringLoad ()
+    {
+      var assembledType = typeof (AssembledType);
+      _typeAssemblerMock.Stub (stub => stub.IsAssembledType (assembledType)).Return (true);
+
+      var assembledTypeID = AssembledTypeIDObjectMother.Create();
+      _typeAssemblerMock.Stub (stub => stub.ExtractTypeID (assembledType)).Return (assembledTypeID);
+
+      var additionalGeneratedType = ReflectionObjectMother.GetSomeOtherType();
+      _typeAssemblerMock.Stub (stub => stub.IsAssembledType (additionalGeneratedType)).Return (false);
+
+      object additionalTypeID = new object();
+      _typeAssemblerMock.Stub (stub => stub.GetAdditionalTypeID (additionalGeneratedType)).Return (additionalTypeID);
+
+      var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
+
+      bool isDequeued0 = false;
+      bool isDequeued1 = false;
+      _assemblyContextPoolMock
+          .Expect (mock => mock.DequeueAll())
+          .Return (assemblyContexts)
+          .WhenCalled (
+              mi =>
+              {
+                isDequeued0 = true;
+                isDequeued1 = true;
+              });
+
+      _assemblyContextPoolMock
+          .Expect (mock => mock.Enqueue (assemblyContexts[0]))
+          .WhenCalled (
+              mi =>
+              {
+                Assert.That (isDequeued0, Is.True);
+                isDequeued0 = false;
+              });
+
+      _assemblyContextPoolMock
+          .Expect (mock => mock.Enqueue (assemblyContexts[1]))
+          .WhenCalled (
+              mi =>
+              {
+                Assert.That (isDequeued0, Is.False);
+                Assert.That (isDequeued1, Is.True);
+                isDequeued1 = false;
+                Assert.That (_assembledTypes.ContainsKey (assembledTypeID), Is.True);
+                Assert.That (_additionalTypes.ContainsKey (additionalTypeID), Is.True);
+              });
+
+      _cache.LoadTypes (new[] { assembledType, additionalGeneratedType });
+
+      _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void LoadTypes_AndExceptionDuringLoad_ReturnsAssemblyContextToPool ()
+    {
+      var assembledType = typeof (AssembledType);
+      _typeAssemblerMock.Stub (stub => stub.IsAssembledType (assembledType)).Return (true);
+
+      var exception = new Exception();
+      _typeAssemblerMock.Stub (stub => stub.ExtractTypeID (assembledType)).Throw (exception);
+
+      var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
+
+      _assemblyContextPoolMock.Expect (mock => mock.DequeueAll()).Return (assemblyContexts);
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContexts[0]));
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContexts[1]));
+
+      Assert.That (() => _cache.LoadTypes (new[] { assembledType }), Throws.Exception.SameAs (exception));
+
+      _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    private AssemblyContext CreateAssemblyContext ()
+    {
+      return new AssemblyContext (
+          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
+          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
     }
 
     private class AssembledType {}

@@ -37,10 +37,10 @@ namespace Remotion.TypePipe
     }
 
     public abstract void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext);
-
-    public virtual void RebuildState (LoadedTypesContext loadedTypesContext)
+    
+    public object GetAdditionalTypeID (Type additionalType)
     {
-      // Does nothing.
+      return null; // Does nothing.
     }
 
     public virtual Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)

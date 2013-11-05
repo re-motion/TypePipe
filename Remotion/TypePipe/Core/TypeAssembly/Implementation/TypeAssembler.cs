@@ -168,20 +168,18 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         return additionalType;
     }
 
-    //TODO RM-5895: Replace with GetAdditionalTypeID (type)::object, use when loading flushed assembly
-    //First participant returning non-null for the type provides the ID. If it is null, ignore the type
-    public void RebuildParticipantState (
-        IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IParticipantState participantState)
+    public object GetAdditionalTypeID (Type additionalType)
     {
-      ArgumentUtility.CheckNotNull ("assembledTypes", assembledTypes);
-      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull ("additionalType", additionalType);
 
-      var proxyTypes = assembledTypes.Select (t => new LoadedProxy (GetRequestedType (t), t));
-      var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, participantState);
+      var ids = _participants.Select (p => p.GetAdditionalTypeID (additionalType)).Where (t => t != null).ToList();
+      if (ids.Count > 1)
+      {
+        throw new InvalidOperationException (
+            string.Format ("More than one participant returned an ID for the additional type '{0}'", additionalType.Name));
+      }
 
-      foreach (var participant in _participants)
-        participant.RebuildState (loadedTypesContext);
+      return ids.SingleOrDefault();
     }
 
     private void CheckRequestedType (Type requestedType)

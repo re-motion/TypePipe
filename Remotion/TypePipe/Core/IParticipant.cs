@@ -72,10 +72,13 @@ namespace Remotion.TypePipe
     void Participate ([CanBeNull]object id, [NotNull]IProxyTypeAssemblyContext proxyTypeAssemblyContext);
 
     /// <summary>
-    /// This method allows participants to react when the pipeline loads a set of types from a previously flushed assembly.
+    /// This method allows participants to provide an <c>ID</c> for the specified <paramref name="additionalType"/>. 
+    /// This API is used when loading a type from a previously flushed assembly.
     /// </summary>
-    /// <param name="loadedTypesContext">The loaded types context.</param>
-    void RebuildState (LoadedTypesContext loadedTypesContext);
+    /// <param name="additionalType">The additional <see cref="Type"/> to analyze.</param>
+    /// <returns>An <c>ID</c> or <see langword="null" /> if the participant is not responsible for this <see cref="Type"/>.</returns>
+    [CanBeNull]
+    object GetAdditionalTypeID ([NotNull] Type additionalType);
 
     /// <summary>
     /// Gets or creates an additional type for the specified identifier. If the participant can not interpret the <paramref name="additionalTypeID"/>

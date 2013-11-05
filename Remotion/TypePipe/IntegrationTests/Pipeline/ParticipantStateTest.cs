@@ -28,13 +28,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   {
     private const string c_participantConfigurationID = "ParticipantStateTest";
 
-    private Assembly _assembly;
-
     public override void TestFixtureSetUp ()
     {
       base.TestFixtureSetUp ();
 
-      _assembly = PreGenerateAssembly();
+      PreGenerateAssembly();
     }
 
     [Test]
@@ -66,68 +64,14 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (stateWasRead, Is.True);
     }
 
-    [Test]
-    [Ignore ("TODO RM-5895: RebuildParticipantState is currently disabled")]
-    public void RebuildState_FromLoadedTypes ()
-    {
-      Type loadedType = null;
-      var stateWasRead = false;
-      var participant = CreateParticipant (
-          rebuildStateAction: ctx =>
-          {
-            var loadedProxy = ctx.ProxyTypes.Single();
-            var additionalType = ctx.AdditionalTypes.Single();
-            Assert.That (loadedProxy.RequestedType, Is.SameAs (typeof (RequestedType1)));
-            Assert.That (additionalType.FullName, Is.EqualTo ("MyNs.AdditionalType"));
-
-            loadedType = loadedProxy.AssembledType;
-            ctx.ParticipantState.AddState ("key", "reconstructed state");
-          },
-          participateAction: (id, ctx) =>
-          {
-            Assert.That (ctx.ParticipantState.GetState("key"), Is.EqualTo ("reconstructed state"));
-            stateWasRead = true;
-          });
-      var pipeline = CreatePipeline (c_participantConfigurationID, participant);
-
-      pipeline.CodeManager.LoadFlushedCode (_assembly);
-
-      Assert.That (loadedType, Is.Not.Null);
-      Assert.That (pipeline.ReflectionService.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));
-      Assert.That (stateWasRead, Is.False);
-
-      pipeline.ReflectionService.GetAssembledType (typeof (RequestedType2));
-      Assert.That (stateWasRead, Is.True);
-    }
-
-    [Test]
-    [Ignore ("TODO RM-5895: RebuildParticipantState is currently disabled")]
-    public void RebuildState_ContextDoesNotContainProxyTypesAlreadyInCacheWhenLoadingAssembly ()
-    {
-      var rebuildStateWasCalled = false;
-      var participant = CreateParticipant (
-          rebuildStateAction: ctx =>
-          {
-            Assert.That (ctx.ProxyTypes, Is.Empty);
-            Assert.That (ctx.AdditionalTypes, Has.Count.EqualTo (1));
-            rebuildStateWasCalled = true;
-          });
-      var pipeline = CreatePipeline (c_participantConfigurationID, participant);
-      pipeline.Create<RequestedType1>(); // Put type 1 into cache.
-
-      pipeline.CodeManager.LoadFlushedCode (_assembly);
-
-      Assert.That (rebuildStateWasCalled, Is.True);
-    }
-
-    private Assembly PreGenerateAssembly ()
+    private void PreGenerateAssembly ()
     {
       var participant = CreateParticipant (ctx => ctx.CreateAdditionalType (new object(), "AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
       var pipeline = CreatePipeline (c_participantConfigurationID, participant);
       pipeline.Create<RequestedType1>(); // Trigger generation of types.
       var assemblyPath = Flush().Single();
 
-      return AssemblyLoader.LoadWithoutLocking (assemblyPath);
+      AssemblyLoader.LoadWithoutLocking (assemblyPath);
     }
 
     public class RequestedType1 {}
