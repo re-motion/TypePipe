@@ -154,13 +154,17 @@ namespace Remotion.TypePipe.Caching
       var assemblyContexts = _assemblyContextPool.DequeueAll();
       try
       {
-      foreach (var type in generatedTypes)
-      {
-        if (_typeAssembler.IsAssembledType (type))
-          LoadAssembledType (type);
-        else
-          LoadAdditionalType (type);
-      }
+        generatedTypes
+            .AsParallel()
+            .WithDegreeOfParallelism (assemblyContexts.Length)
+            .ForAll (
+                type =>
+                {
+                  if (_typeAssembler.IsAssembledType (type))
+                    LoadAssembledType (type);
+                  else
+                    LoadAdditionalType (type);
+                });
       }
       finally
       {

@@ -171,8 +171,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var assembledType = typeof (AssembledType);
       _typeAssemblerMock.Stub (stub => stub.IsAssembledType (assembledType)).Return (true);
 
-      var exception = new Exception();
-      _typeAssemblerMock.Stub (stub => stub.ExtractTypeID (assembledType)).Throw (exception);
+      var expectedException = new Exception();
+      _typeAssemblerMock.Stub (stub => stub.ExtractTypeID (assembledType)).Throw (expectedException);
 
       var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
 
@@ -180,7 +180,8 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContexts[0]));
       _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContexts[1]));
 
-      Assert.That (() => _cache.LoadTypes (new[] { assembledType }), Throws.Exception.SameAs (exception));
+      var aggregateException = Assert.Throws<AggregateException> (() => _cache.LoadTypes (new[] { assembledType }));
+      Assert.That (aggregateException.InnerExceptions, Is.EquivalentTo (new[] { expectedException }));
 
       _assemblyContextPoolMock.VerifyAllExpectations();
     }
