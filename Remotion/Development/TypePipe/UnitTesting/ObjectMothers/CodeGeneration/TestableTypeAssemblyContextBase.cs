@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.TypeAssembly.Implementation;
