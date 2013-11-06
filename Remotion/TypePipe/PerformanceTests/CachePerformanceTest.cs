@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.PerformanceTests
       var participants = new IParticipant[] { new MixinParticipant(), new DomainObjectParticipant() };
 
       var pipeline = PipelineFactory.Create ("CachePerformanceTest", participants);
-      var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (pipeline, "_typeCache");
+      var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (pipeline.ReflectionService, "_typeCache");
       var constructorCallCache = (IConstructorCallCache) PrivateInvoke.GetNonPublicField (pipeline.ReflectionService, "_constructorCallCache");
       var typeAssembler = (ITypeAssembler) PrivateInvoke.GetNonPublicField (pipeline, "_typeAssembler");
       var typeID = typeAssembler.ComputeTypeID (typeof (DomainType));
