@@ -20,6 +20,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
@@ -49,7 +50,7 @@ namespace Remotion.TypePipe.Caching
       _typeAssembler = typeAssembler;
       _assemblyContextPool = assemblyContextPool;
 
-      _createAssembledTypeFunc = CreateType;
+      _createAssembledTypeFunc = CreateAssembledType;
       _createAdditionalTypeFunc = CreateAdditionalType;
     }
 
@@ -66,7 +67,7 @@ namespace Remotion.TypePipe.Caching
         // Lazy<T> with ExecutionAndPublication and a create-function caches the exception. 
         // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _assembledTypes dictionary
         // still holds the original Lazy (that cached the exception). This avoids a race with a parallel thread that requested the same type.
-        if (_assembledTypes.TryUpdate (typeID, CreateType (typeID), lazyType))
+        if (_assembledTypes.TryUpdate (typeID, _createAssembledTypeFunc (typeID), lazyType))
           throw;
 
         // Can theoretically cause a StackOverflowException in case of starvation. We are ignoring this very remote possiblity.
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe.Caching
       }
     }
 
-    private Lazy<Type> CreateType (AssembledTypeID typeID)
+    private Lazy<Type> CreateAssembledType (AssembledTypeID typeID)
     {
       return new Lazy<Type> (
           () =>
@@ -84,6 +85,7 @@ namespace Remotion.TypePipe.Caching
             try
             {
               var result = _typeAssembler.AssembleType (typeID, assemblyContext.ParticipantState, assemblyContext.MutableTypeBatchCodeGenerator);
+              AddAdditionalTypesToCache(result.AdditionalTypes);
               return result.Type;
             }
             finally
@@ -109,7 +111,7 @@ namespace Remotion.TypePipe.Caching
         // Lazy<T> with ExecutionAndPublication and a create-function caches the exception. 
         // In order to renew the Lazy for another attempt, a replace of the Lazy-object is performed, but only if the _additionalTypes dictionary
         // still holds the original Lazy (that cached the exception). This avoids a race with a parallel thread that requested the same type.
-        if (_additionalTypes.TryUpdate (additionalTypeID, CreateAdditionalType (additionalTypeID), lazyType))
+        if (_additionalTypes.TryUpdate (additionalTypeID, _createAdditionalTypeFunc (additionalTypeID), lazyType))
           throw;
 
         // Can theoretically cause a StackOverflowException in case of starvation. We are ignoring this very remote possiblity.
@@ -130,6 +132,9 @@ namespace Remotion.TypePipe.Caching
                   additionalTypeID,
                   assemblyContext.ParticipantState,
                   assemblyContext.MutableTypeBatchCodeGenerator);
+
+              AddAdditionalTypesToCache (result.AdditionalTypes.Where (kvp => !kvp.Key.Equals (additionalTypeID)));
+
               return result.Type;
             }
             finally
@@ -179,6 +184,16 @@ namespace Remotion.TypePipe.Caching
 
       var additionalTypeForClosure = additionalType;
       _additionalTypes.TryAdd (additionalTypeID, new Lazy<Type> (() => additionalTypeForClosure, LazyThreadSafetyMode.None));
+    }
+
+    private void AddAdditionalTypesToCache (IEnumerable<KeyValuePair<object, Type>> additionalTypes)
+    {
+      foreach (var kvp in additionalTypes)
+      {
+        var additionalTypeForClosure = kvp.Value;
+        var lazyValue = new Lazy<Type> (() => additionalTypeForClosure, LazyThreadSafetyMode.None);
+        _additionalTypes.AddOrUpdate (kvp.Key, lazyValue, (o, lazy) => lazyValue);
+      }
     }
   }
 }
