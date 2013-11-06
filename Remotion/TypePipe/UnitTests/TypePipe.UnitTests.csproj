@@ -201,6 +201,7 @@
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
+    <Compile Include="TypeAssembly\ParticipantStateTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblyContextExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\VectorTypeTest.cs" />
     <Compile Include="MutableReflection\MethodDeclarationTest.cs" />
