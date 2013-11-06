@@ -64,6 +64,37 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (stateWasRead, Is.True);
     }
 
+    [Test]
+    public void StateIsResetAfterFlush ()
+    {
+      var stateWasRead = false;
+      var hasFlushed = false;
+      var participant = CreateParticipant (ctx =>
+      {
+        if (ctx.RequestedType == typeof (RequestedType1))
+        {
+          Assert.That (hasFlushed, Is.False);
+          Assert.That (ctx.ParticipantState.GetState ("key"), Is.Null);
+          ctx.ParticipantState.AddState ("key", 7);
+        }
+        else
+        {
+          Assert.That (hasFlushed, Is.True);
+          Assert.That (ctx.ParticipantState.GetState ("key"), Is.Null, "Participant does not see state after flush");
+          stateWasRead = true;
+        }
+      });
+
+      var pipeline = CreatePipeline (participant);
+
+      Assert.That (() => pipeline.Create<RequestedType1>(), Throws.Nothing);
+      Flush();
+      hasFlushed = true;
+      Assert.That (() => pipeline.Create<RequestedType2>(), Throws.Nothing);
+
+      Assert.That (stateWasRead, Is.True);
+    }
+
     private void PreGenerateAssembly ()
     {
       var participant = CreateParticipant (ctx => ctx.CreateAdditionalType (new object(), "AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
