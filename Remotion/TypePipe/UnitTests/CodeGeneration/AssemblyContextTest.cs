@@ -25,22 +25,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
   [TestFixture]
   public class AssemblyContextTest
   {
+    private AssemblyContext _assemblyContext;
+    private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
+    private IGeneratedCodeFlusher _generatedCodeFlusher;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _mutableTypeBatchCodeGenerator = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
+      _generatedCodeFlusher = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
+
+      _assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGenerator, _generatedCodeFlusher);
+    }
+
     [Test]
     public void Initialization ()
     {
-      var mutableTypeBatchCodeGenerator = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
-      var generatedCodeFlusher = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
+      Assert.That (_assemblyContext.ParticipantState, Is.Not.Null);
+      Assert.That (_assemblyContext.ParticipantState, Is.SameAs (_assemblyContext.ParticipantState));
 
-      var assemblyContext = new AssemblyContext (
-          mutableTypeBatchCodeGenerator,
-          generatedCodeFlusher);
+      Assert.That (_assemblyContext.MutableTypeBatchCodeGenerator, Is.SameAs (_mutableTypeBatchCodeGenerator));
+      Assert.That (_assemblyContext.GeneratedCodeFlusher, Is.SameAs (_generatedCodeFlusher));
+    }
 
-      Assert.That (assemblyContext.ParticipantState, Is.Not.Null);
-      Assert.That (assemblyContext.ParticipantState, Is.Empty);
-      Assert.That (assemblyContext.ParticipantState, Is.SameAs (assemblyContext.ParticipantState));
-
-      Assert.That (assemblyContext.MutableTypeBatchCodeGenerator, Is.SameAs (mutableTypeBatchCodeGenerator));
-      Assert.That (assemblyContext.GeneratedCodeFlusher, Is.SameAs (generatedCodeFlusher));
+    [Test]
+    public void ResetParticipantState ()
+    {
+      var participantState = _assemblyContext.ParticipantState;
+      _assemblyContext.ResetParticipantState();
+      Assert.That (_assemblyContext.ParticipantState, Is.Not.SameAs (participantState));
     }
   }
 }

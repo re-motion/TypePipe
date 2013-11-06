@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
@@ -34,18 +33,18 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   {
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly string _participantConfigurationID;
-    private readonly IDictionary<string, object> _state;
+    private readonly IParticipantState _participantState;
     private readonly Dictionary<object, MutableType> _additionalTypes = new Dictionary<object, MutableType>();
 
-    protected TypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IDictionary<string, object> state)
+    protected TypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IParticipantState participantState)
     {
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNull ("state", state);
+      ArgumentUtility.CheckNotNull ("participantState", participantState);
 
       _mutableTypeFactory = mutableTypeFactory;
       _participantConfigurationID = participantConfigurationID;
-      _state = state;
+      _participantState = participantState;
     }
 
     public event Action<GeneratedTypesContext> GenerationCompleted;
@@ -55,9 +54,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       get { return _participantConfigurationID; }
     }
 
-    public IDictionary<string, object> State
+    public IParticipantState ParticipantState
     {
-      get { return _state; }
+      get { return _participantState; }
     }
 
     public IReadOnlyDictionary<object, MutableType> AdditionalTypes

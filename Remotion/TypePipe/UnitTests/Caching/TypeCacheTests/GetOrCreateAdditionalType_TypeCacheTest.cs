@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
                   additionalTypeID,
                   assemblyContext.ParticipantState,
                   assemblyContext.MutableTypeBatchCodeGenerator))
-          .Return (additionalType)
+          .Return (new TypeAssemblyResult (additionalType))
           .WhenCalled (mi => Assert.That (isDequeued, Is.True));
 
       _assemblyContextPoolMock
@@ -98,6 +98,9 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPoolMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (additionalType));
+
+      Assert.That (_additionalTypes[additionalTypeID].IsValueCreated, Is.True);
+      Assert.That (_additionalTypes[additionalTypeID].Value, Is.SameAs (additionalType));
     }
 
     [Test]
@@ -113,7 +116,10 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
 
       _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
-      _typeAssemblerMock.Expect (mock => mock.AssembleAdditionalType (null, null, null)).IgnoreArguments().Return (additionalType);
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleAdditionalType (null, null, null))
+          .IgnoreArguments()
+          .Return (new TypeAssemblyResult (additionalType));
       _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
 
       Assert.That (() => _cache.GetOrCreateAdditionalType (additionalTypeID), Throws.Exception.SameAs (expectedException));
@@ -157,6 +163,91 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _typeAssemblerMock.VerifyAllExpectations();
       _assemblyContextPoolMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void CacheMiss_AddsAdditionalTypesToCacheBeforeReturningAssemblyContextToPool ()
+    {
+      var assemblyContext = CreateAssemblyContext();
+      var additionalTypeID = new object();
+      var additionalType = ReflectionObjectMother.GetSomeType();
+      var otherAdditionalTypeID = new object();
+      var otherAdditionalType = ReflectionObjectMother.GetSomeType();
+
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
+
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleAdditionalType (null, null, null))
+          .IgnoreArguments()
+          .Return (
+              new TypeAssemblyResult (additionalType, new Dictionary<object, Type> { { otherAdditionalTypeID, otherAdditionalType } }));
+
+      _assemblyContextPoolMock
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (_additionalTypes[otherAdditionalTypeID].Value, Is.SameAs (otherAdditionalType)));
+
+      var result = _cache.GetOrCreateAdditionalType (additionalTypeID);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (additionalType));
+    }
+
+    [Test]
+    public void CacheMiss_AddsAdditionalTypesToCache_OverridesPreviouslyCachedValue ()
+    {
+      var assemblyContext = CreateAssemblyContext();
+      var additionalTypeID = new object();
+      var additionalType = ReflectionObjectMother.GetSomeType();
+      var otherAdditionalTypeID = new object();
+      var otherAdditionalType = ReflectionObjectMother.GetSomeType();
+      _additionalTypes.Add (otherAdditionalTypeID, new Lazy<Type> (() => null, LazyThreadSafetyMode.None));
+
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
+
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleAdditionalType (null, null, null))
+          .IgnoreArguments()
+          .Return (new TypeAssemblyResult (additionalType, new Dictionary<object, Type> { { otherAdditionalTypeID, otherAdditionalType } }));
+
+      _assemblyContextPoolMock
+          .Expect (mock => mock.Enqueue (assemblyContext))
+          .WhenCalled (mi => Assert.That (_additionalTypes[otherAdditionalTypeID].Value, Is.SameAs (otherAdditionalType)));
+
+      var result = _cache.GetOrCreateAdditionalType (additionalTypeID);
+
+      _assemblyContextPoolMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (additionalType));
+    }
+
+    [Test]
+    public void CacheMiss_DoesNotAddRequestedAdditionalTypeToCacheAtSameTimeAsOtherAdditionalTypes ()
+    {
+      var assemblyContext = CreateAssemblyContext();
+      var additionalTypeID = new object();
+      var additionalType = ReflectionObjectMother.GetSomeType();
+      var otherAdditionalTypeID = new object();
+      var otherAdditionalType = ReflectionObjectMother.GetSomeType();
+
+      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContext);
+
+      _typeAssemblerMock
+          .Expect (mock => mock.AssembleAdditionalType (null, null, null))
+          .IgnoreArguments()
+          .Return (
+              new TypeAssemblyResult (
+                  additionalType,
+                  new Dictionary<object, Type> { { additionalTypeID, additionalType }, { otherAdditionalTypeID, otherAdditionalType } }));
+
+      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContext));
+
+      var result = _cache.GetOrCreateAdditionalType (additionalTypeID);
+
+      _typeAssemblerMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.VerifyAllExpectations();
+      Assert.That (result, Is.SameAs (additionalType));
+      Assert.That (_additionalTypes[additionalTypeID].IsValueCreated, Is.True);
+      Assert.That (_additionalTypes[additionalTypeID].Value, Is.SameAs (additionalType));
     }
 
     private AssemblyContext CreateAssemblyContext ()

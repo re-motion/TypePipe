@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.TypeAssembly
     /// <summary>
     /// A cache that <see cref="IParticipant"/>s can use to save state that should have the same lifetime as the generated types.
     /// </summary>
-    IDictionary<string, object> State { get; }
+    IParticipantState ParticipantState { get; }
 
     /// <summary>
     /// Gets the additional <see cref="MutableType"/>s that should be generated.

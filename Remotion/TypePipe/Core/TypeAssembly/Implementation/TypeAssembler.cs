@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     // TODO RM-5895: change participantState to complex type ParticipantState {AdditionalTypeCache{object,Type} get or add API, State{string,object}}
     // Adding to AdditionalTypeCache also adds to global AdditionalTypeCache (concurrently)
     //TODO: RM-5895: Reset ParticipantState upon flush. AdditionalTypeCache will be empty for new assembly.
-    public Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
+    public TypeAssemblyResult AssembleType (AssembledTypeID typeID, IParticipantState participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("typeID", typeID);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       CheckRequestedType (requestedType);
 
       if (ShortCircuitTypeAssembly (requestedType))
-        return requestedType;
+        return new TypeAssemblyResult (requestedType);
 
       var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
       var context = new ProxyTypeAssemblyContext (
@@ -136,20 +136,21 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       }
 
       if (!typeModificationTracker.IsModified())
-        return requestedType;
+        return new TypeAssemblyResult (requestedType);
 
       var generatedTypesContext = GenerateTypes (typeID, context, codeGenerator);
       context.OnGenerationCompleted (generatedTypesContext);
 
-      context.AdditionalTypes.Values.Select (generatedTypesContext.GetGeneratedType);
-      //TODO RM-5895: complex return type {Type, AddtionalTypes{object,Type}}
-
-      return generatedTypesContext.GetGeneratedType (context.ProxyType);
+      return new TypeAssemblyResult (
+          generatedTypesContext.GetGeneratedType (context.ProxyType),
+          context.AdditionalTypes.ToDictionary (kvp => kvp.Key, kvp => generatedTypesContext.GetGeneratedType (kvp.Value)));
     }
 
     //TODO RM-5895: Change participantState to same API as AssembleType
-    public Type AssembleAdditionalType (
-        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
+    public TypeAssemblyResult AssembleAdditionalType (
+        object additionalTypeID,
+        IParticipantState participantState,
+        IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
@@ -163,10 +164,15 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes.Values, additionalTypeID.ToString());
       context.OnGenerationCompleted (generatedTypesContext);
 
+      Type resultType;
       if (additionalType is MutableType)
-        return generatedTypesContext.GetGeneratedType ((MutableType) additionalType);
+        resultType = generatedTypesContext.GetGeneratedType ((MutableType) additionalType);
       else
-        return additionalType;
+        resultType = additionalType;
+
+      return new TypeAssemblyResult (
+          resultType,
+          context.AdditionalTypes.ToDictionary (kvp => kvp.Key, kvp => generatedTypesContext.GetGeneratedType (kvp.Value)));
     }
 
     public object GetAdditionalTypeID (Type additionalType)

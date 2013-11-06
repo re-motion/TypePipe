@@ -86,6 +86,9 @@
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\IDeserializationMethodInvoker.cs" />
     <Compile Include="TypeAssembly\IAdditionalTypeAssemblyContext.cs" />
+    <Compile Include="TypeAssembly\IParticipantState.cs" />
+    <Compile Include="TypeAssembly\ParticipantState.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyResult.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyContext.cs" />
     <Compile Include="TypeAssembly\Implementation\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="TypeAssembly\Implementation\IAssembledTypeIdentifierProvider.cs" />

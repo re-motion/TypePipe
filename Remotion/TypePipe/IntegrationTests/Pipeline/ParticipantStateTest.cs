@@ -44,16 +44,17 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       {
         if (ctx.RequestedType == typeof (RequestedType1))
         {
-          Assert.That (ctx.State, Is.Empty);
-          ctx.State.Add ("key", 7);
+          Assert.That (ctx.ParticipantState.GetState ("key"), Is.Null);
+          ctx.ParticipantState.AddState ("key", 7);
         }
         else
         {
-          Assert.That (ctx.State["key"], Is.EqualTo (7), "Participant sees state even when requsted types differ.");
+          Assert.That (ctx.ParticipantState.GetState("key"), Is.EqualTo (7), "Participant sees state even when requsted types differ.");
           stateWasRead = true;
         }
       });
-      var participant2 = CreateParticipant (ctx => Assert.That (ctx.State["key"], Is.EqualTo (7), "Participant 2 sees state of participant 1."));
+      var participant2 = CreateParticipant (
+          ctx => Assert.That (ctx.ParticipantState.GetState ("key"), Is.EqualTo (7), "Participant 2 sees state of participant 1."));
 
       var pipeline = CreatePipeline (participant1, participant2);
 

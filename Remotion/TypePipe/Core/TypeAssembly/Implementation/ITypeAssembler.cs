@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 using Remotion.TypePipe.Caching;
@@ -46,15 +45,15 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     AssembledTypeID ExtractTypeID ([NotNull] Type assembledType);
 
     [NotNull]
-    Type AssembleType (
+    TypeAssemblyResult AssembleType (
         AssembledTypeID typeID,
-        [NotNull] IDictionary<string, object> participantState,
+        [NotNull] IParticipantState participantState,
         [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);
 
     [NotNull]
-    Type AssembleAdditionalType (
+    TypeAssemblyResult AssembleAdditionalType (
         [NotNull] object additionalTypeID,
-        [NotNull] IDictionary<string, object> participantState,
+        [NotNull] IParticipantState participantState,
         [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);
 
     [CanBeNull]
