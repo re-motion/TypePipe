@@ -22,10 +22,13 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
 {
+  /// <summary>
+  /// Represents the result of an assemble-type operation performed by <see cref="ITypeAssembler"/>.
+  /// The <see cref="TypeAssemblyResult.Type"/> property holds the requested type, 
+  /// the <see cref="AdditionalTypes"/> property all additional types generated during the operation.
+  /// </summary>
   public class TypeAssemblyResult
   {
-    // TODO RM-5895: test
-
     private static readonly IReadOnlyDictionary<object, Type> s_emptyDictionary = new Dictionary<object, Type>().AsReadOnly();
 
     private readonly Type _type;

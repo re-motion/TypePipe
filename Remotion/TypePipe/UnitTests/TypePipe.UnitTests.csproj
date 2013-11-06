@@ -131,6 +131,7 @@
     <Compile Include="Implementation\Remotion\RemotionPipelineFactoryTest.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistryTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyResultTest.cs" />
     <Compile Include="TypeAssembly\LoadedTypesContextTest.cs" />
     <Compile Include="Implementation\ReflectionServiceTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />

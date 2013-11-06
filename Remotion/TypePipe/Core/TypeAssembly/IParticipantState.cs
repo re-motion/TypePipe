@@ -5,11 +5,6 @@ namespace Remotion.TypePipe.TypeAssembly
 {
   public interface IParticipantState
   {
-    void AddAdditionalType ([NotNull] object additionalTypeID, [NotNull] Type additionalType);
-
-    [CanBeNull]
-    Type GetAdditionalType ([NotNull] object additionalTypeID);
-
     void AddState ([NotNull] string id, [NotNull] object value);
 
     [CanBeNull]
