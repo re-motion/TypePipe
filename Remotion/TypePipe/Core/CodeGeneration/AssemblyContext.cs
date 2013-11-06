@@ -15,9 +15,8 @@
 // under the License.
 // 
 
-using System.Collections.Generic;
+using System;
 using Remotion.TypePipe.TypeAssembly;
-using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -28,7 +27,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <threadsafety static="true" instance="false"/>
   public class AssemblyContext
   {
-    private readonly ParticipantState _participantState = new ParticipantState();
+    private ParticipantState _participantState;
     private readonly IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
     private readonly IGeneratedCodeFlusher _generatedCodeFlusher;
 
@@ -36,9 +35,10 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
       ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
-      
+
       _mutableTypeBatchCodeGenerator = mutableTypeBatchCodeGenerator;
       _generatedCodeFlusher = generatedCodeFlusher;
+      ResetParticipantState();
     }
 
     public IParticipantState ParticipantState
@@ -54,6 +54,11 @@ namespace Remotion.TypePipe.CodeGeneration
     public IGeneratedCodeFlusher GeneratedCodeFlusher
     {
       get { return _generatedCodeFlusher; }
+    }
+
+    public void ResetParticipantState ()
+    {
+      _participantState = new ParticipantState();
     }
   }
 }

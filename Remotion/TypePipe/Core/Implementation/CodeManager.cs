@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.Implementation
       {
         return assemblyContexts
             .AsParallel()
-            .Select (assemblyContext => assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (assemblyAttributes))
+            .Select (assemblyContext => FlushCodeToDisk (assemblyAttributes, assemblyContext))
             .Where (path => path != null)
             .ToArray();
       }
@@ -67,6 +67,13 @@ namespace Remotion.TypePipe.Implementation
         foreach (var assemblyContext in assemblyContexts)
           _assemblyContextPool.Enqueue (assemblyContext);
       }
+    }
+
+    private string FlushCodeToDisk (CustomAttributeDeclaration[] assemblyAttributes, AssemblyContext assemblyContext)
+    {
+      var assemblyPath = assemblyContext.GeneratedCodeFlusher.FlushCodeToDisk (assemblyAttributes);
+      assemblyContext.ResetParticipantState();
+      return assemblyPath;
     }
 
     public void LoadFlushedCode (Assembly assembly)
