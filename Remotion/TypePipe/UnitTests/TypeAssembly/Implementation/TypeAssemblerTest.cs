@@ -241,6 +241,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       Assert.That (generationCompletedEventRaised, Is.True);
       Assert.That (result, Is.Not.Null);
       Assert.That (result.Type, Is.SameAs (fakeGeneratedType));
+      Assert.That (result.AdditionalTypes.Count, Is.EqualTo (1));
+      Assert.That (result.AdditionalTypes[additionalTypeID], Is.SameAs (fakeGeneratedAdditionalType));
     }
 
     [Test]
@@ -336,11 +338,14 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var additionalTypeID = new object();
       bool generationCompletedEventRaised = false;
       var fakeAdditionalType = ReflectionObjectMother.GetSomeType();
+      var otherAdditionalTypeID = new object();
+      var otherFakeAdditionalType = ReflectionObjectMother.GetSomeType();
 
       using (mockRepository.Ordered())
       {
         IAdditionalTypeAssemblyContext additionalTypeAssemblyContext = null;
         var additionalMutableType = MutableTypeObjectMother.Create();
+        var otherAdditionalType = MutableTypeObjectMother.Create();
         participantMock1
             .Expect (mock => mock.GetOrCreateAdditionalType (Arg.Is (additionalTypeID), Arg<IAdditionalTypeAssemblyContext>.Is.Anything))
             .Return (null)
@@ -352,14 +357,17 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
                   Assert.That (additionalTypeAssemblyContext.ParticipantState, Is.SameAs (_participantStateMock));
 
                   additionalTypeAssemblyContext.CreateAdditionalType (additionalTypeID, "AdditionalType", null, 0, typeof (int));
+                  additionalTypeAssemblyContext.CreateAdditionalType (otherAdditionalTypeID, "OtherAdditionalType", null, 0, typeof (int));
 
                   additionalTypeAssemblyContext.GenerationCompleted += ctx =>
                   {
                     Assert.That (ctx.GetGeneratedType (additionalMutableType), Is.SameAs (fakeAdditionalType));
+                    Assert.That (ctx.GetGeneratedType (otherAdditionalType), Is.SameAs (otherFakeAdditionalType));
                     generationCompletedEventRaised = true;
                   };
                 });
         mutableTypeFactoryMock.Expect (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int), null)).Return (additionalMutableType);
+        mutableTypeFactoryMock.Expect (mock => mock.CreateType ("OtherAdditionalType", null, 0, typeof (int), null)).Return (otherAdditionalType);
 
         participantMock2
             .Expect (
@@ -369,8 +377,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
         // Participant 3 is not invoked.
 
         codeGeneratorMock
-            .Expect (mock => mock.GenerateTypes (new[] { additionalMutableType }))
-            .Return (new[] { new KeyValuePair<MutableType, Type> (additionalMutableType, fakeAdditionalType) })
+            .Expect (mock => mock.GenerateTypes (new[] { additionalMutableType, otherAdditionalType }))
+            .Return (
+                new[]
+                {
+                    new KeyValuePair<MutableType, Type> (additionalMutableType, fakeAdditionalType),
+                    new KeyValuePair<MutableType, Type> (otherAdditionalType, otherFakeAdditionalType)
+                })
             .WhenCalled (mi => Assert.That (generationCompletedEventRaised, Is.False));
       }
       mockRepository.ReplayAll();
@@ -385,6 +398,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       Assert.That (generationCompletedEventRaised, Is.True);
       Assert.That (result, Is.Not.Null);
       Assert.That (result.Type, Is.SameAs (fakeAdditionalType));
+      Assert.That (result.AdditionalTypes.Count, Is.EqualTo (2));
+      Assert.That (result.AdditionalTypes[additionalTypeID], Is.SameAs (fakeAdditionalType));
+      Assert.That (result.AdditionalTypes[otherAdditionalTypeID], Is.SameAs (otherFakeAdditionalType));
     }
 
     [Test]
