@@ -91,7 +91,6 @@ namespace Remotion.TypePipe
     /// A participant may retrieve a cached additional type from the state cache available via <see cref="ITypeAssemblyContext.ParticipantState"/> on
     /// <paramref name="additionalTypeAssemblyContext"/> or create a new <see cref="MutableType"/> and return it.
     /// </remarks>
-    //TODO RM-5895: Rename to CreateAdditionalType?
     [CanBeNull]
     Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext);
 

@@ -110,9 +110,6 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       return _assembledTypeIdentifierProvider.ExtractTypeID (assembledType);
     }
 
-    // TODO RM-5895: change participantState to complex type ParticipantState {AdditionalTypeCache{object,Type} get or add API, State{string,object}}
-    // Adding to AdditionalTypeCache also adds to global AdditionalTypeCache (concurrently)
-    //TODO: RM-5895: Reset ParticipantState upon flush. AdditionalTypeCache will be empty for new assembly.
     public TypeAssemblyResult AssembleType (AssembledTypeID typeID, IParticipantState participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("typeID", typeID);
@@ -146,7 +143,6 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
           context.AdditionalTypes.ToDictionary (kvp => kvp.Key, kvp => generatedTypesContext.GetGeneratedType (kvp.Value)));
     }
 
-    //TODO RM-5895: Change participantState to same API as AssembleType
     public TypeAssemblyResult AssembleAdditionalType (
         object additionalTypeID,
         IParticipantState participantState,
