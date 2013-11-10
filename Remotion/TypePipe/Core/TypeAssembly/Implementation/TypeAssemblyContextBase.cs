@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      var type = _mutableTypeFactory.CreateProxy (baseType).Type;
+      var type = _mutableTypeFactory.CreateProxy (baseType, ProxyKind.AdditionalType).Type;
       _additionalTypes.Add (additionalTypeID, type);
 
       return type;

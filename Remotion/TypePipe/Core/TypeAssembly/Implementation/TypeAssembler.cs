@@ -122,7 +122,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       if (ShortCircuitTypeAssembly (requestedType))
         return new TypeAssemblyResult (requestedType);
 
-      var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
+      var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType, ProxyKind.AssembledType);
       var context = new ProxyTypeAssemblyContext (
           _mutableTypeFactory, _participantConfigurationID, participantState, requestedType, typeModificationTracker.Type);
 

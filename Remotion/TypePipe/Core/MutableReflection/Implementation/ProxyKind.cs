@@ -16,21 +16,15 @@
 // 
 
 using System;
-using System.Reflection;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Defines an interface for classes creating <see cref="MutableType"/> model instances.
+  /// Identifies the type of proxy created by <see cref="IMutableTypeFactory"/>.<see cref="IMutableTypeFactory.CreateProxy"/>.
   /// </summary>
-  /// <remarks>
-  /// <note type="inotes">Implementations of the interface must be threadsafe.</note>
-  /// </remarks>
-  /// <threadsafety static="true" instance="true"/>
-  public interface IMutableTypeFactory
+  public enum ProxyKind
   {
-    MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType);
-
-    ITypeModificationTracker CreateProxy (Type baseType, ProxyKind proxyKind);
+    AssembledType,
+    AdditionalType
   }
 }

@@ -58,8 +58,8 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       Assert.That (_instantiation.Name, Is.EqualTo ("GenericType`2"));
       Assert.That (_instantiation.FullName, Is.EqualTo (
-          "Remotion.TypePipe.IntegrationTests.MutableReflection.MakeTypePipeGenericTypeTest+GenericType`2[[System.Object_Proxy_1, TypePipe_GeneratedAssembly],[Remotion.TypePipe.IntegrationTests.MutableReflection.MakeTypePipeGenericTypeTest_Proxy_1, TypePipe_GeneratedAssembly]]"));
-      Assert.That (_instantiation.ToString (), Is.EqualTo ("GenericType`2[Object_Proxy_1,MakeTypePipeGenericTypeTest_Proxy_1]"));
+          "Remotion.TypePipe.IntegrationTests.MutableReflection.MakeTypePipeGenericTypeTest+GenericType`2[[System.Object_AssembledTypeProxy_1, TypePipe_GeneratedAssembly],[Remotion.TypePipe.IntegrationTests.MutableReflection.MakeTypePipeGenericTypeTest_AssembledTypeProxy_1, TypePipe_GeneratedAssembly]]"));
+      Assert.That (_instantiation.ToString (), Is.EqualTo ("GenericType`2[Object_AssembledTypeProxy_1,MakeTypePipeGenericTypeTest_AssembledTypeProxy_1]"));
     }
 
     [Test]

@@ -60,13 +60,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return CreateMutableType (name, @namespace, attributes, baseType, declaringType);
     }
 
-    public ITypeModificationTracker CreateProxy (Type baseType)
+    public ITypeModificationTracker CreateProxy (Type baseType, ProxyKind proxyKind)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
       var incrementedCounter = Interlocked.Increment (ref _counter);
 
-      var name = string.Format ("{0}_Proxy_{1}", baseType.Name, incrementedCounter);
+      var name = string.Format ("{0}_{1}Proxy_{2}", baseType.Name, proxyKind, incrementedCounter);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
 
       var proxyType = CreateType (name, baseType.Namespace, attributes, baseType, null);

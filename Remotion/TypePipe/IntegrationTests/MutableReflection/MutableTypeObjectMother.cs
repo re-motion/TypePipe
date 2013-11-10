@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     {
       baseType = baseType ?? typeof (UnspecifiedType);
 
-      return new MutableTypeFactory().CreateProxy (baseType).Type;
+      return new MutableTypeFactory().CreateProxy (baseType, ProxyKind.AssembledType).Type;
     }
 
     public class UnspecifiedType { }

@@ -83,6 +83,7 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKey.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitialization.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCache.cs" />
+    <Compile Include="MutableReflection\Implementation\ProxyKind.cs" />
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\IDeserializationMethodInvoker.cs" />
     <Compile Include="TypeAssembly\IAdditionalTypeAssemblyContext.cs" />

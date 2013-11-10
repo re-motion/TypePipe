@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 
         var proxyType = MutableTypeObjectMother.Create();
         var typeModificationTrackerMock = mockRepository.StrictMock<ITypeModificationTracker>();
-        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType)).Return (typeModificationTrackerMock);
+        mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (_requestedType, ProxyKind.AssembledType)).Return (typeModificationTrackerMock);
         typeModificationTrackerMock.Stub (stub => stub.Type).Return (proxyType);
 
         var idPart = new object();
@@ -278,7 +278,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     {
       var mutableTypeFactoryStub = MockRepository.GenerateStub<IMutableTypeFactory>();
       var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationTracker>();
-      mutableTypeFactoryStub.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
+      mutableTypeFactoryStub.Stub (_ => _.CreateProxy (_requestedType, ProxyKind.AssembledType)).Return (typeModificationContextStub);
       typeModificationContextStub.Stub (_ => _.Type).Return (MutableTypeObjectMother.Create());
       var typeAssembler = CreateTypeAssembler (mutableTypeFactoryStub);
       var codeGeneratorMock = MockRepository.GenerateMock<IMutableTypeBatchCodeGenerator>();
@@ -296,7 +296,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var typeModificationContextStub = MockRepository.GenerateStub<ITypeModificationTracker>();
       typeModificationContextStub.Stub (_ => _.Type).Do ((Func<MutableType>) (() => MutableTypeObjectMother.Create()));
       typeModificationContextStub.Stub (_ => _.IsModified()).Return (true);
-      _mutableTypeFactoryMock.Stub (_ => _.CreateProxy (_requestedType)).Return (typeModificationContextStub);
+      _mutableTypeFactoryMock.Stub (_ => _.CreateProxy (_requestedType, ProxyKind.AssembledType)).Return (typeModificationContextStub);
       _complexSerializationEnablerMock.Stub (_ => _.MakeSerializable (null, null, null, new AssembledTypeID())).IgnoreArguments();
       var typeAssemblyContextCodeGeneratorMock = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
       var exception1 = new InvalidOperationException ("blub");
