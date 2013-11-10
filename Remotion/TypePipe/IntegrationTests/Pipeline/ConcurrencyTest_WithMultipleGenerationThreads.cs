@@ -16,9 +16,10 @@
 // 
 
 using System;
+using System.Linq;
 using System.Threading;
 using NUnit.Framework;
-using Remotion.TypePipe.Caching;
+using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -40,7 +41,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       _blockingMutexB = new Mutex (initiallyOwned: true);
 
       var blockingParticipant = CreateParticipant (
-          (id, ctx) =>
+          participateAction: (id, ctx) =>
           {
             if (ctx.RequestedType == typeof (DomainTypeCausingParticipantToBlockMutexA))
               _blockingMutexA.WaitOne();
@@ -48,7 +49,18 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             if (ctx.RequestedType == typeof (DomainTypeCausingParticipantToBlockMutexB))
               _blockingMutexB.WaitOne();
           },
-          additionalTypeFunc: (additionalTypeID, ctx) => typeof (OtherDomainType));
+          additionalTypeFunc: (additionalTypeID, ctx) =>
+          {
+            var baseType = Type.GetType ((string)additionalTypeID, true, false);
+            return ctx.CreateAddtionalProxyType (additionalTypeID, baseType);
+          },
+          getAdditionalTypeIDFunc: additionalType =>
+          {
+            if (additionalType.BaseType == typeof (DomainTypeCausingParticipantToBlockMutexA))
+              _blockingMutexA.WaitOne();
+
+            return additionalType.BaseType.FullName;
+          });
 
       var settings = PipelineSettings.New().SetDegreeOfParallelism (2).Build();
       _pipeline = CreatePipelineWithIntegrationTestAssemblyLocation ("ConcurrencyTest_WithMultipleGenerationThreads", settings, blockingParticipant);
@@ -112,6 +124,36 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       Assert.That (typeFromMutexA.Assembly, Is.SameAs (domainType.Assembly));
       Assert.That (typeFromMutexB.Assembly, Is.Not.SameAs (domainType.Assembly));
+    }
+
+    [Test]
+    public void LoadFlushedCodeInParallel_GetTypeIDForAssembledTypeBlocks ()
+    {
+      // Setup the assembly
+      var tempPipeline = CreatePipelineWithIntegrationTestAssemblyLocation (
+          "ConcurrencyTest_WithMultipleGenerationThreads",
+          PipelineSettings.Defaults,
+          _pipeline.Participants.ToArray());
+      tempPipeline.ReflectionService.GetAdditionalType (typeof (DomainTypeCausingParticipantToBlockMutexA).FullName);
+      tempPipeline.ReflectionService.GetAdditionalType (typeof (DomainType).FullName);
+      var assemblyPaths = tempPipeline.CodeManager.FlushCodeToDisk();
+      var assembly = AssemblyLoader.LoadWithoutLocking (assemblyPaths.Single());
+
+      // Load the blocking code
+      var t1 = StartAndWaitUntilBlocked (() =>_pipeline.CodeManager.LoadFlushedCode (assembly));
+      // [t1] is blocked by the mutex-A.
+      Assert.That (t1.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
+
+      var t2 = StartAndWaitUntilBlocked (
+          () => _pipeline.ReflectionService.GetAdditionalType (typeof (DomainTypeCausingParticipantToBlockMutexA).FullName));
+      // [t2] is blocked by the mutex-A.
+      Assert.That (t2.ThreadState, Is.EqualTo (ThreadState.WaitSleepJoin));
+      var domainTypeProxy = _pipeline.ReflectionService.GetAdditionalType (typeof (DomainType).FullName);
+
+      _blockingMutexA.ReleaseMutex();
+      // Now threads [t1] and [t2] can run to completion.
+      WaitUntilCompleted (t1, t2);
+      Assert.That (domainTypeProxy.BaseType, Is.EqualTo (typeof (DomainType)));
     }
 
     [Test]
