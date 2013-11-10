@@ -38,7 +38,7 @@ namespace Remotion.TypePipe
 
     public abstract void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext);
     
-    public object GetAdditionalTypeID (Type additionalType)
+    public virtual object GetAdditionalTypeID (Type additionalType)
     {
       return null; // Does nothing.
     }
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe
       return null; // Does nothing.
     }
 
-    public virtual void HandleNonSubclassableType (Type requestedType)
+    public virtual void HandleNonSubclassableType (Type nonSubclassableRequestedType)
     {
       // Does noting.
     }

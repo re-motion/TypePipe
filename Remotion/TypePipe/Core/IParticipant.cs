@@ -99,7 +99,7 @@ namespace Remotion.TypePipe
     /// (i.e., <see cref="Participate"/> is never called for such types).
     /// Participants may use this method to log diagnostic and report errors even for types that are not processed by the pipeline.
     /// </summary>
-    /// <param name="requestedType">The non-subclassable requested type.</param>
-    void HandleNonSubclassableType (Type requestedType);
+    /// <param name="nonSubclassableRequestedType">The non-subclassable requested type.</param>
+    void HandleNonSubclassableType (Type nonSubclassableRequestedType);
   }
 }

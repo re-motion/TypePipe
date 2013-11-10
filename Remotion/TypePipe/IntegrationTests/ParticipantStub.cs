@@ -65,9 +65,9 @@ namespace Remotion.TypePipe.IntegrationTests
       return _getAdditionalTypeIDFunc (additionalType);
     }
 
-    public void HandleNonSubclassableType (Type requestedType)
+    public void HandleNonSubclassableType (Type nonSubclassableRequestedType)
     {
-      _handleNonSubclassableTypeAction (requestedType);
+      _handleNonSubclassableTypeAction (nonSubclassableRequestedType);
     }
 
     public Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
