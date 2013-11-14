@@ -110,6 +110,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_type.Equals ((object) type1), Is.False);
       Assert.That (_type.Equals ((object) type2), Is.False);
       Assert.That (_type.Equals ((object) type3), Is.True);
+
+      var multiDimensionalArrayOfRank1 = MultiDimensionalArrayTypeObjectMother.Create(_elementType, 1);
+      var vector = VectorTypeObjectMother.Create(_elementType);
+      Assert.That (multiDimensionalArrayOfRank1.Equals ((object) vector), Is.False);
     }
 
     [Test]
@@ -125,6 +129,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_type.Equals (type1), Is.False);
       Assert.That (_type.Equals (type2), Is.False);
       Assert.That (_type.Equals (type3), Is.True);
+
+      var multiDimensionalArrayOfRank1 = MultiDimensionalArrayTypeObjectMother.Create(_elementType, 1);
+      var vector = VectorTypeObjectMother.Create(_elementType);
+      Assert.That(multiDimensionalArrayOfRank1.Equals(vector), Is.False);
     }
 
     [Test]

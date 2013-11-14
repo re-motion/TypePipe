@@ -24,6 +24,18 @@ namespace Remotion.TypePipe.Caching
   /// Retrieves construction delegates for assembled types from a cache or delegates to <see cref="IReverseTypeCacheSynchronizationPoint"/> to
   /// create a new one.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is implemented as a dedicated cache (rather than going from assembled type to requested type and then
+  /// getting the constructor delegate) because we want to ensure that if someone requests a constructor for
+  /// an assembled type, that ctor should instantiate <b>exactly</b> that type. If we went via requested type, the
+  /// pipeline might create a new assembled type for that requested type, and then we'd return an object of a similar, but incompatible
+  /// assembled type from what the user specified.
+  /// </para>
+  /// <para>
+  /// (Required for re-mix's feature of saying ObjectFactory.Create (assembledType).)
+  /// </para>
+  /// </remarks>
   public class ReverseTypeCache : IReverseTypeCache
   {
     private readonly ConcurrentDictionary<ReverseConstructionKey, Delegate> _constructorCalls =
