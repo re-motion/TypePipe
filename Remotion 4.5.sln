@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5B3CB3F6-DE69-41D6-8BBC-EFF4932F0F7E}"
 	ProjectSection(FolderStartupServices) = postProject
 		{B4F97281-0DBD-4835-9ED8-7DFB966E87FF} = {B4F97281-0DBD-4835-9ED8-7DFB966E87FF}
@@ -248,6 +248,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Reflection.CodeGeneration", "Remotion\Core\Reflection.CodeGeneration\Core.Reflection.CodeGeneration.csproj", "{503DCAC3-E668-41D8-AA48-176E489B8E86}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Development.TypePipe", "Remotion\Development\TypePipe\Development.TypePipe.csproj", "{F6FAF727-9405-4BCC-9153-803F73853E67}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Validation", "Validation", "{1AE256EA-F1C8-4221-B33B-87692D2087A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Validation.Core", "Remotion\Validation\Core\Validation.Core.csproj", "{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Validation.UnitTests", "Remotion\Validation\UnitTests\Validation.UnitTests.csproj", "{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -847,6 +853,22 @@ Global
 		{F6FAF727-9405-4BCC-9153-803F73853E67}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F6FAF727-9405-4BCC-9153-803F73853E67}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F6FAF727-9405-4BCC-9153-803F73853E67}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -926,6 +948,8 @@ Global
 		{81C58D26-AD10-4422-8AB1-999C34CA8D79} = {2E38AD70-ECDF-4722-981C-7388C446A514}
 		{37304DD7-81D0-4110-B924-D974C04F067C} = {2E38AD70-ECDF-4722-981C-7388C446A514}
 		{C138ADE5-F991-49A8-8BB3-B5F5381F60DA} = {2E38AD70-ECDF-4722-981C-7388C446A514}
+		{D057D6F3-2015-4EB0-B6BD-77BE8ED1571A} = {1AE256EA-F1C8-4221-B33B-87692D2087A4}
+		{3CAFF072-4461-4F1A-A07F-4DEA68D0FA7F} = {1AE256EA-F1C8-4221-B33B-87692D2087A4}
 	EndGlobalSection
 	GlobalSection(TextTemplating) = postSolution
 		TextTemplating = 1
