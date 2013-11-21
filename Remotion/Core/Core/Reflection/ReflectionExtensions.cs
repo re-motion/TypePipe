@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using JetBrains.Annotations;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -24,6 +25,8 @@ namespace Remotion.Reflection
   /// </summary>
   public static class ReflectionExtensions
   {
+    private static readonly TypeConversionProvider s_typeConversionProvider = TypeConversionProvider.Create ();
+
     /// <summary>
     /// Evaluates whether the <see cref="IMemberInformation"/> instance represents to orignal declaration of the member in the type hierarchy.
     /// </summary>
@@ -43,6 +46,28 @@ namespace Remotion.Reflection
       if (originalDeclaringType == null)
         return false;
       return memberInfo.DeclaringType.Equals (originalDeclaringType);
+    }
+
+    [NotNull]
+    public static Type ConvertToRuntimeType (this ITypeInformation typeInformation)
+    {
+      ArgumentUtility.CheckNotNull ("typeInformation", typeInformation);
+
+      if (!s_typeConversionProvider.CanConvert (typeInformation.GetType(), typeof (Type)))
+        throw new InvalidOperationException (string.Format ("The type '{0}' cannot be converted to a runtime type.", typeInformation.Name));
+
+      return (Type) s_typeConversionProvider.Convert (typeInformation.GetType(), typeof (Type), typeInformation);
+    }
+
+    [CanBeNull]
+    public static Type AsRuntimeType (this ITypeInformation typeInformation)
+    {
+      ArgumentUtility.CheckNotNull ("typeInformation", typeInformation);
+
+      if (!s_typeConversionProvider.CanConvert (typeInformation.GetType (), typeof (Type)))
+        return null;
+
+      return s_typeConversionProvider.Convert (typeInformation.GetType (), typeof (Type), typeInformation) as Type;
     }
   }
 }
