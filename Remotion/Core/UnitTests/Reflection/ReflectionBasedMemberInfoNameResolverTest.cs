@@ -25,14 +25,14 @@ namespace Remotion.UnitTests.Reflection
   [TestFixture]
   public class ReflectionBasedMemberInfoNameResolverTest
   {
-    private ReflectionBasedMemberInfoNameResolver _resolver;
+    private ReflectionBasedMemberInformationNameResolver _resolver;
     private IPropertyInformation _propertyInformationStub;
     private ITypeInformation _typeInformationStub;
 
     [SetUp]
     public void SetUp ()
     {
-      _resolver = new ReflectionBasedMemberInfoNameResolver();
+      _resolver = new ReflectionBasedMemberInformationNameResolver();
       _propertyInformationStub = MockRepository.GenerateStub<IPropertyInformation>();
       _typeInformationStub = MockRepository.GenerateStub<ITypeInformation>();
     }
