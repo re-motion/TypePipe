@@ -12,7 +12,7 @@ namespace Remotion.UnitTests.Reflection
     [SetUp]
     public void SetUp ()
     {
-      _serviceLocator = new DefaultServiceLocator();
+      _serviceLocator = DefaultServiceLocator.Create();
     }
 
     [Test]
