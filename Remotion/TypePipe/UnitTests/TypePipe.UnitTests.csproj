@@ -42,6 +42,10 @@
     <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\prereq\Assemblies\CommonServiceLocator-1.0\net-2.0\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
@@ -70,7 +74,10 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecoratorTest.cs" />
     <Compile Include="Configuration\PipelineSettingsTest.cs" />
+    <Compile Include="Implementation\IPipelineFactoryTest.cs" />
+    <Compile Include="IPipelineRegistryTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ICustomAttributeDataRetrieverTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCacheTest.cs" />
     <Compile Include="TypeAssembly\Implementation\ConstructorDelegateFactoryTest.cs" />
