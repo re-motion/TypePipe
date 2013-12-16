@@ -21,9 +21,6 @@ using Remotion.ServiceLocation;
 namespace Remotion.BridgeInterfaces
 {
   // @begin-skip
-  [ConcreteImplementation (
-      "Remotion.BridgeImplementations.ParamListCreateImplementation, Remotion, Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>",
-      Lifetime = LifetimeKind.Singleton)]
   // @end-skip
   public partial interface IParamListCreateImplementation
   {
