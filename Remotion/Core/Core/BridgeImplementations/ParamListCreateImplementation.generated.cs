@@ -24,6 +24,7 @@
 using System;
 using Remotion.BridgeInterfaces;
 using Remotion.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.Utilities;
 
 // TODO 4649: If we don't introduce a TypePipe.Interfaces.dll, we don't need to keep the implementation of CreateDynamic separate from the 

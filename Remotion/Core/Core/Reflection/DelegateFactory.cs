@@ -1,4 +1,4 @@
-﻿// This file is part of the re-motion Core Framework (www.re-motion.org)
+// This file is part of the re-motion Core Framework (www.re-motion.org)
 // Copyright (c) rubicon IT GmbH, www.rubicon.eu
 // 
 // The re-motion Core Framework is free software; you can redistribute it 
@@ -19,6 +19,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -27,6 +28,7 @@ namespace Remotion.Reflection
   /// Extracts signatures from delegate types and uses <see cref="LambdaExpression"/> to create delegates enabling their efficient invocation.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
+  [InterfaceConcreteImplementation (typeof (IDelegateFactory))]
   public class DelegateFactory : IDelegateFactory
   {
     public DelegateFactory ()

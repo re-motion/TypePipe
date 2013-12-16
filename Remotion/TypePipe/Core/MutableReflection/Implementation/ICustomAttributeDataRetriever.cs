@@ -26,8 +26,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Retrieves <see cref="ICustomAttributeData"/> objects from implementations of <see cref="ICustomAttributeProvider"/>, that is
   /// <see cref="MemberInfo"/>, <see cref="ParameterInfo"/>, <see cref="Assembly"/> and <see cref="Module"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (CustomAttributeDataRetriever))]
-  public interface ICustomAttributeDataRetriever
+ public interface ICustomAttributeDataRetriever
   {
     IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member);
     IEnumerable<ICustomAttributeData> GetCustomAttributeData (ParameterInfo parameter);

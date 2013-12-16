@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 
 namespace Remotion.TypePipe.Implementation.Remotion
@@ -25,6 +26,7 @@ namespace Remotion.TypePipe.Implementation.Remotion
   /// Decorates created <see cref="IModuleBuilderFactory"/> instances with <see cref="RemotionModuleBuilderFactoryDecorator"/>.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
+  [InterfaceConcreteImplementation (typeof (IPipelineFactory))]
   public class RemotionPipelineFactory : DefaultPipelineFactory
   {
     [CLSCompliant (false)]

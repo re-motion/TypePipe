@@ -25,8 +25,7 @@ namespace Remotion.Reflection
   /// Extracts signatures from delegate types and delegates for their efficient invocation.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
-  [ConcreteImplementation (typeof (DelegateFactory))]
-  public interface IDelegateFactory
+ public interface IDelegateFactory
   {
     Tuple<Type[], Type> GetSignature (Type delegateType);
 
