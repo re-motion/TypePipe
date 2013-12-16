@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.Implementation.Remotion
   /// Decorates created <see cref="IModuleBuilderFactory"/> instances with <see cref="RemotionModuleBuilderFactoryDecorator"/>.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
-  [InterfaceConcreteImplementation (typeof (IPipelineFactory))]
+  [ConcreteImplementation (typeof (IPipelineFactory))]
   public class RemotionPipelineFactory : DefaultPipelineFactory
   {
     [CLSCompliant (false)]

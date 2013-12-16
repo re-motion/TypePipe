@@ -28,7 +28,7 @@ namespace Remotion.Reflection
   /// Extracts signatures from delegate types and uses <see cref="LambdaExpression"/> to create delegates enabling their efficient invocation.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
-  [InterfaceConcreteImplementation (typeof (IDelegateFactory))]
+  [ConcreteImplementation (typeof (IDelegateFactory))]
   public class DelegateFactory : IDelegateFactory
   {
     public DelegateFactory ()
