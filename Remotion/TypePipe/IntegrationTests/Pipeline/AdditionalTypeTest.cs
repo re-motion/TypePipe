@@ -54,11 +54,12 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       {
         Assert.That (id, Is.SameAs (additionalTypeID));
 
-        if (ctx.State.ContainsKey ("key"))
-          return (Type) ctx.State["key"];
+        var stateValue = ctx.ParticipantState.GetState ("key");
+        if (stateValue != null)
+          return (Type) stateValue;
 
-        var myClass = ctx.CreateClass ("Class", "My", typeof (object));
-        ctx.GenerationCompleted += generatedTypeContext => { ctx.State["key"] = generatedTypeContext.GetGeneratedType (myClass); };
+        var myClass = ctx.CreateClass (new object(), "Class", "My", typeof (object));
+        ctx.GenerationCompleted += generatedTypeContext => ctx.ParticipantState.AddState ("key", generatedTypeContext.GetGeneratedType (myClass));
 
         return myClass;
       });

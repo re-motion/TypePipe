@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void Names ()
     {
       Assert.That (_instantiation.Name, Is.EqualTo ("GenericMethod"));
-      Assert.That (_instantiation.ToString(), Is.EqualTo ("Object_Proxy_1 GenericMethod[Object_Proxy_1,Exception_Proxy_1](Exception_Proxy_1)"));
+      Assert.That (_instantiation.ToString(), Is.EqualTo ("Object_AssembledTypeProxy_1 GenericMethod[Object_AssembledTypeProxy_1,Exception_AssembledTypeProxy_1](Exception_AssembledTypeProxy_1)"));
     }
 
     [Test]

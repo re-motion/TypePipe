@@ -17,8 +17,9 @@
 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.Implementation.Synchronization;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 
 namespace Remotion.Development.TypePipe
 {
@@ -29,13 +30,14 @@ namespace Remotion.Development.TypePipe
   /// To use assembly tracking register <see cref="AssemblyTrackingPipelineFactory"/> for <see cref="IPipelineFactory"/> in your IoC container.
   /// </para>
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class AssemblyTrackingPipelineFactory : DefaultPipelineFactory
   {
     public AssemblyTrackingCodeManager AssemblyTrackingCodeManager { get; private set; }
 
-    protected override ICodeManager NewCodeManager (ICodeManagerSynchronizationPoint codeManagerSynchronizationPoint, ITypeCache typeCache)
+    protected override ICodeManager NewCodeManager (ITypeCache typeCache, ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
     {
-      var codeManager = base.NewCodeManager (codeManagerSynchronizationPoint, typeCache);
+      var codeManager = base.NewCodeManager (typeCache, typeAssembler, assemblyContextPool);
       AssemblyTrackingCodeManager = new AssemblyTrackingCodeManager (codeManager);
 
       return AssemblyTrackingCodeManager;

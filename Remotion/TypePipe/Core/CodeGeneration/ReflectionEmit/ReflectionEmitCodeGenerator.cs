@@ -20,11 +20,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Threading;
+using JetBrains.Annotations;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
-using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.Utilities;
@@ -32,20 +33,19 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// The Reflection.Emit-based <see cref="IGeneratedCodeFlusher"/> of the pipeline.
+  /// The Reflection.Emit-based code generator and <see cref="IGeneratedCodeFlusher"/> of the pipeline.
   /// </summary>
   /// <remarks>
   /// This class is not thread-safe. Thread-safety will be enforced by the <see cref="TypeCache"/>.
   /// </remarks>
-  public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
+  /// <threadsafety static="true" instance="false"/>
+  public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator, IGeneratedCodeFlusher
   {
     private class ModuleContext
     {
       public IModuleBuilder ModuleBuilder { get; set; }
       public DebugInfoGenerator DebugInfoGenerator { get; set; }
     }
-
-    private const string c_defaultAssemblyNamePattern = "TypePipe_GeneratedAssembly_{counter}";
 
     // This field is static to avoid that different pipeline instances override each other's assemblies.
     private static int s_counter;
@@ -54,52 +54,33 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly bool _forceStrongNaming;
     private readonly string _keyFilePath;
 
-    private string _assemblyDirectory;
-    private string _assemblyNamePattern = c_defaultAssemblyNamePattern;
+    private readonly string _assemblyDirectory;
+    private readonly string _assemblyNamePattern;
     private ModuleContext _moduleContext;
 
     [CLSCompliant (false)]
-    public ReflectionEmitCodeGenerator (IModuleBuilderFactory moduleBuilderFactory, bool forceStrongNaming, string keyFilePath)
+    public ReflectionEmitCodeGenerator (
+        IModuleBuilderFactory moduleBuilderFactory,
+        bool forceStrongNaming,
+        [CanBeNull] string keyFilePath,
+        [CanBeNull] string assemblyDirectory,
+        [NotNull] string assemblyNamePattern)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
-      // Key file path may be null.
+      ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
 
       _moduleBuilderFactory = moduleBuilderFactory;
       _forceStrongNaming = forceStrongNaming;
       _keyFilePath = keyFilePath;
+      _assemblyDirectory = assemblyDirectory;
+      _assemblyNamePattern = assemblyNamePattern;
 
       ResetModuleContext();
-    }
-
-    public string AssemblyDirectory
-    {
-      get { return _assemblyDirectory; }
-    }
-
-    public string AssemblyNamePattern
-    {
-      get { return _assemblyNamePattern; }
     }
 
     public DebugInfoGenerator DebugInfoGenerator
     {
       get { return _moduleContext.DebugInfoGenerator ?? (_moduleContext.DebugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator()); }
-    }
-
-    public void SetAssemblyDirectory (string assemblyDirectoryOrNull)
-    {
-      // Assembly directory may be null (to use the current directory).
-      EnsureNoCurrentModuleBuilder ("assembly directory");
-
-      _assemblyDirectory = assemblyDirectoryOrNull;
-    }
-
-    public void SetAssemblyNamePattern (string assemblyNamePattern)
-    {
-      ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
-      EnsureNoCurrentModuleBuilder ("assembly name pattern");
-
-      _assemblyNamePattern = assemblyNamePattern;
     }
 
     public virtual string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
@@ -149,7 +130,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private string GetNextAssemblyName ()
     {
       var uniqueCounterValue = Interlocked.Increment (ref s_counter);
-      return _assemblyNamePattern.Replace ("{counter}", uniqueCounterValue.ToString (CultureInfo.InvariantCulture));
+      return _assemblyNamePattern.Replace (PipelineSettings.CounterPattern, uniqueCounterValue.ToString (CultureInfo.InvariantCulture));
     }
 
     private string SaveToDisk (IAssemblyBuilder assemblyBuilder, IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
@@ -158,17 +139,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         assemblyBuilder.SetCustomAttribute (attribute);
 
       return assemblyBuilder.SaveToDisk();
-    }
-
-    private void EnsureNoCurrentModuleBuilder (string propertyDescription)
-    {
-      if (_moduleContext.ModuleBuilder != null)
-      {
-        var flushMethod = MemberInfoFromExpressionUtility.GetMethod ((ICodeManager o) => o.FlushCodeToDisk());
-        var message = string.Format (
-            "Cannot set {0} after a type has been defined (use {1}() to start a new assembly).", propertyDescription, flushMethod.Name);
-        throw new InvalidOperationException (message);
-      }
     }
   }
 }

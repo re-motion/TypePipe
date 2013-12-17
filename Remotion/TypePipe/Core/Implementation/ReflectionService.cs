@@ -18,7 +18,6 @@
 using System;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Implementation.Synchronization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
@@ -27,50 +26,65 @@ namespace Remotion.TypePipe.Implementation
   /// <summary>
   /// Implements <see cref="IReflectionService"/> by delegating to the contained <see cref="ITypeAssembler"/> and <see cref="ITypeCache"/> instances.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class ReflectionService : IReflectionService
   {
-    private readonly IReflectionServiceSynchronizationPoint _reflectionServiceSynchronizationPoint;
+    private readonly ITypeAssembler _typeAssembler;
     private readonly ITypeCache _typeCache;
-    private readonly IReverseTypeCache _reverseTypeCache;
+    private readonly IConstructorCallCache _constructorCallCache;
+    private readonly IConstructorForAssembledTypeCache _constructorForAssembledTypeCache;
 
     public ReflectionService (
-        IReflectionServiceSynchronizationPoint reflectionServiceSynchronizationPoint, ITypeCache typeCache, IReverseTypeCache reverseTypeCache)
+        ITypeAssembler typeAssembler,
+        ITypeCache typeCache,
+        IConstructorCallCache constructorCallCache,
+        IConstructorForAssembledTypeCache constructorForAssembledTypeCache)
     {
-      ArgumentUtility.CheckNotNull ("reflectionServiceSynchronizationPoint", reflectionServiceSynchronizationPoint);
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
       ArgumentUtility.CheckNotNull ("typeCache", typeCache);
-      ArgumentUtility.CheckNotNull ("reverseTypeCache", reverseTypeCache);
+      ArgumentUtility.CheckNotNull ("constructorCallCache", constructorCallCache);
+      ArgumentUtility.CheckNotNull ("constructorForAssembledTypeCache", constructorForAssembledTypeCache);
 
-      _reflectionServiceSynchronizationPoint = reflectionServiceSynchronizationPoint;
+      _typeAssembler = typeAssembler;
       _typeCache = typeCache;
-      _reverseTypeCache = reverseTypeCache;
+      _constructorCallCache = constructorCallCache;
+      _constructorForAssembledTypeCache = constructorForAssembledTypeCache;
     }
 
     public bool IsAssembledType (Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return _reflectionServiceSynchronizationPoint.IsAssembledType (type);
+      return _typeAssembler.IsAssembledType (type);
     }
 
     public Type GetRequestedType (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return _reflectionServiceSynchronizationPoint.GetRequestedType (assembledType);
+      return _typeAssembler.GetRequestedType (assembledType);
     }
 
-    public AssembledTypeID GetTypeID (Type assembledType)
+    public AssembledTypeID GetTypeIDForRequestedType (Type requestedType)
+    {
+      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+
+      return _typeAssembler.ComputeTypeID (requestedType);
+    }
+
+    public AssembledTypeID GetTypeIDForAssembledType (Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
 
-      return _reflectionServiceSynchronizationPoint.GetTypeID (assembledType);
+      return _typeAssembler.ExtractTypeID (assembledType);
     }
 
     public Type GetAssembledType (Type requestedType)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
 
-      return _typeCache.GetOrCreateType (requestedType);
+      var typeID = _typeAssembler.ComputeTypeID (requestedType);
+      return _typeCache.GetOrCreateType (typeID);
     }
 
     public Type GetAssembledType (AssembledTypeID typeID)
@@ -85,15 +99,38 @@ namespace Remotion.TypePipe.Implementation
       return _typeCache.GetOrCreateAdditionalType (additionalTypeID);
     }
 
-    public object InstantiateAssembledType (Type assembledType, ParamList constructorArguments, bool allowNonPublicConstructor)
+    public object InstantiateAssembledType (AssembledTypeID typeID, ParamList constructorArguments, bool allowNonPublicConstructor)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-      constructorArguments = constructorArguments ?? ParamList.Empty;
+      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
 
-      var constructorCall = _reverseTypeCache.GetOrCreateConstructorCall (assembledType, constructorArguments.FuncType, allowNonPublicConstructor);
+      var constructorCall = _constructorCallCache.GetOrCreateConstructorCall (typeID, constructorArguments.FuncType, allowNonPublicConstructor);
       var instance = constructorArguments.InvokeFunc (constructorCall);
 
       return instance;
+    }
+
+    public object InstantiateAssembledType (Type assembledType, ParamList constructorArguments, bool allowNonPublicConstructor)
+    {
+      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
+
+      var constructorCall = _constructorForAssembledTypeCache.GetOrCreateConstructorCall (
+          assembledType,
+          constructorArguments.FuncType,
+          allowNonPublicConstructor);
+
+      var instance = constructorArguments.InvokeFunc (constructorCall);
+
+      return instance;
+    }
+
+    public void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics)
+    {
+      ArgumentUtility.CheckNotNull ("instance", instance);
+
+      var initializableInstance = instance as IInitializableObject;
+      if (initializableInstance != null)
+        initializableInstance.Initialize (initializationSemantics);
     }
   }
 }

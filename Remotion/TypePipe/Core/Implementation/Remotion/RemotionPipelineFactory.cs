@@ -24,12 +24,13 @@ namespace Remotion.TypePipe.Implementation.Remotion
   /// <summary>
   /// Decorates created <see cref="IModuleBuilderFactory"/> instances with <see cref="RemotionModuleBuilderFactoryDecorator"/>.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class RemotionPipelineFactory : DefaultPipelineFactory
   {
     [CLSCompliant (false)]
-    protected override IModuleBuilderFactory NewModuleBuilderFactory ()
+    protected override IModuleBuilderFactory NewModuleBuilderFactory (string participantConfigurationID)
     {
-      var moduleBuilderFactory = base.NewModuleBuilderFactory();
+      var moduleBuilderFactory = base.NewModuleBuilderFactory (participantConfigurationID);
       return new RemotionModuleBuilderFactoryDecorator (moduleBuilderFactory);
     }
   }

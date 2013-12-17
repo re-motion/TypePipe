@@ -45,19 +45,19 @@ namespace Remotion.TypePipe.IntegrationTests
     protected static IParticipant CreateParticipant (
         Action<object, IProxyTypeAssemblyContext> participateAction = null,
         ITypeIdentifierProvider typeIdentifierProvider = null,
-        Action<LoadedTypesContext> rebuildStateAction = null,
+        Func<Type, object> getAdditionalTypeIDFunc = null,
         Func<object, IAdditionalTypeAssemblyContext, Type> additionalTypeFunc = null,
         Action<Type> handleNonSubclassableTypeAction = null)
     {
       participateAction = participateAction ?? ((id, ctx) => { });
-      rebuildStateAction = rebuildStateAction ?? (ctx => { });
+      getAdditionalTypeIDFunc = getAdditionalTypeIDFunc ?? (ctx => null);
       handleNonSubclassableTypeAction = handleNonSubclassableTypeAction ?? (ctx => { });
       additionalTypeFunc = additionalTypeFunc ?? ((id, ctx) => null);
 
       // Avoid no-modification optimization.
       participateAction = CreateModifyingAction (participateAction);
 
-      return new ParticipantStub (typeIdentifierProvider, participateAction, rebuildStateAction, handleNonSubclassableTypeAction, additionalTypeFunc);
+      return new ParticipantStub (typeIdentifierProvider, participateAction, getAdditionalTypeIDFunc, handleNonSubclassableTypeAction, additionalTypeFunc);
     }
 
 
@@ -110,6 +110,11 @@ namespace Remotion.TypePipe.IntegrationTests
       }
     }
 
+    protected void EnableSavingAndPeVerification () 
+    {
+      _skipSavingAndVerification = false;
+    }
+
     protected void SkipSavingAndPeVerification ()
     {
       _skipSavingAndVerification = true;
@@ -127,10 +132,23 @@ namespace Remotion.TypePipe.IntegrationTests
 
     protected IPipeline CreatePipeline (string participantConfigurationID, params IParticipant[] participants)
     {
-      return CreatePipeline (participantConfigurationID, PipelineSettings.Defaults, participants);
+      return CreatePipelineWithIntegrationTestAssemblyLocation (participantConfigurationID, PipelineSettings.Defaults, participants);
     }
 
-    protected IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
+    protected IPipeline CreatePipelineWithIntegrationTestAssemblyLocation (
+        string participantConfigurationID, 
+        PipelineSettings settings, 
+        params IParticipant[] participants)
+    {
+      var customSettings = PipelineSettings.From (settings)
+          .SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory)
+          .SetAssemblyNamePattern (participantConfigurationID + "_{counter}")
+          .Build();
+
+      return CreatePipelineExactAssemblyLocation (participantConfigurationID, customSettings, participants);
+    }
+
+    protected IPipeline CreatePipelineExactAssemblyLocation (string participantConfigurationID, PipelineSettings settings, params IParticipant[] participants)
     {
       // Avoid no-modification optimization.
       if (participants.Length == 0)
@@ -139,29 +157,33 @@ namespace Remotion.TypePipe.IntegrationTests
       var pipeline = PipelineFactory.Create (participantConfigurationID, settings, participants);
 
       _codeManager = pipeline.CodeManager;
-      _codeManager.SetAssemblyDirectory (SetupFixture.GeneratedFileDirectory);
-      _codeManager.SetAssemblyNamePattern (participantConfigurationID + "_{counter}");
 
       return pipeline;
     }
 
-    protected string Flush (IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
+    protected string[] Flush (CustomAttributeDeclaration[] assemblyAttributes = null, bool skipDeletion = false, bool skipPeVerification = false)
     {
       Assertion.IsNotNull (_codeManager, "Use IntegrationTestBase.CreatePipeline");
 
-      var assemblyPath = _codeManager.FlushCodeToDisk (assemblyAttributes ?? new CustomAttributeDeclaration[0]);
-      if (assemblyPath == null)
-        return null;
+      var assemblyPaths = _codeManager.FlushCodeToDisk (assemblyAttributes ?? new CustomAttributeDeclaration[0]);
 
       if (!skipDeletion)
-        _assembliesToDelete.Add (assemblyPath);
+      {
+        _assembliesToDelete.AddRange (assemblyPaths);
+      }
       else
-        Console.WriteLine ("Skipping deletion of: {0}", assemblyPath);
+      {
+        foreach (var assemblyPath in assemblyPaths)
+          Console.WriteLine ("Skipping deletion of: {0}", assemblyPath);
+      }
 
       if (!skipPeVerification)
-        PeVerifyAssembly (assemblyPath);
+      {
+        foreach (var assemblyPath in assemblyPaths)
+          PeVerifyAssembly (assemblyPath);
+      }
 
-      return assemblyPath;
+      return assemblyPaths;
     }
 
     private static void PeVerifyAssembly (string assemblyPath)

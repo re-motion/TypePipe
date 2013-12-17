@@ -23,28 +23,28 @@ using Remotion.TypePipe.Caching;
 namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
-  public class ReverseConstructionKeyTest
+  public class ConstructorForAssembledTypeCacheKeyTest
   {
-    private ReverseConstructionKey _key1;
-    private ReverseConstructionKey _key2;
-    private ReverseConstructionKey _key3;
-    private ReverseConstructionKey _key4;
-    private ReverseConstructionKey _key5;
+    private ConstructorForAssembledTypeCacheKey _key1;
+    private ConstructorForAssembledTypeCacheKey _key2;
+    private ConstructorForAssembledTypeCacheKey _key3;
+    private ConstructorForAssembledTypeCacheKey _key4;
+    private ConstructorForAssembledTypeCacheKey _key5;
 
     [SetUp]
     public void SetUp ()
     {
-      _key1 = new ReverseConstructionKey (typeof (int), typeof (Action), true);
-      _key2 = new ReverseConstructionKey (typeof (Random), typeof (Action), true);
-      _key3 = new ReverseConstructionKey (typeof (int), typeof (Func<int>), true);
-      _key4 = new ReverseConstructionKey (typeof (int), typeof (Action), false);
-      _key5 = new ReverseConstructionKey (typeof (int), typeof (Action), true);
+      _key1 = new ConstructorForAssembledTypeCacheKey (typeof (int), typeof (Action), true);
+      _key2 = new ConstructorForAssembledTypeCacheKey (typeof (Random), typeof (Action), true);
+      _key3 = new ConstructorForAssembledTypeCacheKey (typeof (int), typeof (Func<int>), true);
+      _key4 = new ConstructorForAssembledTypeCacheKey (typeof (int), typeof (Action), false);
+      _key5 = new ConstructorForAssembledTypeCacheKey (typeof (int), typeof (Action), true);
     }
 
     [Test]
     public void IsStruct_ForPerformance ()
     {
-      Assert.That (typeof (ReverseConstructionKey).IsValueType, Is.True);
+      Assert.That (typeof (ConstructorForAssembledTypeCacheKey).IsValueType, Is.True);
     }
 
     [Test]

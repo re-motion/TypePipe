@@ -39,6 +39,7 @@ namespace Remotion.TypePipe.Serialization
   ///   <item>An instance of <see cref="AssembledTypeIDData"/>.</item>
   /// </list>
   /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   public class ComplexSerializationEnabler : IComplexSerializationEnabler
   {
     public const string SerializationKeyPrefix = "<tp>";
@@ -53,6 +54,7 @@ namespace Remotion.TypePipe.Serialization
 
     private static readonly MethodInfo s_setTypeMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo o) => o.SetType (typeof (int)));
+
     private static readonly MethodInfo s_addValueMethod =
         MemberInfoFromExpressionUtility.GetMethod ((SerializationInfo o) => o.AddValue ("name", new object()));
 

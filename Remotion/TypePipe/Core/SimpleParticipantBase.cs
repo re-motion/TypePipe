@@ -28,6 +28,7 @@ namespace Remotion.TypePipe
   /// If one of these features is required the participant may override the appropriate method in this base class or implement
   /// <see cref="IParticipant"/> directly.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public abstract class SimpleParticipantBase : IParticipant
   {
     public virtual ITypeIdentifierProvider PartialTypeIdentifierProvider
@@ -36,10 +37,10 @@ namespace Remotion.TypePipe
     }
 
     public abstract void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext);
-
-    public virtual void RebuildState (LoadedTypesContext loadedTypesContext)
+    
+    public virtual object GetAdditionalTypeID (Type additionalType)
     {
-      // Does nothing.
+      return null; // Does nothing.
     }
 
     public virtual Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)
@@ -47,7 +48,7 @@ namespace Remotion.TypePipe
       return null; // Does nothing.
     }
 
-    public virtual void HandleNonSubclassableType (Type requestedType)
+    public virtual void HandleNonSubclassableType (Type nonSubclassableRequestedType)
     {
       // Does noting.
     }

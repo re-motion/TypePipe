@@ -17,8 +17,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
+using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
@@ -30,6 +32,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   /// <summary>
   /// Provides identifiers for assembled types.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class AssembledTypeIdentifierProvider : IAssembledTypeIdentifierProvider
   {
     private const string c_typeIDFieldName = "__typeID";
@@ -42,7 +45,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     // Array for performance reasons.
     private readonly ITypeIdentifierProvider[] _identifierProviders;
-    private readonly Dictionary<IParticipant, int> _identifierProviderIndexes;
+    private readonly ReadOnlyDictionary<IParticipant, int> _identifierProviderIndexes;
 
     public AssembledTypeIdentifierProvider (IEnumerable<IParticipant> participants)
     {
@@ -54,7 +57,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
           .Select ((t, i) => new { t.Participant, t.IdentifierProvider, Index = i }).ToList();
 
       _identifierProviders = providersWithIndex.Select (t => t.IdentifierProvider).ToArray();
-      _identifierProviderIndexes = providersWithIndex.ToDictionary (t => t.Participant, t => t.Index);
+      _identifierProviderIndexes = providersWithIndex.ToDictionary (t => t.Participant, t => t.Index).AsReadOnly();
     }
 
     public AssembledTypeID ComputeTypeID (Type requestedType)

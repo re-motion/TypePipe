@@ -29,8 +29,13 @@ namespace Remotion.TypePipe.CodeGeneration
   /// Sorts <see cref="MutableType"/> instances topologically according to their dependencies (i.e., <see cref="Type.BaseType"/> 
   /// and <see cref="Type.GetInterfaces"/>). Throws an exception when cycles exist within the dependency graph.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class DependentTypeSorter : IDependentTypeSorter
   {
+    public DependentTypeSorter ()
+    {
+    }
+
     public IEnumerable<MutableType> Sort (IEnumerable<MutableType> types)
     {
       ArgumentUtility.CheckNotNull ("types", types);

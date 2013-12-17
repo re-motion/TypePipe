@@ -17,16 +17,24 @@
 
 using System;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
   /// Creates <see cref="MemberEmitter"/> instances.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class MemberEmitterFactory : IMemberEmitterFactory
   {
+    public MemberEmitterFactory ()
+    {
+    }
+
     public IMemberEmitter CreateMemberEmitter (IEmittableOperandProvider emittableOperandProvider)
     {
+      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
 
       // The trampoline provider is part of the preparation stage and as such only generates expressions that are already prepared.

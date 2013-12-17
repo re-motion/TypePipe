@@ -202,7 +202,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// </summary>
     public override bool Equals (object other)
     {
-      return this == other;
+      return ReferenceEquals (this, other);
     }
 
     /// <summary>

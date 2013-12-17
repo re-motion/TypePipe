@@ -17,12 +17,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
 using System.Reflection.Emit;
-using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using System.Threading;
 
 #if TypePipe
@@ -308,7 +307,7 @@ namespace System.Linq.Expressions.Compiler {
         /// </summary>
         private MemberExpression CreateLazyInitializedField<T>(string name) {
             if (_method is DynamicMethod) {
-                return Expression.Field(Expression.Constant(new StrongBox<T>(default(T))), "Value");
+                return Expression.Field(Expression.Constant(new System.Runtime.CompilerServices.StrongBox<T>(default(T))), "Value");
             } else {
                 return Expression.Field(null, CreateStaticField(name, typeof(T)));
             }

@@ -23,10 +23,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Defines an interface for classes creating <see cref="MutableType"/> model instances.
   /// </summary>
+  /// <remarks>
+  /// <note type="inotes">Implementations of the interface must be threadsafe.</note>
+  /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   public interface IMutableTypeFactory
   {
     MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType);
 
-    ITypeModificationTracker CreateProxy (Type baseType);
+    ITypeModificationTracker CreateProxy (Type baseType, ProxyKind proxyKind);
   }
 }

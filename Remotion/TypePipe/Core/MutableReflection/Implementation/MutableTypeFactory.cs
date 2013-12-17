@@ -16,9 +16,9 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
@@ -28,8 +28,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Creates <see cref="MutableType"/> instances from the specified data or the given base type.
   /// </summary>
+  /// <threadsafety static="true" instance="true" />
   public class MutableTypeFactory : IMutableTypeFactory
   {
+    /// <summary>
+    /// Assembly number counter. Will be incremented using <see cref="Interlocked.Increment(ref int)"/>.
+    /// </summary>
     private int _counter;
 
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
@@ -56,17 +60,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return CreateMutableType (name, @namespace, attributes, baseType, declaringType);
     }
 
-    private static bool IsValidBaseType (Type baseType)
-    {
-      return SubclassFilterUtility.IsSubclassable (baseType) && !baseType.ContainsGenericParameters;
-    }
-
-    public ITypeModificationTracker CreateProxy (Type baseType)
+    public ITypeModificationTracker CreateProxy (Type baseType, ProxyKind proxyKind)
     {
       ArgumentUtility.CheckNotNull ("baseType", baseType);
 
-      _counter++;
-      var name = string.Format ("{0}_Proxy_{1}", baseType.Name, _counter);
+      var incrementedCounter = Interlocked.Increment (ref _counter);
+
+      var name = string.Format ("{0}_{1}Proxy_{2}", baseType.Name, proxyKind, incrementedCounter);
       var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
 
       var proxyType = CreateType (name, baseType.Namespace, attributes, baseType, null);
@@ -75,7 +75,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return new ProxyTypeModificationTracker (proxyType, constructorBodies);
     }
 
-    private static MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
+    private bool IsValidBaseType (Type baseType)
+    {
+      return SubclassFilterUtility.IsSubclassable (baseType) && !baseType.ContainsGenericParameters;
+    }
+
+    private MutableType CreateMutableType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
     {
       var interfaceMappingComputer = new InterfaceMappingComputer();
       var mutableMemberFactory = new MutableMemberFactory (new RelatedMethodFinder());
@@ -83,19 +88,20 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       return new MutableType (declaringType, baseType, name, @namespace, attributes, interfaceMappingComputer, mutableMemberFactory);
     }
 
-    private IEnumerable<Expression> CopyConstructors (Type baseType, MutableType proxyType)
+    private Expression[] CopyConstructors (Type baseType, MutableType proxyType)
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
       var accessibleInstanceCtors = baseType.GetConstructors (bindingFlags).Where (SubclassFilterUtility.IsVisibleFromSubclass);
 
-      foreach (var constructor in accessibleInstanceCtors)
-      {
-        var attributes = MethodAttributes.Public | MethodAttributes.HideBySig;
-        var parameters = constructor.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
+      var attributes = MethodAttributes.Public | MethodAttributes.HideBySig;
+      var copiedConstructors = accessibleInstanceCtors.Select (ctor => CopyConstructor (proxyType, attributes, ctor));
+      return copiedConstructors.Select (ctor => ctor.Body).ToArray();
+    }
 
-        var copiedCtor = proxyType.AddConstructor (attributes, parameters, ctx => ctx.CallBaseConstructor (ctx.Parameters.Cast<Expression>()));
-        yield return copiedCtor.Body;
-      }
+    private static MutableConstructorInfo CopyConstructor (MutableType proxyType, MethodAttributes attributes, ConstructorInfo constructor)
+    {
+      var parameters = constructor.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
+      return proxyType.AddConstructor (attributes, parameters, ctx => ctx.CallBaseConstructor (ctx.Parameters));
     }
   }
 }

@@ -16,14 +16,16 @@
 // 
 
 using System;
-using Remotion.TypePipe.CodeGeneration;
+using System.Reflection.Emit;
 
-namespace Remotion.TypePipe.Implementation.Synchronization
+namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
-  /// <summary>
-  /// This interface is an implementation detail of <see cref="CodeManager"/> to enable synchronization of code generation functionalities in one place.
-  /// </summary>
-  public interface ICodeManagerSynchronizationPoint : IGeneratedCodeFlusher
+  public static class ILGeneratorObjectMother
   {
+    public static ILGenerator Create ()
+    {
+      var dynamicMethod = new DynamicMethod ("Test", typeof (void), Type.EmptyTypes);
+      return dynamicMethod.GetILGenerator();
+    }
   }
 }

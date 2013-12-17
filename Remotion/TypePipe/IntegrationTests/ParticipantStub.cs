@@ -26,26 +26,26 @@ namespace Remotion.TypePipe.IntegrationTests
   {
     private readonly ITypeIdentifierProvider _typeIdentifierProvider;
     private readonly Action<object, IProxyTypeAssemblyContext> _participateAction;
-    private readonly Action<LoadedTypesContext> _rebuildStateAction;
+    private readonly Func<Type, object>_getAdditionalTypeIDFunc;
     private readonly Action<Type> _handleNonSubclassableTypeAction;
     private readonly Func<object, IAdditionalTypeAssemblyContext, Type> _getOrCreateAdditionalTypeFunc;
 
     public ParticipantStub (
         ITypeIdentifierProvider typeIdentifierProvider,
         Action<object, IProxyTypeAssemblyContext> participateAction,
-        Action<LoadedTypesContext> rebuildStateAction,
+        Func<Type, object> getAdditionalTypeIDFunc,
         Action<Type> handleNonSubclassableTypeAction,
         Func<object, IAdditionalTypeAssemblyContext, Type> getOrCreateAdditionalTypeFunc)
     {
       // Type identifier provider may be null.
       ArgumentUtility.CheckNotNull ("participateAction", participateAction);
-      ArgumentUtility.CheckNotNull ("rebuildStateAction", rebuildStateAction);
+      ArgumentUtility.CheckNotNull ("getAdditionalTypeIDFunc", getAdditionalTypeIDFunc);
       ArgumentUtility.CheckNotNull ("handleNonSubclassableTypeAction", handleNonSubclassableTypeAction);
       ArgumentUtility.CheckNotNull ("getOrCreateAdditionalTypeFunc", getOrCreateAdditionalTypeFunc);
 
       _typeIdentifierProvider = typeIdentifierProvider;
       _participateAction = participateAction;
-      _rebuildStateAction = rebuildStateAction;
+      _getAdditionalTypeIDFunc = getAdditionalTypeIDFunc;
       _handleNonSubclassableTypeAction = handleNonSubclassableTypeAction;
       _getOrCreateAdditionalTypeFunc = getOrCreateAdditionalTypeFunc;
     }
@@ -60,14 +60,14 @@ namespace Remotion.TypePipe.IntegrationTests
       _participateAction (id, proxyTypeAssemblyContext);
     }
 
-    public void RebuildState (LoadedTypesContext loadedTypesContext)
+    public object GetAdditionalTypeID (Type additionalType)
     {
-      _rebuildStateAction (loadedTypesContext);
+      return _getAdditionalTypeIDFunc (additionalType);
     }
 
-    public void HandleNonSubclassableType (Type requestedType)
+    public void HandleNonSubclassableType (Type nonSubclassableRequestedType)
     {
-      _handleNonSubclassableTypeAction (requestedType);
+      _handleNonSubclassableTypeAction (nonSubclassableRequestedType);
     }
 
     public Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext)

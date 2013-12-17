@@ -16,11 +16,11 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.TypeAssembly;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
 {
@@ -32,13 +32,13 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     {
       var proxyType = new LoadedProxy (typeof (int), typeof (string));
       var additionalType = ReflectionObjectMother.GetSomeOtherType();
-      var state = new Dictionary<string, object>();
+      var state = new ParticipantState();
 
       var context = new LoadedTypesContext (new[] { proxyType }.AsOneTime(), new[] { additionalType }.AsOneTime(), state);
 
       Assert.That (context.ProxyTypes, Is.EqualTo (new[] { proxyType }));
       Assert.That (context.AdditionalTypes, Is.EqualTo (new[] { additionalType }));
-      Assert.That (context.State, Is.SameAs (state));
+      Assert.That (context.ParticipantState, Is.SameAs (state));
     }
   }
 }

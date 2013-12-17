@@ -19,6 +19,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting;
+using Remotion.Reflection;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -37,7 +38,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
           ctx =>
           {
             if (ctx.RequestedType == typeof (RequestedType1))
-              ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object));
+              ctx.CreateAdditionalType (new object(), "AdditionalType", "MyNs", TypeAttributes.Class, typeof (object));
           });
 
       _pipeline = CreatePipeline (participant);
@@ -67,14 +68,28 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void GetAssembledType_ViaTypeID ()
+    public void GetAssembledType_ViaTypeIDForRequestedType ()
     {
       var assembledType = _reflectionService.GetAssembledType (typeof (RequestedType1));
-      var typeID = _reflectionService.GetTypeID (assembledType);
+      var typeID = _reflectionService.GetTypeIDForRequestedType (typeof (RequestedType1));
       Assert.That (typeID.RequestedType, Is.SameAs (typeof (RequestedType1)));
 
       var type1 = _reflectionService.GetAssembledType (typeID);
-      var type2 = _pipeline.Create (typeID).GetType();
+      var type2 = _reflectionService.InstantiateAssembledType (typeID, ParamList.Empty, false).GetType();
+
+      Assert.That (type1, Is.SameAs (assembledType));
+      Assert.That (type2, Is.SameAs (assembledType));
+    }
+
+    [Test]
+    public void GetAssembledType_ViaTypeIDForAssembledType ()
+    {
+      var assembledType = _reflectionService.GetAssembledType (typeof (RequestedType1));
+      var typeID = _reflectionService.GetTypeIDForAssembledType (assembledType);
+      Assert.That (typeID.RequestedType, Is.SameAs (typeof (RequestedType1)));
+
+      var type1 = _reflectionService.GetAssembledType (typeID);
+      var type2 = _reflectionService.InstantiateAssembledType (typeID, ParamList.Empty, false).GetType();
 
       Assert.That (type1, Is.SameAs (assembledType));
       Assert.That (type2, Is.SameAs (assembledType));
@@ -90,9 +105,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var assembledType2 = equivalentReflectionService.GetAssembledType (typeof (RequestedType1));
       var assembledType3 = otherReflectionService.GetAssembledType (typeof (RequestedType1));
 
-      var instance1 = _reflectionService.InstantiateAssembledType (assembledType1);
-      var instance2 = _reflectionService.InstantiateAssembledType (assembledType2);
-      var instance3 = _reflectionService.InstantiateAssembledType (assembledType3);
+      var instance1 = _reflectionService.InstantiateAssembledType (assembledType1, ParamList.Empty, false);
+      var instance2 = _reflectionService.InstantiateAssembledType (assembledType2, ParamList.Empty, false);
+      var instance3 = _reflectionService.InstantiateAssembledType (assembledType3, ParamList.Empty, false);
       // We though about disallowing instantiating assembled types created by a pipeline with a different participant configuration ID.
       // But the implementation would require us to add the [TypePipeAssemblyAttribute] attribute immediately, and query for it in a completely
       // different place. So we decided (for now) that it is not worth the effort.

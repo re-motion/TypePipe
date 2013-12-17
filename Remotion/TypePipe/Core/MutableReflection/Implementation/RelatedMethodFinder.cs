@@ -28,6 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <summary>
   /// Provides useful methods for investigating method overrides.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class RelatedMethodFinder : IRelatedMethodFinder
   {
     private class TypePipeMethodInfoEuqalityComparer : IEqualityComparer<MethodInfo>

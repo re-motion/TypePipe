@@ -30,6 +30,7 @@ namespace Remotion.TypePipe.Implementation.Remotion
   /// Decorates an instance of <see cref="IModuleBuilderFactory"/> and adds the <see cref="NonApplicationAssemblyAttribute"/> to the
   /// <see cref="IAssemblyBuilder"/> whenever a <see cref="IModuleBuilder"/> is created.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class RemotionModuleBuilderFactoryDecorator : IModuleBuilderFactory
   {
     private static readonly ConstructorInfo s_nonApplicationAssemblyAttributeConstructor =
@@ -49,8 +50,6 @@ namespace Remotion.TypePipe.Implementation.Remotion
     public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
-      // Assembly directory may be null.
-      // Key file path may be null.
 
       var moduleBuilder = _moduleBuilderFactory.CreateModuleBuilder (assemblyName, assemblyDirectoryOrNull, strongNamed, keyFilePathOrNull);
 

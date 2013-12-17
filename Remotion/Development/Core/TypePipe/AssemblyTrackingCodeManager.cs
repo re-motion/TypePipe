@@ -36,6 +36,7 @@ namespace Remotion.Development.TypePipe
   /// </summary>
   public class AssemblyTrackingCodeManager : ICodeManager
   {
+    private readonly object _lockObject = new object();
     private readonly List<string> _savedAssemblies = new List<string>();
     private readonly ICodeManager _codeManager;
 
@@ -48,70 +49,69 @@ namespace Remotion.Development.TypePipe
 
     public ReadOnlyCollection<string> SavedAssemblies
     {
-      get { return _savedAssemblies.AsReadOnly(); }
+      get
+      {
+        lock (_lockObject)
+        {
+          return _savedAssemblies.AsReadOnly();
+        }
+      }
     }
 
     public void AddSavedAssembly (string assemblyPath)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyPath", assemblyPath);
-      _savedAssemblies.Add (assemblyPath);
+      lock (_lockObject)
+      {
+        _savedAssemblies.Add (assemblyPath);
+      }
     }
 
     public void PeVerifySavedAssemblies ()
     {
-      foreach (var assemblyPath in _savedAssemblies)
-        PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+      lock (_lockObject)
+      {
+        foreach (var assemblyPath in _savedAssemblies)
+          PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+      }
     }
 
     public void DeleteSavedAssemblies ()
     {
-      foreach (var assemblyPath in _savedAssemblies)
+      lock (_lockObject)
       {
-        FileUtility.DeleteAndWaitForCompletion (assemblyPath);
-        FileUtility.DeleteAndWaitForCompletion (Path.ChangeExtension (assemblyPath, "pdb"));
+        foreach (var assemblyPath in _savedAssemblies)
+        {
+          FileUtility.DeleteAndWaitForCompletion (assemblyPath);
+          FileUtility.DeleteAndWaitForCompletion (Path.ChangeExtension (assemblyPath, "pdb"));
+        }
+
+        _savedAssemblies.Clear();
       }
-
-      _savedAssemblies.Clear();
     }
 
-    public string AssemblyDirectory
+    public string[] FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
     {
-      get { return _codeManager.AssemblyDirectory; }
-    }
+      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
-    public string AssemblyNamePattern
-    {
-      get { return _codeManager.AssemblyNamePattern; }
-    }
+      lock (_lockObject)
+      {
+        var assemblyPaths = _codeManager.FlushCodeToDisk (assemblyAttributes);
 
-    public void SetAssemblyDirectory (string assemblyDirectory)
-    {
-      _codeManager.SetAssemblyDirectory (assemblyDirectory);
-    }
+        _savedAssemblies.AddRange (assemblyPaths);
 
-    public void SetAssemblyNamePattern (string assemblyNamePattern)
-    {
-      _codeManager.SetAssemblyNamePattern (assemblyNamePattern);
-    }
-
-    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
-    {
-      var assemblyPath = _codeManager.FlushCodeToDisk (assemblyAttributes);
-
-      if (assemblyPath != null)
-        _savedAssemblies.Add (assemblyPath);
-
-      return assemblyPath;
-    }
-
-    public string FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
-    {
-      return FlushCodeToDisk ((IEnumerable<CustomAttributeDeclaration>) assemblyAttributes);
+        return assemblyPaths;
+      }
     }
 
     public void LoadFlushedCode (Assembly assembly)
     {
-      _codeManager.LoadFlushedCode (assembly);
+      ArgumentUtility.CheckNotNull ("assembly", assembly);
+
+      lock (_lockObject)
+      {
+        _codeManager.LoadFlushedCode (assembly);
+      }
     }
   }
 }

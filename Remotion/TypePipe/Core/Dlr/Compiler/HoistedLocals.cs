@@ -15,7 +15,6 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
@@ -65,7 +64,7 @@ namespace System.Linq.Expressions.Compiler {
         internal readonly HoistedLocals Parent;
 
         // A mapping of hoisted variables to their indexes in the array
-        internal readonly ReadOnlyDictionary<Expression, int> Indexes;
+        internal readonly Dynamic.Utils.ReadOnlyDictionary<Expression, int> Indexes;
 
         // The variables, in the order they appear in the array
         internal readonly ReadOnlyCollection<ParameterExpression> Variables;
@@ -88,7 +87,7 @@ namespace System.Linq.Expressions.Compiler {
             SelfVariable = Expression.Variable(typeof(object[]), null);
             Parent = parent;
             Variables = vars;
-            Indexes = new ReadOnlyDictionary<Expression, int>(indexes);
+            Indexes = new Dynamic.Utils.ReadOnlyDictionary<Expression, int>(indexes);
         }
 
         internal ParameterExpression ParentVariable {
@@ -96,7 +95,7 @@ namespace System.Linq.Expressions.Compiler {
         }
 
         internal static object[] GetParent(object[] locals) {
-            return ((StrongBox<object[]>)locals[0]).Value;
+            return ((System.Runtime.CompilerServices.StrongBox<object[]>)locals[0]).Value;
         }
     }
 }

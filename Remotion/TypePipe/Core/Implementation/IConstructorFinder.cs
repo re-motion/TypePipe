@@ -23,6 +23,7 @@ namespace Remotion.TypePipe.Implementation
   /// <summary>
   /// Searches for a constructor and buildes a useful exception message if it cannot be found.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IConstructorFinder
   {
     ConstructorInfo GetConstructor (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type assembledType);

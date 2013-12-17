@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Reflection;
 using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -43,7 +44,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     [Test]
     public void CreateAdaptedILGenerator ()
     {
-      var realILGenerator = (ILGenerator) PrivateInvoke.CreateInstanceNonPublicCtor (typeof (ILGenerator), 12);
+      var realILGenerator = ILGeneratorObjectMother.Create();
 
       var fakeInnerResult = MockRepository.GenerateStub<IILGenerator> ();
       _innerFactoryStub.Stub (stub => stub.CreateAdaptedILGenerator (realILGenerator)).Return (fakeInnerResult);

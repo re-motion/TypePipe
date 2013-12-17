@@ -15,14 +15,15 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.Implementation.Synchronization;
+using System.Collections.Concurrent;
+using Remotion.TypePipe.CodeGeneration;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Caching
 {
   /// <summary>
-  /// Retrieves construction delegates for assembled types from a cache or delegates to <see cref="IReverseTypeCacheSynchronizationPoint"/> to
-  /// create a new one.
+  /// Retrieves construction delegates for assembled types from a cache or creates a new one.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -36,18 +37,25 @@ namespace Remotion.TypePipe.Caching
   /// (Required for re-mix's feature of saying ObjectFactory.Create (assembledType).)
   /// </para>
   /// </remarks>
-  public class ReverseTypeCache : IReverseTypeCache
+  /// <threadsafety static="true" instance="true"/>
+  public class ConstructorForAssembledTypeCache : IConstructorForAssembledTypeCache
   {
-    private readonly ConcurrentDictionary<ReverseConstructionKey, Delegate> _constructorCalls =
-        new ConcurrentDictionary<ReverseConstructionKey, Delegate>();
+    private readonly ITypeAssembler _typeAssembler;
+    private readonly IConstructorDelegateFactory _constructorDelegateFactory;
 
-    private readonly IReverseTypeCacheSynchronizationPoint _reverseTypeCacheSynchronizationPoint;
+    private readonly ConcurrentDictionary<ConstructorForAssembledTypeCacheKey, Delegate> _constructorCalls =
+        new ConcurrentDictionary<ConstructorForAssembledTypeCacheKey, Delegate>();
 
-    public ReverseTypeCache (IReverseTypeCacheSynchronizationPoint reverseTypeCacheSynchronizationPoint)
+    private readonly Func<ConstructorForAssembledTypeCacheKey, Delegate> _createConstructorCallFunc;
+
+    public ConstructorForAssembledTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
     {
-      ArgumentUtility.CheckNotNull("reverseTypeCacheSynchronizationPoint", reverseTypeCacheSynchronizationPoint);
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
 
-      _reverseTypeCacheSynchronizationPoint = reverseTypeCacheSynchronizationPoint;
+      _typeAssembler = typeAssembler;
+      _constructorDelegateFactory = constructorDelegateFactory;
+      _createConstructorCallFunc = CreateConstructorCall;
     }
 
     public Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic)
@@ -55,13 +63,15 @@ namespace Remotion.TypePipe.Caching
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      var reverseConstructionKey = new ReverseConstructionKey (assembledType, delegateType, allowNonPublic);
+      var reverseConstructionKey = new ConstructorForAssembledTypeCacheKey (assembledType, delegateType, allowNonPublic);
 
-      Delegate constructorCall;
-      if (_constructorCalls.TryGetValue (reverseConstructionKey, out constructorCall))
-        return constructorCall;
+      return _constructorCalls.GetOrAdd (reverseConstructionKey, _createConstructorCallFunc);
+    }
 
-      return _reverseTypeCacheSynchronizationPoint.GetOrGenerateConstructorCall (_constructorCalls, reverseConstructionKey);
+    private Delegate CreateConstructorCall (ConstructorForAssembledTypeCacheKey key)
+    {
+      var requestedType = _typeAssembler.GetRequestedType (key.AssembledType);
+      return _constructorDelegateFactory.CreateConstructorCall (requestedType, key.AssembledType, key.DelegateType, key.AllowNonPublic);
     }
   }
 }

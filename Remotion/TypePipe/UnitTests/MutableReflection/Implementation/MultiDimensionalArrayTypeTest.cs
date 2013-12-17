@@ -51,7 +51,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetAllInterfaces ()
     {
-      var expectedInterfaces = new[] { typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable) };
+      var expectedInterfaces =
+          new[]
+          {
+              typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable), typeof (IStructuralComparable),
+              typeof (IStructuralEquatable)
+          };
 
       var result = _type.GetInterfaces();
 

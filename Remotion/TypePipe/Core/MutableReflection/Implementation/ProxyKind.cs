@@ -17,13 +17,14 @@
 
 using System;
 
-namespace Remotion.TypePipe.Caching
+namespace Remotion.TypePipe.MutableReflection.Implementation
 {
   /// <summary>
-  /// Caches constructor delegates for assembled types, i.e., the assembled type is part of the key.
+  /// Identifies the type of proxy created by <see cref="IMutableTypeFactory"/>.<see cref="IMutableTypeFactory.CreateProxy"/>.
   /// </summary>
-  public interface IReverseTypeCache
+  public enum ProxyKind
   {
-    Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic);
+    AssembledType,
+    AdditionalType
   }
 }

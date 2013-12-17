@@ -15,8 +15,8 @@
 // under the License.
 // 
 
+using System.Collections.Concurrent;
 using System.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation

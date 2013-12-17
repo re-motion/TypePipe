@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Remotion.TypePipe</RootNamespace>
     <AssemblyName>Remotion.TypePipe</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -19,23 +19,25 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TypePipe;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TypePipe</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Remotion.TypePipe.XML</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>1591</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;TypePipe;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;TypePipe</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\Remotion.TypePipe.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -54,29 +56,40 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\AssemblyInfoShared.cs">
+    <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\AssembledTypeID.cs" />
     <Compile Include="Caching\ConstructionKey.cs" />
-    <Compile Include="Caching\ReverseConstructionKey.cs" />
-    <Compile Include="Caching\IReverseTypeCache.cs" />
-    <Compile Include="Caching\ReverseTypeCache.cs" />
+    <Compile Include="Caching\ConstructorCallCache.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCacheKey.cs" />
+    <Compile Include="Caching\IConstructorCallCache.cs" />
+    <Compile Include="Caching\IConstructorForAssembledTypeCache.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCache.cs" />
+    <Compile Include="CodeGeneration\AssemblyContext.cs" />
+    <Compile Include="CodeGeneration\IConstructorDelegateFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\IMutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
+    <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecorator.cs" />
     <Compile Include="Configuration\EnableSerializationWithoutAssemblySavingConfigurationElement.cs" />
     <Compile Include="Implementation\InitializationSemantics.cs" />
     <Compile Include="Implementation\DefaultPipelineFactory.cs" />
-    <Compile Include="Implementation\Synchronization\IReverseTypeCacheSynchronizationPoint.cs" />
+    <Compile Include="CodeGeneration\ConstructorDelegateFactory.cs" />
+    <Compile Include="CodeGeneration\AssemblyContextPool.cs" />
+    <Compile Include="CodeGeneration\IAssemblyContextPool.cs" />
     <Compile Include="MutableReflection\BodyChangedEventArgs.cs" />
     <Compile Include="MutableReflection\ExplicitBaseDefinitionsAddedEventArgs.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKey.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitialization.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCache.cs" />
+    <Compile Include="MutableReflection\Implementation\ProxyKind.cs" />
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\IDeserializationMethodInvoker.cs" />
     <Compile Include="TypeAssembly\IAdditionalTypeAssemblyContext.cs" />
+    <Compile Include="TypeAssembly\IParticipantState.cs" />
+    <Compile Include="TypeAssembly\ParticipantState.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyResult.cs" />
     <Compile Include="TypeAssembly\ITypeAssemblyContext.cs" />
     <Compile Include="TypeAssembly\Implementation\AssembledTypeIdentifierProvider.cs" />
     <Compile Include="TypeAssembly\Implementation\IAssembledTypeIdentifierProvider.cs" />
@@ -87,14 +100,9 @@
     <Compile Include="Implementation\Remotion\RemotionPipelineFactory.cs" />
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecorator.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistry.cs" />
-    <Compile Include="Implementation\Synchronization\ICodeManagerSynchronizationPoint.cs" />
-    <Compile Include="Implementation\Synchronization\SynchronizationPoint.cs" />
-    <Compile Include="Implementation\Synchronization\ISynchronizationPoint.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
-    <Compile Include="Implementation\Synchronization\IReflectionServiceSynchronizationPoint.cs" />
-    <Compile Include="Implementation\Synchronization\ITypeCacheSynchronizationPoint.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
     <Compile Include="Implementation\IPipelineFactory.cs" />
     <Compile Include="Implementation\IReflectionService.cs" />
@@ -481,6 +489,7 @@
     </EmbeddedResource>
     <None Include="Dlr\Preserve-Dlr.licenseheader" />
     <EmbeddedResource Include="StrongNaming\FallbackKey.snk" />
+    <None Include="doc\include\GettingStartedWithTypePipe.aml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">

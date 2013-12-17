@@ -16,10 +16,12 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 
@@ -39,13 +41,14 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void CreateClass ()
     {
+      var id = new object();
       var name = "MyName";
       var @namespace = "MyNamespace";
       var baseType = ReflectionObjectMother.GetSomeSubclassableType ();
 
-      var result = _context.CreateClass (name, @namespace, baseType);
+      var result = _context.CreateClass (id, name, @namespace, baseType);
 
-      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { result }));
+      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { new KeyValuePair<object, MutableType> (id, result) }));
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Namespace, Is.EqualTo (@namespace));
       Assert.That (result.BaseType, Is.SameAs (baseType));
@@ -55,9 +58,10 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly
     [Test]
     public void CreateInterface ()
     {
-      var result = _context.CreateInterface ("IAbc", "MyNs");
+      var id = new object();
+      var result = _context.CreateInterface (id, "IAbc", "MyNs");
 
-      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { result }));
+      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { new KeyValuePair<object, MutableType> (id, result) }));
       Assert.That (result.IsInterface, Is.True);
       Assert.That (result.BaseType, Is.Null);
       Assert.That (result.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract));

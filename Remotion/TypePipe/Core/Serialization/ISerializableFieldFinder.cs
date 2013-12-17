@@ -18,13 +18,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.Serialization
 {
   /// <summary>
   /// This interfaces encapsulates getting a serialized field mapping from a greater list of fields.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface ISerializableFieldFinder
   {
     IEnumerable<Tuple<string, FieldInfo>> GetSerializableFieldMapping (IEnumerable<FieldInfo> fields);

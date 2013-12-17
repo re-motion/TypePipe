@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.MutableReflection;
@@ -310,9 +309,9 @@ namespace System.Linq.Expressions.Compiler {
                 // array[i] = new StrongBox<T>(...);
                 lc.IL.Emit(OpCodes.Dup);
                 lc.IL.EmitInt(i++);
-                Type boxType = typeof(StrongBox<>).MakeTypePipeGenericType(v.Type);
-                Debug.Assert (boxType.GetConstructors().Length == 1);
-                var boxTypeCtor = boxType.GetConstructors()[0];
+                Type boxType = typeof(System.Runtime.CompilerServices.StrongBox<>).MakeTypePipeGenericType(v.Type);
+                // TODO 5619: GetConstructor (Type[]) no longer supports custom types, so we need to explicitly search for the right ctor.
+                var boxTypeCtor = boxType.GetConstructors().Where (c => c.GetParameters().Length == 1 ).First();
 
                 if (IsMethod && lc.Parameters.Contains(v)) {
                     // array[i] = new StrongBox<T>(argument);

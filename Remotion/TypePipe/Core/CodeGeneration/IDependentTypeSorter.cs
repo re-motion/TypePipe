@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// An interface for classes that sort types according to their base type and interface dependencies.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IDependentTypeSorter
   {
     IEnumerable<MutableType> Sort (IEnumerable<MutableType> types);

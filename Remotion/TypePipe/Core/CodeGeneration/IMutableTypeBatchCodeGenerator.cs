@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Defines an interface for classes generating types from a <see cref="ProxyTypeAssemblyContext"/>.
   /// </summary>
+  /// <threadsafety static="true" instance="false"/>
   public interface IMutableTypeBatchCodeGenerator
   {
     /// <summary>

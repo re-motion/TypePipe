@@ -17,9 +17,10 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 using Remotion.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -27,29 +28,34 @@ namespace Remotion.TypePipe.Implementation
   /// <summary>
   /// Implements <see cref="IPipeline"/> to act as a main entry point into the pipeline for generating types and instantiating them.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class Pipeline : IPipeline
   {
     private readonly PipelineSettings _settings;
-    private readonly ITypeCache _typeCache;
     private readonly ICodeManager _codeManager;
     private readonly IReflectionService _reflectionService;
+    private readonly ITypeAssembler _typeAssembler;
 
-    public Pipeline (PipelineSettings settings, ITypeCache typeCache, ICodeManager codeManager, IReflectionService reflectionService)
+    public Pipeline (
+        PipelineSettings settings,
+        ICodeManager codeManager,
+        IReflectionService reflectionService,
+        ITypeAssembler typeAssembler)
     {
       ArgumentUtility.CheckNotNull ("settings", settings);
-      ArgumentUtility.CheckNotNull ("typeCache", typeCache);
       ArgumentUtility.CheckNotNull ("codeManager", codeManager);
       ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
+      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
 
       _settings = settings;
-      _typeCache = typeCache;
       _codeManager = codeManager;
       _reflectionService = reflectionService;
+      _typeAssembler = typeAssembler;
     }
 
     public string ParticipantConfigurationID
     {
-      get { return _typeCache.ParticipantConfigurationID; }
+      get { return _typeAssembler.ParticipantConfigurationID; }
     }
 
     public PipelineSettings Settings
@@ -59,7 +65,7 @@ namespace Remotion.TypePipe.Implementation
 
     public ReadOnlyCollection<IParticipant> Participants
     {
-      get { return _typeCache.Participants; }
+      get { return _typeAssembler.Participants; }
     }
 
     public ICodeManager CodeManager
@@ -80,32 +86,12 @@ namespace Remotion.TypePipe.Implementation
 
     public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      // Using Assertion.DebugAssert because it will be compiled away. Argument-check is performed by ReflectionService.
+      Assertion.DebugAssert (requestedType != null, "requestedType cannot be null.");
       constructorArguments = constructorArguments ?? ParamList.Empty;
 
-      var constructorCall = _typeCache.GetOrCreateConstructorCall (requestedType, constructorArguments.FuncType, allowNonPublicConstructor);
-      var instance = constructorArguments.InvokeFunc (constructorCall);
-
-      return instance;
-    }
-
-    public object Create (AssembledTypeID typeID, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
-    {
-      constructorArguments = constructorArguments ?? ParamList.Empty;
-
-      var constructorCall = _typeCache.GetOrCreateConstructorCall (typeID, constructorArguments.FuncType, allowNonPublicConstructor);
-      var instance = constructorArguments.InvokeFunc (constructorCall);
-
-      return instance;
-    }
-
-    public void PrepareExternalUninitializedObject (object instance, InitializationSemantics initializationSemantics)
-    {
-      ArgumentUtility.CheckNotNull ("instance", instance);
-
-      var initializableInstance = instance as IInitializableObject;
-      if (initializableInstance != null)
-        initializableInstance.Initialize (initializationSemantics);
+      var typeID = _reflectionService.GetTypeIDForRequestedType (requestedType);
+      return _reflectionService.InstantiateAssembledType (typeID, constructorArguments, allowNonPublicConstructor);
     }
   }
 }

@@ -32,10 +32,10 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     public ProxyTypeAssemblyContext (
         IMutableTypeFactory mutableTypeFactory,
         string participantConfigurationID,
-        IDictionary<string, object> state,
+        IParticipantState participantState,
         Type requestedType,
         MutableType proxyType)
-        : base (mutableTypeFactory, participantConfigurationID, state)
+        : base (mutableTypeFactory, participantConfigurationID, participantState)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("proxyType", proxyType);

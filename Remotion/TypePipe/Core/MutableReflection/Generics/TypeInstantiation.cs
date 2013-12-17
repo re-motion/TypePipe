@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -41,14 +40,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly IDictionary<Type, Type> _parametersToArguments;
 
     // TODO 5452: Use type unification.
-    // TODO 5057: Use Lazy<>
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _nestedTypes;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _interfaces;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<FieldInfo>> _fields;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<MethodOnTypeInstantiation>> _methods;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<PropertyInfo>> _properties;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<EventInfo>> _events;
+    private readonly Lazy<ReadOnlyCollection<Type>> _nestedTypes;
+    private readonly Lazy<ReadOnlyCollection<Type>> _interfaces;
+    private readonly Lazy<ReadOnlyCollection<FieldInfo>> _fields;
+    private readonly Lazy<ReadOnlyCollection<ConstructorInfo>> _constructors;
+    private readonly Lazy<ReadOnlyCollection<MethodOnTypeInstantiation>> _methods;
+    private readonly Lazy<ReadOnlyCollection<PropertyInfo>> _properties;
+    private readonly Lazy<ReadOnlyCollection<EventInfo>> _events;
 
     public TypeInstantiation (TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
         : base (
@@ -86,13 +84,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (genericTypeDefinition.BaseType));
 
-      _nestedTypes = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateNestedType().ToList().AsReadOnly());
-      _interfaces = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateInterfaces ().ToList().AsReadOnly());
-      _fields = new DoubleCheckedLockingContainer<ReadOnlyCollection<FieldInfo>> (() => CreateFields ().Cast<FieldInfo>().ToList().AsReadOnly());
-      _constructors = new DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors ().Cast<ConstructorInfo>().ToList().AsReadOnly());
-      _methods = new DoubleCheckedLockingContainer<ReadOnlyCollection<MethodOnTypeInstantiation>> (() => CreateMethods().ToList().AsReadOnly());
-      _properties =new DoubleCheckedLockingContainer<ReadOnlyCollection<PropertyInfo>> (() => CreateProperties().Cast<PropertyInfo>().ToList().AsReadOnly());
-      _events = new DoubleCheckedLockingContainer<ReadOnlyCollection<EventInfo>> (() => CreateEvents().Cast<EventInfo>().ToList().AsReadOnly());
+      _nestedTypes = new Lazy<ReadOnlyCollection<Type>> (() => CreateNestedType().ToList().AsReadOnly());
+      _interfaces = new Lazy<ReadOnlyCollection<Type>> (() => CreateInterfaces().ToList().AsReadOnly());
+      _fields = new Lazy<ReadOnlyCollection<FieldInfo>> (() => CreateFields().Cast<FieldInfo>().ToList().AsReadOnly());
+      _constructors = new Lazy<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors().Cast<ConstructorInfo>().ToList().AsReadOnly());
+      _methods = new Lazy<ReadOnlyCollection<MethodOnTypeInstantiation>> (() => CreateMethods().ToList().AsReadOnly());
+      _properties = new Lazy<ReadOnlyCollection<PropertyInfo>> (() => CreateProperties().Cast<PropertyInfo>().ToList().AsReadOnly());
+      _events = new Lazy<ReadOnlyCollection<EventInfo>> (() => CreateEvents().Cast<EventInfo>().ToList().AsReadOnly());
     }
 
     public Type SubstituteGenericParameters (Type type)
@@ -148,7 +146,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      return _methods.Value.Cast<MethodInfo>();
+      return _methods.Value;
     }
 
     public override IEnumerable<PropertyInfo> GetAllProperties ()

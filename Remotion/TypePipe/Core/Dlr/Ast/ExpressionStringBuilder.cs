@@ -16,12 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Dynamic;
 using System.Globalization;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using System.Text;
+using ExtensionAttribute = System.Runtime.CompilerServices.ExtensionAttribute;
 
 #if TypePipe
 namespace Remotion.TypePipe.Dlr.Ast {

@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   /// Also calculates a compound cache key consisting of the requested type and the individual cache key parts returned from the 
   /// <see cref="ITypeIdentifierProvider"/>. The providers are retrieved from the participants exactly once at object creation.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class TypeAssembler : ITypeAssembler
   {
     private static readonly ConstructorInfo s_assembledTypeAttributeCtor =
@@ -109,7 +110,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       return _assembledTypeIdentifierProvider.ExtractTypeID (assembledType);
     }
 
-    public Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
+    public TypeAssemblyResult AssembleType (AssembledTypeID typeID, IParticipantState participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("typeID", typeID);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
@@ -119,9 +120,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       CheckRequestedType (requestedType);
 
       if (ShortCircuitTypeAssembly (requestedType))
-        return requestedType;
+        return new TypeAssemblyResult (requestedType);
 
-      var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType);
+      var typeModificationTracker = _mutableTypeFactory.CreateProxy (requestedType, ProxyKind.AssembledType);
       var context = new ProxyTypeAssemblyContext (
           _mutableTypeFactory, _participantConfigurationID, participantState, requestedType, typeModificationTracker.Type);
 
@@ -132,16 +133,20 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       }
 
       if (!typeModificationTracker.IsModified())
-        return requestedType;
+        return new TypeAssemblyResult (requestedType);
 
       var generatedTypesContext = GenerateTypes (typeID, context, codeGenerator);
       context.OnGenerationCompleted (generatedTypesContext);
 
-      return generatedTypesContext.GetGeneratedType (context.ProxyType);
+      return new TypeAssemblyResult (
+          generatedTypesContext.GetGeneratedType (context.ProxyType),
+          context.AdditionalTypes.ToDictionary (kvp => kvp.Key, kvp => generatedTypesContext.GetGeneratedType (kvp.Value)));
     }
 
-    public Type GetOrAssembleAdditionalType (
-        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator)
+    public TypeAssemblyResult AssembleAdditionalType (
+        object additionalTypeID,
+        IParticipantState participantState,
+        IMutableTypeBatchCodeGenerator codeGenerator)
     {
       ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
       ArgumentUtility.CheckNotNull ("participantState", participantState);
@@ -152,27 +157,32 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
           .Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context))
           .First (t => t != null, () => new NotSupportedException ("No participant provided an additional type for the given identifier."));
 
-      var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes, additionalTypeID.ToString());
+      var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes.Values, additionalTypeID.ToString());
       context.OnGenerationCompleted (generatedTypesContext);
 
+      Type resultType;
       if (additionalType is MutableType)
-        return generatedTypesContext.GetGeneratedType ((MutableType) additionalType);
+        resultType = generatedTypesContext.GetGeneratedType ((MutableType) additionalType);
       else
-        return additionalType;
+        resultType = additionalType;
+
+      return new TypeAssemblyResult (
+          resultType,
+          context.AdditionalTypes.ToDictionary (kvp => kvp.Key, kvp => generatedTypesContext.GetGeneratedType (kvp.Value)));
     }
 
-    public void RebuildParticipantState (
-        IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> participantState)
+    public object GetAdditionalTypeID (Type additionalType)
     {
-      ArgumentUtility.CheckNotNull ("assembledTypes", assembledTypes);
-      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull ("additionalType", additionalType);
 
-      var proxyTypes = assembledTypes.Select (t => new LoadedProxy (GetRequestedType (t), t));
-      var loadedTypesContext = new LoadedTypesContext (proxyTypes, additionalTypes, participantState);
+      var ids = _participants.Select (p => p.GetAdditionalTypeID (additionalType)).Where (t => t != null).ToList();
+      if (ids.Count > 1)
+      {
+        throw new InvalidOperationException (
+            string.Format ("More than one participant returned an ID for the additional type '{0}'", additionalType.Name));
+      }
 
-      foreach (var participant in _participants)
-        participant.RebuildState (loadedTypesContext);
+      return ids.SingleOrDefault();
     }
 
     private void CheckRequestedType (Type requestedType)
@@ -208,7 +218,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       // Enable complex serialization.
       _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID,_assembledTypeIdentifierProvider, typeID);
 
-      var mutableTypes = context.AdditionalTypes.Concat (context.ProxyType);
+      var mutableTypes = context.AdditionalTypes.Values.Concat (context.ProxyType);
       return GenerateTypesWithDiagnostics (codeGenerator, mutableTypes, context.RequestedType.Name);
     }
 

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation.Remotion
     [Test]
     public void NewModuleBuilderFactory ()
     {
-      var result = _factory.Invoke ("NewModuleBuilderFactory");
+      var result = _factory.Invoke ("NewModuleBuilderFactory", "ParticipantID");
 
       Assert.That (result, Is.TypeOf<RemotionModuleBuilderFactoryDecorator>());
       Assert.That (PrivateInvoke.GetNonPublicField (result, "_moduleBuilderFactory"), Is.TypeOf<ModuleBuilderFactory>());

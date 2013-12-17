@@ -41,9 +41,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly CustomType _elementType;
     private readonly int _rank;
 
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> _interfaces;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> _constructors;
-    private readonly DoubleCheckedLockingContainer<ReadOnlyCollection<MethodInfo>> _methods;
+    private readonly Lazy<ReadOnlyCollection<Type>> _interfaces;
+    private readonly Lazy<ReadOnlyCollection<ConstructorInfo>> _constructors;
+    private readonly Lazy<ReadOnlyCollection<MethodInfo>> _methods;
 
     protected ArrayTypeBase (CustomType elementType, int rank)
         : base (
@@ -64,11 +64,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Example: typeof (T[]).GetInterface ("ICollection`1").GetMethod ("CopyTo").GetParameters()[0] --> T[]
 
       // ReSharper disable DoNotCallOverridableMethodsInConstructor
-      // TODO 5057: Use Lazy<>
-      _interfaces = new DoubleCheckedLockingContainer<ReadOnlyCollection<Type>> (() => CreateInterfaces (elementType).ToList().AsReadOnly());
-      _constructors = new DoubleCheckedLockingContainer<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors (rank).ToList().AsReadOnly());
+      _interfaces = new Lazy<ReadOnlyCollection<Type>> (() => CreateInterfaces (elementType).ToList().AsReadOnly());
+      _constructors = new Lazy<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors (rank).ToList().AsReadOnly());
+      _methods = new Lazy<ReadOnlyCollection<MethodInfo>> (() => CreateMethods (elementType, rank).ToList().AsReadOnly());
       // ReSharper restore DoNotCallOverridableMethodsInConstructor
-      _methods = new DoubleCheckedLockingContainer<ReadOnlyCollection<MethodInfo>> (() => CreateMethods (elementType, rank).ToList().AsReadOnly());
     }
 
     protected abstract IEnumerable<Type> CreateInterfaces (CustomType elementType);
@@ -127,7 +126,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override IEnumerable<FieldInfo> GetAllFields ()
     {
-      return typeof (Array).GetFields (c_all);
+      return new FieldInfo[0];
     }
 
     public override IEnumerable<ConstructorInfo> GetAllConstructors ()

@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
@@ -24,60 +23,55 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.IO;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
+using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
   public class FlushGeneratedCodeTest : IntegrationTestBase
   {
-    private IPipeline _pipeline;
-    private ICodeManager _codeManager;
-
-    public override void SetUp ()
-    {
-      base.SetUp();
-
-      _pipeline = CreatePipeline();
-      _codeManager = _pipeline.CodeManager;
-    }
-
     [Test]
     public void Standard ()
     {
-      var assembledType1 = RequestType (typeof (RequestedType));
+      var pipeline = CreatePipeline();
+      var assembledType1 = RequestType (pipeline, typeof (RequestedType));
       var path1 = Flush();
 
-      var assembledType2 = RequestType (typeof (OtherRequestedType));
+      var assembledType2 = RequestType (pipeline, typeof (OtherRequestedType));
       var path2 = Flush();
 
       Assert.That (path1, Is.Not.EqualTo (path2));
       Assert.That (assembledType1.FullName, Is.Not.EqualTo (assembledType2.FullName));
 
-      CheckSavedAssembly (path1, assembledType1.FullName);
-      CheckSavedAssembly (path2, assembledType2.FullName);
+      CheckSavedAssembly (pipeline.ParticipantConfigurationID, path1, assembledType1.FullName);
+      CheckSavedAssembly (pipeline.ParticipantConfigurationID, path2, assembledType2.FullName);
     }
 
     [Test]
     public void NoNewTypes ()
     {
-      Assert.That (_codeManager.FlushCodeToDisk(), Is.Null);
+      var pipeline = CreatePipeline();
+      var codeManager = pipeline.CodeManager;
 
-      RequestTypeAndFlush (typeof (RequestedType));
-      RequestType (typeof (RequestedType));
+      Assert.That (codeManager.FlushCodeToDisk(), Is.Empty);
 
-      Assert.That (_codeManager.FlushCodeToDisk(), Is.Null);
+      RequestTypeAndFlush (pipeline, typeof (RequestedType));
+      RequestType (pipeline, typeof (RequestedType));
+
+      Assert.That (codeManager.FlushCodeToDisk(), Is.Empty);
     }
 
     [Test]
     public void AssemblyAttributes ()
     {
+      var pipeline = CreatePipeline();
+
       var attributeCtor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new ObsoleteAttribute ("message"));
       var assemblyAttribute = new CustomAttributeDeclaration (attributeCtor, new object[] { "abc" });
 
-      var path = RequestTypeAndFlush (assemblyAttributes: new[] { assemblyAttribute });
+      var path = RequestTypeAndFlush (pipeline, assemblyAttributes: new[] { assemblyAttribute });
 
       var assembly = AssemblyLoader.LoadWithoutLocking (path);
       var attributes = assembly.GetCustomAttributes (inherit: true);
@@ -85,7 +79,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var typePipeAttribute = attributes.OfType<TypePipeAssemblyAttribute>().Single();
       var obsoleteAttribute = attributes.OfType<ObsoleteAttribute>().Single();
-      Assert.That (typePipeAttribute.ParticipantConfigurationID, Is.EqualTo (_pipeline.ParticipantConfigurationID));
+      Assert.That (typePipeAttribute.ParticipantConfigurationID, Is.EqualTo (pipeline.ParticipantConfigurationID));
       Assert.That (obsoleteAttribute.Message, Is.EqualTo ("abc"));
     }
 
@@ -93,37 +87,35 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void StandardNamePatternAndDirectory ()
     {
       // Get code generator directly to avoid having assembly name and directory set by the integration test setup.
-      var pipeline = PipelineFactory.Create ("standard", CreateParticipant());
-      var codeManager = pipeline.CodeManager;
+      var settings = PipelineSettings.Defaults;
+      Assert.That (settings.AssemblyDirectory, Is.Null); // Current directory.
+      Assert.That (settings.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
 
-      Assert.That (codeManager.AssemblyDirectory, Is.Null); // Current directory.
-      Assert.That (codeManager.AssemblyNamePattern, Is.EqualTo (@"TypePipe_GeneratedAssembly_{counter}"));
+      var pipeline = CreatePipelineExactAssemblyLocation ("standard", settings, CreateParticipant());
 
-      pipeline.Create<RequestedType>();
-      var path = codeManager.FlushCodeToDisk();
+      var path = RequestTypeAndFlush (pipeline, skipPeVerification: true);
 
       var counter = (int) PrivateInvoke.GetNonPublicStaticField (typeof (ReflectionEmitCodeGenerator), "s_counter");
       var filename = string.Format ("TypePipe_GeneratedAssembly_{0}.dll", counter);
       var expectedPath = Path.Combine (Environment.CurrentDirectory, filename);
       Assert.That (path, Is.EqualTo (expectedPath));
-
-      // Delete manually as we circumvented integration test base.
-      FileUtility.DeleteAndWaitForCompletion (path);
-      FileUtility.DeleteAndWaitForCompletion (Path.ChangeExtension (path, "pdb"));
     }
 
     [Test]
     public void CustomNamePatternAndDirectory ()
     {
       var directory = Path.GetTempPath();
-      _codeManager.SetAssemblyDirectory (directory);
-      _codeManager.SetAssemblyNamePattern ("Abc");
+      var settings = PipelineSettings.New()
+          .SetAssemblyDirectory (directory)
+          .SetAssemblyNamePattern ("Abc")
+          .Build();
+      Assert.That (settings.AssemblyDirectory, Is.EqualTo (directory));
+      Assert.That (settings.AssemblyNamePattern, Is.EqualTo ("Abc"));
 
-      Assert.That (_codeManager.AssemblyDirectory, Is.EqualTo (directory));
-      Assert.That (_codeManager.AssemblyNamePattern, Is.EqualTo ("Abc"));
+      var pipeline = CreatePipelineExactAssemblyLocation ("standard", settings, CreateParticipant());
 
       // The assembly will be saved in a directory that lacks the needed references for peverify.
-      var path = RequestTypeAndFlush (skipPeVerification: true);
+      var path = RequestTypeAndFlush (pipeline, skipPeVerification: true);
 
       Assert.That (path, Is.EqualTo (Path.Combine (directory, "Abc.dll")));
       Assert.That (File.Exists (path), Is.True);
@@ -132,10 +124,14 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CustomNamePatternWithoutCounter_OverwritesPreviousAssembly ()
     {
-      _codeManager.SetAssemblyNamePattern ("xxx");
+      var settings = PipelineSettings.New()
+          .SetAssemblyNamePattern ("xxx")
+          .Build();
 
-      var assemblyPath1 = RequestTypeAndFlush (typeof (RequestedType));
-      var assemblyPath2 = RequestTypeAndFlush (typeof (OtherRequestedType));
+      var pipeline = CreatePipelineExactAssemblyLocation ("standard", settings, CreateParticipant());
+
+      var assemblyPath1 = RequestTypeAndFlush (pipeline, typeof (RequestedType));
+      var assemblyPath2 = RequestTypeAndFlush (pipeline, typeof (OtherRequestedType));
 
       Assert.That (assemblyPath1, Is.EqualTo (assemblyPath2));
     }
@@ -143,50 +139,37 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CustomNamePatternIncludingCounter_ProducesUniqueAssemblyNames ()
     {
-      _codeManager.SetAssemblyNamePattern ("xxx_{counter}");
+      var settings = PipelineSettings.New()
+          .SetAssemblyNamePattern ("xxx_{counter}")
+          .Build();
 
-      var assemblyPath1 = RequestTypeAndFlush (typeof (RequestedType));
-      var assemblyPath2 = RequestTypeAndFlush (typeof (OtherRequestedType));
+      var pipeline = CreatePipelineExactAssemblyLocation ("standard", settings, CreateParticipant());
+
+      var assemblyPath1 = RequestTypeAndFlush (pipeline, typeof (RequestedType));
+      var assemblyPath2 = RequestTypeAndFlush (pipeline, typeof (OtherRequestedType));
 
       Assert.That (assemblyPath1, Is.Not.EqualTo (assemblyPath2));
     }
 
-    [Test]
-    public void SetNamePatternAndDirectory_AfterFlush ()
-    {
-      RequestType();
-
-      var message1 = "Cannot set assembly directory after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
-      var message2 = "Cannot set assembly name pattern after a type has been defined (use FlushCodeToDisk() to start a new assembly).";
-      Assert.That (() => _codeManager.SetAssemblyDirectory ("Abc"), Throws.InvalidOperationException.With.Message.EqualTo (message1));
-      Assert.That (() => _codeManager.SetAssemblyNamePattern ("Xyz"), Throws.InvalidOperationException.With.Message.EqualTo (message2));
-
-      Flush();
-
-      _codeManager.SetAssemblyDirectory ("Abc");
-      _codeManager.SetAssemblyNamePattern ("Xyz");
-
-      Assert.That (_codeManager.AssemblyDirectory, Is.EqualTo ("Abc"));
-      Assert.That (_codeManager.AssemblyNamePattern, Is.EqualTo ("Xyz"));
-    }
-
-    private Type RequestType (Type requestedType = null)
+    private Type RequestType (IPipeline pipeline, Type requestedType = null)
     {
       requestedType = requestedType ?? typeof (RequestedType);
-      return _pipeline.ReflectionService.GetAssembledType (requestedType);
+      return pipeline.ReflectionService.GetAssembledType (requestedType);
     }
 
     private string RequestTypeAndFlush (
-        Type requestedType = null, IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipPeVerification = false)
+        IPipeline pipeline, Type requestedType = null, CustomAttributeDeclaration[] assemblyAttributes = null, bool skipPeVerification = false)
     {
-      RequestType (requestedType);
+      RequestType (pipeline, requestedType);
       return Flush (assemblyAttributes, skipPeVerification);
     }
 
-    private string Flush (IEnumerable<CustomAttributeDeclaration> assemblyAttributes = null, bool skipPeVerification = false)
+    private string Flush (CustomAttributeDeclaration[] assemblyAttributes = null, bool skipPeVerification = false)
     {
-      var assemblyPath = base.Flush (assemblyAttributes, skipPeVerification: skipPeVerification);
-      Assert.That (assemblyPath, Is.Not.Null);
+      var assemblyPaths = base.Flush (assemblyAttributes, skipPeVerification: skipPeVerification);
+      Assert.That (assemblyPaths, Has.Length.EqualTo (1));
+
+      var assemblyPath = assemblyPaths.Single();
 
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (Path.ChangeExtension (assemblyPath, "pdb")), Is.True);
@@ -194,11 +177,16 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       return assemblyPath;
     }
 
-    private void CheckSavedAssembly (string assemblyPath, string assembledTypeFullName)
+    private void CheckSavedAssembly (string participantConfigurationID, string assemblyPath, string assembledTypeFullName)
     {
       Assert.That (File.Exists (assemblyPath), Is.True);
 
       var assembly = AssemblyLoader.LoadWithoutLocking (assemblyPath);
+      var typePipeAssemblyAttribute = 
+          (TypePipeAssemblyAttribute) assembly.GetCustomAttributes (typeof (TypePipeAssemblyAttribute), false).SingleOrDefault();
+      Assert.That (typePipeAssemblyAttribute, Is.Not.Null);
+      Assert.That (typePipeAssemblyAttribute.ParticipantConfigurationID, Is.EqualTo (participantConfigurationID));
+
       var typeNames = assembly.GetExportedTypes().Select (t => t.FullName);
 
       Assert.That (typeNames, Is.EqualTo (new[] { assembledTypeFullName }));

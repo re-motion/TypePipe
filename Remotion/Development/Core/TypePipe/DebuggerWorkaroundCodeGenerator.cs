@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using JetBrains.Annotations;
 using Remotion.Diagnostics;
 using Remotion.Logging;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
@@ -54,10 +55,12 @@ namespace Remotion.Development.TypePipe
     public DebuggerWorkaroundCodeGenerator (
         IModuleBuilderFactory moduleBuilderFactory,
         bool forceStrongNaming,
-        string keyFilePath,
+        [CanBeNull] string keyFilePath,
         IDebuggerInterface debuggerInterface,
-        int maximumTypesPerAssembly)
-        : base (moduleBuilderFactory, forceStrongNaming, keyFilePath)
+        int maximumTypesPerAssembly,
+        [CanBeNull] string assemblyDirectory,
+        string assemblyNamePattern)
+        : base (moduleBuilderFactory, forceStrongNaming, keyFilePath, assemblyDirectory, assemblyNamePattern)
     {
       ArgumentUtility.CheckNotNull ("debuggerInterface", debuggerInterface);
       Debug.Assert (maximumTypesPerAssembly > 0);

@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   /// <summary>
   /// Defines an interface for classes providing identifiers for assembled types.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IAssembledTypeIdentifierProvider
   {
     AssembledTypeID ComputeTypeID (Type requestedType);

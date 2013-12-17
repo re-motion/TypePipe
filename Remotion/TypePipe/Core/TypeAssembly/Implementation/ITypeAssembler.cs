@@ -16,38 +16,47 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using JetBrains.Annotations;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
-using Remotion.TypePipe.Implementation.Synchronization;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
 {
   /// <summary>
   /// Generates types for requested types and computes compound identifiers to enabled efficient caching of generated types.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface ITypeAssembler
   {
     string ParticipantConfigurationID { get; }
     ReadOnlyCollection<IParticipant> Participants { get; }
 
-    bool IsAssembledType (Type type);
-    Type GetRequestedType (Type assembledType);
+    bool IsAssembledType ([NotNull] Type type);
+
+    [NotNull]
+    Type GetRequestedType ([NotNull] Type assembledType);
 
     /// <summary>
     /// Computes the <see cref="AssembledTypeID"/> from a requested type.
-    /// This is the only method in the <see cref="ITypeAssembler"/> interface which we guarantee to be thread safe, i.e., there is no need to access
-    /// it via <see cref="ISynchronizationPoint"/>. This is important for <see cref="TypeCache"/> lookup performance.
     /// </summary>
-    AssembledTypeID ComputeTypeID (Type requestedType);
-    AssembledTypeID ExtractTypeID (Type assembledType);
+    AssembledTypeID ComputeTypeID ([NotNull] Type requestedType);
 
-    Type AssembleType (AssembledTypeID typeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+    AssembledTypeID ExtractTypeID ([NotNull] Type assembledType);
 
-    Type GetOrAssembleAdditionalType (
-        object additionalTypeID, IDictionary<string, object> participantState, IMutableTypeBatchCodeGenerator codeGenerator);
+    [NotNull]
+    TypeAssemblyResult AssembleType (
+        AssembledTypeID typeID,
+        [NotNull] IParticipantState participantState,
+        [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);
 
-    void RebuildParticipantState (IEnumerable<Type> assembledTypes, IEnumerable<Type> additionalTypes, IDictionary<string, object> participantState);
+    [NotNull]
+    TypeAssemblyResult AssembleAdditionalType (
+        [NotNull] object additionalTypeID,
+        [NotNull] IParticipantState participantState,
+        [NotNull] IMutableTypeBatchCodeGenerator codeGenerator);
+
+    [CanBeNull]
+    object GetAdditionalTypeID ([NotNull] Type additionalType);
   }
 }

@@ -56,6 +56,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
           new[]
           {
               typeof (ICloneable), typeof (IList), typeof (ICollection), typeof (IEnumerable),
+              typeof (IStructuralComparable),
+              typeof (IStructuralEquatable),
               typeof (IList<>).MakeTypePipeGenericType (_elementType),
               typeof (ICollection<>).MakeTypePipeGenericType (_elementType),
               typeof (IEnumerable<>).MakeTypePipeGenericType (_elementType)

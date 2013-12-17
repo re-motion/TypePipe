@@ -103,9 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var type2 = ArrayTypeBaseObjectMother.Create (_elementType, 3);
       var type3 = ArrayTypeBaseObjectMother.Create (_elementType, _rank);
 
-      // ReSharper disable CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals ((object) null), Is.False);
-      // ReSharper restore CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals (new object()), Is.False);
       Assert.That (_type.Equals ((object) type1), Is.False);
       Assert.That (_type.Equals ((object) type2), Is.False);
@@ -123,9 +121,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var type2 = ArrayTypeBaseObjectMother.Create (_elementType, 3);
       var type3 = ArrayTypeBaseObjectMother.Create (_elementType, _rank);
 
-      // ReSharper disable CheckForReferenceEqualityInstead.1
+// ReSharper disable CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals (null), Is.False);
-      // ReSharper restore CheckForReferenceEqualityInstead.1
+// ReSharper restore CheckForReferenceEqualityInstead.1
       Assert.That (_type.Equals (type1), Is.False);
       Assert.That (_type.Equals (type2), Is.False);
       Assert.That (_type.Equals (type3), Is.True);
@@ -161,7 +159,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       Assert.That (_realArrayTypeForComparison.GetFields (c_all), Is.Empty);
 
-      Assert.That (_type.GetAllFields(), Is.Empty);
+      Assert.That (_type.GetAllFields().ToArray(), Is.Empty);
     }
 
     [Test]

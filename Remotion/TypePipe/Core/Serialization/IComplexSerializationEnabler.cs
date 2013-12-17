@@ -25,6 +25,7 @@ namespace Remotion.TypePipe.Serialization
   /// <summary>
   /// Enables the serialization of assembled type instances without the need of saving the generated assembly to disk.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public interface IComplexSerializationEnabler
   {
     void MakeSerializable (

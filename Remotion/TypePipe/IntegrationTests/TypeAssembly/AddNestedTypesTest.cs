@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     
       var addedNestedType = type.GetNestedTypes().Single();
       Assert.That (addedNestedType.Name, Is.EqualTo ("NestedType"));
-      Assert.That (addedNestedType.FullName, Is.EqualTo ("Remotion.TypePipe.IntegrationTests.TypeAssembly.DomainType_Proxy_1+NestedType"));
+      Assert.That (addedNestedType.FullName, Is.EqualTo ("Remotion.TypePipe.IntegrationTests.TypeAssembly.DomainType_AssembledTypeProxy_1+NestedType"));
       Assert.That (addedNestedType.Attributes, Is.EqualTo (TypeAttributes.NestedPublic));
       Assert.That (addedNestedType.BaseType, Is.SameAs (typeof (BaseType)));
       Assert.That (addedNestedType.DeclaringType, Is.SameAs (type));
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
       var addedNestedType = type.GetNestedTypes ().Single ();
       Assert.That (addedNestedType.Name, Is.EqualTo ("NestedType"));
-      Assert.That (addedNestedType.FullName, Is.EqualTo ("Remotion.TypePipe.IntegrationTests.TypeAssembly.DomainType_Proxy_1+NestedType"));
+      Assert.That (addedNestedType.FullName, Is.EqualTo ("Remotion.TypePipe.IntegrationTests.TypeAssembly.DomainType_AssembledTypeProxy_1+NestedType"));
       Assert.That (addedNestedType.IsInterface, Is.True);
       Assert.That (addedNestedType.BaseType, Is.Null);
       Assert.That (addedNestedType.DeclaringType, Is.SameAs (type));
@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
           {
             var nestedType = assemblyContext.ProxyType.AddNestedType ("NestedBaseType", TypeAttributes.NestedPublic, typeof (object));
             nestedType.AddConstructor (MethodAttributes.Public, ParameterDeclaration.None, ctx => ctx.CallBaseConstructor());
-            assemblyContext.CreateType ("TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
+            assemblyContext.CreateAdditionalType (new object(), "TypeWithNestedBaseType", "MyNs", TypeAttributes.Public, nestedType);
           });
 
       var nestedBaseType = type.GetNestedTypes().Single();

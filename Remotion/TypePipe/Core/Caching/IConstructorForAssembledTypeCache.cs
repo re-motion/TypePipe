@@ -17,17 +17,14 @@
 
 using System;
 
-namespace Remotion.TypePipe.Implementation.Synchronization
+namespace Remotion.TypePipe.Caching
 {
   /// <summary>
-  /// Defines an interface for classes that act as guards for code generation capabilities.
-  /// This interface is a simple union of existing client-specific synchronization point interfaces and should not define any additional members.
+  /// Caches constructor delegates for assembled types, i.e., the assembled type is part of the key.
   /// </summary>
-  public interface ISynchronizationPoint
-      : ICodeManagerSynchronizationPoint,
-        IReflectionServiceSynchronizationPoint,
-        ITypeCacheSynchronizationPoint,
-        IReverseTypeCacheSynchronizationPoint
+  /// <threadsafety static="true" instance="true"/>
+  public interface IConstructorForAssembledTypeCache
   {
+    Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic);
   }
 }

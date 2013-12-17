@@ -123,11 +123,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy ()
     {
-      var result = _factory.CreateProxy (_domainType);
+      var result = _factory.CreateProxy (_domainType, ProxyKind.AssembledType);
 
       var type = result.Type;
       Assert.That (type.BaseType, Is.SameAs (_domainType));
-      Assert.That (type.Name, Is.EqualTo (@"DomainType_Proxy_1"));
+      Assert.That (type.Name, Is.EqualTo (@"DomainType_AssembledTypeProxy_1"));
       Assert.That (type.Namespace, Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation"));
       Assert.That (type.Attributes, Is.EqualTo (TypeAttributes.Public | TypeAttributes.BeforeFieldInit));
       Assert.That (type.DeclaringType, Is.Null);
@@ -137,10 +137,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateProxy_UsesProxyKindToDetermineName ()
+    {
+      var result = _factory.CreateProxy (_domainType, ProxyKind.AdditionalType);
+
+      var type = result.Type;
+      Assert.That (type.Name, Is.EqualTo (@"DomainType_AdditionalTypeProxy_1"));
+    }
+
+    [Test]
     public void CreateProxy_UniqueNames ()
     {
-      var result1 = _factory.CreateProxy (_domainType).Type;
-      var result2 = _factory.CreateProxy (_domainType).Type;
+      var result1 = _factory.CreateProxy (_domainType, ProxyKind.AssembledType).Type;
+      var result2 = _factory.CreateProxy (_domainType, ProxyKind.AssembledType).Type;
 
       Assert.That (result1.Name, Is.Not.EqualTo (result2.Name));
     }
@@ -148,7 +157,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy_Serializable ()
     {
-      var result = _factory.CreateProxy (typeof (SerializableType)).Type;
+      var result = _factory.CreateProxy (typeof (SerializableType), ProxyKind.AssembledType).Type;
 
       Assert.That (result.IsSerializable, Is.True);
     }
@@ -156,7 +165,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void CreateProxy_CopiesAccessibleInstanceConstructors_WithPublicVisibility ()
     {
-      var result = _factory.CreateProxy (_domainType).Type;
+      var result = _factory.CreateProxy (_domainType, ProxyKind.AssembledType).Type;
 
       Assert.That (result.AddedConstructors, Has.Count.EqualTo (1));
       var ctor = result.AddedConstructors.Single();

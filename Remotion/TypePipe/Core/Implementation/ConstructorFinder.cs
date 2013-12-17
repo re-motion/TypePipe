@@ -23,8 +23,13 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Implementation
 {
   /// <inheritdoc />
+  /// <threadsafety static="true" instance="true"/>
   public class ConstructorFinder : IConstructorFinder
   {
+    public ConstructorFinder ()
+    {
+    }
+
     public ConstructorInfo GetConstructor (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type assembledType)
     {
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);

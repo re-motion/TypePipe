@@ -22,7 +22,10 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.TypeAssembly;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
@@ -31,8 +34,8 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
   public class TypeAssemblyContextBaseTest
   {
     private IMutableTypeFactory _mutableTypeFactoryMock;
+    private IParticipantState _participantStateMock;
     private string _participantConfigurationID;
-    private IDictionary<string, object> _state;
 
     private TestableTypeAssemblyContextBase _context;
 
@@ -40,23 +43,24 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     public void SetUp ()
     {
       _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
+      _participantStateMock = MockRepository.GenerateStrictMock<IParticipantState>();
       _participantConfigurationID = "participant configuration ID";
-      _state = new Dictionary<string, object>();
 
-      _context = new TestableTypeAssemblyContextBase (_mutableTypeFactoryMock, _participantConfigurationID, _state);
+      _context = new TestableTypeAssemblyContextBase (_mutableTypeFactoryMock, _participantConfigurationID, _participantStateMock);
     }
 
     [Test]
     public void Initialization ()
     {
       Assert.That (_context.AdditionalTypes, Is.Empty);
-      Assert.That (_context.State, Is.SameAs (_state));
+      Assert.That (_context.ParticipantState, Is.SameAs (_participantStateMock));
       Assert.That (_context.ParticipantConfigurationID, Is.EqualTo (_participantConfigurationID));
     }
 
     [Test]
     public void CreateType ()
     {
+      var id = new object();
       var name = "name";
       var @namespace = "namespace";
       var attributes = (TypeAttributes) 7;
@@ -64,27 +68,28 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var fakeResult = MutableTypeObjectMother.Create();
       _mutableTypeFactoryMock.Expect (mock => mock.CreateType (name, @namespace, attributes, baseType, null)).Return (fakeResult);
 
-      var result = _context.CreateType (name, @namespace, attributes, baseType);
+      var result = _context.CreateAdditionalType (id, name, @namespace, attributes, baseType);
 
       _mutableTypeFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
-      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { result }));
+      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { new KeyValuePair<object, MutableType> (id, result) }));
     }
 
     [Test]
     public void CreateProxy ()
     {
+      var id = new object();
       var baseType = ReflectionObjectMother.GetSomeType();
       var fakeResult = MutableTypeObjectMother.Create();
       var typeModificationContextStub = MockRepository.GenerateStrictMock<ITypeModificationTracker>();
       typeModificationContextStub.Stub (stub => stub.Type).Return (fakeResult);
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (baseType)).Return (typeModificationContextStub);
+      _mutableTypeFactoryMock.Expect (mock => mock.CreateProxy (baseType, ProxyKind.AdditionalType)).Return (typeModificationContextStub);
 
-      var result = _context.CreateProxy (baseType);
+      var result = _context.CreateAddtionalProxyType (id, baseType);
 
       _mutableTypeFactoryMock.VerifyAllExpectations();
       Assert.That (result, Is.SameAs (fakeResult));
-      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { result }));
+      Assert.That (_context.AdditionalTypes, Is.EqualTo (new[] { new KeyValuePair<object, MutableType> (id, result) }));
     }
   }
 }

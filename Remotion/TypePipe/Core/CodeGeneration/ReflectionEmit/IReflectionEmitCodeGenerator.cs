@@ -23,10 +23,11 @@ using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// Extends the <see cref="IGeneratedCodeFlusher"/> interface with Reflection.Emit-specifc operations.
+  /// Provides Reflection.Emit-specifc operations to the code generation.
   /// </summary>
+  /// <threadsafety static="true" instance="false"/>
   [CLSCompliant (false)]
-  public interface IReflectionEmitCodeGenerator : IGeneratedCodeFlusher
+  public interface IReflectionEmitCodeGenerator
   {
     DebugInfoGenerator DebugInfoGenerator { get; }
 

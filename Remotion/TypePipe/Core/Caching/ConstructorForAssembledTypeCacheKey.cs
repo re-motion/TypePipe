@@ -23,7 +23,7 @@ namespace Remotion.TypePipe.Caching
   /// <summary>
   /// A data structure that can be used as a key for constructor delegates with the main component of the key being an the assembled type itself.
   /// </summary>
-  public struct ReverseConstructionKey : IEquatable<ReverseConstructionKey>
+  public struct ConstructorForAssembledTypeCacheKey : IEquatable<ConstructorForAssembledTypeCacheKey>
   {
     private readonly Type _assembledType;
     private readonly Type _delegateType;
@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.Caching
 
     private readonly int _hashCode;
 
-    public ReverseConstructionKey (Type assembledType, Type delegateType, bool allowNonPublic)
+    public ConstructorForAssembledTypeCacheKey (Type assembledType, Type delegateType, bool allowNonPublic)
     {
       // Using Assertion.DebugAssert because it will be compiled away.
       Assertion.DebugAssert (delegateType != null);
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.Caching
       get { return _allowNonPublic; }
     }
 
-    public bool Equals (ReverseConstructionKey other)
+    public bool Equals (ConstructorForAssembledTypeCacheKey other)
     {
       return _assembledType == other._assembledType
              && _delegateType == other._delegateType

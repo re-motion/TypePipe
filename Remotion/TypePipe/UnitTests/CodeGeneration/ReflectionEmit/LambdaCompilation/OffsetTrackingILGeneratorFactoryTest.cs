@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void CreateAdaptedILGenerator ()
     {
       var factory = new OffsetTrackingILGeneratorFactory();
-      var realILGenerator = (ILGenerator) PrivateInvoke.CreateInstanceNonPublicCtor (typeof (ILGenerator), 12);
+      var realILGenerator = ILGeneratorObjectMother.Create();
       
       var result = factory.CreateAdaptedILGenerator (realILGenerator);
 

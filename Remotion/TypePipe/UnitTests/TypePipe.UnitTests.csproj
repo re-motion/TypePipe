@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Remotion.TypePipe.UnitTests</RootNamespace>
     <AssemblyName>Remotion.TypePipe.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET_3_5</DefineConstants>
+    <DefineConstants>TRACE;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -53,18 +53,27 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\AssemblyInfoShared.cs">
+    <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="Caching\AssembledTypeIDTest.cs" />
     <Compile Include="Caching\ConstructionKeyTest.cs" />
-    <Compile Include="Caching\ReverseConstructionKeyTest.cs" />
-    <Compile Include="Caching\ReverseTypeCacheTest.cs" />
+    <Compile Include="Caching\ConstructorCallCacheTest.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCacheKeyTest.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\LoadTypes_TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\GetOrCreateAdditionalType_TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\GetOrCreateType_TypeCacheTest.cs" />
     <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
+    <Compile Include="CodeGeneration\AssemblyContextPoolTest.cs" />
+    <Compile Include="CodeGeneration\AssemblyContextTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecoratorTest.cs" />
+    <Compile Include="Configuration\PipelineSettingsTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCacheTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\ConstructorDelegateFactoryTest.cs" />
     <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
     <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
@@ -83,6 +92,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnaryExpressionBaseTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\DelegateTypePlaceholderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorObjectMother.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorFactoryTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />
@@ -120,8 +130,8 @@
     <Compile Include="Implementation\Remotion\RemotionModuleBuilderFactoryDecoratorTest.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineFactoryTest.cs" />
     <Compile Include="Implementation\Remotion\RemotionPipelineRegistryTest.cs" />
-    <Compile Include="Implementation\Synchronization\SynchronizationPointTest.cs" />
     <Compile Include="Implementation\CodeManagerTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyResultTest.cs" />
     <Compile Include="TypeAssembly\LoadedTypesContextTest.cs" />
     <Compile Include="Implementation\ReflectionServiceTest.cs" />
     <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
@@ -191,6 +201,7 @@
     <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
+    <Compile Include="TypeAssembly\ParticipantStateTest.cs" />
     <Compile Include="TypeAssembly\TypeAssemblyContextExtensionsTest.cs" />
     <Compile Include="MutableReflection\Implementation\VectorTypeTest.cs" />
     <Compile Include="MutableReflection\MethodDeclarationTest.cs" />
@@ -237,7 +248,6 @@
     <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
     <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
-    <Compile Include="Caching\TypeCacheTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

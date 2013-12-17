@@ -24,6 +24,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Mixins;
 using Remotion.Mixins.CodeGeneration.TypePipe;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.PerformanceTests
@@ -38,10 +39,13 @@ namespace Remotion.TypePipe.PerformanceTests
       var participants = new IParticipant[] { new MixinParticipant(), new DomainObjectParticipant() };
 
       var pipeline = PipelineFactory.Create ("CachePerformanceTest", participants);
-      var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (pipeline, "_typeCache");
+      var typeCache = (ITypeCache) PrivateInvoke.GetNonPublicField (pipeline.ReflectionService, "_typeCache");
+      var constructorCallCache = (IConstructorCallCache) PrivateInvoke.GetNonPublicField (pipeline.ReflectionService, "_constructorCallCache");
+      var typeAssembler = (ITypeAssembler) PrivateInvoke.GetNonPublicField (pipeline, "_typeAssembler");
+      var typeID = typeAssembler.ComputeTypeID (typeof (DomainType));
 
-      Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeof (DomainType));
-      Func<Delegate> constructorDelegateCacheFunc = () => typeCache.GetOrCreateConstructorCall (typeof (DomainType), typeof (Func<object>), true);
+      Func<Type> typeCacheFunc = () => typeCache.GetOrCreateType (typeID);
+      Func<Delegate> constructorDelegateCacheFunc = () => constructorCallCache.GetOrCreateConstructorCall (typeID, typeof (Func<object>), true);
 
       TimeThis ("TypePipe_Types", typeCacheFunc);
       TimeThis ("TypePipe_ConstructorDelegates", constructorDelegateCacheFunc);

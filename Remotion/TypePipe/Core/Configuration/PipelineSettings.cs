@@ -16,6 +16,8 @@
 // 
 
 using System;
+using JetBrains.Annotations;
+using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Configuration
@@ -25,8 +27,11 @@ namespace Remotion.TypePipe.Configuration
   /// </summary>
   /// <seealso cref="PipelineFactory.Create(string,Remotion.TypePipe.Configuration.PipelineSettings,Remotion.TypePipe.IParticipant[])"/>
   /// <seealso cref="IPipeline.Settings"/>
+  /// <threadsafety static="true" instance="true"/>
   public class PipelineSettings
   {
+    public const string CounterPattern = "{counter}";
+
     private static readonly PipelineSettings s_defaults = New().Build();
 
     public static PipelineSettings Defaults
@@ -44,22 +49,75 @@ namespace Remotion.TypePipe.Configuration
       ArgumentUtility.CheckNotNull ("settings", settings);
 
       return New()
-          .SetForceStrongNaming (settings.EnableSerializationWithoutAssemblySaving)
+          .SetForceStrongNaming (settings.ForceStrongNaming)
           .SetKeyFilePath (settings.KeyFilePath)
-          .SetEnableSerializationWithoutAssemblySaving (settings.EnableSerializationWithoutAssemblySaving);
+          .SetEnableSerializationWithoutAssemblySaving (settings.EnableSerializationWithoutAssemblySaving)
+          .SetAssemblyDirectory (settings.AssemblyDirectory)
+          .SetAssemblyNamePattern (settings.AssemblyNamePattern)
+          .SetDegreeOfParallelism (settings.DegreeOfParallelism);
     }
 
     private readonly bool _forceStrongNaming;
+
+    [CanBeNull]
     private readonly string _keyFilePath;
+
     private readonly bool _enableSerializationWithoutAssemblySaving;
 
-    public PipelineSettings (bool forceStrongNaming, string keyFilePath, bool enableSerializationWithoutAssemblySaving)
+    [CanBeNull]
+    private readonly string _assemblyDirectory;
+
+    private readonly string _assemblyNamePattern;
+
+    private readonly int _degreeOfParallelism;
+
+    public PipelineSettings (
+        bool forceStrongNaming,
+        [CanBeNull] string keyFilePath,
+        bool enableSerializationWithoutAssemblySaving,
+        [CanBeNull] string assemblyDirectory,
+        string assemblyNamePattern,
+        int degreeOfParallelism)
     {
-      // Key file path may be null.
+      ArgumentUtility.CheckNotNull ("assemblyNamePattern", assemblyNamePattern);
+      if (degreeOfParallelism < 1)
+        throw new ArgumentOutOfRangeException ("degreeOfParallelism", degreeOfParallelism, "The degree of parallelism must be greater than 0.");
+      if (degreeOfParallelism > 1 && !assemblyNamePattern.Contains (CounterPattern))
+      {
+        throw new ArgumentException (
+            "When a degree of parallelism greater than 1 is specified, the '{counter}' placeholder must be included in the assembly name pattern.",
+            "assemblyNamePattern");
+      }
 
       _forceStrongNaming = forceStrongNaming;
       _keyFilePath = keyFilePath;
       _enableSerializationWithoutAssemblySaving = enableSerializationWithoutAssemblySaving;
+      _assemblyDirectory = assemblyDirectory;
+      _assemblyNamePattern = assemblyNamePattern;
+      _degreeOfParallelism = degreeOfParallelism;
+    }
+
+    /// <summary>
+    /// Gets the directory in which assemblies will be saved when <see cref="ICodeManager.FlushCodeToDisk"/> is invoked.
+    /// <see langword="null"/> means the current working directory.
+    /// </summary>
+    /// <value>The assembly directory path or <see langword="null"/>.</value>
+    [CanBeNull]
+    public string AssemblyDirectory
+    {
+      get { return _assemblyDirectory; }
+    }
+
+    /// <summary>
+    /// Gets the assembly name pattern, that is, a pattern used to determine the assembly name when <see cref="ICodeManager.FlushCodeToDisk"/> is
+    /// invoked. To ensure unique assembly file names, use the placeholder <c>{counter}</c>, which will be replaced with a unique number.
+    /// If the name pattern does not contain the placeholder, calls to <see cref="ICodeManager.FlushCodeToDisk"/> will overwrite previously saved assemblies.
+    /// </summary>
+    /// <value>The assembly name pattern; the default is <c>TypePipe_GeneratedAssembly_{counter}</c>.</value>
+    [NotNull]
+    public string AssemblyNamePattern
+    {
+      get { return _assemblyNamePattern; }
     }
 
     /// <summary>
@@ -75,6 +133,7 @@ namespace Remotion.TypePipe.Configuration
     /// When <see cref="ForceStrongNaming"/> is enabled, the key file (<c>*.snk</c>) denoted by this property is used to sign generated assemblies.
     /// If this property is <see langword="null"/> a pipeline-provided default key file is used instead.
     /// </summary>
+    [CanBeNull]
     public string KeyFilePath
     {
       get { return _keyFilePath; }
@@ -88,23 +147,40 @@ namespace Remotion.TypePipe.Configuration
       get { return _enableSerializationWithoutAssemblySaving; }
     }
 
+    public int DegreeOfParallelism
+    {
+      get { return _degreeOfParallelism; }
+    }
+
+    /// <threadsafety static="true" instance="false"/>
     public class Builder
     {
+      private const string c_defaultAssemblyNamePattern = "TypePipe_GeneratedAssembly_{counter}";
+
       private bool _forceStrongNaming;
+
+      [CanBeNull]
       private string _keyFilePath;
+
       private bool _enableSerializationWithoutAssemblySaving;
 
-      public Builder SetForceStrongNaming (bool forceStrongNaming)
+      [CanBeNull]
+      private string _assemblyDirectory;
+
+      [CanBeNull]
+      private string _assemblyNamePattern;
+
+      private int _degreeOfParallelism = 1;
+
+      public Builder SetForceStrongNaming (bool value)
       {
-        _forceStrongNaming = forceStrongNaming;
+        _forceStrongNaming = value;
         return this;
       }
 
-      public Builder SetKeyFilePath (string keyFilePath)
+      public Builder SetKeyFilePath ([CanBeNull] string value)
       {
-        // Key file path may be null.
-
-        _keyFilePath = keyFilePath;
+        _keyFilePath = value;
         return this;
       }
 
@@ -114,9 +190,36 @@ namespace Remotion.TypePipe.Configuration
         return this;
       }
 
+      public Builder SetAssemblyDirectory ([CanBeNull]string value)
+      {
+        _assemblyDirectory = value;
+        return this;
+      }
+      
+      public Builder SetAssemblyNamePattern ([CanBeNull]string value)
+      {
+        _assemblyNamePattern = value;
+        return this;
+      }
+
+      public Builder SetDegreeOfParallelism (int value)
+      {
+        if (value < 1)
+          throw new ArgumentOutOfRangeException ("value", value, "The degree of parallelism must be greater than 0.");
+
+        _degreeOfParallelism = value;
+        return this;
+      }
+
       public PipelineSettings Build ()
       {
-        return new PipelineSettings (_forceStrongNaming, _keyFilePath, _enableSerializationWithoutAssemblySaving);
+        return new PipelineSettings (
+            _forceStrongNaming,
+            _keyFilePath,
+            _enableSerializationWithoutAssemblySaving,
+            _assemblyDirectory,
+            _assemblyNamePattern ?? c_defaultAssemblyNamePattern,
+            _degreeOfParallelism);
       }
     }
   }

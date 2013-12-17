@@ -19,7 +19,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -27,8 +26,13 @@ namespace Remotion.Reflection
   /// <summary>
   /// Extracts signatures from delegate types and uses <see cref="LambdaExpression"/> to create delegates enabling their efficient invocation.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class DelegateFactory : IDelegateFactory
   {
+    public DelegateFactory ()
+    {
+    }
+
     public Tuple<Type[], Type> GetSignature (Type delegateType)
     {
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));

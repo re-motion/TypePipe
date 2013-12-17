@@ -16,6 +16,7 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
@@ -37,9 +38,10 @@ namespace Remotion.TypePipe
   /// <para>
   /// Note that implementations of this interface may be shared across multiple <see cref="IPipeline"/> instances.
   /// Participants therefore must not hold any mutable state directly.
-  /// If there is the need to hold state a participant should use <see cref="ITypeAssemblyContext.State"/>.
+  /// If there is the need to hold state a participant should use <see cref="ITypeAssemblyContext.ParticipantState"/>.
   /// </para>
   /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   [ConcreteImplementation ("Remotion.Mixins.CodeGeneration.TypePipe.MixinParticipant, Remotion.Mixins, "
                            + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true, Position = 1)]
   [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
@@ -54,6 +56,7 @@ namespace Remotion.TypePipe
     /// <value>
     /// The partial type identifier provider, or <see langword="null"/>.
     /// </value>
+    [CanBeNull]
     ITypeIdentifierProvider PartialTypeIdentifierProvider { get; }
 
     /// <summary>
@@ -66,13 +69,16 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <param name="id">The identifier returned by the type identifier provider or <see langword="null"/> if there is no such provider.</param>
     /// <param name="proxyTypeAssemblyContext">The type assembly context.</param>
-    void Participate (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContext);
+    void Participate ([CanBeNull]object id, [NotNull]IProxyTypeAssemblyContext proxyTypeAssemblyContext);
 
     /// <summary>
-    /// This method allows participants to react when the pipeline loads a set of types from a previously flushed assembly.
+    /// This method allows participants to provide an <c>ID</c> for the specified <paramref name="additionalType"/>. 
+    /// This API is used when loading a type from a previously flushed assembly.
     /// </summary>
-    /// <param name="loadedTypesContext">The loaded types context.</param>
-    void RebuildState (LoadedTypesContext loadedTypesContext);
+    /// <param name="additionalType">The additional <see cref="Type"/> to analyze.</param>
+    /// <returns>An <c>ID</c> or <see langword="null" /> if the participant is not responsible for this <see cref="Type"/>.</returns>
+    [CanBeNull]
+    object GetAdditionalTypeID ([NotNull] Type additionalType);
 
     /// <summary>
     /// Gets or creates an additional type for the specified identifier. If the participant can not interpret the <paramref name="additionalTypeID"/>
@@ -82,9 +88,10 @@ namespace Remotion.TypePipe
     /// <param name="additionalTypeAssemblyContext">The additional type assembly context.</param>
     /// <returns>An additional type for the specified identifier; or <see langword="null"/>.</returns>
     /// <remarks>
-    /// A participant may retrieve a cached additional type from the state cache available via <see cref="ITypeAssemblyContext.State"/> on
+    /// A participant may retrieve a cached additional type from the state cache available via <see cref="ITypeAssemblyContext.ParticipantState"/> on
     /// <paramref name="additionalTypeAssemblyContext"/> or create a new <see cref="MutableType"/> and return it.
     /// </remarks>
+    [CanBeNull]
     Type GetOrCreateAdditionalType (object additionalTypeID, IAdditionalTypeAssemblyContext additionalTypeAssemblyContext);
 
     /// <summary>
@@ -92,7 +99,7 @@ namespace Remotion.TypePipe
     /// (i.e., <see cref="Participate"/> is never called for such types).
     /// Participants may use this method to log diagnostic and report errors even for types that are not processed by the pipeline.
     /// </summary>
-    /// <param name="requestedType">The non-subclassable requested type.</param>
-    void HandleNonSubclassableType (Type requestedType);
+    /// <param name="nonSubclassableRequestedType">The non-subclassable requested type.</param>
+    void HandleNonSubclassableType (Type nonSubclassableRequestedType);
   }
 }

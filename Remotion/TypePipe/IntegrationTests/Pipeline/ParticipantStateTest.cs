@@ -28,13 +28,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
   {
     private const string c_participantConfigurationID = "ParticipantStateTest";
 
-    private Assembly _assembly;
-
     public override void TestFixtureSetUp ()
     {
       base.TestFixtureSetUp ();
 
-      _assembly = PreGenerateAssembly();
+      PreGenerateAssembly();
     }
 
     [Test]
@@ -46,16 +44,17 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       {
         if (ctx.RequestedType == typeof (RequestedType1))
         {
-          Assert.That (ctx.State, Is.Empty);
-          ctx.State.Add ("key", 7);
+          Assert.That (ctx.ParticipantState.GetState ("key"), Is.Null);
+          ctx.ParticipantState.AddState ("key", 7);
         }
         else
         {
-          Assert.That (ctx.State["key"], Is.EqualTo (7), "Participant sees state even when requsted types differ.");
+          Assert.That (ctx.ParticipantState.GetState("key"), Is.EqualTo (7), "Participant sees state even when requsted types differ.");
           stateWasRead = true;
         }
       });
-      var participant2 = CreateParticipant (ctx => Assert.That (ctx.State["key"], Is.EqualTo (7), "Participant 2 sees state of participant 1."));
+      var participant2 = CreateParticipant (
+          ctx => Assert.That (ctx.ParticipantState.GetState ("key"), Is.EqualTo (7), "Participant 2 sees state of participant 1."));
 
       var pipeline = CreatePipeline (participant1, participant2);
 
@@ -66,65 +65,44 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    public void RebuildState_FromLoadedTypes ()
+    public void StateIsResetAfterFlush ()
     {
-      Type loadedType = null;
       var stateWasRead = false;
-      var participant = CreateParticipant (
-          rebuildStateAction: ctx =>
-          {
-            var loadedProxy = ctx.ProxyTypes.Single();
-            var additionalType = ctx.AdditionalTypes.Single();
-            Assert.That (loadedProxy.RequestedType, Is.SameAs (typeof (RequestedType1)));
-            Assert.That (additionalType.FullName, Is.EqualTo ("MyNs.AdditionalType"));
+      var hasFlushed = false;
+      var participant = CreateParticipant (ctx =>
+      {
+        if (ctx.RequestedType == typeof (RequestedType1))
+        {
+          Assert.That (hasFlushed, Is.False);
+          Assert.That (ctx.ParticipantState.GetState ("key"), Is.Null);
+          ctx.ParticipantState.AddState ("key", 7);
+        }
+        else
+        {
+          Assert.That (hasFlushed, Is.True);
+          Assert.That (ctx.ParticipantState.GetState ("key"), Is.Null, "Participant does not see state after flush");
+          stateWasRead = true;
+        }
+      });
 
-            loadedType = loadedProxy.AssembledType;
-            ctx.State["key"] = "reconstructed state";
-          },
-          participateAction: (id, ctx) =>
-          {
-            Assert.That (ctx.State["key"], Is.EqualTo ("reconstructed state"));
-            stateWasRead = true;
-          });
-      var pipeline = CreatePipeline (c_participantConfigurationID, participant);
+      var pipeline = CreatePipeline (participant);
 
-      pipeline.CodeManager.LoadFlushedCode (_assembly);
+      Assert.That (() => pipeline.Create<RequestedType1>(), Throws.Nothing);
+      Flush();
+      hasFlushed = true;
+      Assert.That (() => pipeline.Create<RequestedType2>(), Throws.Nothing);
 
-      Assert.That (loadedType, Is.Not.Null);
-      Assert.That (pipeline.ReflectionService.GetAssembledType (typeof (RequestedType1)), Is.SameAs (loadedType));
-      Assert.That (stateWasRead, Is.False);
-
-      pipeline.ReflectionService.GetAssembledType (typeof (RequestedType2));
       Assert.That (stateWasRead, Is.True);
     }
 
-    [Test]
-    public void RebuildState_ContextDoesNotContainProxyTypesAlreadyInCacheWhenLoadingAssembly ()
+    private void PreGenerateAssembly ()
     {
-      var rebuildStateWasCalled = false;
-      var participant = CreateParticipant (
-          rebuildStateAction: ctx =>
-          {
-            Assert.That (ctx.ProxyTypes, Is.Empty);
-            Assert.That (ctx.AdditionalTypes, Has.Count.EqualTo (1));
-            rebuildStateWasCalled = true;
-          });
-      var pipeline = CreatePipeline (c_participantConfigurationID, participant);
-      pipeline.Create<RequestedType1>(); // Put type 1 into cache.
-
-      pipeline.CodeManager.LoadFlushedCode (_assembly);
-
-      Assert.That (rebuildStateWasCalled, Is.True);
-    }
-
-    private Assembly PreGenerateAssembly ()
-    {
-      var participant = CreateParticipant (ctx => ctx.CreateType ("AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
+      var participant = CreateParticipant (ctx => ctx.CreateAdditionalType (new object(), "AdditionalType", "MyNs", TypeAttributes.Class, typeof (object)));
       var pipeline = CreatePipeline (c_participantConfigurationID, participant);
       pipeline.Create<RequestedType1>(); // Trigger generation of types.
-      var assemblyPath = Flush();
+      var assemblyPath = Flush().Single();
 
-      return AssemblyLoader.LoadWithoutLocking (assemblyPath);
+      AssemblyLoader.LoadWithoutLocking (assemblyPath);
     }
 
     public class RequestedType1 {}

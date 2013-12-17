@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Defines an interface for classes creating instances of <see cref="IMutableTypeCodeGenerator"/>.
   /// </summary>
+  /// <threadsafety static="true" instance="false"/>
   [CLSCompliant (false)]
   public interface IMutableTypeCodeGeneratorFactory
   {
