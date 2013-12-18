@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Implements <see cref="ICustomAttributeDataRetriever"/> for standard .NET reflection objects and mutable reflection objects
   /// using <see cref="CustomAttributeData"/> and <see cref="IOwnCustomAttributeDataProvider"/> respectivly.
   /// </summary>
-  [ConcreteImplementation (typeof (ICustomAttributeDataRetriever))]
+  [ImplementationFor (typeof (ICustomAttributeDataRetriever))]
   public class CustomAttributeDataRetriever : ICustomAttributeDataRetriever
   {
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member)

@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.Implementation.Remotion
   /// Uses the <see cref="RemotionPipelineFactory"/> which creates pipeline instances that immediately apply the
   /// <see cref="NonApplicationAssemblyAttribute"/> to the in-memory assembly in order to retain original re-mix behavior.
   /// </summary>
-  [ConcreteImplementation (typeof (IPipelineRegistry), Lifetime = LifetimeKind.Singleton)]
+  [ImplementationFor (typeof (IPipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public class RemotionPipelineRegistry : PipelineRegistry
   {
     private static IPipeline CreateDefaultPipeline (IEnumerable<IParticipant> defaultPipelineParticipants)

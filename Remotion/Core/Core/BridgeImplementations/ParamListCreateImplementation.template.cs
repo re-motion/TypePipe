@@ -25,7 +25,7 @@ using Remotion.Utilities;
 namespace Remotion.BridgeImplementations
 {
   // @begin-skip
-  [ConcreteImplementation (typeof (IParamListCreateImplementation), Lifetime = LifetimeKind.Singleton)]
+  [ImplementationFor (typeof (IParamListCreateImplementation), Lifetime = LifetimeKind.Singleton)]
   // @end-skip
   public partial class ParamListCreateImplementation
     // @begin-skip
