@@ -126,8 +126,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentItemTypeException), ExpectedMessage =
-      "Item 0 of argument constructorArguments has the type System.String instead of System.ValueType.")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Item 0 of parameter 'constructorArguments' has the type 'System.String' instead of 'System.ValueType'."
+        + "\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidConstructorArgumentType ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((ValueType) null));
@@ -136,8 +137,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentItemNullException), ExpectedMessage =
-      "Constructor parameter at 0 of type 'System.Int32' cannot be null.\r\nParameter name: constructorArguments")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Constructor parameter at position 0 of type 'System.Int32' cannot be null.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidNullArgument ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute (0));

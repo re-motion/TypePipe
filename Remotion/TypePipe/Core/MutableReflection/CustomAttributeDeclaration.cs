@@ -137,13 +137,13 @@ namespace Remotion.TypePipe.MutableReflection
         {
           if (!NullableTypeUtility.IsNullableType (parameterType))
           {
-            var message = string.Format ("Constructor parameter at {0} of type '{1}' cannot be null.", i, parameterType);
-            throw new ArgumentItemNullException ("constructorArguments", message);
+            var message = string.Format ("Constructor parameter at position {0} of type '{1}' cannot be null.", i, parameterType);
+            throw new ArgumentException (message, "constructorArguments");
           }
         }
         else if (!parameterType.IsInstanceOfType (argument))
         {
-          throw new ArgumentItemTypeException ("constructorArguments", i, parameterType, argument.GetType ());
+          throw ArgumentUtility.CreateArgumentItemTypeException ("constructorArguments", i, parameterType, argument.GetType());
         }
       }
     }
