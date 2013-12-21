@@ -171,8 +171,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
-        "Argument handlerType is a System.Int32, which cannot be assigned to type System.Delegate.\r\nParameter name: handlerType")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'handlerType' is a 'System.Int32', which cannot be assigned to type 'System.Delegate'.\r\nParameter name: handlerType")]
     public void CreateEvent_Providers_ThrowsForNonDelegateHandlerType ()
     {
       _factory.CreateEvent (_mutableType, "Event", typeof (int), 0, null, null, null);

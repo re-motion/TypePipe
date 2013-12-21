@@ -40,8 +40,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
-      "Argument value has type System.String when type System.ValueType was expected.\r\nParameter name: value")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+      "Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value")]
     public void Initialization_Property_ValueNotAssignable ()
     {
       var propertyInfo = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
@@ -70,8 +70,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
-      "Argument value has type <null> when type System.Int32 was expected.\r\nParameter name: value")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value")]
     public void Initialization_Property_WithInvalidNullArgument ()
     {
       var nonNullMember = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (int));
@@ -122,8 +122,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
-      "Argument value has type System.String when type System.ValueType was expected.\r\nParameter name: value")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value")]
     public void Initialization_Field_ValueNotAssignable ()
     {
       var propertyInfo = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (ValueType));
@@ -152,8 +152,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage =
-      "Argument value has type <null> when type System.Int32 was expected.\r\nParameter name: value")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value")]
     public void Initialization_Field_WithInvalidNullArgument ()
     {
       var nonNullMember = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (int));
