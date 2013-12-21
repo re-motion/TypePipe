@@ -70,13 +70,13 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument func has type System.Func`1[System.Int32] when type "
-        + "System.Func`1[System.Object] was expected.\r\nParameter name: func")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'func' has type 'System.Func`1[System.Int32]' when type 'System.Func`1[System.Object]' was expected.\r\nParameter name: func")]
     public void InvokeFunc_InvalidDelegate ()
     {
       _implementation0.InvokeFunc (((Func<int>) (() => 5)));
     }
-    
+
     [Test]
     public void InvokeAction ()
     {
@@ -99,8 +99,8 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type System.Action`1[System.Int32] when type " 
-        + "System.Action was expected.\r\nParameter name: action")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
+        "Parameter 'action' has type 'System.Action`1[System.Int32]' when type 'System.Action' was expected.\r\nParameter name: action")]
     public void InvokeAction_InvalidDelegate ()
     {
       _implementation0.InvokeAction (((Action<int>) (i => { })));

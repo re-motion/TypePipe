@@ -61,7 +61,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1);
@@ -74,11 +74,11 @@ namespace Remotion.Reflection
       Func< A1, object> castFunc;
       try
       {
-      castFunc = (Func< A1, object>) func;
+        castFunc = (Func< A1, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1);

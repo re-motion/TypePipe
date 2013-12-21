@@ -80,21 +80,20 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type System.Func`1[System.Int32] when a delegate "
-                                                                          +
-                                                                          "returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double).\r\n"
-                                                                          + "Parameter name: func")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'func' has type 'System.Func`1[System.Int32]' when a delegate "
+        +"returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double)."
+        + "\r\nParameter name: func")]
     public void InvokeFunc_InvalidDelegate_Count ()
     {
       _implementation3.InvokeFunc (((Func<int>) (() => 5)));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type System.Func`4[System.Int32,System.Int32,"
-                                                                          + "System.Int32,System.Object] when a delegate "
-                                                                          +
-                                                                          "returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double).\r\n"
-                                                                          + "Parameter name: func")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'func' has type 'System.Func`4[System.Int32,System.Int32,System.Int32,System.Object]' when a delegate "
+        + "returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double)."
+        + "\r\nParameter name: func")]
     public void InvokeFunc_InvalidDelegate_Types ()
     {
       _implementation3.InvokeFunc (((Func<int, int, int, object>) ((i, j, k) => 5)));
@@ -122,19 +121,20 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type System.Action`1[System.Int32] when a delegate "
-                                                                          +
-                                                                          "with the following parameter signature was expected: (System.Int32, System.String, System.Double).\r\nParameter name: action"
-        )]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'action' has type 'System.Action`1[System.Int32]' when a delegate with the following parameter signature was expected: "
+        + "(System.Int32, System.String, System.Double)."
+        + "\r\nParameter name: action")]
     public void InvokeAction_InvalidDelegate_Count ()
     {
       _implementation3.InvokeAction (((Action<int>) (i => { })));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentTypeException), ExpectedMessage = "Argument action has type "
-        + "System.Action`3[System.Int32,System.Int32,System.Int32] when a delegate with the following parameter signature was expected: "
-        + "(System.Int32, System.String, System.Double).\r\nParameter name: action")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
+        "Parameter 'action' has type 'System.Action`3[System.Int32,System.Int32,System.Int32]' " +
+        "when a delegate with the following parameter signature was expected: (System.Int32, System.String, System.Double)."
+        + "\r\nParameter name: action")]
     public void InvokeAction_InvalidDelegate_Types ()
     {
       _implementation3.InvokeAction (((Action<int, int, int>) ((i, j, k) => { })));

@@ -120,23 +120,22 @@ namespace Remotion.Reflection
       return (object[]) _parameterValues.Clone();
     }
 
-    private ArgumentTypeException CreateActionTypeException (Delegate action)
+    private ArgumentException CreateActionTypeException (Delegate action)
     {
       var message = string.Format (
-          "Argument action has type {0} when a delegate with the following parameter signature was expected: ({1}).",
+          "Parameter 'action' has type '{0}' when a delegate with the following parameter signature was expected: ({1}).",
           action.GetType(),
           SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
-      return new ArgumentTypeException (message, "action", null, action.GetType());
+      return new ArgumentException (message, "action");
     }
 
-    private ArgumentTypeException CreateFuncTypeException (Delegate func)
+    private ArgumentException CreateFuncTypeException (Delegate func)
     {
       var message = string.Format (
-          "Argument action has type {0} when a delegate returning System.Object with the following parameter signature "
-          + "was expected: ({1}).",
+          "Parameter 'func' has type '{0}' when a delegate returning System.Object with the following parameter signature was expected: ({1}).",
           func.GetType(),
           SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
-      return new ArgumentTypeException (message, "func", null, func.GetType());
+      return new ArgumentException (message, "func");
     }
   }
 }

@@ -60,7 +60,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction ();
@@ -73,11 +73,11 @@ namespace Remotion.Reflection
       Func<object> castFunc;
       try
       {
-      castFunc = (Func<object>) func;
+        castFunc = (Func<object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc ();
@@ -134,7 +134,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2);
@@ -147,11 +147,11 @@ namespace Remotion.Reflection
       Func< A1, A2, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, object>) func;
+        castFunc = (Func< A1, A2, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2);
@@ -208,7 +208,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3);
@@ -221,11 +221,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, object>) func;
+        castFunc = (Func< A1, A2, A3, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3);
@@ -282,7 +282,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4);
@@ -295,11 +295,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4);
@@ -356,7 +356,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5);
@@ -369,11 +369,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5);
@@ -430,7 +430,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6);
@@ -443,11 +443,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6);
@@ -504,7 +504,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
@@ -517,11 +517,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
@@ -578,7 +578,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
@@ -591,11 +591,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
@@ -652,7 +652,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
@@ -665,11 +665,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
@@ -726,7 +726,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
@@ -739,11 +739,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
@@ -800,7 +800,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
@@ -813,11 +813,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
@@ -874,7 +874,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
@@ -887,11 +887,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
@@ -948,7 +948,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
@@ -961,11 +961,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
@@ -1022,7 +1022,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
@@ -1035,11 +1035,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
@@ -1096,7 +1096,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
@@ -1109,11 +1109,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
@@ -1170,7 +1170,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
@@ -1183,11 +1183,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
@@ -1244,7 +1244,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
@@ -1257,11 +1257,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
@@ -1318,7 +1318,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
@@ -1331,11 +1331,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
@@ -1392,7 +1392,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
@@ -1405,11 +1405,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
@@ -1466,7 +1466,7 @@ namespace Remotion.Reflection
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("action", ActionType, action.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);
@@ -1479,11 +1479,11 @@ namespace Remotion.Reflection
       Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, object> castFunc;
       try
       {
-      castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, object>) func;
+        castFunc = (Func< A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, object>) func;
       }
       catch (InvalidCastException)
       {
-        throw new ArgumentTypeException ("func", FuncType, func.GetType ());
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);
