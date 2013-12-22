@@ -17,7 +17,6 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -25,24 +24,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     public static void CheckMethod (Action unsupportedMemberAction, string methodName)
     {
-      ArgumentUtility.CheckNotNull ("unsupportedMemberAction", unsupportedMemberAction);
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      if (unsupportedMemberAction == null)
+        throw new ArgumentNullException ("unsupportedMemberAction");
+      if (methodName == null)
+        throw new ArgumentNullException ("methodName");
+      if (methodName.Length == 0)
+        throw new ArgumentException ("Value cannot be empty", "methodName");
 
       Check (() => unsupportedMemberAction(), "Method", methodName);
     }
 
     public static void CheckMethod (Func<object> unsupportedMemberFunc, string methodName)
     {
-      ArgumentUtility.CheckNotNull ("unsupportedMemberFunc", unsupportedMemberFunc);
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      if (unsupportedMemberFunc == null)
+        throw new ArgumentNullException ("unsupportedMemberFunc");
+      if (methodName == null)
+        throw new ArgumentNullException ("methodName");
+      if (methodName.Length == 0)
+        throw new ArgumentException ("Value cannot be empty", "methodName");
 
       Check (() => unsupportedMemberFunc(), "Method", methodName);
     }
 
     public static void CheckProperty (Func<object> unsupportedPropertyFunc, string propertyName)
     {
-      ArgumentUtility.CheckNotNull ("unsupportedPropertyFunc", unsupportedPropertyFunc);
-      ArgumentUtility.CheckNotNullOrEmpty ("propertyName", propertyName);
+      if (unsupportedPropertyFunc == null)
+        throw new ArgumentNullException ("unsupportedPropertyFunc");
+      if (propertyName == null)
+        throw new ArgumentNullException ("propertyName");
+      if (propertyName.Length == 0)
+        throw new ArgumentException ("Value cannot be empty", "propertyName");
 
       Check (() => unsupportedPropertyFunc(), "Property", propertyName);
     }

@@ -18,7 +18,6 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.TypeAssembly;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests
 {
@@ -38,10 +37,14 @@ namespace Remotion.TypePipe.IntegrationTests
         Func<object, IAdditionalTypeAssemblyContext, Type> getOrCreateAdditionalTypeFunc)
     {
       // Type identifier provider may be null.
-      ArgumentUtility.CheckNotNull ("participateAction", participateAction);
-      ArgumentUtility.CheckNotNull ("getAdditionalTypeIDFunc", getAdditionalTypeIDFunc);
-      ArgumentUtility.CheckNotNull ("handleNonSubclassableTypeAction", handleNonSubclassableTypeAction);
-      ArgumentUtility.CheckNotNull ("getOrCreateAdditionalTypeFunc", getOrCreateAdditionalTypeFunc);
+      if (participateAction == null)
+        throw new ArgumentNullException ("participateAction");
+      if (getAdditionalTypeIDFunc == null)
+        throw new ArgumentNullException ("getAdditionalTypeIDFunc");
+      if (handleNonSubclassableTypeAction == null)
+        throw new ArgumentNullException ("handleNonSubclassableTypeAction");
+      if (getOrCreateAdditionalTypeFunc == null)
+        throw new ArgumentNullException ("getOrCreateAdditionalTypeFunc");
 
       _typeIdentifierProvider = typeIdentifierProvider;
       _participateAction = participateAction;
