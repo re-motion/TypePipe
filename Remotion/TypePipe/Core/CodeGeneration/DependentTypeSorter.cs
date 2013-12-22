@@ -18,8 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Remotion.FunctionalProgramming;
-using Remotion.Text;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -44,7 +42,10 @@ namespace Remotion.TypePipe.CodeGeneration
 
       while (remainingTypes.Count > 0)
       {
-        var independenType = remainingTypes.First (t => IsIndependent (t, remainingTypes), () => CreateDependencyCycleException (remainingTypes));
+        var independenType = remainingTypes.FirstOrDefault (t => IsIndependent (t, remainingTypes));
+        if (independenType == null)
+          throw CreateDependencyCycleException (remainingTypes);
+
         remainingTypes.Remove (independenType);
 
         yield return independenType;

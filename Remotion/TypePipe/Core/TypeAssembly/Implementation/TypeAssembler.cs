@@ -152,9 +152,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
 
       var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, _participantConfigurationID, participantState);
-      var additionalType = _participants
-          .Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context))
-          .First (t => t != null, () => new NotSupportedException ("No participant provided an additional type for the given identifier."));
+      var additionalType = _participants.Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context)).FirstOrDefault (t => t != null);
+      if (additionalType == null)
+        throw new NotSupportedException ("No participant provided an additional type for the given identifier.");
 
       var generatedTypesContext = GenerateTypesWithDiagnostics (codeGenerator, context.AdditionalTypes.Values, additionalTypeID.ToString());
       context.OnGenerationCompleted (generatedTypesContext);
