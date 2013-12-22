@@ -16,8 +16,8 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.StrongNaming
@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.StrongNaming
   /// </summary>
   public class TypeAnalyzer : ITypeAnalyzer
   {
-    private readonly ICache<Type, bool> _cache = CacheFactory.Create<Type, bool>();
+    private readonly IDictionary<Type, bool> _cache = new Dictionary<Type, bool>();
 
     private readonly IAssemblyAnalyzer _assemblyAnalyzer;
 
@@ -42,7 +42,13 @@ namespace Remotion.TypePipe.StrongNaming
     {
       ArgumentUtility.CheckNotNull ("type", type);
 
-      return _cache.GetOrCreateValue (type, CalculateIsStrongNamed);
+      bool value;
+      if (_cache.TryGetValue (type, out value))
+        return value;
+
+      value = CalculateIsStrongNamed (type);
+      _cache.Add (type, value);
+      return value;
     }
 
     private bool CalculateIsStrongNamed (Type type)
