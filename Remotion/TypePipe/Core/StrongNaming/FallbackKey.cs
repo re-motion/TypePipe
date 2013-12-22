@@ -34,11 +34,9 @@ namespace Remotion.TypePipe.StrongNaming
     {
       var assembly = typeof (FallbackKey).Assembly;
       using (var resourceStream = assembly.GetManifestResourceStream (typeof (FallbackKey), "FallbackKey.snk"))
+      using (var reader = new BinaryReader (Assertion.IsNotNull (resourceStream, "Resource 'FallbackKey.snk' was not found.")))
       {
-        var memoryStream = new MemoryStream (596);
-        FileUtility.CopyStream (resourceStream, memoryStream);
-        var bytes = memoryStream.ToArray();
-
+        var bytes = reader.ReadBytes (596);
         return new StrongNameKeyPair (bytes);
       }
     }
