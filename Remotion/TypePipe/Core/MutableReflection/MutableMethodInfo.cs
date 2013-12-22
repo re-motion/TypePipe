@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.Collections;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Generics;
@@ -154,9 +153,9 @@ namespace Remotion.TypePipe.MutableReflection
     /// <summary>
     /// Returns all root <see cref="MethodInfo"/> instances that were added via <see cref="AddExplicitBaseDefinition"/>.
     /// </summary>
-    public ReadOnlyCollectionDecorator<MethodInfo> AddedExplicitBaseDefinitions
+    public IReadOnlyCollection<MethodInfo> AddedExplicitBaseDefinitions
     {
-      get { return _addedExplicitBaseDefinitions.AsReadOnly (); }
+      get { return _addedExplicitBaseDefinitions.ToList().AsReadOnly(); }
     }
 
     public override ParameterInfo[] GetParameters ()

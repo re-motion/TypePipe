@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Collections;
@@ -48,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <value>
     /// The constructor arguments.
     /// </value>
-    ReadOnlyCollection<object> ConstructorArguments { get; }
+    IReadOnlyCollection<object> ConstructorArguments { get; }
 
     /// <summary>
     /// Gets a <b>fresh copy</b> the named arguments.
@@ -56,6 +57,6 @@ namespace Remotion.TypePipe.MutableReflection
     /// <value>
     /// The named arguments.
     /// </value>
-    ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments { get; }
+    IReadOnlyCollection<ICustomAttributeNamedArgument> NamedArguments { get; }
   }
 }

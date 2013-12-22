@@ -15,12 +15,11 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -62,15 +61,15 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
-    public ReadOnlyCollection<object> ConstructorArguments
+    public IReadOnlyCollection<object> ConstructorArguments
     {
       get { return _constructorArgumentsTemplate.Select (DeepCopyArrays).ToList().AsReadOnly(); }
     }
 
     // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
-    public ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments
+    public IReadOnlyCollection<ICustomAttributeNamedArgument> NamedArguments
     {
-      get { return _namedArguments.Select (CopyNamedArgument).ConvertToCollection().AsReadOnly(); }
+      get { return _namedArguments.Select (CopyNamedArgument).ToList().AsReadOnly(); }
     }
 
     private ICustomAttributeNamedArgument CopyNamedArgument (ICustomAttributeNamedArgument namedArgument)

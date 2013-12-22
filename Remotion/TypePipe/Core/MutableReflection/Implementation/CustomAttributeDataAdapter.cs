@@ -16,11 +16,9 @@
 // 
 
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.Collections;
-using Remotion.FunctionalProgramming;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -50,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
-    public ReadOnlyCollection<object> ConstructorArguments
+    public IReadOnlyCollection<object> ConstructorArguments
     {
       get
       {
@@ -61,13 +59,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
-    public ReadOnlyCollectionDecorator<ICustomAttributeNamedArgument> NamedArguments
+    public IReadOnlyCollection<ICustomAttributeNamedArgument> NamedArguments
     {
       get
       {
         return _customAttributeData.NamedArguments
             .Select (a => new CustomAttributeNamedArgumentAdapter (a))
-            .Cast<ICustomAttributeNamedArgument>().ConvertToCollection().AsReadOnly();
+            .Cast<ICustomAttributeNamedArgument>()
+            .ToList().AsReadOnly();
       }
     }
   }
