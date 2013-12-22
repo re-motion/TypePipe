@@ -34,8 +34,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo);
 
-      var typeInstantiation = _instantiations.GetValueOrDefault (instantiationInfo);
-      if (typeInstantiation != null)
+      TypeInstantiation typeInstantiation;
+      if (_instantiations.TryGetValue (instantiationInfo, out typeInstantiation))
         return typeInstantiation;
 
       var genTypeDef = instantiationInfo.GenericTypeDefinition;
@@ -60,9 +60,9 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNull ("parametersToArguments", parametersToArguments);
 
-      var typeArgument = parametersToArguments.GetValueOrDefault (type);
-      if (typeArgument != null)
-        return typeArgument;
+      Type typeArgument;
+      if (parametersToArguments.TryGetValue (type, out typeArgument))
+        return Assertion.IsNotNull (typeArgument, "Type-argument for type-parameter '{0}' was null.", type);
 
       if (type.IsArray)
         return SubstituteArrayElementType (type, parametersToArguments);

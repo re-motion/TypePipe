@@ -40,7 +40,11 @@ namespace Remotion.TypePipe.Expressions
       if (node == null)
         return null;
 
-      return _replacements.GetValueOrDefault (node) ?? base.Visit (node);
+      Expression value;
+      if (_replacements.TryGetValue (node, out value))
+        return value;
+
+      return base.Visit (node);
     }
   }
 }

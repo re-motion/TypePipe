@@ -90,19 +90,15 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      IPipeline pipeline;
       lock (_lock)
       {
-        pipeline = _pipelines.GetValueOrDefault (participantConfigurationID);
+        IPipeline pipeline;
+        if (_pipelines.TryGetValue (participantConfigurationID, out pipeline))
+          return pipeline;
       }
 
-      if (pipeline == null)
-      {
-        var message = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
-        throw new InvalidOperationException (message);
-      }
-
-      return pipeline;
+      var message = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
+      throw new InvalidOperationException (message);
     }
   }
 }
