@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
@@ -40,9 +39,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly CustomType _elementType;
     private readonly int _rank;
 
-    private readonly Lazy<ReadOnlyCollection<Type>> _interfaces;
-    private readonly Lazy<ReadOnlyCollection<ConstructorInfo>> _constructors;
-    private readonly Lazy<ReadOnlyCollection<MethodInfo>> _methods;
+    private readonly Lazy<IReadOnlyCollection<Type>> _interfaces;
+    private readonly Lazy<IReadOnlyCollection<ConstructorInfo>> _constructors;
+    private readonly Lazy<IReadOnlyCollection<MethodInfo>> _methods;
 
     protected ArrayTypeBase (CustomType elementType, int rank)
         : base (
@@ -63,9 +62,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Example: typeof (T[]).GetInterface ("ICollection`1").GetMethod ("CopyTo").GetParameters()[0] --> T[]
 
       // ReSharper disable DoNotCallOverridableMethodsInConstructor
-      _interfaces = new Lazy<ReadOnlyCollection<Type>> (() => CreateInterfaces (elementType).ToList().AsReadOnly());
-      _constructors = new Lazy<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors (rank).ToList().AsReadOnly());
-      _methods = new Lazy<ReadOnlyCollection<MethodInfo>> (() => CreateMethods (elementType, rank).ToList().AsReadOnly());
+      _interfaces = new Lazy<IReadOnlyCollection<Type>> (() => CreateInterfaces (elementType).ToList().AsReadOnly());
+      _constructors = new Lazy<IReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors (rank).ToList().AsReadOnly());
+      _methods = new Lazy<IReadOnlyCollection<MethodInfo>> (() => CreateMethods (elementType, rank).ToList().AsReadOnly());
       // ReSharper restore DoNotCallOverridableMethodsInConstructor
     }
 

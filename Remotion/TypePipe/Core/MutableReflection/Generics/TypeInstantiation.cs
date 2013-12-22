@@ -17,10 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -40,13 +38,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly IDictionary<Type, Type> _parametersToArguments;
 
     // TODO 5452: Use type unification.
-    private readonly Lazy<ReadOnlyCollection<Type>> _nestedTypes;
-    private readonly Lazy<ReadOnlyCollection<Type>> _interfaces;
-    private readonly Lazy<ReadOnlyCollection<FieldInfo>> _fields;
-    private readonly Lazy<ReadOnlyCollection<ConstructorInfo>> _constructors;
-    private readonly Lazy<ReadOnlyCollection<MethodOnTypeInstantiation>> _methods;
-    private readonly Lazy<ReadOnlyCollection<PropertyInfo>> _properties;
-    private readonly Lazy<ReadOnlyCollection<EventInfo>> _events;
+    private readonly Lazy<IReadOnlyCollection<Type>> _nestedTypes;
+    private readonly Lazy<IReadOnlyCollection<Type>> _interfaces;
+    private readonly Lazy<IReadOnlyCollection<FieldInfo>> _fields;
+    private readonly Lazy<IReadOnlyCollection<ConstructorInfo>> _constructors;
+    private readonly Lazy<IReadOnlyCollection<MethodOnTypeInstantiation>> _methods;
+    private readonly Lazy<IReadOnlyCollection<PropertyInfo>> _properties;
+    private readonly Lazy<IReadOnlyCollection<EventInfo>> _events;
 
     public TypeInstantiation (TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
         : base (
@@ -86,13 +84,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       if (genericTypeDefinition.BaseType != null)
         SetBaseType (SubstituteGenericParameters (genericTypeDefinition.BaseType));
 
-      _nestedTypes = new Lazy<ReadOnlyCollection<Type>> (() => CreateNestedType().ToList().AsReadOnly());
-      _interfaces = new Lazy<ReadOnlyCollection<Type>> (() => CreateInterfaces().ToList().AsReadOnly());
-      _fields = new Lazy<ReadOnlyCollection<FieldInfo>> (() => CreateFields().Cast<FieldInfo>().ToList().AsReadOnly());
-      _constructors = new Lazy<ReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors().Cast<ConstructorInfo>().ToList().AsReadOnly());
-      _methods = new Lazy<ReadOnlyCollection<MethodOnTypeInstantiation>> (() => CreateMethods().ToList().AsReadOnly());
-      _properties = new Lazy<ReadOnlyCollection<PropertyInfo>> (() => CreateProperties().Cast<PropertyInfo>().ToList().AsReadOnly());
-      _events = new Lazy<ReadOnlyCollection<EventInfo>> (() => CreateEvents().Cast<EventInfo>().ToList().AsReadOnly());
+      _nestedTypes = new Lazy<IReadOnlyCollection<Type>> (() => CreateNestedType().ToList().AsReadOnly());
+      _interfaces = new Lazy<IReadOnlyCollection<Type>> (() => CreateInterfaces().ToList().AsReadOnly());
+      _fields = new Lazy<IReadOnlyCollection<FieldInfo>> (() => CreateFields().Cast<FieldInfo>().ToList().AsReadOnly());
+      _constructors = new Lazy<IReadOnlyCollection<ConstructorInfo>> (() => CreateConstructors().Cast<ConstructorInfo>().ToList().AsReadOnly());
+      _methods = new Lazy<IReadOnlyCollection<MethodOnTypeInstantiation>> (() => CreateMethods().ToList().AsReadOnly());
+      _properties = new Lazy<IReadOnlyCollection<PropertyInfo>> (() => CreateProperties().Cast<PropertyInfo>().ToList().AsReadOnly());
+      _events = new Lazy<IReadOnlyCollection<EventInfo>> (() => CreateEvents().Cast<EventInfo>().ToList().AsReadOnly());
     }
 
     public Type SubstituteGenericParameters (Type type)

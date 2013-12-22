@@ -18,11 +18,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.ServiceLocation;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -42,8 +40,8 @@ namespace Remotion.TypePipe.MutableReflection
     private static readonly ICustomAttributeDataRetriever s_customAttributeDataRetriever =
         SafeServiceLocator.Current.GetInstance<ICustomAttributeDataRetriever>();
 
-    private static readonly ConcurrentDictionary<CustomAttributeDataCacheKey, ReadOnlyCollection<ICustomAttributeData>> s_cache =
-        new ConcurrentDictionary<CustomAttributeDataCacheKey, ReadOnlyCollection<ICustomAttributeData>>();
+    private static readonly ConcurrentDictionary<CustomAttributeDataCacheKey, IReadOnlyCollection<ICustomAttributeData>> s_cache =
+        new ConcurrentDictionary<CustomAttributeDataCacheKey, IReadOnlyCollection<ICustomAttributeData>>();
 
     private static readonly Func<Type, Type> s_baseTypeProvider = type => type.BaseType;
     private static readonly Func<MethodInfo, MethodInfo> s_baseMethodProvider = new RelatedMethodFinder().GetBaseMethod;
@@ -139,7 +137,7 @@ namespace Remotion.TypePipe.MutableReflection
       return GetCachedAttributes (module, s_customAttributeDataRetriever.GetCustomAttributeData);
     }
 
-    private static ReadOnlyCollection<ICustomAttributeData> GetCachedAttributes<T> (
+    private static IReadOnlyCollection<ICustomAttributeData> GetCachedAttributes<T> (
         T target, Func<T, IEnumerable<ICustomAttributeData>> attributeDataRetriever)
         where T : ICustomAttributeProvider
     {
@@ -147,14 +145,14 @@ namespace Remotion.TypePipe.MutableReflection
 
       // Optimization: Do not extract code duplication into method with Func parameters. This would require creating a closure that captures
       // variables from an outer scope, which is expensive.
-      ReadOnlyCollection<ICustomAttributeData> attributes;
+      IReadOnlyCollection<ICustomAttributeData> attributes;
       if (s_cache.TryGetValue (key, out attributes))
         return attributes;
 
       return s_cache.GetOrAdd (key, k => attributeDataRetriever ((T) k.AttributeTarget).ToList().AsReadOnly());
     }
 
-    private static ReadOnlyCollection<ICustomAttributeData> GetCachedAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
+    private static IReadOnlyCollection<ICustomAttributeData> GetCachedAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
         where T : MemberInfo
     {
       if (member is IMutableMember)
@@ -164,14 +162,14 @@ namespace Remotion.TypePipe.MutableReflection
 
       // Optimization: Do not extract code duplication into method with Func parameters. This would require creating a closure that captures
       // variables from an outer scope, which is expensive.
-      ReadOnlyCollection<ICustomAttributeData> attributes;
+      IReadOnlyCollection<ICustomAttributeData> attributes;
       if (s_cache.TryGetValue (key, out attributes))
         return attributes;
 
       return s_cache.GetOrAdd (key, k => GetAttributes ((T) k.AttributeTarget, k.Inherit, baseMemberProvider));
     }
 
-    private static ReadOnlyCollection<ICustomAttributeData> GetAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
+    private static IReadOnlyCollection<ICustomAttributeData> GetAttributes<T> (T member, bool inherit, Func<T, T> baseMemberProvider)
         where T : MemberInfo
     {
       var attributes = s_customAttributeDataRetriever.GetCustomAttributeData (member);

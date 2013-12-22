@@ -16,7 +16,6 @@
 // 
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -30,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   public class ConstructorOnTypeInstantiation : CustomConstructorInfo
   {
     private readonly ConstructorInfo _constructor;
-    private readonly ReadOnlyCollection<ParameterInfo> _parameters;
+    private readonly IReadOnlyCollection<ParameterInfo> _parameters;
 
     public ConstructorOnTypeInstantiation (TypeInstantiation declaringType, ConstructorInfo constructor)
         : base (declaringType, ArgumentUtility.CheckNotNull ("constructor", constructor).Attributes)

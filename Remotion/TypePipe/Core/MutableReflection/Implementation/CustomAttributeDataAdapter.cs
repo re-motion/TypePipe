@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
-    public IReadOnlyCollection<object> ConstructorArguments
+    public IReadOnlyList<object> ConstructorArguments
     {
       get
       {

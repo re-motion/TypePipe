@@ -16,10 +16,8 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 
@@ -80,7 +78,7 @@ namespace Remotion.TypePipe.MutableReflection
       return new ParameterDeclaration (type, parameter.Name, parameter.Attributes);
     }
 
-    private readonly ReadOnlyCollection<GenericParameterDeclaration> _genericParameters;
+    private readonly IReadOnlyList<GenericParameterDeclaration> _genericParameters;
     private readonly Func<GenericParameterContext, Type> _returnTypeProvider;
     private readonly Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> _parameterProvider;
 
@@ -98,7 +96,7 @@ namespace Remotion.TypePipe.MutableReflection
       _parameterProvider = parameterProvider;
     }
 
-    public ReadOnlyCollection<GenericParameterDeclaration> GenericParameters
+    public IReadOnlyList<GenericParameterDeclaration> GenericParameters
     {
       get { return _genericParameters; }
     }

@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Remotion.Utilities;
 
@@ -28,8 +27,8 @@ namespace Remotion.TypePipe.TypeAssembly
   /// </summary>
   public class LoadedTypesContext
   {
-    private readonly ReadOnlyCollection<LoadedProxy> _proxyTypes;
-    private readonly ReadOnlyCollection<Type> _additionalTypes;
+    private readonly IReadOnlyCollection<LoadedProxy> _proxyTypes;
+    private readonly IReadOnlyCollection<Type> _additionalTypes;
     private readonly IParticipantState _participantState;
 
     public LoadedTypesContext (IEnumerable<LoadedProxy> proxyTypes, IEnumerable<Type> additionalTypes, IParticipantState participantState)
@@ -47,7 +46,7 @@ namespace Remotion.TypePipe.TypeAssembly
     /// Gets the newly loaded proxy <see cref="Type"/>s.
     /// Note that proxy types that were already present in the cache are not contained in this collection.
     /// </summary>
-    public ReadOnlyCollection<LoadedProxy> ProxyTypes
+    public IReadOnlyCollection<LoadedProxy> ProxyTypes
     {
       get { return _proxyTypes; }
     }
@@ -55,7 +54,7 @@ namespace Remotion.TypePipe.TypeAssembly
     /// <summary>
     /// Gets the loaded additional <see cref="Type"/>s.
     /// </summary>
-    public ReadOnlyCollection<Type> AdditionalTypes
+    public IReadOnlyCollection<Type> AdditionalTypes
     {
       get { return _additionalTypes; }
     }

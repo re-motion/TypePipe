@@ -15,11 +15,9 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
-using System.Runtime.Serialization;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Remotion.Reflection;
-using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 
@@ -46,7 +44,7 @@ namespace Remotion.TypePipe
     /// <summary>
     /// Gets the participants used by this <see cref="IPipeline"/> instance.
     /// </summary>
-    ReadOnlyCollection<IParticipant> Participants { get; }
+    IReadOnlyCollection<IParticipant> Participants { get; }
 
     /// <summary>
     /// Gets the <see cref="ICodeManager"/> which supports saving and loading of generated code.

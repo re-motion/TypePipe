@@ -15,7 +15,7 @@
 // under the License.
 // 
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public interface IMutableInfo : ICustomAttributeDataProvider
   {
-    ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes { get; }
+    IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes { get; }
 
     void AddCustomAttribute (CustomAttributeDeclaration customAttribute);
   }

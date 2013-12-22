@@ -16,9 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -49,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <value>
     /// The constructor arguments.
     /// </value>
-    IReadOnlyCollection<object> ConstructorArguments { get; }
+    IReadOnlyList<object> ConstructorArguments { get; }
 
     /// <summary>
     /// Gets a <b>fresh copy</b> the named arguments.

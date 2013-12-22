@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
@@ -29,8 +28,8 @@ namespace Remotion.TypePipe.MutableReflection
   public class CustomAttributeDeclaration : ICustomAttributeData
   {
     private readonly ConstructorInfo _constructor;
-    private readonly ReadOnlyCollection<object> _constructorArgumentsTemplate;
-    private readonly ReadOnlyCollection<ICustomAttributeNamedArgument> _namedArguments;
+    private readonly IReadOnlyCollection<object> _constructorArgumentsTemplate;
+    private readonly IReadOnlyCollection<ICustomAttributeNamedArgument> _namedArguments;
 
     public CustomAttributeDeclaration (
         ConstructorInfo constructor,
@@ -61,7 +60,7 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     // The value is returned to the user, who might change the array contents. Therefore create a safe copy.
-    public IReadOnlyCollection<object> ConstructorArguments
+    public IReadOnlyList<object> ConstructorArguments
     {
       get { return _constructorArgumentsTemplate.Select (DeepCopyArrays).ToList().AsReadOnly(); }
     }

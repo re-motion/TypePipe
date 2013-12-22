@@ -16,12 +16,10 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {
@@ -34,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   {
     private readonly TypeInstantiationContext _instantiationContext = new TypeInstantiationContext();
     private readonly ParameterInfo _returnParameter;
-    private readonly ReadOnlyCollection<ParameterInfo> _parameters;
+    private readonly IReadOnlyCollection<ParameterInfo> _parameters;
     private readonly Dictionary<Type, Type> _parametersToArguments;
 
     public MethodInstantiation (MethodInstantiationInfo instantiationInfo)

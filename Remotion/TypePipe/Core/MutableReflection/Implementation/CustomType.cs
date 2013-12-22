@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -25,7 +24,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Remotion.Text;
 using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
 
@@ -45,7 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _namespace;
     private readonly TypeAttributes _attributes;
     private readonly Type _genericTypeDefinition;
-    private readonly ReadOnlyCollection<Type> _typeArguments;
+    private readonly IReadOnlyList<Type> _typeArguments;
 
     private Type _declaringType;
     private Type _baseType;

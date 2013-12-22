@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast.Compiler;
@@ -35,8 +34,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     private const TypeAttributes c_delegateTypeAttributes = TypeAttributes.Public | TypeAttributes.Sealed;
 
     private readonly Type _returnType;
-    private readonly ReadOnlyCollection<Type> _parameterTypes;
-    private readonly ReadOnlyCollection<MethodInfo> _methods;
+    private readonly IReadOnlyList<Type> _parameterTypes;
+    private readonly IReadOnlyCollection<MethodInfo> _methods;
 
     public DelegateTypePlaceholder (Type returnType, IEnumerable<Type> parameterTypes)
         : base ("DelegateTypePlaceholder", null, c_delegateTypeAttributes, null, EmptyTypes)
@@ -56,7 +55,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       get { return _returnType; }
     }
 
-    public ReadOnlyCollection<Type> ParameterTypes
+    public IReadOnlyList<Type> ParameterTypes
     {
       get { return _parameterTypes; }
     }

@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
@@ -38,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private readonly string _name;
     private readonly MethodAttributes _attributes;
     private readonly MethodInfo _genericMethodDefinition;
-    private readonly ReadOnlyCollection<Type> _typeArguments;
+    private readonly IReadOnlyCollection<Type> _typeArguments;
 
     protected CustomMethodInfo (
         Type declaringType,

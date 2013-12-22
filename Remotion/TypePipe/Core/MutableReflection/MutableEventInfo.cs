@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -63,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return GetRaiseMethod (true) as MutableMethodInfo; }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
     }

@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
@@ -29,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class MethodBodyContextBase : MethodBaseBodyContextBase
   {
-    private readonly ReadOnlyCollection<Type> _genericParameters;
+    private readonly IReadOnlyList<Type> _genericParameters;
     private readonly Type _returnType;
     private readonly MethodInfo _baseMethod;
 
@@ -51,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _baseMethod = baseMethod;
     }
 
-    public ReadOnlyCollection<Type> GenericParameters
+    public IReadOnlyList<Type> GenericParameters
     {
       get { return _genericParameters; }
     }

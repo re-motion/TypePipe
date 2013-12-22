@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
@@ -32,8 +31,8 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableConstructorInfo : CustomConstructorInfo, IMutableMethodBase
   {
-    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
-    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly IReadOnlyList<MutableParameterInfo> _parameters;
+    private readonly IReadOnlyList<ParameterExpression> _parameterExpressions;
 
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
@@ -59,17 +58,17 @@ namespace Remotion.TypePipe.MutableReflection
       get { return (MutableType) DeclaringType; }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
     }
 
-    public ReadOnlyCollection<MutableParameterInfo> MutableParameters
+    public IReadOnlyList<MutableParameterInfo> MutableParameters
     {
       get { return _parameters; }
     }
 
-    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
+    public IReadOnlyList<ParameterExpression> ParameterExpressions
     {
       get { return _parameterExpressions; }
     }

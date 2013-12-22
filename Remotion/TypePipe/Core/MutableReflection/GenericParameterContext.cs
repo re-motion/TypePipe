@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -28,14 +27,14 @@ namespace Remotion.TypePipe.MutableReflection
   /// <seealso cref="MutableType.AddMethod(string,System.Reflection.MethodAttributes,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.GenericParameterDeclaration},System.Func{Remotion.TypePipe.MutableReflection.GenericParameterContext,System.Type},System.Func{Remotion.TypePipe.MutableReflection.GenericParameterContext,System.Collections.Generic.IEnumerable{Remotion.TypePipe.MutableReflection.ParameterDeclaration}},System.Func{Remotion.TypePipe.MutableReflection.BodyBuilding.MethodBodyCreationContext,Remotion.TypePipe.Dlr.Ast.Expression})"/>
   public class GenericParameterContext
   {
-    private readonly ReadOnlyCollection<Type> _genericParameters;
+    private readonly IReadOnlyList<Type> _genericParameters;
 
     public GenericParameterContext (IEnumerable<Type> genericParameters)
     {
       _genericParameters = genericParameters.ToList().AsReadOnly();
     }
 
-    public ReadOnlyCollection<Type> GenericParameters
+    public IReadOnlyList<Type> GenericParameters
     {
       get { return _genericParameters; }
     }

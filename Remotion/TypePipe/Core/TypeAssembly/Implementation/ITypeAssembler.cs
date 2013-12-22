@@ -16,7 +16,7 @@
 // 
 
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   public interface ITypeAssembler
   {
     string ParticipantConfigurationID { get; }
-    ReadOnlyCollection<IParticipant> Participants { get; }
+    IReadOnlyCollection<IParticipant> Participants { get; }
 
     bool IsAssembledType ([NotNull] Type type);
 

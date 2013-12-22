@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
@@ -85,12 +84,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return (MutableType) DeclaringType; }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributes.AddedCustomAttributes; }
     }
 
-    public ReadOnlyCollection<MutableType> AddedNestedTypes
+    public IReadOnlyCollection<MutableType> AddedNestedTypes
     {
       get { return _addedNestedTypes.AsReadOnly(); }
     } 
@@ -105,12 +104,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _initialization; }
     }
 
-    public ReadOnlyCollection<Type> AddedInterfaces
+    public IReadOnlyCollection<Type> AddedInterfaces
     {
       get { return _addedInterfaces.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<MutableFieldInfo> AddedFields
+    public IReadOnlyCollection<MutableFieldInfo> AddedFields
     {
       get { return _addedFields.AsReadOnly(); }
     }
@@ -118,22 +117,22 @@ namespace Remotion.TypePipe.MutableReflection
     /// <summary>
     /// Gets the added instance constructors. Use <see cref="MutableTypeInitializer"/> to retrieve the static constructor.
     /// </summary>
-    public ReadOnlyCollection<MutableConstructorInfo> AddedConstructors
+    public IReadOnlyCollection<MutableConstructorInfo> AddedConstructors
     {
       get { return _addedConstructors.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<MutableMethodInfo> AddedMethods
+    public IReadOnlyCollection<MutableMethodInfo> AddedMethods
     {
       get { return _addedMethods.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<MutablePropertyInfo> AddedProperties
+    public IReadOnlyCollection<MutablePropertyInfo> AddedProperties
     {
       get { return _addedProperties.AsReadOnly(); }
     }
 
-    public ReadOnlyCollection<MutableEventInfo> AddedEvents
+    public IReadOnlyCollection<MutableEventInfo> AddedEvents
     {
       get { return _addedEvents.AsReadOnly(); }
     }

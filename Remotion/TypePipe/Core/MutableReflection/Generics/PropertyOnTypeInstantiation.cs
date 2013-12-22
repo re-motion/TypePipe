@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using System.Linq;
@@ -29,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   /// </summary>
   public class PropertyOnTypeInstantiation : CustomPropertyInfo
   {
-    private readonly ReadOnlyCollection<ParameterInfo> _indexParameters;
+    private readonly IReadOnlyCollection<ParameterInfo> _indexParameters;
     private readonly PropertyInfo _property;
 
     public PropertyOnTypeInstantiation (

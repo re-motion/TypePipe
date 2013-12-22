@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
@@ -34,10 +33,10 @@ namespace Remotion.TypePipe.MutableReflection
   /// </summary>
   public class MutableMethodInfo : CustomMethodInfo, IMutableMethodBase
   {
-    private readonly ReadOnlyCollection<MutableGenericParameter> _genericParameters;
+    private readonly IReadOnlyList<MutableGenericParameter> _genericParameters;
     private readonly MutableParameterInfo _returnParameter;
-    private readonly ReadOnlyCollection<MutableParameterInfo> _parameters;
-    private readonly ReadOnlyCollection<ParameterExpression> _parameterExpressions;
+    private readonly IReadOnlyList<MutableParameterInfo> _parameters;
+    private readonly IReadOnlyList<ParameterExpression> _parameterExpressions;
     // Note: If this is made mutable, MutableType's _hasAbstractMethods cache invalidation needs to be updated.
     private readonly MethodInfo _baseMethod;
 
@@ -88,7 +87,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return (MutableType) DeclaringType; }
     }
 
-    public ReadOnlyCollection<MutableGenericParameter> MutableGenericParameters
+    public IReadOnlyList<MutableGenericParameter> MutableGenericParameters
     {
       get { return _genericParameters; }
     } 
@@ -108,12 +107,12 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _returnParameter; }
     }
 
-    public ReadOnlyCollection<MutableParameterInfo> MutableParameters
+    public IReadOnlyList<MutableParameterInfo> MutableParameters
     {
       get { return _parameters; }
     }
 
-    public ReadOnlyCollection<ParameterExpression> ParameterExpressions
+    public IReadOnlyList<ParameterExpression> ParameterExpressions
     {
       get { return _parameterExpressions; }
     }
@@ -134,7 +133,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return _baseMethod; }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
     }

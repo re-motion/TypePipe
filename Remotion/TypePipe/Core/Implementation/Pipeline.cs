@@ -16,8 +16,7 @@
 // 
 
 using System;
-using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using Remotion.Reflection;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.TypeAssembly.Implementation;
@@ -63,7 +62,7 @@ namespace Remotion.TypePipe.Implementation
       get { return _settings; }
     }
 
-    public ReadOnlyCollection<IParticipant> Participants
+    public IReadOnlyCollection<IParticipant> Participants
     {
       get { return _typeAssembler.Participants; }
     }

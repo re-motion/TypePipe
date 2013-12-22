@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -37,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     private readonly MethodInfo _method;
     private readonly ParameterInfo _returnParameter;
-    private readonly ReadOnlyCollection<ParameterInfo> _parameters;
+    private readonly IReadOnlyCollection<ParameterInfo> _parameters;
 
     public MethodOnTypeInstantiation (TypeInstantiation declaringType, MethodInfo method)
         : base (

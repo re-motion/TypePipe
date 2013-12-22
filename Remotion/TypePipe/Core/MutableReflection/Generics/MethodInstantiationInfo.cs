@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using Remotion.Utilities;
 using System.Linq;
@@ -30,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
   public class MethodInstantiationInfo
   {
     private readonly MethodInfo _genericMethodDefinition;
-    private readonly ReadOnlyCollection<Type> _typeArguments;
+    private readonly IReadOnlyList<Type> _typeArguments;
 
     public MethodInstantiationInfo (MethodInfo genericMethodDefinition, IEnumerable<Type> typeArguments)
     {
@@ -53,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       get { return _genericMethodDefinition; }
     }
 
-    public ReadOnlyCollection<Type> TypeArguments
+    public IReadOnlyList<Type> TypeArguments
     {
       get { return _typeArguments; }
     }

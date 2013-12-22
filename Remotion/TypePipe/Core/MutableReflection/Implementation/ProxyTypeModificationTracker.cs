@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
@@ -30,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public class ProxyTypeModificationTracker : ITypeModificationTracker
   {
     private readonly MutableType _proxyType;
-    private readonly ReadOnlyCollection<Expression> _constructorBodies;
+    private readonly IReadOnlyCollection<Expression> _constructorBodies;
 
     public ProxyTypeModificationTracker (MutableType proxyType, IEnumerable<Expression> constructorBodies)
     {
@@ -46,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       get { return _proxyType; }
     }
 
-    public ReadOnlyCollection<Expression> ConstructorBodies
+    public IReadOnlyCollection<Expression> ConstructorBodies
     {
       get { return _constructorBodies; }
     }

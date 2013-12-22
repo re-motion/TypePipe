@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Remotion.Utilities;
 
@@ -31,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     private readonly List<CustomAttributeDeclaration> _addedCustomAttributes = new List<CustomAttributeDeclaration>();
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _addedCustomAttributes.AsReadOnly(); }
     }

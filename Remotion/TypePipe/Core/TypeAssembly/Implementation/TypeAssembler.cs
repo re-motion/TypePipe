@@ -17,10 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
@@ -43,7 +41,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeAttribute());
 
     private readonly string _participantConfigurationID;
-    private readonly ReadOnlyCollection<IParticipant> _participants;
+    private readonly IReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly IAssembledTypeIdentifierProvider _assembledTypeIdentifierProvider;
     private readonly IComplexSerializationEnabler _complexSerializationEnabler;
@@ -73,7 +71,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       get { return _participantConfigurationID; }
     }
 
-    public ReadOnlyCollection<IParticipant> Participants
+    public IReadOnlyCollection<IParticipant> Participants
     {
       get { return _participants; }
     }

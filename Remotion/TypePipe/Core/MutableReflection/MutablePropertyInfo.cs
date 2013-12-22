@@ -16,7 +16,6 @@
 // 
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -31,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     private readonly CustomAttributeContainer _customAttributeContainer = new CustomAttributeContainer();
 
-    private readonly ReadOnlyCollection<PropertyParameterInfoWrapper> _indexParameters;
+    private readonly IReadOnlyList<PropertyParameterInfoWrapper> _indexParameters;
 
     public MutablePropertyInfo (
         MutableType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
@@ -64,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection
       get { return (MutableMethodInfo) GetSetMethod (true); }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
     }

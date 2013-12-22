@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -38,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly GenericParameterAttributes _genericParameterAttributes;
 
     private MemberInfo _declaringMember;
-    private ReadOnlyCollection<Type> _constraints = EmptyTypes.ToList().AsReadOnly();
+    private IReadOnlyCollection<Type> _constraints = EmptyTypes.ToList().AsReadOnly();
 
     public MutableGenericParameter (
         int position,
@@ -61,7 +60,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       get { return (MutableType) DeclaringType; }
     }
 
-    public ReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
+    public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }
     }

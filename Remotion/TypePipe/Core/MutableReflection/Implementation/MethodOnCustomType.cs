@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
@@ -31,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public class MethodOnCustomType : CustomMethodInfo
   {
     private readonly ParameterInfo _returnParameter;
-    private readonly ReadOnlyCollection<ParameterOnCustomMember> _parameters;
+    private readonly IReadOnlyCollection<ParameterOnCustomMember> _parameters;
 
     public MethodOnCustomType (
         CustomType declaringType,

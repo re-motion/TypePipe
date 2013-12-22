@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;

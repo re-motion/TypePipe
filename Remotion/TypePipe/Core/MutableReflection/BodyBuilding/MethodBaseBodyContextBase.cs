@@ -16,7 +16,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
 using System.Linq;
@@ -28,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   /// </summary>
   public abstract class MethodBaseBodyContextBase : BodyContextBase
   {
-    private readonly ReadOnlyCollection<ParameterExpression> _parameters;
+    private readonly IReadOnlyList<ParameterExpression> _parameters;
 
     protected MethodBaseBodyContextBase (MutableType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
         : base (declaringType, isStatic)
@@ -38,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       _parameters = parameterExpressions.ToList().AsReadOnly();
     }
 
-    public ReadOnlyCollection<ParameterExpression> Parameters
+    public IReadOnlyList<ParameterExpression> Parameters
     {
       get { return _parameters; }
     }
