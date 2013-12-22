@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     {
       var genericMethodDefinition = instantiationInfo.GenericMethodDefinition;
       _parametersToArguments = genericMethodDefinition
-          .GetGenericArguments().Zip (instantiationInfo.TypeArguments).ToDictionary (t => t.Item1, t => t.Item2);
+          .GetGenericArguments().Zip (instantiationInfo.TypeArguments, Tuple.Create).ToDictionary (t => t.Item1, t => t.Item2);
 
       _returnParameter = new MemberParameterOnInstantiation (this, genericMethodDefinition.ReturnParameter);
       _parameters = genericMethodDefinition

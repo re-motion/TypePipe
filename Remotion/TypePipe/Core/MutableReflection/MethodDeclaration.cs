@@ -47,13 +47,13 @@ namespace Remotion.TypePipe.MutableReflection
       Func<GenericParameterContext, Type> returnTypeProvider =
           ctx =>
           {
-            var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+            var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters, Tuple.Create).ToDictionary (t => t.Item1, t => t.Item2);
             return instantiationContext.SubstituteGenericParameters (method.ReturnType, parametersToArguments);
           };
       Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider =
           ctx =>
           {
-            var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+            var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters, Tuple.Create).ToDictionary (t => t.Item1, t => t.Item2);
             return method.GetParameters().Select (p => CreateEquivalentParameter (p, parametersToArguments, instantiationContext));
           };
 
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection
     {
       Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = ctx =>
       {
-        var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters).ToDictionary (t => t.Item1, t => t.Item2);
+        var parametersToArguments = oldGenericParameters.Zip (ctx.GenericParameters, Tuple.Create).ToDictionary (t => t.Item1, t => t.Item2);
         return genericParameter.GetGenericParameterConstraints()
                                .Where (g => g != typeof (ValueType))
                                .Select (c => instantiationContext.SubstituteGenericParameters (c, parametersToArguments));

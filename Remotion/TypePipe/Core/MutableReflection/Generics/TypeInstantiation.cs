@@ -69,9 +69,11 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       // parameters with type arguments, add a mapping for the declaring type's generic parameters in addition to this type's generic parameters.
 
       // ReSharper disable ConditionIsAlwaysTrueOrFalse // ReSharper is wrong here, declaringType can be null.
-      var outerMapping = declaringType != null ? declaringType.GetGenericArguments().Zip (instantiationInfo.TypeArguments) : new Tuple<Type, Type>[0];
+      var outerMapping = declaringType != null
+          ? declaringType.GetGenericArguments().Zip (instantiationInfo.TypeArguments, Tuple.Create)
+          : new Tuple<Type, Type>[0];
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
-      var mapping = genericTypeDefinition.GetGenericArguments().Zip (instantiationInfo.TypeArguments);
+      var mapping = genericTypeDefinition.GetGenericArguments().Zip (instantiationInfo.TypeArguments, Tuple.Create);
       _parametersToArguments = outerMapping.Concat (mapping).ToDictionary (t => t.Item1, t => t.Item2);
 
       // Add own instantation to context before substituting any generic parameters. 
