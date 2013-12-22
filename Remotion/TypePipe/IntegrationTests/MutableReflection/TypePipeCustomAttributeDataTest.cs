@@ -25,9 +25,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.IntegrationTests.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
-using Remotion.Development.UnitTesting.Enumerables;
 
 [assembly: TypePipeCustomAttributeDataTest.Abc ("assembly")]
 [module: TypePipeCustomAttributeDataTest.Abc ("module")]
@@ -83,30 +80,6 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       _eventRemoveParameter = _eventRemover.GetParameters().Single();
       _nestedType = typeof (DomainType.NestedType);
       _genericType = typeof (DomainType.GenericType<>).GetGenericArguments().Single();
-    }
-
-    [Test]
-    public void ExtensionPoint_ICustomAttributeDataRetriever ()
-    {
-      AppDomainRunner.Run (args =>
-      {
-        var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new MultipleAttribute (""));
-        var attribute1 = new CustomAttributeDeclaration (ctor, new object[] { "" });
-        var attribute2 = new CustomAttributeDeclaration (ctor, new object[] { "" });
-
-        var customAttributeDataRetrieverMock = MockRepository.GenerateStrictMock<ICustomAttributeDataRetriever>();
-        customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (DomainType))).Return (new[] { attribute1 });
-        customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (object))).Return (new[] { attribute2 });
-
-        IEnumerable<ICustomAttributeData> result;
-        using (new ServiceLocatorScope (typeof (ICustomAttributeDataRetriever), () => customAttributeDataRetrieverMock))
-        {
-          result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType), inherit: true).ForceEnumeration();
-        }
-
-        customAttributeDataRetrieverMock.VerifyAllExpectations();
-        Assert.That (result, Is.EqualTo (new[] { attribute1, attribute2 }));
-      });
     }
 
     [Test]

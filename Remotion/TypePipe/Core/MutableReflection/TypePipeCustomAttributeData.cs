@@ -20,7 +20,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -31,14 +30,9 @@ namespace Remotion.TypePipe.MutableReflection
   /// Can be used to retrieve attribute data from <see cref="MemberInfo"/>s and <see cref="ParameterInfo"/>s.
   /// Note that the results returned by this class are cached.
   /// </summary>
-  /// <remarks>
-  /// The implementation is based on an instance of <see cref="ICustomAttributeDataRetriever"/> which is requested via 
-  /// the <see cref="SafeServiceLocator"/>.
-  /// </remarks>
   public static class TypePipeCustomAttributeData
   {
-    private static readonly ICustomAttributeDataRetriever s_customAttributeDataRetriever =
-        SafeServiceLocator.Current.GetInstance<ICustomAttributeDataRetriever>();
+    private static readonly ICustomAttributeDataRetriever s_customAttributeDataRetriever = new CustomAttributeDataRetriever();
 
     private static readonly ConcurrentDictionary<CustomAttributeDataCacheKey, IReadOnlyCollection<ICustomAttributeData>> s_cache =
         new ConcurrentDictionary<CustomAttributeDataCacheKey, IReadOnlyCollection<ICustomAttributeData>>();

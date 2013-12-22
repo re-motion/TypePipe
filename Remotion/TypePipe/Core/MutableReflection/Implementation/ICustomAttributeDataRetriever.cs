@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.ServiceLocation;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -26,8 +25,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Retrieves <see cref="ICustomAttributeData"/> objects from implementations of <see cref="ICustomAttributeProvider"/>, that is
   /// <see cref="MemberInfo"/>, <see cref="ParameterInfo"/>, <see cref="Assembly"/> and <see cref="Module"/>.
   /// </summary>
-  [ConcreteImplementation (typeof (CustomAttributeDataRetriever))]
-  public interface ICustomAttributeDataRetriever
+  /// <remarks>Extension point is no longer required since bug in assembly binding redirection has been fixed in .NET 4.0.</remarks>
+  internal interface ICustomAttributeDataRetriever
   {
     IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member);
     IEnumerable<ICustomAttributeData> GetCustomAttributeData (ParameterInfo parameter);
