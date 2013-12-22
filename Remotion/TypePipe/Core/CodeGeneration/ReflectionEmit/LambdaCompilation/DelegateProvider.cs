@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.Dlr.Ast.Compiler;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
@@ -34,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       ArgumentUtility.CheckNotNull ("returnType", returnType);
       ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
 
-      var types = parameterTypes.Concat (returnType).ToArray();
+      var types = parameterTypes.Concat (new[] { returnType }).ToArray();
       return DelegateHelpers.MakeDelegateType (types);
     }
   }

@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.FunctionalProgramming;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
@@ -63,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (getBodyProvider == null && setBodyProvider == null)
         throw new ArgumentException ("At least one accessor body provider must be specified.", "getBodyProvider");
 
-      var indexParams = indexParameters.ConvertToCollection();
+      var indexParams = indexParameters.ToList();
       var signature = new PropertySignature (type, indexParams.Select (pd => pd.Type));
       if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
         throw new InvalidOperationException ("Property with equal name and signature already exists.");
@@ -74,7 +73,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         getMethod = CreateAccessor (declaringType, "get_" + name, attributes, type, indexParams, getBodyProvider);
       if (setBodyProvider != null)
       {
-        var setterParams = indexParams.Concat (new ParameterDeclaration (type, "value"));
+        var setterParams = indexParams.Concat (new[] { new ParameterDeclaration (type, "value") });
         setMethod = CreateAccessor (declaringType, "set_" + name, attributes, typeof (void), setterParams, setBodyProvider);
       }
 

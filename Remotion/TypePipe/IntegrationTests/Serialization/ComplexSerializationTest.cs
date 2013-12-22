@@ -21,7 +21,6 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting;
 using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.Development.UnitTesting;
-using Remotion.FunctionalProgramming;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
@@ -74,7 +73,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     private static object DeserializeInstance (Func<IParticipant>[] participantProviders, byte[] serializedData)
     {
       var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
-      var participants = participantProviders.Select (pp => pp()).Concat (new ModifyingParticipant()); // Avoid no-modification optimization.
+      var participants = participantProviders.Select (pp => pp()).Concat (new[] { new ModifyingParticipant() }); // Avoid no-modification optimization.
       var pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
 
       // Register a factory for deserialization in current (new) app domain.

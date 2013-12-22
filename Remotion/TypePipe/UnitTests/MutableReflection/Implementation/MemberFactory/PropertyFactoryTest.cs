@@ -20,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
@@ -31,7 +30,6 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Rhino.Mocks;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -61,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var propertyType = ReflectionObjectMother.GetSomeType();
       var indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2).ToList();
       var accessorAttributes = (MethodAttributes) 7;
-      var setterParameters = indexParameters.Concat (ParameterDeclarationObjectMother.Create (propertyType, "value")).ToList();
+      var setterParameters = indexParameters.Concat (new[] { ParameterDeclarationObjectMother.Create (propertyType, "value") }).ToList();
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => null;
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => null;
 
@@ -286,7 +284,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var indexParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (int)) };
       var valueParameter = ParameterDeclarationObjectMother.Create (typeof (string));
-      var nonMatchingSetParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (long)) }.Concat (valueParameter);
+      var nonMatchingSetParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (long)), valueParameter };
       var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: valueParameter.Type, parameters: indexParameters);
       var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, parameters: nonMatchingSetParameters);
 

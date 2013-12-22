@@ -21,7 +21,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.FunctionalProgramming;
-using Remotion.Text;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
@@ -218,7 +217,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       // Enable complex serialization.
       _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID,_assembledTypeIdentifierProvider, typeID);
 
-      var mutableTypes = context.AdditionalTypes.Values.Concat (context.ProxyType);
+      var mutableTypes = context.AdditionalTypes.Values.Concat (new[] { context.ProxyType });
       return GenerateTypesWithDiagnostics (codeGenerator, mutableTypes, context.RequestedType.Name);
     }
 

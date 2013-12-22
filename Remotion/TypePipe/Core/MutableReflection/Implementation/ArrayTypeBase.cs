@@ -21,7 +21,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -157,7 +156,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       yield return new MethodOnCustomType (this, "Address", attributes, EmptyTypes, elementType.MakeByRefType(), indexParameters);
       yield return new MethodOnCustomType (this, "Get", attributes, EmptyTypes, elementType, indexParameters);
-      yield return new MethodOnCustomType (this, "Set", attributes, EmptyTypes, typeof (void), indexParameters.Concat (valueParameter));
+      yield return new MethodOnCustomType (this, "Set", attributes, EmptyTypes, typeof (void), indexParameters.Concat (new[] { valueParameter }));
 
       foreach (var baseMethods in typeof (Array).GetMethods (c_all))
         yield return baseMethods;

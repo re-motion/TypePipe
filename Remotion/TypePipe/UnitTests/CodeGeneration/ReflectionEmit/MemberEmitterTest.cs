@@ -30,7 +30,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Rhino.Mocks;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -265,7 +264,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var attributes = (PropertyAttributes) 7;
       var returnType = ReflectionObjectMother.GetSomeType();
       var parameters = ParameterDeclarationObjectMother.CreateMultiple (2);
-      var setMethodParameters = parameters.Concat (ParameterDeclarationObjectMother.Create (returnType));
+      var setMethodParameters = parameters.Concat (new[] { ParameterDeclarationObjectMother.Create (returnType) });
       var indexParameterTypes = parameters.Select (p => p.Type).ToArray();
       var getMethod = MutableMethodInfoObjectMother.Create (returnType: returnType, parameters: parameters);
       var setMethod = MutableMethodInfoObjectMother.Create (parameters: setMethodParameters);

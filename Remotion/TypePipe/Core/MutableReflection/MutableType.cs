@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
@@ -162,8 +161,8 @@ namespace Remotion.TypePipe.MutableReflection
     public override IEnumerable<ConstructorInfo> GetAllConstructors ()
     {
       return _typeInitializer != null
-                 ? _addedConstructors.Cast<ConstructorInfo>().Concat(_typeInitializer)
-                 : _addedConstructors.Cast<ConstructorInfo>();
+          ? _addedConstructors.Cast<ConstructorInfo>().Concat (new[] { _typeInitializer })
+          : _addedConstructors;
     }
 
     public override IEnumerable<MethodInfo> GetAllMethods ()

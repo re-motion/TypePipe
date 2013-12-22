@@ -21,7 +21,6 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
@@ -49,7 +48,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       _type = ReflectionObjectMother.GetSomeType();
       _indexParameters = ParameterDeclarationObjectMother.CreateMultiple (2);
       _getMethod = MutableMethodInfoObjectMother.Create (returnType: _type, parameters: _indexParameters);
-      _setMethod = MutableMethodInfoObjectMother.Create (parameters: _indexParameters.Concat (ParameterDeclarationObjectMother.Create (_type)));
+      _setMethod =
+          MutableMethodInfoObjectMother.Create (parameters: _indexParameters.Concat (new[] { ParameterDeclarationObjectMother.Create (_type) }));
 
       _property = new MutablePropertyInfo (_declaringType, _name, _attributes, _getMethod, _setMethod);
     }
