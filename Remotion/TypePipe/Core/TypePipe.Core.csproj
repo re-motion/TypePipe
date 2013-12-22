@@ -77,8 +77,14 @@
     <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\NotNullAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\NotNullAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\StringFormatMethodAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\StringFormatMethodAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\SharedSource\Core\Utilities\ArgumentUtility.cs">
       <Link>SharedSource\Utilities\ArgumentUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\Utilities\Assertion.cs">
+      <Link>SharedSource\Utilities\Assertion.cs</Link>
     </Compile>
     <Compile Include="..\..\..\SharedSource\Core\Utilities\NullableTypeUtility.cs">
       <Link>SharedSource\Utilities\NullableTypeUtility.cs</Link>
