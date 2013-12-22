@@ -86,6 +86,9 @@
     <Compile Include="..\..\..\SharedSource\Core\Utilities\Assertion.cs">
       <Link>SharedSource\Utilities\Assertion.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\Utilities\MemberInfoFromExpressionUtility.cs">
+      <Link>SharedSource\Utilities\MemberInfoFromExpressionUtility.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\SharedSource\Core\Utilities\NullableTypeUtility.cs">
       <Link>SharedSource\Utilities\NullableTypeUtility.cs</Link>
     </Compile>
