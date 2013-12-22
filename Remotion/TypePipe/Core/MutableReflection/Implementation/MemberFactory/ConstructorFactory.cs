@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.FunctionalProgramming;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.Utilities;
@@ -45,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       MemberAttributesUtility.ValidateAttributes ("constructors", MemberAttributesUtility.InvalidConstructorAttributes, attributes, "attributes");
 
       var isStatic = attributes.IsSet (MethodAttributes.Static);
-      var paras = parameters.ConvertToCollection();
+      var paras = parameters.ToList();
       if (isStatic && paras.Count != 0)
         throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameters");
 

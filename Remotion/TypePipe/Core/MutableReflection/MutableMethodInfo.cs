@@ -24,7 +24,6 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -70,7 +69,7 @@ namespace Remotion.TypePipe.MutableReflection
       foreach (var genericParameter in genericParameters)
         genericParameter.InitializeDeclaringMember (this);
 
-      var paras = parameters.ConvertToCollection();
+      var paras = parameters.ToList();
       _genericParameters = genericParameters.ToList().AsReadOnly();
       _returnParameter = new MutableParameterInfo (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();

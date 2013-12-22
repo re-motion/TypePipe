@@ -16,10 +16,9 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.FunctionalProgramming;
-using Remotion.Text;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -50,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic();
 
-      var args = arguments.ConvertToCollection();
+      var args = arguments.ToList();
       var constructor = GetConstructor (DeclaringType.BaseType, args);
       if (!SubclassFilterUtility.IsVisibleFromSubclass (constructor))
         throw new MemberAccessException ("The matching constructor is not visible from the proxy type.");
@@ -70,7 +69,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("arguments", arguments);
       EnsureNotStatic();
 
-      var args = arguments.ConvertToCollection();
+      var args = arguments.ToList();
       return CallConstructor (GetConstructor (DeclaringType, args), args);
     }
 

@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.FunctionalProgramming;
 using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Generics;
@@ -117,7 +116,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider)
     {
-      var genericParameterDeclarations = genericParameters.ConvertToCollection();
+      var genericParameterDeclarations = genericParameters.ToList();
       var genericParams = genericParameterDeclarations
           .Select ((p, i) => new MutableGenericParameter (i, p.Name, declaringType.Namespace, p.Attributes)).ToList();
 
@@ -126,7 +125,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         paraAndDecl.Parameter.SetGenericParameterConstraints (paraAndDecl.Declaration.ConstraintProvider (genericParameterContext));
 
       var returnType = ProviderUtility.GetNonNullValue (returnTypeProvider, genericParameterContext, "returnTypeProvider");
-      var parameters = ProviderUtility.GetNonNullValue (parameterProvider, genericParameterContext, "parameterProvider").ConvertToCollection();
+      var parameters = ProviderUtility.GetNonNullValue (parameterProvider, genericParameterContext, "parameterProvider").ToList();
 
       return new MethodSignatureItems (genericParams, returnType, parameters);
     }

@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Expressions;
 using Remotion.Utilities;
 
@@ -43,8 +42,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       ArgumentUtility.CheckNotNull ("body", body);
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      var parameterCollection = parameters.ConvertToCollection();
-      var argumentCollection = arguments.ConvertToCollection();
+      var parameterCollection = parameters.ToList();
+      var argumentCollection = arguments.ToList();
 
       if (parameterCollection.Count != argumentCollection.Count)
       {

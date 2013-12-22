@@ -22,7 +22,6 @@ using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection
 {
@@ -46,7 +45,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull ("body", body);
       Assertion.IsTrue (body.Type == typeof (void));
 
-      var paras = parameters.ConvertToCollection();
+      var paras = parameters.ToList();
 
       _parameters = paras.Select ((p, i) => new MutableParameterInfo (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
       _parameterExpressions = paras.Select (p => p.Expression).ToList().AsReadOnly();
