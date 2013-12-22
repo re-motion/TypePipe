@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.Text;
@@ -55,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       var hasInvalidAttributes = invalidAttributes.Any (a => IsSet (attributes, a));
       if (hasInvalidAttributes)
       {
-        var invalidAttributeList = SeparatedStringBuilder.Build (", ", invalidAttributes.Select (x => Enum.GetName (typeof (T), x)));
+        var invalidAttributeList = string.Join (", ", invalidAttributes.Select (x => Enum.GetName (typeof (T), x)));
         var message = string.Format ("The following {0} are not supported for {1}: {2}.", typeof (T).Name, memberKind, invalidAttributeList);
         throw new ArgumentException (message, parameterName);
       }

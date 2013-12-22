@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -34,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
     public static readonly Func<MethodBase, string> NameAndSignatureProvider =
-        m => string.Format ("{0}({1}), {2}", m.Name, SeparatedStringBuilder.Build (",", m.GetParameters(), p => p.Name), MethodSignature.Create (m));
+        m => string.Format ("{0}({1}), {2}", m.Name, string.Join (",", m.GetParameters().Select (p => p.Name)), MethodSignature.Create (m));
 
     private CustomType _elementType;
     private int _rank;

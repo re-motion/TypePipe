@@ -63,7 +63,7 @@ namespace Remotion.Reflection.MemberSignatures
 
     public override string ToString ()
     {
-      return string.Format ("{0}({1})", PropertyType, SeparatedStringBuilder.Build (",", IndexParameterTypes));
+      return string.Format ("{0}({1})", PropertyType, string.Join (",", IndexParameterTypes));
     }
 
     public virtual bool Equals (PropertySignature other)

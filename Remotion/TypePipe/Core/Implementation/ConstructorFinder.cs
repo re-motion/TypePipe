@@ -16,6 +16,8 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.Text;
 using Remotion.Utilities;
@@ -63,7 +65,7 @@ namespace Remotion.TypePipe.Implementation
         var message = string.Format (
             "Type '{0}' does not contain a constructor with the following signature: ({1}).",
             requestedType.FullName,
-            SeparatedStringBuilder.Build (", ", parameterTypes, pt => pt.Name));
+            String.Join ((string) ", ", (IEnumerable<string>) parameterTypes.Select (pt => pt.Name)));
         throw new MissingMethodException (message);
       }
 

@@ -15,7 +15,9 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Remotion.Text;
 using Remotion.Utilities;
@@ -125,7 +127,7 @@ namespace Remotion.Reflection
       var message = string.Format (
           "Parameter 'action' has type '{0}' when a delegate with the following parameter signature was expected: ({1}).",
           action.GetType(),
-          SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
+          String.Join ((string) ", ", (IEnumerable<string>) _parameterTypes.Select (t => t.FullName)));
       return new ArgumentException (message, "action");
     }
 
@@ -134,7 +136,7 @@ namespace Remotion.Reflection
       var message = string.Format (
           "Parameter 'func' has type '{0}' when a delegate returning System.Object with the following parameter signature was expected: ({1}).",
           func.GetType(),
-          SeparatedStringBuilder.Build (", ", _parameterTypes, t => t.FullName));
+          string.Join (", ", _parameterTypes.Select (t => t.FullName)));
       return new ArgumentException (message, "func");
     }
   }

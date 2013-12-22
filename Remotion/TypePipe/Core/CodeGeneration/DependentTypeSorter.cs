@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private InvalidOperationException CreateDependencyCycleException (HashSet<MutableType> remainingTypes)
     {
-      var remainingTypeNames = SeparatedStringBuilder.Build (", ", remainingTypes, t => "'" + t.Name + "'");
+      var remainingTypeNames = string.Join (", ", remainingTypes.Select (t => "'" + t.Name + "'"));
       var message =
           "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types returned by "
           + "Type.BaseType and Type.GetInterfaces must terminate." + Environment.NewLine

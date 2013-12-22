@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.Text;
@@ -71,7 +72,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       var returnTypeName = GetShortTypeName (returnType);
       var genericArgumentSignature = GetGenericArgumentSignature (genericArguments);
-      var parameterTypeNames = SeparatedStringBuilder.Build (", ", parameters.Select (p => p.ParameterType), GetShortTypeName);
+      var parameterTypeNames = string.Join (", ", parameters.Select (p => p.ParameterType).Select (GetShortTypeName));
 
       return string.Format ("{0} {1}{2}({3})", returnTypeName, name, genericArgumentSignature, parameterTypeNames);
     }
@@ -81,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (genericArguments.Length == 0)
         return string.Empty;
 
-      return "[" + SeparatedStringBuilder.Build (",", genericArguments, GetShortTypeName) + "]";
+      return "[" + string.Join (",", genericArguments.Select (GetShortTypeName)) + "]";
     }
   }
 }

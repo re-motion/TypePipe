@@ -146,12 +146,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         }
 
         var declaringTypes = this.CreateSequence<Type> (x => x.DeclaringType).Reverse();
-        name.Append (SeparatedStringBuilder.Build ("+", declaringTypes, t => t.Name));
+        name.Append (string.Join ("+", declaringTypes.Select (t => t.Name)));
 
         if (IsGenericType)
         {
           name.Append ('[');
-          name.Append (SeparatedStringBuilder.Build (",", _typeArguments, t => '[' + t.AssemblyQualifiedName + ']'));
+          name.Append (string.Join (",", _typeArguments.Select (t => '[' + t.AssemblyQualifiedName + ']')));
           name.Append (']');
         }
 

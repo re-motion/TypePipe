@@ -242,7 +242,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     private string BuildExceptionMessage (string generationSubjectName, Exception exception)
     {
-      var participantList = SeparatedStringBuilder.Build (", ", _participants, p => "'" + p.GetType().Name + "'");
+      var participantList = string.Join (", ", _participants.Select (p => "'" + p.GetType().Name + "'"));
       return string.Format (
           "An error occurred during code generation for '{0}':{1}{2}{3}"
           + "The following participants are currently configured and may have caused the error: {4}.",

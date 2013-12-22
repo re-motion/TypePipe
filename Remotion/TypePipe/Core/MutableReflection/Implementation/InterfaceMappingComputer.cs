@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         var message = string.Format (
             "The added interface '{0}' is not fully implemented. The following methods have no implementation: {1}.",
             interfaceType.Name,
-            SeparatedStringBuilder.Build (", ", missingMethods, m => "'" + m.Name + "'"));
+            string.Join (", ", missingMethods.Select (m => "'" + m.Name + "'")));
         throw new InvalidOperationException (message);
       }
 

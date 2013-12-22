@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       if (constructor == null)
       {
         var message = String.Format (
-            "Could not find an instance constructor with signature ({0}) on type '{1}'.", SeparatedStringBuilder.Build (", ", argumentTypes), type.Name);
+            "Could not find an instance constructor with signature ({0}) on type '{1}'.", string.Join (", ", (IEnumerable<Type>) argumentTypes), type.Name);
         throw new MissingMemberException (message);
       }
 
