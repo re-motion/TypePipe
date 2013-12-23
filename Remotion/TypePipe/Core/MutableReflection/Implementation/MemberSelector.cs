@@ -193,10 +193,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         where T : MemberInfo
     {
       var byName = members.Where (m => m.Name == name);
-      var byFlags = selectMembers (byName, bindingAttr, declaringType);
+      var byFlags = selectMembers (byName, bindingAttr, declaringType).ToArray();
 
-      var message = string.Format ("Ambiguous {0} name '{1}'.", memberKind, name);
-      return byFlags.SingleOrDefault (() => new AmbiguousMatchException (message));
+      if (byFlags.Length > 1)
+      {
+        var message = string.Format ("Ambiguous {0} name '{1}'.", memberKind, name);
+        throw new AmbiguousMatchException (message);
+      }
+
+      return byFlags.SingleOrDefault();
     }
 
     private void CheckModifiers (Type[] parameterTypes, ParameterModifier[] modifiers)

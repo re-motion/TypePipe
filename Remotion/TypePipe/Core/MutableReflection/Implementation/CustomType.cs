@@ -297,10 +297,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
       var comparisonMode = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-      return GetAllInterfaces()
-          .SingleOrDefault (
-              iface => iface.Name.Equals (name, comparisonMode),
-              () => new AmbiguousMatchException (string.Format ("Ambiguous interface name '{0}'.", name)));
+      var interfaces = GetAllInterfaces().Where (iface => iface.Name.Equals (name, comparisonMode)).ToArray();
+      if (interfaces.Length > 1)
+        throw new AmbiguousMatchException (string.Format ("Ambiguous interface name '{0}'.", name));
+      return interfaces.SingleOrDefault();
     }
 
     public override FieldInfo[] GetFields (BindingFlags bindingAttr)

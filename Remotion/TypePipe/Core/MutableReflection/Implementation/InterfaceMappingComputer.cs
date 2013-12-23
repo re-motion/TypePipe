@@ -55,7 +55,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           .ToDictionary (t => t.Base, t => (MethodInfo) t.Override);
 
       for (int i = 0; i < targetMethods.Length; i++)
-        targetMethods[i] = explicitImplementations.GetValueOrDefault (interfaceMethods[i], targetMethods[i]);
+      {
+        MethodInfo value;
+        if (explicitImplementations.TryGetValue (interfaceMethods[i], out value))
+          targetMethods[i] = value;
+      }
 
       if (targetMethods.Contains (null) && !allowPartialInterfaceMapping)
       {
