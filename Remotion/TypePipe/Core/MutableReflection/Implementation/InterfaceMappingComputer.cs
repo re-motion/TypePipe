@@ -18,12 +18,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.Reflection.MemberSignatures;
-using Remotion.Text;
 using Remotion.Utilities;
 using System.Linq;
 using Remotion.Collections;
-using Remotion.FunctionalProgramming;
+using Remotion.TypePipe.MutableReflection.MemberSignatures;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {

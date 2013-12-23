@@ -14,17 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Text;
 using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection.MemberSignatures;
-using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
+using Remotion.TypePipe.MutableReflection.MemberSignatures;
 
-namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
+namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
 {
   [TestFixture]
   public class MethodSignatureStringBuilderHelperForGenericMethodTest

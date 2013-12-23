@@ -1,27 +1,28 @@
-// This file is part of the re-motion Core Framework (www.re-motion.org)
 // Copyright (c) rubicon IT GmbH, www.rubicon.eu
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
 // 
-// The re-motion Core Framework is free software; you can redistribute it 
-// and/or modify it under the terms of the GNU Lesser General Public License 
-// as published by the Free Software Foundation; either version 2.1 of the 
-// License, or (at your option) any later version.
-// 
-// re-motion is distributed in the hope that it will be useful, 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-// GNU Lesser General Public License for more details.
-// 
-// You should have received a copy of the GNU Lesser General Public License
-// along with re-motion; if not, see http://www.gnu.org/licenses.
-// 
+
 using System;
 using System.Text;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection.MemberSignatures;
+using Remotion.TypePipe.MutableReflection.MemberSignatures;
 
-namespace Remotion.UnitTests.Reflection.MemberSignatures
+namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
 {
   [TestFixture]
   public class MethodSignatureStringBuilderHelperTest
@@ -60,7 +61,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
       var genericParameter = typeof (GenericDomainType<,>).GetGenericArguments ()[0];
       _helper.AppendTypeString (_sb, genericParameter);
 
-      Assert.That (_sb.ToString (), Is.EqualTo ("[0/Remotion.UnitTests.Reflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainType`2]"));
+      Assert.That (_sb.ToString (), Is.EqualTo ("[0/Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainType`2]"));
     }
 
     [Test]
@@ -68,7 +69,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     {
       _helper.AppendTypeString (_sb, typeof (GenericDomainType<int, string>));
 
-      Assert.That (_sb.ToString(), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainType`2[System.Int32,System.String]"));
+      Assert.That (_sb.ToString(), Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainType`2[System.Int32,System.String]"));
     }
 
     [Test]
@@ -76,7 +77,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     {
       _helper.AppendTypeString (_sb, typeof (GenericDomainType<,>));
 
-      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainType`2"));
+      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainType`2"));
     }
 
     [Test]
@@ -84,7 +85,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     {
       _helper.AppendTypeString (_sb, typeof (GenericDomainTypeWithNestedType<,>.Nested));
 
-      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+Nested"));
+      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+Nested"));
     }
 
     [Test]
@@ -93,7 +94,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
       _helper.AppendTypeString (_sb, typeof (GenericDomainTypeWithNestedType<int,string>.Nested));
 
       Assert.That (_sb.ToString (), Is.EqualTo (
-          "Remotion.UnitTests.Reflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+Nested[System.Int32,System.String]"));
+          "Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+Nested[System.Int32,System.String]"));
     }
 
     [Test]
@@ -101,7 +102,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
     {
       _helper.AppendTypeString (_sb, typeof (GenericDomainTypeWithNestedType<,>.NestedGeneric<>));
 
-      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.UnitTests.Reflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+NestedGeneric`1"));
+      Assert.That (_sb.ToString (), Is.EqualTo ("Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+NestedGeneric`1"));
     }
 
     [Test]
@@ -110,7 +111,7 @@ namespace Remotion.UnitTests.Reflection.MemberSignatures
       _helper.AppendTypeString (_sb, typeof (GenericDomainTypeWithNestedType<int,string>.NestedGeneric<double>));
 
       Assert.That (_sb.ToString (), Is.EqualTo (
-          "Remotion.UnitTests.Reflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+NestedGeneric`1[System.Int32,System.String,System.Double]"));
+          "Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures.MethodSignatureStringBuilderHelperTest+GenericDomainTypeWithNestedType`2+NestedGeneric`1[System.Int32,System.String,System.Double]"));
     }
 
     [Test]

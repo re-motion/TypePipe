@@ -73,6 +73,18 @@
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCacheTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\EventSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\FieldSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MemberNameAndSignatureEqualityComparerTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MemberSignatureEqualityComparerTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MemberSignatureProviderTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureIntegrationTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureStringBuilderHelperTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\NestedTypeSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\PropertySignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons2.cs" />
     <Compile Include="TypeAssembly\Implementation\ConstructorDelegateFactoryTest.cs" />
     <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
     <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />
@@ -156,7 +168,7 @@
     <Compile Include="MutableReflection\Implementation\MemberFactory\NestedTypeFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberImplementationUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodOnCustomTypeTest.cs" />
-    <Compile Include="MutableReflection\Implementation\MethodSignatureStringBuilderHelperForGenericMethodTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureStringBuilderHelperForGenericMethodTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactoryTest.cs" />
     <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactoryTest.cs" />

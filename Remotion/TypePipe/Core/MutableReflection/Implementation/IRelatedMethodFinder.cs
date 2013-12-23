@@ -18,7 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.Reflection.MemberSignatures;
+using Remotion.TypePipe.MutableReflection.MemberSignatures;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {

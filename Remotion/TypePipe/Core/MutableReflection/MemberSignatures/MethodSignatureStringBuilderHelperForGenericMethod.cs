@@ -17,10 +17,9 @@
 
 using System;
 using System.Text;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection.Generics;
 
-namespace Remotion.TypePipe.MutableReflection.Implementation
+namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 {
   /// <summary>
   /// This <see cref="MethodSignatureStringBuilderHelper"/> executes custom logic in case the specified <see cref="Type"/> is a generic parameter

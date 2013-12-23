@@ -19,9 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.Collections;
-using Remotion.Reflection.MemberSignatures;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.MutableReflection.MemberSignatures;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly
