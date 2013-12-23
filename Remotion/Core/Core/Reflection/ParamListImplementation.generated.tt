@@ -1,4 +1,4 @@
-// This file is part of the re-motion Core Framework (www.re-motion.org)
+﻿// This file is part of the re-motion Core Framework (www.re-motion.org)
 // Copyright (c) rubicon IT GmbH, www.rubicon.eu
 // 
 // The re-motion Core Framework is free software; you can redistribute it 
@@ -14,74 +14,85 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
+<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+  int parameterCount = 20;
+#>
 using System;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  // @begin-template first=1 generate=0..20 suppressTemplate=true
-  // @replace "A<n>" ", " "<" ">"
-  // @replace "private readonly A<n> _a<n>;" " "
-  // @replace "A<n> a<n>" ", " " " " "
-  // @replace "_a<n> = a<n>;" " "
-  // @replace "A<n>" ", " " " ", "
-  // @replace "_a<n>" ", "
-  // @replace "typeof (A<n>)" ", "
+<#
+for (int i = 0; i <= parameterCount; i++)
+{
+  var hasParameters = i > 0;
+  var parameters = Enumerable.Range (1, i);
+  var typeArguments = string.Join (", ", parameters.Select (p => string.Format ("A{0}", p)));
+  var typeArgumentsForAction = hasParameters ? "<" + typeArguments + ">" : "";
+  var typeArgumentsForFunc = "<" + typeArguments + (hasParameters ? ", " : "") + "object>";
+  var fieldAccess = string.Join (", ", parameters.Select (p => string.Format ("_a{0}", p)));
+#>
   /// <summary>
   /// Implements <see cref="ParamList"/> for a specific number of arguments. Use one of the <see cref="ParamList.Create"/> overloads to create
   /// instances of the <see cref="ParamList"/> implementation classes.
   /// </summary>
-  public class ParamListImplementation<A1> : ParamList
+  public class ParamListImplementation<#= typeArgumentsForAction #> : ParamList
   {
-    private readonly A1 _a1;
+<#= string.Join ("\r\n", parameters.Select (p => string.Format ("    private readonly A{0} _a{0};", p))) #>
 
-    public ParamListImplementation ( A1 a1 )
+    public ParamListImplementation (<#= string.Join (", ", parameters.Select (p => string.Format ("A{0} a{0}", p))) #>)
     {
-      _a1 = a1;
+<#= string.Join ("\r\n", parameters.Select (p => string.Format ("      _a{0} = a{0};", p))) #>
     }
 
     public override Type FuncType
     {
-      get { return typeof (Func< A1, object>); }
+      get { return typeof (Func<#= typeArgumentsForFunc #>); }
     }
 
     public override Type ActionType
     {
-      get { return typeof (Action<A1>); }
+      get { return typeof (Action<#= typeArgumentsForAction #>); }
     }
 
     public override void InvokeAction (Delegate action)
     {
       ArgumentUtility.CheckNotNull ("action", action);
 
-      Action<A1> castAction;
+      Action<#= typeArgumentsForAction #> castAction;
       try
       {
-        castAction = (Action<A1>) action;
+        castAction = (Action<#= typeArgumentsForAction #>) action;
       }
       catch (InvalidCastException)
       {
         throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
       }
 
-      castAction (_a1);
+      castAction (<#= fieldAccess #>);
     }
 
     public override object InvokeFunc (Delegate func)
     {
       ArgumentUtility.CheckNotNull ("func", func);
 
-      Func< A1, object> castFunc;
+      Func<#= typeArgumentsForFunc #> castFunc;
       try
       {
-        castFunc = (Func< A1, object>) func;
+        castFunc = (Func<#= typeArgumentsForFunc #>) func;
       }
       catch (InvalidCastException)
       {
         throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
       }
 
-      return castFunc (_a1);
+      return castFunc (<#= fieldAccess #>);
     }
 
     public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
@@ -93,13 +104,16 @@ namespace Remotion.Reflection
 
     public override Type[] GetParameterTypes ()
     {
-      return new Type[] { typeof (A1) };
+      return new Type[] { <#= string.Join (", ", parameters.Select (p => string.Format ("typeof (A{0})", p))) #> };
     }
 
     public override object[] GetParameterValues ()
     {
-      return new object[] { _a1 };
+      return new object[] { <#= fieldAccess #> };
     }
   }
-  // @end-template
+
+<#
+}
+#>
 }
