@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
@@ -29,7 +28,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
   /// </summary>
   public class TypeAssemblyResult
   {
-    private static readonly IReadOnlyDictionary<object, Type> s_emptyDictionary = new Dictionary<object, Type>().AsReadOnly();
+    private static readonly IReadOnlyDictionary<object, Type> s_emptyDictionary = new Dictionary<object, Type>();
 
     private readonly Type _type;
     private readonly IReadOnlyDictionary<object, Type> _additionalTypes;

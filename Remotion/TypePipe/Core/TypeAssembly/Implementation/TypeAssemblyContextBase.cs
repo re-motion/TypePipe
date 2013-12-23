@@ -17,8 +17,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public IReadOnlyDictionary<object, MutableType> AdditionalTypes
     {
-      get { return _additionalTypes.AsReadOnly(); }
+      get { return new ReadOnlyDictionary<object, MutableType> (_additionalTypes); }
     }
 
     public MutableType CreateAdditionalType (object additionalTypeID, string name, string @namespace, TypeAttributes attributes, Type baseType)

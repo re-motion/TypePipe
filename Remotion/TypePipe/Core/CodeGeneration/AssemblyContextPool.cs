@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Remotion.Utilities;
 
@@ -33,8 +32,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private readonly BlockingCollection<AssemblyContext> _contextPool;
 
-    // Thread-safe set (for multiple readers, no writer).
-    private readonly Dictionary<AssemblyContext, object> _registeredContexts;
+    private readonly IReadOnlyDictionary<AssemblyContext, object> _registeredContexts;
 
     private readonly ConcurrentDictionary<AssemblyContext, object> _enqueuedContexts;
 

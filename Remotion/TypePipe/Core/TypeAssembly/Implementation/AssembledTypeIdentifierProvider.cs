@@ -17,10 +17,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Remotion.Collections;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
@@ -43,9 +41,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     private static readonly ConstructorInfo s_assembledTypeIDDataConstructor =
         MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeIDData ("type name", new IFlatValue[0]));
 
-    // Array for performance reasons.
-    private readonly ITypeIdentifierProvider[] _identifierProviders;
-    private readonly ReadOnlyDictionary<IParticipant, int> _identifierProviderIndexes;
+    private readonly IReadOnlyList<ITypeIdentifierProvider> _identifierProviders;
+    private readonly IReadOnlyDictionary<IParticipant, int> _identifierProviderIndexes;
 
     public AssembledTypeIdentifierProvider (IEnumerable<IParticipant> participants)
     {
@@ -56,8 +53,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
           .Where (t => t.IdentifierProvider != null)
           .Select ((t, i) => new { t.Participant, t.IdentifierProvider, Index = i }).ToList();
 
-      _identifierProviders = providersWithIndex.Select (t => t.IdentifierProvider).ToArray();
-      _identifierProviderIndexes = providersWithIndex.ToDictionary (t => t.Participant, t => t.Index).AsReadOnly();
+      _identifierProviders = providersWithIndex.Select (t => t.IdentifierProvider).ToArray(); // Array for performance reasons.
+      _identifierProviderIndexes = providersWithIndex.ToDictionary (t => t.Participant, t => t.Index);
     }
 
     public AssembledTypeID ComputeTypeID (Type requestedType)
@@ -65,10 +62,10 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       // Using Assertion.DebugAssert because it will be compiled away.
       Assertion.DebugAssert(requestedType != null);
 
-      var parts = new object[_identifierProviders.Length];
+      var parts = new object[_identifierProviders.Count];
 
       // No LINQ for performance reasons.
-      for (int i = 0; i < _identifierProviders.Length; i++)
+      for (int i = 0; i < _identifierProviders.Count; i++)
         parts[i] = _identifierProviders[i].GetID (requestedType);
 
       return new AssembledTypeID (requestedType, parts);
