@@ -19,10 +19,10 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Reflection;
 using Remotion.UnitTests.Reflection.TestDomain;
-using Remotion.Utilities;
 
 namespace Remotion.UnitTests.Reflection
 {
+  [Obsolete]
   [TestFixture]
   public class TypesafeActivatorTest
   {

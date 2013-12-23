@@ -18,11 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Collections;
-using Remotion.Text;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
+  [Obsolete ("There is no longer any known usage for this type. (Version 1.15.7.0)")]
   public class ConstructorLookupInfo: MemberLookupInfo, IConstructorLookupInfo
   {
     private static readonly ICache<object, Delegate> s_delegateCache = CacheFactory.CreateWithLocking<object, Delegate>();

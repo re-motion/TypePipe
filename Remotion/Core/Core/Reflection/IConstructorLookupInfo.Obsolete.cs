@@ -21,6 +21,7 @@ namespace Remotion.Reflection
   /// <summary>
   /// Represents an object that can be used to lookup and dynamically invoke constructors of a specific defining type.
   /// </summary>
+  [Obsolete ("There is no longer any known usage for this type. (Version 1.15.7.0)")]
   public interface IConstructorLookupInfo
   {
     Type DefiningType { get; }

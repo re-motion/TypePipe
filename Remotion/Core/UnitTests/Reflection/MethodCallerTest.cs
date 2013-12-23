@@ -20,6 +20,7 @@ using Remotion.Reflection;
 
 namespace Remotion.UnitTests.Reflection
 {
+  [Obsolete]
   [TestFixture]
   public class MethodCallerTest
   {

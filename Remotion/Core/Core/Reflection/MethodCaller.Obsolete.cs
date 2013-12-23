@@ -19,6 +19,7 @@ using System.Reflection;
 
 namespace Remotion.Reflection
 {
+  [Obsolete ("There is no longer any known usage for this type. (Version 1.15.7.0)")]
   public static class MethodCaller
   {
     public static FuncInvoker<TReturn> CallFunc<TReturn> (string methodName)
