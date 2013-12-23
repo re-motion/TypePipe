@@ -26,8 +26,7 @@ namespace Remotion.TypePipe.Implementation
   /// Creates instances of <see cref="IPipeline"/>.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
-  [ConcreteImplementation (typeof (RemotionPipelineFactory))]
-  public interface IPipelineFactory
+ public interface IPipelineFactory
   {
     IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants);
   }

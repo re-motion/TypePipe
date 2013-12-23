@@ -17,12 +17,16 @@
 using System;
 using Remotion.BridgeInterfaces;
 using Remotion.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.Utilities;
 
 // TODO 4649: If we don't introduce a TypePipe.Interfaces.dll, we don't need to keep the implementation of CreateDynamic separate from the 
 // interface. In this case, remove the ParamList bridge interface/implementation separation.
 namespace Remotion.BridgeImplementations
 {
+  // @begin-skip
+  [ImplementationFor (typeof (IParamListCreateImplementation), Lifetime = LifetimeKind.Singleton)]
+  // @end-skip
   public partial class ParamListCreateImplementation
     // @begin-skip
       : IParamListCreateImplementation

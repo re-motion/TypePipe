@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
@@ -27,6 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// Implements <see cref="ICustomAttributeDataRetriever"/> for standard .NET reflection objects and mutable reflection objects
   /// using <see cref="CustomAttributeData"/> and <see cref="IOwnCustomAttributeDataProvider"/> respectivly.
   /// </summary>
+  [ImplementationFor (typeof (ICustomAttributeDataRetriever))]
   public class CustomAttributeDataRetriever : ICustomAttributeDataRetriever
   {
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member)

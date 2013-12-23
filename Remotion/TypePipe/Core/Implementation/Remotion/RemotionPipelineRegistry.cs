@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Remotion.Reflection.TypeDiscovery;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Configuration;
 using Remotion.Utilities;
 
@@ -29,6 +30,7 @@ namespace Remotion.TypePipe.Implementation.Remotion
   /// Uses the <see cref="RemotionPipelineFactory"/> which creates pipeline instances that immediately apply the
   /// <see cref="NonApplicationAssemblyAttribute"/> to the in-memory assembly in order to retain original re-mix behavior.
   /// </summary>
+  [ImplementationFor (typeof (IPipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public class RemotionPipelineRegistry : PipelineRegistry
   {
     private static IPipeline CreateDefaultPipeline (IEnumerable<IParticipant> defaultPipelineParticipants)
