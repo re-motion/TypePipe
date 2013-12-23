@@ -70,6 +70,9 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecoratorTest.cs" />
     <Compile Include="Configuration\PipelineSettingsTest.cs" />
+    <Compile Include="Implementation\DynamicParamListTest.cs" />
+    <Compile Include="Implementation\ParamListImplementationTest.cs" />
+    <Compile Include="Implementation\TestDomain\ClassWithManyConstructorArguments.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCacheTest.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="MutableReflection\MemberSignatures\PropertySignatureTest.cs" />
     <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons.cs" />
     <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons2.cs" />
+    <Compile Include="ParamListTest.cs" />
     <Compile Include="TypeAssembly\Implementation\ConstructorDelegateFactoryTest.cs" />
     <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
     <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />

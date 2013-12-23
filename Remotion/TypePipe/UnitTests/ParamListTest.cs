@@ -16,9 +16,8 @@
 // 
 using System;
 using NUnit.Framework;
-using Remotion.Reflection;
 
-namespace Remotion.UnitTests.Reflection
+namespace Remotion.TypePipe.UnitTests
 {
   [TestFixture]
   public class ParamListTest

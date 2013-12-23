@@ -17,11 +17,12 @@
 using System;
 using NUnit.Framework;
 using Remotion.Reflection;
-using Remotion.UnitTests.Reflection.TestDomain;
+using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.UnitTests.Implementation.TestDomain;
 using Remotion.Utilities;
 using System.Collections.Generic;
 
-namespace Remotion.UnitTests.Reflection
+namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
   public class DynamicParamListTest

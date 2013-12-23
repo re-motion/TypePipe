@@ -15,9 +15,11 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using Remotion.Reflection;
+using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
-namespace Remotion.Reflection
+namespace Remotion.TypePipe
 {
   /// <summary>
   /// Represents a strongly typed list of parameters to be passed to a function or action delegate.
