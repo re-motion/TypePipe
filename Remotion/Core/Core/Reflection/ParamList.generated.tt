@@ -23,7 +23,6 @@
 <#
   int parameterCount = 20;
 #>
-
 using System;
 using Remotion.Utilities;
 
@@ -35,9 +34,9 @@ namespace Remotion.Reflection
 for (int i = 1; i <= parameterCount; i++)
 {
   var parameters = Enumerable.Range (1, i);
-  string typeArguments = string.Join (", ", parameters.Select (p => string.Format ("A{0}", p)));
-  string arguments = string.Join (", ", parameters.Select (p => string.Format ("a{0}", p)));
-  string signature = string.Join (", ", parameters.Select (p => string.Format ("A{0} a{0}", p)));
+  var typeArguments = string.Join (", ", parameters.Select (p => string.Format ("A{0}", p)));
+  var arguments = string.Join (", ", parameters.Select (p => string.Format ("a{0}", p)));
+  var signature = string.Join (", ", parameters.Select (p => string.Format ("A{0} a{0}", p)));
 #>
     /// <summary>
     /// Creates a strongly typed list of parameters to be passed to a function or action.
