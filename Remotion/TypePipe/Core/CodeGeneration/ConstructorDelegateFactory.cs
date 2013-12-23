@@ -15,7 +15,9 @@
 // under the License.
 // 
 using System;
-using Remotion.Reflection;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
@@ -28,27 +30,45 @@ namespace Remotion.TypePipe.CodeGeneration
   public class ConstructorDelegateFactory : IConstructorDelegateFactory
   {
     private readonly IConstructorFinder _constructorFinder;
-    private readonly IDelegateFactory _delegateFactory;
 
-    public ConstructorDelegateFactory (IConstructorFinder constructorFinder, IDelegateFactory delegateFactory)
+    public ConstructorDelegateFactory (IConstructorFinder constructorFinder)
     {
       ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
-      ArgumentUtility.CheckNotNull ("delegateFactory", delegateFactory);
       
       _constructorFinder = constructorFinder;
-      _delegateFactory = delegateFactory;
     }
 
     public Delegate CreateConstructorCall (Type requestedType, Type assembledType, Type delegateType, bool allowNonPublic)
     {
       ArgumentUtility.CheckNotNull ("requestedType", requestedType);
       ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-      ArgumentUtility.CheckNotNull ("delegateType", delegateType);
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
-      var ctorSignature = _delegateFactory.GetSignature (delegateType);
-      var constructor = _constructorFinder.GetConstructor (requestedType, ctorSignature.Item1, allowNonPublic, assembledType);
+      var ctorSignature = GetSignature (delegateType);
+      var parameterTypes = ctorSignature.Item1;
+      var returnType = ctorSignature.Item2;
 
-      return _delegateFactory.CreateConstructorCall (constructor, delegateType);
+      var constructor = _constructorFinder.GetConstructor (requestedType, parameterTypes, allowNonPublic, assembledType);
+
+      var parameters = constructor.GetParameters().Select (p => Expression.Parameter (p.ParameterType, p.Name)).ToArray();
+      var constructorCall = Expression.New (constructor, parameters.Cast<Expression>());
+      var boxedConstructorCall = Expression.Convert (constructorCall, returnType);
+      var lambda = Expression.Lambda (delegateType, boxedConstructorCall, parameters);
+
+      return lambda.Compile();
+    }
+
+    private Tuple<Type[], Type> GetSignature (Type delegateType)
+    {
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+
+      var invokeMethod = delegateType.GetMethod ("Invoke");
+      Assertion.IsNotNull (invokeMethod, "Delegate has no Invoke() method.");
+
+      var parameterTypes = invokeMethod.GetParameters().Select (p => p.ParameterType).ToArray();
+      var returnType = invokeMethod.ReturnType;
+
+      return Tuple.Create (parameterTypes, returnType);
     }
   }
 }

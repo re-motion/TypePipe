@@ -213,14 +213,8 @@ namespace Remotion.TypePipe.Implementation
     protected virtual IConstructorDelegateFactory NewConstructorDelegateFactory ()
     {
       var constructorFinder = NewConstructorFinder();
-      var delegateFactory = NewDelegateFactory();
 
-      return new ConstructorDelegateFactory (constructorFinder, delegateFactory);
-    }
-
-    protected virtual IDelegateFactory NewDelegateFactory ()
-    {
-      return new DelegateFactory();
+      return new ConstructorDelegateFactory (constructorFinder);
     }
 
     protected virtual IConstructorFinder NewConstructorFinder ()

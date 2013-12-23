@@ -19,9 +19,9 @@ using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
@@ -30,7 +30,6 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
   public class ConstructorDelegateFactoryTest
   {
     private IConstructorFinder _constructorFinderMock;
-    private IDelegateFactory _delegateFactoryMock;
 
     private ConstructorDelegateFactory _factory;
 
@@ -38,35 +37,89 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     public void SetUp ()
     {
       _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
-      _delegateFactoryMock = MockRepository.GenerateStrictMock<IDelegateFactory>();
 
-      _factory = new ConstructorDelegateFactory (_constructorFinderMock, _delegateFactoryMock);
+      _factory = new ConstructorDelegateFactory (_constructorFinderMock);
     }
 
     [Test]
     public void CreateConstructorCall ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      var delegateType = ReflectionObjectMother.GetSomeDelegateType();
+      var delegateType = typeof (Func<string, int, DomainType>);
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
-      var fakeSignature = Tuple.Create (new[] { ReflectionObjectMother.GetSomeType() }, ReflectionObjectMother.GetSomeType());
-      var fakeConstructor = ReflectionObjectMother.GetSomeConstructor();
-      var assembledConstructorCall = (Action) (() => { });
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
 
-      _delegateFactoryMock.Expect (mock => mock.GetSignature (delegateType)).Return (fakeSignature);
       _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (requestedType, fakeSignature.Item1, allowNonPublic, assembledType))
-          .Return (fakeConstructor);
-      _delegateFactoryMock
-          .Expect (mock => mock.CreateConstructorCall (fakeConstructor, delegateType))
-          .Return (assembledConstructorCall);
+          .Expect (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
+          .Return (MemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("", 7)));
 
-      var result = _factory.CreateConstructorCall (requestedType, assembledType, delegateType, allowNonPublic);
+      var result = (Func<string, int, DomainType>) _factory.CreateConstructorCall (requestedType, assembledType, delegateType, allowNonPublic);
 
-      _delegateFactoryMock.VerifyAllExpectations();
-      _constructorFinderMock.VerifyAllExpectations();
-      Assert.That (result, Is.SameAs (assembledConstructorCall));
+      var instance = result ("abc", 7);
+      Assert.That (instance.String, Is.EqualTo ("abc"));
+      Assert.That (instance.Int, Is.EqualTo (7));
+    }
+
+    [Test]
+    public void CreateConstructorCall_ValueType ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var delegateType = typeof (Func<string, int, DomainValueType>);
+      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
+      var assembledType = ReflectionObjectMother.GetSomeOtherType();
+
+      _constructorFinderMock
+          .Expect (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
+          .Return (MemberInfoFromExpressionUtility.GetConstructor (() => new DomainValueType ("", 7)));
+
+      var result = (Func<string, int, DomainValueType>) _factory.CreateConstructorCall (requestedType, assembledType, delegateType, allowNonPublic);
+
+      var instance = result ("abc", 7);
+      Assert.That (instance.String, Is.EqualTo ("abc"));
+      Assert.That (instance.Int, Is.EqualTo (7));
+    }
+
+    [Test]
+    public void CreateConstructorCall_ValueType_Boxing ()
+    {
+      var requestedType = ReflectionObjectMother.GetSomeType();
+      var delegateType = typeof (Func<string, int, object>);
+      var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
+      var assembledType = ReflectionObjectMother.GetSomeOtherType();
+
+      _constructorFinderMock
+          .Expect (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
+          .Return (MemberInfoFromExpressionUtility.GetConstructor (() => new DomainValueType ("", 7)));
+
+      var result = (Func<string, int, object>) _factory.CreateConstructorCall (requestedType, assembledType, delegateType, allowNonPublic);
+
+      var instance = (DomainValueType) result ("abc", 7);
+      Assert.That (instance.String, Is.EqualTo ("abc"));
+      Assert.That (instance.Int, Is.EqualTo (7));
+    }
+
+    private class DomainType
+    {
+      public readonly string String;
+      public readonly int Int;
+
+      public DomainType (string s1, int i2)
+      {
+        String = s1;
+        Int = i2;
+      }
+    }
+
+    private struct DomainValueType
+    {
+      public readonly string String;
+      public readonly int Int;
+
+      public DomainValueType (string s1, int i2)
+      {
+        String = s1;
+        Int = i2;
+      }
     }
   }
 }
