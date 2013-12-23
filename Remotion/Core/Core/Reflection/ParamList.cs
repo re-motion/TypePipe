@@ -112,5 +112,4 @@ namespace Remotion.Reflection
     /// <returns>The parameter values.</returns>
     public abstract object[] GetParameterValues ();
   }
-  // @end-skip
 }
