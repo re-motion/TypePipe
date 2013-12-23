@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -91,20 +90,6 @@ namespace Remotion.TypePipe.Implementation
       catch (ArgumentException)
       {
         throw CreateFuncTypeException (func);
-      }
-      catch (TargetInvocationException ex)
-      {
-        throw ex.InnerException.PreserveStackTrace();
-      }
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-
-      try
-      {
-        return constructorLookupInfo.DynamicInvoke (_parameterTypes, _parameterValues);
       }
       catch (TargetInvocationException ex)
       {

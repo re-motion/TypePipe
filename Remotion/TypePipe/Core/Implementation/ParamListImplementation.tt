@@ -24,7 +24,6 @@
   int parameterCount = 20;
 #>
 using System;
-using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -94,13 +93,6 @@ for (int i = 0; i <= parameterCount; i++)
       }
 
       return castFunc (<#= fieldAccess #>);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()

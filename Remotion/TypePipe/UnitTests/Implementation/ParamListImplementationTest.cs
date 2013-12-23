@@ -107,55 +107,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    public void InvokeConstructor ()
-    {
-      var info = new ConstructorLookupInfo (typeof (List<int>));
-      var list = _implementation1.InvokeConstructor (info);
-
-      Assert.That (list, Is.InstanceOf (typeof (List<int>)));
-      Assert.That (((List<int>)list).Capacity, Is.EqualTo (_implementation1.GetParameterValues()[0]));
-    }
-
-    [Test]
-    [ExpectedException (typeof (ArgumentOutOfRangeException))]
-    public void InvokeConstructor_WithException ()
-    {
-      var info = new ConstructorLookupInfo (typeof (List<int>));
-      new ParamListImplementation<int> (-2).InvokeConstructor (info);
-    }
-
-    [Test]
-    [ExpectedException (typeof (MissingMethodException), ExpectedMessage =
-        "Type 'System.Collections.Generic.List`1[System.Int32]' does not contain a constructor with the following arguments types: "
-        + "System.Int32, System.String, System.Double.")]
-    public void InvokeConstructor_NoMatchingCtor ()
-    {
-      var info = new ConstructorLookupInfo (typeof (List<int>));
-      _implementation3.InvokeConstructor (info);
-    }
-
-    [Test]
-    public void InvokeConstructor_ValueType_DefaultConstructor ()
-    {
-      var info = new ConstructorLookupInfo (typeof (int));
-
-      var instance = _implementation0.InvokeConstructor (info);
-
-      Assert.That (instance, Is.EqualTo (new int()));
-    }
-
-    [Test]
-    public void InvokeConstructor_ValueType_NonDefaultConstructor ()
-    {
-      var implementation = new ParamListImplementation<int, int, int> (2012, 01, 02);
-      var info = new ConstructorLookupInfo (typeof (DateTime));
-
-      var instance = implementation.InvokeConstructor (info);
-
-      Assert.That (instance, Is.EqualTo (new DateTime (2012, 01, 02)));
-    }
-
-    [Test]
     public void GetParameterTypes ()
     {
       Assert.That (_implementation0.GetParameterTypes (), Is.Empty);

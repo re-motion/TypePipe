@@ -16,7 +16,6 @@
 // 
 
 using System;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;

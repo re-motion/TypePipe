@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -75,13 +74,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc ();
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -152,13 +144,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1) };
@@ -227,13 +212,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -308,13 +286,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3) };
@@ -387,13 +358,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -472,13 +436,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5) };
@@ -555,13 +512,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -644,13 +594,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7) };
@@ -731,13 +674,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -824,13 +760,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9) };
@@ -915,13 +844,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -1012,13 +934,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11) };
@@ -1107,13 +1022,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -1208,13 +1116,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11), typeof (A12), typeof (A13) };
@@ -1307,13 +1208,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -1412,13 +1306,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11), typeof (A12), typeof (A13), typeof (A14), typeof (A15) };
@@ -1515,13 +1402,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -1624,13 +1504,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11), typeof (A12), typeof (A13), typeof (A14), typeof (A15), typeof (A16), typeof (A17) };
@@ -1731,13 +1604,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()
@@ -1844,13 +1710,6 @@ namespace Remotion.TypePipe.Implementation
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
     }
 
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
-    }
-
     public override Type[] GetParameterTypes ()
     {
       return new Type[] { typeof (A1), typeof (A2), typeof (A3), typeof (A4), typeof (A5), typeof (A6), typeof (A7), typeof (A8), typeof (A9), typeof (A10), typeof (A11), typeof (A12), typeof (A13), typeof (A14), typeof (A15), typeof (A16), typeof (A17), typeof (A18), typeof (A19) };
@@ -1955,13 +1814,6 @@ namespace Remotion.TypePipe.Implementation
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);
-    }
-
-    public override object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo)
-    {
-      ArgumentUtility.CheckNotNull ("constructorLookupInfo", constructorLookupInfo);
-      var funcDelegate = constructorLookupInfo.GetDelegate (FuncType);
-      return InvokeFunc (funcDelegate);
     }
 
     public override Type[] GetParameterTypes ()

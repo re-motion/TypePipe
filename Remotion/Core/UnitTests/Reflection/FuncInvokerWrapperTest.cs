@@ -51,6 +51,7 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [Obsolete]
     public void AfterActionIsExecuted ()
     {
       bool afterActionCalled = false;
@@ -92,6 +93,7 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [Obsolete]
     public void AfterActionCanReplaceResult ()
     {
       ClassWithCtors fixedInstance = new ClassWithCtors (0);

@@ -15,7 +15,6 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using Remotion.Reflection;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
@@ -74,6 +73,7 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <value>The function delegate type supported by this <see cref="ParamList"/> instance.</value>
     public abstract Type FuncType { get; }
+
     /// <summary>
     /// Gets the type of <see cref="Action"/> delegates supported by this <see cref="ParamList"/> instance.
     /// </summary>
@@ -86,6 +86,7 @@ namespace Remotion.TypePipe
     /// <param name="action">The action to be executed. This delegate must match <see cref="ActionType"/>. If <see cref="ActionType"/> is null,
     /// it must match the types returned by <see cref="GetParameterTypes"/>.</param>
     public abstract void InvokeAction (Delegate action);
+
     /// <summary>
     /// Executes the given function delegate, passing in the parameters encapsulated by this <see cref="ParamList"/>.
     /// </summary>
@@ -93,21 +94,13 @@ namespace Remotion.TypePipe
     /// it must match the types returned by <see cref="GetParameterTypes"/>, plus <see cref="System.Object"/> as the return type.</param>
     /// <returns>The result of the delegate execution.</returns>
     public abstract object InvokeFunc (Delegate func);
-    /// <summary>
-    /// Executes a constructor, passing in the parameters encapsulated by this <see cref="ParamList"/>.
-    /// </summary>
-    /// <param name="constructorLookupInfo">An object looking up the constructor to be invoked. The lookup is performed with the signature defined 
-    /// by the parameters encapsulated by this <see cref="ParamList"/>.</param>
-    /// <returns>The result of the constructor invocation.</returns>
-    // Note: This is not equivalent to calling constructorLookupInfo with GetDelegate because the DynamicParamList implementation should support more
-    // arguments than possible are with the Func delegates.
-    public abstract object InvokeConstructor (IConstructorLookupInfo constructorLookupInfo);
 
     /// <summary>
     /// Gets the parameter types of the parameters encapsulated by this <see cref="ParamList"/>.
     /// </summary>
     /// <returns>The parameter types.</returns>
     public abstract Type[] GetParameterTypes ();
+
     /// <summary>
     /// Gets the parameter values of the parameters encapsulated by this <see cref="ParamList"/>.
     /// </summary>
