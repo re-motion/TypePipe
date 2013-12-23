@@ -20,8 +20,8 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -73,6 +73,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       }
 
       public string Property { get; set; }
+
+      public string Method ()
+      {
+        return null;
+      }
     }
 
     private enum MyEnum { A, B, C }

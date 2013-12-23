@@ -34,7 +34,13 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       // customAttributeNamedArgument is struct
       _member = customAttributeNamedArgument.MemberInfo;
-      _memberType = ReflectionUtility.GetFieldOrPropertyType (customAttributeNamedArgument.MemberInfo);
+
+      if (customAttributeNamedArgument.MemberInfo is FieldInfo)
+        _memberType = ((FieldInfo) customAttributeNamedArgument.MemberInfo).FieldType;
+      else if (customAttributeNamedArgument.MemberInfo is PropertyInfo)
+        _memberType = ((PropertyInfo) customAttributeNamedArgument.MemberInfo).PropertyType;
+      Assertion.IsNotNull (_memberType, "customAttributeNamedArgument.MemberInfo can only be FieldInfo or PropertyInfo.");
+
       _value = CustomAttributeTypedArgumentUtility.Unwrap (customAttributeNamedArgument.TypedValue);
     }
 
