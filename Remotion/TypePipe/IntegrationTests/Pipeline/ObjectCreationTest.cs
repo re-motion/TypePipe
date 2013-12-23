@@ -69,6 +69,15 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
+    public void WithoutModifications_ReturnsRequestedType ()
+    {
+      var obj = new object();
+      var instance = _nonModifyingPipeline.Create<DomainType> (ParamList.Create (obj));
+      Assert.That (instance.Obj, Is.SameAs (obj));
+      Assert.That (instance, Is.TypeOf<DomainType>());
+    }
+
+    [Test]
     public void AllowNonPublic_True ()
     {
       var instance1 = _modifyingPipeline.Create<DomainType> (ParamList.Create (7), allowNonPublicConstructor: true);
