@@ -70,16 +70,9 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
     <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecoratorTest.cs" />
     <Compile Include="Configuration\PipelineSettingsTest.cs" />
-    <Compile Include="Implementation\ConstructorLookupInfoTest.cs" />
     <Compile Include="Implementation\DynamicParamListTest.cs" />
-    <Compile Include="Implementation\MemberLookupInfoTest.cs" />
     <Compile Include="Implementation\ParamListImplementationTest.cs" />
-    <Compile Include="Implementation\TestDomain\AbstractClass.cs" />
-    <Compile Include="Implementation\TestDomain\Base.cs" />
     <Compile Include="Implementation\TestDomain\ClassWithManyConstructorArguments.cs" />
-    <Compile Include="Implementation\TestDomain\Derived.cs" />
-    <Compile Include="Implementation\TestDomain\DerivedDerived.cs" />
-    <Compile Include="Implementation\TestDomain\TestClass.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
     <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCacheTest.cs" />

@@ -1,28 +1,26 @@
+// This file is part of the re-motion Core Framework (www.re-motion.org)
 // Copyright (c) rubicon IT GmbH, www.rubicon.eu
-//
-// See the NOTICE file distributed with this work for additional information
-// regarding copyright ownership.  rubicon licenses this file to you under 
-// the Apache License, Version 2.0 (the "License"); you may not use this 
-// file except in compliance with the License.  You may obtain a copy of the 
-// License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software 
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
-// License for the specific language governing permissions and limitations
-// under the License.
 // 
-
+// The re-motion Core Framework is free software; you can redistribute it 
+// and/or modify it under the terms of the GNU Lesser General Public License 
+// as published by the Free Software Foundation; either version 2.1 of the 
+// License, or (at your option) any later version.
+// 
+// re-motion is distributed in the hope that it will be useful, 
+// but WITHOUT ANY WARRANTY; without even the implied warranty of 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with re-motion; if not, see http://www.gnu.org/licenses.
+// 
 using System;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Reflection;
-using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.UnitTests.Implementation.TestDomain;
+using Remotion.UnitTests.Reflection.TestDomain;
 
-namespace Remotion.TypePipe.UnitTests.Implementation
+namespace Remotion.UnitTests.Reflection
 {
   [TestFixture]
   public class ConstructorLookupInfoTest
@@ -64,7 +62,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => info.GetDelegate (typeof (Func<AbstractClass>)),
           Throws.InvalidOperationException.With.Message.EqualTo (
-              "Cannot create an instance of 'Remotion.TypePipe.UnitTests.Implementation.TestDomain.AbstractClass' because it is an abstract type."));
+              "Cannot create an instance of 'Remotion.UnitTests.Reflection.TestDomain.AbstractClass' because it is an abstract type."));
     }
 
     [Test]
@@ -144,7 +142,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => info.DynamicInvoke (new Type[0], new object[0]),
           Throws.InvalidOperationException.With.Message.EqualTo (
-              "Cannot create an instance of 'Remotion.TypePipe.UnitTests.Implementation.TestDomain.AbstractClass' because it is an abstract type."));
+              "Cannot create an instance of 'Remotion.UnitTests.Reflection.TestDomain.AbstractClass' because it is an abstract type."));
     }
 
     [Test]
