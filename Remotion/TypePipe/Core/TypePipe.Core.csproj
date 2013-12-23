@@ -161,6 +161,7 @@
     <Compile Include="ParamList.Partial.cs" />
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\IDeserializationMethodInvoker.cs" />
+    <Compile Include="Serialization\SerializationEventRaiser.cs" />
     <Compile Include="TypeAssembly\IAdditionalTypeAssemblyContext.cs" />
     <Compile Include="TypeAssembly\IParticipantState.cs" />
     <Compile Include="TypeAssembly\ParticipantState.cs" />

@@ -90,6 +90,9 @@
     <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons.cs" />
     <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons2.cs" />
     <Compile Include="Implementation\ParamListTest.cs" />
+    <Compile Include="Serialization\SerializationEventRaiserTest.cs" />
+    <Compile Include="Serialization\TestDomain\BaseClassWithDeserializationEvents.cs" />
+    <Compile Include="Serialization\TestDomain\ClassWithDeserializationEvents.cs" />
     <Compile Include="TypeAssembly\Implementation\ConstructorDelegateFactoryTest.cs" />
     <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
     <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />
