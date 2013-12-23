@@ -15,21 +15,15 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using Remotion.BridgeInterfaces;
 using Remotion.Utilities;
-using Remotion.ServiceLocation;
 
 namespace Remotion.Reflection
 {
-  // @begin-skip
   /// <summary>
   /// Represents a strongly typed list of parameters to be passed to a function or action delegate.
   /// </summary>
-  // @end-skip
   public abstract partial class ParamList
   {
-    // @begin-skip
-
     private static readonly ParamList _empty = new ParamListImplementation ();
 
     /// <summary>
@@ -41,23 +35,6 @@ namespace Remotion.Reflection
       // stupid exception messages!
       get { return _empty; } 
     }
-    // @end-skip
-
-    // @begin-template first=1 generate=1..20 suppressTemplate=true
-    // @replace "A<n>" ", " "<" ">"
-    // @replace "A<n> a<n>" ", "
-    // @replace "a<n>" ", " " " " "
-    /// <summary>
-    /// Creates a strongly typed list of parameters to be passed to a function or action.
-    /// </summary>
-    /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
-    public static ParamList Create<A1> (A1 a1)
-    {
-      return new ParamListImplementation<A1> ( a1 );
-    }
-
-    // @end-template
-    // @begin-skip
 
     /// <summary>
     /// Returns an empty parameter list to be passed to a function or action.
@@ -134,6 +111,6 @@ namespace Remotion.Reflection
     /// </summary>
     /// <returns>The parameter values.</returns>
     public abstract object[] GetParameterValues ();
-    // @end-skip
   }
+  // @end-skip
 }
