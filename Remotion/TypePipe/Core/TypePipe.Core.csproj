@@ -101,6 +101,9 @@
     <Compile Include="..\..\..\SharedSource\Core\Utilities\NullableTypeUtility.cs">
       <Link>SharedSource\Utilities\NullableTypeUtility.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\Utilities\ReferenceEqualityComparer.cs">
+      <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
+    </Compile>
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
