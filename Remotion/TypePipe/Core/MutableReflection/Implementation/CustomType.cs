@@ -143,7 +143,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
           name.Append ('.');
         }
 
-        var declaringTypes = this.CreateSequence<Type> (x => x.DeclaringType).Reverse();
+        var declaringTypes = EnumerableExtensions.CreateSequence<Type> (this, x => x.DeclaringType).Reverse();
         name.Append (string.Join ("+", declaringTypes.Select (t => t.Name)));
 
         if (IsGenericType)

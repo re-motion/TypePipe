@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var lowerBoundParameters = Enumerable.Range (0, rank).Select (i => new ParameterDeclaration (typeof (int), "lowerBound" + i));
 
       yield return new ConstructorOnCustomType (this, attributes, lengthParameters);
-      yield return new ConstructorOnCustomType (this, attributes, lowerBoundParameters.Interleave (lengthParameters));
+      yield return new ConstructorOnCustomType (this, attributes, EnumerableExtensions.Interleave (lowerBoundParameters, lengthParameters));
     }
   }
 }

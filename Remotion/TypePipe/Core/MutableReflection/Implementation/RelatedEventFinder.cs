@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("event", @event);
 
       Assertion.IsNotNull (@event.DeclaringType);
-      var baseTypeSequence = @event.DeclaringType.BaseType.CreateSequence (t => t.BaseType);
+      var baseTypeSequence = EnumerableExtensions.CreateSequence (@event.DeclaringType.BaseType, t => t.BaseType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       var baseEvents = from t in baseTypeSequence
                        from e in t.GetEvents (bindingFlags)

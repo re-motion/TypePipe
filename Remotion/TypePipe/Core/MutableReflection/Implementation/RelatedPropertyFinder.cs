@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNull ("property", property);
 
       Assertion.IsNotNull (property.DeclaringType);
-      var baseTypeSequence = property.DeclaringType.BaseType.CreateSequence (t => t.BaseType);
+      var baseTypeSequence = EnumerableExtensions.CreateSequence (property.DeclaringType.BaseType, t => t.BaseType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       var baseProperties = from t in baseTypeSequence
                            from p in t.GetProperties (bindingFlags)

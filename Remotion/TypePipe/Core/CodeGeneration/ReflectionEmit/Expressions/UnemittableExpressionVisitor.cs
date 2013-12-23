@@ -186,7 +186,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
     private Type GetEmittableType (Type originalType, Type emittableValueType)
     {
       // Get most-derived base of the two types.
-      return emittableValueType.CreateSequence (t => t.BaseType).First (t => t.IsTypePipeAssignableFrom (originalType));
+      return EnumerableExtensions.CreateSequence (emittableValueType, t => t.BaseType).First (t => t.IsTypePipeAssignableFrom (originalType));
     }
 
     private Expression GetAdaptedConvertExpression (UnaryExpression node)

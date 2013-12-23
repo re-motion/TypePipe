@@ -116,7 +116,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     private MethodInfo FirstOrDefaultFromOrderedBaseMethods (Type typeToStartSearch, Func<MethodInfo, bool> predicate)
     {
-      var baseTypeSequence = typeToStartSearch.CreateSequence (t => t.BaseType);
+      var baseTypeSequence = EnumerableExtensions.CreateSequence (typeToStartSearch, t => t.BaseType);
       var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
       return baseTypeSequence.SelectMany (type => type.GetMethods (bindingFlags)).FirstOrDefault (predicate);
