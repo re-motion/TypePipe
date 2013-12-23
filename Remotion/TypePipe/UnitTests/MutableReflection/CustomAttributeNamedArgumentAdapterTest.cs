@@ -72,11 +72,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       }
 
       public string Property { get; set; }
-
-      public string Method ()
-      {
-        return null;
-      }
     }
 
     private enum MyEnum { A, B, C }

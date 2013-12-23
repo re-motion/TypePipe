@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Linq;
+using System.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection
@@ -31,7 +32,14 @@ namespace Remotion.TypePipe.MutableReflection
 
       var instance = customAttributeData.Constructor.Invoke (customAttributeData.ConstructorArguments.ToArray());
       foreach (var namedArgument in customAttributeData.NamedArguments)
-        ReflectionUtility.SetFieldOrPropertyValue (instance, namedArgument.MemberInfo, namedArgument.Value);
+      {
+        if (namedArgument.MemberInfo is FieldInfo)
+          ((FieldInfo) namedArgument.MemberInfo).SetValue (instance, namedArgument.Value);
+        else if (namedArgument.MemberInfo is PropertyInfo)
+          ((PropertyInfo) namedArgument.MemberInfo).SetValue (instance, namedArgument.Value, new object[0]);
+        else
+          throw new InvalidOperationException ("customAttributeNamedArgument.MemberInfo can only be FieldInfo or PropertyInfo.");
+      }
 
       return instance;
     }

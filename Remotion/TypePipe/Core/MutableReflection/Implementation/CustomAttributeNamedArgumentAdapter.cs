@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {
@@ -39,7 +38,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         _memberType = ((FieldInfo) customAttributeNamedArgument.MemberInfo).FieldType;
       else if (customAttributeNamedArgument.MemberInfo is PropertyInfo)
         _memberType = ((PropertyInfo) customAttributeNamedArgument.MemberInfo).PropertyType;
-      Assertion.IsNotNull (_memberType, "customAttributeNamedArgument.MemberInfo can only be FieldInfo or PropertyInfo.");
+      else
+        throw new InvalidOperationException ( "customAttributeNamedArgument.MemberInfo can only be FieldInfo or PropertyInfo.");
 
       _value = CustomAttributeTypedArgumentUtility.Unwrap (customAttributeNamedArgument.TypedValue);
     }
