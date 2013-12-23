@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using Remotion.Reflection;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation

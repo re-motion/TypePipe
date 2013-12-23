@@ -115,12 +115,15 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecorator.cs" />
     <Compile Include="Configuration\EnableSerializationWithoutAssemblySavingConfigurationElement.cs" />
+    <Compile Include="Implementation\ConstructorLookupInfo.cs" />
     <Compile Include="Implementation\DynamicParamList.cs" />
+    <Compile Include="Implementation\IConstructorLookupInfo.cs" />
     <Compile Include="Implementation\InitializationSemantics.cs" />
     <Compile Include="Implementation\DefaultPipelineFactory.cs" />
     <Compile Include="CodeGeneration\ConstructorDelegateFactory.cs" />
     <Compile Include="CodeGeneration\AssemblyContextPool.cs" />
     <Compile Include="CodeGeneration\IAssemblyContextPool.cs" />
+    <Compile Include="Implementation\MemberLookupInfo.cs" />
     <Compile Include="Implementation\ParamListImplementation.cs">
       <DependentUpon>ParamListImplementation.tt</DependentUpon>
       <AutoGen>True</AutoGen>
