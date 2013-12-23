@@ -89,6 +89,9 @@
     <Compile Include="..\..\..\SharedSource\Core\Utilities\EqualityUtility.cs">
       <Link>SharedSource\Utilities\EqualityUtility.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\Utilities\MemberInfoEqualityComparer.cs">
+      <Link>SharedSource\Utilities\MemberInfoEqualityComparer.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\SharedSource\Core\Utilities\MemberInfoFromExpressionUtility.cs">
       <Link>SharedSource\Utilities\MemberInfoFromExpressionUtility.cs</Link>
     </Compile>
