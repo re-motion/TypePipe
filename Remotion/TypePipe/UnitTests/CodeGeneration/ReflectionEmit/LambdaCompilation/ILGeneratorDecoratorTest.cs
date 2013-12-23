@@ -235,7 +235,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Constructor calls cannot have optional parameters.")]
+    [ExpectedException(typeof(ArgumentException), ExpectedMessage = "Constructor calls cannot have optional parameters.")]
     public void EmitCall_MethodInfo_BaseConstructorMethodInfo_WithOptionalParameters ()
     {
       var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());

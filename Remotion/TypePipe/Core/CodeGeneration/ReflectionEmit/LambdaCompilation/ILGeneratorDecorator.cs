@@ -17,6 +17,7 @@
 
 using System;
 using System.Diagnostics.SymbolStore;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
@@ -195,8 +196,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       var constructorAsMethod = methodInfo as ConstructorAsMethodInfoAdapter;
       if (constructorAsMethod != null)
       {
-        if (!ArrayUtility.IsNullOrEmpty (optionalParameterTypes))
-          throw new InvalidOperationException ("Constructor calls cannot have optional parameters.");
+        if (optionalParameterTypes != null && optionalParameterTypes.Any())
+          throw new ArgumentException ("Constructor calls cannot have optional parameters.", "optionalParameterTypes");
 
         Emit (opcode, constructorAsMethod.AdaptedConstructor);
         return;
