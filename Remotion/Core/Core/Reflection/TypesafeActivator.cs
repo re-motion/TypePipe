@@ -34,64 +34,57 @@ namespace Remotion.Reflection
   /// This code always selects the constructor that accepts an argument of type ParameterType, even if the value passed is null or an instance
   /// of a subclass of ParameterType.
   /// </remarks>
-  [Obsolete ("Use System.Activator instead. (Version 1.15.7.0)", true)]
   public static class TypesafeActivator
   {
-    [Obsolete ("Use System.Activator.CreateInstance<T>() instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<T> CreateInstance<T> ()
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      return new FuncInvoker<T> (new ConstructorLookupInfo (typeof (T)).GetDelegate);
     }
 
-    [Obsolete ("Use (T) System.Activator.CreateInstance (typeof (T), bindingFlags, null, new object[0], null) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<T> CreateInstance<T> (BindingFlags bindingFlags)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      return new FuncInvoker<T> (new ConstructorLookupInfo (typeof (T), bindingFlags).GetDelegate);
     }
 
-    [Obsolete ("Use (T) System.Activator.CreateInstance (typeof (T), bindingFlags, binder, new object[0], null) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<T> CreateInstance<T> (
         BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      return new FuncInvoker<T> (new ConstructorLookupInfo (typeof (T), bindingFlags, binder, callingConvention, parameterModifiers).GetDelegate);
     }
 
-    [Obsolete ("Use System.Activator.CreateInstance (type) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<object> CreateInstance (Type type)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      return CreateInstance<object> (type);
     }
 
-    [Obsolete ("Use (TMinimal) System.Activator.CreateInstance (type) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<TMinimal> CreateInstance<TMinimal> (Type type)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("type", type, typeof (TMinimal));
+      return new FuncInvoker<TMinimal> (new ConstructorLookupInfo (type).GetDelegate);
     }
 
-    [Obsolete ("Use (T) System.Activator.CreateInstance (typeof (T), bindingFlags, null, new object[0], null) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<object> CreateInstance (Type type, BindingFlags bindingFlags)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      return CreateInstance<object> (type, bindingFlags);
     }
 
-    [Obsolete ("Use (TMinimal) System.Activator.CreateInstance (type, bindingFlags, null, new object[0], null) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<TMinimal> CreateInstance<TMinimal> (Type type, BindingFlags bindingFlags)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("type", type, typeof (TMinimal));
+      return new FuncInvoker<TMinimal> (new ConstructorLookupInfo (type, bindingFlags).GetDelegate);
     }
 
-    [Obsolete ("Use (T) System.Activator.CreateInstance (typeof (T), bindingFlags, binder, new object[0], null) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<object> CreateInstance (
         Type type, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      return CreateInstance<object> (type, bindingFlags, binder, callingConvention, parameterModifiers);
     }
 
-    [Obsolete ("Use (TMinimal) System.Activator.CreateInstance (type, bindingFlags, binder, new object[0], null) instead. (Version 1.15.7.0)", true)]
     public static FuncInvoker<TMinimal> CreateInstance<TMinimal> (
         Type type, BindingFlags bindingFlags, Binder binder, CallingConventions callingConvention, ParameterModifier[] parameterModifiers)
     {
-      throw new NotSupportedException ("Use System.Activator instead. (Version 1.15.7.0)");
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("type", type, typeof (TMinimal));
+      return new FuncInvoker<TMinimal> (new ConstructorLookupInfo (type, bindingFlags, binder, callingConvention, parameterModifiers).GetDelegate);
     }
   }
 }
