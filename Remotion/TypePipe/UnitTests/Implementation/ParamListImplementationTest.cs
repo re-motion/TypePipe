@@ -15,9 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using Remotion.Reflection;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
