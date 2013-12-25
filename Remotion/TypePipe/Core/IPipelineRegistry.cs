@@ -16,8 +16,6 @@
 // 
 
 using System;
-using Remotion.ServiceLocation;
-using Remotion.TypePipe.Implementation.Remotion;
 
 namespace Remotion.TypePipe
 {
@@ -33,7 +31,6 @@ namespace Remotion.TypePipe
   /// serializing app domain. <i>Compatible pipelines</i> refers to pipelines with equivalent participant configurations, i.e., pipelines that
   /// generate  equivalent types for a requested type.
   /// </remarks>
-  [ConcreteImplementation (typeof (RemotionPipelineRegistry), Lifetime = LifetimeKind.Singleton)]
   public interface IPipelineRegistry
   {
     /// <summary>
