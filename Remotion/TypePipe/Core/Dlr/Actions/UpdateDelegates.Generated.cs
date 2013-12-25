@@ -14,6 +14,7 @@
  * ***************************************************************************/
 #if TypePipe
 using Remotion.TypePipe.Dlr;
+using Remotion.TypePipe.Implementation;
 #endif
 
 using System;

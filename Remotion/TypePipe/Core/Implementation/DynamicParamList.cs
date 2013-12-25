@@ -28,6 +28,61 @@ namespace Remotion.TypePipe.Implementation
   /// </summary>
   public class DynamicParamList : ParamList
   {
+    private static readonly Type[] s_funcTypes =
+    {
+        typeof (Func<>),
+        typeof (Func<,>),
+        typeof (Func<,,>),
+        typeof (Func<,,,>),
+        typeof (Func<,,,,>),
+        typeof (Func<,,,,,>),
+        typeof (Func<,,,,,,>),
+        typeof (Func<,,,,,,,>),
+        typeof (Func<,,,,,,,,>),
+        typeof (Func<,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,,,,,,>)
+    };
+
+    private static readonly Type[] s_actionTypes =
+    {
+        typeof (Action),
+        typeof (Action<>),
+        typeof (Action<,>),
+        typeof (Action<,,>),
+        typeof (Action<,,,>),
+        typeof (Action<,,,,>),
+        typeof (Action<,,,,,>),
+        typeof (Action<,,,,,,>),
+        typeof (Action<,,,,,,,>),
+        typeof (Action<,,,,,,,,>),
+        typeof (Action<,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,,,,,,>)
+    };
+
+    static DynamicParamList ()
+    {
+      Assertion.IsTrue (s_funcTypes.Length == s_actionTypes.Length);
+    }
+
     private readonly Type[] _parameterTypes;
     private readonly object[] _parameterValues;
 
@@ -39,18 +94,44 @@ namespace Remotion.TypePipe.Implementation
       if (parameterValues.Length != parameterTypes.Length)
         throw new ArgumentException ("The number of parameter values must match the number of parameter types.", "parameterValues");
 
+      if (parameterTypes.Length >= s_funcTypes.Length)
+      {
+        throw new ArgumentException (
+            string.Format (
+                "The number of parameters ({0}) must not exceed the maximum supported number of parameters ({1}).",
+                parameterTypes.Length,
+                s_funcTypes.Length - 1),
+            "parameterTypes");
+      }
+
       _parameterTypes = parameterTypes;
       _parameterValues = parameterValues;
     }
 
     public override Type FuncType
     {
-      get { return FuncUtility.MakeClosedType (typeof (object), _parameterTypes); }
+      get
+      {
+        var typeArguments = new Type[_parameterTypes.Length + 1];
+        _parameterTypes.CopyTo (typeArguments, 0);
+        typeArguments[_parameterTypes.Length] = typeof (object);
+
+        var openType = s_funcTypes[_parameterTypes.Length];
+
+        return openType.MakeGenericType (typeArguments);
+      }
     }
 
     public override Type ActionType
     {
-      get { return ActionUtility.MakeClosedType (_parameterTypes); }
+      get
+      {
+        if (_parameterTypes.Length == 0)
+          return typeof (Action);
+
+        var openType = s_actionTypes[_parameterTypes.Length];
+        return openType.MakeGenericType (_parameterTypes);
+      }
     }
 
     public override void InvokeAction (Delegate action)
@@ -112,7 +193,7 @@ namespace Remotion.TypePipe.Implementation
       var message = string.Format (
           "Parameter 'action' has type '{0}' when a delegate with the following parameter signature was expected: ({1}).",
           action.GetType(),
-          String.Join ((string) ", ", (IEnumerable<string>) _parameterTypes.Select (t => t.FullName)));
+          string.Join (", ", _parameterTypes.Select (t => t.FullName)));
       return new ArgumentException (message, "action");
     }
 

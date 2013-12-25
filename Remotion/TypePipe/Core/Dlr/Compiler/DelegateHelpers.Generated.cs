@@ -25,6 +25,7 @@ using Remotion.TypePipe.MutableReflection;
 #if TypePipe
 namespace Remotion.TypePipe.Dlr.Ast.Compiler {
     using Remotion.TypePipe.Dlr.Utils;
+    using Remotion.TypePipe.Implementation;
 #else
 namespace System.Linq.Expressions.Compiler {
 #endif
