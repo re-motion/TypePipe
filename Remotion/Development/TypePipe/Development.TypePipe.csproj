@@ -125,6 +125,10 @@
       <Project>{2aa369ec-a4e7-4d75-9101-efa90e902625}</Project>
       <Name>Core.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Core\Reflection.CodeGeneration.TypePipe\Core.Reflection.CodeGeneration.TypePipe.csproj">
+      <Project>{EC62E06A-4AC6-48A0-8A81-69250ABC35B6}</Project>
+      <Name>Core.Reflection.CodeGeneration.TypePipe</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TypePipe\Core\TypePipe.Core.csproj">
       <Project>{98e7f7aa-12b2-4a6b-8922-52c8e53b378e}</Project>
       <Name>TypePipe.Core</Name>
