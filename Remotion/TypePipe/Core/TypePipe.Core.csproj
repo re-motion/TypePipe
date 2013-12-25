@@ -92,6 +92,9 @@
     <Compile Include="..\..\..\SharedSource\Core\Utilities\Assertion.cs">
       <Link>SharedSource\Utilities\Assertion.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\Utilities\AttributeUtility.cs">
+      <Link>SharedSource\Utilities\AttributeUtility.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\SharedSource\Core\Utilities\EqualityUtility.cs">
       <Link>SharedSource\Utilities\EqualityUtility.cs</Link>
     </Compile>
