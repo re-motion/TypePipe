@@ -16,18 +16,19 @@
 // 
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
   public class SerializationEventRaiser
   {
-    private readonly LockingCacheDecorator<Tuple<Type, Type>, List<MethodInfo>> _attributedMethodCache =
-        CacheFactory.CreateWithLocking<Tuple<Type, Type>, List<MethodInfo>>();
+    private readonly ConcurrentDictionary<Tuple<Type, Type>, IReadOnlyCollection<MethodInfo>> _attributedMethodCache =
+        new ConcurrentDictionary<Tuple<Type, Type>, IReadOnlyCollection<MethodInfo>>();
 
     public virtual void InvokeAttributedMethod (object deserializedObject, Type attributeType, StreamingContext context)
     {
@@ -38,10 +39,10 @@ namespace Remotion.TypePipe.Serialization
         method.Invoke (deserializedObject, new object[] { context });
     }
 
-    protected virtual List<MethodInfo> FindDeserializationMethodsWithCache (Type type, Type attributeType)
+    protected virtual IReadOnlyCollection<MethodInfo> FindDeserializationMethodsWithCache (Type type, Type attributeType)
     {
-      return _attributedMethodCache.GetOrCreateValue (Tuple.Create (type, attributeType), delegate (Tuple<Type, Type> typeAndAttributeType) {
-          return new List<MethodInfo> (FindDeserializationMethodsNoCache (typeAndAttributeType.Item1, typeAndAttributeType.Item2)); });
+      return _attributedMethodCache.GetOrAdd (Tuple.Create (type, attributeType),
+          typeAndAttributeType => FindDeserializationMethodsNoCache (typeAndAttributeType.Item1, typeAndAttributeType.Item2).ToList());
     }
 
     protected virtual IEnumerable<MethodInfo> FindDeserializationMethodsNoCache (Type type, Type attributeType)
@@ -65,7 +66,7 @@ namespace Remotion.TypePipe.Serialization
     {
       ArgumentUtility.CheckNotNull ("deserializedObject", deserializedObject);
 
-      IDeserializationCallback objectAsDeserializationCallback = deserializedObject as IDeserializationCallback;
+      var objectAsDeserializationCallback = deserializedObject as IDeserializationCallback;
       if (objectAsDeserializationCallback != null)
         objectAsDeserializationCallback.OnDeserialization (sender);
     }
