@@ -63,14 +63,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
-        "The number of parameters (21) must not exceed the maximum supported number of parameters (20).\r\nParameter name: parameterTypes")]
-    public void Initialization_ExceedsMaximumParameterCount ()
-    {
-      new DynamicParamList (new Type[21], new object[21]);
-    }
-
-    [Test]
     public void FuncType ()
     {
       Assert.That (_implementation0.FuncType, Is.SameAs (typeof (Func<object>)));
@@ -82,6 +74,16 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
+    public void FuncType_ExceedsMaximumParameterCount ()
+    {
+      var implementation21 = new DynamicParamList (new Type[21], new object[21]);
+      Assert.That (
+          () => implementation21.FuncType,
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "Getting the FuncType for a DynamicParamList is only supported for up to 20 parameters but the DynamicParamList was initialized with 21 parameters."));
+    }
+
+    [Test]
     public void ActionType ()
     {
       Assert.That (_implementation0.ActionType, Is.SameAs (typeof (Action)));
@@ -89,6 +91,16 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (_implementation3.ActionType, Is.SameAs (typeof (Action<int, string, double>)));
       Assert.That (_implementation20.ActionType, Is.Not.Null);
       Assert.That (_implementation20.ActionType, Is.SameAs (_implementation20.ActionType));
+    }
+
+    [Test]
+    public void ActionType_ExceedsMaximumParameterCount ()
+    {
+      var implementation21 = new DynamicParamList (new Type[21], new object[21]);
+      Assert.That (
+          () => implementation21.ActionType,
+          Throws.InvalidOperationException.With.Message.EqualTo (
+              "Getting the ActionType for a DynamicParamList is only supported for up to 20 parameters but the DynamicParamList was initialized with 21 parameters."));
     }
 
     [Test]

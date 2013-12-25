@@ -94,16 +94,6 @@ namespace Remotion.TypePipe.Implementation
       if (parameterValues.Length != parameterTypes.Length)
         throw new ArgumentException ("The number of parameter values must match the number of parameter types.", "parameterValues");
 
-      if (parameterTypes.Length >= s_funcTypes.Length)
-      {
-        throw new ArgumentException (
-            string.Format (
-                "The number of parameters ({0}) must not exceed the maximum supported number of parameters ({1}).",
-                parameterTypes.Length,
-                s_funcTypes.Length - 1),
-            "parameterTypes");
-      }
-
       _parameterTypes = parameterTypes;
       _parameterValues = parameterValues;
     }
@@ -112,6 +102,15 @@ namespace Remotion.TypePipe.Implementation
     {
       get
       {
+        if (_parameterTypes.Length >= s_funcTypes.Length)
+        {
+          throw new InvalidOperationException (
+              string.Format (
+                  "Getting the FuncType for a DynamicParamList is only supported for up to {1} parameters but the DynamicParamList was initialized with {0} parameters.",
+                  _parameterTypes.Length,
+                  s_funcTypes.Length - 1));
+        }
+
         var typeArguments = new Type[_parameterTypes.Length + 1];
         _parameterTypes.CopyTo (typeArguments, 0);
         typeArguments[_parameterTypes.Length] = typeof (object);
@@ -126,6 +125,15 @@ namespace Remotion.TypePipe.Implementation
     {
       get
       {
+        if (_parameterTypes.Length >= s_actionTypes.Length)
+        {
+          throw new InvalidOperationException (
+              string.Format (
+                  "Getting the ActionType for a DynamicParamList is only supported for up to {1} parameters but the DynamicParamList was initialized with {0} parameters.",
+                  _parameterTypes.Length,
+                  s_funcTypes.Length - 1));
+        }
+
         if (_parameterTypes.Length == 0)
           return typeof (Action);
 
