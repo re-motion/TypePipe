@@ -42,10 +42,6 @@ namespace Remotion.TypePipe
   /// </para>
   /// </remarks>
   /// <threadsafety static="true" instance="true"/>
-  [ConcreteImplementation ("Remotion.Mixins.CodeGeneration.TypePipe.MixinParticipant, Remotion.Mixins, "
-                           + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true, Position = 1)]
-  [ConcreteImplementation ("Remotion.Data.DomainObjects.Infrastructure.TypePipe.DomainObjectParticipant, Remotion.Data.DomainObjects, "
-                           + "Version=<version>, Culture=neutral, PublicKeyToken=<publicKeyToken>", ignoreIfNotFound: true, Position = 2)]
   public interface IParticipant
   {
     /// <summary>
