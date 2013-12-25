@@ -22,7 +22,6 @@ using Remotion.UnitTests.Reflection.TestDomain;
 
 namespace Remotion.UnitTests.Reflection
 {
-  [Obsolete]
   [TestFixture]
   public class ConstructorLookupInfoTest
   {
