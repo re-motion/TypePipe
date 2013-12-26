@@ -163,6 +163,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="ParamList.Partial.cs" />
+    <Compile Include="PipelineRegistry.cs" />
     <Compile Include="Serialization\DeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\IDeserializationMethodInvoker.cs" />
     <Compile Include="Serialization\SerializationEventRaiser.cs" />
@@ -543,7 +544,7 @@
     <Compile Include="TypeAssembly\Implementation\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
     <Compile Include="Serialization\ObjectWithoutDeserializationConstructorProxy.cs" />
-    <Compile Include="Implementation\PipelineRegistry.cs" />
+    <Compile Include="Implementation\PipelineRegistryImplementation.cs" />
     <Compile Include="Serialization\ComplexSerializationEnabler.cs" />
     <Compile Include="SimpleParticipantBase.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />

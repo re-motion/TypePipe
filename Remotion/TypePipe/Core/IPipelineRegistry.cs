@@ -16,21 +16,30 @@
 // 
 
 using System;
+using JetBrains.Annotations;
 
 namespace Remotion.TypePipe
 {
   /// <summary>
   /// Allows the registration of an <see cref="IPipeline"/> instance under a given participant configuration ID and retrieving that pipeline later
   /// via the same identifier.
-  /// An instance of this interface should be retrievable via the service locator or an IoC container. This allows users to register and
-  /// resolve global <see cref="IPipeline"/> instances used throughout an application.
   /// </summary>
   /// <remarks>
+  /// <para>
+  /// An instance of this interface should be registered with the <see cref="PipelineRegistry"/>. This allows the TypePipe infrastructure to access
+  /// the registered <see cref="IPipelineRegistry"/> instance from within deserialization code. It can also be used to register and resolve the 
+  /// <see cref="IPipeline"/> instances used throughout an application's code. Note: If the application uses an IoC container to resolve the dependencies, 
+  /// the delegate registered with the <see cref="PipelineRegistry"/>'s <see cref="PipelineRegistry.SetInstanceProvider"/> method should redirect 
+  /// to the IoC container to retrieve the <see cref="IPipelineRegistry"/> in order to keep the pipeline registrations in sync.
+  /// </para>
+  /// <para>
   /// This interface also enables serialization of object instances without the need to save the generated types to disk.
   /// To accomplish this register compatible pipelines under the same participant configuration ID in the deserializing as well as the
   /// serializing app domain. <i>Compatible pipelines</i> refers to pipelines with equivalent participant configurations, i.e., pipelines that
-  /// generate  equivalent types for a requested type.
+  /// generate equivalent types for a requested type.
+  /// </para>
   /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
   public interface IPipelineRegistry
   {
     /// <summary>
@@ -38,27 +47,28 @@ namespace Remotion.TypePipe
     /// </summary>
     /// <exception cref="InvalidOperationException">If no default pipeline was specified.</exception>
     /// <seealso cref="SetDefaultPipeline"/>
+    [NotNull]
     IPipeline DefaultPipeline { get; }
 
     /// <summary>
     /// Sets a pipeline as the <see cref="DefaultPipeline"/> overriding the previous default pipeline. 
     /// </summary>
     /// <param name="defaulPipeline">The new default pipeline.</param>
-    void SetDefaultPipeline (IPipeline defaulPipeline);
+    void SetDefaultPipeline ([NotNull] IPipeline defaulPipeline);
 
     /// <summary>
     /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">If a factory is already registered under the specified identifier.</exception>
     /// <param name="pipeline">The object factory to register.</param>
-    void Register (IPipeline pipeline);
+    void Register ([NotNull] IPipeline pipeline);
 
     /// <summary>
     /// Unregisters the <see cref="IPipeline"/> instance that is currently registered under the specified participant configuration ID.
     /// No exception is thrown if no factory is registered under the given identifier.
     /// </summary>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
-    void Unregister (string participantConfigurationID);
+    void Unregister ([NotNull] string participantConfigurationID);
 
     /// <summary>
     /// Retrieves the <see cref="IPipeline"/> instance that is registered under the specified participant configuration ID.
@@ -66,6 +76,7 @@ namespace Remotion.TypePipe
     /// <exception cref="InvalidOperationException">If no factory is registered under the specified identifier.</exception>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <returns>The registered pipeline.</returns>
-    IPipeline Get (string participantConfigurationID);
+    [NotNull]
+    IPipeline Get ([NotNull] string participantConfigurationID);
   }
 }

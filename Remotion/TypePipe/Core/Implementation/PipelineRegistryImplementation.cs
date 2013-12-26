@@ -17,23 +17,23 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// A <see cref="IPipelineRegistry"/> implementation that registers the provided pipeline and sets it as the default pipeline.
-  /// This ensures that the <see cref="PipelineRegistry.DefaultPipeline"/> property is populated.
+  /// This ensures that the <see cref="PipelineRegistryImplementation.DefaultPipeline"/> property is populated.
   /// </summary>
-  public class PipelineRegistry : IPipelineRegistry
+  /// <threadsafety static="true" instance="true"/>
+  public class PipelineRegistryImplementation : IPipelineRegistry
   {
     private readonly object _lock = new object();
     private readonly Dictionary<string, IPipeline> _pipelines = new Dictionary<string, IPipeline>();
 
     private string _defaultPipelineID;
 
-    public PipelineRegistry (IPipeline defaultPipeline)
+    public PipelineRegistryImplementation (IPipeline defaultPipeline)
     {
       ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
 

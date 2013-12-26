@@ -72,6 +72,7 @@
     <Compile Include="Configuration\PipelineSettingsTest.cs" />
     <Compile Include="Implementation\DynamicParamListTest.cs" />
     <Compile Include="Implementation\ParamListImplementationTest.cs" />
+    <Compile Include="Implementation\PipelineRegistryTest.cs" />
     <Compile Include="Implementation\TestDomain\ClassWithManyConstructorArguments.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeTypedArgumentUtilityTest.cs" />
@@ -254,7 +255,7 @@
     <Compile Include="Serialization\AssembledTypeIDDataTest.cs" />
     <Compile Include="Serialization\ObjectWithoutDeserializationConstructorProxyTest.cs" />
     <Compile Include="Serialization\ObjectWithDeserializationConstructorProxyTest.cs" />
-    <Compile Include="Implementation\PipelineRegistryTest.cs" />
+    <Compile Include="Implementation\PipelineRegistryImplementationTest.cs" />
     <Compile Include="Serialization\ObjectDeserializationProxyBaseTest.cs" />
     <Compile Include="Serialization\SerializableFieldFinderTest.cs" />
     <Compile Include="Serialization\ReflectionSerializationHelperTest.cs" />

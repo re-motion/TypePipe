@@ -22,11 +22,11 @@ using Rhino.Mocks;
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
-  public class PipelineRegistryTest
+  public class PipelineRegistryImplementationTest
   {
     private IPipeline _defaultPipeline;
 
-    private PipelineRegistry _registry;
+    private PipelineRegistryImplementation _registry;
 
     private IPipeline _somePipeline;
 
@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       _defaultPipeline = CreatePipelineStub ("default id");
 
-      _registry = new PipelineRegistry (_defaultPipeline);
+      _registry = new PipelineRegistryImplementation (_defaultPipeline);
 
       _somePipeline = CreatePipelineStub ("some id");
     }
