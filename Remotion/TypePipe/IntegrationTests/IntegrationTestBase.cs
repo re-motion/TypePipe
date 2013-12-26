@@ -108,6 +108,11 @@ namespace Remotion.TypePipe.IntegrationTests
 
         // Else: Swallow exception if test already had failed state in order to avoid overwriting any exceptions.
       }
+
+      Assert.That (
+          PipelineRegistry.HasInstanceProvider,
+          Is.False,
+          "The PipelineRegistry has not been reset using PipelineRegistryTestHelper.ResetPipelineRegistry().");
     }
 
     protected void EnableSavingAndPeVerification () 

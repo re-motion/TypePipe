@@ -16,6 +16,7 @@
 // 
 
 using System.Linq;
+using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe;
 
@@ -50,6 +51,14 @@ namespace Remotion.Development.TypePipe.UnitTesting
 
       // This overrides the previous default pipeline.
       pipelineRegistry.SetDefaultPipeline (pipeline);
+    }
+
+    /// <summary>
+    /// Clears the instance provider delegate set via the <see cref="PipelineRegistry"/>'s <see cref="PipelineRegistry.SetInstanceProvider"/> method.
+    /// </summary>
+    public static void ResetPipelineRegistry ()
+    {
+      PrivateInvoke.SetNonPublicStaticField (typeof (PipelineRegistry), "s_instanceProvider", null);
     }
   }
 }

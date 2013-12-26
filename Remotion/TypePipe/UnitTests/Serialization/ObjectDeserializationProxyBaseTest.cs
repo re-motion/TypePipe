@@ -18,6 +18,7 @@
 using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -48,16 +49,25 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _context = new StreamingContext ((StreamingContextStates) 7);
 
       _pipelineRegistryStub = MockRepository.GenerateStub<IPipelineRegistry>();
+      Assert.That (PipelineRegistry.HasInstanceProvider, Is.False);
+      PipelineRegistry.SetInstanceProvider (() => _pipelineRegistryStub);
+
       _deserializationMethodInvokerMock = MockRepository.GenerateMock<IDeserializationMethodInvoker>();
       _createRealObjectAssertions = (instance, info, ctx, typeName) => { throw new Exception ("Setup assertions and return real object."); };
 
-      using (new ServiceLocatorScope (typeof (IPipelineRegistry), () => _pipelineRegistryStub))
-      {
-        // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
-        _objectDeserializationProxyBase = new TestableObjectDeserializationProxyBase (
-            _info, _context, (instance, info, ctx, typeName) => _createRealObjectAssertions (instance, info, ctx, typeName));
-      }
+      // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
+      _objectDeserializationProxyBase = new TestableObjectDeserializationProxyBase (
+          _info,
+          _context,
+          (instance, info, ctx, typeName) => _createRealObjectAssertions (instance, info, ctx, typeName));
+
       PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_deserializationMethodInvoker", _deserializationMethodInvokerMock);
+    }
+
+    [TearDown]
+    public void TearDown ()
+    {
+      PipelineRegistryTestHelper.ResetPipelineRegistry();
     }
 
     [Test]

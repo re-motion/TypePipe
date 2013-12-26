@@ -31,7 +31,6 @@ namespace Remotion.TypePipe.Serialization
   /// </remarks>
   public abstract class ObjectDeserializationProxyBase : ISerializable, IObjectReference, IDeserializationCallback
   {
-    private readonly IPipelineRegistry _registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
     private readonly IDeserializationMethodInvoker _deserializationMethodInvoker = new DeserializationMethodInvoker();
 
     private readonly SerializationInfo _serializationInfo;
@@ -84,7 +83,8 @@ namespace Remotion.TypePipe.Serialization
       var assembledTypeIDData = (AssembledTypeIDData) _serializationInfo.GetValue (ComplexSerializationEnabler.AssembledTypeIDData, typeof (AssembledTypeIDData));
       var typeID = assembledTypeIDData.CreateTypeID();
 
-      var pipeline = _registry.Get(participantConfigurationID);
+      var registry = PipelineRegistry.Instance;
+      var pipeline = registry.Get(participantConfigurationID);
       var assembledType = pipeline.ReflectionService.GetAssembledType(typeID);
       var instance = FormatterServices.GetUninitializedObject(assembledType);
 

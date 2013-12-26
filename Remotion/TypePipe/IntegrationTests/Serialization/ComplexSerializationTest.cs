@@ -21,11 +21,12 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting;
 using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.Development.UnitTesting;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
+using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
@@ -72,19 +73,26 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
 
     private static object DeserializeInstance (Func<IParticipant>[] participantProviders, byte[] serializedData)
     {
-      var registry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
-      var participants = participantProviders.Select (pp => pp()).Concat (new[] { new ModifyingParticipant() }); // Avoid no-modification optimization.
-      var pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
-
       // Register a factory for deserialization in current (new) app domain.
-      registry.Register (pipeline);
+
+      Assert.That (PipelineRegistry.HasInstanceProvider, Is.False);
+      var defaultPipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
+      defaultPipelineMock.Stub (_ => _.ParticipantConfigurationID).Return ("Mock Default Pipeline");
+      IPipelineRegistry pipelineRegistry = new PipelineRegistryImplementation (defaultPipelineMock);
+      PipelineRegistry.SetInstanceProvider (() => pipelineRegistry);
+
+      var participants = participantProviders.Select (pp => pp()).Concat (new[] { new ModifyingParticipant() });
+      // Avoid no-modification optimization.
+      var pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
+      pipelineRegistry.Register (pipeline);
+
       try
       {
         return Serializer.Deserialize (serializedData);
       }
       finally
       {
-        registry.Unregister (c_participantConfigurationID);
+        PipelineRegistryTestHelper.ResetPipelineRegistry();
       }
     }
 

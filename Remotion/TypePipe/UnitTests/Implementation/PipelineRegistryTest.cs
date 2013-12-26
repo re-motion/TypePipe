@@ -17,6 +17,7 @@
 
 using System;
 using NUnit.Framework;
+using Remotion.Development.TypePipe.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Rhino.Mocks;
 
@@ -29,14 +30,15 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [SetUp]
     public void SetUp ()
     {
+      Assert.That (PipelineRegistry.HasInstanceProvider, Is.False);
+
       _registry = MockRepository.GenerateStub<IPipelineRegistry>();
-      PrivateInvoke.SetNonPublicStaticField (typeof (PipelineRegistry), "s_instanceProvider", null);
     }
 
     [TearDown]
     public void TearDown ()
     {
-      PrivateInvoke.SetNonPublicStaticField (typeof (PipelineRegistry), "s_instanceProvider", null);
+      PipelineRegistryTestHelper.ResetPipelineRegistry();
     }
 
     [Test]
