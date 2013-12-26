@@ -16,10 +16,8 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.Text;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 {

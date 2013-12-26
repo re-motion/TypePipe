@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.Utilities;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.Expressions
 {

@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.StrongNaming;
@@ -28,9 +27,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <summary>
   /// A decorator that checks operands for strong-name compatibility.
   /// </summary>
-  /// <remarks>
-  /// Uses an instance <see cref="ITypeAnalyzer"/> retrieved via the <see cref="SafeServiceLocator"/>.
-  /// </remarks>
   public class StrongNameCheckingEmittableOperandProviderDecorator : IEmittableOperandProvider
   {
     private readonly IEmittableOperandProvider _emittableOperandProvider;

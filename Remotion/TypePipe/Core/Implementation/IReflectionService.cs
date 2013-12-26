@@ -18,7 +18,6 @@
 using System;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 
 namespace Remotion.TypePipe.Implementation

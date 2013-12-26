@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Remotion.Collections;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Generics

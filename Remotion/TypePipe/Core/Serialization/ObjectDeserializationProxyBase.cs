@@ -17,7 +17,6 @@
 
 using System;
 using System.Runtime.Serialization;
-using Remotion.ServiceLocation;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization

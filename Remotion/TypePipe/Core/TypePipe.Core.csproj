@@ -46,10 +46,6 @@
     <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\prereq\Assemblies\CommonServiceLocator-1.0\net-2.0\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -97,6 +93,9 @@
     </Compile>
     <Compile Include="..\..\..\SharedSource\Core\Utilities\EqualityUtility.cs">
       <Link>SharedSource\Utilities\EqualityUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\Utilities\ExceptionUtility.cs">
+      <Link>SharedSource\Utilities\ExceptionUtility.cs</Link>
     </Compile>
     <Compile Include="..\..\..\SharedSource\Core\Utilities\MemberInfoEqualityComparer.cs">
       <Link>SharedSource\Utilities\MemberInfoEqualityComparer.cs</Link>
@@ -576,12 +575,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ParamList.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">
-      <Project>{2AA369EC-A4E7-4D75-9101-EFA90E902625}</Project>
-      <Name>Core.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

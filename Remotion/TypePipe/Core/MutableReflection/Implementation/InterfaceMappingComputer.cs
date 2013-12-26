@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Utilities;
 using System.Linq;
-using Remotion.Collections;
 using Remotion.TypePipe.MutableReflection.MemberSignatures;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
