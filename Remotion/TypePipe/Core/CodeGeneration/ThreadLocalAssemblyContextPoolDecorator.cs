@@ -24,6 +24,7 @@ namespace Remotion.TypePipe.CodeGeneration
   /// <summary>
   /// Decorates the <see cref="IAssemblyContextPool"/> with a thread-local cache. This allows the reuse of the same assembly context within a thread.
   /// </summary>
+  /// <threadsafety static="true" instance="true"/>
   public class ThreadLocalAssemblyContextPoolDecorator : IAssemblyContextPool
   {
     private class ThreadLocalAssemblyContext

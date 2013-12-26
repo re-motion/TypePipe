@@ -25,10 +25,18 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Serialization
 {
+  /// <summary>
+  /// Provides helper methods for finding and invoking the serialization APIs identified via the <see cref="OnDeserializingAttribute"/> 
+  /// or <see cref="OnDeserializedAttribute"/> and the <see cref="IDeserializationCallback"/> interface.
+  /// </summary>
   public class SerializationEventRaiser
   {
     private readonly ConcurrentDictionary<Tuple<Type, Type>, IReadOnlyCollection<MethodInfo>> _attributedMethodCache =
         new ConcurrentDictionary<Tuple<Type, Type>, IReadOnlyCollection<MethodInfo>>();
+
+    public SerializationEventRaiser ()
+    {
+    }
 
     public virtual void InvokeAttributedMethod (object deserializedObject, Type attributeType, StreamingContext context)
     {
