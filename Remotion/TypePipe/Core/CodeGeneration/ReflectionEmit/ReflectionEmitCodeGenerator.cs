@@ -83,7 +83,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       get { return _moduleContext.DebugInfoGenerator ?? (_moduleContext.DebugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator()); }
     }
 
-    public virtual string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
+    public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
       ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
 
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     }
 
     [CLSCompliant (false)]
-    public virtual ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
+    public ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
