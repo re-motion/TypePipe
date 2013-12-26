@@ -20,6 +20,7 @@ using System.Reflection.Emit;
 using Remotion.Diagnostics;
 using Remotion.Reflection.CodeGeneration.TypePipe;
 using Remotion.Reflection.TypeDiscovery;
+using Remotion.TypePipe;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.Development.TypePipe

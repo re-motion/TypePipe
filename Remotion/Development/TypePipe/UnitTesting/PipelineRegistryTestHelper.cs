@@ -19,6 +19,7 @@ using System.Linq;
 using Remotion.Development.UnitTesting;
 using Remotion.ServiceLocation;
 using Remotion.TypePipe;
+using Remotion.Utilities;
 
 namespace Remotion.Development.TypePipe.UnitTesting
 {
@@ -27,32 +28,6 @@ namespace Remotion.Development.TypePipe.UnitTesting
   /// </summary>
   public static class PipelineRegistryTestHelper
   {
-    /// <summary>
-    /// Returns the global <see cref="IPipelineRegistry"/> from the <see cref="SafeServiceLocator"/>.
-    /// </summary>
-    public static IPipelineRegistry GloablRegistry
-    {
-      get { return SafeServiceLocator.Current.GetInstance<IPipelineRegistry>(); }
-    }
-
-    /// <summary>
-    /// Replaces the default pipeline (in the <see cref="GloablRegistry"/>) with a new, equivalent <see cref="IPipeline"/> instance. This can be
-    /// used to avoid code generation tests influencing each other.
-    /// </summary>
-    public static void ResetDefaultPipeline ()
-    {
-      var pipelineRegistry = SafeServiceLocator.Current.GetInstance<IPipelineRegistry>();
-      var previousPipeline = pipelineRegistry.DefaultPipeline;
-
-      var pipeline = PipelineFactory.Create (
-          previousPipeline.ParticipantConfigurationID,
-          previousPipeline.Settings,
-          previousPipeline.Participants.ToArray());
-
-      // This overrides the previous default pipeline.
-      pipelineRegistry.SetDefaultPipeline (pipeline);
-    }
-
     /// <summary>
     /// Clears the instance provider delegate set via the <see cref="PipelineRegistry"/>'s <see cref="PipelineRegistry.SetInstanceProvider"/> method.
     /// </summary>

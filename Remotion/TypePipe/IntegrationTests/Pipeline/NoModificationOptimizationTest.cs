@@ -17,7 +17,7 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Reflection;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [SetUp]
     public void SetUp ()
     {
-      _pipeline = PipelineFactory.Create ("NoModificationOptimizationTest");
+      _pipeline = new DefaultPipelineFactory().Create ("NoModificationOptimizationTest");
     }
 
     [Test]

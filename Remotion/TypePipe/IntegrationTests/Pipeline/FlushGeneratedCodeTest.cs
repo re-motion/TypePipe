@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
       var assembly = AssemblyLoader.LoadWithoutLocking (path);
       var attributes = assembly.GetCustomAttributes (inherit: true);
-      Assert.That (attributes, Has.Length.GreaterThan (2)); // RemotionPipelineFactoryImplementation also adds [NonApplicationAssembly].
+      Assert.That (attributes, Has.Length.GreaterThan (1));
 
       var typePipeAttribute = attributes.OfType<TypePipeAssemblyAttribute>().Single();
       var obsoleteAttribute = attributes.OfType<ObsoleteAttribute>().Single();

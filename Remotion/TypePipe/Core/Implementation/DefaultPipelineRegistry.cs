@@ -23,17 +23,17 @@ namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
   /// A <see cref="IPipelineRegistry"/> implementation that registers the provided pipeline and sets it as the default pipeline.
-  /// This ensures that the <see cref="PipelineRegistryImplementation.DefaultPipeline"/> property is populated.
+  /// This ensures that the <see cref="DefaultPipelineRegistry.DefaultPipeline"/> property is populated.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
-  public class PipelineRegistryImplementation : IPipelineRegistry
+  public class DefaultPipelineRegistry : IPipelineRegistry
   {
     private readonly object _lock = new object();
     private readonly Dictionary<string, IPipeline> _pipelines = new Dictionary<string, IPipeline>();
 
     private string _defaultPipelineID;
 
-    public PipelineRegistryImplementation (IPipeline defaultPipeline)
+    public DefaultPipelineRegistry (IPipeline defaultPipeline)
     {
       ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
 

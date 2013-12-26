@@ -18,6 +18,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -39,7 +40,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       var participant1 = CreateParticipant ((id, ctx) => Assert.That (ctx.ParticipantConfigurationID, Is.EqualTo (configurationID)));
       var participant2 = CreateParticipant();
 
-      var pipeline = PipelineFactory.Create (configurationID, participant1, participant2);
+      var pipeline = new DefaultPipelineFactory().Create (configurationID, participant1, participant2);
 
       Assert.That (pipeline.ParticipantConfigurationID, Is.EqualTo (configurationID));
       Assert.That (pipeline.Participants, Is.EqualTo (new[] { participant1, participant2 }));

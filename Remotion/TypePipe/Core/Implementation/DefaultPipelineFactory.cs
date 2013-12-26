@@ -16,11 +16,9 @@
 // 
 
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
@@ -87,7 +85,7 @@ namespace Remotion.TypePipe.Implementation
       }
     }
 
-    public virtual IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants)
+    public virtual IPipeline Create (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("settings", settings);

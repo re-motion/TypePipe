@@ -16,6 +16,7 @@
 // 
 
 using System;
+using Remotion.TypePipe;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;

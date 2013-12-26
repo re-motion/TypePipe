@@ -78,12 +78,12 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       Assert.That (PipelineRegistry.HasInstanceProvider, Is.False);
       var defaultPipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
       defaultPipelineMock.Stub (_ => _.ParticipantConfigurationID).Return ("Mock Default Pipeline");
-      IPipelineRegistry pipelineRegistry = new PipelineRegistryImplementation (defaultPipelineMock);
+      IPipelineRegistry pipelineRegistry = new DefaultPipelineRegistry (defaultPipelineMock);
       PipelineRegistry.SetInstanceProvider (() => pipelineRegistry);
 
       var participants = participantProviders.Select (pp => pp()).Concat (new[] { new ModifyingParticipant() });
       // Avoid no-modification optimization.
-      var pipeline = PipelineFactory.Create (c_participantConfigurationID, participants.ToArray());
+      var pipeline = new DefaultPipelineFactory().Create (c_participantConfigurationID, participants.ToArray());
       pipelineRegistry.Register (pipeline);
 
       try

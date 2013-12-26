@@ -182,7 +182,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
     <Compile Include="Implementation\CodeManager.cs" />
     <Compile Include="Implementation\ICodeManager.cs" />
-    <Compile Include="Implementation\IPipelineFactory.cs" />
+    <Compile Include="IPipelineFactory.cs" />
     <Compile Include="Implementation\IReflectionService.cs" />
     <Compile Include="TypeAssembly\LoadedProxy.cs" />
     <Compile Include="TypeAssembly\LoadedTypesContext.cs" />
@@ -544,7 +544,7 @@
     <Compile Include="TypeAssembly\Implementation\TypeAssembler.cs" />
     <Compile Include="Caching\TypeCache.cs" />
     <Compile Include="Serialization\ObjectWithoutDeserializationConstructorProxy.cs" />
-    <Compile Include="Implementation\PipelineRegistryImplementation.cs" />
+    <Compile Include="Implementation\DefaultPipelineRegistry.cs" />
     <Compile Include="Serialization\ComplexSerializationEnabler.cs" />
     <Compile Include="SimpleParticipantBase.cs" />
     <Compile Include="StrongNaming\FallbackKey.cs" />
@@ -553,7 +553,7 @@
     <Compile Include="StrongNaming\AssemblyAnalyzer.cs" />
     <Compile Include="StrongNaming\TypeAnalyzer.cs" />
     <Compile Include="TypeAssembly\Implementation\ProxyTypeAssemblyContext.cs" />
-    <Compile Include="PipelineFactory.cs" />
+    <Compile Include="PipelineFactoryExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\remotion.snk">

@@ -23,6 +23,7 @@ using System.Reflection.Emit;
 using JetBrains.Annotations;
 using Remotion.Diagnostics;
 using Remotion.Logging;
+using Remotion.TypePipe;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Implementation;

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Reflection;
+using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -34,7 +35,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       base.SetUp ();
 
       _modifyingPipeline = CreatePipeline ();
-      _nonModifyingPipeline = PipelineFactory.Create ("no-modifications");
+      _nonModifyingPipeline = new DefaultPipelineFactory().Create ("no-modifications");
     }
 
     [Test]

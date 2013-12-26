@@ -255,7 +255,7 @@
     <Compile Include="Serialization\AssembledTypeIDDataTest.cs" />
     <Compile Include="Serialization\ObjectWithoutDeserializationConstructorProxyTest.cs" />
     <Compile Include="Serialization\ObjectWithDeserializationConstructorProxyTest.cs" />
-    <Compile Include="Implementation\PipelineRegistryImplementationTest.cs" />
+    <Compile Include="Implementation\DefaultPipelineRegistryTest.cs" />
     <Compile Include="Serialization\ObjectDeserializationProxyBaseTest.cs" />
     <Compile Include="Serialization\SerializableFieldFinderTest.cs" />
     <Compile Include="Serialization\ReflectionSerializationHelperTest.cs" />

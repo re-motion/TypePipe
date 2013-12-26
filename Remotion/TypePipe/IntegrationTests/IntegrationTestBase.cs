@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.IntegrationTests
       if (participants.Length == 0)
         participants = new[] { CreateParticipant (CreateModifyingAction ((id, ctx) => { })) };
 
-      var pipeline = PipelineFactory.Create (participantConfigurationID, settings, participants);
+      var pipeline = new DefaultPipelineFactory().Create (participantConfigurationID, settings, participants);
 
       _codeManager = pipeline.CodeManager;
 

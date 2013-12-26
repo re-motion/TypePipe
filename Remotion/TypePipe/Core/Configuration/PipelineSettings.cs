@@ -25,7 +25,7 @@ namespace Remotion.TypePipe.Configuration
   /// <summary>
   /// Holds configuration options for pipelines. This class is immutable.
   /// </summary>
-  /// <seealso cref="PipelineFactory.Create(string,Remotion.TypePipe.Configuration.PipelineSettings,Remotion.TypePipe.IParticipant[])"/>
+  /// <seealso cref="IPipelineFactory.Create"/>
   /// <seealso cref="IPipeline.Settings"/>
   /// <threadsafety static="true" instance="true"/>
   public class PipelineSettings

@@ -21,6 +21,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;

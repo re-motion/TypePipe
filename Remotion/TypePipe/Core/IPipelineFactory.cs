@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using Remotion.TypePipe.Configuration;
 
-namespace Remotion.TypePipe.Implementation
+namespace Remotion.TypePipe
 {
   /// <summary>
   /// Creates instances of <see cref="IPipeline"/>.
@@ -27,6 +27,18 @@ namespace Remotion.TypePipe.Implementation
   /// <threadsafety static="true" instance="true"/>
   public interface IPipelineFactory
   {
-    IPipeline CreatePipeline (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants);
+    /// <summary>
+    /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants and optionally a
+    /// custom configuration provider. If the configuration provider is omitted, the <c>App.config</c>-based configuration provider
+    /// (<see cref="AppConfigBasedSettingsProvider"/>) is used.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="IPipeline"/> instances with equal participant configuration IDs must generate equivalent types.
+    /// </remarks>
+    /// <param name="participantConfigurationID">The participant configuration ID.</param>
+    /// <param name="settings">The pipeline settings.</param>
+    /// <param name="participants">The participants that should be used by this object factory.</param>
+    /// <returns>An new instance of <see cref="IPipeline"/>.</returns>
+    IPipeline Create (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants);
   }
 }

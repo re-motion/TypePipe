@@ -98,8 +98,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void InstantiateAssembledType ()
     {
-      var equivalentReflectionService = PipelineFactory.Create (_pipeline.ParticipantConfigurationID, new ModifyingParticipant()).ReflectionService;
-      var otherReflectionService = PipelineFactory.Create ("other id", new ModifyingParticipant()).ReflectionService;
+      var pipelineFactory = new DefaultPipelineFactory();
+      var equivalentReflectionService =  pipelineFactory.Create (_pipeline.ParticipantConfigurationID, new ModifyingParticipant()).ReflectionService;
+      var otherReflectionService =  pipelineFactory.Create ("other id", new ModifyingParticipant()).ReflectionService;
 
       var assembledType1 = _reflectionService.GetAssembledType (typeof (RequestedType1));
       var assembledType2 = equivalentReflectionService.GetAssembledType (typeof (RequestedType1));
