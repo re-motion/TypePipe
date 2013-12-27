@@ -121,6 +121,81 @@
     <Compile Include="..\..\..\sharedsource\core\utilities\ReferenceEqualityComparer.cs">
       <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Dev.cs">
+      <Link>SharedSource\UnitTesting\Dev.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Enumerables\EnumerableExtensions.cs">
+      <Link>SharedSource\UnitTesting\Enumerables\EnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Enumerables\OneTimeEnumerable.cs">
+      <Link>SharedSource\UnitTesting\Enumerables\OneTimeEnumerable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectExtensions.cs">
+      <Link>SharedSource\UnitTesting\ObjectExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\BooleanObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\BooleanObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\DictionaryObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\DictionaryObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\ListObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\ListObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\QueueObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\QueueObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifier.cs">
+      <Link>SharedSource\UnitTesting\PEVerifier.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyException.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PrivateInvoke.cs">
+      <Link>SharedSource\UnitTesting\PrivateInvoke.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Reflection\NormalizingMemberInfoFromExpressionUtility.cs">
+      <Link>SharedSource\UnitTesting\Reflection\NormalizingMemberInfoFromExpressionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Reflection\ReflectionObjectMother.cs">
+      <Link>SharedSource\UnitTesting\Reflection\ReflectionObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Serializer.cs">
+      <Link>SharedSource\UnitTesting\Serializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ThreadRunner.cs">
+      <Link>SharedSource\UnitTesting\ThreadRunner.cs</Link>
+    </Compile>
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
@@ -344,10 +419,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Development\Core\Development.Core.csproj">
-      <Project>{B719A305-0493-4C72-88FE-9A2FC6964578}</Project>
-      <Name>Development.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Development\RhinoMocks\Development.RhinoMocks.csproj">
       <Project>{2177143e-345f-4faa-9958-1ae2b5eed242}</Project>
       <Name>Development.RhinoMocks</Name>
