@@ -70,10 +70,10 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions
 
     class DomainType
     {
+      // ReSharper disable UnusedParameter.Local
       public string DomainMethod (int i, object o)
+      // ReSharper restore UnusedParameter.Local
       {
-        Dev.Null = i;
-        Dev.Null = o;
         return "";
       }
     }

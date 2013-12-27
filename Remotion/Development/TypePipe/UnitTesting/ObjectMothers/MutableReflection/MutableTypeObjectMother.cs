@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Dlr.Ast;
@@ -24,7 +25,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
-using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
@@ -86,7 +86,10 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
     private static void CopyConstructors (Type baseType, MutableType proxyType)
     {
       var proxyTypeModelFactory = new MutableTypeFactory();
-      proxyTypeModelFactory.Invoke<IEnumerable<Expression>> ("CopyConstructors", baseType, proxyType).ForceEnumeration();
+      var result = (IEnumerable<Expression>) PrivateInvoke.InvokeNonPublicMethod (proxyTypeModelFactory, "CopyConstructors", baseType, proxyType);
+      // ReSharper disable ReturnValueOfPureMethodIsNotUsed
+      result.ToArray();
+      // ReSharper restore ReturnValueOfPureMethodIsNotUsed
     }
 
     public class UnspecifiedType { }
