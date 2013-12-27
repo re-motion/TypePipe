@@ -72,8 +72,8 @@ namespace Remotion.Development.TypePipe
     {
       lock (_lockObject)
       {
-        //foreach (var assemblyPath in _savedAssemblies)
-        //  PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+        foreach (var assemblyPath in _savedAssemblies)
+          PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
       }
     }
 

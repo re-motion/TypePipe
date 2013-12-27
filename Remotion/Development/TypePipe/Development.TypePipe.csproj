@@ -55,6 +55,9 @@
     <Compile Include="..\..\..\sharedsource\core\functionalprogramming\EnumerableUtility.cs">
       <Link>SharedSource\FunctionalProgramming\EnumerableUtility.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\FunctionalProgramming\Maybe.cs">
+      <Link>SharedSource\FunctionalProgramming\Maybe.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\sharedsource\core\resharperannotations\AssertionConditionAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\AssertionConditionAttribute.cs</Link>
     </Compile>
@@ -108,6 +111,42 @@
     </Compile>
     <Compile Include="..\..\..\sharedsource\core\utilities\ReferenceEqualityComparer.cs">
       <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifier.cs">
+      <Link>SharedSource\UnitTesting\PEVerifier.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyException.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\CompoundPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\DotNetSdk20PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\FixedPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\IPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\PotentialPEVerifyPathSourceBase.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\WindowsSdk6PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\WindowsSdk70aPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\WindowsSdk71PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\development\unittesting\peverifypathsources\WindowsSdk80aPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs</Link>
     </Compile>
     <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PrivateInvoke.cs">
       <Link>SharedSource\UnitTesting\PrivateInvoke.cs</Link>
