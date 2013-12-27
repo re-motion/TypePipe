@@ -217,8 +217,8 @@
     <None Include="..\..\..\remotion.snk">
       <Link>remotion.snk</Link>
     </None>
-    <None Include="..\..\Remotion LGPL.licenseheader">
-      <Link>Remotion LGPL.licenseheader</Link>
+    <None Include="..\..\TypePipe Apache-2.0.licenseheader">
+      <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
   </ItemGroup>
   <ItemGroup />
