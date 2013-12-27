@@ -20,14 +20,12 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using NUnit.Framework;
-using Remotion.Collections;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {

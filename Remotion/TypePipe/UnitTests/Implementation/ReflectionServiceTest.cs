@@ -19,7 +19,6 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.TypeAssembly.Implementation;

@@ -52,6 +52,75 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\sharedsource\core\functionalprogramming\EnumerableExtensions.cs">
+      <Link>SharedSource\FunctionalProgramming\EnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\functionalprogramming\EnumerableUtility.cs">
+      <Link>SharedSource\FunctionalProgramming\EnumerableUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\functionalprogramming\Maybe.cs">
+      <Link>SharedSource\FunctionalProgramming\Maybe.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\AssertionConditionAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\AssertionConditionAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\AssertionConditionType.cs">
+      <Link>SharedSource\ReSharperAnnotations\AssertionConditionType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\AssertionMethodAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\AssertionMethodAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\CanBeNullAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\CanBeNullAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseKindFlags.cs">
+      <Link>SharedSource\ReSharperAnnotations\ImplicitUseKindFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseTargetFlags.cs">
+      <Link>SharedSource\ReSharperAnnotations\ImplicitUseTargetFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\InvokerParameterNameAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\InvokerParameterNameAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\NoEnumerationAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\NoEnumerationAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\NotNullAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\NotNullAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\resharperannotations\StringFormatMethodAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\StringFormatMethodAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\UsedImplicitlyAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\UsedImplicitlyAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\ArgumentUtility.cs">
+      <Link>SharedSource\Utilities\ArgumentUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\Assertion.cs">
+      <Link>SharedSource\Utilities\Assertion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\AttributeUtility.cs">
+      <Link>SharedSource\Utilities\AttributeUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\ExceptionUtility.cs">
+      <Link>SharedSource\Utilities\ExceptionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\FileUtility.cs">
+      <Link>SharedSource\Utilities\FileUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\MemberInfoEqualityComparer.cs">
+      <Link>SharedSource\Utilities\MemberInfoEqualityComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\MemberInfoFromExpressionUtility.cs">
+      <Link>SharedSource\Utilities\MemberInfoFromExpressionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\NullableTypeUtility.cs">
+      <Link>SharedSource\Utilities\NullableTypeUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\sharedsource\core\utilities\ReferenceEqualityComparer.cs">
+      <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
+    </Compile>
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
@@ -275,10 +344,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Core\Core.Core.csproj">
-      <Project>{2AA369EC-A4E7-4D75-9101-EFA90E902625}</Project>
-      <Name>Core.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Development\Core\Development.Core.csproj">
       <Project>{B719A305-0493-4C72-88FE-9A2FC6964578}</Project>
       <Name>Development.Core</Name>

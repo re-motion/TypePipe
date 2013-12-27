@@ -21,8 +21,6 @@ using NUnit.Framework;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Expressions;
-using Rhino.Mocks;
-using Remotion.Collections;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {

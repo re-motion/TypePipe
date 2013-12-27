@@ -23,7 +23,6 @@ using System.Runtime.Serialization;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
-using Remotion.Collections;
 using Remotion.Development.TypePipe.UnitTesting.Expressions;
 using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Development.UnitTesting;

@@ -15,14 +15,8 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
-using System.CodeDom;
 using NUnit.Framework;
-using Remotion.Reflection;
-using Remotion.TypePipe.Dlr.Ast.Compiler;
 using Remotion.TypePipe.Implementation;
-using Remotion.TypePipe.UnitTests.Implementation.TestDomain;
-using Remotion.Utilities;
-using System.Collections.Generic;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
