@@ -45,10 +45,6 @@
     <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\prereq\Assemblies\CommonServiceLocator-1.0\net-2.0\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -179,10 +175,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Reflection.CodeGeneration.TypePipe\Core.Reflection.CodeGeneration.TypePipe.csproj">
-      <Project>{EC62E06A-4AC6-48A0-8A81-69250ABC35B6}</Project>
-      <Name>Core.Reflection.CodeGeneration.TypePipe</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TypePipe\Core\TypePipe.Core.csproj">
       <Project>{98e7f7aa-12b2-4a6b-8922-52c8e53b378e}</Project>
       <Name>TypePipe.Core</Name>
