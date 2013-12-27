@@ -15,11 +15,9 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 
-using System.Linq;
+using System;
 using Remotion.Development.UnitTesting;
-using Remotion.ServiceLocation;
 using Remotion.TypePipe;
-using Remotion.Utilities;
 
 namespace Remotion.Development.TypePipe.UnitTesting
 {
