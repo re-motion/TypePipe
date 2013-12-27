@@ -19,7 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.Collections;
 
 namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
 {
@@ -31,7 +30,7 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       public int? NullableIntField = 0;
       public int IntField = 0;
       public object ObjectField = null;
-      
+
       public ValueType ValueTypeProperty { get; set; }
       public string StringProperty { get; set; }
       public object ObjectProperty { get; set; }
@@ -39,13 +38,16 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
       public int IntProperty { get; set; }
     }
 
-    private static readonly Dictionary<Type, PropertyInfo> s_propertiesByType = typeof (ClassWithMembers).GetProperties().ToDictionary (pi => pi.PropertyType);
-    private static readonly Dictionary<Type, FieldInfo> s_fieldsByType = typeof (ClassWithMembers).GetFields ().ToDictionary (fi => fi.FieldType);
+    private static readonly Dictionary<Type, PropertyInfo> s_propertiesByType =
+        typeof (ClassWithMembers).GetProperties().ToDictionary (pi => pi.PropertyType);
+
+    private static readonly Dictionary<Type, FieldInfo> s_fieldsByType = 
+        typeof (ClassWithMembers).GetFields().ToDictionary (fi => fi.FieldType);
 
     public static PropertyInfo GetPropertyWithType (Type propertyType)
     {
-      var property = s_propertiesByType.GetValueOrDefault (propertyType);
-      if (property == null)
+      PropertyInfo property;
+      if (!s_propertiesByType.TryGetValue (propertyType, out property))
       {
         var message = String.Format ("There is no property with type '{0}'. Please add it to '{1}'.", propertyType, typeof (ClassWithMembers));
         throw new NotSupportedException (message);
@@ -56,8 +58,8 @@ namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflect
 
     public static FieldInfo GetFieldWithType (Type fieldType)
     {
-      var field = s_fieldsByType.GetValueOrDefault (fieldType);
-      if (field == null)
+      FieldInfo field;
+      if (! s_fieldsByType.TryGetValue (fieldType, out field))
       {
         var message = String.Format ("There is no field with type '{0}'. Please add it to '{1}'.", fieldType, typeof (ClassWithMembers));
         throw new NotSupportedException (message);
