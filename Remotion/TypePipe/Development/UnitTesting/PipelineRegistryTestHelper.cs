@@ -17,9 +17,8 @@
 
 using System;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe;
 
-namespace Remotion.Development.TypePipe.UnitTesting
+namespace Remotion.TypePipe.Development.UnitTesting
 {
   /// <summary>
   /// Provides supports for unit tests working with the <see cref="IPipelineRegistry"/>.

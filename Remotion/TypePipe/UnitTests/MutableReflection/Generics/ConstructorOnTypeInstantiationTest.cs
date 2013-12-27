@@ -18,10 +18,10 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 

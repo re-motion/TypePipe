@@ -21,7 +21,7 @@ using System.IO;
 using System.Reflection;
 using NUnit.Framework;
 using System.Linq;
-using Remotion.Development.TypePipe.UnitTesting.Serialization;
+using Remotion.TypePipe.Development.UnitTesting.Serialization;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.Utilities;
 

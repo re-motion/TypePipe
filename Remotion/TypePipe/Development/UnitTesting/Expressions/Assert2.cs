@@ -20,7 +20,7 @@ using System.Collections;
 using System.Linq;
 using Remotion.TypePipe.Dlr.Ast;
 
-namespace Remotion.Development.TypePipe.UnitTesting.Expressions
+namespace Remotion.TypePipe.Development.UnitTesting.Expressions
 {
   public static class Assert2
   {

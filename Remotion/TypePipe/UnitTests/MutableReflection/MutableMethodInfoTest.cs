@@ -17,12 +17,12 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Remotion.TypePipe.Development.UnitTesting.Expressions;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.Expressions;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;

@@ -7,8 +7,8 @@
     <ProjectGuid>{F6FAF727-9405-4BCC-9153-803F73853E67}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Remotion.Development.TypePipe</RootNamespace>
-    <AssemblyName>Remotion.Development.TypePipe</AssemblyName>
+    <RootNamespace>Remotion.TypePipe.Development</RootNamespace>
+    <AssemblyName>Remotion.TypePipe.Development</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Remotion.Development.TypePipe.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Remotion.TypePipe.Development.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>1591</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Remotion.Development.TypePipe.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Remotion.TypePipe.Development.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>1591</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
@@ -157,7 +157,7 @@
     <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Reflection\ReflectionObjectMother.cs">
       <Link>SharedSource\UnitTesting\Reflection\ReflectionObjectMother.cs</Link>
     </Compile>
-    <Compile Include="..\..\AssemblyInfoShared.cs">
+    <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="AssemblyTrackingCodeManager.cs" />

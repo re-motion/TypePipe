@@ -18,7 +18,7 @@
 using System;
 using Remotion.TypePipe.Caching;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Caching
 {
   public static class AssembledTypeIDObjectMother
   {

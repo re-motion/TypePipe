@@ -15,8 +15,7 @@
 // under the License.
 // 
 
-using Remotion.Development.TypePipe.UnitTesting.Expressions;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Expressions;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection

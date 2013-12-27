@@ -18,7 +18,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting;
+using Remotion.TypePipe.Development.UnitTesting;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline

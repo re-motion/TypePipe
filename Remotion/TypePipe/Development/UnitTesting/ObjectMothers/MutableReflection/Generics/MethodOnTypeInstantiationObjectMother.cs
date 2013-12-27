@@ -20,7 +20,7 @@ using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics
 {
   public static class MethodOnTypeInstantiationObjectMother
   {

@@ -16,13 +16,12 @@
 // 
 
 using System;
-using Remotion.TypePipe;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 
-namespace Remotion.Development.TypePipe
+namespace Remotion.TypePipe.Development
 {
   /// <summary>
   /// This <see cref="IPipelineFactory"/> enables saving, verification and cleanup of generated assemblies, which is useful for testing.

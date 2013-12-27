@@ -20,14 +20,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection
 {
   public static class MutableTypeObjectMother
   {

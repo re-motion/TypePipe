@@ -18,7 +18,7 @@
 using System;
 using Remotion.TypePipe.Serialization;
 
-namespace Remotion.Development.TypePipe.UnitTesting.Serialization
+namespace Remotion.TypePipe.Development.UnitTesting.Serialization
 {
   [Serializable]
   public class FlatValueStub : IFlatValue

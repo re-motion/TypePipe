@@ -19,11 +19,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics
 {
   public static class TypeInstantiationObjectMother
   {

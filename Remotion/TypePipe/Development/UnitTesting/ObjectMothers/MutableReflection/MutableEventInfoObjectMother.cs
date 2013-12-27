@@ -23,7 +23,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection
 {
   public static class MutableEventInfoObjectMother
   {

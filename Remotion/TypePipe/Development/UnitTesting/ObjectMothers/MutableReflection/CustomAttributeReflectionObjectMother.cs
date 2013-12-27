@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection
 {
   public static class CustomAttributeReflectionObjectMother
   {

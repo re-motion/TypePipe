@@ -20,7 +20,7 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection
 {
   public static class ParameterDeclarationObjectMother
   {

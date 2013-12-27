@@ -20,7 +20,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.CodeGeneration
 {
   public class TestableTypeAssemblyContextBase : TypeAssemblyContextBase
   {

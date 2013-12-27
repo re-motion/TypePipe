@@ -20,7 +20,7 @@ using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection
 {
   public class MutablePropertyInfoObjectMother
   {

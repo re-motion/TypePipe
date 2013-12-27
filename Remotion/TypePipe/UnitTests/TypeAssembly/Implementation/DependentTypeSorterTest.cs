@@ -18,10 +18,10 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 {

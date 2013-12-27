@@ -15,11 +15,12 @@
 // under the License.
 // 
 
+using System;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation
 {
   public static class CustomTypeTestExtensions
   {

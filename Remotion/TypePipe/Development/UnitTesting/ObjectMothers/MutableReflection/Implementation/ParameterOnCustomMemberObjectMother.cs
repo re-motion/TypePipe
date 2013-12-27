@@ -20,7 +20,7 @@ using System.Reflection;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Implementation
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation
 {
   public static class ParameterOnCustomMemberObjectMother
   {

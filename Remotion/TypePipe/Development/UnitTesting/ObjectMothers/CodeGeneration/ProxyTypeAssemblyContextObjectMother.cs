@@ -16,13 +16,13 @@
 // 
 
 using System;
-using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection;
+using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.CodeGeneration
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.CodeGeneration
 {
   public static class ProxyTypeAssemblyContextObjectMother
   {

@@ -21,12 +21,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
-namespace Remotion.Development.TypePipe
+namespace Remotion.TypePipe.Development
 {
   /// <summary>
   /// Decorates a <see cref="ICodeManager"/> to track the generated assemblies.

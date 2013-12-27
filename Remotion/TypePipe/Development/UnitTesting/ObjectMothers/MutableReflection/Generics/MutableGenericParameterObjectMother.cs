@@ -22,7 +22,7 @@ using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 
-namespace Remotion.Development.TypePipe.UnitTesting.ObjectMothers.MutableReflection.Generics
+namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics
 {
   public static class MutableGenericParameterObjectMother
   {

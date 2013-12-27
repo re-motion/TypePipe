@@ -17,8 +17,8 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting;
 using Remotion.Development.UnitTesting;
+using Remotion.TypePipe.Development.UnitTesting;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.Implementation

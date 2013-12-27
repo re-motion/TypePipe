@@ -22,7 +22,7 @@ using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.Utilities;
 
-namespace Remotion.Development.TypePipe.UnitTesting.Expressions
+namespace Remotion.TypePipe.Development.UnitTesting.Expressions
 {
   // This class was copied from re-linq: Remotion.Linq.UnitTests.Linq.Core.Parsing.ExpressionTreeComparer
   public class ExpressionTreeComparer

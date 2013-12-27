@@ -17,9 +17,9 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Development.UnitTesting.Serialization;
 using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.UnitTests.Serialization

@@ -17,11 +17,10 @@
 
 using System;
 using Remotion.Development.UnitTesting.Reflection;
-using Remotion.TypePipe;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly;
 
-namespace Remotion.Development.TypePipe.UnitTesting
+namespace Remotion.TypePipe.Development.UnitTesting
 {
   /// <summary>
   /// Adds a custom attribute to the proxy type. Use this participant to avoid the pipeline's no-modification optimization in tests.
