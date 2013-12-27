@@ -19,7 +19,6 @@ using System;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.Serialization
 {

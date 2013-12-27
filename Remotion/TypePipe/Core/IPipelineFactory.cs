@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe
 {
@@ -28,9 +27,7 @@ namespace Remotion.TypePipe
   public interface IPipelineFactory
   {
     /// <summary>
-    /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants and optionally a
-    /// custom configuration provider. If the configuration provider is omitted, the <c>App.config</c>-based configuration provider
-    /// (<see cref="AppConfigBasedSettingsProvider"/>) is used.
+    /// Creates an <see cref="IPipeline"/> with the given participant configuration ID containing the specified participants.
     /// </summary>
     /// <remarks>
     /// <see cref="IPipeline"/> instances with equal participant configuration IDs must generate equivalent types.

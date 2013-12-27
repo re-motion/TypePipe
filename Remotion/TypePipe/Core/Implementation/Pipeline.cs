@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 

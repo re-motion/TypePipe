@@ -16,7 +16,6 @@
 // 
 
 using System;
-using Remotion.TypePipe.Configuration;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe

@@ -22,7 +22,6 @@ using Remotion.Development.TypePipe.UnitTesting;
 using Remotion.Development.TypePipe.UnitTesting.Serialization;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;

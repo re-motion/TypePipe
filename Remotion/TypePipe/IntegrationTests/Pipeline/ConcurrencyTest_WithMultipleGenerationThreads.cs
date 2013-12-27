@@ -20,7 +20,6 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.IO;
-using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {

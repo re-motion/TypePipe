@@ -22,7 +22,6 @@ using Remotion.Development.TypePipe.UnitTesting.ObjectMothers.Caching;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;

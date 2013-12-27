@@ -18,7 +18,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.CodeGeneration

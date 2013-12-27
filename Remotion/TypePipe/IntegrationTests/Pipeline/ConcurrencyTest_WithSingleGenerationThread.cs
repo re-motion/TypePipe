@@ -20,7 +20,6 @@ using System.Threading;
 using NUnit.Framework;
 using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline

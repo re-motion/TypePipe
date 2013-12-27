@@ -19,7 +19,6 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
-using Remotion.TypePipe.Configuration;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {

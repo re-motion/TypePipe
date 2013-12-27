@@ -20,7 +20,7 @@ using JetBrains.Annotations;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
 
-namespace Remotion.TypePipe.Configuration
+namespace Remotion.TypePipe
 {
   /// <summary>
   /// Holds configuration options for pipelines. This class is immutable.

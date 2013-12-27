@@ -23,7 +23,6 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.IO;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 

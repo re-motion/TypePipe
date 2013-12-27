@@ -17,9 +17,8 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.TypePipe.Configuration;
 
-namespace Remotion.TypePipe.UnitTests.Configuration
+namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
   public class PipelineSettingsTest

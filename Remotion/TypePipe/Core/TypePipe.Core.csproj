@@ -47,9 +47,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\SharedSource\Core\FunctionalProgramming\EnumerableExtensions.cs">
@@ -125,7 +123,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecorator.cs" />
-    <Compile Include="Configuration\EnableSerializationWithoutAssemblySavingConfigurationElement.cs" />
     <Compile Include="Implementation\DynamicParamList.cs" />
     <Compile Include="Implementation\InitializationSemantics.cs" />
     <Compile Include="Implementation\DefaultPipelineFactory.cs" />
@@ -175,7 +172,7 @@
     <Compile Include="TypeAssembly\Implementation\IAssembledTypeIdentifierProvider.cs" />
     <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProvider.cs" />
     <Compile Include="TypeAssembly\Implementation\TypeAssemblyContextBase.cs" />
-    <Compile Include="Configuration\PipelineSettings.cs" />
+    <Compile Include="PipelineSettings.cs" />
     <Compile Include="TypeAssembly\Implementation\AdditionalTypeAssemblyContext.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\AssemblyBuilderAdapter.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\IAssemblyBuilder.cs" />
@@ -270,9 +267,6 @@
     <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactory.cs" />
     <Compile Include="Implementation\ConstructorFinder.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGenerator.cs" />
-    <Compile Include="Configuration\ForceStrongNamingConfigurationElement.cs" />
-    <Compile Include="Configuration\AppConfigBasedSettingsProvider.cs" />
-    <Compile Include="Configuration\TypePipeConfigurationSection.cs" />
     <Compile Include="Dlr\Ast\LambdaExpression.TypePipe.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxAndCastExpression.cs" />
     <Compile Include="Expressions\DelegateBasedExpressionVisitor.cs" />
@@ -561,9 +555,6 @@
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
-    <EmbeddedResource Include="Configuration\TypePipeConfigurationSchema.xsd">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <None Include="Dlr\Preserve-Dlr.licenseheader" />
     <EmbeddedResource Include="StrongNaming\FallbackKey.snk" />
     <None Include="doc\include\GettingStartedWithTypePipe.aml" />

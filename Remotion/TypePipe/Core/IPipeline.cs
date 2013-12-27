@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.Implementation;
 
 namespace Remotion.TypePipe

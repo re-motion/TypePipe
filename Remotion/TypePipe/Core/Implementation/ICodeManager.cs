@@ -17,7 +17,6 @@
 
 using System;
 using System.Reflection;
-using Remotion.TypePipe.Configuration;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Implementation
