@@ -130,6 +130,9 @@
     <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Enumerables\OneTimeEnumerable.cs">
       <Link>SharedSource\UnitTesting\Enumerables\OneTimeEnumerable.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\IO\AssemblyLoader.cs">
+      <Link>SharedSource\UnitTesting\IO\AssemblyLoader.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectExtensions.cs">
       <Link>SharedSource\UnitTesting\ObjectExtensions.cs</Link>
     </Compile>

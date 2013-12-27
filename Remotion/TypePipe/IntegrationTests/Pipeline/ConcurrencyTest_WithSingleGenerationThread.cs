@@ -18,7 +18,6 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
-using Remotion.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 
