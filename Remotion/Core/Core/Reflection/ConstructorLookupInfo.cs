@@ -15,9 +15,9 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Remotion.Collections;
-using Remotion.Text;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -109,7 +109,7 @@ namespace Remotion.Reflection
       if (ctor == null)
       {
         string message = string.Format ("Type '{0}' does not contain a constructor with the following arguments types: {1}.",
-                                        _definingType, SeparatedStringBuilder.Build (", ", parameterTypes));
+                                        _definingType, string.Join (", ", (IEnumerable<Type>) parameterTypes));
         throw new MissingMethodException (message);
       }
       return ctor;

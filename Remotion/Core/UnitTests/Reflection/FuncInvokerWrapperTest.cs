@@ -51,11 +51,12 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [Obsolete]
     public void AfterActionIsExecuted ()
     {
       bool afterActionCalled = false;
 
-      FuncInvoker<ClassWithCtors> activator = TypesafeActivator.CreateInstance<ClassWithCtors> ();
+      FuncInvoker<ClassWithCtors> activator = new FuncInvoker<ClassWithCtors> (new ConstructorLookupInfo (typeof (ClassWithCtors)).GetDelegate);;
       FuncInvokerWrapper<ClassWithCtors> wrapper = new FuncInvokerWrapper<ClassWithCtors> (activator, delegate (ClassWithCtors instance)
       {
         afterActionCalled = true;
@@ -92,11 +93,12 @@ namespace Remotion.UnitTests.Reflection
     }
 
     [Test]
+    [Obsolete]
     public void AfterActionCanReplaceResult ()
     {
       ClassWithCtors fixedInstance = new ClassWithCtors (0);
 
-      FuncInvoker<ClassWithCtors> activator = TypesafeActivator.CreateInstance<ClassWithCtors> ();
+      FuncInvoker<ClassWithCtors> activator = new FuncInvoker<ClassWithCtors> (new ConstructorLookupInfo (typeof (ClassWithCtors)).GetDelegate);;
       FuncInvokerWrapper<ClassWithCtors> wrapper = new FuncInvokerWrapper<ClassWithCtors> (activator, delegate (ClassWithCtors instance)
       {
         return fixedInstance;

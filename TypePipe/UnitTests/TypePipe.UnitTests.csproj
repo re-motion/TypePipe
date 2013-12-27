@@ -1,0 +1,449 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{81C58D26-AD10-4422-8AB1-999C34CA8D79}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Remotion.TypePipe.UnitTests</RootNamespace>
+    <AssemblyName>Remotion.TypePipe.UnitTests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>0067;0649;0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>0067;0649;0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\remotion.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\prereq\Assemblies\NUnit-2.6\net-2.0\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\..\prereq\Assemblies\Rhino.Mocks-3.6\net-3.5\Rhino.Mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\sharedsource\core\functionalprogramming\EnumerableExtensions.cs">
+      <Link>SharedSource\FunctionalProgramming\EnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\functionalprogramming\EnumerableUtility.cs">
+      <Link>SharedSource\FunctionalProgramming\EnumerableUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\functionalprogramming\Maybe.cs">
+      <Link>SharedSource\FunctionalProgramming\Maybe.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\AssertionConditionAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\AssertionConditionAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\AssertionConditionType.cs">
+      <Link>SharedSource\ReSharperAnnotations\AssertionConditionType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\AssertionMethodAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\AssertionMethodAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\CanBeNullAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\CanBeNullAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseKindFlags.cs">
+      <Link>SharedSource\ReSharperAnnotations\ImplicitUseKindFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseTargetFlags.cs">
+      <Link>SharedSource\ReSharperAnnotations\ImplicitUseTargetFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\InvokerParameterNameAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\InvokerParameterNameAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\NoEnumerationAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\NoEnumerationAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\NotNullAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\NotNullAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\resharperannotations\StringFormatMethodAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\StringFormatMethodAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\UsedImplicitlyAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\UsedImplicitlyAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\ArgumentUtility.cs">
+      <Link>SharedSource\Utilities\ArgumentUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\Assertion.cs">
+      <Link>SharedSource\Utilities\Assertion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\AttributeUtility.cs">
+      <Link>SharedSource\Utilities\AttributeUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\ExceptionUtility.cs">
+      <Link>SharedSource\Utilities\ExceptionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\FileUtility.cs">
+      <Link>SharedSource\Utilities\FileUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\MemberInfoEqualityComparer.cs">
+      <Link>SharedSource\Utilities\MemberInfoEqualityComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\MemberInfoFromExpressionUtility.cs">
+      <Link>SharedSource\Utilities\MemberInfoFromExpressionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\NullableTypeUtility.cs">
+      <Link>SharedSource\Utilities\NullableTypeUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\sharedsource\core\utilities\ReferenceEqualityComparer.cs">
+      <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\RhinoMocks\UnitTesting\DecoratorTestHelper.cs">
+      <Link>SharedSource\RhinoMocks\UnitTesting\DecoratorTestHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\RhinoMocks\UnitTesting\ListArgExtensions.cs">
+      <Link>SharedSource\RhinoMocks\UnitTesting\ListArgExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Dev.cs">
+      <Link>SharedSource\UnitTesting\Dev.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Enumerables\EnumerableExtensions.cs">
+      <Link>SharedSource\UnitTesting\Enumerables\EnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Enumerables\OneTimeEnumerable.cs">
+      <Link>SharedSource\UnitTesting\Enumerables\OneTimeEnumerable.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\IO\AssemblyLoader.cs">
+      <Link>SharedSource\UnitTesting\IO\AssemblyLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectExtensions.cs">
+      <Link>SharedSource\UnitTesting\ObjectExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\BooleanObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\BooleanObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\DictionaryObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\DictionaryObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\ListObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\ListObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\QueueObjectMother.cs">
+      <Link>SharedSource\UnitTesting\ObjectMothers\QueueObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifier.cs">
+      <Link>SharedSource\UnitTesting\PEVerifier.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyException.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs">
+      <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PrivateInvoke.cs">
+      <Link>SharedSource\UnitTesting\PrivateInvoke.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Reflection\NormalizingMemberInfoFromExpressionUtility.cs">
+      <Link>SharedSource\UnitTesting\Reflection\NormalizingMemberInfoFromExpressionUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Reflection\ReflectionObjectMother.cs">
+      <Link>SharedSource\UnitTesting\Reflection\ReflectionObjectMother.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Serializer.cs">
+      <Link>SharedSource\UnitTesting\Serializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ThreadRunner.cs">
+      <Link>SharedSource\UnitTesting\ThreadRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\AssemblyInfoShared.cs">
+      <Link>Properties\AssemblyInfoShared.cs</Link>
+    </Compile>
+    <Compile Include="Caching\AssembledTypeIDTest.cs" />
+    <Compile Include="Caching\ConstructionKeyTest.cs" />
+    <Compile Include="Caching\ConstructorCallCacheTest.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCacheKeyTest.cs" />
+    <Compile Include="Caching\ConstructorForAssembledTypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\LoadTypes_TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\GetOrCreateAdditionalType_TypeCacheTest.cs" />
+    <Compile Include="Caching\TypeCacheTests\GetOrCreateType_TypeCacheTest.cs" />
+    <Compile Include="CodeGeneration\AssembledTypeIdentifierProviderTest.cs" />
+    <Compile Include="CodeGeneration\AssemblyContextPoolTest.cs" />
+    <Compile Include="CodeGeneration\AssemblyContextTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecoratorTest.cs" />
+    <Compile Include="Implementation\PipelineSettingsTest.cs" />
+    <Compile Include="Implementation\DynamicParamListTest.cs" />
+    <Compile Include="Implementation\ParamListImplementationTest.cs" />
+    <Compile Include="Implementation\PipelineRegistryTest.cs" />
+    <Compile Include="Implementation\TestDomain\ClassWithManyConstructorArguments.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeTypedArgumentUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodBaseDefinitionCacheTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\EventSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\FieldSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MemberNameAndSignatureEqualityComparerTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MemberSignatureEqualityComparerTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MemberSignatureProviderTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureIntegrationTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureStringBuilderHelperTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\NestedTypeSignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\PropertySignatureTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons2.cs" />
+    <Compile Include="Implementation\ParamListTest.cs" />
+    <Compile Include="Serialization\SerializationEventRaiserTest.cs" />
+    <Compile Include="Serialization\TestDomain\BaseClassWithDeserializationEvents.cs" />
+    <Compile Include="Serialization\TestDomain\ClassWithDeserializationEvents.cs" />
+    <Compile Include="TypeAssembly\Implementation\ConstructorDelegateFactoryTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\DependentTypeSorterTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\NullTypeIdentifierProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderAdapterBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\BuilderDecoratorBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\ConstructorBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\EventBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\FieldBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\GenericTypeParameterBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBaseBuilderDecoratorBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\MethodBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\PropertyBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Abstractions\TypeBuilderDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\BoxAndCastExpressionTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\CodeGenerationExpressionBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnboxExpressionTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnaryExpressionBaseTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\InitializationBuilderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\DelegateTypePlaceholderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorObjectMother.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ModuleBuilderFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ProxySerializationEnablerTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\DeferredActionManagerTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\CodeGenerationExpressionEmitterTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\ILGeneratorDecoratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\LambdaCompilation\OffsetTrackingILGeneratorFactoryTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\EmittableOperandProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContextObjectMother.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\CodeGenerationContextTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MethodTrampolineProviderTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\Expressions\UnemittableExpressionVisitorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MutableTypeCodeGeneratorTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\MemberEmitterFactoryTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblerTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Implementation\ConstructorFinderTest.cs" />
+    <Compile Include="CodeGeneration\MutableTypeBatchCodeGeneratorTest.cs" />
+    <Compile Include="Expressions\DelegateBasedExpressionVisitorTest.cs" />
+    <Compile Include="Expressions\ExpressionExtensionsTest.cs" />
+    <Compile Include="Expressions\ExpressionTest.cs" />
+    <Compile Include="Expressions\NewDelegateExpressionTest.cs" />
+    <Compile Include="Expressions\ReflectionAdapters\ConstructorAsMethodInfoAdapterTest.cs" />
+    <Compile Include="Expressions\ReflectionAdapters\NonVirtualCallMethodInfoAdapterTest.cs" />
+    <Compile Include="Expressions\ReplacingExpressionVisitorTest.cs" />
+    <Compile Include="Expressions\ExpressionTestHelper.cs" />
+    <Compile Include="Expressions\ThisExpressionTest.cs" />
+    <Compile Include="Expressions\PrimitiveTypePipeExpressionBaseTest.cs" />
+    <Compile Include="Implementation\CodeManagerTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyResultTest.cs" />
+    <Compile Include="TypeAssembly\LoadedTypesContextTest.cs" />
+    <Compile Include="Implementation\ReflectionServiceTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\BodyContextUtilityTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\BodyProviderUtilityTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyContextBaseTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\ExpressionTypeUtilityTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\BodyContextBaseTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\ConstructorBodyModificationContextTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\MethodBaseBodyContextBaseTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseObjectMother.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\MethodBodyContextBaseTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\MethodBodyModificationContextTest.cs" />
+    <Compile Include="TypeAssembly\GeneratedTypesContextTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableConstructorBodyContextBase.cs" />
+    <Compile Include="MutableReflection\Generics\MethodInstantiationInfoTest.cs" />
+    <Compile Include="MutableReflection\Generics\MethodInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\TypeInstantiationContextTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ArrayTypeBaseTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ByRefTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ConstructorOnCustomTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\GenericArgumentUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\NestedTypeFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberImplementationUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodOnCustomTypeTest.cs" />
+    <Compile Include="MutableReflection\MemberSignatures\MethodSignatureStringBuilderHelperForGenericMethodTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\ConstructorFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\EventFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\FieldFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\InitializationFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\PropertyFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\MethodFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberFactory\MethodOverrideFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MultiDimensionalArrayTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ParameterOnCustomMemberTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ProviderUtilityTest.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableMethodBaseBodyContextBase.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableMethodBodyContextBase.cs" />
+    <Compile Include="MutableReflection\GenericParameterDeclarationTest.cs" />
+    <Compile Include="MutableReflection\Generics\ConstructorOnTypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\EventOnTypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\FieldOnTypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\GenericParameterDefaultConstructorTest.cs" />
+    <Compile Include="MutableReflection\Generics\MutableGenericParameterTest.cs" />
+    <Compile Include="MutableReflection\Generics\TypeInstantiationInfoTest.cs" />
+    <Compile Include="MutableReflection\Generics\MemberParameterOnInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\MethodOnTypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\PropertyOnTypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Generics\TypeInstantiationTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomConstructorInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomEventInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomFieldInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomMethodInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomParameterInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomPropertyInfoTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeDataRetrieverTest.cs" />
+    <Compile Include="MutableReflection\Implementation\InterfaceMappingComputerTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeContainerTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\ReflectionEmitObjectMother.cs" />
+    <Compile Include="MutableReflection\Implementation\PropertyParameterInfoWrapperTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MutableTypeFactoryTest.cs" />
+    <Compile Include="MutableReflection\Implementation\ProxyTypeModificationTrackerTest.cs" />
+    <Compile Include="MutableReflection\Implementation\RelatedEventFinderTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeDataAdapterTest.cs" />
+    <Compile Include="MutableReflection\CustomAttributeNamedArgumentAdapterTest.cs" />
+    <Compile Include="MutableReflection\Implementation\RelatedPropertyFinderTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomTypeTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MemberSelectorTest.cs" />
+    <Compile Include="MutableReflection\Implementation\MethodOverrideUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\EnumFlagsExtensionsTest.cs" />
+    <Compile Include="TypeAssembly\ParticipantStateTest.cs" />
+    <Compile Include="TypeAssembly\TypeAssemblyContextExtensionsTest.cs" />
+    <Compile Include="MutableReflection\Implementation\VectorTypeTest.cs" />
+    <Compile Include="MutableReflection\MethodDeclarationTest.cs" />
+    <Compile Include="MutableReflection\MethodInfoExtensionsTest.cs" />
+    <Compile Include="MutableReflection\MutableEventInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableFieldInfoTestHelper.cs" />
+    <Compile Include="MutableReflection\MethodAttributesExtensionsTest.cs" />
+    <Compile Include="MutableReflection\MutableMethodInfoTestHelper.cs" />
+    <Compile Include="MutableReflection\MutablePropertyInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableTypeTestExtensions.cs" />
+    <Compile Include="MutableReflection\Implementation\SubclassFilterUtilityTest.cs" />
+    <Compile Include="MutableReflection\Implementation\RelatedMethodFinderTest.cs" />
+    <Compile Include="MutableReflection\Implementation\SignatureDebugStringGeneratorTest.cs" />
+    <Compile Include="MutableReflection\CustomAttributeDataExtensionsTest.cs" />
+    <Compile Include="TypeAssembly\Implementation\TypeAssemblyContextBaseTest.cs" />
+    <Compile Include="MutableReflection\TypeExtensionsTest.cs" />
+    <Compile Include="MutableReflection\TypePipeCustomAttributeDataWithInheritanceTest.cs" />
+    <Compile Include="MutableReflection\Implementation\CustomAttributeFinderTest.cs" />
+    <Compile Include="MutableReflection\Implementation\BindingFlagsEvaluatorTest.cs" />
+    <Compile Include="MutableReflection\CustomAttributeDeclarationTest.cs" />
+    <Compile Include="MutableReflection\MutableConstructorInfoTestHelper.cs" />
+    <Compile Include="MutableReflection\BodyBuilding\TestableBodyContextBase.cs" />
+    <Compile Include="MutableReflection\NamedArgumentDeclarationTest.cs" />
+    <Compile Include="MutableReflection\MutableConstructorInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableFieldInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableMethodInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableParameterInfoTest.cs" />
+    <Compile Include="MutableReflection\MutableTypeTest.cs" />
+    <Compile Include="MutableReflection\ParameterDeclarationTest.cs" />
+    <Compile Include="MutableReflection\UnsupportedMemberTestHelper.cs" />
+    <Compile Include="Implementation\PipelineTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\AssembledTypeIDDataTest.cs" />
+    <Compile Include="Serialization\ObjectWithoutDeserializationConstructorProxyTest.cs" />
+    <Compile Include="Serialization\ObjectWithDeserializationConstructorProxyTest.cs" />
+    <Compile Include="Implementation\DefaultPipelineRegistryTest.cs" />
+    <Compile Include="Serialization\ObjectDeserializationProxyBaseTest.cs" />
+    <Compile Include="Serialization\SerializableFieldFinderTest.cs" />
+    <Compile Include="Serialization\ReflectionSerializationHelperTest.cs" />
+    <Compile Include="Serialization\ComplexSerializationEnablerTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Serialization\TestableObjectDeserializationProxyBase.cs" />
+    <Compile Include="StrongNaming\AssemblyAnalyzerTest.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\StrongNameCheckingEmittableOperandProviderDecoratorTest.cs" />
+    <Compile Include="StrongNaming\TypeAnalyzerTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\remotion.snk">
+      <Link>remotion.snk</Link>
+    </None>
+    <None Include="..\TypePipe Apache-2.0.licenseheader">
+      <Link>TypePipe Apache-2.0.licenseheader</Link>
+    </None>
+    <None Include="CodeGeneration\ReflectionEmit\OtherKey.snk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\TypePipe.Core.csproj">
+      <Project>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</Project>
+      <Name>TypePipe.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Development\TypePipe.Development.csproj">
+      <Project>{f6faf727-9405-4bcc-9153-803f73853e67}</Project>
+      <Name>TypePipe.Development</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

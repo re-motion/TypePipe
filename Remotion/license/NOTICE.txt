@@ -47,3 +47,7 @@ Original software available from http://commonservicelocator.codeplex.com/
 Microsoft.Scripting.Core.dll, Microsoft.Scripting.dll, and Microsoft.Scripting.ExtensionAttribute.dll
 Copyright Microsoft
 Original software available from http://dlr.codeplex.com/
+
+Microsoft Dynamic Language Runtime (embedded within Remotion.TypePipe.dll)
+Copyright (c) Microsoft Corporation
+Original software available from http://dlr.codeplex.com/
