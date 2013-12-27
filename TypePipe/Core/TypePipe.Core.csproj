@@ -43,68 +43,68 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\SharedSource\Core\FunctionalProgramming\EnumerableExtensions.cs">
+    <Compile Include="..\..\SharedSource\Core\FunctionalProgramming\EnumerableExtensions.cs">
       <Link>SharedSource\FunctionalProgramming\EnumerableExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\FunctionalProgramming\EnumerableUtility.cs">
+    <Compile Include="..\..\SharedSource\Core\FunctionalProgramming\EnumerableUtility.cs">
       <Link>SharedSource\FunctionalProgramming\EnumerableUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ResharperAnnotations\AssertionConditionAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ResharperAnnotations\AssertionConditionAttribute.cs">
       <Link>SharedSource\ResharperAnnotations\AssertionConditionAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ResharperAnnotations\AssertionConditionType.cs">
+    <Compile Include="..\..\SharedSource\Core\ResharperAnnotations\AssertionConditionType.cs">
       <Link>SharedSource\ResharperAnnotations\AssertionConditionType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ResharperAnnotations\AssertionMethodAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ResharperAnnotations\AssertionMethodAttribute.cs">
       <Link>SharedSource\ResharperAnnotations\AssertionMethodAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\CanBeNullAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\CanBeNullAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\CanBeNullAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ResharperAnnotations\InvokerParameterNameAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ResharperAnnotations\InvokerParameterNameAttribute.cs">
       <Link>SharedSource\ResharperAnnotations\InvokerParameterNameAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ResharperAnnotations\NoEnumerationAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ResharperAnnotations\NoEnumerationAttribute.cs">
       <Link>SharedSource\ResharperAnnotations\NoEnumerationAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\NotNullAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\NotNullAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\NotNullAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\StringFormatMethodAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\StringFormatMethodAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\StringFormatMethodAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\ArgumentUtility.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\ArgumentUtility.cs">
       <Link>SharedSource\Utilities\ArgumentUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\Assertion.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\Assertion.cs">
       <Link>SharedSource\Utilities\Assertion.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\AttributeUtility.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\AttributeUtility.cs">
       <Link>SharedSource\Utilities\AttributeUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\EqualityUtility.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\EqualityUtility.cs">
       <Link>SharedSource\Utilities\EqualityUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\ExceptionUtility.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\ExceptionUtility.cs">
       <Link>SharedSource\Utilities\ExceptionUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\MemberInfoEqualityComparer.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\MemberInfoEqualityComparer.cs">
       <Link>SharedSource\Utilities\MemberInfoEqualityComparer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\MemberInfoFromExpressionUtility.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\MemberInfoFromExpressionUtility.cs">
       <Link>SharedSource\Utilities\MemberInfoFromExpressionUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\NullableTypeUtility.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\NullableTypeUtility.cs">
       <Link>SharedSource\Utilities\NullableTypeUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\Utilities\ReferenceEqualityComparer.cs">
+    <Compile Include="..\..\SharedSource\Core\Utilities\ReferenceEqualityComparer.cs">
       <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
     </Compile>
     <Compile Include="..\AssemblyInfoShared.cs">
@@ -549,7 +549,7 @@
     <Compile Include="PipelineFactoryExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\remotion.snk">
+    <None Include="..\..\remotion.snk">
       <Link>remotion.snk</Link>
     </None>
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">

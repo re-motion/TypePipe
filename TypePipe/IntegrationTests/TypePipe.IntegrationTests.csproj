@@ -38,165 +38,165 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\..\remotion.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\prereq\Assemblies\NUnit-2.6\net-2.0\nunit.framework.dll</HintPath>
+      <HintPath>..\..\prereq\Assemblies\NUnit-2.6\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\prereq\Assemblies\Rhino.Mocks-3.6\net-3.5\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\prereq\Assemblies\Rhino.Mocks-3.6\net-3.5\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\sharedsource\core\functionalprogramming\EnumerableExtensions.cs">
+    <Compile Include="..\..\sharedsource\core\functionalprogramming\EnumerableExtensions.cs">
       <Link>SharedSource\FunctionalProgramming\EnumerableExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\functionalprogramming\EnumerableUtility.cs">
+    <Compile Include="..\..\sharedsource\core\functionalprogramming\EnumerableUtility.cs">
       <Link>SharedSource\FunctionalProgramming\EnumerableUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\functionalprogramming\Maybe.cs">
+    <Compile Include="..\..\sharedsource\core\functionalprogramming\Maybe.cs">
       <Link>SharedSource\FunctionalProgramming\Maybe.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\AssertionConditionAttribute.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\AssertionConditionAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\AssertionConditionAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\AssertionConditionType.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\AssertionConditionType.cs">
       <Link>SharedSource\ReSharperAnnotations\AssertionConditionType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\AssertionMethodAttribute.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\AssertionMethodAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\AssertionMethodAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\CanBeNullAttribute.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\CanBeNullAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\CanBeNullAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseKindFlags.cs">
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseKindFlags.cs">
       <Link>SharedSource\ReSharperAnnotations\ImplicitUseKindFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseTargetFlags.cs">
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\ImplicitUseTargetFlags.cs">
       <Link>SharedSource\ReSharperAnnotations\ImplicitUseTargetFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\InvokerParameterNameAttribute.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\InvokerParameterNameAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\InvokerParameterNameAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\NoEnumerationAttribute.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\NoEnumerationAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\NoEnumerationAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\NotNullAttribute.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\NotNullAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\NotNullAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\resharperannotations\StringFormatMethodAttribute.cs">
+    <Compile Include="..\..\sharedsource\core\resharperannotations\StringFormatMethodAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\StringFormatMethodAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Core\ReSharperAnnotations\UsedImplicitlyAttribute.cs">
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\UsedImplicitlyAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\UsedImplicitlyAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\ArgumentUtility.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\ArgumentUtility.cs">
       <Link>SharedSource\Utilities\ArgumentUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\Assertion.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\Assertion.cs">
       <Link>SharedSource\Utilities\Assertion.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\AttributeUtility.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\AttributeUtility.cs">
       <Link>SharedSource\Utilities\AttributeUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\ExceptionUtility.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\ExceptionUtility.cs">
       <Link>SharedSource\Utilities\ExceptionUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\FileUtility.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\FileUtility.cs">
       <Link>SharedSource\Utilities\FileUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\MemberInfoEqualityComparer.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\MemberInfoEqualityComparer.cs">
       <Link>SharedSource\Utilities\MemberInfoEqualityComparer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\MemberInfoFromExpressionUtility.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\MemberInfoFromExpressionUtility.cs">
       <Link>SharedSource\Utilities\MemberInfoFromExpressionUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\NullableTypeUtility.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\NullableTypeUtility.cs">
       <Link>SharedSource\Utilities\NullableTypeUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\sharedsource\core\utilities\ReferenceEqualityComparer.cs">
+    <Compile Include="..\..\sharedsource\core\utilities\ReferenceEqualityComparer.cs">
       <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Dev.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Dev.cs">
       <Link>SharedSource\UnitTesting\Dev.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Enumerables\EnumerableExtensions.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Enumerables\EnumerableExtensions.cs">
       <Link>SharedSource\UnitTesting\Enumerables\EnumerableExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Enumerables\OneTimeEnumerable.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Enumerables\OneTimeEnumerable.cs">
       <Link>SharedSource\UnitTesting\Enumerables\OneTimeEnumerable.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\IO\AssemblyLoader.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\IO\AssemblyLoader.cs">
       <Link>SharedSource\UnitTesting\IO\AssemblyLoader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectExtensions.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectExtensions.cs">
       <Link>SharedSource\UnitTesting\ObjectExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\BooleanObjectMother.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\BooleanObjectMother.cs">
       <Link>SharedSource\UnitTesting\ObjectMothers\BooleanObjectMother.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\DictionaryObjectMother.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\DictionaryObjectMother.cs">
       <Link>SharedSource\UnitTesting\ObjectMothers\DictionaryObjectMother.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\ListObjectMother.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\ListObjectMother.cs">
       <Link>SharedSource\UnitTesting\ObjectMothers\ListObjectMother.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ObjectMothers\QueueObjectMother.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ObjectMothers\QueueObjectMother.cs">
       <Link>SharedSource\UnitTesting\ObjectMothers\QueueObjectMother.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifier.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifier.cs">
       <Link>SharedSource\UnitTesting\PEVerifier.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyException.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyException.cs">
       <Link>SharedSource\UnitTesting\PEVerifyException.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\CompoundPEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\FixedPEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\IPEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\PEVerifyVersion.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs">
       <Link>SharedSource\UnitTesting\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\PrivateInvoke.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\PrivateInvoke.cs">
       <Link>SharedSource\UnitTesting\PrivateInvoke.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Reflection\NormalizingMemberInfoFromExpressionUtility.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Reflection\NormalizingMemberInfoFromExpressionUtility.cs">
       <Link>SharedSource\UnitTesting\Reflection\NormalizingMemberInfoFromExpressionUtility.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Reflection\ReflectionObjectMother.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Reflection\ReflectionObjectMother.cs">
       <Link>SharedSource\UnitTesting\Reflection\ReflectionObjectMother.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\Serializer.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\Serializer.cs">
       <Link>SharedSource\UnitTesting\Serializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\SharedSource\Development\UnitTesting\ThreadRunner.cs">
+    <Compile Include="..\..\SharedSource\Development\UnitTesting\ThreadRunner.cs">
       <Link>SharedSource\UnitTesting\ThreadRunner.cs</Link>
     </Compile>
     <Compile Include="..\AssemblyInfoShared.cs">
@@ -280,7 +280,7 @@
     <Compile Include="TypeAssembly\TypeInstantiationInExpressionTreesTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\remotion.snk">
+    <None Include="..\..\remotion.snk">
       <Link>remotion.snk</Link>
     </None>
     <None Include="..\..\TypePipe Apache-2.0.licenseheader">
