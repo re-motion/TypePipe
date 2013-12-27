@@ -121,6 +121,12 @@
     <Compile Include="..\..\sharedsource\core\utilities\ReferenceEqualityComparer.cs">
       <Link>SharedSource\Utilities\ReferenceEqualityComparer.cs</Link>
     </Compile>
+    <Compile Include="..\..\SharedSource\Development\RhinoMocks\UnitTesting\DecoratorTestHelper.cs">
+      <Link>SharedSource\RhinoMocks\UnitTesting\DecoratorTestHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedSource\Development\RhinoMocks\UnitTesting\ListArgExtensions.cs">
+      <Link>SharedSource\RhinoMocks\UnitTesting\ListArgExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\SharedSource\Development\UnitTesting\Dev.cs">
       <Link>SharedSource\UnitTesting\Dev.cs</Link>
     </Compile>
@@ -422,10 +428,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Remotion\Development\RhinoMocks\Development.RhinoMocks.csproj">
-      <Project>{2177143e-345f-4faa-9958-1ae2b5eed242}</Project>
-      <Name>Development.RhinoMocks</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Core\TypePipe.Core.csproj">
       <Project>{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}</Project>
       <Name>TypePipe.Core</Name>
