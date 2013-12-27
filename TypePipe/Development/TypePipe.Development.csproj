@@ -217,7 +217,7 @@
     <None Include="..\..\remotion.snk">
       <Link>remotion.snk</Link>
     </None>
-    <None Include="..\..\TypePipe Apache-2.0.licenseheader">
+    <None Include="..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
   </ItemGroup>
