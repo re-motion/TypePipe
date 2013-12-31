@@ -25,31 +25,21 @@ namespace Remotion.Reflection
 
 
 
-    private const int c_argCount = 0;
-
     public ActionInvoker (DelegateSelector delegateSelector)
     {
       _delegateSelector = delegateSelector;
 
     }
 
-#pragma warning disable 162 // disable unreachable code warning. 
     private Type[] GetValueTypes (Type[] valueTypes)
     {
-      if (c_argCount == 0)
-        return valueTypes;
-      Type[] fixedArgTypes = new Type[] {  };
-      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+      return valueTypes;
     }
 
     private object[] GetValues (object[] values)
     {
-      if (c_argCount == 0)
-        return values;
-      object[] fixedArgs = new object[] {  };
-      return ArrayUtility.Combine (fixedArgs, values);
+      return values;
     }
-#pragma warning restore 162
 
     public void Invoke (Type[] valueTypes, object[] values)
     {
@@ -95,31 +85,23 @@ namespace Remotion.Reflection
 
     private readonly TFixedArg1 _fixedArg1;
 
-    private const int c_argCount = 1;
-
     public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1)
     {
       _delegateSelector = delegateSelector;
       _fixedArg1 = fixedArg1;
     }
 
-#pragma warning disable 162 // disable unreachable code warning. 
     private Type[] GetValueTypes (Type[] valueTypes)
     {
-      if (c_argCount == 0)
-        return valueTypes;
       Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1) };
       return ArrayUtility.Combine (fixedArgTypes, valueTypes);
     }
 
     private object[] GetValues (object[] values)
     {
-      if (c_argCount == 0)
-        return values;
       object[] fixedArgs = new object[] { _fixedArg1 };
       return ArrayUtility.Combine (fixedArgs, values);
     }
-#pragma warning restore 162
 
     public void Invoke (Type[] valueTypes, object[] values)
     {
@@ -166,8 +148,6 @@ namespace Remotion.Reflection
     private readonly TFixedArg1 _fixedArg1;
     private readonly TFixedArg2 _fixedArg2;
 
-    private const int c_argCount = 2;
-
     public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2)
     {
       _delegateSelector = delegateSelector;
@@ -175,23 +155,17 @@ namespace Remotion.Reflection
       _fixedArg2 = fixedArg2;
     }
 
-#pragma warning disable 162 // disable unreachable code warning. 
     private Type[] GetValueTypes (Type[] valueTypes)
     {
-      if (c_argCount == 0)
-        return valueTypes;
       Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2) };
       return ArrayUtility.Combine (fixedArgTypes, valueTypes);
     }
 
     private object[] GetValues (object[] values)
     {
-      if (c_argCount == 0)
-        return values;
       object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2 };
       return ArrayUtility.Combine (fixedArgs, values);
     }
-#pragma warning restore 162
 
     public void Invoke (Type[] valueTypes, object[] values)
     {
@@ -239,8 +213,6 @@ namespace Remotion.Reflection
     private readonly TFixedArg2 _fixedArg2;
     private readonly TFixedArg3 _fixedArg3;
 
-    private const int c_argCount = 3;
-
     public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2, TFixedArg3 fixedArg3)
     {
       _delegateSelector = delegateSelector;
@@ -249,23 +221,17 @@ namespace Remotion.Reflection
       _fixedArg3 = fixedArg3;
     }
 
-#pragma warning disable 162 // disable unreachable code warning. 
     private Type[] GetValueTypes (Type[] valueTypes)
     {
-      if (c_argCount == 0)
-        return valueTypes;
       Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2), typeof (TFixedArg3) };
       return ArrayUtility.Combine (fixedArgTypes, valueTypes);
     }
 
     private object[] GetValues (object[] values)
     {
-      if (c_argCount == 0)
-        return values;
       object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2, _fixedArg3 };
       return ArrayUtility.Combine (fixedArgs, values);
     }
-#pragma warning restore 162
 
     public void Invoke (Type[] valueTypes, object[] values)
     {

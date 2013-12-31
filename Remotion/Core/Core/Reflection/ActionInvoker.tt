@@ -45,31 +45,31 @@ for (int j = 0; j <= fixedArgCount; j++)
 
 <#= string.Join ("\r\n", fixedArgumentDefinition.Select (p => string.Format ("    private readonly TFixedArg{0} _fixedArg{0};", p))) #>
 
-    private const int c_argCount = <#= fixedArgumentDefinition.Length #>;
-
     public ActionInvoker (DelegateSelector delegateSelector<#= fixedSignature #>)
     {
       _delegateSelector = delegateSelector;
 <#= string.Join ("\r\n", fixedArgumentDefinition.Select (p => string.Format ("      _fixedArg{0} = fixedArg{0};", p))) #>
     }
 
-#pragma warning disable 162 // disable unreachable code warning. 
     private Type[] GetValueTypes (Type[] valueTypes)
     {
-      if (c_argCount == 0)
-        return valueTypes;
+<# if (hasFixedArgs) { #>
       Type[] fixedArgTypes = new Type[] { <#= string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("typeof (TFixedArg{0})", p))) #> };
       return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+<# } else { #>
+      return valueTypes;
+<# } #>
     }
 
     private object[] GetValues (object[] values)
     {
-      if (c_argCount == 0)
-        return values;
+<# if (hasFixedArgs) { #>
       object[] fixedArgs = new object[] { <#= fixedArguments #> };
       return ArrayUtility.Combine (fixedArgs, values);
+<# } else { #>
+      return values;
+<# } #>
     }
-#pragma warning restore 162
 
     public void Invoke (Type[] valueTypes, object[] values)
     {
