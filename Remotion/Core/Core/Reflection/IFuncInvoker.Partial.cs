@@ -18,7 +18,6 @@ using System;
 
 namespace Remotion.Reflection
 {
-  // @begin-skip
   /// <summary>
   /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
   /// </summary>
@@ -31,19 +30,9 @@ namespace Remotion.Reflection
   /// expected.</p>
   /// </remarks>
   /// <typeparam name="TResult"> Return type of the method that will be invoked. </typeparam>
-  // @end-skip
   public partial interface IFuncInvoker<TResult>
   {
-    // @begin-skip
     TResult Invoke (Type[] valueTypes, object[] values);
     TResult Invoke (object[] values);
-    // @end-skip
-
-    // @begin-template first=1 generate=0..17 suppressTemplate=true
-
-    // @replace "A<n>" ", " "<" ">"
-    // @replace "A<n> a<n>" ", "
-    TResult With<A1> (A1 a1);
-    // @end-template
   }
 }
