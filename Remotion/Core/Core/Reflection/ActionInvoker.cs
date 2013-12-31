@@ -19,7 +19,7 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  public partial struct ActionInvoker : IActionInvoker
+  public struct ActionInvoker : IActionInvoker
   {
     private readonly DelegateSelector _delegateSelector;
 
@@ -77,203 +77,6 @@ namespace Remotion.Reflection
     {
       return GetDelegate<Action> ();
     }
-  }
-
-  public partial struct ActionInvoker<TFixedArg1> : IActionInvoker
-  {
-    private readonly DelegateSelector _delegateSelector;
-
-    private readonly TFixedArg1 _fixedArg1;
-
-    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1)
-    {
-      _delegateSelector = delegateSelector;
-      _fixedArg1 = fixedArg1;
-    }
-
-    private Type[] GetValueTypes (Type[] valueTypes)
-    {
-      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1) };
-      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
-    }
-
-    private object[] GetValues (object[] values)
-    {
-      object[] fixedArgs = new object[] { _fixedArg1 };
-      return ArrayUtility.Combine (fixedArgs, values);
-    }
-
-    public void Invoke (Type[] valueTypes, object[] values)
-    {
-      InvokerUtility.CheckInvokeArguments (valueTypes, values);
-      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public void Invoke (object[] values)
-    {
-      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
-      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public Delegate GetDelegate (params Type[] parameterTypes)
-    {
-      return GetDelegate (ActionUtility.MakeClosedType (parameterTypes));
-    }
-
-    public TDelegate GetDelegate<TDelegate> ()
-    {
-      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
-    }
-
-    public Delegate GetDelegate (Type delegateType)
-    {
-      return _delegateSelector (delegateType);
-    }
-
-    public void With ()
-    {
-      GetDelegateWith () (_fixedArg1);
-    }
-
-    public Action<TFixedArg1> GetDelegateWith ()
-    {
-      return GetDelegate<Action<TFixedArg1>> ();
-    }
-  }
-
-  public partial struct ActionInvoker<TFixedArg1, TFixedArg2> : IActionInvoker
-  {
-    private readonly DelegateSelector _delegateSelector;
-
-    private readonly TFixedArg1 _fixedArg1;
-    private readonly TFixedArg2 _fixedArg2;
-
-    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2)
-    {
-      _delegateSelector = delegateSelector;
-      _fixedArg1 = fixedArg1;
-      _fixedArg2 = fixedArg2;
-    }
-
-    private Type[] GetValueTypes (Type[] valueTypes)
-    {
-      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2) };
-      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
-    }
-
-    private object[] GetValues (object[] values)
-    {
-      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2 };
-      return ArrayUtility.Combine (fixedArgs, values);
-    }
-
-    public void Invoke (Type[] valueTypes, object[] values)
-    {
-      InvokerUtility.CheckInvokeArguments (valueTypes, values);
-      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public void Invoke (object[] values)
-    {
-      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
-      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public Delegate GetDelegate (params Type[] parameterTypes)
-    {
-      return GetDelegate (ActionUtility.MakeClosedType (parameterTypes));
-    }
-
-    public TDelegate GetDelegate<TDelegate> ()
-    {
-      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
-    }
-
-    public Delegate GetDelegate (Type delegateType)
-    {
-      return _delegateSelector (delegateType);
-    }
-
-    public void With ()
-    {
-      GetDelegateWith () (_fixedArg1, _fixedArg2);
-    }
-
-    public Action<TFixedArg1, TFixedArg2> GetDelegateWith ()
-    {
-      return GetDelegate<Action<TFixedArg1, TFixedArg2>> ();
-    }
-  }
-
-  public partial struct ActionInvoker<TFixedArg1, TFixedArg2, TFixedArg3> : IActionInvoker
-  {
-    private readonly DelegateSelector _delegateSelector;
-
-    private readonly TFixedArg1 _fixedArg1;
-    private readonly TFixedArg2 _fixedArg2;
-    private readonly TFixedArg3 _fixedArg3;
-
-    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2, TFixedArg3 fixedArg3)
-    {
-      _delegateSelector = delegateSelector;
-      _fixedArg1 = fixedArg1;
-      _fixedArg2 = fixedArg2;
-      _fixedArg3 = fixedArg3;
-    }
-
-    private Type[] GetValueTypes (Type[] valueTypes)
-    {
-      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2), typeof (TFixedArg3) };
-      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
-    }
-
-    private object[] GetValues (object[] values)
-    {
-      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2, _fixedArg3 };
-      return ArrayUtility.Combine (fixedArgs, values);
-    }
-
-    public void Invoke (Type[] valueTypes, object[] values)
-    {
-      InvokerUtility.CheckInvokeArguments (valueTypes, values);
-      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public void Invoke (object[] values)
-    {
-      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
-      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public Delegate GetDelegate (params Type[] parameterTypes)
-    {
-      return GetDelegate (ActionUtility.MakeClosedType (parameterTypes));
-    }
-
-    public TDelegate GetDelegate<TDelegate> ()
-    {
-      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
-    }
-
-    public Delegate GetDelegate (Type delegateType)
-    {
-      return _delegateSelector (delegateType);
-    }
-
-    public void With ()
-    {
-      GetDelegateWith () (_fixedArg1, _fixedArg2, _fixedArg3);
-    }
-
-    public Action<TFixedArg1, TFixedArg2, TFixedArg3> GetDelegateWith ()
-    {
-      return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3>> ();
-    }
-  }
-
-
-  public partial struct ActionInvoker
-  {
 
     public void With<A1> (A1 a1)
     {
@@ -446,8 +249,66 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct ActionInvoker<TFixedArg1>
+  public struct ActionInvoker<TFixedArg1> : IActionInvoker
   {
+    private readonly DelegateSelector _delegateSelector;
+
+    private readonly TFixedArg1 _fixedArg1;
+
+    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1)
+    {
+      _delegateSelector = delegateSelector;
+      _fixedArg1 = fixedArg1;
+    }
+
+    private Type[] GetValueTypes (Type[] valueTypes)
+    {
+      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1) };
+      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+    }
+
+    private object[] GetValues (object[] values)
+    {
+      object[] fixedArgs = new object[] { _fixedArg1 };
+      return ArrayUtility.Combine (fixedArgs, values);
+    }
+
+    public void Invoke (Type[] valueTypes, object[] values)
+    {
+      InvokerUtility.CheckInvokeArguments (valueTypes, values);
+      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public void Invoke (object[] values)
+    {
+      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
+      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public Delegate GetDelegate (params Type[] parameterTypes)
+    {
+      return GetDelegate (ActionUtility.MakeClosedType (parameterTypes));
+    }
+
+    public TDelegate GetDelegate<TDelegate> ()
+    {
+      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
+    }
+
+    public Delegate GetDelegate (Type delegateType)
+    {
+      return _delegateSelector (delegateType);
+    }
+
+    public void With ()
+    {
+      GetDelegateWith () (_fixedArg1);
+    }
+
+    public Action<TFixedArg1> GetDelegateWith ()
+    {
+      return GetDelegate<Action<TFixedArg1>> ();
+    }
 
     public void With<A1> (A1 a1)
     {
@@ -620,8 +481,68 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct ActionInvoker<TFixedArg1, TFixedArg2>
+  public struct ActionInvoker<TFixedArg1, TFixedArg2> : IActionInvoker
   {
+    private readonly DelegateSelector _delegateSelector;
+
+    private readonly TFixedArg1 _fixedArg1;
+    private readonly TFixedArg2 _fixedArg2;
+
+    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2)
+    {
+      _delegateSelector = delegateSelector;
+      _fixedArg1 = fixedArg1;
+      _fixedArg2 = fixedArg2;
+    }
+
+    private Type[] GetValueTypes (Type[] valueTypes)
+    {
+      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2) };
+      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+    }
+
+    private object[] GetValues (object[] values)
+    {
+      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2 };
+      return ArrayUtility.Combine (fixedArgs, values);
+    }
+
+    public void Invoke (Type[] valueTypes, object[] values)
+    {
+      InvokerUtility.CheckInvokeArguments (valueTypes, values);
+      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public void Invoke (object[] values)
+    {
+      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
+      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public Delegate GetDelegate (params Type[] parameterTypes)
+    {
+      return GetDelegate (ActionUtility.MakeClosedType (parameterTypes));
+    }
+
+    public TDelegate GetDelegate<TDelegate> ()
+    {
+      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
+    }
+
+    public Delegate GetDelegate (Type delegateType)
+    {
+      return _delegateSelector (delegateType);
+    }
+
+    public void With ()
+    {
+      GetDelegateWith () (_fixedArg1, _fixedArg2);
+    }
+
+    public Action<TFixedArg1, TFixedArg2> GetDelegateWith ()
+    {
+      return GetDelegate<Action<TFixedArg1, TFixedArg2>> ();
+    }
 
     public void With<A1> (A1 a1)
     {
@@ -794,8 +715,70 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct ActionInvoker<TFixedArg1, TFixedArg2, TFixedArg3>
+  public struct ActionInvoker<TFixedArg1, TFixedArg2, TFixedArg3> : IActionInvoker
   {
+    private readonly DelegateSelector _delegateSelector;
+
+    private readonly TFixedArg1 _fixedArg1;
+    private readonly TFixedArg2 _fixedArg2;
+    private readonly TFixedArg3 _fixedArg3;
+
+    public ActionInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2, TFixedArg3 fixedArg3)
+    {
+      _delegateSelector = delegateSelector;
+      _fixedArg1 = fixedArg1;
+      _fixedArg2 = fixedArg2;
+      _fixedArg3 = fixedArg3;
+    }
+
+    private Type[] GetValueTypes (Type[] valueTypes)
+    {
+      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2), typeof (TFixedArg3) };
+      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+    }
+
+    private object[] GetValues (object[] values)
+    {
+      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2, _fixedArg3 };
+      return ArrayUtility.Combine (fixedArgs, values);
+    }
+
+    public void Invoke (Type[] valueTypes, object[] values)
+    {
+      InvokerUtility.CheckInvokeArguments (valueTypes, values);
+      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public void Invoke (object[] values)
+    {
+      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
+      GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public Delegate GetDelegate (params Type[] parameterTypes)
+    {
+      return GetDelegate (ActionUtility.MakeClosedType (parameterTypes));
+    }
+
+    public TDelegate GetDelegate<TDelegate> ()
+    {
+      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
+    }
+
+    public Delegate GetDelegate (Type delegateType)
+    {
+      return _delegateSelector (delegateType);
+    }
+
+    public void With ()
+    {
+      GetDelegateWith () (_fixedArg1, _fixedArg2, _fixedArg3);
+    }
+
+    public Action<TFixedArg1, TFixedArg2, TFixedArg3> GetDelegateWith ()
+    {
+      return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3>> ();
+    }
 
     public void With<A1> (A1 a1)
     {
@@ -967,4 +950,5 @@ namespace Remotion.Reflection
       return GetDelegate<Action<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17>> ();
     }
   }
+
 }

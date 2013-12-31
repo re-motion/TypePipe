@@ -39,7 +39,7 @@ for (int j = 0; j <= fixedArgCount; j++)
   var fixedArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("_fixedArg{0}", p)));
   var fixedSignature =  (hasFixedArgs ? ", " : "") + string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("TFixedArg{0} fixedArg{0}", p)));
 #>
-  public partial struct ActionInvoker<#= fixedTypeArgumentsForAction #> : IActionInvoker
+  public struct ActionInvoker<#= fixedTypeArgumentsForAction #> : IActionInvoker
   {
     private readonly DelegateSelector _delegateSelector;
 
@@ -107,23 +107,6 @@ for (int j = 0; j <= fixedArgCount; j++)
     {
       return GetDelegate<Action<#= fixedTypeArgumentsForAction #>> ();
     }
-  }
-
-<#
-}
-#>
-<#
-for (int j = 0; j <= fixedArgCount; j++)
-{
-  var hasFixedArgs = j > 0;
-  var fixedArgumentDefinition = Enumerable.Range (1, j).ToArray();
-  var fixedTypeArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("TFixedArg{0}", p)));
-  var fixedTypeArgumentsForAction = hasFixedArgs ? ("<" + fixedTypeArguments + ">") : "";
-  var fixedArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("_fixedArg{0}", p))) + (hasFixedArgs ? ", " : "");
-#>
-
-  public partial struct ActionInvoker<#= fixedTypeArgumentsForAction #>
-  {
 <#
   for (int i = 1; i <= parameterCount; i++)
   {
@@ -136,7 +119,7 @@ for (int j = 0; j <= fixedArgCount; j++)
 
     public void With<<#= typeArguments #>> (<#= signature #>)
     {
-      GetDelegateWith<<#= typeArguments #>> () (<#= fixedArguments #><#= arguments #>);
+      GetDelegateWith<<#= typeArguments #>> () (<#= fixedArguments #><#= hasFixedArgs ? ", " : "" #><#= arguments #>);
     }
 
     public Action<<#= typeArgumentsForAction #>> GetDelegateWith<<#= typeArguments #>> ()
@@ -147,6 +130,7 @@ for (int j = 0; j <= fixedArgCount; j++)
   }
 #>
   }
+
 <#
 }
 #>
