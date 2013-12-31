@@ -19,7 +19,7 @@ using Remotion.Utilities;
 
 namespace Remotion.Reflection
 {
-  public partial struct FuncInvoker<TResult> : IFuncInvoker<TResult>
+  public struct FuncInvoker<TResult> : IFuncInvoker<TResult>
   {
     private readonly DelegateSelector _delegateSelector;
 
@@ -77,203 +77,6 @@ namespace Remotion.Reflection
     {
       return GetDelegate<Func<TResult>> ();
     }
-  }
-
-  public partial struct FuncInvoker<TFixedArg1, TResult> : IFuncInvoker<TResult>
-  {
-    private readonly DelegateSelector _delegateSelector;
-
-    private readonly TFixedArg1 _fixedArg1;
-
-    public FuncInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1)
-    {
-      _delegateSelector = delegateSelector;
-      _fixedArg1 = fixedArg1;
-    }
-
-    private Type[] GetValueTypes (Type[] valueTypes)
-    {
-      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1) };
-      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
-    }
-
-    private object[] GetValues (object[] values)
-    {
-      object[] fixedArgs = new object[] { _fixedArg1 };
-      return ArrayUtility.Combine (fixedArgs, values);
-    }
-
-    public TResult Invoke (Type[] valueTypes, object[] values)
-    {
-      InvokerUtility.CheckInvokeArguments (valueTypes, values);
-      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public TResult Invoke (object[] values)
-    {
-      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
-      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public Delegate GetDelegate (params Type[] parameterTypes)
-    {
-      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
-    }
-
-    public TDelegate GetDelegate<TDelegate> ()
-    {
-      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
-    }
-
-    public Delegate GetDelegate (Type delegateType)
-    {
-      return _delegateSelector (delegateType);
-    }
-
-    public TResult With ()
-    {
-      return GetDelegateWith () (_fixedArg1);
-    }
-
-    public Func<TFixedArg1, TResult> GetDelegateWith ()
-    {
-      return GetDelegate<Func<TFixedArg1, TResult>> ();
-    }
-  }
-
-  public partial struct FuncInvoker<TFixedArg1, TFixedArg2, TResult> : IFuncInvoker<TResult>
-  {
-    private readonly DelegateSelector _delegateSelector;
-
-    private readonly TFixedArg1 _fixedArg1;
-    private readonly TFixedArg2 _fixedArg2;
-
-    public FuncInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2)
-    {
-      _delegateSelector = delegateSelector;
-      _fixedArg1 = fixedArg1;
-      _fixedArg2 = fixedArg2;
-    }
-
-    private Type[] GetValueTypes (Type[] valueTypes)
-    {
-      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2) };
-      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
-    }
-
-    private object[] GetValues (object[] values)
-    {
-      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2 };
-      return ArrayUtility.Combine (fixedArgs, values);
-    }
-
-    public TResult Invoke (Type[] valueTypes, object[] values)
-    {
-      InvokerUtility.CheckInvokeArguments (valueTypes, values);
-      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public TResult Invoke (object[] values)
-    {
-      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
-      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public Delegate GetDelegate (params Type[] parameterTypes)
-    {
-      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
-    }
-
-    public TDelegate GetDelegate<TDelegate> ()
-    {
-      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
-    }
-
-    public Delegate GetDelegate (Type delegateType)
-    {
-      return _delegateSelector (delegateType);
-    }
-
-    public TResult With ()
-    {
-      return GetDelegateWith () (_fixedArg1, _fixedArg2);
-    }
-
-    public Func<TFixedArg1, TFixedArg2, TResult> GetDelegateWith ()
-    {
-      return GetDelegate<Func<TFixedArg1, TFixedArg2, TResult>> ();
-    }
-  }
-
-  public partial struct FuncInvoker<TFixedArg1, TFixedArg2, TFixedArg3, TResult> : IFuncInvoker<TResult>
-  {
-    private readonly DelegateSelector _delegateSelector;
-
-    private readonly TFixedArg1 _fixedArg1;
-    private readonly TFixedArg2 _fixedArg2;
-    private readonly TFixedArg3 _fixedArg3;
-
-    public FuncInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2, TFixedArg3 fixedArg3)
-    {
-      _delegateSelector = delegateSelector;
-      _fixedArg1 = fixedArg1;
-      _fixedArg2 = fixedArg2;
-      _fixedArg3 = fixedArg3;
-    }
-
-    private Type[] GetValueTypes (Type[] valueTypes)
-    {
-      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2), typeof (TFixedArg3) };
-      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
-    }
-
-    private object[] GetValues (object[] values)
-    {
-      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2, _fixedArg3 };
-      return ArrayUtility.Combine (fixedArgs, values);
-    }
-
-    public TResult Invoke (Type[] valueTypes, object[] values)
-    {
-      InvokerUtility.CheckInvokeArguments (valueTypes, values);
-      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public TResult Invoke (object[] values)
-    {
-      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
-      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
-    }
-
-    public Delegate GetDelegate (params Type[] parameterTypes)
-    {
-      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
-    }
-
-    public TDelegate GetDelegate<TDelegate> ()
-    {
-      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
-    }
-
-    public Delegate GetDelegate (Type delegateType)
-    {
-      return _delegateSelector (delegateType);
-    }
-
-    public TResult With ()
-    {
-      return GetDelegateWith () (_fixedArg1, _fixedArg2, _fixedArg3);
-    }
-
-    public Func<TFixedArg1, TFixedArg2, TFixedArg3, TResult> GetDelegateWith ()
-    {
-      return GetDelegate<Func<TFixedArg1, TFixedArg2, TFixedArg3, TResult>> ();
-    }
-  }
-
-
-  public partial struct FuncInvoker<TResult>
-  {
 
     public TResult With<A1> (A1 a1)
     {
@@ -446,8 +249,66 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct FuncInvoker<TFixedArg1, TResult>
+  public struct FuncInvoker<TFixedArg1, TResult> : IFuncInvoker<TResult>
   {
+    private readonly DelegateSelector _delegateSelector;
+
+    private readonly TFixedArg1 _fixedArg1;
+
+    public FuncInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1)
+    {
+      _delegateSelector = delegateSelector;
+      _fixedArg1 = fixedArg1;
+    }
+
+    private Type[] GetValueTypes (Type[] valueTypes)
+    {
+      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1) };
+      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+    }
+
+    private object[] GetValues (object[] values)
+    {
+      object[] fixedArgs = new object[] { _fixedArg1 };
+      return ArrayUtility.Combine (fixedArgs, values);
+    }
+
+    public TResult Invoke (Type[] valueTypes, object[] values)
+    {
+      InvokerUtility.CheckInvokeArguments (valueTypes, values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public TResult Invoke (object[] values)
+    {
+      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public Delegate GetDelegate (params Type[] parameterTypes)
+    {
+      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
+    }
+
+    public TDelegate GetDelegate<TDelegate> ()
+    {
+      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
+    }
+
+    public Delegate GetDelegate (Type delegateType)
+    {
+      return _delegateSelector (delegateType);
+    }
+
+    public TResult With ()
+    {
+      return GetDelegateWith () (_fixedArg1);
+    }
+
+    public Func<TFixedArg1, TResult> GetDelegateWith ()
+    {
+      return GetDelegate<Func<TFixedArg1, TResult>> ();
+    }
 
     public TResult With<A1> (A1 a1)
     {
@@ -620,8 +481,68 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct FuncInvoker<TFixedArg1, TFixedArg2, TResult>
+  public struct FuncInvoker<TFixedArg1, TFixedArg2, TResult> : IFuncInvoker<TResult>
   {
+    private readonly DelegateSelector _delegateSelector;
+
+    private readonly TFixedArg1 _fixedArg1;
+    private readonly TFixedArg2 _fixedArg2;
+
+    public FuncInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2)
+    {
+      _delegateSelector = delegateSelector;
+      _fixedArg1 = fixedArg1;
+      _fixedArg2 = fixedArg2;
+    }
+
+    private Type[] GetValueTypes (Type[] valueTypes)
+    {
+      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2) };
+      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+    }
+
+    private object[] GetValues (object[] values)
+    {
+      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2 };
+      return ArrayUtility.Combine (fixedArgs, values);
+    }
+
+    public TResult Invoke (Type[] valueTypes, object[] values)
+    {
+      InvokerUtility.CheckInvokeArguments (valueTypes, values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public TResult Invoke (object[] values)
+    {
+      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public Delegate GetDelegate (params Type[] parameterTypes)
+    {
+      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
+    }
+
+    public TDelegate GetDelegate<TDelegate> ()
+    {
+      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
+    }
+
+    public Delegate GetDelegate (Type delegateType)
+    {
+      return _delegateSelector (delegateType);
+    }
+
+    public TResult With ()
+    {
+      return GetDelegateWith () (_fixedArg1, _fixedArg2);
+    }
+
+    public Func<TFixedArg1, TFixedArg2, TResult> GetDelegateWith ()
+    {
+      return GetDelegate<Func<TFixedArg1, TFixedArg2, TResult>> ();
+    }
 
     public TResult With<A1> (A1 a1)
     {
@@ -794,8 +715,70 @@ namespace Remotion.Reflection
     }
   }
 
-  public partial struct FuncInvoker<TFixedArg1, TFixedArg2, TFixedArg3, TResult>
+  public struct FuncInvoker<TFixedArg1, TFixedArg2, TFixedArg3, TResult> : IFuncInvoker<TResult>
   {
+    private readonly DelegateSelector _delegateSelector;
+
+    private readonly TFixedArg1 _fixedArg1;
+    private readonly TFixedArg2 _fixedArg2;
+    private readonly TFixedArg3 _fixedArg3;
+
+    public FuncInvoker (DelegateSelector delegateSelector, TFixedArg1 fixedArg1, TFixedArg2 fixedArg2, TFixedArg3 fixedArg3)
+    {
+      _delegateSelector = delegateSelector;
+      _fixedArg1 = fixedArg1;
+      _fixedArg2 = fixedArg2;
+      _fixedArg3 = fixedArg3;
+    }
+
+    private Type[] GetValueTypes (Type[] valueTypes)
+    {
+      Type[] fixedArgTypes = new Type[] { typeof (TFixedArg1), typeof (TFixedArg2), typeof (TFixedArg3) };
+      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+    }
+
+    private object[] GetValues (object[] values)
+    {
+      object[] fixedArgs = new object[] { _fixedArg1, _fixedArg2, _fixedArg3 };
+      return ArrayUtility.Combine (fixedArgs, values);
+    }
+
+    public TResult Invoke (Type[] valueTypes, object[] values)
+    {
+      InvokerUtility.CheckInvokeArguments (valueTypes, values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public TResult Invoke (object[] values)
+    {
+      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public Delegate GetDelegate (params Type[] parameterTypes)
+    {
+      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
+    }
+
+    public TDelegate GetDelegate<TDelegate> ()
+    {
+      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
+    }
+
+    public Delegate GetDelegate (Type delegateType)
+    {
+      return _delegateSelector (delegateType);
+    }
+
+    public TResult With ()
+    {
+      return GetDelegateWith () (_fixedArg1, _fixedArg2, _fixedArg3);
+    }
+
+    public Func<TFixedArg1, TFixedArg2, TFixedArg3, TResult> GetDelegateWith ()
+    {
+      return GetDelegate<Func<TFixedArg1, TFixedArg2, TFixedArg3, TResult>> ();
+    }
 
     public TResult With<A1> (A1 a1)
     {
@@ -967,4 +950,5 @@ namespace Remotion.Reflection
       return GetDelegate<Func<TFixedArg1, TFixedArg2, TFixedArg3, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, TResult>> ();
     }
   }
+
 }
