@@ -18,7 +18,6 @@ using System;
 
 namespace Remotion.Reflection
 {
-  // @begin-skip
   /// <summary>
   /// This interface allows invokers with fixed arguments to be returned without references to their generic argument types. 
   /// </summary>
@@ -30,19 +29,9 @@ namespace Remotion.Reflection
   /// ambigous castings if the final call to <see cref="With{A1}"/> is missing, while using structs will usually lead to a compile-time error as 
   /// expected.</p>
   /// </remarks>
-  // @end-skip
   public partial interface IActionInvoker
   {
-    // @begin-skip
     void Invoke (Type[] valueTypes, object[] values);
     void Invoke (object[] values);
-    // @end-skip
-
-    // @begin-template first=1 generate=0..17 suppressTemplate=true
-
-    // @replace "A<n>" ", " "<" ">"
-    // @replace "A<n> a<n>" ", "
-    void With<A1> (A1 a1);
-    // @end-template
   }
 }
