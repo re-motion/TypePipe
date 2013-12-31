@@ -18,15 +18,12 @@ using System;
 
 namespace Remotion.Reflection
 {
-  // @begin-skip
   /// <summary>
   /// Used to wrap an <see cref="IFuncInvoker{TResult}"/> object rather than returning it directly.
   /// </summary>
   /// <typeparam name="TResult"> Return type of the method that will be invoked. </typeparam>
-  // @end-skip
   public partial struct FuncInvokerWrapper<TResult> : IFuncInvoker<TResult>
   {
-    // @begin-skip
     private readonly IFuncInvoker<TResult> _invoker;
     private readonly Func<TResult, TResult> _afterAction;
 
@@ -57,19 +54,5 @@ namespace Remotion.Reflection
         result = _afterAction (result);
       return result;
     }
-
-    // @end-skip
-
-    // @begin-template first=1 generate=0..17 suppressTemplate=true
-
-    // @replace "A<n>" ", " "<" ">"
-    // @replace "A<n> a<n>" ", "
-    public TResult With<A1> (A1 a1)
-    {
-      // @replace "a<n>" ", "
-      return PerformAfterAction (_invoker.With (a1));
-    }
-
-    // @end-template
   }
 }

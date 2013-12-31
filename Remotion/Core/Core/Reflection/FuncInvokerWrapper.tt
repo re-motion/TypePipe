@@ -1,0 +1,50 @@
+﻿// This file is part of the re-motion Core Framework (www.re-motion.org)
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// 
+// The re-motion Core Framework is free software; you can redistribute it 
+// and/or modify it under the terms of the GNU Lesser General Public License 
+// as published by the Free Software Foundation; either version 2.1 of the 
+// License, or (at your option) any later version.
+// 
+// re-motion is distributed in the hope that it will be useful, 
+// but WITHOUT ANY WARRANTY; without even the implied warranty of 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with re-motion; if not, see http://www.gnu.org/licenses.
+// 
+<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+  int parameterCount = 17;
+#>
+using System;
+
+namespace Remotion.Reflection
+{
+  public partial struct FuncInvokerWrapper<TResult>
+  {
+<#
+for (int i = 0; i <= parameterCount; i++)
+{
+  var hasParameters = i > 0;
+  var parameters = Enumerable.Range (1, i);
+  var typeArguments = hasParameters ? "<" + string.Join (", ", parameters.Select (p => string.Format ("A{0}", p))) + ">" : "";
+  var signature = string.Join (", ", parameters.Select (p => string.Format ("A{0} a{0}", p)));
+  var arguments = string.Join (", ", parameters.Select (p => string.Format ("a{0}", p)));
+#>
+    public TResult With<#= typeArguments #> (<#= signature #>)
+    {
+      return PerformAfterAction (_invoker.With (<#= arguments #>));
+    }
+
+<#
+}
+#>
+  }
+}
