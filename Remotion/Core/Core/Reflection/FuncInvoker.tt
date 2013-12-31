@@ -1,0 +1,150 @@
+﻿// This file is part of the re-motion Core Framework (www.re-motion.org)
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// 
+// The re-motion Core Framework is free software; you can redistribute it 
+// and/or modify it under the terms of the GNU Lesser General Public License 
+// as published by the Free Software Foundation; either version 2.1 of the 
+// License, or (at your option) any later version.
+// 
+// re-motion is distributed in the hope that it will be useful, 
+// but WITHOUT ANY WARRANTY; without even the implied warranty of 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with re-motion; if not, see http://www.gnu.org/licenses.
+// 
+<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+  int fixedArgCount = 3;
+  int parameterCount = 17;
+#>
+using System;
+using Remotion.Utilities;
+
+namespace Remotion.Reflection
+{
+<#
+for (int j = 0; j <= fixedArgCount; j++)
+{
+  var hasFixedArgs = j > 0;
+  var fixedArgumentDefinition = Enumerable.Range (1, j).ToArray();
+  var fixedTypeArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("TFixedArg{0}", p))) + (hasFixedArgs ? ", " : "");
+  var fixedArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("_fixedArg{0}", p)));
+  var fixedSignature =  (hasFixedArgs ? ", " : "") + string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("TFixedArg{0} fixedArg{0}", p)));
+#>
+  public partial struct FuncInvoker<<#= fixedTypeArguments #>TResult> : IFuncInvoker<TResult>
+  {
+    private DelegateSelector _delegateSelector;
+
+<#= string.Join ("\r\n", fixedArgumentDefinition.Select (p => string.Format ("    private TFixedArg{0} _fixedArg{0};", p))) #>
+
+    private const int c_argCount = <#= fixedArgumentDefinition.Length #>;
+
+    public FuncInvoker (DelegateSelector delegateSelector<#= fixedSignature #>)
+    {
+      _delegateSelector = delegateSelector;
+<#= string.Join ("\r\n", fixedArgumentDefinition.Select (p => string.Format ("      _fixedArg{0} = fixedArg{0};", p))) #>
+    }
+
+#pragma warning disable 162 // disable unreachable code warning. 
+    private Type[] GetValueTypes (Type[] valueTypes)
+    {
+      if (c_argCount == 0)
+        return valueTypes;
+      Type[] fixedArgTypes = new Type[] { <#= string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("typeof (TFixedArg{0})", p))) #> };
+      return ArrayUtility.Combine (fixedArgTypes, valueTypes);
+    }
+
+    private object[] GetValues (object[] values)
+    {
+      if (c_argCount == 0)
+        return values;
+      object[] fixedArgs = new object[] { <#= fixedArguments #> };
+      return ArrayUtility.Combine (fixedArgs, values);
+    }
+#pragma warning restore 162
+
+    public TResult Invoke (Type[] valueTypes, object[] values)
+    {
+      InvokerUtility.CheckInvokeArguments (valueTypes, values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public TResult Invoke (object[] values)
+    {
+      Type[] valueTypes = InvokerUtility.GetValueTypes (values);
+      return (TResult) GetDelegate (GetValueTypes (valueTypes)).DynamicInvoke (GetValues (values));
+    }
+
+    public Delegate GetDelegate (params Type[] parameterTypes)
+    {
+      return GetDelegate (FuncUtility.MakeClosedType (typeof (TResult), parameterTypes));
+    }
+
+    public TDelegate GetDelegate<TDelegate> ()
+    {
+      return (TDelegate) (object) GetDelegate (typeof (TDelegate));
+    }
+
+    public Delegate GetDelegate (Type delegateType)
+    {
+      return _delegateSelector (delegateType);
+    }
+
+    public TResult With ()
+    {
+      return GetDelegateWith () (<#= fixedArguments #>);
+    }
+
+    public Func<<#= fixedTypeArguments #>TResult> GetDelegateWith ()
+    {
+      return GetDelegate<Func<<#= fixedTypeArguments #>TResult>> ();
+    }
+  }
+
+<#
+}
+#>
+<#
+for (int j = 0; j <= fixedArgCount; j++)
+{
+  var hasFixedArgs = j > 0;
+  var fixedArgumentDefinition = Enumerable.Range (1, j).ToArray();
+  var fixedTypeArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("TFixedArg{0}", p))) + (hasFixedArgs ? ", " : "");
+  var fixedArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("_fixedArg{0}", p))) + (hasFixedArgs ? ", " : "");
+#>
+
+    public partial struct FuncInvoker<<#= fixedTypeArguments #>TResult>
+    {
+<#
+  for (int i = 1; i <= parameterCount; i++)
+  {
+    var parameters = Enumerable.Range (1, i).ToArray();
+    var typeArguments = string.Join (", ", parameters.Select (p => string.Format ("A{0}", p)));
+    var signature = string.Join (", ", parameters.Select (p => string.Format ("A{0} a{0}", p)));
+    var arguments = string.Join (", ", parameters.Select (p => string.Format ("a{0}", p)));
+#>
+
+        public TResult With<<#= typeArguments #>> (<#= signature #>)
+        {
+          return GetDelegateWith<<#= typeArguments #>> () (<#= fixedArguments #><#= arguments #>);
+        }
+
+        public Func<<#= fixedTypeArguments #><#= typeArguments #>, TResult> GetDelegateWith<<#= typeArguments #>> ()
+        {
+          return GetDelegate<Func<<#= fixedTypeArguments #><#= typeArguments #>, TResult>> ();
+        }
+<#
+  }
+#>
+    }
+<#
+}
+#>
+}
