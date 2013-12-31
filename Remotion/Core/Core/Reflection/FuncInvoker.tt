@@ -40,9 +40,9 @@ for (int j = 0; j <= fixedArgCount; j++)
 #>
   public partial struct FuncInvoker<<#= fixedTypeArguments #>TResult> : IFuncInvoker<TResult>
   {
-    private DelegateSelector _delegateSelector;
+    private readonly DelegateSelector _delegateSelector;
 
-<#= string.Join ("\r\n", fixedArgumentDefinition.Select (p => string.Format ("    private TFixedArg{0} _fixedArg{0};", p))) #>
+<#= string.Join ("\r\n", fixedArgumentDefinition.Select (p => string.Format ("    private readonly TFixedArg{0} _fixedArg{0};", p))) #>
 
     private const int c_argCount = <#= fixedArgumentDefinition.Length #>;
 
@@ -120,8 +120,8 @@ for (int j = 0; j <= fixedArgCount; j++)
   var fixedArguments = string.Join (", ", fixedArgumentDefinition.Select (p => string.Format ("_fixedArg{0}", p))) + (hasFixedArgs ? ", " : "");
 #>
 
-    public partial struct FuncInvoker<<#= fixedTypeArguments #>TResult>
-    {
+  public partial struct FuncInvoker<<#= fixedTypeArguments #>TResult>
+  {
 <#
   for (int i = 1; i <= parameterCount; i++)
   {
@@ -131,19 +131,19 @@ for (int j = 0; j <= fixedArgCount; j++)
     var arguments = string.Join (", ", parameters.Select (p => string.Format ("a{0}", p)));
 #>
 
-        public TResult With<<#= typeArguments #>> (<#= signature #>)
-        {
-          return GetDelegateWith<<#= typeArguments #>> () (<#= fixedArguments #><#= arguments #>);
-        }
+    public TResult With<<#= typeArguments #>> (<#= signature #>)
+    {
+      return GetDelegateWith<<#= typeArguments #>> () (<#= fixedArguments #><#= arguments #>);
+    }
 
-        public Func<<#= fixedTypeArguments #><#= typeArguments #>, TResult> GetDelegateWith<<#= typeArguments #>> ()
-        {
-          return GetDelegate<Func<<#= fixedTypeArguments #><#= typeArguments #>, TResult>> ();
-        }
+    public Func<<#= fixedTypeArguments #><#= typeArguments #>, TResult> GetDelegateWith<<#= typeArguments #>> ()
+    {
+      return GetDelegate<Func<<#= fixedTypeArguments #><#= typeArguments #>, TResult>> ();
+    }
 <#
   }
 #>
-    }
+  }
 <#
 }
 #>
