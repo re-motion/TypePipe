@@ -26,10 +26,12 @@ namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflect
   {
     private class ClassWithMembers
     {
+#pragma warning disable 169 // Unused fields
       public ValueType VaueTypeField = null;
       public int? NullableIntField = 0;
       public int IntField = 0;
       public object ObjectField = null;
+#pragma warning restore 169
 
       public ValueType ValueTypeProperty { get; set; }
       public string StringProperty { get; set; }

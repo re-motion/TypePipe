@@ -208,9 +208,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       public T1 Property { get; set; }
       public event Func<T1> Event;
 
+#pragma warning disable 169 // Unsued fields
       public IEnumerable<Func<T1, T2>> SubstituteTypeInstantiation;
       public IEnumerable<Func<int, string>> SubstituteRuntimeType;
       public GenericType<T1, T2> RecursiveGenericType;
+#pragma warning restore 169
     }
   }
 }
