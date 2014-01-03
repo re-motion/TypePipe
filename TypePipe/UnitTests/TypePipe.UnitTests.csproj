@@ -82,6 +82,9 @@
     <Compile Include="..\..\sharedsource\core\resharperannotations\InvokerParameterNameAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\InvokerParameterNameAttribute.cs</Link>
     </Compile>
+    <Compile Include="..\..\SharedSource\Core\ReSharperAnnotations\MeansImplicitUseAttribute.cs">
+      <Link>SharedSource\ReSharperAnnotations\MeansImplicitUseAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\..\sharedsource\core\resharperannotations\NoEnumerationAttribute.cs">
       <Link>SharedSource\ReSharperAnnotations\NoEnumerationAttribute.cs</Link>
     </Compile>
