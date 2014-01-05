@@ -16,6 +16,7 @@
 // 
 using System;
 using JetBrains.Annotations;
+using Remotion.ServiceLocation;
 using Remotion.Utilities;
 
 namespace Remotion.Reflection
@@ -25,7 +26,7 @@ namespace Remotion.Reflection
   /// </summary>
   public static class ReflectionExtensions
   {
-    private static readonly TypeConversionProvider s_typeConversionProvider = TypeConversionProvider.Create ();
+    private static readonly ITypeConversionProvider s_typeConversionProvider = SafeServiceLocator.Current.GetInstance<ITypeConversionProvider>();
 
     /// <summary>
     /// Evaluates whether the <see cref="IMemberInformation"/> instance represents to orignal declaration of the member in the type hierarchy.
