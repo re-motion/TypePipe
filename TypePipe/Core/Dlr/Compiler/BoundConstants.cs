@@ -17,8 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Emit;
-using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
 #if SILVERLIGHT
 using System.Core;

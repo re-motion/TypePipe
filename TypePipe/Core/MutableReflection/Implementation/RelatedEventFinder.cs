@@ -16,10 +16,10 @@
 // 
 
 using System;
-using System.Reflection;
-using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 using System.Linq;
+using System.Reflection;
+using Remotion.FunctionalProgramming;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {

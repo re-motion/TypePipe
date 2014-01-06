@@ -16,11 +16,11 @@
 // 
 
 using System;
-using System.Reflection;
-using Remotion.TypePipe.Dlr.Ast;
-using NUnit.Framework;
-using Remotion.TypePipe.MutableReflection;
 using System.Linq;
+using System.Reflection;
+using NUnit.Framework;
+using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {

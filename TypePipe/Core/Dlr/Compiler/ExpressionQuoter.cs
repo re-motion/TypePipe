@@ -25,8 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     public partial class RuntimeOps {

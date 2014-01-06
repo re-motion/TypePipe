@@ -24,8 +24,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using Remotion.Utilities;
 using Remotion.FunctionalProgramming;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {

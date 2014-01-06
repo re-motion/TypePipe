@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
@@ -24,7 +25,6 @@ using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {

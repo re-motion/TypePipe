@@ -20,7 +20,6 @@ using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.MutableReflection.Generics
 {

@@ -17,8 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
+using Remotion.TypePipe.Dlr.Ast.Compiler;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
 #if SILVERLIGHT
@@ -30,9 +31,8 @@ namespace Remotion.TypePipe.Dlr.Ast {
 #else
 namespace System.Linq.Expressions {
 #endif
-    using Compiler;
-
-    /// <summary>
+  
+  /// <summary>
     /// Represents a dynamic operation.
     /// </summary>
 #if !SILVERLIGHT

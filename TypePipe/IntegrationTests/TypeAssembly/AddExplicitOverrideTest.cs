@@ -15,9 +15,9 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Dlr.Ast;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 {

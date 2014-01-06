@@ -1,4 +1,4 @@
-/* ****************************************************************************
+﻿/* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
  *
@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
-using System.Threading;
 using System.Reflection;
+using System.Threading;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     /// <summary>

@@ -15,15 +15,15 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using System.Linq;
-using Remotion.Development.UnitTesting;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics

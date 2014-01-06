@@ -16,8 +16,8 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT

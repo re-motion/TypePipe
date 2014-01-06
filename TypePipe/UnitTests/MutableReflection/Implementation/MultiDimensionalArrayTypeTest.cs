@@ -20,7 +20,6 @@ using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {

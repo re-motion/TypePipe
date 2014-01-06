@@ -16,10 +16,10 @@
 // 
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {

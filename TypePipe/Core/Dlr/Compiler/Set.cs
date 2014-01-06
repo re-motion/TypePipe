@@ -13,7 +13,7 @@
  *
  * ***************************************************************************/
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
 
 // Note: can't move to Utils because name conflicts with System.Linq.Set

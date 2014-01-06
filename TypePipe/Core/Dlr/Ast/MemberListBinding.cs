@@ -17,8 +17,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Reflection;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT

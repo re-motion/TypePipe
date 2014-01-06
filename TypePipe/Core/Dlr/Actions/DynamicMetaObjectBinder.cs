@@ -20,7 +20,10 @@ using Remotion.TypePipe.Dlr.Ast.Compiler;
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
 #endif
-
+using System.Collections.ObjectModel;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
+using Remotion.TypePipe.MutableReflection;
 #if SILVERLIGHT
 using System.Core;
 #else
@@ -28,11 +31,6 @@ using System.Runtime.Remoting;
 #endif
 
 using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
-using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
-using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>

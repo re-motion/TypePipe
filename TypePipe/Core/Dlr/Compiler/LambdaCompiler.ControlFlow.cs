@@ -13,6 +13,7 @@
  *
  * ***************************************************************************/
 
+using System;
 using System.Diagnostics;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 

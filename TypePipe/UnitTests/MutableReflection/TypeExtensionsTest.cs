@@ -21,8 +21,6 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.UnitTests.MutableReflection.Generics;
-using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {

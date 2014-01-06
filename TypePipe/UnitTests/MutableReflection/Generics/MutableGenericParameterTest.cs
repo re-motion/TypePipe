@@ -20,6 +20,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
@@ -27,7 +28,6 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Rhino.Mocks;
-using Remotion.Development.UnitTesting.Enumerables;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {

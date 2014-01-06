@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
@@ -31,7 +32,6 @@ using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 {

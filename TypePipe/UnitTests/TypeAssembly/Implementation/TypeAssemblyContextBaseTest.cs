@@ -25,7 +25,6 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.TypeAssembly;
-using Remotion.TypePipe.TypeAssembly.Implementation;
 using Rhino.Mocks;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation

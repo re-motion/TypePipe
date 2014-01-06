@@ -19,10 +19,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.IntegrationTests.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 

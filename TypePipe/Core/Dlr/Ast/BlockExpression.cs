@@ -17,8 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Threading;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 #if SILVERLIGHT
 using System.Core;

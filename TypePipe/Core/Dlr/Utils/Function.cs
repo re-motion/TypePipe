@@ -13,6 +13,8 @@
  *
  * ***************************************************************************/
 
+using System;
+
 #if TypePipe
 namespace Remotion.TypePipe.Dlr.Utils {
 #else

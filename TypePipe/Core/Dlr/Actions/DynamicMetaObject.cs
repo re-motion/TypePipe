@@ -18,7 +18,8 @@ using Remotion.TypePipe.Dlr.Ast;
 #else
 using System.Linq.Expressions;
 #endif
-
+using System.Collections.Generic;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 #if SILVERLIGHT
 using System.Core;
 #else
@@ -26,9 +27,6 @@ using System.Runtime.Remoting;
 #endif
 
 using System;
-using System.Collections.Generic;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
-using System.Reflection;
 
 namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>

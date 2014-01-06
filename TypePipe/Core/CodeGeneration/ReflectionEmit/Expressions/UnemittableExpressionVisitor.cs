@@ -19,15 +19,15 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Remotion.FunctionalProgramming;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Dlr.Ast.Compiler;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
+using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Remotion.TypePipe.MutableReflection;
-using Remotion.FunctionalProgramming;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 {

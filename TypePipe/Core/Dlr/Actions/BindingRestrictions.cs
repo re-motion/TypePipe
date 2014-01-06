@@ -22,8 +22,8 @@ using System.Linq.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using System.Runtime.CompilerServices;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 namespace Remotion.TypePipe.Dlr.Dynamic {
 

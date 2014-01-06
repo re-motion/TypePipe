@@ -16,10 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
+using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Globalization;
+using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.MutableReflection;
 
 #if SILVERLIGHT

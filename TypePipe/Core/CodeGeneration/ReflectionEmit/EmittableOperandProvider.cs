@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
@@ -24,7 +25,6 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using System.Linq;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {

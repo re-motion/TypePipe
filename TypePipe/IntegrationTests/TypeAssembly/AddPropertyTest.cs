@@ -19,10 +19,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.Utilities;
 
@@ -231,7 +231,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       [UsedImplicitly] public string PublicField;
 
-      [AbcAttribute ("base")]
+      [Abc ("base")]
       public virtual string ExistingProperty { get; set; }
     }
 
