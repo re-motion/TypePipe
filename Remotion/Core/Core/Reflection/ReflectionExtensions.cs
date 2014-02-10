@@ -15,6 +15,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Remotion.ServiceLocation;
 using Remotion.Utilities;
@@ -69,6 +70,28 @@ namespace Remotion.Reflection
         return null;
 
       return s_typeConversionProvider.Convert (typeInformation.GetType (), typeof (Type), typeInformation) as Type;
+    }
+
+    public static PropertyInfo ConvertToPropertyInfo (this IPropertyInformation propertyInformation)
+    {
+      ArgumentUtility.CheckNotNull ("propertyInformation", propertyInformation);
+
+      var propertyInfo = AsRuntimePropertyInfo (propertyInformation);
+      if(propertyInfo==null)
+        throw new InvalidOperationException (string.Format ("The property '{0}' cannot be converted to a runtime property.", propertyInformation.Name));
+
+      return propertyInfo;
+    }
+
+    [CanBeNull]
+    public static PropertyInfo AsRuntimePropertyInfo (this IPropertyInformation propertyInformation)
+    {
+      ArgumentUtility.CheckNotNull ("propertyInformation", propertyInformation);
+
+      var propertyInfoAdapter = propertyInformation as PropertyInfoAdapter;
+      if (propertyInfoAdapter != null)
+        return propertyInfoAdapter.PropertyInfo;
+      return null;
     }
   }
 }
