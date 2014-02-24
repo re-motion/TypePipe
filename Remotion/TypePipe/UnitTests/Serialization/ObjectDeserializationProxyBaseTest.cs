@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Serialization;
@@ -51,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _deserializationMethodInvokerMock = MockRepository.GenerateMock<IDeserializationMethodInvoker>();
       _createRealObjectAssertions = (instance, info, ctx, typeName) => { throw new Exception ("Setup assertions and return real object."); };
 
-      using (new ServiceLocatorScope (typeof (IPipelineRegistry), () => _pipelineRegistryStub))
+      using (new ServiceLocatorScope (new ServiceConfigurationEntry (typeof (IPipelineRegistry), ServiceImplementationInfo.CreateSingle(() => _pipelineRegistryStub))))
       {
         // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
         _objectDeserializationProxyBase = new TestableObjectDeserializationProxyBase (

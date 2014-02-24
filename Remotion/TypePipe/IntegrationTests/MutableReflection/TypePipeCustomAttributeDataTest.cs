@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Remotion.ServiceLocation;
 using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
@@ -99,7 +100,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
         customAttributeDataRetrieverMock.Expect (mock => mock.GetCustomAttributeData (typeof (object))).Return (new[] { attribute2 });
 
         IEnumerable<ICustomAttributeData> result;
-        using (new ServiceLocatorScope (typeof (ICustomAttributeDataRetriever), () => customAttributeDataRetrieverMock))
+        using (new ServiceLocatorScope (new ServiceConfigurationEntry (typeof (ICustomAttributeDataRetriever), ServiceImplementationInfo.CreateSingle(() => customAttributeDataRetrieverMock))))
         {
           result = TypePipeCustomAttributeData.GetCustomAttributes (typeof (DomainType), inherit: true).ForceEnumeration();
         }
