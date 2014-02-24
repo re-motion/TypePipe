@@ -1,0 +1,112 @@
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.  rubicon licenses this file to you under 
+// the Apache License, Version 2.0 (the "License"); you may not use this 
+// file except in compliance with the License.  You may obtain a copy of the 
+// License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software 
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the 
+// License for the specific language governing permissions and limitations
+// under the License.
+// 
+<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+  int parameterCount = 20;
+#>
+using System;
+using Remotion.Utilities;
+
+namespace Remotion.TypePipe.Implementation
+{
+<#
+for (int i = 0; i <= parameterCount; i++)
+{
+  var hasParameters = i > 0;
+  var parameters = Enumerable.Range (1, i);
+  var typeArguments = string.Join (", ", parameters.Select (p => string.Format ("A{0}", p)));
+  var typeArgumentsForAction = hasParameters ? "<" + typeArguments + ">" : "";
+  var typeArgumentsForFunc = "<" + typeArguments + (hasParameters ? ", " : "") + "object>";
+  var fieldAccess = string.Join (", ", parameters.Select (p => string.Format ("_a{0}", p)));
+#>
+  /// <summary>
+  /// Implements <see cref="ParamList"/> for a specific number of arguments. Use one of the <see cref="ParamList.Create"/> overloads to create
+  /// instances of the <see cref="ParamList"/> implementation classes.
+  /// </summary>
+  public class ParamListImplementation<#= typeArgumentsForAction #> : ParamList
+  {
+<#= string.Join ("\r\n", parameters.Select (p => string.Format ("    private readonly A{0} _a{0};", p))) #>
+
+    public ParamListImplementation (<#= string.Join (", ", parameters.Select (p => string.Format ("A{0} a{0}", p))) #>)
+    {
+<#= string.Join ("\r\n", parameters.Select (p => string.Format ("      _a{0} = a{0};", p))) #>
+    }
+
+    public override Type FuncType
+    {
+      get { return typeof (Func<#= typeArgumentsForFunc #>); }
+    }
+
+    public override Type ActionType
+    {
+      get { return typeof (Action<#= typeArgumentsForAction #>); }
+    }
+
+    public override void InvokeAction (Delegate action)
+    {
+      ArgumentUtility.CheckNotNull ("action", action);
+
+      Action<#= typeArgumentsForAction #> castAction;
+      try
+      {
+        castAction = (Action<#= typeArgumentsForAction #>) action;
+      }
+      catch (InvalidCastException)
+      {
+        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+      }
+
+      castAction (<#= fieldAccess #>);
+    }
+
+    public override object InvokeFunc (Delegate func)
+    {
+      ArgumentUtility.CheckNotNull ("func", func);
+
+      Func<#= typeArgumentsForFunc #> castFunc;
+      try
+      {
+        castFunc = (Func<#= typeArgumentsForFunc #>) func;
+      }
+      catch (InvalidCastException)
+      {
+        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+      }
+
+      return castFunc (<#= fieldAccess #>);
+    }
+
+    public override Type[] GetParameterTypes ()
+    {
+      return new Type[] { <#= string.Join (", ", parameters.Select (p => string.Format ("typeof (A{0})", p))) #> };
+    }
+
+    public override object[] GetParameterValues ()
+    {
+      return new object[] { <#= fieldAccess #> };
+    }
+  }
+
+<#
+}
+#>
+}
