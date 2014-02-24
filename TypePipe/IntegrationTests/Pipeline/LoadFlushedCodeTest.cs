@@ -16,6 +16,7 @@
 // 
 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.IO;
@@ -23,7 +24,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Rhino.Mocks;
-using System.Linq;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {

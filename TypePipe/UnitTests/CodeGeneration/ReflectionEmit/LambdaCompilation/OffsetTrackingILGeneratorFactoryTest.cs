@@ -16,7 +16,6 @@
 // 
 
 using System;
-using System.Reflection.Emit;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;

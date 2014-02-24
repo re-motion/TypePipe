@@ -17,10 +17,9 @@
 
 using System;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting.Reflection;
 using Remotion.Development.UnitTesting.Enumerables;
+using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.TypeAssembly;
-using Remotion.TypePipe.TypeAssembly.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly
 {

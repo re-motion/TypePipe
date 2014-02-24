@@ -23,7 +23,6 @@ using System.Core;
 #endif
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Remotion.TypePipe.MutableReflection;

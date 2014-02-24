@@ -13,10 +13,8 @@
  *
  * ***************************************************************************/
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
 #if TypePipe

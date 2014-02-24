@@ -16,19 +16,14 @@
 #if TypePipe
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.TypePipe.Dlr.Ast.Compiler;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
 #endif
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection.Emit;
-using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 #if TypePipe || SILVERLIGHT

@@ -17,12 +17,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
-using System.Linq;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.IntegrationTests.TypeAssembly

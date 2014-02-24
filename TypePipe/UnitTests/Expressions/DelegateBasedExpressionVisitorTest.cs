@@ -17,9 +17,9 @@
 
 using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
-using NUnit.Framework;
 using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.Expressions

@@ -21,7 +21,7 @@ using System.Linq.Expressions;
 #if SILVERLIGHT
 using System.Core;
 #endif
-
+using System;
 using System.Collections.Generic;
 
 namespace Remotion.TypePipe.Dlr.Dynamic.Utils {

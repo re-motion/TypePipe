@@ -13,6 +13,8 @@
  *
  * ***************************************************************************/
 
+using System;
+
 namespace Remotion.TypePipe.Dlr.Dynamic {
     /// <summary>
     /// Represents information about a dynamic get member operation, indicating

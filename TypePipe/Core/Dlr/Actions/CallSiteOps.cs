@@ -16,7 +16,6 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Collections.Generic;
 
 namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 

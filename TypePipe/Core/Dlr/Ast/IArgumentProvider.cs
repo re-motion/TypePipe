@@ -14,12 +14,9 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 #if TypePipe
 namespace Remotion.TypePipe.Dlr.Ast {
-    using Remotion.TypePipe.Dlr.Utils;
 #else
 namespace System.Linq.Expressions {
 #endif

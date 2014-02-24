@@ -15,7 +15,6 @@
 
 using System;
 using System.Diagnostics;
-using Remotion.TypePipe.Dlr.Dynamic.Utils;
 
 #if SILVERLIGHT
 using System.Core;

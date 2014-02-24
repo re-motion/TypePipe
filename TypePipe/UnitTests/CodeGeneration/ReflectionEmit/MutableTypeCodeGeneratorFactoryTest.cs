@@ -16,13 +16,13 @@
 // 
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
+using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Rhino.Mocks;
-using Remotion.Development.UnitTesting.Enumerables;
-using System.Linq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {

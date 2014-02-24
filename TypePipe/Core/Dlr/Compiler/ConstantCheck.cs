@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Diagnostics;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 using Remotion.TypePipe.MutableReflection;
 

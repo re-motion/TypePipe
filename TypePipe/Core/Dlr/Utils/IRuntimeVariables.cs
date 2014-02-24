@@ -13,6 +13,8 @@
  *
  * ***************************************************************************/
 
+using System;
+
 namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     /// <summary>
     /// An interface to represent values of runtime variables.

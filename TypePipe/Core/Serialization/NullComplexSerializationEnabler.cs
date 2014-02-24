@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly.Implementation;

@@ -17,10 +17,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.MutableReflection;
-using System.Linq;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.Utilities;
 

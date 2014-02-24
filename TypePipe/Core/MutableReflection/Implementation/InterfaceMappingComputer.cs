@@ -17,10 +17,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using Remotion.Utilities;
 using System.Linq;
+using System.Reflection;
 using Remotion.TypePipe.MutableReflection.MemberSignatures;
+using Remotion.Utilities;
 
 namespace Remotion.TypePipe.MutableReflection.Implementation
 {

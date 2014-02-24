@@ -176,8 +176,7 @@ namespace Remotion.TypePipe.Caching
     private void LoadAssembledType (Type assembledType)
     {
       var typeID = _typeAssembler.ExtractTypeID (assembledType);
-      var assembledTypeForClosure = assembledType;
-      _assembledTypes.TryAdd (typeID, new Lazy<Type> (() => assembledTypeForClosure, LazyThreadSafetyMode.None));
+      _assembledTypes.TryAdd (typeID, GetLazyType (assembledType));
     }
 
     private void LoadAdditionalType (Type additionalType)
@@ -186,18 +185,21 @@ namespace Remotion.TypePipe.Caching
       if (additionalTypeID == null)
         return;
 
-      var additionalTypeForClosure = additionalType;
-      _additionalTypes.TryAdd (additionalTypeID, new Lazy<Type> (() => additionalTypeForClosure, LazyThreadSafetyMode.None));
+      _additionalTypes.TryAdd (additionalTypeID, GetLazyType (additionalType));
     }
 
     private void AddAdditionalTypesToCache (IEnumerable<KeyValuePair<object, Type>> additionalTypes)
     {
       foreach (var kvp in additionalTypes)
       {
-        var additionalTypeForClosure = kvp.Value;
-        var lazyValue = new Lazy<Type> (() => additionalTypeForClosure, LazyThreadSafetyMode.None);
+        var lazyValue = GetLazyType (kvp.Value);
         _additionalTypes.AddOrUpdate (kvp.Key, lazyValue, (o, lazy) => lazyValue);
       }
+    }
+
+    private Lazy<Type> GetLazyType (Type type)
+    {
+      return new Lazy<Type> (() => type, LazyThreadSafetyMode.PublicationOnly);
     }
   }
 }

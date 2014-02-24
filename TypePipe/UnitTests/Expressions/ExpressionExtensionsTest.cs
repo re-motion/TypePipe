@@ -15,8 +15,8 @@
 // under the License.
 // 
 using System;
-using Remotion.TypePipe.Dlr.Ast;
 using NUnit.Framework;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
 
 namespace Remotion.TypePipe.UnitTests.Expressions

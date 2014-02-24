@@ -15,6 +15,8 @@
 
 #if TypePipe
 using Remotion.TypePipe.Dlr.Ast;
+using System;
+
 #else
 using System.Linq.Expressions;
 #endif

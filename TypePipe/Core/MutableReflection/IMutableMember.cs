@@ -15,6 +15,8 @@
 // under the License.
 // 
 
+using System;
+
 namespace Remotion.TypePipe.MutableReflection
 {
   /// <summary>

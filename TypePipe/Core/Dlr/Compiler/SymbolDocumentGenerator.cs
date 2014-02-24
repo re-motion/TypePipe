@@ -25,9 +25,8 @@ using System.Linq.Expressions.Compiler;
 #if SILVERLIGHT
 using System.Core;
 #endif
-
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
 using System.Reflection;
 using System.Reflection.Emit;

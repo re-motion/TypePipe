@@ -16,7 +16,6 @@
 #if TypePipe
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Dlr.Ast.Compiler;
-using Remotion.TypePipe.Dlr.Utils;
 #else
 using System.Linq.Expressions;
 using System.Linq.Expressions.Compiler;
@@ -30,9 +29,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Reflection;
 using Remotion.TypePipe.Dlr.Dynamic;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
-using System.Reflection;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
