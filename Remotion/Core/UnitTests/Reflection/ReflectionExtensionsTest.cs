@@ -17,6 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.Reflection;
+using Remotion.Utilities;
 using Rhino.Mocks;
 
 namespace Remotion.UnitTests.Reflection
@@ -24,6 +25,11 @@ namespace Remotion.UnitTests.Reflection
   [TestFixture]
   public class ReflectionExtensionsTest
   {
+    private class TheType
+    {
+      public int TheProperty { get; set; }
+    }
+
     [Test]
     public void IsOriginalDeclaration_DeclaringTypeEqualsOrignalDeclaringType_True ()
     {
@@ -72,6 +78,86 @@ namespace Remotion.UnitTests.Reflection
       memberInfoStub.Stub (stub => stub.GetOriginalDeclaringType ()).Return (null);
 
       Assert.That (memberInfoStub.IsOriginalDeclaration (), Is.True);
+    }
+
+    [Test]
+    public void AsRuntimeType_WithTypeAdapter_ReturnsRuntimeType ()
+    {
+      var expectedType = typeof (TheType);
+      ITypeInformation typeInformation = TypeAdapter.Create (expectedType);
+
+      Assert.That (typeInformation.AsRuntimeType(), Is.SameAs (expectedType));
+    }
+
+    [Test]
+    public void AsRuntimeType_WithOtherITypeInformation_ReturnsNull ()
+    {
+      var typeInformation = MockRepository.GenerateStub<ITypeInformation>();
+
+      Assert.That (typeInformation.AsRuntimeType(), Is.Null);
+    }
+
+    [Test]
+    public void ConvertToRuntimeType_WithTypeAdapter_ReturnsRuntimeType ()
+    {
+      var expectedType = typeof (TheType);
+      ITypeInformation typeInformation = TypeAdapter.Create (expectedType);
+
+      Assert.That (typeInformation.ConvertToRuntimeType(), Is.SameAs (expectedType));
+    }
+
+    [Test]
+    public void ConvertToRuntimeType_WithOtherITypeInformation_ThrowsInvalidOperationException ()
+    {
+      var typeInformation = MockRepository.GenerateStub<ITypeInformation>();
+      typeInformation.Stub (_ => _.Name).Return ("TheName");
+
+      Assert.That (
+          () => typeInformation.ConvertToRuntimeType(),
+          Throws.InvalidOperationException.And.Message.EqualTo (
+              string.Format (
+                  "The type 'TheName' cannot be converted to a runtime type because no conversion is registered for '{0}'.",
+                  typeInformation.GetType().Name)));
+    }
+
+    [Test]
+    public void AsRuntimeProperty_WithPropertyAdapter_ReturnsRuntimeType ()
+    {
+      var expectedProperty = MemberInfoFromExpressionUtility.GetProperty ((TheType t) => t.TheProperty);
+      IPropertyInformation propertyInformation = PropertyInfoAdapter.Create (expectedProperty);
+
+      Assert.That (propertyInformation.AsRuntimePropertyInfo(), Is.SameAs (expectedProperty));
+    }
+
+    [Test]
+    public void AsRuntimeProperty_WithOtherIPropertyInformation_ReturnsNull ()
+    {
+      var propertyInformation = MockRepository.GenerateStub<IPropertyInformation>();
+
+      Assert.That (propertyInformation.AsRuntimePropertyInfo(), Is.Null);
+    }
+
+    [Test]
+    public void ConvertToRuntimeProperty_WithPropertyAdapter_ReturnsRuntimeType ()
+    {
+      var expectedProperty = MemberInfoFromExpressionUtility.GetProperty ((TheType t) => t.TheProperty);
+      IPropertyInformation propertyInformation = PropertyInfoAdapter.Create (expectedProperty);
+
+      Assert.That (propertyInformation.ConvertToRuntimePropertyInfo(), Is.SameAs (expectedProperty));
+    }
+
+    [Test]
+    public void ConvertToRuntimeProperty_WithOtherIPropertyInformation_ThrowsInvalidOperationException ()
+    {
+      var propertyInformation = MockRepository.GenerateStub<IPropertyInformation>();
+      propertyInformation.Stub (_ => _.Name).Return ("TheName");
+
+      Assert.That (
+          () => propertyInformation.ConvertToRuntimePropertyInfo(),
+          Throws.InvalidOperationException.And.Message.EqualTo (
+              string.Format (
+                  "The property 'TheName' cannot be converted to a runtime property because no conversion is registered for '{0}'.",
+                  propertyInformation.GetType().Name)));
     }
   }
 }

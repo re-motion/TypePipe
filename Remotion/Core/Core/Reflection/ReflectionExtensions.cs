@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
+
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
 using Remotion.ServiceLocation;
 using Remotion.Utilities;
@@ -39,7 +41,7 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("memberInfo", memberInfo);
 
       var declaringType = memberInfo.DeclaringType;
-      var originalDeclaringType = memberInfo.GetOriginalDeclaringType ();
+      var originalDeclaringType = memberInfo.GetOriginalDeclaringType();
       if (declaringType == null && originalDeclaringType == null)
         return true;
       if (declaringType == null)
@@ -55,7 +57,13 @@ namespace Remotion.Reflection
       ArgumentUtility.CheckNotNull ("typeInformation", typeInformation);
 
       if (!s_typeConversionProvider.CanConvert (typeInformation.GetType(), typeof (Type)))
-        throw new InvalidOperationException (string.Format ("The type '{0}' cannot be converted to a runtime type.", typeInformation.Name));
+      {
+        throw new InvalidOperationException (
+            string.Format (
+                "The type '{0}' cannot be converted to a runtime type because no conversion is registered for '{1}'.",
+                typeInformation.Name,
+                typeInformation.GetType()));
+      }
 
       return (Type) s_typeConversionProvider.Convert (typeInformation.GetType(), typeof (Type), typeInformation);
     }
@@ -65,10 +73,39 @@ namespace Remotion.Reflection
     {
       ArgumentUtility.CheckNotNull ("typeInformation", typeInformation);
 
-      if (!s_typeConversionProvider.CanConvert (typeInformation.GetType (), typeof (Type)))
+      if (!s_typeConversionProvider.CanConvert (typeInformation.GetType(), typeof (Type)))
         return null;
 
-      return s_typeConversionProvider.Convert (typeInformation.GetType (), typeof (Type), typeInformation) as Type;
+      return s_typeConversionProvider.Convert (typeInformation.GetType(), typeof (Type), typeInformation) as Type;
+    }
+
+    [NotNull]
+    public static PropertyInfo ConvertToRuntimePropertyInfo (this IPropertyInformation propertyInformation)
+    {
+      ArgumentUtility.CheckNotNull ("propertyInformation", propertyInformation);
+
+      var propertyInfo = AsRuntimePropertyInfo (propertyInformation);
+      if (propertyInfo == null)
+      {
+        throw new InvalidOperationException (
+            string.Format (
+                "The property '{0}' cannot be converted to a runtime property because no conversion is registered for '{1}'.",
+                propertyInformation.Name,
+                propertyInformation.GetType().Name));
+      }
+
+      return propertyInfo;
+    }
+
+    [CanBeNull]
+    public static PropertyInfo AsRuntimePropertyInfo (this IPropertyInformation propertyInformation)
+    {
+      ArgumentUtility.CheckNotNull ("propertyInformation", propertyInformation);
+
+      var propertyInfoAdapter = propertyInformation as PropertyInfoAdapter;
+      if (propertyInfoAdapter != null)
+        return propertyInfoAdapter.PropertyInfo;
+      return null;
     }
   }
 }
