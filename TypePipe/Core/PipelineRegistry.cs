@@ -41,12 +41,7 @@ namespace Remotion.TypePipe
     {
       get
       {
-        Func<IPipelineRegistry> instanceProvider;
-        lock (s_instanceProviderLockObject)
-        {
-          instanceProvider = s_instanceProvider;
-        }
-
+        var instanceProvider = GetInstanceProvider();
         if (instanceProvider == null)
         {
           throw new InvalidOperationException (
@@ -71,13 +66,7 @@ namespace Remotion.TypePipe
     /// </summary>
     public static bool HasInstanceProvider
     {
-      get
-      {
-        lock (s_instanceProviderLockObject)
-        {
-          return s_instanceProvider != null;
-        }
-      }
+      get { return GetInstanceProvider() != null; }
     }
 
     /// <summary>
@@ -100,6 +89,15 @@ namespace Remotion.TypePipe
       lock (s_instanceProviderLockObject)
       {
         s_instanceProvider = pipelineRegistryProvider;
+      }
+    }
+
+    [CanBeNull]
+    private static Func<IPipelineRegistry> GetInstanceProvider ()
+    {
+      lock (s_instanceProviderLockObject)
+      {
+        return s_instanceProvider;
       }
     }
   }
