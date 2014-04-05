@@ -27,7 +27,8 @@ namespace Remotion.TypePipe
   /// <threadsafety static="true" instance="true"/>
   public static class PipelineRegistry
   {
-    private static volatile Func<IPipelineRegistry> s_instanceProvider;
+    private static readonly object s_instanceProviderLockObject = new object();
+    private static Func<IPipelineRegistry> s_instanceProvider;
 
     /// <summary>
     /// Gets the global <see cref="IPipelineRegistry"/> instance registered via the <see cref="SetInstanceProvider"/> API.
@@ -40,7 +41,12 @@ namespace Remotion.TypePipe
     {
       get
       {
-        var instanceProvider = s_instanceProvider;
+        Func<IPipelineRegistry> instanceProvider;
+        lock (s_instanceProviderLockObject)
+        {
+          instanceProvider = s_instanceProvider;
+        }
+
         if (instanceProvider == null)
         {
           throw new InvalidOperationException (
@@ -65,7 +71,13 @@ namespace Remotion.TypePipe
     /// </summary>
     public static bool HasInstanceProvider
     {
-      get { return s_instanceProvider != null; }
+      get
+      {
+        lock (s_instanceProviderLockObject)
+        {
+          return s_instanceProvider != null;
+        }
+      }
     }
 
     /// <summary>
@@ -84,8 +96,11 @@ namespace Remotion.TypePipe
     public static void SetInstanceProvider ([NotNull] Func<IPipelineRegistry> pipelineRegistryProvider)
     {
       ArgumentUtility.CheckNotNull ("pipelineRegistryProvider", pipelineRegistryProvider);
-      
-      s_instanceProvider = pipelineRegistryProvider;
+
+      lock (s_instanceProviderLockObject)
+      {
+        s_instanceProvider = pipelineRegistryProvider;
+      }
     }
   }
 }
