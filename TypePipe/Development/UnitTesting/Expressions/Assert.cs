@@ -18,7 +18,6 @@
 using System;
 using System.Collections;
 using System.Linq;
-using Remotion.TypePipe.Dlr.Ast;
 
 namespace Remotion.TypePipe.Development.UnitTesting.Expressions
 {
@@ -30,7 +29,7 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
         return;
 
       if (expected == null)
-        throw Throw (message);
+        throw new InvalidOperationException (message);
 
       if (expected.Equals (actual))
         return;
@@ -40,28 +39,13 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
       if (expectedEnumerable != null && actualEnumerable != null && expectedEnumerable.Cast<object>().SequenceEqual (actualEnumerable.Cast<object>()))
         return;
 
-      Throw (message);
-    }
-
-    public static void IsNull (Expression actual, string message)
-    {
-      AreEqual (null, actual, message);
-    }
-
-    public static void IsTrue (bool actual, string message)
-    {
-      AreEqual (true, actual, message);
+      throw new InvalidOperationException (message);
     }
 
     public static void IsInstanceOf<T> (object actual, string message)
     {
       if (!(actual is T))
-        Throw (message);
-    }
-
-    private static Exception Throw (string message)
-    {
-      throw new InvalidOperationException (message);
+        throw new InvalidOperationException (message);
     }
   }
 }

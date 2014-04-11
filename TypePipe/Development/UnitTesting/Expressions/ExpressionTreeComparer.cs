@@ -32,6 +32,9 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
   {
     public static void CheckAreEqualTrees (Expression expectedTree, Expression actualTree)
     {
+      ArgumentUtility.CheckNotNull ("expectedTree", expectedTree);
+      ArgumentUtility.CheckNotNull ("actualTree", actualTree);
+
       var comparer = new ExpressionTreeComparer (expectedTree.DebugView, actualTree.DebugView);
       comparer.CheckAreEqualNodes (expectedTree, actualTree);
     }
@@ -51,7 +54,9 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
     private void CheckAreEqualNodes (Expression expected, Expression actual)
     {
       if (expected == null)
-        Assert.IsNull (actual, GetMessage (null, actual, "Null nodes"));
+      {
+        Assert.AreEqual (null, actual, GetMessage (null, actual, "Null nodes"));
+      }
       else
       {
         CheckAreEqualExpressionTypes (expected, actual);
@@ -120,13 +125,15 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
 
             if (typeof (BlockExpression).IsAssignableFrom (elementType1))
             {
-              Assert.IsTrue (
+              Assert.AreEqual (
+                  true,
                   typeof (BlockExpression).IsAssignableFrom (elementType2),
                   GetMessage (elementType1, elementType2, "BlockExpression"));
             }
             else if (typeof (MethodCallExpression).IsAssignableFrom (elementType1))
             {
-              Assert.IsTrue (
+              Assert.AreEqual (
+                  true,
                   typeof (MethodCallExpression).IsAssignableFrom (elementType2),
                   GetMessage (elementType1, elementType2, "MethodCallExpression"));
             }
@@ -155,14 +162,16 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
         var ctorAdapter1 = adapter1.AdaptedMethod as ConstructorAsMethodInfoAdapter;
         var ctorAdapter2 = adapter2.AdaptedMethod as ConstructorAsMethodInfoAdapter;
 
-        Assert.IsTrue (
+        Assert.AreEqual (
+            true,
             adapter1.AdaptedMethod == adapter2.AdaptedMethod
             || (ctorAdapter1 != null && ctorAdapter2 != null && ctorAdapter1.AdaptedConstructor == ctorAdapter2.AdaptedConstructor),
             "Adapted MethodInfo is not equal (non-virtual or ctor).");
       }
       else if (value1 is MemberInfo && value2 is MemberInfo)
       {
-        Assert.IsTrue (
+        Assert.AreEqual (
+            true,
             MemberInfoEqualityComparer<MemberInfo>.Instance.Equals ((MemberInfo) value1, (MemberInfo) value2),
             GetMessage (value1, value2, "MemberInfos"));
       }
