@@ -22,7 +22,7 @@ using Remotion.TypePipe.Dlr.Ast;
 
 namespace Remotion.TypePipe.Development.UnitTesting.Expressions
 {
-  internal static class Assert2
+  internal static class Assert
   {
     public static void AreEqual (object expected, object actual, string message)
     {
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
 
     private static Exception Throw (string message)
     {
-      throw new Exception (message);
+      throw new InvalidOperationException (message);
     }
   }
 }

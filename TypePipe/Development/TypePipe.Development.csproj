@@ -163,7 +163,7 @@
     <Compile Include="AssemblyTrackingCodeManager.cs" />
     <Compile Include="AssemblyTrackingPipelineFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTesting\Expressions\Assert2.cs" />
+    <Compile Include="UnitTesting\Expressions\Assert.cs" />
     <Compile Include="UnitTesting\Expressions\ExpressionTreeComparer.cs" />
     <Compile Include="UnitTesting\ModifyingParticipant.cs" />
     <Compile Include="UnitTesting\ObjectMothers\Caching\AssembledTypeIDObjectMother.cs" />
