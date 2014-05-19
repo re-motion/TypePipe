@@ -48,7 +48,7 @@ namespace Remotion.Reflection
         return false;
       if (originalDeclaringType == null)
         return false;
-      return memberInfo.DeclaringType.Equals (originalDeclaringType);
+      return declaringType.Equals (originalDeclaringType);
     }
 
     [NotNull]
