@@ -36,9 +36,8 @@ namespace Remotion.TypePipe.Caching
 
     public AssembledTypeID (Type requestedType, object[] parts)
     {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (requestedType != null);
-      Assertion.DebugAssert (parts != null);
+      ArgumentUtility.DebugCheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.DebugCheckNotNull ("parts", parts);
 
       _requestedType = requestedType;
       _parts = parts;
