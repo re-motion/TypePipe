@@ -44,8 +44,8 @@ namespace Remotion.TypePipe.Caching
 
     public Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
     {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (delegateType != null && typeof (Delegate).IsAssignableFrom (delegateType));
+      ArgumentUtility.DebugCheckNotNull ("delegateType", delegateType);
+      ArgumentUtility.DebugCheckTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
       return _constructorCalls.GetOrAdd (constructionKey, _createConstructorCallFunc);

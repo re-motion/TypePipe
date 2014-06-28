@@ -33,8 +33,7 @@ namespace Remotion.TypePipe.Caching
 
     public ConstructionKey (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
     {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (delegateType != null);
+      ArgumentUtility.DebugCheckNotNull ("delegateType", delegateType);
 
       _typeID = typeID;
       _delegateType = delegateType;

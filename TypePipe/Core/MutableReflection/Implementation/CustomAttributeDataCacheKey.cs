@@ -37,8 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public CustomAttributeDataCacheKey (ICustomAttributeProvider attributeTarget, bool inherit)
     {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (attributeTarget != null);
+      ArgumentUtility.DebugCheckNotNull ("attributeTarget", attributeTarget);
       Assertion.DebugAssert (!(attributeTarget is IMutableMember));
 
       _attributeTarget = attributeTarget;

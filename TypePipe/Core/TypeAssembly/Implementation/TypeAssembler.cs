@@ -93,8 +93,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public AssembledTypeID ComputeTypeID (Type requestedType)
     {
-      // Using Assertion.DebugAssert because it will be compiled away.
-      Assertion.DebugAssert (requestedType != null);
+      ArgumentUtility.DebugCheckNotNull ("requestedType", requestedType);
 
       return _assembledTypeIdentifierProvider.ComputeTypeID (requestedType);
     }
