@@ -38,10 +38,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (method is CustomMethodInfo)
         return method.GetBaseDefinition();
 
-      MethodInfo baseDefinition;
-      if (s_cache.TryGetValue (method, out baseDefinition))
-        return baseDefinition;
-
       return s_cache.GetOrAdd (method, m => m.GetBaseDefinition());
     }
   }
