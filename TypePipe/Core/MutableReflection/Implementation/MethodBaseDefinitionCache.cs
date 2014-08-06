@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   public static class MethodBaseDefinitionCache
   {
     private static readonly ConcurrentDictionary<MethodInfo, MethodInfo> s_cache =
-        new ConcurrentDictionary<MethodInfo, MethodInfo> (new ReferenceEqualityComparer<MethodInfo>());
+        new ConcurrentDictionary<MethodInfo, MethodInfo> (ReferenceEqualityComparer<MethodInfo>.Instance);
 
     public static MethodInfo GetBaseDefinition (MethodInfo method)
     {
