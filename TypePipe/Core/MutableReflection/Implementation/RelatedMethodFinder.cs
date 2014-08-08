@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   /// <threadsafety static="true" instance="true"/>
   public class RelatedMethodFinder : IRelatedMethodFinder
   {
-    private class TypePipeMethodInfoEuqalityComparer : IEqualityComparer<MethodInfo>
+    private class TypePipeMethodInfoEqualityComparer : IEqualityComparer<MethodInfo>
     {
       private readonly IEqualityComparer<MethodInfo> _innerEqualityComparer = MemberInfoEqualityComparer<MethodInfo>.Instance;
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       }
     }
 
-    private static readonly IEqualityComparer<MethodInfo> s_memberInfoEqualityComparer = new TypePipeMethodInfoEuqalityComparer();
+    private static readonly IEqualityComparer<MethodInfo> s_memberInfoEqualityComparer = new TypePipeMethodInfoEqualityComparer();
 
     /// <inheritdoc />
     public MethodInfo GetMostDerivedVirtualMethod (string name, MethodSignature signature, Type typeToStartSearch)
