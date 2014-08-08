@@ -187,7 +187,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var baseMethods = typeof (DomainType).GetMethods (c_all);
       var addedMethod = _mutableTypeWithoutMocks.AddMethod();
 
-      Assert.That (_mutableTypeWithoutMocks.GetAllMethods(), Is.EquivalentTo (new[] { addedMethod }.Concat (baseMethods)));
+      var result = _mutableTypeWithoutMocks.GetAllMethods().ToArray();
+      Assert.That (result, Is.EquivalentTo (new[] { addedMethod }.Concat (baseMethods)));
+      Assert.That (result.Last(), Is.SameAs (addedMethod));
     }
 
     [Test]
@@ -206,11 +208,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           .Return (fakeOverride);
       _mutableType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.None, ctx => null);
 
-      var result = _mutableType.GetAllMethods();
+      var result = _mutableType.GetAllMethods().ToArray();
 
       _memberSelectorMock.VerifyAllExpectations();
       Assert.That (result, Has.Member (fakeOverride));
       Assert.That (result, Has.No.Member (baseMethod));
+      Assert.That (result, Has.No.Member (null));
+      Assert.That (result.Last(), Is.SameAs (fakeOverride));
     }
 
     [Test]

@@ -50,6 +50,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     // Data structures for optimizations.
     private readonly List<MethodInfo> _allMethods;
+    private readonly Dictionary<MethodInfo, int> _allMethodsIndex;
     private readonly HashSet<MethodInfo> _baseDefinitionsOfAbstractMethods;
 
     private MutableConstructorInfo _typeInitializer;
@@ -76,6 +77,11 @@ namespace Remotion.TypePipe.MutableReflection
       _mutableMemberFactory = mutableMemberFactory;
 
       _allMethods = GetAllBaseMethods (baseType);
+
+      _allMethodsIndex = new Dictionary<MethodInfo, int>();
+      for (int index = 0; index < _allMethods.Count; index++)
+        _allMethodsIndex.Add (MethodBaseDefinitionCache.GetBaseDefinition (_allMethods[index]), index);
+
       _baseDefinitionsOfAbstractMethods = GetBaseDefinitionsOfAbstractMethods (baseType);
     }
 
@@ -166,7 +172,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override IEnumerable<MethodInfo> GetAllMethods ()
     {
-      return _allMethods;
+      return _allMethods.Where (m => m != null);
     }
 
     public override IEnumerable<PropertyInfo> GetAllProperties ()
@@ -528,11 +534,17 @@ namespace Remotion.TypePipe.MutableReflection
 
     private void UpdateAllMethods (MutableMethodInfo method)
     {
-      // Remove overridden methods.
       var overriddenBaseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
-      _allMethods.RemoveAll (m => MethodBaseDefinitionCache.GetBaseDefinition (m) == overriddenBaseDefinition);
-
+      int existingIndex;
+      if (_allMethodsIndex.TryGetValue (overriddenBaseDefinition, out existingIndex))
+      {
+        // Remove overridden methods.
+        _allMethods[existingIndex] = null;
+        _allMethodsIndex.Remove (overriddenBaseDefinition);
+      }
       _allMethods.Add (method);
+      int newMethodIndex = _allMethods.Count - 1;
+      _allMethodsIndex.Add (method, newMethodIndex);
     }
 
     private void UpdateAbstractMethods (MutableMethodInfo method)
