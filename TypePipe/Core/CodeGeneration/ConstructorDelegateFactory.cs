@@ -59,8 +59,6 @@ namespace Remotion.TypePipe.CodeGeneration
 
     private Tuple<Type[], Type> GetSignature (Type delegateType)
     {
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
-
       var invokeMethod = delegateType.GetMethod ("Invoke");
       Assertion.IsNotNull (invokeMethod, "Delegate has no Invoke() method.");
 
