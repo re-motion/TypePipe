@@ -23,7 +23,7 @@ echo [6] ... Run DependDB
 echo [7] ... Oops, nothing please - exit.
 echo.
 
-choice /c:123456 /n /m "Your choice: "
+choice /c:1234567 /n /m "Your choice: "
 
 if %ERRORLEVEL%==1 goto run_test_build
 if %ERRORLEVEL%==2 goto run_full_build
