@@ -552,6 +552,9 @@
     <None Include="..\..\remotion.snk">
       <Link>remotion.snk</Link>
     </None>
+    <None Include="..\Build\TemplateShared.nuspec">
+      <Link>TemplateShared.nuspec</Link>
+    </None>
     <None Include="..\TypePipe Apache-2.0.licenseheader">
       <Link>TypePipe Apache-2.0.licenseheader</Link>
     </None>
@@ -571,7 +574,7 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="doc\include\Remotion.TypePipe.NamespaceDoc.xml" />
+    <None Include="doc\include\Remotion.TypePipe.NamespaceDoc.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

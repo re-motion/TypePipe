@@ -34,6 +34,7 @@
     <None Include="Customizations\Projects.targets" />
     <None Include="Customizations\Properties.targets" />
     <None Include="Customizations\Version.targets" />
+    <None Include="TemplateShared.nuspec" />
     <None Include="packages.config" />
     <None Include="Remotion.build" />
     <None Include="Remotion.Local.build" />
