@@ -35,6 +35,8 @@
     <None Include="Customizations\Projects.targets" />
     <None Include="Customizations\Properties.targets" />
     <None Include="Customizations\Version.targets" />
+    <None Include="Remotion.Local.WithOverrides.build" />
+    <None Include="Remotion.Server.WithOverrides.build" />
     <None Include="TemplateShared.nuspec" />
     <None Include="packages.config" />
     <None Include="Remotion.build" />
