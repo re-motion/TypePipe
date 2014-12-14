@@ -1,4 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(SolutionDirectory)Build\Remotion.BuildScript.Overrides.targets" />
+
+  <Target Name="BeforePrepareBuildProperties" BeforeTargets="PrepareBuildProperties">
+    <PropertyGroup>
+      <TempDirectory>$(TempDirectory)TypePipe\</TempDirectory>
+    </PropertyGroup>
+  </Target>
 </Project>
