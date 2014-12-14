@@ -552,7 +552,7 @@
     <None Include="..\..\remotion.snk">
       <Link>remotion.snk</Link>
     </None>
-    <None Include="..\Build\TemplateShared.nuspec">
+    <None Include="..\Build\NuSpec\TemplateShared.nuspec">
       <Link>TemplateShared.nuspec</Link>
     </None>
     <None Include="..\TypePipe Apache-2.0.licenseheader">
