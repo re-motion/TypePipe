@@ -44,6 +44,9 @@
     <None Include="Remotion.Server.build" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="NuSpec\bin\Debug\" />
+    <Folder Include="NuSpec\bin\Release\" />
+    <Folder Include="NuSpec\schemas\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
