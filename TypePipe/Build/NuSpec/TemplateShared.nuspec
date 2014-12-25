@@ -13,11 +13,11 @@
     <tags>$tags$ $extraTags$</tags>
   </metadata>
   <files>
-    <!-- The wildcard is required to support using a referenced nuspec-file for building the nuget package 
-         and a local nuspec-file for supplying the dependency information in downstream projects. 
-         It is very likely there is a bug somewhere in the nuget commandline tool that causes these issues and inconsistencies. -->
-    <file src="bin*\$configuration$\$id$.pdb" target="lib\net45" />
+    <file src="bin\$configuration$\$id$.pdb" target="lib\net45" />
+    <file src="bin\$configuration$\**\$id$.resources.dll" target="lib\net45" />
     <!-- By using a wildcard, the file-inclusion does not fail if no documentation file was found. -->
     <file src="$documentationFolder$*\$id$.chm" target="doc" />
+    <!-- By using a wildcard, the file-inclusion does not fail if no schema folder exists. -->
+    <file src="Schemas*\*.xsd" target="schema" />
   </files>
 </package>
