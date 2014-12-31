@@ -76,9 +76,12 @@
           AdditionalBuildMetadata=$(AdditionalBuildMetadata);
           Platforms=$(Platforms);
           DatabaseSystems=$(DatabaseSystems);
-          Browsers=$(Browsers)
+          Browsers=$(Browsers);
+          TestCategoriesToExclude=$(TestCategoriesToExclude);
       </BuildProperties>
     </PropertyGroup>
+
+    <Message Text="Configured build properties: $(BuildProperties)" />
   </Target>
 
   <Target Name="PrepareBuildTargets">

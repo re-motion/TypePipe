@@ -20,7 +20,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   
   <Import Project="Remotion.build" />
-  
+
+  <Import Project="$(CustomizationsDirectory)Server\*.targets" />
+
   <PropertyGroup>
     <!-- Empty properties will be passed to MSBuild by TeamCity -->
 
