@@ -5,8 +5,8 @@
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
       <CreateDocumentationFile>True</CreateDocumentationFile>
     </ReleaseProjectFiles>
-    <ReleaseProjectFiles Include="$(SolutionDirectory)\TypePipe\Development\TypePipe.Development.csproj" />
-    <UnitTestProjectFiles Include="$(SolutionDirectory)\TypePipe\UnitTests\TypePipe.UnitTests.csproj" />
-    <IntegrationTestProjectFiles Include="$(SolutionDirectory)\TypePipe\IntegrationTests\TypePipe.IntegrationTests.csproj" />
+    <ReleaseProjectFiles Include="$(SolutionDirectory)\TypePipe\Development\TypePipe.Development.csproj"/>
+    <UnitTestProjectFiles Include="$(SolutionDirectory)\TypePipe\UnitTests\TypePipe.UnitTests.csproj"/>
+    <IntegrationTestProjectFiles Include="$(SolutionDirectory)\TypePipe\IntegrationTests\TypePipe.IntegrationTests.csproj"/>
   </ItemGroup>
 </Project>
