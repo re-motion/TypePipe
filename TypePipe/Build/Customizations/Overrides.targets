@@ -5,6 +5,7 @@
   <Target Name="BeforePrepareBuildProperties" BeforeTargets="PrepareBuildProperties">
     <PropertyGroup>
       <TempDirectory>$(TempDirectory)TypePipe\</TempDirectory>
+      <OutputDirectory>$(OutputDirectory)TypePipe\</OutputDirectory>
     </PropertyGroup>
   </Target>
 </Project>
