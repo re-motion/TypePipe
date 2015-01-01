@@ -20,7 +20,6 @@
          Note: This also makes the pdb-file optional for the nuget-package. This is acceptable. -->
     <file src="bin\$configuration$\$id$.pdb*" target="lib\net45" />
     <file src="bin\$configuration$\**\$id$.resources.dll" target="lib\net45" />
-    <!-- By using a wildcard, the file-inclusion does not fail if no documentation file was found. -->
     <file src="$documentationFile$" target="doc" />
     <!-- By using a wildcard, the file-inclusion does not fail if no schema folder exists. -->
     <file src="Schemas*\*.xsd" target="schema" />
