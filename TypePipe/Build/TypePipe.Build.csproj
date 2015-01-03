@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Remotion.BuildScript">
-      <HintPath>..\..\packages\Remotion.BuildScript.2.0.0-alpha00404\lib\net45\Remotion.BuildScript.dll</HintPath>
+      <HintPath>..\..\packages\Remotion.BuildScript.2.0.0-alpha00405\lib\net45\Remotion.BuildScript.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
