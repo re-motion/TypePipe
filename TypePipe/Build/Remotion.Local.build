@@ -24,7 +24,6 @@
   <Import Project="$(CustomizationsDirectory)Local\*.targets" />
 
   <PropertyGroup>
-    <SolutionBuildFile>Remotion.build</SolutionBuildFile>
     <SkipTests>True</SkipTests>
     <SkipDocumentation>True</SkipDocumentation>
     <SkipNuGetOrg>True</SkipNuGetOrg>
@@ -37,6 +36,7 @@
       <Platforms>x86</Platforms>
       <DatabaseSystems>SqlServerDefault</DatabaseSystems>
       <Browsers></Browsers>
+      <TestCategoriesToExclude></TestCategoriesToExclude>
       <SkipTests>False</SkipTests>
     </PropertyGroup>
   </Target>
@@ -48,6 +48,7 @@
       <DatabaseSystems>SqlServerDefault</DatabaseSystems>
       <!-- Skip Internet Explorer -->
       <Browsers>Chrome</Browsers>
+      <TestCategoriesToExclude></TestCategoriesToExclude>
       <SkipTests>False</SkipTests>
       <SkipNuGet>False</SkipNuGet>
     </PropertyGroup>
@@ -55,18 +56,12 @@
   
   <Target Name="DocumentationBuild_Configuration">
     <PropertyGroup>
-      <Platforms>x86</Platforms>
-      <DatabaseSystems>SqlServerDefault</DatabaseSystems>
-      <Browsers></Browsers>
       <SkipDocumentation>False</SkipDocumentation>
     </PropertyGroup>
   </Target>
 
   <Target Name="PackageBuild_Configuration">
     <PropertyGroup>
-      <Platforms>x86</Platforms>
-      <DatabaseSystems>SqlServerDefault</DatabaseSystems>
-      <Browsers></Browsers>
       <SkipNuGet>False</SkipNuGet>
     </PropertyGroup>
   </Target>

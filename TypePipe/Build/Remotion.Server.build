@@ -35,8 +35,6 @@
     <OutputDirectory>$(BuildRootDirectory)output\</OutputDirectory>
     <TempDirectory>$(BuildRootDirectory)temp\</TempDirectory>
 
-    <SolutionBuildFile>$(SolutionDirectory)build\Remotion.build</SolutionBuildFile>
-
     <SolutionKeyFile>$(SecureNetworkShare)\remotion.snk</SolutionKeyFile>
 
     <VcsUrlTemplate></VcsUrlTemplate>
@@ -54,6 +52,7 @@
       <Platforms>x86</Platforms>
       <DatabaseSystems>SqlServer2008R2</DatabaseSystems>
       <Browsers>Chrome</Browsers>
+      <TestCategoriesToExclude></TestCategoriesToExclude>
     </PropertyGroup>
   </Target>
   
@@ -62,6 +61,7 @@
       <Platforms>x86+x64</Platforms>
       <DatabaseSystems>SqlServer2005+SqlServer2008+SqlServer2008R2+SqlServer2012+SqlServer2014</DatabaseSystems>
       <Browsers>Chrome+InternetExplorer</Browsers>
+      <TestCategoriesToExclude></TestCategoriesToExclude>
     </PropertyGroup>
   </Target>
   

@@ -74,6 +74,11 @@
           LogDirectory=$(LogDirectory);
           Version=$(Version);
           AdditionalBuildMetadata=$(AdditionalBuildMetadata);
+          VcsUrlTemplate=$(VcsUrlTemplate);
+          DependDBProjectBranch=$(DependDBProjectBranch);
+          DependDBProjectVersion=$(DependDBProjectVersion);
+          DependDBProjectImportNotificationMailAddress=$(DependDBProjectImportNotificationMailAddress);
+          DependDBProjectImportNotificationMailAddressCc=$(DependDBProjectImportNotificationMailAddressCc);
           Platforms=$(Platforms);
           DatabaseSystems=$(DatabaseSystems);
           Browsers=$(Browsers);
