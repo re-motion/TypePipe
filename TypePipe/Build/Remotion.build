@@ -23,6 +23,8 @@
     <PackagesDirectory Condition="'$(PackagesDirectory)' == ''">$(MSBuildProjectDirectory)\..\packages\</PackagesDirectory>
     <MSBuildExtensionPackPath Condition="'$(MSBuildExtensionPackPath)' == ''">$(PackagesDirectory)MSBuild.Extension.Pack.1.5.0\tools\net40\</MSBuildExtensionPackPath>
     <ExtensionTasksPath>$(MSBuildExtensionPackPath)</ExtensionTasksPath>
+    <DependDBBuildProcessorToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)DependDB.BuildProcessor.1.7.1.0\tools\</DependDBBuildProcessorToolPath>
+    <DependDBNuGetPreProcessorToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)DependDB.BuildProcessor.NuGetPreProcessor.1.7.1.0\tools\</DependDBNuGetPreProcessorToolPath>
     <NUnitToolPath Condition="'$(NUnitToolPath)' == ''">$(PackagesDirectory)NUnit.Runners.2.6.3\tools\</NUnitToolPath>
     <NuGetToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)NuGet.CommandLine.2.8.2\tools\</NuGetToolPath>
     <NuGetForMSBuildPath Condition="'$(NuGetForMSBuildPath)' == ''">$(PackagesDirectory)NuGet.for.MSBuild.1.4.3\build\</NuGetForMSBuildPath>
@@ -44,6 +46,7 @@
     <SkipNuGetOrg>False</SkipNuGetOrg>
     <SkipSourceLinks>False</SkipSourceLinks>
     <SkipNuGet>False</SkipNuGet>
+    <SkipDependDB>False</SkipDependDB>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -75,10 +78,6 @@
           Version=$(Version);
           AdditionalBuildMetadata=$(AdditionalBuildMetadata);
           VcsUrlTemplate=$(VcsUrlTemplate);
-          DependDBProjectBranch=$(DependDBProjectBranch);
-          DependDBProjectVersion=$(DependDBProjectVersion);
-          DependDBProjectImportNotificationMailAddress=$(DependDBProjectImportNotificationMailAddress);
-          DependDBProjectImportNotificationMailAddressCc=$(DependDBProjectImportNotificationMailAddressCc);
           Platforms=$(Platforms);
           DatabaseSystems=$(DatabaseSystems);
           Browsers=$(Browsers);
@@ -102,6 +101,8 @@
 
       <PackageNuGetTarget Condition="'$(SkipNuGet)' != 'True'">CreateNuGetPackagesWithDebugSymbols</PackageNuGetTarget>
 
+      <DependDBTarget Condition="'$(SkipDependDB)' != 'True'">ProcessForDependDB</DependDBTarget>
+
       <TestBuildTargets>
           BuildReleaseProjects;
           BuildTestProjects;
@@ -121,6 +122,7 @@
           $(PackageNuGetOrgTarget);
           $(SourceLinkTarget);
           $(PackageNuGetTarget);
+          $(DependDBTarget);
           RestoreBackupFiles;
       </FullBuildTargets>
 
