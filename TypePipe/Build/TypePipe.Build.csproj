@@ -35,7 +35,9 @@
     <None Include="Customizations\Local\Shared.targets" />
     <None Include="Customizations\Overrides.targets" />
     <None Include="Customizations\Projects.targets" />
-    <None Include="Customizations\Properties.targets" />
+    <None Include="Customizations\Properties.targets">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Customizations\Server\Configuration.targets" />
     <None Include="Customizations\Server\Shared.targets" />
     <None Include="Customizations\Version.targets" />
@@ -53,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Remotion.BuildScript">
-      <HintPath>..\..\packages\Remotion.BuildScript.2.0.0-alpha00406\lib\net45\Remotion.BuildScript.dll</HintPath>
+      <HintPath>..\..\packages\Remotion.BuildScript.2.0.0-alpha00407\lib\net45\Remotion.BuildScript.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
