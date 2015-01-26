@@ -15,7 +15,8 @@
     <DependDBProjectImportNotificationMailAddress></DependDBProjectImportNotificationMailAddress>
   </PropertyGroup>
   <ItemGroup>
-    <DependDBTrackedReference Include="Remotion.*"/>
+    <!-- "%2A" represents an escaped "*" -->
+    <DependDBTrackedReference Include="Remotion.%2A"/>
     <DependDBNuGetSource Include="$(SolutionDirectory)packages"/>
   </ItemGroup>
 </Project>
