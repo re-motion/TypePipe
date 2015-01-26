@@ -34,6 +34,7 @@
     <SkipNuGetOrg>True</SkipNuGetOrg>
     <SkipSourceLinks>True</SkipSourceLinks>
     <SkipNuGet>True</SkipNuGet>
+    <SkipDependDB>Trye</SkipDependDB>
   </PropertyGroup>
   
   <Target Name="TestBuild_Configuration">
@@ -56,6 +57,7 @@
       <TestCategoriesToExclude></TestCategoriesToExclude>
       <SkipTests>False</SkipTests>
       <SkipNuGet>False</SkipNuGet>
+      <SkipDependDB>False</SkipDependDB>
     </PropertyGroup>
   </Target>
   
@@ -68,6 +70,7 @@
   <Target Name="PackageBuild_Configuration">
     <PropertyGroup>
       <SkipNuGet>False</SkipNuGet>
+      <SkipDependDB>False</SkipDependDB>
     </PropertyGroup>
   </Target>
 
