@@ -12,7 +12,7 @@
     <DependDBRetentionTime>30</DependDBRetentionTime>
     <DependDBProjectBranch>trunk</DependDBProjectBranch>
     <DependDBProjectVersion></DependDBProjectVersion>
-    <DependDBProjectImportNotificationMailAddress></DependDBProjectImportNotificationMailAddress>
+    <DependDBProjectImportNotificationMailAddress>noreply@localhost.net</DependDBProjectImportNotificationMailAddress>
     <DependDBProjectImportNotificationMailAddressCc></DependDBProjectImportNotificationMailAddressCc>
   </PropertyGroup>
   <ItemGroup>
