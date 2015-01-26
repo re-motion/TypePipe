@@ -24,6 +24,11 @@
   <Import Project="$(CustomizationsDirectory)Local\*.targets" />
 
   <PropertyGroup>
+    <DependDBProjectImportNotificationMailAddress Condition="'$(DependDBProjectImportNotificationMailAddress)' == ''">noreply@localhost.net</DependDBProjectImportNotificationMailAddress>
+    <VcsUrlTemplate Condition="'$(VcsUrlTemplate)' == ''">http://localost/{0}</VcsUrlTemplate>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <SkipTests>True</SkipTests>
     <SkipDocumentation>True</SkipDocumentation>
     <SkipNuGetOrg>True</SkipNuGetOrg>

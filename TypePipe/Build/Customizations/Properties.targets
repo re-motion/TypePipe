@@ -11,9 +11,8 @@
     <DependDBProjectName>re-motion TypePipe</DependDBProjectName>
     <DependDBRetentionTime>30</DependDBRetentionTime>
     <DependDBProjectBranch>trunk</DependDBProjectBranch>
-    <DependDBProjectVersion></DependDBProjectVersion>
-    <DependDBProjectImportNotificationMailAddress>noreply@localhost.net</DependDBProjectImportNotificationMailAddress>
-    <DependDBProjectImportNotificationMailAddressCc></DependDBProjectImportNotificationMailAddressCc>
+    <!-- Will be passed to MSBuild by TeamCity and uses fallback in local build script. -->
+    <DependDBProjectImportNotificationMailAddress></DependDBProjectImportNotificationMailAddress>
   </PropertyGroup>
   <ItemGroup>
     <DependDBTrackedReference Include="Remotion.*"/>
