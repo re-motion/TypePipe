@@ -13,10 +13,7 @@
     <DependDBProjectBranch>trunk</DependDBProjectBranch>
     <!-- Will be passed to MSBuild by TeamCity and uses fallback in local build script. -->
     <DependDBProjectImportNotificationMailAddress></DependDBProjectImportNotificationMailAddress>
+    <DependDBTrackedReferences>Remotion.*</DependDBTrackedReferences>
+    <DependDBNuGetSources>$(SolutionDirectory)packages</DependDBNuGetSources>
   </PropertyGroup>
-  <ItemGroup>
-    <!-- "%2A" represents an escaped "*" -->
-    <DependDBTrackedReference Include="Remotion.%2A"/>
-    <DependDBNuGetSource Include="$(SolutionDirectory)packages"/>
-  </ItemGroup>
 </Project>

@@ -34,7 +34,7 @@
     <SkipNuGetOrg>True</SkipNuGetOrg>
     <SkipSourceLinks>True</SkipSourceLinks>
     <SkipNuGet>True</SkipNuGet>
-    <SkipDependDB>Trye</SkipDependDB>
+    <SkipDependDB>True</SkipDependDB>
   </PropertyGroup>
   
   <Target Name="TestBuild_Configuration">
