@@ -70,6 +70,12 @@
   <Target Name="PackageBuild_Configuration">
     <PropertyGroup>
       <SkipNuGet>False</SkipNuGet>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="DependDBBuild_Configuration">
+    <PropertyGroup>
+      <SkipNuGet>False</SkipNuGet>
       <SkipDependDB>False</SkipDependDB>
     </PropertyGroup>
   </Target>
@@ -97,5 +103,6 @@
   <Target Name="FullBuildWithoutDocumentation" DependsOnTargets="FullBuild_Configuration;SetVersion;BuildAll;" />
   <Target Name="DocumentationBuild" DependsOnTargets="DocumentationBuild_Configuration;SetVersion;BuildAll;" />
   <Target Name="PackageBuild" DependsOnTargets="PackageBuild_Configuration;SetVersion;BuildAll;" />
+  <Target Name="DependDBBuild" DependsOnTargets="DependDBBuild_Configuration;SetVersion;BuildAll;" />
 
 </Project>
