@@ -84,7 +84,7 @@ mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
 %nuget% restore Remotion.sln -NonInteractive
-%msbuild% build\Remotion.build /t:DependDBBuild /maxcpucount /verbosity:normal /flp:verbosity=detailed;logfile=build\BuildOutput\log\build.log
+%msbuild% build\Remotion.Local.build /t:DependDBBuild /maxcpucount /verbosity:normal /flp:verbosity=detailed;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
