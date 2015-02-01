@@ -18,12 +18,8 @@
 using System;
 using System.Reflection;
 
-//
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-//
 [assembly: AssemblyTitle ("Remotion TypePipe Library")]
-[assembly: AssemblyDescription ("Remotion code generation capabilities.")]
+[assembly: AssemblyDescription ("With the TypePipe, it's now easier than ever for multiple parties to collaboratively generate code.")]
+[assembly: AssemblyMetadata ("tags", "re-motion TypePipe code generation expression trees msil")]
 [assembly: AssemblyCulture ("")]
 [assembly: CLSCompliant (true)]

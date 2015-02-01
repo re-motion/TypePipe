@@ -15,7 +15,7 @@ echo.
 echo Choose your desired build:
 echo [1] ... Test build ^(x86-debug^)
 echo [2] ... Full build ^(x86-debug/release, x64-debug/release^)
-echo [3] ... Quick build ^(x86-debug, no tests are run^)
+rem echo [3] ... Quick build ^(x86-debug, no tests are run^)
 echo [4] ... Docs build ^(x86-debug if not present, docs^)
 echo           Requires Sandcastle Help File Builder to be installed!
 echo [5] ... Package ^(create zip package from pre-existent build^)
@@ -48,7 +48,7 @@ mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
 %nuget% restore Remotion.sln -NonInteractive
-%msbuild% build\Remotion.Local.build /t:FullBuild /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
+%msbuild% build\Remotion.Local.build /t:FullBuildWithoutDocumentation /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
@@ -66,7 +66,7 @@ mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
 %nuget% restore Remotion.sln -NonInteractive
-%msbuild% build\Remotion.Local.build /t:DocumentationTestBuild /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
+%msbuild% build\Remotion.Local.build /t:DocumentationBuild /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
@@ -75,7 +75,7 @@ mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
 %nuget% restore Remotion.sln -NonInteractive
-%msbuild% build\Remotion.Local.build /t:ZipPackageAll /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log "/p:Version=0.0.0.0"
+%msbuild% build\Remotion.Local.build /t:PackageBuild /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
@@ -84,7 +84,7 @@ mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
 %nuget% restore Remotion.sln -NonInteractive
-%msbuild% build\Remotion.build /t:DependDB /maxcpucount /verbosity:normal /flp:verbosity=detailed;logfile=build\BuildOutput\log\build.log "/p:Version=0.0.0.0;DependDBProjectBranch=Trunk;DependDBProjectVersion=0.0.0.0;DependDBProjectVCSUrlTemplate=https://svn.re-motion.org:443/svn/Remotion/!svn/bc/$(DependDBProjectRevision)/trunk/{0};DependDBProjectImportNotificationMailAddress=%USERNAME%@rubicon.eu;DependDBUploadPath=C:\Temp\LocalDependDBUploadDirectory"
+%msbuild% build\Remotion.Local.build /t:DependDBBuild /maxcpucount /verbosity:normal /flp:verbosity=detailed;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
