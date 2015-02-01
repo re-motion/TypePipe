@@ -53,11 +53,6 @@
       <DatabaseSystems>SqlServer2008R2</DatabaseSystems>
       <Browsers>Chrome</Browsers>
       <TestCategoriesToExclude></TestCategoriesToExclude>
-      <SkipDocumentation>True</SkipDocumentation>
-      <SkipNuGetOrg>True</SkipNuGetOrg>
-      <SkipSourceLinks>True</SkipSourceLinks>
-      <SkipNuGet>True</SkipNuGet>
-      <SkipDependDB>True</SkipDependDB>
     </PropertyGroup>
   </Target>
   
