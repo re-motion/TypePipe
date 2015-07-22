@@ -18,7 +18,7 @@ echo [2] ... Full build ^(x86-debug/release, x64-debug/release^)
 rem echo [3] ... Quick build ^(x86-debug, no tests are run^)
 echo [4] ... Docs build ^(x86-debug if not present, docs^)
 echo           Requires Sandcastle Help File Builder to be installed!
-echo [5] ... Package ^(create zip package from pre-existent build^)
+echo [5] ... Package ^(create NuGet packages^)
 echo [6] ... Run DependDB
 echo [7] ... Oops, nothing please - exit.
 echo.
