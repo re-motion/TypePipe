@@ -1,6 +1,6 @@
 @echo off
 pushd %~dp0
-set msbuild="C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
+set msbuild="C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe"
 set log-dir=build\BuildOutput\log
 set nuget-bin=build\BuildOutput\temp\nuget-bin
 set nuget=%nuget-bin%\nuget.exe
