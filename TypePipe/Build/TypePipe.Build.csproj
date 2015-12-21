@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="Build.licenseheader" />
     <None Include="Customizations\Local\Configuration.targets" />
     <None Include="Customizations\Local\Shared.targets" />
     <None Include="Customizations\Overrides.targets" />
