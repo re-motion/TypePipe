@@ -33,15 +33,10 @@
   <ItemGroup>
     <None Include="Build.licenseheader" />
     <None Include="Customizations\Local\Configuration.targets" />
-    <None Include="Customizations\Local\Shared.targets" />
-    <None Include="Customizations\Overrides.targets" />
-    <None Include="Customizations\Projects.targets" />
-    <None Include="Customizations\Properties.targets">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Customizations\Projects.props" />
+    <None Include="Customizations\Properties.props" />
     <None Include="Customizations\Server\Configuration.targets" />
-    <None Include="Customizations\Server\Shared.targets" />
-    <None Include="Customizations\Version.targets" />
+    <None Include="Customizations\Version.props" />
     <None Include="NuSpec\TemplateShared.nuspec" />
     <None Include="packages.config" />
     <None Include="Remotion.build" />
@@ -53,7 +48,11 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Remotion.BuildScript">
-      <HintPath>..\..\packages\Remotion.BuildScript.2.0.0-alpha005\lib\net45\Remotion.BuildScript.dll</HintPath>
+      <HintPath>..\packages\Remotion.BuildScript.2.0.0-alpha012\lib\net45\Remotion.BuildScript.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Remotion.BuildTools.MSBuildTasks">
+      <HintPath>..\packages\Remotion.BuildTools.MSBuildTasks.1.0.5827.25795\lib\net45\Remotion.BuildTools.MSBuildTasks.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
