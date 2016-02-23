@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ReleaseProjectFiles Include="$(SolutionDirectory)TypePipe\Core\TypePipe.Core.csproj">
+    <ReleaseProjectFiles Include="$(SolutionDirectory)Core\Core.csproj">
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
-    <ReleaseProjectFiles Include="$(SolutionDirectory)TypePipe\Documentation\TypePipe.Documentation.csproj">
+    <ReleaseProjectFiles Include="$(SolutionDirectory)Documentation\Documentation.csproj">
       <CreateDocumentationFile>True</CreateDocumentationFile>
     </ReleaseProjectFiles>
-    <ReleaseProjectFiles Include="$(SolutionDirectory)\TypePipe\Development\TypePipe.Development.csproj"/>
-    <UnitTestProjectFiles Include="$(SolutionDirectory)\TypePipe\UnitTests\TypePipe.UnitTests.csproj"/>
-    <IntegrationTestProjectFiles Include="$(SolutionDirectory)\TypePipe\IntegrationTests\TypePipe.IntegrationTests.csproj"/>
+    <ReleaseProjectFiles Include="$(SolutionDirectory)Development\Development.csproj"/>
+    <UnitTestProjectFiles Include="$(SolutionDirectory)Core.UnitTests\Core.UnitTests.csproj"/>
+    <IntegrationTestProjectFiles Include="$(SolutionDirectory)IntegrationTests\IntegrationTests.csproj"/>
   </ItemGroup>
 </Project>

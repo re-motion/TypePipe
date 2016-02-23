@@ -2,13 +2,13 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectID>TP</ProjectID>
-    <AssemblyInfoFile>$(SolutionDirectory)TypePipe\AssemblyInfoShared.*</AssemblyInfoFile>
+    <AssemblyInfoFile>$(SolutionDirectory)AssemblyInfoShared.*</AssemblyInfoFile>
     <CompanyName>rubicon IT GmbH</CompanyName>
     <CompanyUrl>http://www.rubicon.eu</CompanyUrl>
     <Copyright>Copyright (c) rubicon IT GmbH, www.rubicon.eu - Licensed under GNU LGPL 2.1 (or later)</Copyright>
     <ProductName>re-motion code generation library (typepipe.codeplex.com)</ProductName>
-    <DocumentationRootPage>$(SolutionDirectory)TypePipe\Core\Doc\include\GettingStartedWithTypePipe.aml</DocumentationRootPage>
-    <DocumentationNamespaceSummaryFiles>$(SolutionDirectory)TypePipe\**\Doc\include\*.NamespaceDoc.xml</DocumentationNamespaceSummaryFiles>
+    <DocumentationRootPage>$(SolutionDirectory)Core\Doc\include\GettingStartedWithTypePipe.aml</DocumentationRootPage>
+    <DocumentationNamespaceSummaryFiles>$(SolutionDirectory)**\Doc\include\*.NamespaceDoc.xml</DocumentationNamespaceSummaryFiles>
     <DependDBProjectName>re-motion TypePipe</DependDBProjectName>
     <DependDBRetentionTime>30</DependDBRetentionTime>
     <DependDBProjectBranch>trunk</DependDBProjectBranch>

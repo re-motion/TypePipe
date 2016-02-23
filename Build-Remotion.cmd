@@ -5,6 +5,7 @@ set log-dir=build\BuildOutput\log
 set nuget-bin=build\BuildOutput\temp\nuget-bin
 set nuget=%nuget-bin%\nuget.exe
 set nuget-download=powershell.exe -NoProfile -Command "& {(New-Object System.Net.WebClient).DownloadFile('https://www.nuget.org/nuget.exe','%nuget%')}"
+set solution=Remotion-TypePipe.sln
 
 if not exist remotion.snk goto nosnk
 
@@ -38,7 +39,7 @@ goto build_succeeded
 mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
-%nuget% restore Remotion.sln -NonInteractive
+%nuget% restore %solution% -NonInteractive
 %msbuild% build\Remotion.Local.build /t:TestBuild /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
@@ -47,7 +48,7 @@ goto build_succeeded
 mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
-%nuget% restore Remotion.sln -NonInteractive
+%nuget% restore %solution% -NonInteractive
 %msbuild% build\Remotion.Local.build /t:FullBuildWithoutDocumentation /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
@@ -56,7 +57,7 @@ goto build_succeeded
 mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
-%nuget% restore Remotion.sln -NonInteractive
+%nuget% restore %solution% -NonInteractive
 %msbuild% build\Remotion.Local.build /t:QuickBuild /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
@@ -65,7 +66,7 @@ goto build_succeeded
 mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
-%nuget% restore Remotion.sln -NonInteractive
+%nuget% restore %solution% -NonInteractive
 %msbuild% build\Remotion.Local.build /t:DocumentationBuild /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
@@ -74,7 +75,7 @@ goto build_succeeded
 mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
-%nuget% restore Remotion.sln -NonInteractive
+%nuget% restore %solution% -NonInteractive
 %msbuild% build\Remotion.Local.build /t:PackageBuild /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
@@ -83,7 +84,7 @@ goto build_succeeded
 mkdir %log-dir%
 mkdir %nuget-bin%
 %nuget-download%
-%nuget% restore Remotion.sln -NonInteractive
+%nuget% restore %solution% -NonInteractive
 %msbuild% build\Remotion.Local.build /t:DependDBBuild /maxcpucount /verbosity:normal /flp:verbosity=detailed;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
@@ -94,7 +95,7 @@ exit /b 0
 
 :build_failed
 echo.
-echo Building re-motion has failed.
+echo Building %solution% has failed.
 start build\BuildOutput\log\build.log
 pause
 popd
