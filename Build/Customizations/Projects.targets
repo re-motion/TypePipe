@@ -3,6 +3,8 @@
   <ItemGroup>
     <ReleaseProjectFiles Include="$(SolutionDirectory)TypePipe\Core\TypePipe.Core.csproj">
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
+    </ReleaseProjectFiles>
+    <ReleaseProjectFiles Include="$(SolutionDirectory)TypePipe\Documentation\TypePipe.Documentation.csproj">
       <CreateDocumentationFile>True</CreateDocumentationFile>
     </ReleaseProjectFiles>
     <ReleaseProjectFiles Include="$(SolutionDirectory)\TypePipe\Development\TypePipe.Development.csproj"/>
