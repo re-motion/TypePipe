@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectID>TP</ProjectID>
     <AssemblyInfoFile>$(SolutionDirectory)AssemblyInfoShared.*</AssemblyInfoFile>
     <CompanyName>rubicon IT GmbH</CompanyName>
     <CompanyUrl>http://www.rubicon.eu</CompanyUrl>
@@ -10,9 +9,9 @@
     <DocumentationRootPage>$(SolutionDirectory)Core\Doc\include\GettingStartedWithTypePipe.aml</DocumentationRootPage>
     <DocumentationNamespaceSummaryFiles>$(SolutionDirectory)**\Doc\include\*.NamespaceDoc.xml</DocumentationNamespaceSummaryFiles>
     <DependDBProjectName>re-motion TypePipe</DependDBProjectName>
-    <DependDBRetentionTime>30</DependDBRetentionTime>
-    <DependDBProjectBranch>trunk</DependDBProjectBranch>
-    <!-- Will be passed to MSBuild by TeamCity and uses fallback in local build script. -->
+    <DependDBRetentionTime>10</DependDBRetentionTime>
+    <DependDBProjectBranch>Main</DependDBProjectBranch>
+    <!-- Required, but can be supplied via commandline parameter in server build and uses a fallback in local build -->
     <DependDBProjectImportNotificationMailAddress></DependDBProjectImportNotificationMailAddress>
     <DependDBTrackedReferences>Remotion.*</DependDBTrackedReferences>
     <DependDBNuGetSources>$(SolutionDirectory)packages</DependDBNuGetSources>
