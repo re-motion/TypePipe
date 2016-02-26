@@ -22,7 +22,7 @@ using System.Reflection;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle ("Remotion Development Support Library for Remotion.TypePipe")]
+[assembly: AssemblyTitle ("Development Support Library for Remotion.TypePipe")]
 [assembly: AssemblyDescription ("Library for unit testing, building and other development-time activities.")]
 [assembly: AssemblyCulture ("")]
 [assembly: CLSCompliant (true)]

@@ -17,7 +17,7 @@
 using System;
 using System.Reflection;
 
-[assembly: AssemblyTitle ("Remotion TypePipe Library")]
+[assembly: AssemblyTitle ("re-motion TypePipe Library")]
 [assembly: AssemblyDescription ("With the TypePipe, it's now easier than ever for multiple parties to collaboratively generate code.")]
 [assembly: AssemblyMetadata ("tags", "re-motion TypePipe code generation expression trees msil")]
 [assembly: AssemblyCulture ("")]
