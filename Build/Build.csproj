@@ -38,7 +38,12 @@
     <None Include="Customizations\ReleaseProcessScript.config" />
     <None Include="Customizations\Server\Configuration.targets" />
     <None Include="Customizations\Version.props" />
+    <None Include="NuSpec\bin\Debug\.gitmarker" />
+    <None Include="NuSpec\bin\Release\.gitmarker" />
+    <None Include="NuSpec\res\.gitmarker" />
+    <None Include="NuSpec\schemas\.gitmarker" />
     <None Include="NuSpec\TemplateShared.nuspec" />
+    <None Include="NuSpec\UI\.gitmarker" />
     <None Include="packages.config" />
     <None Include="Remotion.build" />
     <None Include="Remotion.Local.build" />
