@@ -60,8 +60,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
-        + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType")]
+        "Base type must not be sealed, an interface, an array, a byref type, a pointer, a generic parameter, "
+        + "contain generic parameters and must have an accessible constructor. Type: 'Remotion.TypePipe.IntegrationTests.TypeAssembly.ModifyGenericTypeTest+DomainType`1'"
+        + "\r\nParameter name: baseType")]
     public void OpenGenericType_Throws ()
     {
       AssembleType (typeof (DomainType<>));
