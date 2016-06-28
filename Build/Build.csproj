@@ -62,7 +62,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Remotion.ReleaseProcessScript">
-      <HintPath>..\packages\Remotion.ReleaseProcessScript.2.0.0-alpha012\lib\net45\Remotion.ReleaseProcessScript.dll</HintPath>
+      <HintPath>..\packages\Remotion.ReleaseProcessScript.2.0.0-alpha014\lib\net45\Remotion.ReleaseProcessScript.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
