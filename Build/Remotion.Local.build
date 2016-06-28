@@ -25,7 +25,7 @@
 
   <PropertyGroup>
     <DependDBProjectImportNotificationMailAddress Condition="'$(DependDBProjectImportNotificationMailAddress)' == ''">noreply@localhost.net</DependDBProjectImportNotificationMailAddress>
-    <VcsUrlTemplate Condition="'$(VcsUrlTemplate)' == ''">http://localost/{0}</VcsUrlTemplate>
+    <VcsUrlTemplate Condition="'$(VcsUrlTemplate)' == ''">http://localhost/{0}</VcsUrlTemplate>
   </PropertyGroup>
 
   <PropertyGroup>
