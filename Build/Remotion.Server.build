@@ -21,7 +21,7 @@
   
   <Import Project="Remotion.build" />
 
-  <Import Project="$(CustomizationsDirectory)Server\*.targets" />
+  <Import Project="$(CustomizationsDirectory)Server\*.props" />
 
   <PropertyGroup>
     <!-- Empty properties will be passed to MSBuild by TeamCity -->
@@ -85,7 +85,7 @@
     <Error Text="The property 'BuildNumber' is not set." Condition="'$(BuildNumber)' == ''" />
 
     <PropertyGroup>
-      <Version>$(Version).1.$(BuildNumber)</Version>
+      <Version>$(Version)-x.1.$(BuildNumber)</Version>
     </PropertyGroup>
   </Target>
 
@@ -98,5 +98,9 @@
   <Target Name="Server_CIBuild" DependsOnTargets="CheckProperties;SetVersionCiAndNightlyBuild;TestBuild" />
   <Target Name="Server_NightlyBuild" DependsOnTargets="CheckProperties;SetVersionCiAndNightlyBuild;FullBuild" />
   <Target Name="Server_FullBuild" DependsOnTargets="CheckProperties;SetVersionFullBuild;FullBuild;" />
+
+  <!-- Customization Targets -->
+
+  <Import Project="$(CustomizationsDirectory)Server\*.targets" />
 
 </Project>

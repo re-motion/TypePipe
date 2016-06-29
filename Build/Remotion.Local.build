@@ -21,11 +21,11 @@
   
   <Import Project="Remotion.build" />
 
-  <Import Project="$(CustomizationsDirectory)Local\*.targets" />
+  <Import Project="$(CustomizationsDirectory)Local\*.props" />
 
   <PropertyGroup>
     <DependDBProjectImportNotificationMailAddress Condition="'$(DependDBProjectImportNotificationMailAddress)' == ''">noreply@localhost.net</DependDBProjectImportNotificationMailAddress>
-    <VcsUrlTemplate Condition="'$(VcsUrlTemplate)' == ''">http://localost/{0}</VcsUrlTemplate>
+    <VcsUrlTemplate Condition="'$(VcsUrlTemplate)' == ''">http://localhost/{0}</VcsUrlTemplate>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -86,9 +86,9 @@
     <MSBuild.ExtensionPack.Framework.DateAndTime TaskAction="Get" Format="yyMMdd-HHmmss"> 
       <Output TaskParameter="Result" PropertyName="_formattedDateTime"/> 
     </MSBuild.ExtensionPack.Framework.DateAndTime>
-
+    
     <PropertyGroup>
-      <Version>$(Version).9.$(_formattedDateTime)</Version>
+      <Version>$(Version)-x.9.$(_formattedDateTime)</Version>
     </PropertyGroup>
   </Target>
 
@@ -104,5 +104,9 @@
   <Target Name="DocumentationBuild" DependsOnTargets="DocumentationBuild_Configuration;SetVersion;BuildAll;" />
   <Target Name="PackageBuild" DependsOnTargets="PackageBuild_Configuration;SetVersion;BuildAll;" />
   <Target Name="DependDBBuild" DependsOnTargets="DependDBBuild_Configuration;SetVersion;BuildAll;" />
+
+  <!-- Customization Targets -->
+
+  <Import Project="$(CustomizationsDirectory)Local\*.targets" />
 
 </Project>

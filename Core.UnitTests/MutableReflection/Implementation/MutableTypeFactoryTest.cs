@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type must be null for interfaces.\r\nParameter name: baseType")]
+    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type must be null for interfaces. Type: 'System.Object'\r\nParameter name: baseType")]
     public void CreateType_BaseType_MustBeNullForInterfaces ()
     {
       _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), null);
@@ -188,8 +188,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private void CheckThrowsForInvalidBaseType (Type invalidBaseType)
     {
-      var message = "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
-                    + "a generic parameter, contain generic parameters and must have an accessible constructor.\r\nParameter name: baseType";
+      var message = string.Format (
+          "Base type must not be sealed, an interface, an array, a byref type, a pointer, a generic parameter, "
+          + "contain generic parameters and must have an accessible constructor. Type: '{0}'\r\nParameter name: baseType",
+          invalidBaseType.FullName);
       Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType, null), Throws.ArgumentException.With.Message.EqualTo (message));
     }
 

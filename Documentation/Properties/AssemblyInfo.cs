@@ -23,8 +23,8 @@ using System.Reflection;
 // associated with an assembly.
 //
 
-[assembly: AssemblyTitle ("Remotion TypePipe Library Documentation")]
-[assembly: AssemblyDescription ("Documentation for the re-motion TypePipe.")]
+[assembly: AssemblyTitle ("Documentation for the re-motion TypePipe Library")]
+[assembly: AssemblyDescription ("Contains the documentation file for Remotion.TypePipe.")]
 [assembly: AssemblyMetadata ("tags", "re-motion TypePipe Documentation")]
 [assembly: AssemblyCulture ("")]
 [assembly: CLSCompliant (true)]

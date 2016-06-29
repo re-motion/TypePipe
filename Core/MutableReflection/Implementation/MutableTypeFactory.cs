@@ -46,13 +46,15 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       if (!isInterface && baseType == null)
         throw new ArgumentException ("Base type cannot be null.", "baseType");
       if (isInterface && baseType != null)
-        throw new ArgumentException ("Base type must be null for interfaces.", "baseType");
+        throw new ArgumentException (string.Format ("Base type must be null for interfaces. Type: '{0}'", baseType.FullName), "baseType");
 
       if (baseType != null && !IsValidBaseType (baseType))
       {
         throw new ArgumentException (
-            "Base type must not be sealed, an interface, an array, a byref type, a pointer, "
-            + "a generic parameter, contain generic parameters and must have an accessible constructor.",
+            string.Format (
+                "Base type must not be sealed, an interface, an array, a byref type, a pointer, a generic parameter, "
+                + "contain generic parameters and must have an accessible constructor. Type: '{0}'",
+                baseType.FullName),
             "baseType");
       }
 
