@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -31,6 +30,7 @@ namespace Remotion.Development.UnitTesting
       return
           new PEVerifier (
               new CompoundPEVerifyPathSource (
+                  new WindowsSdk81aPEVerifyPathSource(),
                   new WindowsSdk80aPEVerifyPathSource(),
                   new WindowsSdk71PEVerifyPathSource(),
                   new WindowsSdk70aPEVerifyPathSource(),
