@@ -53,18 +53,19 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="App_Packages\Remotion.Development.NormalizingMemberInfoFromExpressionUtility.Sources.1.17.6.0\NMIFRUtility.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifier.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyException.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\CompoundPEVerifyPathSource.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\FixedPEVerifyPathSource.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\IPEVerifyPathSource.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\PEVerifyVersion.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs" />
-    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifier.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyException.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\CompoundPEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\DotNetSdk20PEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\FixedPEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\IPEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\PEVerifyVersion.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\PotentialPEVerifyPathSourceBase.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\WindowsSdk6PEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\WindowsSdk70aPEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\WindowsSdk71PEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\WindowsSdk80aPEVerifyPathSource.cs" />
+    <Compile Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\PEVerifyPathSources\WindowsSdk81aPEVerifyPathSource.cs" />
     <Compile Include="App_Packages\Remotion.Development.PrivateInvoke.Sources.1.17.6.0\PrivateInvoke.cs" />
     <Compile Include="App_Packages\Remotion.Development.ReflectionObjectMother.Sources.1.17.6.0\ReflectionObjectMother.cs" />
     <Compile Include="App_Packages\Remotion.FunctionalProgramming.EnumerableExtensions.Sources.1.17.6.0\EnumerableExtensions.cs" />
@@ -163,7 +164,7 @@
       <Link>Apache-2.0.licenseheader</Link>
     </None>
     <None Include="App_Packages\Remotion.Development.NormalizingMemberInfoFromExpressionUtility.Sources.1.17.6.0\Apache-2.0.licenseheader" />
-    <None Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
+    <None Include="App_Packages\Remotion.Development.PEVerifier.Sources.1.17.10.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.PrivateInvoke.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.ReflectionObjectMother.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.FunctionalProgramming.EnumerableExtensions.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
