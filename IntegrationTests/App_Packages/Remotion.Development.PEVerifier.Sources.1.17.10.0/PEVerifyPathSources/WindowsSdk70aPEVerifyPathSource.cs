@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.IO;
 using Microsoft.Win32;
@@ -23,10 +22,10 @@ using Remotion.FunctionalProgramming;
 // ReSharper disable once CheckNamespace
 namespace Remotion.Development.UnitTesting.PEVerifyPathSources
 {
-  partial class WindowsSdk80aPEVerifyPathSource : PotentialPEVerifyPathSourceBase
+  partial class WindowsSdk70aPEVerifyPathSource : PotentialPEVerifyPathSourceBase
   {
-    public const string WindowsSdkRegistryKey35 = @"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx35Tools";
-    public const string WindowsSdkRegistryKey40 = @"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx40Tools";
+    public const string WindowsSdkRegistryKey35 = @"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx35Tools";
+    public const string WindowsSdkRegistryKey40 = @"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools";
     public const string WindowsSdkRegistryInstallationFolderValue = "InstallationFolder";
 
     public override string GetLookupDiagnostics (PEVerifyVersion version)
@@ -35,18 +34,18 @@ namespace Remotion.Development.UnitTesting.PEVerifyPathSources
       {
         case PEVerifyVersion.DotNet2:
           return string.Format (
-              "Windows SDK 8.0A: Registry: HKEY_LOCAL_MACHINE\\{0}\\{1}\\PEVerify.exe",
+              "Windows SDK 7.0A: Registry: HKEY_LOCAL_MACHINE\\{0}\\{1}\\PEVerify.exe",
               WindowsSdkRegistryKey35,
               WindowsSdkRegistryInstallationFolderValue);
 
         case PEVerifyVersion.DotNet4:
           return string.Format (
-              "Windows SDK 8.0A: Registry: HKEY_LOCAL_MACHINE\\{0}\\{1}\\PEVerify.exe",
+              "Windows SDK 7.0A: Registry: HKEY_LOCAL_MACHINE\\{0}\\{1}\\PEVerify.exe",
               WindowsSdkRegistryKey40,
               WindowsSdkRegistryInstallationFolderValue);
 
         default:
-          return "Windows SDK 8.0A: n/a";
+          return "Windows SDK 7.0A: n/a";
       }
     }
 

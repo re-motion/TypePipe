@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,31 +14,28 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
-using Remotion.Utilities;
 
 // ReSharper disable once CheckNamespace
-namespace Remotion.Development.UnitTesting.PEVerifyPathSources
+namespace Remotion.Development.UnitTesting
 {
-  partial class FixedPEVerifyPathSource : IPEVerifyPathSource
+  partial class PEVerifyException : Exception
   {
-    private readonly string _path;
-
-    public FixedPEVerifyPathSource (string path)
+    public PEVerifyException (string message) : base (message)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("path", path);
-      _path = path;
     }
 
-    public string GetPEVerifyPath (PEVerifyVersion version)
+    public PEVerifyException (string message, Exception inner) : base (message, inner)
     {
-      return  _path;
     }
 
-    public string GetLookupDiagnostics (PEVerifyVersion version)
+    public PEVerifyException (int resultCode, string output) : base (ConstructMessage (resultCode, output))
     {
-      return "Path: " + _path;
+    }
+
+    private static string ConstructMessage (int code, string output)
+    {
+      return string.Format ("PEVerify returned {0}.\n{1}", code, output);
     }
   }
 }
