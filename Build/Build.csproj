@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Remotion.BuildScript">
-      <HintPath>..\packages\Remotion.BuildScript.2.0.0-alpha014\lib\net45\Remotion.BuildScript.dll</HintPath>
+      <HintPath>..\packages\Remotion.BuildScript.2.0.0-alpha016\lib\net45\Remotion.BuildScript.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Remotion.BuildTools.MSBuildTasks">
