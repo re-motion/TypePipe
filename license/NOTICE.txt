@@ -7,8 +7,13 @@ re-motion Framework - TypePipe
 www.re-motion.org
 Copyright (c) rubicon IT GmbH, www.rubicon.eu
 
-This software includes the following libraries:
-
-Microsoft Dynamic Language Runtime
+This software embeds code from "Microsoft Dynamic Language Runtime", now a part of "IronPython".
 Copyright (c) Microsoft Corporation
-Original software available from http://dlr.codeplex.com/
+Original software available from "https://github.com/IronLanguages/main" or "https://github.com/IronLanguages/ironpython2".
+Relevant code (/Core/Dlr in commit "3dfd952e94c66cdd7f2554602afc463053c1d146" from 2012-02-27) contains a copy of 
+* "https://github.com/IronLanguages/main/tree/5846bd06372449247e62e22a374c3d41baf4b9fa/Runtime/Microsoft.Scripting.Core" or
+* "https://github.com/IronLanguages/ironpython2/tree/5846bd06372449247e62e22a374c3d41baf4b9fa/Runtime/Microsoft.Scripting.Core" 
+   and forked as
+* "https://github.com/re-motion/IronLanguages-main/tree/TypePipe-Source/Runtime/Microsoft.Scripting.Core" or
+* "https://github.com/re-motion/IronLanguages-ironpython2/tree/TypePipe-Source/Runtime/Microsoft.Scripting.Core",
+originally hosted on "https://dlr.codeplex.com", now archived as "https://archive.codeplex.com/?p=dlr".
