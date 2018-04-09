@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
@@ -30,7 +31,7 @@ namespace Remotion.TypePipe.Implementation
     private readonly object _lock = new object();
     private readonly Dictionary<string, IPipeline> _pipelines = new Dictionary<string, IPipeline>();
 
-    private string _defaultPipelineID;
+    private IPipeline _defaultPipeline;
 
     public DefaultPipelineRegistry (IPipeline defaultPipeline)
     {
@@ -41,7 +42,17 @@ namespace Remotion.TypePipe.Implementation
 
     public IPipeline DefaultPipeline
     {
-      get { return Get (_defaultPipelineID); }
+      get
+      {
+        // Reading the _defaultPipeline field with just a volatle read instead of inside a lock-statement is considered sufficient 
+        // because there is only one locked write access to the field in the rest of the code (SetDefaultPipleline).
+        // Note that SetDefaultPipeline(...) might update the _defaultPipeline field before updating the _pipelines dictionary. An access to 
+        // get_DefaultPipeline would then see this updated value before SetDefaultPipeline has returned. This potential race condition is 
+        // considered irrelevant to the correct operation of the system, the caller would simply see the new default a little bit sooner.
+        var defaultPipeline = Volatile.Read (ref _defaultPipeline);
+
+        return defaultPipeline;
+      }
     }
 
     public void SetDefaultPipeline (IPipeline defaultPipeline)
@@ -50,8 +61,10 @@ namespace Remotion.TypePipe.Implementation
 
       lock (_lock)
       {
-        _defaultPipelineID = defaultPipeline.ParticipantConfigurationID;
-        _pipelines[_defaultPipelineID] = defaultPipeline;
+        _pipelines[defaultPipeline.ParticipantConfigurationID] = defaultPipeline;
+
+        // See also get_DefaultPipeline for notes on thread-safety for the _defaultPipeline field.
+        _defaultPipeline = defaultPipeline;
       }
     }
 
@@ -78,7 +91,7 @@ namespace Remotion.TypePipe.Implementation
 
       lock (_lock)
       {
-        if (participantConfigurationID == _defaultPipelineID)
+        if (participantConfigurationID == _defaultPipeline.ParticipantConfigurationID)
           throw new InvalidOperationException ("The default pipeline cannot be unregistered.");
 
         _pipelines.Remove (participantConfigurationID);
