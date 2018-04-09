@@ -1,6 +1,13 @@
 @echo off
 pushd %~dp0
-set msbuild="C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe"
+
+set program-path=%ProgramFiles(x86)%
+if not exist "%program-path%" set program-path=%ProgramFiles%
+set msbuild="%program-path%\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe"
+
 set log-dir=build\BuildOutput\log
 set nuget-bin=build\BuildOutput\temp\nuget-bin
 set nuget=%nuget-bin%\nuget.exe
@@ -12,6 +19,8 @@ if not exist remotion.snk goto nosnk
 if not [%1]==[] goto %1
 	
 echo Welcome to the re-motion build tool!
+echo.
+echo Using %msbuild%
 echo.
 echo Choose your desired build:
 echo [1] ... Test build ^(x86-debug^)
