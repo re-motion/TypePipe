@@ -47,16 +47,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    public void SetDefaultPipeline ()
-    {
-      _registry.SetDefaultPipeline (_somePipeline);
-
-      Assert.That (_registry.DefaultPipeline, Is.SameAs (_somePipeline));
-      Assert.That (_registry.Get ("some id"), Is.SameAs (_somePipeline));
-      Assert.That (() => _registry.SetDefaultPipeline (_somePipeline), Throws.Nothing);
-    }
-
-    [Test]
     public void RegisterAndGet ()
     {
       _registry.Register (_somePipeline);

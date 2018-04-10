@@ -45,15 +45,8 @@ namespace Remotion.TypePipe
     /// Gets the default pipeline.
     /// </summary>
     /// <exception cref="InvalidOperationException">If no default pipeline was specified.</exception>
-    /// <seealso cref="SetDefaultPipeline"/>
     [NotNull]
     IPipeline DefaultPipeline { get; }
-
-    /// <summary>
-    /// Sets a pipeline as the <see cref="DefaultPipeline"/> overriding the previous default pipeline. 
-    /// </summary>
-    /// <param name="defaulPipeline">The new default pipeline.</param>
-    void SetDefaultPipeline ([NotNull] IPipeline defaulPipeline);
 
     /// <summary>
     /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.

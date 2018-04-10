@@ -30,29 +30,14 @@ namespace Remotion.TypePipe.Implementation
     private readonly object _lock = new object();
     private readonly Dictionary<string, IPipeline> _pipelines = new Dictionary<string, IPipeline>();
 
-    private string _defaultPipelineID;
+    public IPipeline DefaultPipeline { get; }
 
     public DefaultPipelineRegistry (IPipeline defaultPipeline)
     {
       ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
 
-      SetDefaultPipeline (defaultPipeline);
-    }
-
-    public IPipeline DefaultPipeline
-    {
-      get { return Get (_defaultPipelineID); }
-    }
-
-    public void SetDefaultPipeline (IPipeline defaultPipeline)
-    {
-      ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
-
-      lock (_lock)
-      {
-        _defaultPipelineID = defaultPipeline.ParticipantConfigurationID;
-        _pipelines[_defaultPipelineID] = defaultPipeline;
-      }
+      Register (defaultPipeline);
+      DefaultPipeline = defaultPipeline;
     }
 
     public void Register (IPipeline pipeline)
@@ -78,7 +63,7 @@ namespace Remotion.TypePipe.Implementation
 
       lock (_lock)
       {
-        if (participantConfigurationID == _defaultPipelineID)
+        if (participantConfigurationID == DefaultPipeline.ParticipantConfigurationID)
           throw new InvalidOperationException ("The default pipeline cannot be unregistered.");
 
         _pipelines.Remove (participantConfigurationID);
