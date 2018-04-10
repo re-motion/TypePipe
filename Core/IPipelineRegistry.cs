@@ -52,12 +52,12 @@ namespace Remotion.TypePipe
     /// Registers an <see cref="IPipeline"/> under its <see cref="IPipeline.ParticipantConfigurationID"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">If a factory is already registered under the specified identifier.</exception>
-    /// <param name="pipeline">The object factory to register.</param>
+    /// <param name="pipeline">The <see cref="IPipeline"/> to register.</param>
     void Register ([NotNull] IPipeline pipeline);
 
     /// <summary>
     /// Unregisters the <see cref="IPipeline"/> instance that is currently registered under the specified participant configuration ID.
-    /// No exception is thrown if no factory is registered under the given identifier.
+    /// No exception is thrown if no <see cref="IPipeline"/> is registered under the given identifier.
     /// </summary>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     void Unregister ([NotNull] string participantConfigurationID);
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe
     /// <summary>
     /// Retrieves the <see cref="IPipeline"/> instance that is registered under the specified participant configuration ID.
     /// </summary>
-    /// <exception cref="InvalidOperationException">If no factory is registered under the specified identifier.</exception>
+    /// <exception cref="InvalidOperationException">If no <see cref="IPipeline"/> is registered under the specified identifier.</exception>
     /// <param name="participantConfigurationID">The participant configuration ID.</param>
     /// <returns>The registered pipeline.</returns>
     [NotNull]

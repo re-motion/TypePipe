@@ -23,7 +23,7 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// A <see cref="IPipelineRegistry"/> implementation that registers the provided pipeline and sets it as the default pipeline.
+  /// An <see cref="IPipelineRegistry"/> implementation that registers the provided pipeline and sets it as the default pipeline.
   /// This ensures that the <see cref="DefaultPipelineRegistry.DefaultPipeline"/> property is populated.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
