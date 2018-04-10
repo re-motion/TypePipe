@@ -55,10 +55,7 @@ namespace Remotion.TypePipe.Implementation
       lock (_pipelines.SyncRoot)
       {
         if (_pipelines.ContainsKey (pipeline.ParticipantConfigurationID))
-        {
-          var message = string.Format ("Another pipeline is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
-          throw new InvalidOperationException (message);
-        }
+          throw new InvalidOperationException ($"Another pipeline is already registered for identifier '{pipeline.ParticipantConfigurationID}'.");
 
         _pipelines.Add (pipeline.ParticipantConfigurationID, pipeline);
       }
@@ -69,7 +66,7 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
       if (participantConfigurationID == DefaultPipeline.ParticipantConfigurationID)
-        throw new InvalidOperationException ("The default pipeline cannot be unregistered.");
+        throw new InvalidOperationException ($"The default pipeline ('{participantConfigurationID}') cannot be unregistered.");
 
       lock (_pipelines.SyncRoot)
       {
@@ -86,10 +83,7 @@ namespace Remotion.TypePipe.Implementation
       var pipeline = (IPipeline) _pipelines[participantConfigurationID];
 
       if (pipeline == null)
-      {
-        var message = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
-        throw new InvalidOperationException (message);
-      }
+        throw new InvalidOperationException ($"No pipeline registered for identifier '{participantConfigurationID}'.");
 
       return pipeline;
     }

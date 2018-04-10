@@ -75,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The default pipeline cannot be unregistered.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The default pipeline ('default id') cannot be unregistered.")]
     public void Unregister_DefaultPipeline ()
     {
       _registry.Unregister (_defaultPipeline.ParticipantConfigurationID);
