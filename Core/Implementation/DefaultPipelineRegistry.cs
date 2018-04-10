@@ -15,6 +15,8 @@
 // under the License.
 // 
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Remotion.Utilities;
 
@@ -27,8 +29,13 @@ namespace Remotion.TypePipe.Implementation
   /// <threadsafety static="true" instance="true"/>
   public class DefaultPipelineRegistry : IPipelineRegistry
   {
-    private readonly object _lock = new object();
-    private readonly Dictionary<string, IPipeline> _pipelines = new Dictionary<string, IPipeline>();
+    /// <summary>ConcurrentDictionary{string, IPipeline}</summary>
+    /// <remarks>
+    /// <see cref="Hashtable"/> was chosen over <see cref="ConcurrentDictionary{TKey,TValue}"/> due to performance considerations:
+    /// When used in a multi-reader / single-writer setup with many reads but only few writes, the Hashtable allows 25% more reads per time unit 
+    /// compared to the <see cref="ConcurrentDictionary{TKey,TValue}"/>. Test setup was a dictionary with 10 entries and a 36-characters string key.
+    /// </remarks>
+    private readonly Hashtable _pipelines = new Hashtable();
 
     public IPipeline DefaultPipeline { get; }
 
@@ -45,7 +52,7 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("pipeline", pipeline);
       Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
-      lock (_lock)
+      lock (_pipelines.SyncRoot)
       {
         if (_pipelines.ContainsKey (pipeline.ParticipantConfigurationID))
         {
@@ -61,11 +68,11 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      lock (_lock)
-      {
-        if (participantConfigurationID == DefaultPipeline.ParticipantConfigurationID)
-          throw new InvalidOperationException ("The default pipeline cannot be unregistered.");
+      if (participantConfigurationID == DefaultPipeline.ParticipantConfigurationID)
+        throw new InvalidOperationException ("The default pipeline cannot be unregistered.");
 
+      lock (_pipelines.SyncRoot)
+      {
         _pipelines.Remove (participantConfigurationID);
       }
     }
@@ -74,15 +81,17 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      lock (_lock)
+      // ReSharper disable once InconsistentlySynchronizedField
+      // _pipeline is a Hashtable. Hashtable is threadsafe for multi-readers / single-writer.
+      var pipeline = (IPipeline) _pipelines[participantConfigurationID];
+
+      if (pipeline == null)
       {
-        IPipeline pipeline;
-        if (_pipelines.TryGetValue (participantConfigurationID, out pipeline))
-          return pipeline;
+        var message = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
+        throw new InvalidOperationException (message);
       }
 
-      var message = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
-      throw new InvalidOperationException (message);
+      return pipeline;
     }
   }
 }
