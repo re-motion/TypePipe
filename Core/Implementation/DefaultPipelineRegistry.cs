@@ -15,44 +15,36 @@
 // under the License.
 // 
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.Implementation
 {
   /// <summary>
-  /// A <see cref="IPipelineRegistry"/> implementation that registers the provided pipeline and sets it as the default pipeline.
+  /// An <see cref="IPipelineRegistry"/> implementation that registers the provided pipeline and sets it as the default pipeline.
   /// This ensures that the <see cref="DefaultPipelineRegistry.DefaultPipeline"/> property is populated.
   /// </summary>
   /// <threadsafety static="true" instance="true"/>
   public class DefaultPipelineRegistry : IPipelineRegistry
   {
-    private readonly object _lock = new object();
-    private readonly Dictionary<string, IPipeline> _pipelines = new Dictionary<string, IPipeline>();
+    /// <summary>ConcurrentDictionary{string, IPipeline}</summary>
+    /// <remarks>
+    /// <see cref="Hashtable"/> was chosen over <see cref="ConcurrentDictionary{TKey,TValue}"/> due to performance considerations:
+    /// When used in a multi-reader / single-writer setup with many reads but only few writes, the Hashtable allows 25% more reads per time unit 
+    /// compared to the <see cref="ConcurrentDictionary{TKey,TValue}"/>. Test setup was a dictionary with 10 entries and a 36-characters string key.
+    /// </remarks>
+    private readonly Hashtable _pipelines = new Hashtable();
 
-    private string _defaultPipelineID;
+    public IPipeline DefaultPipeline { get; }
 
     public DefaultPipelineRegistry (IPipeline defaultPipeline)
     {
       ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
 
-      SetDefaultPipeline (defaultPipeline);
-    }
-
-    public IPipeline DefaultPipeline
-    {
-      get { return Get (_defaultPipelineID); }
-    }
-
-    public void SetDefaultPipeline (IPipeline defaultPipeline)
-    {
-      ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
-
-      lock (_lock)
-      {
-        _defaultPipelineID = defaultPipeline.ParticipantConfigurationID;
-        _pipelines[_defaultPipelineID] = defaultPipeline;
-      }
+      Register (defaultPipeline);
+      DefaultPipeline = defaultPipeline;
     }
 
     public void Register (IPipeline pipeline)
@@ -60,13 +52,10 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("pipeline", pipeline);
       Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
-      lock (_lock)
+      lock (_pipelines.SyncRoot)
       {
         if (_pipelines.ContainsKey (pipeline.ParticipantConfigurationID))
-        {
-          var message = string.Format ("Another pipeline is already registered for identifier '{0}'.", pipeline.ParticipantConfigurationID);
-          throw new InvalidOperationException (message);
-        }
+          throw new InvalidOperationException ($"Another pipeline is already registered for identifier '{pipeline.ParticipantConfigurationID}'.");
 
         _pipelines.Add (pipeline.ParticipantConfigurationID, pipeline);
       }
@@ -76,11 +65,11 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      lock (_lock)
-      {
-        if (participantConfigurationID == _defaultPipelineID)
-          throw new InvalidOperationException ("The default pipeline cannot be unregistered.");
+      if (participantConfigurationID == DefaultPipeline.ParticipantConfigurationID)
+        throw new InvalidOperationException ($"The default pipeline ('{participantConfigurationID}') cannot be unregistered.");
 
+      lock (_pipelines.SyncRoot)
+      {
         _pipelines.Remove (participantConfigurationID);
       }
     }
@@ -89,15 +78,14 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
 
-      lock (_lock)
-      {
-        IPipeline pipeline;
-        if (_pipelines.TryGetValue (participantConfigurationID, out pipeline))
-          return pipeline;
-      }
+      // ReSharper disable once InconsistentlySynchronizedField
+      // _pipeline is a Hashtable. Hashtable is threadsafe for multi-readers / single-writer.
+      var pipeline = (IPipeline) _pipelines[participantConfigurationID];
 
-      var message = string.Format ("No pipeline registered for identifier '{0}'.", participantConfigurationID);
-      throw new InvalidOperationException (message);
+      if (pipeline == null)
+        throw new InvalidOperationException ($"No pipeline registered for identifier '{participantConfigurationID}'.");
+
+      return pipeline;
     }
   }
 }

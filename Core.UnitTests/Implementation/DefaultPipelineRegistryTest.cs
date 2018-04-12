@@ -47,16 +47,6 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    public void SetDefaultPipeline ()
-    {
-      _registry.SetDefaultPipeline (_somePipeline);
-
-      Assert.That (_registry.DefaultPipeline, Is.SameAs (_somePipeline));
-      Assert.That (_registry.Get ("some id"), Is.SameAs (_somePipeline));
-      Assert.That (() => _registry.SetDefaultPipeline (_somePipeline), Throws.Nothing);
-    }
-
-    [Test]
     public void RegisterAndGet ()
     {
       _registry.Register (_somePipeline);
@@ -85,7 +75,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The default pipeline cannot be unregistered.")]
+    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The default pipeline ('default id') cannot be unregistered.")]
     public void Unregister_DefaultPipeline ()
     {
       _registry.Unregister (_defaultPipeline.ParticipantConfigurationID);
