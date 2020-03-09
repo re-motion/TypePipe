@@ -1,5 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <DefaultTestConfiguration>
+      Win_NET48  + NET48  + NoBrowser + NoDB + Debug   + x86;
+      Win_NET48  + NET48  + NoBrowser + NoDB + Release + x86;
+      Win_NET48  + NET48  + NoBrowser + NoDB + Debug   + x64;
+      Win_NET48  + NET48  + NoBrowser + NoDB + Release + x64;
+
+      <!-- Local-->
+      LocalMachine  + NET48  + NoBrowser + NoDB + Debug + x86;
+
+      <!-- Compatibility Mode -->
+      Win_NET48  + NET472 + NoBrowser + NoDB + Release + x64;
+      Win_NET472 + NET472 + NoBrowser + NoDB + Release + x64;
+    </DefaultTestConfiguration>
+  </PropertyGroup>
   <ItemGroup>
     <ReleaseProjectFiles Include="$(SolutionDirectory)Core\Core.csproj">
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
@@ -14,7 +30,9 @@
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
 
-    <UnitTestProjectFiles Include="$(SolutionDirectory)Core.UnitTests\Core.UnitTests.csproj"/>
+    <UnitTestProjectFiles Include="$(SolutionDirectory)Core.UnitTests\Core.UnitTests.csproj">
+      <TestConfiguration>$(DefaultTestConfiguration)</TestConfiguration>
+    </UnitTestProjectFiles>
 
     <IntegrationTestProjectFiles Include="$(SolutionDirectory)IntegrationTests\IntegrationTests.csproj"/>
   </ItemGroup>
