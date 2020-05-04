@@ -23,14 +23,27 @@
     <PackagesDirectory Condition="'$(PackagesDirectory)' == ''">$(MSBuildProjectDirectory)\..\packages\</PackagesDirectory>
     <MSBuildExtensionPackPath Condition="'$(MSBuildExtensionPackPath)' == ''">$(PackagesDirectory)MSBuild.Extension.Pack.1.5.0\tools\net40\</MSBuildExtensionPackPath>
     <ExtensionTasksPath>$(MSBuildExtensionPackPath)</ExtensionTasksPath>
-    <DependDBBuildProcessorToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)DependDB.BuildProcessor.1.8.1\tools\</DependDBBuildProcessorToolPath>
-    <DependDBNuGetPreProcessorToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)DependDB.BuildProcessor.NuGetPreProcessor.1.8.1\tools\</DependDBNuGetPreProcessorToolPath>
-    <NUnitToolPath Condition="'$(NUnitToolPath)' == ''">$(PackagesDirectory)NUnit.Runners.2.6.3\tools\</NUnitToolPath>
+    <DependDBBuildProcessorToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)DependDB.BuildProcessor.2.0.0\tools\</DependDBBuildProcessorToolPath>
+    <DependDBNuGetPreProcessorToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)DependDB.BuildProcessor.NuGetPreProcessor.2.0.0\tools\</DependDBNuGetPreProcessorToolPath>
+    <NUnitToolPath Condition="'$(NUnitToolPath)' == ''">$(PackagesDirectory)NUnit.ConsoleRunner.3.11.1\tools\</NUnitToolPath>
     <NuGetToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)NuGet.CommandLine.3.5.0\tools\</NuGetToolPath>
     <NuGetForMSBuildPath Condition="'$(NuGetForMSBuildPath)' == ''">$(PackagesDirectory)NuGet.for.MSBuild.1.4.3\build\</NuGetForMSBuildPath>
-    <RemotionBuildTasksPath Condition="'$(RemotionBuildTasksPath)' == ''">$(PackagesDirectory)Remotion.BuildTools.MSBuildTasks.1.0.6180.28602\tools\</RemotionBuildTasksPath>
-    <RemotionBuildScriptPath Condition="'$(RemotionBuildScriptPath)' == ''">$(PackagesDirectory)Remotion.BuildScript.2.0.0-alpha018\BuildTargets\</RemotionBuildScriptPath>
+    <RemotionBuildTasksPath Condition="'$(RemotionBuildTasksPath)' == ''">$(PackagesDirectory)Remotion.BuildTools.MSBuildTasks.1.0.6862.28795\tools\</RemotionBuildTasksPath>
+    <RemotionBuildScriptPath Condition="'$(RemotionBuildScriptPath)' == ''">$(PackagesDirectory)Remotion.BuildScript.2.0.0-alpha022\BuildTargets\</RemotionBuildScriptPath>
   </PropertyGroup>
+
+  <ItemGroup>
+      <NUnitExtensionsPaths Include="$(PackagesDirectory)NUnit.Extension.NUnitV2Driver.3.8.0\"/>
+  </ItemGroup>
+
+  <ItemGroup>
+      <SupportedBrowsers Remove="@(SupportedBrowsers)"/>
+      <SupportedPlatforms Include="x86;x64"/>
+      <SupportedDatabaseSystems Remove="@(SupportedDatabaseSystems)"/>
+      <SupportedExecutionRuntimes Include="Win_NET462=$(DockerImageDotNetFrameworkRuntime4_6);Win_NET472=$(DockerImageDotNetFrameworkRuntime4_7);Win_NET48=$(DockerImageDotNetFrameworkRuntime4_8)"/>
+      <SupportedTargetRuntimes Include="NET462;NET472;NET48;"/>
+      <SupportedConfigurationIDs Include="Debug;Release"/>
+  </ItemGroup>
 
   <Import Project="$(RemotionBuildScriptPath)*.targets" />
   <Import Project="$(MSBuildExtensionPackPath)MSBuild.ExtensionPack.tasks" />
@@ -83,6 +96,8 @@
           Platforms=$(Platforms);
           DatabaseSystems=$(DatabaseSystems);
           Browsers=$(Browsers);
+          ExecutionRuntimes=$(ExecutionRuntimes);
+          TargetRuntimes=$(TargetRuntimes);
           TestCategoriesToExclude=$(TestCategoriesToExclude);
       </BuildProperties>
     </PropertyGroup>
@@ -137,16 +152,16 @@
   <Target Name="BuildAll" DependsOnTargets="CleanFolders;PrepareBuildProperties;PrepareBuildTargets;">
 
     <ItemGroup>
-      <_allConfigurations Remove="@(_allConfigurations)" />
+      <_configurationIDs Remove="@(_allConfigurations)" />
       <!-- By listing the debug-build first, the documentation will be generated based on the debug output. -->
-      <_allConfigurations Include="Debug" />
-      <_allConfigurations Include="Release" />
+      <_configurationIDs Include="Debug" />
+      <_configurationIDs Include="Release" />
     </ItemGroup>
 
     <MSBuild Projects="$(MSBuildProjectFile)"
              BuildInParallel="false"
              Targets="$(FullBuildTargets)"
-             Properties="ConfigurationID=%(_allConfigurations.Identity);$(BuildProperties);"/>
+             Properties="ConfigurationID=%(_configurationIDs.Identity);$(BuildProperties);"/>
   </Target>
   
   <Target Name="TestBuildDebugOnly" DependsOnTargets="CleanFolders;PrepareBuildProperties;PrepareBuildTargets;">
@@ -156,12 +171,12 @@
              Properties="ConfigurationID=Debug;$(BuildProperties);"/>
   </Target>
 
-  <Target Name="UpdateAssemblyInfosForDevelopment" DependsOnTargets="CheckVersion;PrepareBuildProperties;UpdateVersionProps">
+  <Target Name="UpdateAssemblyInfosForDevelopment" DependsOnTargets="CheckVersion;PrepareBuildProperties;UpdateVersionProps;PrepareVersionWithoutPrerelease">
     <!-- Re-defines the version to append the local build pre-release tag after UpdateVersionProps has been performed. -->
     <MSBuild Projects="$(MSBuildProjectFile)"
              BuildInParallel="false"
              Targets="UpdateAssemblyInfos;CleanAssemblyBackup"
-             Properties="ConfigurationID=Debug;$(BuildProperties);Version=$(Version)-x.9"/>
+             Properties="ConfigurationID=Debug;$(BuildProperties);Version=$(VersionWithoutPrerelease)-x.9"/>
   </Target>
 
   <Target Name="UpdateAssemblyInfosForRelease" DependsOnTargets="CheckVersion;PrepareBuildProperties;UpdateVersionProps">
