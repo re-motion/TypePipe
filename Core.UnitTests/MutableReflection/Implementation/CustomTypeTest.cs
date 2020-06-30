@@ -536,12 +536,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
-    public static IEnumerable GetBinderTestCases ()
+    public static IEnumerable<TestCaseData> GetBinderTestCases ()
     {
       var binderStub = MockRepository.GenerateStub<Binder> ();
-      binderStub.Stub (_ => _.ToString()).Return ("BinderStub");
-      yield return new object[] { binderStub, binderStub };
-      yield return new object[] { null, Type.DefaultBinder };
+      yield return new TestCaseData(binderStub, binderStub).SetName("{m}(BinderStub, BinderStub)");
+      yield return new TestCaseData(null, Type.DefaultBinder);
     }
 
     [Test]
