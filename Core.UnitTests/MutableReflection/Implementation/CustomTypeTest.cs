@@ -539,6 +539,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public static IEnumerable GetBinderTestCases ()
     {
       var binderStub = MockRepository.GenerateStub<Binder> ();
+      binderStub.Stub (_ => _.ToString()).Return ("BinderStub");
       yield return new object[] { binderStub, binderStub };
       yield return new object[] { null, Type.DefaultBinder };
     }
