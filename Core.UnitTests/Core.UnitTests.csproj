@@ -52,10 +52,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -79,8 +75,6 @@
     <Compile Include="App_Packages\Remotion.Development.ObjectExtensions.Sources.1.17.6.0\ObjectExtensions.cs" />
     <Compile Include="App_Packages\Remotion.Development.PrivateInvoke.Sources.1.17.6.0\PrivateInvoke.cs" />
     <Compile Include="App_Packages\Remotion.Development.ReflectionObjectMother.Sources.1.17.6.0\ReflectionObjectMother.cs" />
-    <Compile Include="App_Packages\Remotion.Development.RhinoMocks.Decoration.Sources.1.17.6.0\DecoratorTestHelper.cs" />
-    <Compile Include="App_Packages\Remotion.Development.RhinoMocks.ListArgs.Sources.1.17.6.0\ListArgExtensions.cs" />
     <Compile Include="App_Packages\Remotion.Development.Serializer.Sources.1.17.6.0\Serializer.cs" />
     <Compile Include="App_Packages\Remotion.FunctionalProgramming.EnumerableExtensions.Sources.1.17.6.0\EnumerableExtensions.cs" />
     <Compile Include="App_Packages\Remotion.FunctionalProgramming.EnumerableUtility.Sources.1.17.6.0\EnumerableUtility.cs" />
@@ -337,8 +331,6 @@
     <None Include="App_Packages\Remotion.Development.ObjectExtensions.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.PrivateInvoke.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.ReflectionObjectMother.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
-    <None Include="App_Packages\Remotion.Development.RhinoMocks.Decoration.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
-    <None Include="App_Packages\Remotion.Development.RhinoMocks.ListArgs.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.Serializer.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.FunctionalProgramming.EnumerableExtensions.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.FunctionalProgramming.EnumerableUtility.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
