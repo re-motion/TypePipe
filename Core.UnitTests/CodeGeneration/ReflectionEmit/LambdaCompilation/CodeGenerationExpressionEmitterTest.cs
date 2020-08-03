@@ -23,7 +23,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
@@ -35,16 +35,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       void EmitChildExpression (Expression childExpression);
     }
 
-    private IILGenerator _ilGeneratorMock;
+    private Mock<IILGenerator> _ilGeneratorMock;
     private CodeGenerationExpressionEmitter _emitter;
-    private IChildExpressionEmitter _childExpressionEmitterMock;
+    private Mock<IChildExpressionEmitter> _childExpressionEmitterMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _ilGeneratorMock = MockRepository.GenerateStrictMock<IILGenerator>();
-      _childExpressionEmitterMock = MockRepository.GenerateStrictMock<IChildExpressionEmitter>();
-      _emitter = new CodeGenerationExpressionEmitter (_ilGeneratorMock, _childExpressionEmitterMock.EmitChildExpression);
+      _ilGeneratorMock = new Mock<IILGenerator> (MockBehavior.Strict);
+      _childExpressionEmitterMock = new Mock<IChildExpressionEmitter> (MockBehavior.Strict);
+      _emitter = new CodeGenerationExpressionEmitter (_ilGeneratorMock.Object, _childExpressionEmitterMock.Object.EmitChildExpression);
     }
 
     [Test]
@@ -58,11 +58,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void VisitThis ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeThisExpression();
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldarg_0));
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Ldarg_0)).Verifiable();
 
       var result = _emitter.VisitThis (expression);
 
-      _ilGeneratorMock.VerifyAllExpectations();
+      _ilGeneratorMock.Verify();
       Assert.That (result, Is.SameAs (expression));
     }
 
@@ -75,14 +75,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method());
       var expression = new NewDelegateExpression (delegateType, targetExpression, method);
 
-      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Target));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldftn, expression.Method));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Newobj, delegateCtor));
+      _childExpressionEmitterMock.Setup (mock => mock.EmitChildExpression (expression.Target)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Ldftn, expression.Method)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Newobj, delegateCtor)).Verifiable();
 
       var result = _emitter.VisitNewDelegate (expression);
 
-      _childExpressionEmitterMock.VerifyAllExpectations();
-      _ilGeneratorMock.VerifyAllExpectations();
+      _childExpressionEmitterMock.Verify();
+      _ilGeneratorMock.Verify();
       Assert.That (result, Is.SameAs (expression));
     }
 
@@ -94,13 +94,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => DomainType.StaticMethod());
       var expression = new NewDelegateExpression (delegateType, null, method);
 
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldnull));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldftn, expression.Method));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Newobj, delegateCtor));
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Ldnull)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Ldftn, expression.Method)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Newobj, delegateCtor)).Verifiable();
 
       _emitter.VisitNewDelegate (expression);
 
-      _ilGeneratorMock.VerifyAllExpectations();
+      _ilGeneratorMock.Verify();
     }
 
     [Test]
@@ -112,15 +112,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       var targetExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));
       var expression = new NewDelegateExpression (delegateType, targetExpression, method);
 
-      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Target));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Dup));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Ldvirtftn, expression.Method));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Newobj, delegateCtor));
+      _childExpressionEmitterMock.Setup (mock => mock.EmitChildExpression (expression.Target)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Dup)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Ldvirtftn, expression.Method)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Newobj, delegateCtor)).Verifiable();
 
       _emitter.VisitNewDelegate (expression);
 
-      _childExpressionEmitterMock.VerifyAllExpectations();
-      _ilGeneratorMock.VerifyAllExpectations();
+      _childExpressionEmitterMock.Verify();
+      _ilGeneratorMock.Verify();
     }
 
     [Test]
@@ -128,14 +128,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     {
       var expression = ExpressionTreeObjectMother.GetSomeBoxAndCastExpression();
       Assert.That (expression.Type, Is.Not.SameAs (expression.Operand.Type));
-      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Operand));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Box, expression.Operand.Type));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Castclass, expression.Type));
+      _childExpressionEmitterMock.Setup (mock => mock.EmitChildExpression (expression.Operand)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Box, expression.Operand.Type)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Castclass, expression.Type)).Verifiable();
 
       var result = _emitter.VisitBox (expression);
 
-      _childExpressionEmitterMock.VerifyAllExpectations();
-      _ilGeneratorMock.VerifyAllExpectations();
+      _childExpressionEmitterMock.Verify();
+      _ilGeneratorMock.Verify();
       Assert.That (result, Is.SameAs (expression));
     }
 
@@ -143,13 +143,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     public void VisitUnbox ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeUnboxExpression();
-      _childExpressionEmitterMock.Expect (mock => mock.EmitChildExpression (expression.Operand));
-      _ilGeneratorMock.Expect (mock => mock.Emit (OpCodes.Unbox_Any, expression.Type));
+      _childExpressionEmitterMock.Setup (mock => mock.EmitChildExpression (expression.Operand)).Verifiable();
+      _ilGeneratorMock.Setup (mock => mock.Emit (OpCodes.Unbox_Any, expression.Type)).Verifiable();
 
       var result = _emitter.VisitUnbox (expression);
 
-      _childExpressionEmitterMock.VerifyAllExpectations();
-      _ilGeneratorMock.VerifyAllExpectations();
+      _childExpressionEmitterMock.Verify();
+      _ilGeneratorMock.Verify();
       Assert.That (result, Is.SameAs (expression));
     }
 

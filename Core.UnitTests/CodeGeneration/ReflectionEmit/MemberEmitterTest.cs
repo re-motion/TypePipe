@@ -28,20 +28,21 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class MemberEmitterTest
   {
-    private IExpressionPreparer _expressionPreparerMock;
-    private IILGeneratorFactory _ilGeneratorFactoryStub;
+    private Mock<IExpressionPreparer> _expressionPreparerMock;
+    private Mock<IILGeneratorFactory> _ilGeneratorFactoryStub;
 
     private MemberEmitter _emitter;
 
-    private ITypeBuilder _typeBuilderMock;
-    private IEmittableOperandProvider _emittableOperandProviderMock;
+    private Mock<ITypeBuilder> _typeBuilderMock;
+    private Mock<IEmittableOperandProvider> _emittableOperandProviderMock;
 
     private CodeGenerationContext _context;
 
@@ -50,16 +51,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _expressionPreparerMock = MockRepository.GenerateStrictMock<IExpressionPreparer>();
-      _ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
+      _expressionPreparerMock = new Mock<IExpressionPreparer> (MockBehavior.Strict);
+      _ilGeneratorFactoryStub = new Mock<IILGeneratorFactory>();
 
-      _emitter = new MemberEmitter (_expressionPreparerMock, _ilGeneratorFactoryStub);
+      _emitter = new MemberEmitter (_expressionPreparerMock.Object, _ilGeneratorFactoryStub.Object);
 
-      _typeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
-      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _typeBuilderMock = new Mock<ITypeBuilder> (MockBehavior.Strict);
+      _emittableOperandProviderMock = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
       _context = CodeGenerationContextObjectMother.GetSomeContext (
-          typeBuilder: _typeBuilderMock, emittableOperandProvider: _emittableOperandProviderMock);
+          typeBuilder: _typeBuilderMock.Object,
+          emittableOperandProvider: _emittableOperandProviderMock.Object);
 
       _fakeBody = ExpressionTreeObjectMother.GetSomeExpression();
     }
@@ -67,26 +69,27 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void Initialization ()
     {
-      Assert.That (_emitter.ExpressionPreparer, Is.SameAs (_expressionPreparerMock));
-      Assert.That (_emitter.ILGeneratorFactory, Is.SameAs (_ilGeneratorFactoryStub));
+      Assert.That (_emitter.ExpressionPreparer, Is.SameAs (_expressionPreparerMock.Object));
+      Assert.That (_emitter.ILGeneratorFactory, Is.SameAs (_ilGeneratorFactoryStub.Object));
     }
 
     [Test]
     public void AddField ()
     {
       var field = MutableFieldInfoObjectMother.Create();
-      var fieldBuilderMock = MockRepository.GenerateStrictMock<IFieldBuilder>();
+      var fieldBuilderMock = new Mock<IFieldBuilder> (MockBehavior.Strict);
 
       _typeBuilderMock
-          .Expect (mock => mock.DefineField (field.Name, field.FieldType, field.Attributes))
-          .Return (fieldBuilderMock);
-      fieldBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, field));
+          .Setup (mock => mock.DefineField (field.Name, field.FieldType, field.Attributes))
+          .Returns (fieldBuilderMock.Object)
+          .Verifiable();
+      fieldBuilderMock.Setup (mock => mock.RegisterWith (_emittableOperandProviderMock.Object, field)).Verifiable();
       SetupDefineCustomAttribute (fieldBuilderMock, field);
 
       _emitter.AddField (_context, field);
 
-      _typeBuilderMock.VerifyAllExpectations();
-      fieldBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.Verify();
+      fieldBuilderMock.Verify();
     }
 
     [Test]
@@ -102,11 +105,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var expectedParameterTypes = new[] { typeof (string), typeof (int).MakeByRefType() };
       var expectedCallingConventions = CallingConventions.Standard | CallingConventions.HasThis;
 
-      var constructorBuilderMock = MockRepository.GenerateStrictMock<IConstructorBuilder>();
+      var constructorBuilderMock = new Mock<IConstructorBuilder>();
       _typeBuilderMock
-          .Expect (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConventions, expectedParameterTypes))
-          .Return (constructorBuilderMock);
-      constructorBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, constructor));
+          .Setup (mock => mock.DefineConstructor (expectedAttributes, expectedCallingConventions, expectedParameterTypes))
+          .Returns (constructorBuilderMock.Object)
+          .Verifiable();
+      constructorBuilderMock.Setup (mock => mock.RegisterWith (_emittableOperandProviderMock.Object, constructor)).Verifiable();
 
       SetupDefineCustomAttribute (constructorBuilderMock, constructor);
       var parameterBuilderMock = SetupDefineParameter (constructorBuilderMock, 1, "p1", ParameterAttributes.In);
@@ -117,9 +121,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emitter.AddConstructor (_context, constructor);
 
-      _typeBuilderMock.VerifyAllExpectations();
-      constructorBuilderMock.VerifyAllExpectations();
-      parameterBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.Verify();
+      constructorBuilderMock.Verify();
+      parameterBuilderMock.Verify();
 
       Assert.That (_context.PostDeclarationsActionManager.Actions.Count(), Is.EqualTo (1));
       CheckBodyBuildAction (_context.PostDeclarationsActionManager.Actions.Single(), constructorBuilderMock, constructor);
@@ -129,13 +133,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddConstructor_Static ()
     {
       var ctor = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
-      var constructorBuilderStub = MockRepository.GenerateStub<IConstructorBuilder> ();
+      var constructorBuilderStub = new Mock<IConstructorBuilder>();
       var attributes = MethodAttributes.Static | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-      _typeBuilderMock.Expect (mock => mock.DefineConstructor (attributes, CallingConventions.Standard, Type.EmptyTypes)).Return (constructorBuilderStub);
+      _typeBuilderMock
+          .Setup (mock => mock.DefineConstructor (attributes, CallingConventions.Standard, Type.EmptyTypes))
+          .Returns (constructorBuilderStub.Object)
+          .Verifiable();
 
       _emitter.AddConstructor (_context, ctor);
 
-      _typeBuilderMock.VerifyAllExpectations ();
+      _typeBuilderMock.Verify();
     }
 
     [Test]
@@ -156,12 +163,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.ExplicitBaseDefinition (7, out Dev<double>.Dummy));
       method.AddExplicitBaseDefinition (overriddenMethod);
 
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
-      _typeBuilderMock.Expect (mock => mock.DefineMethod ("Method", MethodAttributes.Virtual)).Return (methodBuilderMock);
-      methodBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
+      var methodBuilderMock = new Mock<IMethodBuilder> (MockBehavior.Strict);
+      _typeBuilderMock.Setup (mock => mock.DefineMethod ("Method", MethodAttributes.Virtual)).Returns (methodBuilderMock.Object).Verifiable();
+      methodBuilderMock.Setup (mock => mock.RegisterWith (_emittableOperandProviderMock.Object, method)).Verifiable();
 
-      methodBuilderMock.Expect (mock => mock.SetReturnType (typeof (string)));
-      methodBuilderMock.Expect (mock => mock.SetParameters (new[] { typeof (int), typeof (double).MakeByRefType() }));
+      methodBuilderMock.Setup (mock => mock.SetReturnType (typeof (string))).Verifiable();
+      methodBuilderMock.Setup (mock => mock.SetParameters (new[] { typeof (int), typeof (double).MakeByRefType() })).Verifiable();
 
       var returnParameterBuilderMock = SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None);
       SetupDefineCustomAttribute (returnParameterBuilderMock, method.MutableReturnParameter);
@@ -174,12 +181,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _emitter.AddMethod (_context, method);
 
-      _typeBuilderMock.VerifyAllExpectations ();
-      methodBuilderMock.VerifyAllExpectations ();
-      parameterBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.Verify();
+      methodBuilderMock.Verify();
+      parameterBuilderMock.Verify();
 
       Assert.That (_context.MethodBuilders, Has.Count.EqualTo(1));
-      Assert.That (_context.MethodBuilders[method], Is.SameAs(methodBuilderMock));
+      Assert.That (_context.MethodBuilders[method], Is.SameAs(methodBuilderMock.Object));
 
       var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (2));
@@ -197,33 +204,35 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (baseTypeConstraint.GetInterfaces(), Has.No.Member (interfaceConstraint));
 
       var genericParameter = MutableGenericParameterObjectMother.Create (
-          name: "TParam", genericParameterAttributes: (GenericParameterAttributes) 7, constraints: new[] { baseTypeConstraint, interfaceConstraint });
+          name: "TParam",
+          genericParameterAttributes: (GenericParameterAttributes) 7,
+          constraints: new[] { baseTypeConstraint, interfaceConstraint });
       var method = MutableMethodInfoObjectMother.Create (
           genericParameters: new[] { genericParameter },
           returnType: genericParameter,
           parameters: new[] { ParameterDeclarationObjectMother.Create (genericParameter, "genericParam") });
 
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
-      _typeBuilderMock.Stub (mock => mock.DefineMethod (method.Name, method.Attributes)).Return (methodBuilderMock);
-      methodBuilderMock.Stub (mock => mock.RegisterWith (_emittableOperandProviderMock, method));
+      var methodBuilderMock = new Mock<IMethodBuilder> (MockBehavior.Strict);
+      _typeBuilderMock.Setup (mock => mock.DefineMethod (method.Name, method.Attributes)).Returns (methodBuilderMock.Object);
+      methodBuilderMock.Setup (mock => mock.RegisterWith (_emittableOperandProviderMock.Object, method));
 
-      var genericParameterBuilderMock = MockRepository.GenerateStrictMock<IGenericTypeParameterBuilder>();
-      methodBuilderMock.Expect (mock => mock.DefineGenericParameters (new[] { "TParam" })).Return (new[] { genericParameterBuilderMock });
-      genericParameterBuilderMock.Expect (mock => mock.RegisterWith (_emittableOperandProviderMock, genericParameter));
-      genericParameterBuilderMock.Expect (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7));
-      genericParameterBuilderMock.Expect (mock => mock.SetBaseTypeConstraint (baseTypeConstraint));
-      genericParameterBuilderMock.Expect (mock => mock.SetInterfaceConstraints (new[] { interfaceConstraint }));
+      var genericParameterBuilderMock = new Mock<IGenericTypeParameterBuilder> (MockBehavior.Strict);
+      methodBuilderMock.Setup (mock => mock.DefineGenericParameters (new[] { "TParam" })).Returns (new[] { genericParameterBuilderMock.Object }).Verifiable();
+      genericParameterBuilderMock.Setup (mock => mock.RegisterWith (_emittableOperandProviderMock.Object, genericParameter)).Verifiable();
+      genericParameterBuilderMock.Setup (mock => mock.SetGenericParameterAttributes ((GenericParameterAttributes) 7)).Verifiable();
+      genericParameterBuilderMock.Setup (mock => mock.SetBaseTypeConstraint (baseTypeConstraint)).Verifiable();
+      genericParameterBuilderMock.Setup (mock => mock.SetInterfaceConstraints (new[] { interfaceConstraint })).Verifiable();
       SetupDefineCustomAttribute (genericParameterBuilderMock, genericParameter);
 
-      methodBuilderMock.Expect (mock => mock.SetReturnType (genericParameter));
-      methodBuilderMock.Expect (mock => mock.SetParameters (new Type[] { genericParameter }));
+      methodBuilderMock.Setup (mock => mock.SetReturnType (genericParameter)).Verifiable();
+      methodBuilderMock.Setup (mock => mock.SetParameters (new Type[] { genericParameter })).Verifiable();
       SetupDefineParameter (methodBuilderMock, 0, null, ParameterAttributes.None);
       SetupDefineParameter (methodBuilderMock, 1, "genericParam", ParameterAttributes.None);
 
       _emitter.AddMethod (_context, method);
 
-      methodBuilderMock.VerifyAllExpectations();
-      genericParameterBuilderMock.VerifyAllExpectations();
+      methodBuilderMock.Verify();
+      genericParameterBuilderMock.Verify();
     }
 
     [Test]
@@ -236,23 +245,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           typeof (int),
           ParameterDeclaration.None);
 
-      var methodBuilderMock = MockRepository.GenerateStrictMock<IMethodBuilder> ();
-      _typeBuilderMock.Stub (stub => stub.DefineMethod ("AbstractMethod", MethodAttributes.Abstract)).Return (methodBuilderMock);
-      methodBuilderMock.Stub (stub => stub.RegisterWith (_emittableOperandProviderMock, method));
+      var methodBuilderMock = new Mock<IMethodBuilder> (MockBehavior.Strict);
+      _typeBuilderMock.Setup (stub => stub.DefineMethod ("AbstractMethod", MethodAttributes.Abstract)).Returns (methodBuilderMock.Object);
+      methodBuilderMock.Setup (stub => stub.RegisterWith (_emittableOperandProviderMock.Object, method));
 
-      methodBuilderMock.Stub (stub => stub.SetReturnType (typeof (int)));
-      methodBuilderMock.Stub (stub => stub.SetParameters (Type.EmptyTypes));
+      methodBuilderMock.Setup (stub => stub.SetReturnType (typeof (int)));
+      methodBuilderMock.Setup (stub => stub.SetParameters (Type.EmptyTypes));
       SetupDefineParameter (methodBuilderMock, 0, parameterName: null, parameterAttributes: ParameterAttributes.None);
 
       _emitter.AddMethod (_context, method);
 
-      _typeBuilderMock.VerifyAllExpectations();
-      methodBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.Verify();
+      methodBuilderMock.Verify();
       var actions = _context.PostDeclarationsActionManager.Actions.ToArray();
       Assert.That (actions, Has.Length.EqualTo (1));
 
       // Executing the action has no side effect (strict mocks; empty override build action).
-      _emittableOperandProviderMock.Stub (mock => mock.GetEmittableMethod (method));
+      _emittableOperandProviderMock.Setup (mock => mock.GetEmittableMethod (method)).Returns (new Mock<MethodInfo>().Object);
       actions[0].Invoke();
     }
 
@@ -269,24 +278,25 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var setMethod = MutableMethodInfoObjectMother.Create (parameters: setMethodParameters);
       var property = MutablePropertyInfoObjectMother.Create (name: name, attributes: attributes, getMethod: getMethod, setMethod: setMethod);
 
-      var getMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var setMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      _context.MethodBuilders.Add (getMethod, getMethodBuilder);
-      _context.MethodBuilders.Add (setMethod, setMethodBuilder);
+      var getMethodBuilder = new Mock<IMethodBuilder>();
+      var setMethodBuilder = new Mock<IMethodBuilder>();
+      _context.MethodBuilders.Add (getMethod, getMethodBuilder.Object);
+      _context.MethodBuilders.Add (setMethod, setMethodBuilder.Object);
 
       var callingConventions = CallingConventions.Standard | CallingConventions.HasThis;
-      var propertyBuilderMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
+      var propertyBuilderMock = new Mock<IPropertyBuilder> (MockBehavior.Strict);
       _typeBuilderMock
-          .Expect (mock => mock.DefineProperty (name, attributes, callingConventions, returnType, indexParameterTypes))
-          .Return (propertyBuilderMock);
+          .Setup (mock => mock.DefineProperty (name, attributes, callingConventions, returnType, indexParameterTypes))
+          .Returns (propertyBuilderMock.Object)
+          .Verifiable();
       SetupDefineCustomAttribute (propertyBuilderMock, property);
-      propertyBuilderMock.Expect (mock => mock.SetGetMethod (getMethodBuilder));
-      propertyBuilderMock.Expect (mock => mock.SetSetMethod (setMethodBuilder));
+      propertyBuilderMock.Setup (mock => mock.SetGetMethod (getMethodBuilder.Object)).Verifiable();
+      propertyBuilderMock.Setup (mock => mock.SetSetMethod (setMethodBuilder.Object)).Verifiable();
 
       _emitter.AddProperty (_context, property);
 
-      _typeBuilderMock.VerifyAllExpectations();
-      propertyBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.Verify();
+      propertyBuilderMock.Verify();
     }
 
     [Test]
@@ -299,27 +309,41 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (readOnlyProperty.MutableSetMethod, Is.Null);
       Assert.That (writeOnlyProperty.MutableGetMethod, Is.Null);
 
-      var methodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      _context.MethodBuilders.Add (readOnlyProperty.MutableGetMethod, methodBuilder);
-      _context.MethodBuilders.Add (writeOnlyProperty.MutableSetMethod, methodBuilder);
+      var methodBuilder = new Mock<IMethodBuilder>();
+      _context.MethodBuilders.Add (readOnlyProperty.MutableGetMethod, methodBuilder.Object);
+      _context.MethodBuilders.Add (writeOnlyProperty.MutableSetMethod, methodBuilder.Object);
 
-      var propertyBuilderMock1 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
-      var propertyBuilderMock2 = MockRepository.GenerateStrictMock<IPropertyBuilder>();
+      var propertyBuilderMock1 = new Mock<IPropertyBuilder> (MockBehavior.Strict);
+      var propertyBuilderMock2 = new Mock<IPropertyBuilder> (MockBehavior.Strict);
       _typeBuilderMock
-          .Expect (mock => mock.DefineProperty (readOnlyProperty.Name, readOnlyProperty.Attributes, staticGetMethod.CallingConvention, typeof (int), Type.EmptyTypes))
-          .Return (propertyBuilderMock1);
+          .Setup (
+              mock => mock.DefineProperty (
+                  readOnlyProperty.Name,
+                  readOnlyProperty.Attributes,
+                  staticGetMethod.CallingConvention,
+                  typeof (int),
+                  Type.EmptyTypes))
+          .Returns (propertyBuilderMock1.Object)
+          .Verifiable();
       _typeBuilderMock
-          .Expect (mock => mock.DefineProperty (writeOnlyProperty.Name, writeOnlyProperty.Attributes, setMethod.CallingConvention, typeof (long), Type.EmptyTypes))
-          .Return (propertyBuilderMock2);
-      propertyBuilderMock1.Expect (mock => mock.SetGetMethod (methodBuilder));
-      propertyBuilderMock2.Expect (mock => mock.SetSetMethod (methodBuilder));
+          .Setup (
+              mock => mock.DefineProperty (
+                  writeOnlyProperty.Name,
+                  writeOnlyProperty.Attributes,
+                  setMethod.CallingConvention,
+                  typeof (long),
+                  Type.EmptyTypes))
+          .Returns (propertyBuilderMock2.Object)
+          .Verifiable();
+      propertyBuilderMock1.Setup (mock => mock.SetGetMethod (methodBuilder.Object)).Verifiable();
+      propertyBuilderMock2.Setup (mock => mock.SetSetMethod (methodBuilder.Object)).Verifiable();
 
       _emitter.AddProperty (_context, readOnlyProperty);
       _emitter.AddProperty (_context, writeOnlyProperty);
 
-      _typeBuilderMock.VerifyAllExpectations();
-      propertyBuilderMock1.VerifyAllExpectations();
-      propertyBuilderMock2.VerifyAllExpectations();
+      _typeBuilderMock.Verify();
+      propertyBuilderMock1.Verify();
+      propertyBuilderMock2.Verify();
     }
 
     [Test]
@@ -335,24 +359,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var event_ = MutableEventInfoObjectMother.Create (
           name: name, attributes: attributes, addMethod: addMethod, removeMethod: removeMethod, raiseMethod: raiseMethod);
 
-      var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var removeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var raiseMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      _context.MethodBuilders.Add (addMethod, addMethodBuilder);
-      _context.MethodBuilders.Add (removeMethod, removeMethodBuilder);
-      _context.MethodBuilders.Add (raiseMethod, raiseMethodBuilder);
+      var addMethodBuilder = new Mock<IMethodBuilder>();
+      var removeMethodBuilder = new Mock<IMethodBuilder>();
+      var raiseMethodBuilder = new Mock<IMethodBuilder>();
+      _context.MethodBuilders.Add (addMethod, addMethodBuilder.Object);
+      _context.MethodBuilders.Add (removeMethod, removeMethodBuilder.Object);
+      _context.MethodBuilders.Add (raiseMethod, raiseMethodBuilder.Object);
 
-      var eventBuilderMock = MockRepository.GenerateStrictMock<IEventBuilder>();
-      _typeBuilderMock.Expect (mock => mock.DefineEvent (name, attributes, handlerType)).Return (eventBuilderMock);
+      var eventBuilderMock = new Mock<IEventBuilder> (MockBehavior.Strict);
+      _typeBuilderMock.Setup (mock => mock.DefineEvent (name, attributes, handlerType)).Returns (eventBuilderMock.Object).Verifiable();
       SetupDefineCustomAttribute (eventBuilderMock, event_);
-      eventBuilderMock.Expect (mock => mock.SetAddOnMethod (addMethodBuilder));
-      eventBuilderMock.Expect (mock => mock.SetRemoveOnMethod (removeMethodBuilder));
-      eventBuilderMock.Expect (mock => mock.SetRaiseMethod (raiseMethodBuilder));
+      eventBuilderMock.Setup (mock => mock.SetAddOnMethod (addMethodBuilder.Object)).Verifiable();
+      eventBuilderMock.Setup (mock => mock.SetRemoveOnMethod (removeMethodBuilder.Object)).Verifiable();
+      eventBuilderMock.Setup (mock => mock.SetRaiseMethod (raiseMethodBuilder.Object)).Verifiable();
 
       _emitter.AddEvent (_context, event_);
 
-      _typeBuilderMock.VerifyAllExpectations();
-      eventBuilderMock.VerifyAllExpectations();
+      _typeBuilderMock.Verify();
+      eventBuilderMock.Verify();
     }
 
     [Test]
@@ -361,77 +385,76 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var event_ = MutableEventInfoObjectMother.CreateWithAccessors();
       Assert.That (event_.MutableRaiseMethod, Is.Null);
 
-      var addMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      var removeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      _context.MethodBuilders.Add (event_.MutableAddMethod, addMethodBuilder);
-      _context.MethodBuilders.Add (event_.MutableRemoveMethod, removeMethodBuilder);
+      var addMethodBuilder = new Mock<IMethodBuilder>();
+      var removeMethodBuilder = new Mock<IMethodBuilder>();
+      _context.MethodBuilders.Add (event_.MutableAddMethod, addMethodBuilder.Object);
+      _context.MethodBuilders.Add (event_.MutableRemoveMethod, removeMethodBuilder.Object);
 
-      var eventBuilderMock = MockRepository.GenerateStrictMock<IEventBuilder>();
-      _typeBuilderMock.Stub (stub => stub.DefineEvent (event_.Name, event_.Attributes, event_.EventHandlerType)).Return (eventBuilderMock);
-      eventBuilderMock.Expect (mock => mock.SetAddOnMethod (addMethodBuilder));
-      eventBuilderMock.Expect (mock => mock.SetRemoveOnMethod (removeMethodBuilder));
+      var eventBuilderMock = new Mock<IEventBuilder> (MockBehavior.Strict);
+      _typeBuilderMock.Setup (stub => stub.DefineEvent (event_.Name, event_.Attributes, event_.EventHandlerType)).Returns (eventBuilderMock.Object);
+      eventBuilderMock.Setup (mock => mock.SetAddOnMethod (addMethodBuilder.Object)).Verifiable();
+      eventBuilderMock.Setup (mock => mock.SetRemoveOnMethod (removeMethodBuilder.Object)).Verifiable();
 
       _emitter.AddEvent (_context, event_);
 
-      eventBuilderMock.AssertWasNotCalled (mock => mock.SetRaiseMethod (Arg<IMethodBuilder>.Is.Anything));
-      eventBuilderMock.VerifyAllExpectations();
+      eventBuilderMock.Verify (mock => mock.SetRaiseMethod (It.IsAny<IMethodBuilder>()), Times.Never());
+      eventBuilderMock.Verify();
     }
 
-    private void SetupDefineCustomAttribute (ICustomAttributeTargetBuilder customAttributeTargetBuilderMock, IMutableInfo mutableInfo)
+    private void SetupDefineCustomAttribute<T> (Mock<T> customAttributeTargetBuilderMock, IMutableInfo mutableInfo) where T : class, ICustomAttributeTargetBuilder
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create();
       mutableInfo.AddCustomAttribute (declaration);
-      customAttributeTargetBuilderMock.Expect (mock => mock.SetCustomAttribute (declaration));
+      customAttributeTargetBuilderMock.Setup (mock => mock.SetCustomAttribute (declaration)).Verifiable();
     }
 
-    private IParameterBuilder SetupDefineParameter (
-        IMethodBaseBuilder methodBaseBuilderMock, int position, string parameterName, ParameterAttributes parameterAttributes)
+    private Mock<IParameterBuilder> SetupDefineParameter<T> (
+        Mock<T> methodBaseBuilderMock,
+        int position,
+        string parameterName,
+        ParameterAttributes parameterAttributes) where T : class, IMethodBaseBuilder
     {
-      var parameterBuilderMock = MockRepository.GenerateStrictMock<IParameterBuilder>();
-      methodBaseBuilderMock.Expect (mock => mock.DefineParameter (position, parameterAttributes, parameterName)).Return (parameterBuilderMock);
+      var parameterBuilderMock = new Mock<IParameterBuilder> (MockBehavior.Strict);
+      methodBaseBuilderMock.Setup (mock => mock.DefineParameter (position, parameterAttributes, parameterName)).Returns (parameterBuilderMock.Object).Verifiable();
       return parameterBuilderMock;
     }
 
-    private void CheckBodyBuildAction (Action testedAction, IMethodBaseBuilder methodBuilderMock, IMutableMethodBase mutableMethodBase)
+    private void CheckBodyBuildAction<T> (Action testedAction, Mock<T> methodBuilderMock, IMutableMethodBase mutableMethodBase) where T : class, IMethodBaseBuilder
     {
-      methodBuilderMock.BackToRecord();
-      _expressionPreparerMock.Expect (mock => mock.PrepareBody (_context, mutableMethodBase.Body)).Return (_fakeBody);
+      _expressionPreparerMock.Setup (mock => mock.PrepareBody (_context, mutableMethodBase.Body)).Returns (_fakeBody).Verifiable();
       methodBuilderMock
-          .Expect (mock => mock.SetBody (Arg<LambdaExpression>.Is.Anything, Arg.Is (_ilGeneratorFactoryStub), Arg.Is (_context.DebugInfoGenerator)))
-          .WhenCalled (
-              mi =>
+          .Setup (
+              mock => mock.SetBody (
+                  It.IsAny<LambdaExpression>(),
+                  _ilGeneratorFactoryStub.Object,
+                  _context.DebugInfoGenerator))
+          .Callback (
+              (LambdaExpression lambdaExpression, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGenerator) =>
               {
-                var lambdaExpression = (LambdaExpression) mi.Arguments[0];
                 Assert.That (lambdaExpression.Body, Is.SameAs (_fakeBody));
                 Assert.That (lambdaExpression.Parameters, Is.EqualTo (mutableMethodBase.ParameterExpressions));
-              });
-      methodBuilderMock.Replay();
+              })
+          .Verifiable();
 
       testedAction();
 
-      _emittableOperandProviderMock.VerifyAllExpectations();
-      methodBuilderMock.VerifyAllExpectations ();
+      _emittableOperandProviderMock.Verify();
+      methodBuilderMock.Verify();
     }
 
     private void CheckExplicitOverrideAction (Action testedAction, MethodInfo overriddenMethod, MutableMethodInfo overridingMethod)
     {
-      _emittableOperandProviderMock.BackToRecord();
-      _typeBuilderMock.BackToRecord();
-
       var fakeOverriddenMethod = ReflectionObjectMother.GetSomeMethod();
       var fakeOverridingMethod = ReflectionObjectMother.GetSomeMethod();
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overriddenMethod)).Return (fakeOverriddenMethod);
-      _emittableOperandProviderMock.Expect (mock => mock.GetEmittableMethod (overridingMethod)).Return (fakeOverridingMethod);
+      _emittableOperandProviderMock.Setup (mock => mock.GetEmittableMethod (overriddenMethod)).Returns (fakeOverriddenMethod).Verifiable();
+      _emittableOperandProviderMock.Setup (mock => mock.GetEmittableMethod (overridingMethod)).Returns (fakeOverridingMethod).Verifiable();
 
-      _typeBuilderMock.Expect (mock => mock.DefineMethodOverride (fakeOverridingMethod, fakeOverriddenMethod));
-
-      _emittableOperandProviderMock.Replay ();
-      _typeBuilderMock.Replay ();
+      _typeBuilderMock.Setup (mock => mock.DefineMethodOverride (fakeOverridingMethod, fakeOverriddenMethod)).Verifiable();
 
       testedAction ();
 
-      _emittableOperandProviderMock.VerifyAllExpectations ();
-      _typeBuilderMock.VerifyAllExpectations ();
+      _emittableOperandProviderMock.Verify();
+      _typeBuilderMock.Verify();
     }
 
     interface IDomainInterface { }

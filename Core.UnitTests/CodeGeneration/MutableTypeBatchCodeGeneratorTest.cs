@@ -16,13 +16,14 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
@@ -30,19 +31,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
   public class MutableTypeBatchCodeGeneratorTest
   {
     private MockRepository _mockRepository;
-    private IDependentTypeSorter _dependentTypeSorterMock;
-    private IMutableTypeCodeGeneratorFactory _mutableTypeCodeGeneratorFactoryMock;
+    private Mock<IDependentTypeSorter> _dependentTypeSorterMock;
+    private Mock<IMutableTypeCodeGeneratorFactory> _mutableTypeCodeGeneratorFactoryMock;
 
     private MutableTypeBatchCodeGenerator _generator;
 
     [SetUp]
     public void SetUp ()
     {
-      _mockRepository = new MockRepository();
-      _dependentTypeSorterMock = _mockRepository.StrictMock<IDependentTypeSorter>();
-      _mutableTypeCodeGeneratorFactoryMock = _mockRepository.StrictMock<IMutableTypeCodeGeneratorFactory>();
+      _dependentTypeSorterMock = new Mock<IDependentTypeSorter> (MockBehavior.Strict);
+      _mutableTypeCodeGeneratorFactoryMock = new Mock<IMutableTypeCodeGeneratorFactory> (MockBehavior.Strict);
 
-      _generator = new MutableTypeBatchCodeGenerator (_dependentTypeSorterMock, _mutableTypeCodeGeneratorFactoryMock);
+      _generator = new MutableTypeBatchCodeGenerator (_dependentTypeSorterMock.Object, _mutableTypeCodeGeneratorFactoryMock.Object);
     }
 
     [Test]
@@ -55,50 +55,78 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var fakeType2 = ReflectionObjectMother.GetSomeOtherType();
       var fakeNestedType = ReflectionObjectMother.GetSomeNestedType();
 
-      using (_mockRepository.Ordered())
-      {
-        var generatorMock1 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
-        var generatorMock2 = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
-        var nestedGeneratorMock = _mockRepository.StrictMock<IMutableTypeCodeGenerator>();
 
-        _mutableTypeCodeGeneratorFactoryMock
-            .Expect (_ => _.CreateGenerators (new[] { mutableType1, mutableType2 }))
-            .Return (new[] { generatorMock1, generatorMock2 });
+      var generatorMock1 = new Mock<IMutableTypeCodeGenerator> (MockBehavior.Strict);
+      var generatorMock2 = new Mock<IMutableTypeCodeGenerator> (MockBehavior.Strict);
+      var nestedGeneratorMock = new Mock<IMutableTypeCodeGenerator> (MockBehavior.Strict);
 
-        generatorMock1.Expect (_ => _.DeclareType());
-        generatorMock1.Expect (_ => _.CreateNestedTypeGenerators()).Return (new[] { nestedGeneratorMock });
-        nestedGeneratorMock.Expect (_ => _.DeclareType());
-        nestedGeneratorMock.Expect (_ => _.CreateNestedTypeGenerators()).Return (new IMutableTypeCodeGenerator[0]);
-        generatorMock2.Expect (_ => _.DeclareType());
-        generatorMock2.Expect (_ => _.CreateNestedTypeGenerators()).Return (new IMutableTypeCodeGenerator[0]);
+      _mutableTypeCodeGeneratorFactoryMock
+          .Setup (_ => _.CreateGenerators (new[] { mutableType1, mutableType2 }))
+          .Returns (new[] { generatorMock1.Object, generatorMock2.Object })
+          .Verifiable();
 
-        generatorMock1.Expect (_ => _.MutableType).Return (mutableType1);
-        nestedGeneratorMock.Expect (_ => _.MutableType).Return (nestedMutableType);
-        generatorMock2.Expect (_ => _.MutableType).Return (mutableType2);
+      var sequence = new MockSequence();
+      generatorMock1
+          .InSequence (sequence)
+          .Setup (_ => _.DeclareType());
+      generatorMock1
+          .InSequence (sequence)
+          .Setup (_ => _.CreateNestedTypeGenerators()).Returns (new[] { nestedGeneratorMock.Object });
+      nestedGeneratorMock
+          .InSequence (sequence)
+          .Setup (_ => _.DeclareType());
+      nestedGeneratorMock
+          .InSequence (sequence)
+          .Setup (_ => _.CreateNestedTypeGenerators()).Returns (new IMutableTypeCodeGenerator[0]);
+      generatorMock2
+          .InSequence (sequence)
+          .Setup (_ => _.DeclareType());
+      generatorMock2
+          .InSequence (sequence)
+          .Setup (_ => _.CreateNestedTypeGenerators()).Returns (new IMutableTypeCodeGenerator[0]);
 
-        generatorMock1.Expect (_ => _.MutableType).Return (mutableType1);
-        nestedGeneratorMock.Expect (_ => _.MutableType).Return (nestedMutableType);
-        generatorMock2.Expect (_ => _.MutableType).Return (mutableType2);
+      generatorMock1
+          .InSequence (sequence)
+          .SetupGet (_ => _.MutableType).Returns (mutableType1);
+      nestedGeneratorMock
+          .InSequence (sequence)
+          .SetupGet (_ => _.MutableType).Returns (nestedMutableType);
+      generatorMock2
+          .InSequence (sequence)
+          .SetupGet (_ => _.MutableType).Returns (mutableType2);
 
-        _dependentTypeSorterMock
-            .Expect (_ => _.Sort (Arg<IEnumerable<MutableType>>.List.Equal (new[] { mutableType1, nestedMutableType, mutableType2 })))
-            .Return (new[] { mutableType2, mutableType1, nestedMutableType });
+      generatorMock1
+          .InSequence (sequence)
+          .SetupGet (_ => _.MutableType).Returns (mutableType1);
+      nestedGeneratorMock
+          .InSequence (sequence)
+          .SetupGet (_ => _.MutableType).Returns (nestedMutableType);
+      generatorMock2
+          .InSequence (sequence)
+          .SetupGet (_ => _.MutableType).Returns (mutableType2);
 
-        generatorMock2.Expect (_ => _.DefineTypeFacets());
-        generatorMock1.Expect (_ => _.DefineTypeFacets());
-        nestedGeneratorMock.Expect (_ => _.DefineTypeFacets());
-        generatorMock2.Expect (_ => _.MutableType).Return (mutableType2);
-        generatorMock2.Expect (_ => _.CreateType()).Return (fakeType2);
-        generatorMock1.Expect (_ => _.MutableType).Return (mutableType1);
-        generatorMock1.Expect (_ => _.CreateType()).Return (fakeType1);
-        nestedGeneratorMock.Expect (_ => _.MutableType).Return (nestedMutableType);
-        nestedGeneratorMock.Expect (_ => _.CreateType()).Return (fakeNestedType);
-      }
-      _mockRepository.ReplayAll();
+      _dependentTypeSorterMock
+          .Setup (
+              _ => _.Sort (It.Is<IEnumerable<MutableType>> (types => types.SequenceEqual (new[] { mutableType1, nestedMutableType, mutableType2 }))))
+          .Returns (new[] { mutableType2, mutableType1, nestedMutableType })
+          .Verifiable();
+
+      generatorMock2.Setup (_ => _.DefineTypeFacets()).Verifiable();
+      generatorMock1.Setup (_ => _.DefineTypeFacets()).Verifiable();
+      nestedGeneratorMock.Setup (_ => _.DefineTypeFacets()).Verifiable();
+      generatorMock2.SetupGet (_ => _.MutableType).Returns (mutableType2).Verifiable();
+      generatorMock2.Setup (_ => _.CreateType()).Returns (fakeType2).Verifiable();
+      generatorMock1.SetupGet (_ => _.MutableType).Returns (mutableType1).Verifiable();
+      generatorMock1.Setup (_ => _.CreateType()).Returns (fakeType1).Verifiable();
+      nestedGeneratorMock.SetupGet (_ => _.MutableType).Returns (nestedMutableType).Verifiable();
+      nestedGeneratorMock.Setup (_ => _.CreateType()).Returns (fakeNestedType).Verifiable();
 
       var result = _generator.GenerateTypes (new[] { mutableType1, mutableType2 }).ForceEnumeration();
 
-      _mockRepository.VerifyAll();
+      generatorMock1.Verify();
+      generatorMock2.Verify();
+      nestedGeneratorMock.Verify();
+
       var expectedMapping =
           new[]
           {

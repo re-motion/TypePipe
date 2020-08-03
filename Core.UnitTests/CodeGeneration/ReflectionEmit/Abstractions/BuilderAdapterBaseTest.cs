@@ -22,7 +22,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
@@ -51,11 +51,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
             new[] { field },
             new object[] { 8 });
       };
-      var adapterBasePartialMock = MockRepository.GeneratePartialMock<BuilderAdapterBase> (setCustomAttributeMethod);
+      var adapterBasePartialMock = new Mock<BuilderAdapterBase> (setCustomAttributeMethod) { CallBase = true };
       var declaration = new CustomAttributeDeclaration (
           attributeCtor, new object[] { typeof (int) }, new NamedArgumentDeclaration (property, "def"), new NamedArgumentDeclaration (field, 8));
 
-      adapterBasePartialMock.SetCustomAttribute (declaration);
+      adapterBasePartialMock.Object.SetCustomAttribute (declaration);
 
       Assert.That (wasCalled, Is.True);
     }

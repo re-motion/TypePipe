@@ -17,39 +17,39 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.Moq.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class MethodBuilderDecoratorTest
   {
-    private IMethodBuilder _innerMock;
-    private IEmittableOperandProvider _operandProviderMock;
+    private Mock<IMethodBuilder> _innerMock;
+    private Mock<IEmittableOperandProvider> _operandProviderMock;
 
     private MethodBuilderDecorator _decorator;
 
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<IMethodBuilder>();
-      _operandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _innerMock = new Mock<IMethodBuilder> (MockBehavior.Strict);
+      _operandProviderMock = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = new MethodBuilderDecorator (_innerMock, _operandProviderMock);
+      _decorator = new MethodBuilderDecorator (_innerMock.Object, _operandProviderMock.Object);
     }
 
     [Test]
     public void DefineGenericParameters ()
     {
       var genericParameterNames = new[] { "T1", "T2" };
-      var fakeGenericTypeParameterBuilder = MockRepository.GenerateStub<IGenericTypeParameterBuilder>();
-      _innerMock.Expect (mock => mock.DefineGenericParameters (genericParameterNames)).Return (new[] { fakeGenericTypeParameterBuilder });
+      var fakeGenericTypeParameterBuilder = new Mock<IGenericTypeParameterBuilder>().Object;
+      _innerMock.Setup (mock => mock.DefineGenericParameters (genericParameterNames)).Returns (new[] { fakeGenericTypeParameterBuilder }).Verifiable();
 
       var results = _decorator.DefineGenericParameters (genericParameterNames);
 
@@ -64,13 +64,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     {
       var returnType = ReflectionObjectMother.GetSomeType();
       var emittableReturnType = ReflectionObjectMother.GetSomeOtherType();
-      _operandProviderMock.Expect (mock => mock.GetEmittableType (returnType)).Return (emittableReturnType);
-      _innerMock.Expect (mock => mock.SetReturnType (emittableReturnType));
+      _operandProviderMock.Setup (mock => mock.GetEmittableType (returnType)).Returns (emittableReturnType).Verifiable();
+      _innerMock.Setup (mock => mock.SetReturnType (emittableReturnType)).Verifiable();
 
       _decorator.SetReturnType (returnType);
 
-      _operandProviderMock.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProviderMock.Verify();
+      _innerMock.Verify();
     }
 
     [Test]
@@ -78,24 +78,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     {
       var parameterType = ReflectionObjectMother.GetSomeType();
       var emittableParameterType = ReflectionObjectMother.GetSomeOtherType();
-      _operandProviderMock.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
-      _innerMock.Expect (mock => mock.SetParameters (new[] { emittableParameterType }));
+      _operandProviderMock.Setup (mock => mock.GetEmittableType (parameterType)).Returns (emittableParameterType).Verifiable();
+      _innerMock.Setup (mock => mock.SetParameters (new[] { emittableParameterType })).Verifiable();
 
       _decorator.SetParameters (new[] { parameterType });
 
-      _operandProviderMock.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProviderMock.Verify();
+      _innerMock.Verify();
     }
 
     [Test]
     public void DelegatingMembers ()
     {
-      var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
+      var emittableOperandProvider = new Mock<IEmittableOperandProvider>();
       var mutableMethod = MutableMethodInfoObjectMother.Create();
 
       var helper = new DecoratorTestHelper<IMethodBuilder> (_decorator, _innerMock);
 
-      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableMethod));
+      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider.Object, mutableMethod));
     }
   }
 }

@@ -24,7 +24,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
     private InterfaceMappingComputer _computer;
 
-    private IInterfaceMappingProvider _interfaceMapProviderMock;
+    private Mock<IInterfaceMappingProvider> _interfaceMapProviderMock;
 
     private MutableType _mutableType;
 
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
 
-      _interfaceMapProviderMock = MockRepository.GenerateStrictMock<IInterfaceMappingProvider>();
+      _interfaceMapProviderMock = new Mock<IInterfaceMappingProvider> (MockBehavior.Strict);
     }
 
     [Test]
@@ -67,14 +67,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       explicitImplementation.AddExplicitBaseDefinition (_existingInterfaceMethod2);
 
       _interfaceMapProviderMock
-          .Expect (mock => mock.Get (typeof (IExistingInterface)))
-          .Return (
+          .Setup (mock => mock.Get (typeof (IExistingInterface)))
+          .Returns (
               new InterfaceMapping
               {
                   InterfaceType = typeof (IExistingInterface),
                   InterfaceMethods = new[] { _existingInterfaceMethod1, _existingInterfaceMethod2 },
                   TargetMethods = new[] { implicitImplementation1, implicitImplementation2 }
-              });
+              })
+          .Verifiable();
 
       CallComputeMappingAndCheckResult (
           _mutableType,
@@ -91,14 +92,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var baseImplementationOverride = _mutableType.AddMethod ("Method12", MethodAttributes.Public | MethodAttributes.Virtual);
 
       _interfaceMapProviderMock
-          .Expect (mock => mock.Get (typeof (IExistingInterface)))
-          .Return (
+          .Setup (mock => mock.Get (typeof (IExistingInterface)))
+          .Returns (
               new InterfaceMapping
               {
-                InterfaceType = typeof (IExistingInterface),
-                InterfaceMethods = new[] { _existingInterfaceMethod1, _existingInterfaceMethod2 },
-                TargetMethods = new[] { implicitImplementation1, implicitImplementation2 }
-              });
+                  InterfaceType = typeof (IExistingInterface),
+                  InterfaceMethods = new[] { _existingInterfaceMethod1, _existingInterfaceMethod2 },
+                  TargetMethods = new[] { implicitImplementation1, implicitImplementation2 }
+              })
+          .Verifiable();
 
       CallComputeMappingAndCheckResult (
           _mutableType,
@@ -170,7 +172,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_NotFullyImplemented_Throws ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IDisposable), false);
     }
 
     [Test]
@@ -194,29 +196,29 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void ComputeMapping_AddedInterface_Candidates_Throws ()
     {
       _mutableType.AddInterface (typeof (IImplementationCandidates));
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IImplementationCandidates), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IImplementationCandidates), false);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type passed must be an interface.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NoInterfaceType ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (object), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (object), false);
     }
 
     [Test]
     [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Interface not found.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NotImplemented ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Get, typeof (IDisposable), false);
+      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IDisposable), false);
     }
 
     // Tuple means: 1) interface method, 2) implementation method
     private void CallComputeMappingAndCheckResult (MutableType mutableType, Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
     {
-      var mapping = _computer.ComputeMapping (mutableType, _interfaceMapProviderMock.Get, interfaceType, true);
+      var mapping = _computer.ComputeMapping (mutableType, _interfaceMapProviderMock.Object.Get, interfaceType, true);
 
-      _interfaceMapProviderMock.VerifyAllExpectations();
+      _interfaceMapProviderMock.Verify();
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (mutableType));
       // Order matters for "expectedMapping".

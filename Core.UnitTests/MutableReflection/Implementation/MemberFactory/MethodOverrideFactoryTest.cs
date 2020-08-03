@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.RhinoMocks.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
@@ -30,15 +29,16 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.UnitTests.Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
   [TestFixture]
   public class MethodOverrideFactoryTest
   {
-    private IRelatedMethodFinder _relatedMethodFinderMock;
-    private IMethodFactory _methodFactoryMock;
+    private Mock<IRelatedMethodFinder> _relatedMethodFinderMock;
+    private Mock<IMethodFactory> _methodFactoryMock;
 
     private MethodOverrideFactory _factory;
 
@@ -49,10 +49,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder> ();
-      _methodFactoryMock = MockRepository.GenerateStrictMock<IMethodFactory>();
+      _relatedMethodFinderMock = new Mock<IRelatedMethodFinder> (MockBehavior.Strict);
+      _methodFactoryMock = new Mock<IMethodFactory> (MockBehavior.Strict);
 
-      _factory = new MethodOverrideFactory (_relatedMethodFinderMock, _methodFactoryMock);
+      _factory = new MethodOverrideFactory (_relatedMethodFinderMock.Object, _methodFactoryMock.Object);
 
       _mutableType = MutableTypeObjectMother.Create (name: "MyAbcType", baseType: typeof (DomainType));
       _noGenericParameters = new GenericParameterContext (Type.EmptyTypes);
@@ -65,34 +65,44 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
 
       var fakeResult = MutableMethodInfoObjectMother.Create (
-          _mutableType, attributes: MethodAttributes.Virtual, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
+          _mutableType,
+          attributes: MethodAttributes.Virtual,
+          parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock =>
-              mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MethodOverrideFactoryTest.A.OverrideHierarchy"),
-                  Arg.Is (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg.Is (bodyProvider)))
-          .Return (fakeResult)
-          .WhenCalled (
-              mi =>
+                  mock.CreateMethod (
+                      _mutableType,
+                      "Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MethodOverrideFactoryTest.A.OverrideHierarchy",
+                      MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig,
+                      It.Is<IEnumerable<GenericParameterDeclaration>> (param => param.SequenceEqual (GenericParameterDeclaration.None)),
+                      It.IsAny<Func<GenericParameterContext, Type>>(),
+                      It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                      bodyProvider))
+          .Returns (fakeResult)
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string nameArgument,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProviderArg) =>
               {
-                var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (_noGenericParameters);
-                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (_noGenericParameters);
+                var returnType = returnTypeProvider (_noGenericParameters);
+                var parameters = parameterProvider (_noGenericParameters);
 
                 Assert.That (returnType, Is.SameAs (typeof (void)));
                 var parameter = parameters.Single();
                 Assert.That (parameter.Name, Is.EqualTo ("aaa"));
                 Assert.That (parameter.Type, Is.SameAs (typeof (int)));
-              });
+              })
+          .Verifiable();
 
       var result = _factory.CreateExplicitOverride (_mutableType, method, bodyProvider);
 
-      _methodFactoryMock.VerifyAllExpectations();
+      _methodFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { method }));
     }
@@ -105,40 +115,49 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       var fakeResult = CreateFakeGenericMethod();
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock =>
-              mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MethodOverrideFactoryTest.DomainType.GenericMethod"),
-                  Arg.Is (MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig),
-                  Arg<IEnumerable<GenericParameterDeclaration>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg.Is (bodyProvider)))
-          .Return (fakeResult)
-          .WhenCalled (
-              mi =>
+                  mock.CreateMethod (
+                      _mutableType,
+                      "Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory.MethodOverrideFactoryTest.DomainType.GenericMethod",
+                      MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig,
+                      It.IsAny<IEnumerable<GenericParameterDeclaration>>(),
+                      It.IsAny<Func<GenericParameterContext, Type>>(),
+                      It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                      bodyProvider))
+          .Returns (fakeResult)
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string nameArgument,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProviderArg) =>
               {
                 var fakeGenericParameter = ReflectionObjectMother.GetSomeType();
                 var genericParameterContext = new GenericParameterContext (new[] { fakeGenericParameter });
 
-                var genericParameters = (IEnumerable<GenericParameterDeclaration>) mi.Arguments[3];
-                var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (genericParameterContext);
-                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (genericParameterContext).ToList();
+                var returnType = returnTypeProvider (genericParameterContext);
+                var parameters = parameterProvider (genericParameterContext).ToList();
 
                 var genericParameter = genericParameters.Single();
                 Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
                 Assert.That (genericParameter.Attributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
-                Assert.That (genericParameter.ConstraintProvider (genericParameterContext), Is.EqualTo (new[] { typeof (DomainType), typeof (IDisposable) }));
+                Assert.That (
+                    genericParameter.ConstraintProvider (genericParameterContext),
+                    Is.EqualTo (new[] { typeof (DomainType), typeof (IDisposable) }));
 
                 Assert.That (returnType, Is.SameAs (fakeGenericParameter));
                 ParameterDeclarationTest.CheckParameter (parameters[0], typeof (int), "arg1", ParameterAttributes.None);
                 ParameterDeclarationTest.CheckParameter (parameters[1], fakeGenericParameter, "arg2", ParameterAttributes.None);
-              });
+              })
+          .Verifiable();
 
       var result = _factory.CreateExplicitOverride (_mutableType, method, bodyProvider);
 
-      _methodFactoryMock.VerifyAllExpectations();
+      _methodFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (new[] { method }));
     }
@@ -152,12 +171,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       var fakeExistingOverride = MutableMethodInfoObjectMother.Create ();
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetOverride (Arg.Is (baseDefinition), Arg<IEnumerable<MutableMethodInfo>>.List.Equal (_mutableType.AddedMethods)))
-          .Return (fakeExistingOverride);
+          .Setup (
+              mock => mock.GetOverride (
+                  baseDefinition,
+                  It.Is<IEnumerable<MutableMethodInfo>> (methodInfos => methodInfos.SequenceEqual (_mutableType.AddedMethods))))
+          .Returns (fakeExistingOverride)
+          .Verifiable();
 
       var result = _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
 
-      _relatedMethodFinderMock.VerifyAllExpectations ();
+      _relatedMethodFinderMock.Verify();
       Assert.That (result, Is.SameAs (fakeExistingOverride));
       Assert.That (_isNewlyCreated, Is.False);
     }
@@ -187,39 +210,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var inputMethod = baseDefinition;
       var baseMethod = baseDefinition;
 
-      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, _mutableType.AddedMethods)).Return (null);
-      _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, _mutableType.BaseType)).Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (_mutableType.GetAllMethods())))
-          .Return (false);
+          .Setup (mock => mock.GetOverride (baseDefinition, _mutableType.AddedMethods)).Returns ((MutableMethodInfo) null).Verifiable();
+      _relatedMethodFinderMock
+          .Setup (mock => mock.GetMostDerivedOverride (baseDefinition, _mutableType.BaseType)).Returns (baseMethod).Verifiable();
+      _relatedMethodFinderMock
+          .Setup (
+              mock => mock.IsShadowed (
+                  baseDefinition,
+                  It.Is<IEnumerable<MethodInfo>> (shadowingCandidates => shadowingCandidates.IsEquivalent (_mutableType.GetAllMethods()))))
+          .Returns (false)
+          .Verifiable();
 
-      var fakeResult = CreateFakeGenericMethod ();
+      var fakeResult = CreateFakeGenericMethod();
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock =>
-              mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("GenericMethod"),
-                  Arg.Is (MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig),
-                  Arg<IEnumerable<GenericParameterDeclaration>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Anything))
-          .Return (fakeResult)
-          .WhenCalled (
-              mi =>
+                  mock.CreateMethod (
+                      _mutableType,
+                      "GenericMethod",
+                      MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.ReuseSlot | MethodAttributes.HideBySig,
+                      It.IsAny<IEnumerable<GenericParameterDeclaration>>(),
+                      It.IsAny<Func<GenericParameterContext, Type>>(),
+                      It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                      It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+          .Returns (fakeResult)
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string name,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProvider) =>
               {
                 var fakeGenericParameter = typeof (TypeThatCompliesWithConstraints);
                 var genericParameterContext = new GenericParameterContext (new[] { fakeGenericParameter });
 
-                var genericParameters = (IEnumerable<GenericParameterDeclaration>) mi.Arguments[3];
-                var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (genericParameterContext);
-                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (genericParameterContext).ToList();
+                var returnType = returnTypeProvider (genericParameterContext);
+                var parameters = parameterProvider (genericParameterContext).ToList();
 
-                var genericParameter = genericParameters.Single ();
+                var genericParameter = genericParameters.Single();
                 Assert.That (genericParameter.Name, Is.EqualTo ("TPar"));
                 Assert.That (genericParameter.Attributes, Is.EqualTo (GenericParameterAttributes.DefaultConstructorConstraint));
-                Assert.That (genericParameter.ConstraintProvider (genericParameterContext), Is.EqualTo (new[] { typeof (DomainType), typeof (IDisposable) }));
+                Assert.That (
+                    genericParameter.ConstraintProvider (genericParameterContext),
+                    Is.EqualTo (new[] { typeof (DomainType), typeof (IDisposable) }));
 
                 Assert.That (returnType, Is.SameAs (fakeGenericParameter));
                 ParameterDeclarationTest.CheckParameter (parameters[0], typeof (int), "arg1", ParameterAttributes.None);
@@ -227,18 +264,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
                 var parameterExpressions = parameters.Select (p => p.Expression).ToList();
                 var bodyContext = new MethodBodyCreationContext (
-                    _mutableType, false, parameterExpressions, new[] { fakeGenericParameter }, returnType, baseMethod);
-                var body = ((Func<MethodBodyCreationContext, Expression>) mi.Arguments[6]) (bodyContext);
+                    _mutableType,
+                    false,
+                    parameterExpressions,
+                    new[] { fakeGenericParameter },
+                    returnType,
+                    baseMethod);
+                var body = bodyProvider (bodyContext);
 
                 var expectedBody = Expression.Call (
-                    bodyContext.This, baseMethod.MakeTypePipeGenericMethod (fakeGenericParameter), parameterExpressions.Cast<Expression>());
+                    bodyContext.This,
+                    baseMethod.MakeTypePipeGenericMethod (fakeGenericParameter),
+                    parameterExpressions);
                 ExpressionTreeComparer.CheckAreEqualTrees (expectedBody, body);
-              });
+              })
+          .Verifiable();
 
       var result = _factory.GetOrCreateOverride (_mutableType, inputMethod, out _isNewlyCreated);
 
-      _relatedMethodFinderMock.VerifyAllExpectations();
-      _methodFactoryMock.VerifyAllExpectations();
+      _relatedMethodFinderMock.Verify();
+      _methodFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
       Assert.That (_isNewlyCreated, Is.True);
     }
@@ -351,8 +396,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod((IAddedInterface obj) => obj.InvalidCandidate());
 
       _methodFactoryMock
-          .Expect(mock => mock.CreateMethod(null, "", 0, null, null, null, null)).IgnoreArguments()
-          .Throw(new InvalidOperationException());
+          .Setup (
+              mock => mock.CreateMethod (
+                  It.IsAny<MutableType>(),
+                  It.IsAny<string>(),
+                  It.IsAny<MethodAttributes>(),
+                  It.IsAny<IEnumerable<GenericParameterDeclaration>>(),
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+          .Throws (new InvalidOperationException());
 
       _factory.GetOrCreateImplementation(_mutableType, interfaceMethod, out _isNewlyCreated);
     }
@@ -371,11 +424,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       mutableType = mutableType ?? _mutableType;
 
-      _relatedMethodFinderMock.Expect (mock => mock.GetOverride (baseDefinition, mutableType.AddedMethods)).Return (null);
-      _relatedMethodFinderMock.Expect (mock => mock.GetMostDerivedOverride (baseDefinition, mutableType.BaseType)).Return (baseMethod);
       _relatedMethodFinderMock
-          .Expect (mock => mock.IsShadowed (Arg.Is (baseDefinition), Arg<IEnumerable<MethodInfo>>.List.Equivalent (mutableType.GetAllMethods())))
-          .Return (isBaseDefinitionShadowed);
+          .Setup (mock => mock.GetOverride (baseDefinition, mutableType.AddedMethods)).Returns ((MutableMethodInfo) null).Verifiable();
+      _relatedMethodFinderMock
+          .Setup (mock => mock.GetMostDerivedOverride (baseDefinition, mutableType.BaseType)).Returns (baseMethod).Verifiable();
+      _relatedMethodFinderMock
+          .Setup (
+              mock => mock.IsShadowed (
+                  baseDefinition,
+                  It.Is<IEnumerable<MethodInfo>> (shadowingCandidates => shadowingCandidates.IsEquivalent (mutableType.GetAllMethods()))))
+          .Returns (isBaseDefinitionShadowed)
+          .Verifiable();
 
       var fakeResult = SetupExpectationsForCreateMethod (
           _methodFactoryMock,
@@ -388,15 +447,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
       var result = _factory.GetOrCreateOverride (mutableType, inputMethod, out _isNewlyCreated);
 
-      _methodFactoryMock.VerifyAllExpectations();
-      _relatedMethodFinderMock.VerifyAllExpectations();
+      _methodFactoryMock.Verify();
+      _relatedMethodFinderMock.Verify();
       Assert.That (_isNewlyCreated, Is.True);
       Assert.That (result, Is.SameAs (fakeResult));
       Assert.That (result.AddedExplicitBaseDefinitions, Is.EqualTo (expectedAddedExplicitBaseDefinitions));
     }
 
     private MutableMethodInfo SetupExpectationsForCreateMethod (
-        IMethodFactory methodFactoryMock,
+        Mock<IMethodFactory> methodFactoryMock,
         MutableType mutableType,
         MethodInfo baseMethod,
         string expectedParameterName,
@@ -407,20 +466,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var methodParameters = baseMethod.GetParameters().Select (p => new ParameterDeclaration (p.ParameterType, p.Name, p.Attributes));
       var fakeResult = MutableMethodInfoObjectMother.Create (mutableType, attributes: MethodAttributes.Virtual, parameters: methodParameters);
       methodFactoryMock
-          .Expect (
+          .Setup (
               mock => mock.CreateMethod (
-                  Arg.Is (mutableType),
-                  Arg.Is (expectedOverrideMethodName),
-                  Arg.Is (expectedOverrideAttributes | MethodAttributes.Virtual | MethodAttributes.HideBySig),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg<Func<MethodBodyCreationContext, Expression>>.Is.Anything))
-          .WhenCalled (
-              mi =>
+                  mutableType,
+                  expectedOverrideMethodName,
+                  (expectedOverrideAttributes | MethodAttributes.Virtual | MethodAttributes.HideBySig),
+                  It.Is<IEnumerable<GenericParameterDeclaration>> (param => param.SequenceEqual (GenericParameterDeclaration.None)),
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string name,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProvider) =>
               {
-                var returnType = ((Func<GenericParameterContext, Type>) mi.Arguments[4]) (_noGenericParameters);
-                var parameters = ((Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>) mi.Arguments[5]) (_noGenericParameters);
+                var returnType = returnTypeProvider (_noGenericParameters);
+                var parameters = parameterProvider (_noGenericParameters);
                 Assert.That (returnType, Is.SameAs (typeof (void)));
                 var parameter = parameters.Single();
                 Assert.That (parameter.Name, Is.EqualTo (expectedParameterName));
@@ -428,14 +494,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
 
                 if (skipBodyProviderCheck)
                   return;
-                var body = ((Func<MethodBodyCreationContext, Expression>) mi.Arguments[6]) (CreateMethodBodyCreationContext (baseMethod));
+                var body = bodyProvider (CreateMethodBodyCreationContext (baseMethod));
                 Assert.That (body, Is.InstanceOf<MethodCallExpression>());
                 var methodCallExpression = (MethodCallExpression) body;
                 Assert.That (methodCallExpression.Method, Is.TypeOf<NonVirtualCallMethodInfoAdapter>());
                 var baceCallMethodInfoAdapter = (NonVirtualCallMethodInfoAdapter) methodCallExpression.Method;
                 Assert.That (baceCallMethodInfoAdapter.AdaptedMethod, Is.SameAs (baseMethod));
               })
-          .Return (fakeResult);
+          .Returns (fakeResult)
+          .Verifiable();
 
       return fakeResult;
     }

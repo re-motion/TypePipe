@@ -22,8 +22,8 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.UnitTests.Serialization.TestDomain;
-using Rhino.Mocks;
-using Rhino.Mocks.Interfaces;
+using Moq;
+using Moq.Protected;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -78,20 +78,16 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       ClassWithDeserializationEvents instance = new ClassWithDeserializationEvents ();
       StreamingContext context = new StreamingContext();
 
-      MockRepository repository = new MockRepository();
-      SerializationEventRaiser eventRaiserMock = repository.StrictMock<SerializationEventRaiser>();
+      var eventRaiserMock = new Mock<SerializationEventRaiser> {CallBase = true};
 
-      eventRaiserMock.InvokeAttributedMethod (instance, typeof (OnDeserializedAttribute), context);
-      LastCall.CallOriginalMethod (OriginalCallOptions.CreateExpectation);
+      eventRaiserMock.Object.InvokeAttributedMethod (instance, typeof (OnDeserializedAttribute), context);
+      eventRaiserMock.Protected().Verify ("FindDeserializationMethodsWithCache", Times.Once(), typeof (ClassWithDeserializationEvents), typeof (OnDeserializedAttribute));
+      eventRaiserMock.Protected().Verify ("FindDeserializationMethodsNoCache", Times.Once(), typeof (ClassWithDeserializationEvents), typeof (OnDeserializedAttribute));
+      eventRaiserMock.Invocations.Clear();
 
-      Expect.Call (PrivateInvoke.InvokeNonPublicMethod (eventRaiserMock, "FindDeserializationMethodsWithCache", typeof (ClassWithDeserializationEvents), typeof (OnDeserializedAttribute)))
-          .Return (new List<MethodInfo>());
-
-      repository.ReplayAll();
-
-      eventRaiserMock.InvokeAttributedMethod (instance, typeof (OnDeserializedAttribute), context);
-
-      repository.VerifyAll();
+      eventRaiserMock.Object.InvokeAttributedMethod (instance, typeof (OnDeserializedAttribute), context);
+      eventRaiserMock.Protected().Verify ("FindDeserializationMethodsWithCache", Times.Once(), typeof (ClassWithDeserializationEvents), typeof (OnDeserializedAttribute));
+      eventRaiserMock.Protected().Verify ("FindDeserializationMethodsNoCache", Times.Never(), typeof (ClassWithDeserializationEvents), typeof (OnDeserializedAttribute));
     }
 
     [Test]

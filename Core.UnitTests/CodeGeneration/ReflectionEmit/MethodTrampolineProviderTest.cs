@@ -26,14 +26,14 @@ using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class MethodTrampolineProviderTest
   {
-    private IMemberEmitter _memberEmitterMock;
+    private Mock<IMemberEmitter> _memberEmitterMock;
 
     private MethodTrampolineProvider _provider;
 
@@ -43,9 +43,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _memberEmitterMock = MockRepository.GenerateStrictMock<IMemberEmitter>();
+      _memberEmitterMock = new Mock<IMemberEmitter> (MockBehavior.Strict);
 
-      _provider = new MethodTrampolineProvider (_memberEmitterMock);
+      _provider = new MethodTrampolineProvider (_memberEmitterMock.Object);
 
       _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
       _context = CodeGenerationContextObjectMother.GetSomeContext (_mutableType);
@@ -58,12 +58,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Abc (out i, 0.7));
       MutableMethodInfo mutableMethod = null;
       _memberEmitterMock
-          .Expect (mock => mock.AddMethod (Arg.Is (_context), Arg<MutableMethodInfo>.Is.Anything))
-          .WhenCalled (mi => mutableMethod = (MutableMethodInfo) mi.Arguments[1]);
+          .Setup (mock => mock.AddMethod (_context, It.IsAny<MutableMethodInfo>()))
+          .Callback ((CodeGenerationContext context, MutableMethodInfo methodArg) => mutableMethod = methodArg)
+          .Verifiable();
 
       var result = _provider.GetNonVirtualCallTrampoline (_context, method);
 
-      _memberEmitterMock.VerifyAllExpectations();
+      _memberEmitterMock.Verify();
       Assert.That (result, Is.SameAs (mutableMethod));
       Assert.That (_mutableType.AddedMethods, Has.Member (result));
 
@@ -98,10 +99,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
       var method2 = typeof (DomainType).GetMethod ("ToString");
       Assert.That (method1, Is.Not.SameAs (method2));
-      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null)).IgnoreArguments().Repeat.Once();
+
+      _memberEmitterMock.Setup (mock => mock.AddMethod (It.IsAny<CodeGenerationContext>(), It.IsAny<MutableMethodInfo>())).Verifiable();
 
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
       var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);
+      _memberEmitterMock.Verify (mock => mock.AddMethod (It.IsAny<CodeGenerationContext>(), It.IsAny<MutableMethodInfo>()), Times.Once());
       Assert.That (result1, Is.SameAs (result2));
     }
 
@@ -111,11 +114,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method1 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Def());
       var method2 = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Def (7));
 
-      _memberEmitterMock.Expect (mock => mock.AddMethod (null, null)).IgnoreArguments().Repeat.Twice();
+      _memberEmitterMock.Setup (mock => mock.AddMethod (It.IsAny<CodeGenerationContext>(), It.IsAny<MutableMethodInfo>())).Verifiable();
 
       var result1 = _provider.GetNonVirtualCallTrampoline (_context, method1);
       var result2 = _provider.GetNonVirtualCallTrampoline (_context, method2);
 
+      _memberEmitterMock.Verify (mock => mock.AddMethod (It.IsAny<CodeGenerationContext>(), It.IsAny<MutableMethodInfo>()), Times.Exactly (2));
       Assert.That (result1, Is.Not.SameAs (result2));
       Assert.That (result1.GetParameters(), Is.Empty);
       Assert.That (result2.GetParameters(), Has.Length.EqualTo (1));

@@ -26,7 +26,7 @@ using Remotion.TypePipe.Development.UnitTesting.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
@@ -76,9 +76,9 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
       // Register a factory for deserialization in current (new) app domain.
 
       Assert.That (PipelineRegistry.HasInstanceProvider, Is.False);
-      var defaultPipelineMock = MockRepository.GenerateStrictMock<IPipeline>();
-      defaultPipelineMock.Stub (_ => _.ParticipantConfigurationID).Return ("Mock Default Pipeline");
-      IPipelineRegistry pipelineRegistry = new DefaultPipelineRegistry (defaultPipelineMock);
+      var defaultPipelineMock = new Mock<IPipeline> (MockBehavior.Strict);
+      defaultPipelineMock.SetupGet (_ => _.ParticipantConfigurationID).Returns ("Mock Default Pipeline");
+      IPipelineRegistry pipelineRegistry = new DefaultPipelineRegistry (defaultPipelineMock.Object);
       PipelineRegistry.SetInstanceProvider (() => pipelineRegistry);
 
       var participants = participantProviders.Select (pp => pp()).Concat (new[] { new ModifyingParticipant() });

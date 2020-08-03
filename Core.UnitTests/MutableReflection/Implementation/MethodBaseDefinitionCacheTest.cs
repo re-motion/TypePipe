@@ -19,7 +19,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -29,19 +29,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetBaseDefinition_ForCustomMethodInfo_NotCached ()
     {
-      var customMethodInfoMock = MockRepository.GenerateStrictMock<CustomMethodInfo> (
-          ReflectionObjectMother.GetSomeType(), "method", MethodAttributes.Public, null, Type.EmptyTypes);
+      var customMethodInfoMock = new Mock<CustomMethodInfo> (
+          MockBehavior.Strict, ReflectionObjectMother.GetSomeType(), "method", MethodAttributes.Public, null, Type.EmptyTypes);
 
       var fakeMethodDefinition1 = ReflectionObjectMother.GetSomeMethod();
-      customMethodInfoMock.Expect (mock => mock.GetBaseDefinition ()).Return (fakeMethodDefinition1).Repeat.Once();
-
       var fakeMethodDefinition2 = ReflectionObjectMother.GetSomeMethod();
-      customMethodInfoMock.Expect (mock => mock.GetBaseDefinition ()).Return (fakeMethodDefinition2).Repeat.Once ();
 
-      var result1 = MethodBaseDefinitionCache.GetBaseDefinition (customMethodInfoMock);
-      var result2 = MethodBaseDefinitionCache.GetBaseDefinition (customMethodInfoMock);
+      var sequence = new MockSequence();
+      customMethodInfoMock.InSequence (sequence).Setup (mock => mock.GetBaseDefinition()).Returns (fakeMethodDefinition1);
+      customMethodInfoMock.InSequence (sequence).Setup (mock => mock.GetBaseDefinition()).Returns (fakeMethodDefinition2);
 
-      customMethodInfoMock.VerifyAllExpectations();
+      var result1 = MethodBaseDefinitionCache.GetBaseDefinition (customMethodInfoMock.Object);
+      var result2 = MethodBaseDefinitionCache.GetBaseDefinition (customMethodInfoMock.Object);
+
+      customMethodInfoMock.Verify();
 
       Assert.That (result1, Is.SameAs (fakeMethodDefinition1));
       Assert.That (result2, Is.SameAs (fakeMethodDefinition2));
@@ -50,15 +51,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [Test]
     public void GetBaseDefinition_ForStandardMethodInfo_Cached ()
     {
-      var standardMethodInfoMock = MockRepository.GenerateStrictMock<MethodInfo>();
+      var standardMethodInfoMock = new Mock<MethodInfo> (MockBehavior.Strict);
 
       var fakeMethodDefinition = ReflectionObjectMother.GetSomeMethod ();
-      standardMethodInfoMock.Expect (mock => mock.GetBaseDefinition ()).Return (fakeMethodDefinition).Repeat.Once ();
+      standardMethodInfoMock.Setup (mock => mock.GetBaseDefinition ()).Returns (fakeMethodDefinition).Verifiable();
 
-      var result1 = MethodBaseDefinitionCache.GetBaseDefinition (standardMethodInfoMock);
-      var result2 = MethodBaseDefinitionCache.GetBaseDefinition (standardMethodInfoMock);
+      var result1 = MethodBaseDefinitionCache.GetBaseDefinition (standardMethodInfoMock.Object);
+      var result2 = MethodBaseDefinitionCache.GetBaseDefinition (standardMethodInfoMock.Object);
 
-      standardMethodInfoMock.VerifyAllExpectations ();
+      standardMethodInfoMock.Verify();
 
       Assert.That (result1, Is.SameAs (fakeMethodDefinition));
       Assert.That (result2, Is.SameAs (fakeMethodDefinition));

@@ -16,18 +16,18 @@
 // 
 using System;
 using NUnit.Framework;
-using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.Moq.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class FieldBuilderDecoratorTest
   {
-    private IFieldBuilder _innerMock;
+    private Mock<IFieldBuilder> _innerMock;
     private IEmittableOperandProvider _operandProvider;
 
     private FieldBuilderDecorator _decorator;
@@ -35,16 +35,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<IFieldBuilder> ();
-      _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider> ();
+      _innerMock = new Mock<IFieldBuilder> (MockBehavior.Strict);
+      _operandProvider = new Mock<IEmittableOperandProvider> (MockBehavior.Strict).Object;
 
-      _decorator = new FieldBuilderDecorator (_innerMock, _operandProvider);
+      _decorator = new FieldBuilderDecorator (_innerMock.Object, _operandProvider);
     }
 
     [Test]
     public void DelegatingMembers ()
     {
-      var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
+      var emittableOperandProvider = new Mock<IEmittableOperandProvider>().Object;
       var mutableField = MutableFieldInfoObjectMother.Create();
 
       var helper = new DecoratorTestHelper<IFieldBuilder> (_decorator, _innerMock);

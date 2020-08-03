@@ -24,7 +24,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -207,18 +207,18 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var properties = _genericTypeDefinition.GetProperties (bindingFlags);
       var events = _genericTypeDefinition.GetEvents (bindingFlags);
 
-      var memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var memberSelectorMock = new Mock<IMemberSelector> (MockBehavior.Strict);
       var typeParameters = new[] { ReflectionObjectMother.GetSomeType() };
-      var genericTypeDefinition = CustomTypeObjectMother.Create (memberSelectorMock, typeArguments: typeParameters,
+      var genericTypeDefinition = CustomTypeObjectMother.Create (memberSelectorMock.Object, typeArguments: typeParameters,
           nestedTypes: nestedTypes, fields: fields, constructors: ctors, methods: methods, properties: properties, events: events);
 
       // TODO 5816
-      //memberSelectorMock.Expect (mock => mock.SelectTypes (nestedTypes, bindingFlags)).Return (nestedTypes);
-      memberSelectorMock.Expect (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition)).Return (fields);
-      memberSelectorMock.Expect (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition)).Return (ctors);
+      //memberSelectorMock.Setup (mock => mock.SelectTypes (nestedTypes, bindingFlags)).Returns (nestedTypes);
+      memberSelectorMock.Setup (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition)).Returns (fields).Verifiable();
+      memberSelectorMock.Setup (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition)).Returns (ctors).Verifiable();
       // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
-      memberSelectorMock.Expect (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition)).Return (properties);
-      memberSelectorMock.Expect (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition)).Return (events);
+      memberSelectorMock.Setup (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition)).Returns (properties).Verifiable();
+      memberSelectorMock.Setup (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition)).Returns (events).Verifiable();
 
       var typeArguments = new[] { ReflectionObjectMother.GetSomeType() };
       var info = new TypeInstantiationInfo (genericTypeDefinition, typeArguments);
@@ -226,12 +226,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var typeInstantiation = new TypeInstantiation (info, new TypeInstantiationContext());
 
       // Evaluation is lazy.
-      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectTypes (nestedTypes, bindingFlags));
-      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition));
-      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition));
+      memberSelectorMock.Verify (mock => mock.SelectTypes (nestedTypes, bindingFlags), Times.Never());
+      memberSelectorMock.Verify (mock => mock.SelectFields (fields, bindingFlags, genericTypeDefinition), Times.Never());
+      memberSelectorMock.Verify (mock => mock.SelectMethods (ctors, bindingFlags, genericTypeDefinition), Times.Never());
       // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
-      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition));
-      memberSelectorMock.AssertWasNotCalled (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition));
+      memberSelectorMock.Verify (mock => mock.SelectProperties (properties, bindingFlags, genericTypeDefinition), Times.Never());
+      memberSelectorMock.Verify (mock => mock.SelectEvents (events, bindingFlags, genericTypeDefinition), Times.Never());
 
       // Trigger instantiation.
       // TODO 5816
@@ -242,7 +242,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Dev.Null = typeInstantiation.GetProperties();
       Dev.Null = typeInstantiation.GetEvents();
 
-      memberSelectorMock.VerifyAllExpectations();
+      memberSelectorMock.Verify();
     }
 
     [Test]
