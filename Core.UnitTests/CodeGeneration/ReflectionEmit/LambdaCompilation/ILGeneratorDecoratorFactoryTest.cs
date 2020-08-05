@@ -18,23 +18,23 @@ using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
   [TestFixture]
   public class ILGeneratorDecoratorFactoryTest
   {
-    private IILGeneratorFactory _innerFactoryStub;
-    private IEmittableOperandProvider _emittableOperandProviderMock;
+    private Mock<IILGeneratorFactory> _innerFactoryStub;
+    private Mock<IEmittableOperandProvider> _emittableOperandProviderMock;
     private ILGeneratorDecoratorFactory _decoratorFactory;
 
     [SetUp]
     public void SetUp ()
     {
-      _innerFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
-      _emittableOperandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
-      _decoratorFactory = new ILGeneratorDecoratorFactory (_innerFactoryStub, _emittableOperandProviderMock);
+      _innerFactoryStub = new Mock<IILGeneratorFactory>();
+      _emittableOperandProviderMock = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
+      _decoratorFactory = new ILGeneratorDecoratorFactory (_innerFactoryStub.Object, _emittableOperandProviderMock.Object);
     }
 
     [Test]
@@ -42,15 +42,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     {
       var realILGenerator = ILGeneratorObjectMother.Create();
 
-      var fakeInnerResult = MockRepository.GenerateStub<IILGenerator> ();
-      _innerFactoryStub.Stub (stub => stub.CreateAdaptedILGenerator (realILGenerator)).Return (fakeInnerResult);
+      var fakeInnerResult = new Mock<IILGenerator>().Object;
+      _innerFactoryStub.Setup (stub => stub.CreateAdaptedILGenerator (realILGenerator)).Returns (fakeInnerResult);
 
       var ilGenerator = _decoratorFactory.CreateAdaptedILGenerator (realILGenerator);
 
       Assert.That (ilGenerator, Is.TypeOf<ILGeneratorDecorator>());
       var ilGeneratorDecorator = (ILGeneratorDecorator) ilGenerator;
       Assert.That (ilGeneratorDecorator.InnerILGenerator, Is.SameAs (fakeInnerResult));
-      Assert.That (ilGeneratorDecorator.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock));
+      Assert.That (ilGeneratorDecorator.EmittableOperandProvider, Is.SameAs (_emittableOperandProviderMock.Object));
     }
   }
 }

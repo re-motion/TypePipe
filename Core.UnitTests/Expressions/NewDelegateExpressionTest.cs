@@ -22,7 +22,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -146,12 +146,12 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       var newTargetExpression = ExpressionTreeObjectMother.GetSomeExpression (_expression.Target.Type);
 
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor> ();
-      expressionVisitorMock.Expect (mock => mock.Visit (_expression.Target)).Return (newTargetExpression);
+      var expressionVisitorMock = new Mock<ExpressionVisitor> (MockBehavior.Strict);
+      expressionVisitorMock.Setup (mock => mock.Visit (_expression.Target)).Returns (newTargetExpression).Verifiable();
 
-      var result = _expression.Invoke<Expression> ("VisitChildren", expressionVisitorMock);
+      var result = _expression.Invoke<Expression> ("VisitChildren", expressionVisitorMock.Object);
 
-      expressionVisitorMock.VerifyAllExpectations ();
+      expressionVisitorMock.Verify();
 
       Assert.That (result, Is.Not.SameAs (_expression));
       Assert.That (result.Type, Is.SameAs (_expression.Type));

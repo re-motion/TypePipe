@@ -18,7 +18,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
@@ -115,8 +115,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     private AssemblyContext CreateAssemblyContext ()
     {
       return new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+          new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object,
+          new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict).Object);
     }
   }
 }

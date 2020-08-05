@@ -24,15 +24,15 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
   public class ConstructorForAssembledTypeCacheTest
   {
-    private ITypeAssembler _typeAssemblerMock;
-    private IConstructorDelegateFactory _constructorDelegateFactoryMock;
+    private Mock<ITypeAssembler> _typeAssemblerMock;
+    private Mock<IConstructorDelegateFactory> _constructorDelegateFactoryMock;
     
     private ConstructorForAssembledTypeCache _cache;
 
@@ -46,10 +46,10 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [SetUp]
     public void SetUp ()
     {
-      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
-      _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
+      _typeAssemblerMock = new Mock<ITypeAssembler> (MockBehavior.Strict);
+      _constructorDelegateFactoryMock = new Mock<IConstructorDelegateFactory> (MockBehavior.Strict);
 
-      _cache = new ConstructorForAssembledTypeCache (_typeAssemblerMock, _constructorDelegateFactoryMock);
+      _cache = new ConstructorForAssembledTypeCache (_typeAssemblerMock.Object, _constructorDelegateFactoryMock.Object);
 
       _constructorCalls = (ConcurrentDictionary<ConstructorForAssembledTypeCacheKey, Delegate>) PrivateInvoke.GetNonPublicField (_cache, "_constructorCalls");
 
@@ -73,15 +73,16 @@ namespace Remotion.TypePipe.UnitTests.Caching
     public void GetOrCreateConstructorCall_CacheMiss ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      _typeAssemblerMock.Expect (mock => mock.GetRequestedType (_assembledType)).Return (requestedType);
+      _typeAssemblerMock.Setup (mock => mock.GetRequestedType (_assembledType)).Returns (requestedType).Verifiable();
 
       _constructorDelegateFactoryMock
-          .Expect (mock => mock.CreateConstructorCall (requestedType, _assembledType, _delegateType, _allowNonPublic))
-          .Return (_generatedCtorCall);
+          .Setup (mock => mock.CreateConstructorCall (requestedType, _assembledType, _delegateType, _allowNonPublic))
+          .Returns (_generatedCtorCall)
+          .Verifiable();
 
       var result = _cache.GetOrCreateConstructorCall (_assembledType, _delegateType, _allowNonPublic);
 
-      _constructorDelegateFactoryMock.VerifyAllExpectations();
+      _constructorDelegateFactoryMock.Verify();
       Assert.That (result, Is.SameAs (_generatedCtorCall));
       
       var reverseConstructionKey = new ConstructorForAssembledTypeCacheKey (_assembledType, _delegateType, _allowNonPublic);

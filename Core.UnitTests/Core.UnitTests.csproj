@@ -42,16 +42,25 @@
     <AssemblyOriginatorKeyFile>..\remotion.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.4.4.0\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Moq, Version=4.14.0.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.14.1\lib\net45\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.1\lib\portable-net45+win8+wp8+wpa81\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\AssemblyInfoShared.cs">
@@ -61,12 +70,11 @@
     <Compile Include="App_Packages\Remotion.Development.Dev.Sources.1.15.33.0\Dev.cs" />
     <Compile Include="App_Packages\Remotion.Development.EnumerableExtensions.Sources.1.17.6.0\EnumerableExtensions.cs" />
     <Compile Include="App_Packages\Remotion.Development.EnumerableExtensions.Sources.1.17.6.0\OneTimeEnumerable.cs" />
+    <Compile Include="App_Packages\Remotion.Development.Moq.Decoration.Sources.1.21.8\DecoratorTestHelper.cs" />
     <Compile Include="App_Packages\Remotion.Development.NormalizingMemberInfoFromExpressionUtility.Sources.1.17.6.0\NMIFRUtility.cs" />
     <Compile Include="App_Packages\Remotion.Development.ObjectExtensions.Sources.1.17.6.0\ObjectExtensions.cs" />
     <Compile Include="App_Packages\Remotion.Development.PrivateInvoke.Sources.1.17.6.0\PrivateInvoke.cs" />
     <Compile Include="App_Packages\Remotion.Development.ReflectionObjectMother.Sources.1.17.6.0\ReflectionObjectMother.cs" />
-    <Compile Include="App_Packages\Remotion.Development.RhinoMocks.Decoration.Sources.1.17.6.0\DecoratorTestHelper.cs" />
-    <Compile Include="App_Packages\Remotion.Development.RhinoMocks.ListArgs.Sources.1.17.6.0\ListArgExtensions.cs" />
     <Compile Include="App_Packages\Remotion.Development.Serializer.Sources.1.17.6.0\Serializer.cs" />
     <Compile Include="App_Packages\Remotion.FunctionalProgramming.EnumerableExtensions.Sources.1.17.6.0\EnumerableExtensions.cs" />
     <Compile Include="App_Packages\Remotion.FunctionalProgramming.EnumerableUtility.Sources.1.17.6.0\EnumerableUtility.cs" />
@@ -117,6 +125,7 @@
     <Compile Include="Implementation\ParamListImplementationTest.cs" />
     <Compile Include="Implementation\PipelineRegistryTest.cs" />
     <Compile Include="Implementation\TestDomain\ClassWithManyConstructorArguments.cs" />
+    <Compile Include="Moq\MoqExtensions.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeDataCacheKeyTest.cs" />
     <Compile Include="MutableReflection\Implementation\CustomAttributeTypedArgumentUtilityTest.cs" />
     <Compile Include="MutableReflection\Implementation\InstanceInitializationTest.cs" />
@@ -317,12 +326,11 @@
     <None Include="App_Packages\Remotion.Development.BooleanObjectMother.Sources.1.25.23\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.Dev.Sources.1.15.33.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.EnumerableExtensions.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
+    <None Include="App_Packages\Remotion.Development.Moq.Decoration.Sources.1.21.8\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.NormalizingMemberInfoFromExpressionUtility.Sources.1.17.6.0\Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.ObjectExtensions.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.PrivateInvoke.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.ReflectionObjectMother.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
-    <None Include="App_Packages\Remotion.Development.RhinoMocks.Decoration.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
-    <None Include="App_Packages\Remotion.Development.RhinoMocks.ListArgs.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.Development.Serializer.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.FunctionalProgramming.EnumerableExtensions.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />
     <None Include="App_Packages\Remotion.FunctionalProgramming.EnumerableUtility.Sources.1.17.6.0\SharedSource Apache-2.0.licenseheader" />

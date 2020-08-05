@@ -18,15 +18,15 @@ using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class PropertyBuilderDecoratorTest
   {
-    private IPropertyBuilder _innerMock;
-    private IEmittableOperandProvider _operandProviderMock;
+    private Mock<IPropertyBuilder> _innerMock;
+    private Mock<IEmittableOperandProvider> _operandProviderMock;
 
     private PropertyBuilderDecorator _decorator;
 
@@ -36,33 +36,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<IPropertyBuilder>();
-      _operandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _innerMock = new Mock<IPropertyBuilder> (MockBehavior.Strict);
+      _operandProviderMock = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = new PropertyBuilderDecorator (_innerMock, _operandProviderMock);
+      _decorator = new PropertyBuilderDecorator (_innerMock.Object, _operandProviderMock.Object);
 
-      _decoratedMethodBuilder = MockRepository.GenerateStub<IMethodBuilder> ();
-      _methodBuilderDecorator = new MethodBuilderDecorator (_decoratedMethodBuilder, _operandProviderMock);
+      _decoratedMethodBuilder = new Mock<IMethodBuilder>().Object;
+      _methodBuilderDecorator = new MethodBuilderDecorator (_decoratedMethodBuilder, _operandProviderMock.Object);
     }
 
     [Test]
     public void SetGetMethod ()
     {
-      _innerMock.Expect (mock => mock.SetGetMethod (_decoratedMethodBuilder));
+      _innerMock.Setup (mock => mock.SetGetMethod (_decoratedMethodBuilder)).Verifiable();
 
       _decorator.SetGetMethod (_methodBuilderDecorator);
 
-      _innerMock.VerifyAllExpectations();
+      _innerMock.Verify();
     }
 
     [Test]
     public void SetSetMethod ()
     {
-      _innerMock.Expect (mock => mock.SetSetMethod (_decoratedMethodBuilder));
+      _innerMock.Setup (mock => mock.SetSetMethod (_decoratedMethodBuilder)).Verifiable();
 
       _decorator.SetSetMethod (_methodBuilderDecorator);
 
-      _innerMock.VerifyAllExpectations ();
+      _innerMock.Verify();
     }
   }
 }

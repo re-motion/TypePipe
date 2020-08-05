@@ -17,7 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
@@ -90,10 +90,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
 
     private IPipeline CreatePipelineStub (string participantConfigurationID)
     {
-      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
-      pipelineStub.Stub (stub => stub.ParticipantConfigurationID).Return (participantConfigurationID);
+      var pipelineStub = new Mock<IPipeline>();
+      pipelineStub.SetupGet (stub => stub.ParticipantConfigurationID).Returns (participantConfigurationID);
 
-      return pipelineStub;
+      return pipelineStub.Object;
     }
   }
 }

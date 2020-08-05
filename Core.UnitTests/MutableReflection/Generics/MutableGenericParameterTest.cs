@@ -27,7 +27,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -284,14 +284,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       var properties = _baseTypeConstraint.GetProperties (c_allMembers);
       var events = _baseTypeConstraint.GetEvents (c_allMembers);
 
-      var baseMemberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      var baseMemberSelectorMock = new Mock<IMemberSelector> (MockBehavior.Strict);
       var baseTypeConstraint = CustomTypeObjectMother.Create (
-          baseMemberSelectorMock, fields: fields, methods: methods, properties: properties, events: events);
+          baseMemberSelectorMock.Object, fields: fields, methods: methods, properties: properties, events: events);
 
-      baseMemberSelectorMock.Expect (mock => mock.SelectFields (fields, c_allMembers, baseTypeConstraint)).Return (fields);
+      baseMemberSelectorMock.Setup (mock => mock.SelectFields (fields, c_allMembers, baseTypeConstraint)).Returns (fields).Verifiable();
       // Note: GetMethods is optimized for retrieving all the methods; so there is no memberSelectorMock call.
-      baseMemberSelectorMock.Expect (mock => mock.SelectProperties (properties, c_allMembers, baseTypeConstraint)).Return (properties);
-      baseMemberSelectorMock.Expect (mock => mock.SelectEvents (events, c_allMembers, baseTypeConstraint)).Return (events);
+      baseMemberSelectorMock.Setup (mock => mock.SelectProperties (properties, c_allMembers, baseTypeConstraint)).Returns (properties).Verifiable();
+      baseMemberSelectorMock.Setup (mock => mock.SelectEvents (events, c_allMembers, baseTypeConstraint)).Returns (events).Verifiable();
 
       var parameter = MutableGenericParameterObjectMother.Create (constraints: new[] { baseTypeConstraint, _interfaceConstraint });
 
@@ -300,9 +300,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (parameter.GetAllProperties(), Is.EqualTo (properties));
       Assert.That (parameter.GetAllEvents(), Is.EqualTo (events));
 
-      baseMemberSelectorMock.AssertWasNotCalled (
-          mock => mock.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<Type>.Is.Anything));
-      baseMemberSelectorMock.VerifyAllExpectations();
+      baseMemberSelectorMock.Verify (mock => mock.SelectMethods (It.IsAny<IEnumerable<ConstructorInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()), Times.Never());
+      baseMemberSelectorMock.Verify();
     }
 
     class DomainType : IDomainInterface

@@ -31,14 +31,14 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.TypePipe.MutableReflection.MemberSignatures;
 using Remotion.Utilities;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
   [TestFixture]
   public class MethodFactoryTest
   {
-    private IRelatedMethodFinder _relatedMethodFinderMock;
+    private Mock<IRelatedMethodFinder> _relatedMethodFinderMock;
 
     private MethodFactory _factory;
 
@@ -47,9 +47,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      _relatedMethodFinderMock = MockRepository.GenerateStrictMock<IRelatedMethodFinder>();
+      _relatedMethodFinderMock = new Mock<IRelatedMethodFinder> (MockBehavior.Strict);
 
-      _factory = new MethodFactory (_relatedMethodFinderMock);
+      _factory = new MethodFactory (_relatedMethodFinderMock.Object);
 
       _mutableType = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
     }
@@ -165,7 +165,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       CallCreateMethod (mutableType, name, attributes, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty());
 
       var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
-      _relatedMethodFinderMock.AssertWasNotCalled (mock => mock.GetMostDerivedVirtualMethod (name, signature, null));
+      _relatedMethodFinderMock.Verify (mock => mock.GetMostDerivedVirtualMethod (name, signature, null), Times.Never());
     }
 
     [Test]
@@ -225,8 +225,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var fakeOverridenMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.OverrideHierarchy (7));
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedVirtualMethod ("Method", new MethodSignature (typeof (int), Type.EmptyTypes, 0), _mutableType.BaseType))
-          .Return (fakeOverridenMethod);
+          .Setup (mock => mock.GetMostDerivedVirtualMethod ("Method", new MethodSignature (typeof (int), Type.EmptyTypes, 0), _mutableType.BaseType))
+          .Returns (fakeOverridenMethod)
+          .Verifiable();
 
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx =>
       {
@@ -243,7 +244,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           ParameterDeclaration.None,
           bodyProvider);
 
-      _relatedMethodFinderMock.VerifyAllExpectations ();
+      _relatedMethodFinderMock.Verify();
       Assert.That (method.BaseMethod, Is.EqualTo (fakeOverridenMethod));
       Assert.That (method.GetBaseDefinition (), Is.EqualTo (fakeOverridenMethod.GetBaseDefinition ()));
     }
@@ -255,8 +256,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
       var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.FinalBaseMethodInB (7));
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
-          .Return (fakeBaseMethod);
+          .Setup (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
+          .Returns (fakeBaseMethod)
+          .Verifiable();
 
       CallCreateMethod (
           _mutableType,
@@ -275,8 +277,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
       var fakeBaseMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((B obj) => obj.InaccessibleBaseMethodInB (7));
       _relatedMethodFinderMock
-          .Expect (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
-          .Return (fakeBaseMethod);
+          .Setup (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
+          .Returns (fakeBaseMethod)
+          .Verifiable();
 
       CallCreateMethod (
           _mutableType,

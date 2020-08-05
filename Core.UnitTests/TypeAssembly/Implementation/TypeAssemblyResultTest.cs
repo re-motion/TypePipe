@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 {
@@ -14,12 +14,12 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     public void Initialize_WithTypeAndAdditionalTypes ()
     {
       var type = ReflectionObjectMother.GetSomeClassType();
-      var additionalTypes = MockRepository.GenerateStrictMock<IReadOnlyDictionary<object, Type>>();
+      var additionalTypes = new Mock<IReadOnlyDictionary<object, Type>> (MockBehavior.Strict);
 
-      var result = new TypeAssemblyResult(type, additionalTypes);
+      var result = new TypeAssemblyResult(type, additionalTypes.Object);
 
       Assert.That (result.Type, Is.SameAs (type));
-      Assert.That (result.AdditionalTypes, Is.SameAs (additionalTypes));
+      Assert.That (result.AdditionalTypes, Is.SameAs (additionalTypes.Object));
     }
 
     [Test]

@@ -23,7 +23,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.IntegrationTests.MutableReflection
 {
@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetConstructor_BindingFlagsAndTypesAndCallingConvention ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      var binderMock = new Mock<Binder> (MockBehavior.Strict);
       var callConvention = CallingConventions.Any;
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
@@ -126,11 +126,11 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
       var candidates = _mutableType.AddedConstructors.Cast<MethodBase>().ToArray();
       Assert.That (candidates, Is.Not.Empty);
       var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new object ());
-      binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
+      binderMock.Setup (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Returns (fakeResult).Verifiable();
 
-      var result = _mutableType.GetConstructor (bindingFlags, binderMock, callConvention, types, parameterModifiers);
+      var result = _mutableType.GetConstructor (bindingFlags, binderMock.Object, callConvention, types, parameterModifiers);
 
-      binderMock.VerifyAllExpectations ();
+      binderMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
@@ -175,18 +175,18 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetConstructor_BindingFlagsAndTypes ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      var binderMock = new Mock<Binder> (MockBehavior.Strict);
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
       var candidates = _mutableType.AddedConstructors.Cast<MethodBase>().ToArray();
       Assert.That (candidates, Is.Not.Empty);
       var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new object());
-      binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
+      binderMock.Setup (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Returns (fakeResult).Verifiable();
 
-      var result = _mutableType.GetConstructor (bindingFlags, binderMock, types, parameterModifiers);
+      var result = _mutableType.GetConstructor (bindingFlags, binderMock.Object, types, parameterModifiers);
 
-      binderMock.VerifyAllExpectations ();
+      binderMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
@@ -293,18 +293,18 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetMethod_NameAndBindingFlagsAndTypesAndCallingConvention ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-      var binderMock = MockRepository.GenerateStrictMock<Binder>();
+      var binderMock = new Mock<Binder> (MockBehavior.Strict);
       var callConvention = CallingConventions.Any;
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
       var candidates = new MethodBase[] { _publicMethodWithOverloadEmpty, _publicMethodWithOverloadInt };
       var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
-      binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
+      binderMock.Setup (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Returns (fakeResult).Verifiable();
 
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, callConvention, types, parameterModifiers);
+      var result = _mutableType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock.Object, callConvention, types, parameterModifiers);
 
-      binderMock.VerifyAllExpectations();
+      binderMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
@@ -312,17 +312,17 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void GetMethod_NameAndBindingFlagsAndTypes ()
     {
       var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-      var binderMock = MockRepository.GenerateStrictMock<Binder> ();
+      var binderMock = new Mock<Binder> (MockBehavior.Strict);
       var types = new[] { typeof (int) };
       var parameterModifiers = new[] { new ParameterModifier (1) };
 
       var candidates = new MethodBase[] { _publicMethodWithOverloadEmpty, _publicMethodWithOverloadInt };
       var fakeResult = NormalizingMemberInfoFromExpressionUtility.GetMethod ((object obj) => obj.ToString());
-      binderMock.Expect (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Return (fakeResult);
+      binderMock.Setup (mock => mock.SelectMethod (bindingFlags, candidates, types, parameterModifiers)).Returns (fakeResult).Verifiable();
 
-      var result = _mutableType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock, types, parameterModifiers);
+      var result = _mutableType.GetMethod ("PublicMethodWithOverload", bindingFlags, binderMock.Object, types, parameterModifiers);
 
-      binderMock.VerifyAllExpectations ();
+      binderMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
 

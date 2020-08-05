@@ -22,29 +22,29 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Caching;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
   public class ReflectionServiceTest
   {
-    private ITypeAssembler _typeAssemblerMock;
-    private ITypeCache _typeCacheMock;
-    private IConstructorCallCache _constructorCallCache;
-    private IConstructorForAssembledTypeCache _constructorForAssembledTypeCacheMock;
+    private Mock<ITypeAssembler> _typeAssemblerMock;
+    private Mock<ITypeCache> _typeCacheMock;
+    private Mock<IConstructorCallCache> _constructorCallCache;
+    private Mock<IConstructorForAssembledTypeCache> _constructorForAssembledTypeCacheMock;
 
     private ReflectionService _service;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
-      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
-      _constructorCallCache = MockRepository.GenerateStrictMock<IConstructorCallCache>();
-      _constructorForAssembledTypeCacheMock = MockRepository.GenerateStrictMock<IConstructorForAssembledTypeCache>();
+      _typeAssemblerMock = new Mock<ITypeAssembler> (MockBehavior.Strict);
+      _typeCacheMock = new Mock<ITypeCache> (MockBehavior.Strict);
+      _constructorCallCache = new Mock<IConstructorCallCache> (MockBehavior.Strict);
+      _constructorForAssembledTypeCacheMock = new Mock<IConstructorForAssembledTypeCache> (MockBehavior.Strict);
 
-      _service = new ReflectionService (_typeAssemblerMock, _typeCacheMock, _constructorCallCache, _constructorForAssembledTypeCacheMock);
+      _service = new ReflectionService (_typeAssemblerMock.Object, _typeCacheMock.Object, _constructorCallCache.Object, _constructorForAssembledTypeCacheMock.Object);
     }
 
     [Test]
@@ -52,11 +52,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var type = ReflectionObjectMother.GetSomeType();
       var fakeResult = BooleanObjectMother.GetRandomBoolean();
-      _typeAssemblerMock.Expect (mock => mock.IsAssembledType (type)).Return (fakeResult);
+      _typeAssemblerMock.Setup (mock => mock.IsAssembledType (type)).Returns (fakeResult).Verifiable();
 
       var result = _service.IsAssembledType (type);
 
-      _typeAssemblerMock.VerifyAllExpectations();
+      _typeAssemblerMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -65,11 +65,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var assembledType = ReflectionObjectMother.GetSomeType();
       var fakeRequestedType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAssemblerMock.Expect (mock => mock.GetRequestedType (assembledType)).Return (fakeRequestedType);
+      _typeAssemblerMock.Setup (mock => mock.GetRequestedType (assembledType)).Returns (fakeRequestedType).Verifiable();
 
       var result = _service.GetRequestedType (assembledType);
 
-      _typeAssemblerMock.VerifyAllExpectations();
+      _typeAssemblerMock.Verify();
       Assert.That (result, Is.SameAs (fakeRequestedType));
     }
 
@@ -78,11 +78,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var fakeRequestedType = ReflectionObjectMother.GetSomeOtherType();
       var fakeTypeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (fakeRequestedType)).Return (fakeTypeID);
+      _typeAssemblerMock.Setup (mock => mock.ComputeTypeID (fakeRequestedType)).Returns (fakeTypeID).Verifiable();
 
       var result = _service.GetTypeIDForRequestedType (fakeRequestedType);
 
-      _typeAssemblerMock.VerifyAllExpectations();
+      _typeAssemblerMock.Verify();
       Assert.That (result, Is.EqualTo (fakeTypeID));
     }
 
@@ -91,11 +91,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var assembledType = ReflectionObjectMother.GetSomeType();
       var fakeTypeID = AssembledTypeIDObjectMother.Create();
-      _typeAssemblerMock.Expect (mock => mock.ExtractTypeID (assembledType)).Return (fakeTypeID);
+      _typeAssemblerMock.Setup (mock => mock.ExtractTypeID (assembledType)).Returns (fakeTypeID).Verifiable();
 
       var result = _service.GetTypeIDForAssembledType (assembledType);
 
-      _typeAssemblerMock.VerifyAllExpectations();
+      _typeAssemblerMock.Verify();
       Assert.That (result, Is.EqualTo (fakeTypeID));
     }
 
@@ -105,12 +105,12 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create();
       var fakeAssembledType = ReflectionObjectMother.GetSomeOtherType();
-      _typeAssemblerMock.Expect (mock => mock.ComputeTypeID (requestedType)).Return (typeID);
-      _typeCacheMock.Expect (mock => mock.GetOrCreateType (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)))).Return (fakeAssembledType);
+      _typeAssemblerMock.Setup (mock => mock.ComputeTypeID (requestedType)).Returns (typeID).Verifiable();
+      _typeCacheMock.Setup (mock => mock.GetOrCreateType (It.Is<AssembledTypeID> (id => id.Equals (typeID)))).Returns (fakeAssembledType).Verifiable();
 
       var result = _service.GetAssembledType (requestedType);
 
-      _typeCacheMock.VerifyAllExpectations();
+      _typeCacheMock.Verify();
       Assert.That (result, Is.SameAs (fakeAssembledType));
     }
 
@@ -119,11 +119,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var typeID = AssembledTypeIDObjectMother.Create();
       var fakeAssembledType = ReflectionObjectMother.GetSomeOtherType();
-      _typeCacheMock.Expect (mock => mock.GetOrCreateType (Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)))).Return (fakeAssembledType);
+      _typeCacheMock.Setup (mock => mock.GetOrCreateType (It.Is<AssembledTypeID> (id => id.Equals (typeID)))).Returns (fakeAssembledType).Verifiable();
 
       var result = _service.GetAssembledType (typeID);
 
-      _typeCacheMock.VerifyAllExpectations();
+      _typeCacheMock.Verify();
       Assert.That (result, Is.SameAs (fakeAssembledType));
     }
 
@@ -132,11 +132,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var additionalTypeID = new object();
       var fakeAdditionalType = ReflectionObjectMother.GetSomeType();
-      _typeCacheMock.Expect (mock => mock.GetOrCreateAdditionalType (additionalTypeID)).Return (fakeAdditionalType);
+      _typeCacheMock.Setup (mock => mock.GetOrCreateAdditionalType (additionalTypeID)).Returns (fakeAdditionalType).Verifiable();
 
       var result = _service.GetAdditionalType (additionalTypeID);
 
-      _typeCacheMock.VerifyAllExpectations();
+      _typeCacheMock.Verify();
       Assert.That (result, Is.SameAs (fakeAdditionalType));
     }    
 
@@ -147,17 +147,17 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var arguments = ParamList.Create ("abc", 7);
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
       _constructorCallCache
-          .Expect (
+          .Setup (
               mock => mock.GetOrCreateConstructorCall (
                   // Use strongly typed Equals overload.
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID)),
-                  Arg.Is (arguments.FuncType),
-                  Arg.Is (allowNonPublic)))
-          .Return (new Func<string, int, object> ((s, i) => "blub"));
+                  It.Is<AssembledTypeID> (id => id.Equals (typeID)),
+                  arguments.FuncType,
+                  allowNonPublic))
+          .Returns (new Func<string, int, object> ((s, i) => "blub"));
 
       var result = _service.InstantiateAssembledType (typeID, arguments, allowNonPublic);
 
-      _typeCacheMock.VerifyAllExpectations();
+      _typeCacheMock.Verify();
       Assert.That (result, Is.EqualTo ("blub"));
     }
 
@@ -168,24 +168,25 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var arguments = ParamList.Create ("abc", 7);
       var allowNonPublic = BooleanObjectMother.GetRandomBoolean();
       _constructorForAssembledTypeCacheMock
-          .Expect (mock => mock.GetOrCreateConstructorCall (assembledType, arguments.FuncType, allowNonPublic))
-          .Return (new Func<string, int, object> ((s, i) => "blub"));
+          .Setup (mock => mock.GetOrCreateConstructorCall (assembledType, arguments.FuncType, allowNonPublic))
+          .Returns (new Func<string, int, object> ((s, i) => "blub"))
+          .Verifiable();
 
       var result = _service.InstantiateAssembledType (assembledType, arguments, allowNonPublic);
 
-      _typeCacheMock.VerifyAllExpectations();
+      _typeCacheMock.Verify();
       Assert.That (result, Is.EqualTo ("blub"));
     }
     
     [Test]
     public void PrepareAssembledTypeInstance_Initializable ()
     {
-      var initializableObjectMock = MockRepository.GenerateMock<IInitializableObject>();
+      var initializableObjectMock = new Mock<IInitializableObject>();
       var reason = BooleanObjectMother.GetRandomBoolean() ? InitializationSemantics.Construction : InitializationSemantics.Deserialization;
 
-      _service.PrepareExternalUninitializedObject (initializableObjectMock, reason);
+      _service.PrepareExternalUninitializedObject (initializableObjectMock.Object, reason);
 
-      initializableObjectMock.AssertWasCalled (mock => mock.Initialize (reason));
+      initializableObjectMock.Verify (mock => mock.Initialize (reason), Times.Once());
     }
 
     [Test]

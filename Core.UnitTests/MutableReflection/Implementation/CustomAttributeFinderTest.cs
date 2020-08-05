@@ -21,21 +21,21 @@ using Remotion.Development.UnitTesting.ObjectMothers;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
   public class CustomAttributeFinderTest
   {
-    private ICustomAttributeDataProvider _providerMock;
+    private Mock<ICustomAttributeDataProvider> _providerMock;
 
     private bool _randomInherit;
 
     [SetUp]
     public void SetUp ()
     {
-      _providerMock = MockRepository.GenerateStrictMock<ICustomAttributeDataProvider>();
+      _providerMock = new Mock<ICustomAttributeDataProvider> (MockBehavior.Strict);
 
       _randomInherit = BooleanObjectMother.GetRandomBoolean();
     }
@@ -44,9 +44,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetCustomAttributes ()
     {
       var datas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute)) };
-      _providerMock.Expect (mock => mock.GetCustomAttributeData (_randomInherit)).Return (datas);
+      _providerMock.Setup (mock => mock.GetCustomAttributeData (_randomInherit)).Returns (datas).Verifiable();
 
-      var result = CustomAttributeFinder.GetCustomAttributes (_providerMock, _randomInherit);
+      var result = CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, _randomInherit);
 
       Assert.That (result.Select (a => a.GetType()), Is.EqualTo (new[] { typeof (ObsoleteAttribute) }));
     }
@@ -55,24 +55,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void GetCustomAttributes_NewInstance ()
     {
       var datas = new ICustomAttributeData[] { CustomAttributeDeclarationObjectMother.Create() };
-      _providerMock.Expect (mock => mock.GetCustomAttributeData (_randomInherit)).Return (datas).Repeat.Twice();
+      _providerMock.Setup (mock => mock.GetCustomAttributeData (_randomInherit)).Returns (datas);
 
-      var attribute1 = CustomAttributeFinder.GetCustomAttributes (_providerMock, _randomInherit).Single();
-      var attribute2 = CustomAttributeFinder.GetCustomAttributes (_providerMock, _randomInherit).Single ();
+      var attribute1 = CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, _randomInherit).Single();
+      var attribute2 = CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, _randomInherit).Single ();
 
       Assert.That (attribute1, Is.Not.SameAs (attribute2));
+      _providerMock.Verify (mock => mock.GetCustomAttributeData (_randomInherit), Times.Exactly (2));
     }
 
     [Test]
     public void GetCustomAttributes_Filter ()
     {
       var datas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (DerivedAttribute)) };
-      _providerMock.Expect (mock => mock.GetCustomAttributeData (_randomInherit)).Return (datas).Repeat.Times (4);
+      _providerMock.Setup (mock => mock.GetCustomAttributeData (_randomInherit)).Returns (datas).Verifiable();
 
-      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock, typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
-      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock, typeof (DerivedAttribute), _randomInherit), Has.Length.EqualTo (1));
-      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock, typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
-      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock, typeof (IBaseAttributeInterface), _randomInherit), Has.Length.EqualTo (1));
+      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, typeof (UnrelatedAttribute), _randomInherit), Is.Empty);
+      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, typeof (DerivedAttribute), _randomInherit), Has.Length.EqualTo (1));
+      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, typeof (BaseAttribute), _randomInherit), Has.Length.EqualTo (1));
+      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, typeof (IBaseAttributeInterface), _randomInherit), Has.Length.EqualTo (1));
+      _providerMock.Verify (mock => mock.GetCustomAttributeData (_randomInherit), Times.Exactly (4));
     }
 
     [Test]
@@ -82,22 +84,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (typeof (int).GetCustomAttributes (_randomInherit), Is.TypeOf (typeof (object[])));
       Assert.That (typeof (int).GetCustomAttributes (typeof (BaseAttribute), _randomInherit), Is.TypeOf (typeof (BaseAttribute[])));
 
-      _providerMock.Expect (mock => mock.GetCustomAttributeData (_randomInherit)).Return (new ICustomAttributeData[0]).Repeat.Times (2);
+      _providerMock.Setup (mock => mock.GetCustomAttributeData (_randomInherit)).Returns (new ICustomAttributeData[0]);
 
-      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock, _randomInherit), Is.TypeOf (typeof (object[])));
-      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock, typeof (BaseAttribute), _randomInherit), Is.TypeOf (typeof (BaseAttribute[])));
+      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, _randomInherit), Is.TypeOf (typeof (object[])));
+      Assert.That (CustomAttributeFinder.GetCustomAttributes (_providerMock.Object, typeof (BaseAttribute), _randomInherit), Is.TypeOf (typeof (BaseAttribute[])));
+      _providerMock.Verify (mock => mock.GetCustomAttributeData (_randomInherit), Times.Exactly (2));
     }
 
     [Test]
     public void IsDefined ()
     {
       var datas = new[] { CustomAttributeDeclarationObjectMother.Create (typeof (DerivedAttribute)) };
-      _providerMock.Expect (mock => mock.GetCustomAttributeData (_randomInherit)).Return (datas).Repeat.Times (4);
+      _providerMock.Setup (mock => mock.GetCustomAttributeData (_randomInherit)).Returns (datas);
 
-      Assert.That (CustomAttributeFinder.IsDefined (_providerMock, typeof (UnrelatedAttribute), _randomInherit), Is.False);
-      Assert.That (CustomAttributeFinder.IsDefined (_providerMock, typeof (DerivedAttribute), _randomInherit), Is.True);
-      Assert.That (CustomAttributeFinder.IsDefined (_providerMock, typeof (BaseAttribute), _randomInherit), Is.True);
-      Assert.That (CustomAttributeFinder.IsDefined (_providerMock, typeof (IBaseAttributeInterface), _randomInherit), Is.True);
+      Assert.That (CustomAttributeFinder.IsDefined (_providerMock.Object, typeof (UnrelatedAttribute), _randomInherit), Is.False);
+      Assert.That (CustomAttributeFinder.IsDefined (_providerMock.Object, typeof (DerivedAttribute), _randomInherit), Is.True);
+      Assert.That (CustomAttributeFinder.IsDefined (_providerMock.Object, typeof (BaseAttribute), _randomInherit), Is.True);
+      Assert.That (CustomAttributeFinder.IsDefined (_providerMock.Object, typeof (IBaseAttributeInterface), _randomInherit), Is.True);
+      _providerMock.Verify (mock => mock.GetCustomAttributeData (_randomInherit), Times.Exactly (4));
     }
 
     public interface IBaseAttributeInterface { }

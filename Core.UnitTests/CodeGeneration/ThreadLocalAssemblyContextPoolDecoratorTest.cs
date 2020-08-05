@@ -2,31 +2,31 @@
 using System.Threading;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
   public class ThreadLocalAssemblyContextPoolDecoratorTest
   {
-    private IAssemblyContextPool _assemblyContextPoolMock;
+    private Mock<IAssemblyContextPool> _assemblyContextPoolMock;
     private ThreadLocalAssemblyContextPoolDecorator _decorator;
     private AssemblyContext _assemblyContext;
 
     [SetUp]
     public void SetUp ()
     {
-      _assemblyContextPoolMock = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
+      _assemblyContextPoolMock = new Mock<IAssemblyContextPool> (MockBehavior.Strict);
       _assemblyContext = CreateAssemblyContext();
 
-      _decorator = new ThreadLocalAssemblyContextPoolDecorator (_assemblyContextPoolMock);
+      _decorator = new ThreadLocalAssemblyContextPoolDecorator (_assemblyContextPoolMock.Object);
     }
 
     [Test]
     public void DequeueAll_ReturnsAssemblyContextsFromInnerPool ()
     {
       AssemblyContext[] expected = { _assemblyContext };
-      _assemblyContextPoolMock.Expect (mock => mock.DequeueAll()).Return (expected);
+      _assemblyContextPoolMock.Setup (mock => mock.DequeueAll()).Returns (expected).Verifiable();
 
       var actual = _decorator.DequeueAll();
 
@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void DequeueAll_AfterDequeueAllNoEnqueue_ThrowsInvalidOperationException ()
     {
       var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
-      _assemblyContextPoolMock.Expect (mock => mock.DequeueAll()).Return (assemblyContexts);
+      _assemblyContextPoolMock.Setup (mock => mock.DequeueAll()).Returns (assemblyContexts).Verifiable();
 
       _decorator.DequeueAll();
 
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void DequeueAll_AfterDequeueAndNoEnqueue_ThrowsInvalidOperationException ()
     {
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue()).Returns (_assemblyContext).Verifiable();
 
       _decorator.Dequeue();
 
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void DequeueAll_AfterMultipleDequeueAndEnqueueNotComplete_ThrowsInvalidOperationException ()
     {
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue()).Returns (_assemblyContext).Verifiable();
 
       _decorator.Dequeue();
       _decorator.Dequeue();
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void Dequeue_Once_ReturnsAssemblyContextFromInnerPool ()
     {
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue()).Returns (_assemblyContext).Verifiable();
 
       var assemblyContext = _decorator.Dequeue();
 
@@ -89,14 +89,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void Dequeue_TwiceOnSameThread_ReturnsAssemblyContextFromThreadLocalCacheOnSecondCall ()
     {
       var hasDequeued = false;
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue())
-          .WhenCalled (
-              mi =>
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue())
+          .Callback (
+              () =>
               {
                 Assert.That (hasDequeued, Is.False);
                 hasDequeued = true;
               })
-          .Return (_assemblyContext);
+          .Returns (_assemblyContext);
 
       var assemblyContext1 = _decorator.Dequeue();
       Assert.That (hasDequeued, Is.True);
@@ -112,8 +112,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void Dequeue_WithDifferentThreads_ReturnsDifferentAssemblyContexts ()
     {
       var expectedAssemblyContextFromOtherThread = CreateAssemblyContext();
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (expectedAssemblyContextFromOtherThread);
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+      _assemblyContextPoolMock
+          .SetupSequence (mock => mock.Dequeue())
+          .Returns (expectedAssemblyContextFromOtherThread)
+          .Returns (_assemblyContext);
+
 
       AssemblyContext actualAssemblyContextFromOtherThread = null;
       var otherThread = new Thread (() => { actualAssemblyContextFromOtherThread = _decorator.Dequeue(); });
@@ -131,8 +134,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
 
-      _assemblyContextPoolMock.Expect (mock => mock.DequeueAll()).Return (assemblyContexts);
-      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContexts[0]));
+      _assemblyContextPoolMock.Setup (mock => mock.DequeueAll()).Returns (assemblyContexts).Verifiable();
+      _assemblyContextPoolMock.Setup (mock => mock.Enqueue (assemblyContexts[0])).Verifiable();
 
       _decorator.DequeueAll();
       _decorator.Enqueue (assemblyContexts[0]);
@@ -148,7 +151,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
 
-      _assemblyContextPoolMock.Expect (mock => mock.DequeueAll()).Return (assemblyContexts);
+      _assemblyContextPoolMock.Setup (mock => mock.DequeueAll()).Returns (assemblyContexts).Verifiable();
 
       _decorator.DequeueAll();
 
@@ -163,10 +166,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
 
-      _assemblyContextPoolMock.Expect (mock => mock.DequeueAll()).Return (assemblyContexts);
-      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContexts[0]));
-      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (assemblyContexts[1]));
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (assemblyContexts[0]);
+      _assemblyContextPoolMock.Setup (mock => mock.DequeueAll()).Returns (assemblyContexts).Verifiable();
+      _assemblyContextPoolMock.Setup (mock => mock.Enqueue (assemblyContexts[0])).Verifiable();
+      _assemblyContextPoolMock.Setup (mock => mock.Enqueue (assemblyContexts[1])).Verifiable();
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue()).Returns (assemblyContexts[0]).Verifiable();
 
       _decorator.DequeueAll();
 
@@ -177,35 +180,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       Assert.That (assemblyContext, Is.SameAs (assemblyContexts[0]));
 
-      _assemblyContextPoolMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.Verify();
     }
 
     [Test]
     public void Enqueue_AfterDequeue_PassesAssemblyContextToInnerPool ()
     {
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
-      _assemblyContextPoolMock.Expect (mock => mock.Enqueue (_assemblyContext));
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue()).Returns (_assemblyContext).Verifiable();
+      _assemblyContextPoolMock.Setup (mock => mock.Enqueue (_assemblyContext)).Verifiable();
 
       var assemblyContext = _decorator.Dequeue();
 
       _decorator.Enqueue (assemblyContext);
 
-      _assemblyContextPoolMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.Verify();
     }
 
     [Test]
     public void Enqueue_TwiceAfterTwoDequeues_PassesAssemblyContextToInnerPoolOnSecondCall ()
     {
       var hasEnqueued = false;
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue()).Returns (_assemblyContext).Verifiable();
       _assemblyContextPoolMock
-          .Expect (mock => mock.Enqueue (_assemblyContext))
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.Enqueue (_assemblyContext))
+          .Callback (
+              (AssemblyContext _) =>
               {
                 Assert.That (hasEnqueued, Is.False);
                 hasEnqueued = true;
-              });
+              })
+          .Verifiable();
 
       var assemblyContext1 = _decorator.Dequeue();
       var assemblyContext2 = _decorator.Dequeue();
@@ -216,7 +220,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _decorator.Enqueue (assemblyContext2);
       Assert.That (hasEnqueued, Is.True);
 
-      _assemblyContextPoolMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.Verify();
     }
 
     [Test]
@@ -232,7 +236,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     [Test]
     public void Enqueue_WithAssemblyContextFromOtherThread_ThrowsInvalidOperationException ()
     {
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+      _assemblyContextPoolMock.Setup (mock => mock.Dequeue()).Returns (_assemblyContext).Verifiable();
 
       _decorator.Dequeue();
 
@@ -251,13 +255,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var exception = new Exception();
       var hasEnqueued = false;
 
-      _assemblyContextPoolMock.Expect (mock => mock.Dequeue()).Return (_assemblyContext);
+      var sequence = new MockSequence();
       _assemblyContextPoolMock
-          .Expect (mock => mock.Enqueue (_assemblyContext))
-          .Throw (exception);
+          .InSequence (sequence)
+          .Setup (mock => mock.Dequeue()).Returns (_assemblyContext);
       _assemblyContextPoolMock
-          .Expect (mock => mock.Enqueue (_assemblyContext))
-          .WhenCalled (mi => { hasEnqueued = true; });
+          .InSequence (sequence)
+          .Setup (mock => mock.Enqueue (_assemblyContext))
+          .Throws (exception);
+      _assemblyContextPoolMock
+          .InSequence (sequence)
+          .Setup (mock => mock.Enqueue (_assemblyContext))
+          .Callback ((AssemblyContext _) => { hasEnqueued = true; });
 
       var assemblyContext = _decorator.Dequeue();
 
@@ -267,7 +276,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       Assert.That (() => _decorator.Enqueue (assemblyContext), Throws.Nothing);
       Assert.That (hasEnqueued, Is.True);
 
-      _assemblyContextPoolMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.Verify();
     }
 
     [Test]
@@ -276,13 +285,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var hasEnqueued = false;
       var assemblyContexts = new[] { CreateAssemblyContext(), CreateAssemblyContext() };
 
-      _assemblyContextPoolMock.Expect (mock => mock.DequeueAll()).Return (assemblyContexts);
+      _assemblyContextPoolMock.Setup (mock => mock.DequeueAll()).Returns (assemblyContexts).Verifiable();
       _assemblyContextPoolMock
-          .Expect (mock => mock.Enqueue (assemblyContexts[0]))
-          .WhenCalled (mi => { hasEnqueued = true; });
+          .Setup (mock => mock.Enqueue (assemblyContexts[0]))
+          .Callback ((AssemblyContext _) => { hasEnqueued = true; })
+          .Verifiable();
       _assemblyContextPoolMock
-          .Expect (mock => mock.Enqueue (assemblyContexts[1]))
-          .WhenCalled (mi => { hasEnqueued = true; });
+          .Setup (mock => mock.Enqueue (assemblyContexts[1]))
+          .Callback ((AssemblyContext _) => { hasEnqueued = true; })
+          .Verifiable();
 
       _decorator.DequeueAll();
 
@@ -293,14 +304,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       _decorator.Enqueue (assemblyContexts[1]);
       Assert.That (hasEnqueued, Is.True);
 
-      _assemblyContextPoolMock.VerifyAllExpectations();
+      _assemblyContextPoolMock.Verify();
     }
 
     private AssemblyContext CreateAssemblyContext ()
     {
       return new AssemblyContext (
-          MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(),
-          MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>());
+          new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object,
+          new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict).Object);
     }
   }
 }

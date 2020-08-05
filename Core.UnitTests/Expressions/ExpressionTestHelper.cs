@@ -21,48 +21,52 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
   public static class ExpressionTestHelper
   {
-    public static void CheckAccept (IPrimitiveTypePipeExpression expression, Function<IPrimitiveTypePipeExpressionVisitor, Expression> expectation)
+    public static void CheckAccept (
+        IPrimitiveTypePipeExpression expression,
+        System.Linq.Expressions.Expression<Func<IPrimitiveTypePipeExpressionVisitor, Expression>> expectation)
     {
-      var visitorMock = MockRepository.GenerateMock<IPrimitiveTypePipeExpressionVisitor>();
+      var visitorMock = new Mock<IPrimitiveTypePipeExpressionVisitor>();
       var visitorResult = ExpressionTreeObjectMother.GetSomeExpression();
-      visitorMock.Expect (expectation).Return (visitorResult);
+      visitorMock.Setup (expectation).Returns (visitorResult).Verifiable();
 
-      var result = expression.Accept (visitorMock);
+      var result = expression.Accept (visitorMock.Object);
 
-      visitorMock.VerifyAllExpectations();
+      visitorMock.Verify();
       Assert.That (result, Is.SameAs (visitorResult));
     }
 
-    public static void CheckAccept (ICodeGenerationExpression expression, Function<ICodeGenerationExpressionVisitor, Expression> expectation)
+    public static void CheckAccept (
+        ICodeGenerationExpression expression,
+        System.Linq.Expressions.Expression<Func<ICodeGenerationExpressionVisitor, Expression>> expectation)
     {
-      var visitorMock = MockRepository.GenerateMock<ICodeGenerationExpressionVisitor>();
+      var visitorMock = new Mock<ICodeGenerationExpressionVisitor>();
       var visitorResult = ExpressionTreeObjectMother.GetSomeExpression();
-      visitorMock.Expect (expectation).Return (visitorResult);
+      visitorMock.Setup (expectation).Returns (visitorResult).Verifiable();
 
-      var result = expression.Accept (visitorMock);
+      var result = expression.Accept (visitorMock.Object);
 
-      visitorMock.VerifyAllExpectations();
+      visitorMock.Verify();
       Assert.That (result, Is.SameAs (visitorResult));
     }
 
     public static void CheckVisitChildren_NoChanges (Expression parentExpression, params Expression[] childExpressions)
     {
-      var expressionVisitor = MockRepository.GenerateStrictMock<ExpressionVisitor>();
+      var expressionVisitor = new Mock<ExpressionVisitor> (MockBehavior.Strict);
       foreach (var childExpression in childExpressions)
       {
         var childExpressionCopy = childExpression;
-        expressionVisitor.Expect (mock => mock.Visit (childExpressionCopy)).Return (childExpressionCopy);
+        expressionVisitor.Setup (mock => mock.Visit (childExpressionCopy)).Returns (childExpressionCopy).Verifiable();
       }
 
-      var result = parentExpression.Invoke ("VisitChildren", expressionVisitor);
+      var result = parentExpression.Invoke ("VisitChildren", expressionVisitor.Object);
 
-      expressionVisitor.VerifyAllExpectations();
+      expressionVisitor.Verify();
       Assert.That (result, Is.SameAs (parentExpression));
     }
   }

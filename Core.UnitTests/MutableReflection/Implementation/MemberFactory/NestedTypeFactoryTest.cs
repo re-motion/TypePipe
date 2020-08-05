@@ -21,7 +21,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -30,14 +30,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
   {
     private NestedTypeFactory _factory;
 
-    private IMutableTypeFactory _mutableTypeFactoryMock;
+    private Mock<IMutableTypeFactory> _mutableTypeFactoryMock;
 
     [SetUp]
     public void SetUp ()
     {
-      _mutableTypeFactoryMock = MockRepository.GenerateStrictMock<IMutableTypeFactory>();
+      _mutableTypeFactoryMock = new Mock<IMutableTypeFactory> (MockBehavior.Strict);
 
-      _factory = new NestedTypeFactory (_mutableTypeFactoryMock);
+      _factory = new NestedTypeFactory (_mutableTypeFactoryMock.Object);
     }
 
     [Test]
@@ -50,12 +50,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var baseType = ReflectionObjectMother.GetSomeType();
       var mutableTypeFake = MutableTypeObjectMother.Create();
 
-      _mutableTypeFactoryMock.Expect (mock => mock.CreateType (typeName, @namespace, typeAttributes, baseType, declaringType))
-                             .Return (mutableTypeFake);
+      _mutableTypeFactoryMock
+          .Setup (mock => mock.CreateType (typeName, @namespace, typeAttributes, baseType, declaringType))
+          .Returns (mutableTypeFake)
+          .Verifiable();
 
       var result = _factory.CreateNestedType (declaringType, typeName, typeAttributes, baseType);
 
-      _mutableTypeFactoryMock.VerifyAllExpectations();
+      _mutableTypeFactoryMock.Verify();
       Assert.That (result, Is.SameAs (mutableTypeFake));
     }
   }

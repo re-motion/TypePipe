@@ -20,7 +20,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Expressions;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
@@ -29,45 +29,45 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
   {
     private Type _type;
 
-    private CodeGenerationExpressionBase _expressionPartialMock;
+    private Mock<CodeGenerationExpressionBase> _expressionPartialMock;
 
     [SetUp]
     public void SetUp ()
     {
       _type = ReflectionObjectMother.GetSomeType();
 
-      _expressionPartialMock = MockRepository.GeneratePartialMock<CodeGenerationExpressionBase> (_type);
+      _expressionPartialMock = new Mock<CodeGenerationExpressionBase> (_type) { CallBase = true };
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expressionPartialMock.Type, Is.SameAs (_type));
+      Assert.That (_expressionPartialMock.Object.Type, Is.SameAs (_type));
     }
 
     [Test]
     public void Accept_PrimitiveTypePipeExpressionVisitor ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<IPrimitiveTypePipeExpressionVisitor>();
+      var expressionVisitorMock = new Mock<IPrimitiveTypePipeExpressionVisitor> (MockBehavior.Strict);
       var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      expressionVisitorMock.Expect (mock => mock.VisitExtension (_expressionPartialMock)).Return (fakeExpression);
+      expressionVisitorMock.Setup (mock => mock.VisitExtension (_expressionPartialMock.Object)).Returns (fakeExpression).Verifiable();
 
-      var result = _expressionPartialMock.Accept (expressionVisitorMock);
+      var result = _expressionPartialMock.Object.Accept (expressionVisitorMock.Object);
 
-      _expressionPartialMock.VerifyAllExpectations();
+      _expressionPartialMock.Verify();
       Assert.That (result, Is.SameAs (fakeExpression));
     }
 
     [Test]
     public void Accept_CodeGenerationExpressionVisitor ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<IPrimitiveTypePipeExpressionVisitor, ICodeGenerationExpressionVisitor>();
+      var expressionVisitorMock = new Mock<ICodeGenerationExpressionVisitor> (MockBehavior.Strict);
       var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _expressionPartialMock.Expect (mock => mock.Accept (expressionVisitorMock)).Return (fakeExpression);
+      _expressionPartialMock.Setup (mock => mock.Accept (expressionVisitorMock.Object)).Returns (fakeExpression).Verifiable();
 
-      var result = _expressionPartialMock.Accept (expressionVisitorMock);
+      var result = _expressionPartialMock.Object.Accept (expressionVisitorMock.Object);
 
-      _expressionPartialMock.VerifyAllExpectations();
+      _expressionPartialMock.Verify();
       Assert.That (result, Is.SameAs (fakeExpression));
     }
   }

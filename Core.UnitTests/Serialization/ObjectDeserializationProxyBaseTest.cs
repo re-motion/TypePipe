@@ -23,7 +23,7 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Development.UnitTesting;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.Serialization;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Serialization
 {
@@ -35,8 +35,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 
     private ObjectDeserializationProxyBase _objectDeserializationProxyBase;
 
-    private IPipelineRegistry _pipelineRegistryStub;
-    private IDeserializationMethodInvoker _deserializationMethodInvokerMock;
+    private Mock<IPipelineRegistry> _pipelineRegistryStub;
+    private Mock<IDeserializationMethodInvoker> _deserializationMethodInvokerMock;
     private Action<object, SerializationInfo, StreamingContext, string> _createRealObjectAssertions;
 
     [SetUp]
@@ -47,20 +47,20 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _info = new SerializationInfo (serializableType, formatterConverter);
       _context = new StreamingContext ((StreamingContextStates) 7);
 
-      _pipelineRegistryStub = MockRepository.GenerateStub<IPipelineRegistry>();
+      _pipelineRegistryStub = new Mock<IPipelineRegistry>();
       Assert.That (PipelineRegistry.HasInstanceProvider, Is.False);
-      PipelineRegistry.SetInstanceProvider (() => _pipelineRegistryStub);
+      PipelineRegistry.SetInstanceProvider (() => _pipelineRegistryStub.Object);
 
-      _deserializationMethodInvokerMock = MockRepository.GenerateMock<IDeserializationMethodInvoker>();
+      _deserializationMethodInvokerMock = new Mock<IDeserializationMethodInvoker>();
       _createRealObjectAssertions = (instance, info, ctx, typeName) => { throw new Exception ("Setup assertions and return real object."); };
 
-      // Use testable class instead of partial mock, because RhinoMocks chokes on non-virtual ISerializable.GetObjectData.
+      // Use testable class instead of partial mock, because mocking frameworks choke on non-virtual ISerializable.GetObjectData.
       _objectDeserializationProxyBase = new TestableObjectDeserializationProxyBase (
           _info,
           _context,
           (instance, info, ctx, typeName) => _createRealObjectAssertions (instance, info, ctx, typeName));
 
-      PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_deserializationMethodInvoker", _deserializationMethodInvokerMock);
+      PrivateInvoke.SetNonPublicField (_objectDeserializationProxyBase, "_deserializationMethodInvoker", _deserializationMethodInvokerMock.Object);
     }
 
     [TearDown]
@@ -85,11 +85,11 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _info.AddValue ("<tp>participantConfigurationID", "config1");
       _info.AddValue ("<tp>assembledTypeIDData", data);
 
-      var pipelineStub = MockRepository.GenerateStub<IPipeline>();
-      var reflectionServiceStub = MockRepository.GenerateStub<IReflectionService>();
-      _pipelineRegistryStub.Stub (_ => _.Get ("config1")).Return (pipelineStub);
-      pipelineStub.Stub (_ => _.ReflectionService).Return (reflectionServiceStub);
-      reflectionServiceStub.Stub (_ => _.GetAssembledType (Arg<AssembledTypeID>.Matches (id => id.Equals (data.CreateTypeID())))).Return (requestedType);
+      var pipelineStub = new Mock<IPipeline>();
+      var reflectionServiceStub = new Mock<IReflectionService>();
+      _pipelineRegistryStub.Setup (_ => _.Get ("config1")).Returns (pipelineStub.Object);
+      pipelineStub.SetupGet (_ => _.ReflectionService).Returns (reflectionServiceStub.Object);
+      reflectionServiceStub.Setup (_ => _.GetAssembledType (It.Is<AssembledTypeID> (id => id.Equals (data.CreateTypeID())))).Returns (requestedType);
 
       object instance = null;
       _createRealObjectAssertions = (inst, info, ctx, typeName) =>
@@ -103,8 +103,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 
       var result = _objectDeserializationProxyBase.GetRealObject (_context);
 
-      _pipelineRegistryStub.VerifyAllExpectations();
-      _deserializationMethodInvokerMock.AssertWasCalled (_ => _.InvokeOnDeserializing (Arg<DomainType>.Is.Anything, Arg.Is (_context)));
+      _pipelineRegistryStub.Verify();
+      _deserializationMethodInvokerMock.Verify (_ => _.InvokeOnDeserializing (It.IsAny<DomainType>(), It.Is<StreamingContext> (param => param.Equals (_context))), Times.Once());
       Assert.That (result, Is.SameAs (instance).And.Not.Null);
       Assert.That (PrivateInvoke.GetNonPublicField (_objectDeserializationProxyBase, "_instance"), Is.SameAs (instance), "Should be cached.");
     }
@@ -129,8 +129,8 @@ namespace Remotion.TypePipe.UnitTests.Serialization
 
       _objectDeserializationProxyBase.OnDeserialization (sender);
 
-      _deserializationMethodInvokerMock.AssertWasCalled (_ => _.InvokeOnDeserialized (instance, _context));
-      _deserializationMethodInvokerMock.AssertWasCalled (_ => _.InvokeOnDeserialization (instance, sender));
+      _deserializationMethodInvokerMock.Verify (_ => _.InvokeOnDeserialized (instance, _context), Times.Once());
+      _deserializationMethodInvokerMock.Verify (_ => _.InvokeOnDeserialization (instance, sender), Times.Once());
     }
 
     private class DomainType {}

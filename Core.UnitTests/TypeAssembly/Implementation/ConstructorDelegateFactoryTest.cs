@@ -21,23 +21,23 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Implementation;
 using Remotion.Utilities;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 {
   [TestFixture]
   public class ConstructorDelegateFactoryTest
   {
-    private IConstructorFinder _constructorFinderMock;
+    private Mock<IConstructorFinder> _constructorFinderMock;
 
     private ConstructorDelegateFactory _factory;
 
     [SetUp]
     public void SetUp ()
     {
-      _constructorFinderMock = MockRepository.GenerateStrictMock<IConstructorFinder>();
+      _constructorFinderMock = new Mock<IConstructorFinder> (MockBehavior.Strict);
 
-      _factory = new ConstructorDelegateFactory (_constructorFinderMock);
+      _factory = new ConstructorDelegateFactory (_constructorFinderMock.Object);
     }
 
     [Test]
@@ -49,8 +49,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
 
       _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
-          .Return (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("", 7)));
+          .Setup (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
+          .Returns (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType ("", 7)))
+          .Verifiable();
 
       var result = (Func<string, int, DomainType>) _factory.CreateConstructorCall (requestedType, assembledType, delegateType, allowNonPublic);
 
@@ -68,8 +69,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
 
       _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
-          .Return (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainValueType ("", 7)));
+          .Setup (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
+          .Returns (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainValueType ("", 7)))
+          .Verifiable();
 
       var result = (Func<string, int, DomainValueType>) _factory.CreateConstructorCall (requestedType, assembledType, delegateType, allowNonPublic);
 
@@ -87,8 +89,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var assembledType = ReflectionObjectMother.GetSomeOtherType();
 
       _constructorFinderMock
-          .Expect (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
-          .Return (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainValueType ("", 7)));
+          .Setup (mock => mock.GetConstructor (requestedType, new[] { typeof (string), typeof (int) }, allowNonPublic, assembledType))
+          .Returns (NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainValueType ("", 7)))
+          .Verifiable();
 
       var result = (Func<string, int, object>) _factory.CreateConstructorCall (requestedType, assembledType, delegateType, allowNonPublic);
 

@@ -22,7 +22,7 @@ using Remotion.Development.UnitTesting.IO;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -105,19 +105,19 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void LoadTypes_IdentifierSavedInType_MustMatchComputedIdentifier_ToReturnLoadedType ()
     {
-      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
-      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (DomainType1))).Return ("key1");
-      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (DomainType2))).Return ("key2").Repeat.Once();
-      typeIdentifierProviderStub.Stub (_ => _.GetExpression ("key1")).Return (Expression.Constant ("key1"));
-      typeIdentifierProviderStub.Stub (_ => _.GetExpression ("key2")).Return (Expression.Constant ("key2"));
-      var participant = CreateParticipant (typeIdentifierProvider: typeIdentifierProviderStub);
+      var typeIdentifierProviderStub = new Mock<ITypeIdentifierProvider>();
+      typeIdentifierProviderStub.Setup (_ => _.GetID (typeof (DomainType1))).Returns ("key1");
+      typeIdentifierProviderStub.Setup (_ => _.GetID (typeof (DomainType2))).Returns ("key2");
+      typeIdentifierProviderStub.Setup (_ => _.GetExpression ("key1")).Returns (Expression.Constant ("key1"));
+      typeIdentifierProviderStub.Setup (_ => _.GetExpression ("key2")).Returns (Expression.Constant ("key2"));
+      var participant = CreateParticipant (typeIdentifierProvider: typeIdentifierProviderStub.Object);
 
       var savingPipeline = CreatePipeline (c_participantConfigurationID, participant);
       var assembly1 = GenerateTypeFlushAndLoadAssembly (savingPipeline, typeof (DomainType1));
       var assembly2 = GenerateTypeFlushAndLoadAssembly (savingPipeline, typeof (DomainType2));
 
       // Change returned identifier.
-      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (DomainType2))).Return ("other key");
+      typeIdentifierProviderStub.Setup (_ => _.GetID (typeof (DomainType2))).Returns ("other key");
 
       var loadingPipeline = CreatePipeline (c_participantConfigurationID, participant);
       loadingPipeline.CodeManager.LoadFlushedCode (assembly1);

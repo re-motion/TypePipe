@@ -17,7 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
@@ -25,16 +25,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
   public class AssemblyContextTest
   {
     private AssemblyContext _assemblyContext;
-    private IMutableTypeBatchCodeGenerator _mutableTypeBatchCodeGenerator;
-    private IGeneratedCodeFlusher _generatedCodeFlusher;
+    private Mock<IMutableTypeBatchCodeGenerator> _mutableTypeBatchCodeGenerator;
+    private Mock<IGeneratedCodeFlusher> _generatedCodeFlusher;
 
     [SetUp]
     public void SetUp ()
     {
-      _mutableTypeBatchCodeGenerator = MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>();
-      _generatedCodeFlusher = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
+      _mutableTypeBatchCodeGenerator = new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict);
+      _generatedCodeFlusher = new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict);
 
-      _assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGenerator, _generatedCodeFlusher);
+      _assemblyContext = new AssemblyContext (_mutableTypeBatchCodeGenerator.Object, _generatedCodeFlusher.Object);
     }
 
     [Test]
@@ -43,8 +43,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       Assert.That (_assemblyContext.ParticipantState, Is.Not.Null);
       Assert.That (_assemblyContext.ParticipantState, Is.SameAs (_assemblyContext.ParticipantState));
 
-      Assert.That (_assemblyContext.MutableTypeBatchCodeGenerator, Is.SameAs (_mutableTypeBatchCodeGenerator));
-      Assert.That (_assemblyContext.GeneratedCodeFlusher, Is.SameAs (_generatedCodeFlusher));
+      Assert.That (_assemblyContext.MutableTypeBatchCodeGenerator, Is.SameAs (_mutableTypeBatchCodeGenerator.Object));
+      Assert.That (_assemblyContext.GeneratedCodeFlusher, Is.SameAs (_generatedCodeFlusher.Object));
     }
 
     [Test]

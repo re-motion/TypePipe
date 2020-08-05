@@ -17,31 +17,31 @@
 using System;
 using JetBrains.Annotations;
 using NUnit.Framework;
-using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.Moq.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.TypePipe.StrongNaming;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class StrongNameCheckingEmittableOperandProviderDecoratorTest
   {
-    private IEmittableOperandProvider _innerMock;
-    private ITypeAnalyzer _typeAnalyzerMock;
+    private Mock<IEmittableOperandProvider> _innerMock;
+    private Mock<ITypeAnalyzer> _typeAnalyzerMock;
 
     private StrongNameCheckingEmittableOperandProviderDecorator _decorator;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeAnalyzerMock = MockRepository.GenerateStrictMock<ITypeAnalyzer>();
-      _innerMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _typeAnalyzerMock = new Mock<ITypeAnalyzer> (MockBehavior.Strict);
+      _innerMock = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = new StrongNameCheckingEmittableOperandProviderDecorator (_innerMock, _typeAnalyzerMock);
+      _decorator = new StrongNameCheckingEmittableOperandProviderDecorator (_innerMock.Object, _typeAnalyzerMock.Object);
     }
 
     [Test]
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var type = ReflectionObjectMother.GetSomeType();
       var emittableType = ReflectionObjectMother.GetSomeType();
 
-      CheckGetEmittable ((p, t) => p.GetEmittableType (t), type, emittableType, emittableType);
+      CheckGetEmittable (p => p.GetEmittableType (type), emittableType, emittableType);
     }
 
     [Test]
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var field = ReflectionObjectMother.GetSomeField();
       var emittableField = ReflectionObjectMother.GetSomeField();
 
-      CheckGetEmittable ((p, f) => p.GetEmittableField (f), field, emittableField, emittableField.DeclaringType);
+      CheckGetEmittable (p => p.GetEmittableField (field), emittableField, emittableField.DeclaringType);
     }
 
     [Test]
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constructor = ReflectionObjectMother.GetSomeConstructor();
       var emittableConstructor = ReflectionObjectMother.GetSomeConstructor();
 
-      CheckGetEmittable ((p, f) => p.GetEmittableConstructor (f), constructor, emittableConstructor, emittableConstructor.DeclaringType);
+      CheckGetEmittable (p => p.GetEmittableConstructor (constructor), emittableConstructor, emittableConstructor.DeclaringType);
     }
 
     [Test]
@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = ReflectionObjectMother.GetSomeMethod();
       var emittableMethod = ReflectionObjectMother.GetSomeNonGenericMethod();
 
-      CheckGetEmittable ((p, f) => p.GetEmittableMethod (f), method, emittableMethod, emittableMethod.DeclaringType);
+      CheckGetEmittable (p => p.GetEmittableMethod (method), emittableMethod, emittableMethod.DeclaringType);
     }
 
     [Test]
@@ -85,13 +85,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var method = ReflectionObjectMother.GetSomeMethod();
       var emittableMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => GenericMethod<int>());
-      _innerMock.Stub (stub => stub.GetEmittableMethod (method)).Return (emittableMethod);
-      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (emittableMethod.DeclaringType)).Return (true);
-      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (typeof (int))).Return (true);
+      _innerMock.Setup (stub => stub.GetEmittableMethod (method)).Returns (emittableMethod);
+      _typeAnalyzerMock.Setup (mock => mock.IsStrongNamed (emittableMethod.DeclaringType)).Returns (true).Verifiable();
+      _typeAnalyzerMock.Setup (mock => mock.IsStrongNamed (typeof (int))).Returns (true).Verifiable();
 
       var result = _decorator.GetEmittableMethod (method);
 
-      _typeAnalyzerMock.VerifyAllExpectations();
+      _typeAnalyzerMock.Verify();
       Assert.That (result, Is.SameAs (emittableMethod));
     }
 
@@ -101,8 +101,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var method = ReflectionObjectMother.GetSomeMethod();
       var emittableMethod = ReflectionEmitObjectMother.CreateMethodBuilder();
       Assert.That (emittableMethod.GetGenericArguments(), Is.Null);
-      _innerMock.Stub (stub => stub.GetEmittableMethod (method)).Return (emittableMethod);
-      _typeAnalyzerMock.Stub (stub => stub.IsStrongNamed (emittableMethod.DeclaringType)).Return (true);
+      _innerMock.Setup (stub => stub.GetEmittableMethod (method)).Returns (emittableMethod);
+      _typeAnalyzerMock.Setup (stub => stub.IsStrongNamed (emittableMethod.DeclaringType)).Returns (true);
 
       Assert.That (() => _decorator.GetEmittableMethod (method), Throws.Nothing);
     }
@@ -131,29 +131,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       helper.CheckDelegation (d => d.AddMapping (mappedMethod, emittableMethod));
     }
 
-    private void CheckGetEmittable<T> (Func<IEmittableOperandProvider, T, T> getEmittableOperandFunc, T operand, T emittableOperand, Type checkedType)
+    private void CheckGetEmittable<T> (System.Linq.Expressions.Expression<Func<IEmittableOperandProvider, T>> getEmittableOperandExpression, T emittableOperand, Type checkedType)
     {
-      _innerMock.Expect (mock => getEmittableOperandFunc (mock, operand)).Return (emittableOperand);
-      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (checkedType)).Return (true);
+      _innerMock.Setup (getEmittableOperandExpression).Returns (emittableOperand).Verifiable();
+      _typeAnalyzerMock.Setup (mock => mock.IsStrongNamed (checkedType)).Returns (true).Verifiable();
 
-      var result = getEmittableOperandFunc (_decorator, operand);
+      var compiledGetEmittableOperandExpression = getEmittableOperandExpression.Compile();
+      var result = compiledGetEmittableOperandExpression.Invoke (_decorator);
 
-      _innerMock.VerifyAllExpectations();
-      _typeAnalyzerMock.VerifyAllExpectations();
+      _innerMock.Verify();
+      _typeAnalyzerMock.Verify();
       Assert.That (result, Is.SameAs (emittableOperand));
 
-      _innerMock.BackToRecord();
-      _typeAnalyzerMock.BackToRecord();
-      _innerMock.Expect (mock => getEmittableOperandFunc (mock, operand)).Return (emittableOperand);
-      _typeAnalyzerMock.Expect (mock => mock.IsStrongNamed (checkedType)).Return (false);
-      _innerMock.Replay();
-      _typeAnalyzerMock.Replay();
+      _innerMock.Setup (getEmittableOperandExpression).Returns (emittableOperand).Verifiable();
+      _typeAnalyzerMock.Setup (mock => mock.IsStrongNamed (checkedType)).Returns (false).Verifiable();
 
       var message = "Strong-naming is enabled but a participant used the type '" + checkedType.FullName + "' which comes from the unsigned assembly '"
                     + checkedType.Assembly.GetName().Name + "'.";
-      Assert.That (() => getEmittableOperandFunc (_decorator, operand), Throws.InvalidOperationException.With.Message.EqualTo (message));
-      _innerMock.VerifyAllExpectations();
-      _typeAnalyzerMock.VerifyAllExpectations();
+      Assert.That (() => compiledGetEmittableOperandExpression.Invoke (_decorator), Throws.InvalidOperationException.With.Message.EqualTo (message));
+      _innerMock.Verify();
+      _typeAnalyzerMock.Verify();
     }
 
     void GenericMethod<[UsedImplicitly] T> () { }

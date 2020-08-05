@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Dlr.Ast;
@@ -27,14 +26,14 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
   [TestFixture]
   public class EventFactoryTest
   {
-    private IMethodFactory _methodFactoryMock;
+    private Mock<IMethodFactory> _methodFactoryMock;
 
     private EventFactory _factory;
 
@@ -43,9 +42,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      _methodFactoryMock = MockRepository.GenerateStrictMock<IMethodFactory>();
+      _methodFactoryMock = new Mock<IMethodFactory> (MockBehavior.Strict);
 
-      _factory = new EventFactory (_methodFactoryMock);
+      _factory = new EventFactory (_methodFactoryMock.Object);
 
       _mutableType = MutableTypeObjectMother.Create();
     }
@@ -71,67 +70,90 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                       });
 
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock =>
-              mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("add_Event"),
-                  Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg.Is (addBodyProvider)))
-          .WhenCalled (
-              mi =>
+                  mock.CreateMethod (
+                      _mutableType,
+                      "add_Event",
+                      accessorAttributes | MethodAttributes.SpecialName,
+                      GenericParameterDeclaration.None,
+                      It.IsAny<Func<GenericParameterContext, Type>>(),
+                      It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                      addBodyProvider))
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string nameArgument,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProvider) =>
               {
-                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                var returnType = returnTypeProvider (null);
                 Assert.That (returnType, Is.SameAs (typeof (void)));
 
-                var parameter = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).Single();
+                var parameter = parameterProvider (null).Single();
                 Assert.That (parameter.Type, Is.SameAs (handlerType));
                 Assert.That (parameter.Name, Is.EqualTo ("handler"));
               })
-          .Return (fakeAddMethod);
+          .Returns (fakeAddMethod)
+          .Verifiable();
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock =>
-              mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("remove_Event"),
-                  Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg.Is (removeBodyProvider)))
-          .WhenCalled (
-              mi =>
+                  mock.CreateMethod (
+                      _mutableType,
+                      "remove_Event",
+                      accessorAttributes | MethodAttributes.SpecialName,
+                      GenericParameterDeclaration.None,
+                      It.IsAny<Func<GenericParameterContext, Type>>(),
+                      It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                      removeBodyProvider))
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string nameArgument,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProvider) =>
               {
-                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                var returnType = returnTypeProvider (null);
                 Assert.That (returnType, Is.SameAs (typeof (void)));
 
-                var parameter = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).Single();
+                var parameter = parameterProvider (null).Single();
                 Assert.That (parameter.Type, Is.SameAs (handlerType));
                 Assert.That (parameter.Name, Is.EqualTo ("handler"));
               })
-          .Return (fakeRemoveMethod);
+          .Returns (fakeRemoveMethod)
+          .Verifiable();
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock =>
-              mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("raise_Event"),
-                  Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg.Is (raiseBodyProvider)))
-          .WhenCalled (
-              mi =>
+                  mock.CreateMethod (
+                      _mutableType,
+                      "raise_Event",
+                      accessorAttributes | MethodAttributes.SpecialName,
+                      GenericParameterDeclaration.None,
+                      It.IsAny<Func<GenericParameterContext, Type>>(),
+                      It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                      raiseBodyProvider))
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string nameArgument,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProvider) =>
               {
-                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                var returnType = returnTypeProvider (null);
                 Assert.That (returnType, Is.SameAs (handlerReturnType));
 
-                var parameters = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).ToList();
+                var parameters = parameterProvider (null).ToList();
                 Assert.That (parameters[0].Type, Is.SameAs (typeof (object)));
                 Assert.That (parameters[0].Name, Is.EqualTo ("sender"));
                 Assert.That (parameters[0].Attributes, Is.EqualTo (ParameterAttributes.None));
@@ -139,11 +161,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                 Assert.That (parameters[1].Name, Is.EqualTo ("outParam"));
                 Assert.That (parameters[1].Attributes, Is.EqualTo (ParameterAttributes.Out));
               })
-          .Return (fakeRaiseMethod);
+          .Returns (fakeRaiseMethod)
+          .Verifiable();
 
       var result = _factory.CreateEvent (_mutableType, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
 
-      _methodFactoryMock.VerifyAllExpectations();
+      _methodFactoryMock.Verify();
       Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Attributes, Is.EqualTo (EventAttributes.None));
@@ -160,9 +183,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> removeBodyProvider = ctx => null;
       var addAndRemoveMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
       _methodFactoryMock
-          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null, null)).IgnoreArguments()
-          .WhenCalled (mi => Assert.That (mi.Arguments[1], Is.Not.StringStarting ("raise_")))
-          .Return (addAndRemoveMethod);
+          .Setup (
+              stub => stub.CreateMethod (
+                  It.IsAny<MutableType>(),
+                  It.Is<string>(param => !param.StartsWith ("raise_")),
+                  It.IsAny<MethodAttributes>(),
+                  It.IsAny<IEnumerable<GenericParameterDeclaration>>(),
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+          .Returns (addAndRemoveMethod);
 
       var result = _factory.CreateEvent (_mutableType, "Event", typeof (Action), 0, addBodyProvider, removeBodyProvider, null);
 
