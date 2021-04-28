@@ -16,7 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration
@@ -59,7 +59,10 @@ namespace Remotion.TypePipe.CodeGeneration
       }
     }
 
-    private readonly string _instanceID = Guid.NewGuid().ToString();
+    // Normally, we would need to use AsyncLocal<T> instead of ThreadLocal<T> to make sure that data is cleared when
+    // a thread is reused. We can use ThreadLocal<T> here because every Dequeue call must be matched with an Enqueue
+    // call and we clear this thread-local variable when the last AssemblyContext is returned.
+    private readonly ThreadLocal<object> _threadLocalCache = new ThreadLocal<object>();
     private readonly IAssemblyContextPool _assemblyContextPool;
 
     public ThreadLocalAssemblyContextPoolDecorator (IAssemblyContextPool assemblyContextPool)
@@ -69,7 +72,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public AssemblyContext[] DequeueAll ()
     {
-      var data = CallContext.GetData (_instanceID);
+      var data = _threadLocalCache.Value;
 
       if (data is ThreadLocalAssemblyContext)
       {
@@ -84,17 +87,17 @@ namespace Remotion.TypePipe.CodeGeneration
             + "until all dequeued AssemblyContext have been returned to the pool.");
       }
 
-      Assertion.IsNull (data, "No information should be available for pool-ID '{0}'.", _instanceID);
+      Assertion.IsNull (data, "No information should be available for thread ID '{0}'.", Thread.CurrentThread.ManagedThreadId);
 
       var assemblyContexts = _assemblyContextPool.DequeueAll();
-      CallContext.SetData (_instanceID, new HashSet<AssemblyContext> (assemblyContexts));
+      _threadLocalCache.Value = new HashSet<AssemblyContext> (assemblyContexts);
 
       return assemblyContexts;
     }
 
     public AssemblyContext Dequeue ()
     {
-      var data = CallContext.GetData (_instanceID);
+      var data = _threadLocalCache.Value;
       if (data is HashSet<AssemblyContext>)
       {
         throw new InvalidOperationException (
@@ -106,7 +109,7 @@ namespace Remotion.TypePipe.CodeGeneration
       {
         var assemblyContext = _assemblyContextPool.Dequeue();
         threadLocalAssemblyContext = new ThreadLocalAssemblyContext (assemblyContext);
-        CallContext.SetData (_instanceID, threadLocalAssemblyContext);
+        _threadLocalCache.Value = threadLocalAssemblyContext;
       }
 
       threadLocalAssemblyContext.IncrementCount();
@@ -117,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration
     {
       ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
 
-      var data = CallContext.GetData (_instanceID);
+      var data = _threadLocalCache.Value;
       if (data == null)
       {
         throw new InvalidOperationException (
@@ -132,7 +135,7 @@ namespace Remotion.TypePipe.CodeGeneration
         isComplete = EnqueueAfterDequeueAll ((HashSet<AssemblyContext>) data, assemblyContext);
 
       if (isComplete)
-        CallContext.FreeNamedDataSlot (_instanceID);
+        _threadLocalCache.Value = null;
     }
 
     private bool EnqueueAfterDequeue (ThreadLocalAssemblyContext threadLocalAssemblyContext, AssemblyContext assemblyContext)
