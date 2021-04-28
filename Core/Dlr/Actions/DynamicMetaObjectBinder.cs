@@ -26,7 +26,7 @@ using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 #if SILVERLIGHT
 using System.Core;
-#else
+#elif FEATURE_REMOTING
 using System.Runtime.Remoting;
 #endif
 
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.Dlr.Dynamic {
         }
 
         private static BindingRestrictions AddRemoteObjectRestrictions(BindingRestrictions restrictions, object[] args, ReadOnlyCollection<ParameterExpression> parameters) {
-#if !SILVERLIGHT
+#if !SILVERLIGHT && FEATURE_REMOTING
 
             for (int i = 0; i < parameters.Count; i++) {
                 var expr = parameters[i];
