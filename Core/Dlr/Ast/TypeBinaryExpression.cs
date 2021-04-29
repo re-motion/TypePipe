@@ -125,7 +125,8 @@ namespace System.Linq.Expressions {
         // Helper that is used when re-eval of LHS is safe.
         private Expression ByValParameterTypeEqual(ParameterExpression value) {
             Expression getType = Expression.Call(value, typeof(object).GetMethod("GetType"));
-            
+
+            // TODO RMTP-84: The handling for GetType possibly being an interface in remoting scenarios can be dropped when remoting is no longer supported.
             // In remoting scenarios, obj.GetType() can return an interface.
             // But there's a bug in the JIT32's optimized "obj.GetType() ==
             // typeof(ISomething)" codegen, causing it to always return false.

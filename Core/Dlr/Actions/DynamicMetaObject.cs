@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using Remotion.TypePipe.Dlr.Dynamic.Utils;
 #if SILVERLIGHT
 using System.Core;
-#else
+#elif FEATURE_REMOTING
 using System.Runtime.Remoting;
 #endif
 
@@ -296,8 +296,9 @@ namespace Remotion.TypePipe.Dlr.Dynamic {
             return res;
         }
 
+#if FEATURE_REMOTING
         /// <summary>
-        /// Creates a meta-object for the specified object. 
+        /// Creates a meta-object for the specified object.
         /// </summary>
         /// <param name="value">The object to get a meta-object for.</param>
         /// <param name="expression">The expression representing this <see cref="DynamicMetaObject"/> during the dynamic binding process.</param>
@@ -306,11 +307,22 @@ namespace Remotion.TypePipe.Dlr.Dynamic {
         /// returns the object's specific meta-object returned by <see cref="IDynamicMetaObjectProvider.GetMetaObject"/>. Otherwise a plain new meta-object 
         /// with no restrictions is created and returned.
         /// </returns>
+#else
+        /// <summary>
+        /// Creates a meta-object for the specified object.
+        /// </summary>
+        /// <param name="value">The object to get a meta-object for.</param>
+        /// <param name="expression">The expression representing this <see cref="DynamicMetaObject"/> during the dynamic binding process.</param>
+        /// <returns>
+        /// If the given object implements <see cref="IDynamicMetaObjectProvider"/>, returns the object's specific meta-object returned by
+        /// <see cref="IDynamicMetaObjectProvider.GetMetaObject"/>. Otherwise a plain new meta-object with no restrictions is created and returned.
+        /// </returns>
+#endif
         public static DynamicMetaObject Create(object value, Expression expression) {
             ContractUtils.RequiresNotNull(expression, "expression");
 
             IDynamicMetaObjectProvider ido = value as IDynamicMetaObjectProvider;
-#if !SILVERLIGHT
+#if !SILVERLIGHT && FEATURE_REMOTING
             if (ido != null && !RemotingServices.IsObjectOutOfAppDomain(value)) {
 #else
             if (ido != null) {
