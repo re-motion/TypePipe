@@ -49,7 +49,7 @@ namespace System.Linq.Expressions.Compiler {
             var name = new AssemblyName("Snippets");
 
 #if SILVERLIGHT  // AssemblyBuilderAccess.RunAndSave, Environment.CurrentDirectory
-            _myAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
+            _myAssembly = AssemblyBuilder.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
             _myModule = _myAssembly.DefineDynamicModule(name.Name, false);
 #else
 
@@ -58,7 +58,7 @@ namespace System.Linq.Expressions.Compiler {
                 new CustomAttributeBuilder(typeof(SecurityTransparentAttribute).GetConstructor(Type.EmptyTypes), new object[0])
             };
 
-            _myAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly (name, AssemblyBuilderAccess.Run, attributes);
+            _myAssembly = AssemblyBuilder.DefineDynamicAssembly (name, AssemblyBuilderAccess.Run, attributes);
             _myModule = _myAssembly.DefineDynamicModule (name.Name, false);
 
             _myAssembly.DefineVersionInfoResource();
