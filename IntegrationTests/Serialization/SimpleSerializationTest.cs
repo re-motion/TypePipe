@@ -14,6 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+#if NETFRAMEWORK
+
 using System;
 using System.Linq;
 using NUnit.Framework;
@@ -52,3 +55,5 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
   }
 }
+
+#endif

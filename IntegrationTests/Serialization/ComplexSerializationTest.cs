@@ -14,6 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+#if NETFRAMEWORK
+
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -143,3 +146,5 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     public class RequestedType {}
   }
 }
+
+#endif
