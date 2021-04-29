@@ -31,20 +31,9 @@ namespace System.Linq.Expressions.Compiler {
     internal sealed class AssemblyGen {
         private static AssemblyGen _assembly;
 
-        // Testing options. Only ever set in CLR2 build
-        // configurations, see SetSaveAssemblies
-#if TypePipe
-        private static string _saveAssembliesPath;
-        private static bool _saveAssemblies;
-#endif
-
         private readonly AssemblyBuilder _myAssembly;
         private readonly ModuleBuilder _myModule;
 
-#if TypePipe && !SILVERLIGHT
-        private readonly string _outFileName;       // can be null iff !SaveAndReloadAssemblies
-        private readonly string _outDir;            // null means the current directory
-#endif
         private int _index;
 
         private static AssemblyGen Assembly {
@@ -69,31 +58,8 @@ namespace System.Linq.Expressions.Compiler {
                 new CustomAttributeBuilder(typeof(SecurityTransparentAttribute).GetConstructor(Type.EmptyTypes), new object[0])
             };
 
-#if TypePipe
-            if (_saveAssemblies) {
-                string outDir = _saveAssembliesPath ?? Directory.GetCurrentDirectory();
-                try {
-                    outDir = Path.GetFullPath(outDir);
-                } catch (Exception) {
-                    throw Error.InvalidOutputDir();
-                }
-                try {
-                    Path.Combine(outDir, name.Name + ".dll");
-                } catch (ArgumentException) {
-                    throw Error.InvalidAsmNameOrExtension();
-                }
-
-                _outFileName = name.Name + ".dll";
-                _outDir = outDir;
-                _myAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.RunAndSave, outDir, false, attributes);
-
-                _myModule = _myAssembly.DefineDynamicModule(name.Name, _outFileName, false);
-            } else
-#endif
-            {
-                _myAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run, attributes);
-                _myModule = _myAssembly.DefineDynamicModule(name.Name, false);
-            }
+            _myAssembly = AppDomain.CurrentDomain.DefineDynamicAssembly (name, AssemblyBuilderAccess.Run, attributes);
+            _myModule = _myAssembly.DefineDynamicModule (name.Name, false);
 
             _myAssembly.DefineVersionInfoResource();
 #endif
@@ -126,48 +92,6 @@ namespace System.Linq.Expressions.Compiler {
                 TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.AnsiClass | TypeAttributes.AutoClass
             );
         }
-
-#if TypePipe
-        //Return the location of the saved assembly file.
-        //The file location is used by PE verification in Microsoft.Scripting.
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal string SaveAssembly() {
-#if !SILVERLIGHT // AssemblyBuilder.Save
-            _myAssembly.Save(_outFileName, PortableExecutableKinds.ILOnly, ImageFileMachine.I386);
-            return Path.Combine(_outDir, _outFileName);
-#else
-            return null;
-#endif
-        }
-
-        // NOTE: this method is called through reflection from Microsoft.Scripting
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal static void SetSaveAssemblies(bool enable, string directory) {
-            _saveAssemblies = enable;
-            _saveAssembliesPath = directory;
-        }
-
-        // NOTE: this method is called through reflection from Microsoft.Scripting
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal static string[] SaveAssembliesToDisk() {
-            if (!_saveAssemblies) {
-                return new string[0];
-            }
-
-            var assemlyLocations = new List<string>();
-
-            // first save all assemblies to disk:
-            if (_assembly != null) {
-                string assemblyLocation = _assembly.SaveAssembly();
-                if (assemblyLocation != null) {
-                    assemlyLocations.Add(assemblyLocation);
-                }
-                _assembly = null;
-            }
-
-            return assemlyLocations.ToArray();
-        }
-#endif
     }
 
     internal static class SymbolGuids {
