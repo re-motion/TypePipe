@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void IsStrongNamed ()
     {
       var assembly1 = typeof (AssemblyAnalyzerTest).Assembly;
-      var assembly2 = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName ("test1"), AssemblyBuilderAccess.Run);
+      var assembly2 = AssemblyBuilder.DefineDynamicAssembly (new AssemblyName ("test1"), AssemblyBuilderAccess.Run);
 
       Assert.That (_analyzer.IsStrongNamed (assembly1), Is.True);
       Assert.That (_analyzer.IsStrongNamed (assembly2), Is.False);

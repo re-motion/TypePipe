@@ -545,8 +545,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       name = name ?? Guid.NewGuid().ToString();
       var assemblyName = new AssemblyName { Name = name };
-      var assemblyBuilder = Thread.GetDomain().DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
-      var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyBuilder.GetName().Name, false);
+      var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly (assemblyName, AssemblyBuilderAccess.Run);
+      var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyBuilder.GetName().Name);
       var typeBuilder = moduleBuilder.DefineType (name, attributes);
       return typeBuilder.CreateType();
     }
