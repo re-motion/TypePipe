@@ -16,7 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -230,14 +230,24 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       _manager.LoadFlushedCode (assemblyMock.Object);
     }
 
-    private Mock<_Assembly> CreateAssemblyMock (string participantConfigurationID, params Type[] types)
+    private Mock<FakeAssembly> CreateAssemblyMock (string participantConfigurationID, params Type[] types)
     {
-      var assemblyMock = new Mock<_Assembly> (MockBehavior.Strict);
+      var assemblyMock = new Mock<FakeAssembly> (MockBehavior.Strict);
       var assemblyAttribute = new TypePipeAssemblyAttribute (participantConfigurationID);
       assemblyMock.Setup (mock => mock.GetCustomAttributes (typeof (TypePipeAssemblyAttribute), false)).Returns (new object[] { assemblyAttribute }).Verifiable();
       assemblyMock.Setup (mock => mock.GetTypes()).Returns (types).Verifiable();
 
       return assemblyMock;
+    }
+
+    /// <remarks>
+    /// Castle does not support creating a proxy for <see cref="Assembly"/> directly ("The type System.Reflection.Assembly implements ISerializable,
+    /// but failed to provide a deserialization constructor"), thus this type is required. <see cref="Assembly"/> defines the needed methods
+    /// <see cref="Assembly.GetCustomAttributes(System.Type,bool)"/> and <see cref="Assembly.GetTypes()"/> as virtual, allowing the type to be
+    /// mocked for our purpose.
+    /// </remarks>
+    public class FakeAssembly : Assembly
+    {
     }
   }
 }
