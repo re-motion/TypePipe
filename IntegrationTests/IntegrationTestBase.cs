@@ -92,6 +92,10 @@ namespace Remotion.TypePipe.IntegrationTests
     [TearDown]
     public virtual void TearDown ()
     {
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+      SkipSavingAndPeVerification();
+#endif
+
       if (_skipSavingAndVerification)
         return;
 

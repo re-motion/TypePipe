@@ -25,6 +25,9 @@ using Remotion.Development.UnitTesting;
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
   [TestFixture]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+  [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
   public class SimpleSerializationTest : SerializationTestBase
   {
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)

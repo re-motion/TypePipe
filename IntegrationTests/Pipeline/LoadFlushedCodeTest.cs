@@ -27,6 +27,9 @@ using Moq;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+  [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
   public class LoadFlushedCodeTest : IntegrationTestBase
   {
     private const string c_participantConfigurationID = "LoadFlushedCodeTest";

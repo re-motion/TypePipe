@@ -51,7 +51,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
 
-      CheckAdapterAndSaveToDiskBehavior (result, _currentDirectory);
+      CheckAdapterBehavior (result);
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+      CheckSaveToDiskBehavior (result, _currentDirectory);
+#endif
     }
 
     [Test]
@@ -74,7 +77,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var tempDirectory = Path.GetTempPath();
       var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null);
 
-      CheckAdapterAndSaveToDiskBehavior (result, tempDirectory);
+      CheckAdapterBehavior (result);
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+      CheckSaveToDiskBehavior (result, tempDirectory);
+#endif
     }
 
     [Test]
@@ -84,8 +90,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var result2 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty);
 
       var publicKey = FallbackKey.KeyPair.PublicKey;
-      CheckAdapterAndSaveToDiskBehavior (result1, _currentDirectory, expectedPublicKey: publicKey);
-      CheckAdapterAndSaveToDiskBehavior (result2, _currentDirectory, expectedPublicKey: publicKey);
+
+      CheckAdapterBehavior (result1, expectedPublicKey: publicKey);
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+      CheckSaveToDiskBehavior (result1, _currentDirectory);
+#endif
+
+      CheckAdapterBehavior (result2, expectedPublicKey: publicKey);
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+      CheckSaveToDiskBehavior (result2, _currentDirectory);
+#endif
     }
 
     [Test]
@@ -96,25 +110,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath);
 
       var publicKey = new StrongNameKeyPair (File.ReadAllBytes (otherKeyPath)).PublicKey;
-      CheckAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedPublicKey: publicKey);
+
+      CheckAdapterBehavior (result, expectedPublicKey: publicKey);
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+      CheckSaveToDiskBehavior (result, _currentDirectory);
+#endif
     }
 
-    private void CheckAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory, byte[] expectedPublicKey = null)
+    private void CheckAdapterBehavior (IModuleBuilder moduleBuilder, byte[] expectedPublicKey = null)
     {
       Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var moduleBuilderAdapter = (ModuleBuilderAdapter) moduleBuilder;
       Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo (c_assemblyFileName));
       Assert.That (moduleBuilderAdapter.AssemblyBuilder, Is.TypeOf<AssemblyBuilderAdapter>());
       var assemblyBuilderAdapter = (AssemblyBuilderAdapter) moduleBuilder.AssemblyBuilder;
+
       Assert.That (assemblyBuilderAdapter.AssemblyName, Is.EqualTo (c_assemblyName));
       Assert.That (assemblyBuilderAdapter.PublicKey, Is.EqualTo (expectedPublicKey ?? new byte[0]));
+    }
 
+    private void CheckSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory)
+    {
       var assemblyPath = Path.Combine (assemblyDirectory, c_assemblyFileName);
       var pdbPath = Path.Combine (assemblyDirectory, c_pdbFileName);
       Assert.That (File.Exists (assemblyPath), Is.False);
       Assert.That (File.Exists (pdbPath), Is.False);
 
-      var result = assemblyBuilderAdapter.SaveToDisk();
+      var result = moduleBuilder.AssemblyBuilder.SaveToDisk();
 
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (pdbPath), Is.True);

@@ -28,6 +28,9 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+  [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
   public class FlushGeneratedCodeTest : IntegrationTestBase
   {
     [Test]
