@@ -56,6 +56,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes);
     void EndExceptionBlock ();
     void MarkLabel (Label loc);
+#if FEATURE_PDBEMIT
     void MarkSequencePoint (ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn);
+#endif
   }
 }

@@ -243,10 +243,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _innerILGenerator.MarkLabel (loc);
     }
 
+#if FEATURE_PDBEMIT
     public void MarkSequencePoint (ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
       _innerILGenerator.MarkSequencePoint (document, startLine, startColumn, endLine, endColumn);
     }
+#endif
 
     private OpCode AdjustOpCodeForBaseCall (OpCode opcode)
     {

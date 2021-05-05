@@ -178,9 +178,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       _ilGenerator.MarkLabel (loc);
     }
 
+#if FEATURE_PDBEMIT
     public void MarkSequencePoint (ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
       _ilGenerator.MarkSequencePoint (document, startLine, startColumn, endLine, endColumn);
     }
+#endif
   }
 }

@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TypePipe;FEATURE_REMOTING;FEATURE_ASSEMBLYBUILDER_SAVE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TypePipe;FEATURE_REMOTING;FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_PDBEMIT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Remotion.TypePipe.XML</DocumentationFile>
@@ -31,7 +31,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;TypePipe;FEATURE_REMOTING;FEATURE_ASSEMBLYBUILDER_SAVE</DefineConstants>
+    <DefineConstants>TRACE;TypePipe;FEATURE_REMOTING;FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_PDBEMIT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -98,6 +98,7 @@
     <Compile Include="CodeGeneration\ReflectionEmit\IMutableNestedTypeCodeGeneratorFactory.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGenerator.cs" />
     <Compile Include="CodeGeneration\ReflectionEmit\MutableNestedTypeCodeGeneratorFactory.cs" />
+    <Compile Include="CodeGeneration\ReflectionEmit\NullDebugInfoGenerator.cs" />
     <Compile Include="CodeGeneration\ThreadLocalAssemblyContextPoolDecorator.cs" />
     <Compile Include="Implementation\DynamicParamList.cs" />
     <Compile Include="Implementation\InitializationSemantics.cs" />
