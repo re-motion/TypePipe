@@ -79,14 +79,6 @@ namespace Remotion.TypePipe.Implementation
     {
       ArgumentUtility.CheckNotNull ("assembly", assembly);
 
-      LoadFlushedCode ((_Assembly) assembly);
-    }
-
-    [CLSCompliant (false)]
-    public void LoadFlushedCode (_Assembly assembly)
-    {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
-
       var typePipeAttribute = 
           (TypePipeAssemblyAttribute) assembly.GetCustomAttributes (typeof (TypePipeAssemblyAttribute), inherit: false).SingleOrDefault();
       if (typePipeAttribute == null)
