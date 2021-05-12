@@ -57,18 +57,18 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Remotion.BuildScript">
-      <HintPath>..\packages\Remotion.BuildScript.2.0.0-alpha022\lib\net45\Remotion.BuildScript.dll</HintPath>
+      <HintPath>..\packages\Remotion.BuildScript.2.0.0-alpha025\lib\net45\Remotion.BuildScript.dll</HintPath>
     </Reference>
     <Reference Include="JetBrains.Annotations, Version=2019.1.3.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325">
       <HintPath>..\packages\JetBrains.Annotations.2019.1.3\lib\net20\JetBrains.Annotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Remotion.BuildTools.MSBuildTasks">
-      <HintPath>..\packages\Remotion.BuildTools.MSBuildTasks.1.0.5827.25795\lib\net45\Remotion.BuildTools.MSBuildTasks.dll</HintPath>
+      <HintPath>..\packages\Remotion.BuildTools.MSBuildTasks.1.0.7562.19810\lib\net45\Remotion.BuildTools.MSBuildTasks.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Remotion.ReleaseProcessScript">
-      <HintPath>..\packages\Remotion.ReleaseProcessScript.2.0.0-alpha017\lib\net45\Remotion.ReleaseProcessScript.dll</HintPath>
+      <HintPath>..\packages\Remotion.ReleaseProcessScript.2.0.0-alpha025\lib\net45\Remotion.ReleaseProcessScript.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
