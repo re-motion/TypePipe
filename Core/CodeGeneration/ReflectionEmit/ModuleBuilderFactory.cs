@@ -54,10 +54,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var assemName = new AssemblyName (assemblyName);
       if (strongNamed)
         assemName.KeyPair = GetKeyPair (keyFilePathOrNull);
+
+#if FEATURE_ASSEMBLYBUILDER_SAVE
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
+#else
+      var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.Run);
+#endif
 
       var moduleName = assemblyName + ".dll";
+
+#if FEATURE_PDBEMIT
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
+#else
+      var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName);
+#endif
 
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
 

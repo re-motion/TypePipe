@@ -125,6 +125,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+    [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
     public void LoadFlushedCodeInParallel_GetTypeIDForAssembledTypeBlocks ()
     {
       // Setup the assembly

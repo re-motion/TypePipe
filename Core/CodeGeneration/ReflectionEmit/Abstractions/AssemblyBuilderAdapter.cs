@@ -49,11 +49,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public string SaveToDisk ()
     {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
       // Scope name is the module name or file name, i.e., assembly name + '.dll'.
       _assemblyBuilder.Save (_moduleBuilder.ScopeName);
 
       // This is the absolute path to the module, which is also the assembly file path for single-module assemblies.
       return _moduleBuilder.FullyQualifiedName;
+#else
+      throw new PlatformNotSupportedException ("Assembly persistence is not supported.");
+#endif
     }
   }
 }
