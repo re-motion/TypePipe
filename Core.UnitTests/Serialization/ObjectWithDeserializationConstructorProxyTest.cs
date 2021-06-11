@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       var exception = Assert.Catch (() => _proxy.Invoke ("PopulateInstance", instance, _serializationInfo, _streamingContext, _requestedTypeName));
 
       Assert.That (exception.Message, Is.EqualTo ("blub"));
-      Assert.That (exception.StackTrace, Is.StringContaining ("TypeWithThrowingDeserializationConstructor"));
+      Assert.That (exception.StackTrace, Does.Contain ("TypeWithThrowingDeserializationConstructor"));
     }
 
     public class TypeWithDeserializationConstructor
