@@ -198,12 +198,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider")]
     public void CreateProperty_Providers_NoAccessorProviders ()
     {
-      _factory.CreateProperty (
-          _mutableType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null);
+      Assert.That (
+          () => _factory.CreateProperty (
+          _mutableType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider"));
     }
 
     [Test]
@@ -264,21 +265,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Property must have at least one accessor.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_NoAccessorProviders ()
     {
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod: null, setMethod: null);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod: null, setMethod: null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Property must have at least one accessor.\r\nParameter name: getMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Accessor methods must be both either static or non-static.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_ThrowsForDifferentStaticness ()
     {
       var getMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
       var setMethod = MutableMethodInfoObjectMother.Create (attributes: 0 /*instance*/);
-
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Accessor methods must be both either static or non-static.\r\nParameter name: getMethod"));
     }
 
     [Test]
@@ -296,24 +300,28 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Get accessor must be a non-void method.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_ThrowsForVoidGetMethod ()
     {
       var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: typeof (void));
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, null);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Get accessor must be a non-void method.\r\nParameter name: getMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Set accessor must have return type void.\r\nParameter name: setMethod")]
     public void CreateProperty_Accessors_ThrowsForNonVoidSetMethod ()
     {
       var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: typeof (int));
-      _factory.CreateProperty (_mutableType, "Property", 0, null, setMethod);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, null, setMethod),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Set accessor must have return type void.\r\nParameter name: setMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Get and set accessor methods must have a matching signature.\r\nParameter name: setMethod")]
     public void CreateProperty_Accessors_ThrowsForDifferentIndexParameters ()
     {
       var indexParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (int)) };
@@ -321,8 +329,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var nonMatchingSetParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (long)), valueParameter };
       var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: valueParameter.Type, parameters: indexParameters);
       var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, parameters: nonMatchingSetParameters);
-
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Get and set accessor methods must have a matching signature.\r\nParameter name: setMethod"));
     }
 
     [Test]

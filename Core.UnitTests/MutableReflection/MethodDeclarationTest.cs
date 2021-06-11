@@ -66,12 +66,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.\r\n"
-        + "Parameter name: method")]
     public void CreateEquivalent_MethodInstantiation ()
     {
-      MethodDeclaration.CreateEquivalent (ReflectionObjectMother.GetSomeMethodInstantiation());
+      Assert.That (
+          () => MethodDeclaration.CreateEquivalent (ReflectionObjectMother.GetSomeMethodInstantiation()),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.\r\n"
+                  + "Parameter name: method"));
     }
 
     public TRet Method<TRet, TArg, TValue> (out int i, TArg t)

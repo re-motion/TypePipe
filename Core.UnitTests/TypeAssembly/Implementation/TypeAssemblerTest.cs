@@ -279,14 +279,16 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "The provided requested type 'AssembledType' is already an assembled type.")]
     public void AssembleType_RequestAssembledType ()
     {
       var typeAssembler = CreateTypeAssembler();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType: _assembledType);
       var codeGeneratorStub = new Mock<IMutableTypeBatchCodeGenerator>();
-
-      typeAssembler.AssembleType (typeID, _participantStateMock.Object, codeGeneratorStub.Object);
+      Assert.That (
+          () => typeAssembler.AssembleType (typeID, _participantStateMock.Object, codeGeneratorStub.Object),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "The provided requested type 'AssembledType' is already an assembled type."));
     }
 
     [Test]
@@ -464,13 +466,15 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "No participant provided an additional type for the given identifier.")]
     public void AssembleAdditionalType_NoParticipantReturnsType ()
     {
       var codeGeneratorStub = new Mock<IMutableTypeBatchCodeGenerator>();
       var typeAssembler = CreateTypeAssembler();
-
-      typeAssembler.AssembleAdditionalType (new object(), _participantStateMock.Object, codeGeneratorStub.Object);
+      Assert.That (
+          () => typeAssembler.AssembleAdditionalType (new object(), _participantStateMock.Object, codeGeneratorStub.Object),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "No participant provided an additional type for the given identifier."));
     }
 
     [Test]

@@ -171,21 +171,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
-        + "only constructors, methods, properties, events and fields are supported.")]
     public void Equals_InvalidMemberType ()
     {
-      _comparer.Equals (_m1, typeof (object));
+      Assert.That (
+          () => _comparer.Equals (_m1, typeof (object)),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
+                  + "only constructors, methods, properties, events and fields are supported."));
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException),
-        ExpectedMessage = "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
-        + "only constructors, methods, properties, events and fields are supported.")]
     public void GetHashCode_InvalidMemberType ()
     {
-      _comparer.GetHashCode (typeof (object));
+      Assert.That (
+          () => _comparer.GetHashCode (typeof (object)),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "MemberSignatureEqualityComparer does not support member type 'TypeInfo', "
+                  + "only constructors, methods, properties, events and fields are supported."));
     }
   }
 }

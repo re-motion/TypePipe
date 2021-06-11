@@ -108,51 +108,55 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = 
-        "Type 'System.String' cannot be implicitly converted to type 'System.Collections.Generic.List`1[System.Int32]'. " 
-        + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.")]
     public void EnsureCorrectType_CompletelyUnrelated ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       var expectedType = typeof (List<int>);
-
-      ExpressionTypeUtility.EnsureCorrectType (expression, expectedType);
+      Assert.That (
+          () => ExpressionTypeUtility.EnsureCorrectType (expression, expectedType),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Type 'System.String' cannot be implicitly converted to type 'System.Collections.Generic.List`1[System.Int32]'. " 
+                  + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit."));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = 
-        "Type 'System.Object' cannot be implicitly converted to type 'System.String'. " 
-        + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.")]
     public void EnsureCorrectType_UnsafeCastRequired ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeExpression (typeof (object));
       var expectedType = typeof (string);
-
-      ExpressionTypeUtility.EnsureCorrectType (expression, expectedType);
+      Assert.That (
+          () => ExpressionTypeUtility.EnsureCorrectType (expression, expectedType),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Type 'System.Object' cannot be implicitly converted to type 'System.String'. " 
+                  + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit."));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = 
-        "Type 'System.Int64' cannot be implicitly converted to type 'System.Int32'. " 
-        + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.")]
     public void EnsureCorrectType_UnsafeValueConversion ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeExpression (typeof (long));
       var expectedType = typeof (int);
-
-      ExpressionTypeUtility.EnsureCorrectType (expression, expectedType);
+      Assert.That (
+          () => ExpressionTypeUtility.EnsureCorrectType (expression, expectedType),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Type 'System.Int64' cannot be implicitly converted to type 'System.Int32'. " 
+                  + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit."));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "Type 'System.Int32' cannot be implicitly converted to type 'System.Int64'. "
-        + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.")]
     public void EnsureCorrectType_SafeValueConversion ()
     {
       var expression = ExpressionTreeObjectMother.GetSomeExpression (typeof (int));
       var expectedType = typeof (long);
-
-      ExpressionTypeUtility.EnsureCorrectType (expression, expectedType);
+      Assert.That (
+          () => ExpressionTypeUtility.EnsureCorrectType (expression, expectedType),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Type 'System.Int32' cannot be implicitly converted to type 'System.Int64'. "
+                  + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit."));
     }
 
     private void CheckExpressionIsConverted (Expression expectedConvertedExpression, Type expectedType, Expression actualExpression)

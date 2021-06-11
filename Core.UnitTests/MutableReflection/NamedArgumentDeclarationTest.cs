@@ -39,14 +39,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value")]
     public void Initialization_Property_ValueNotAssignable ()
     {
       var propertyInfo = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (ValueType));
       string value = "not assignable";
-
-      new NamedArgumentDeclaration (propertyInfo, value);
+      Assert.That (
+          () => new NamedArgumentDeclaration (propertyInfo, value),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value"));
     }
 
     [Test]
@@ -69,42 +69,43 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value")]
     public void Initialization_Property_WithInvalidNullArgument ()
     {
       var nonNullMember = CustomAttributeReflectionObjectMother.GetPropertyWithType (typeof (int));
-
-      new NamedArgumentDeclaration (nonNullMember, null);
+      Assert.That (
+          () => new NamedArgumentDeclaration (nonNullMember, null),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Property 'Length' has no public setter.\r\nParameter name: propertyInfo")]
     public void Initialization_Property_MustBeWritable ()
     {
       var property = typeof (string).GetProperty ("Length");
-      new NamedArgumentDeclaration (property, 0);
+      Assert.That (
+          () => new NamedArgumentDeclaration (property, 0),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Property 'Length' has no public setter.\r\nParameter name: propertyInfo"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Property 'PrivateProperty' has no public setter.\r\nParameter name: propertyInfo")]
     public void Initialization_Property_MustBePublic ()
     {
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty (() => PrivateProperty);
-
-      new NamedArgumentDeclaration (property, "");
+      Assert.That (
+          () => new NamedArgumentDeclaration (property, ""),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Property 'PrivateProperty' has no public setter.\r\nParameter name: propertyInfo"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Property 'StaticProperty' is not an instance property.\r\nParameter name: propertyInfo")]
     public void Initialization_Property_MustNotBeStatic ()
     {
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty (() => StaticProperty);
-
-      new NamedArgumentDeclaration (property, "");
+      Assert.That (
+          () => new NamedArgumentDeclaration (property, ""),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Property 'StaticProperty' is not an instance property.\r\nParameter name: propertyInfo"));
     }
 
     [Test]
@@ -121,14 +122,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value")]
     public void Initialization_Field_ValueNotAssignable ()
     {
       var propertyInfo = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (ValueType));
       string value = "not assignable";
-
-      new NamedArgumentDeclaration (propertyInfo, value);
+      Assert.That (
+          () => new NamedArgumentDeclaration (propertyInfo, value),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value"));
     }
 
     [Test]
@@ -151,53 +153,53 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value")]
     public void Initialization_Field_WithInvalidNullArgument ()
     {
       var nonNullMember = CustomAttributeReflectionObjectMother.GetFieldWithType (typeof (int));
-
-      new NamedArgumentDeclaration (nonNullMember, null);
+      Assert.That (
+          () => new NamedArgumentDeclaration (nonNullMember, null),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Field 'EmptyTypes' is not writable.\r\nParameter name: fieldInfo")]
     public void Initialization_Field_MustBeWritable_Readonly ()
     {
       var readonlyField = typeof (Type).GetField ("EmptyTypes");
-
-      new NamedArgumentDeclaration (readonlyField, Type.EmptyTypes);
+      Assert.That (
+          () => new NamedArgumentDeclaration (readonlyField, Type.EmptyTypes),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Field 'EmptyTypes' is not writable.\r\nParameter name: fieldInfo"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Field 'c_string' is not writable.\r\nParameter name: fieldInfo")]
     public void Initialization_Field_MustBeWritable_Literal ()
     {
       var literalField = GetType ().GetField ("c_string");
-      
-      new NamedArgumentDeclaration (literalField, "value");
+      Assert.That (
+          () => new NamedArgumentDeclaration (literalField, "value"),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Field 'c_string' is not writable.\r\nParameter name: fieldInfo"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Field '_privateFied' is not public.\r\nParameter name: fieldInfo")]
     public void Initialization_Fied_MustBePublic ()
     {
       var privateField = NormalizingMemberInfoFromExpressionUtility.GetField (() => _privateFied);
-
-      new NamedArgumentDeclaration (privateField, "");
+      Assert.That (
+          () => new NamedArgumentDeclaration (privateField, ""),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Field '_privateFied' is not public.\r\nParameter name: fieldInfo"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Field 'StaticField' is not an instance field.\r\nParameter name: fieldInfo")]
     public void Initialization_Field_MustNotBeStatic ()
     {
       var staticField = NormalizingMemberInfoFromExpressionUtility.GetField (() => StaticField);
-
-      new NamedArgumentDeclaration (staticField, "");
+      Assert.That (
+          () => new NamedArgumentDeclaration (staticField, ""),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Field 'StaticField' is not an instance field.\r\nParameter name: fieldInfo"));
     }
 
     public const string c_string = "string";

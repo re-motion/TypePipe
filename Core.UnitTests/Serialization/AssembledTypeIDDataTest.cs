@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -62,13 +62,13 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    [ExpectedException (typeof (TypeLoadException), MatchType = MessageMatch.StartsWith,
-        ExpectedMessage = "Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, ")]
     public void GetRealObject_RequestedTypeNotFound ()
     {
       var data = new AssembledTypeIDData ("UnknownType", new IFlatValue[0]);
-
-      data.CreateTypeID();
+      Assert.That (
+          () => data.CreateTypeID(),
+          Throws.InstanceOf<TypeLoadException>()
+              .With.Message.StartsWith ("Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, "));
     }
   }
 }

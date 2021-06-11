@@ -91,34 +91,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
     public void CallBase_StaticContext ()
     {
-      _staticContext.CallBase (ReflectionObjectMother.GetSomeInstanceMethod());
+      Assert.That (
+          () => _staticContext.CallBase (ReflectionObjectMother.GetSomeInstanceMethod()),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Cannot perform base call from static method."));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.\r\nParameter name: baseMethod")]
     public void CallBase_StaticMethodInfo ()
     {
-      _context.CallBase (ReflectionObjectMother.GetSomeStaticMethod());
+      Assert.That (
+          () => _context.CallBase (ReflectionObjectMother.GetSomeStaticMethod()),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Cannot perform base call for static method.\r\nParameter name: baseMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call on abstract method.\r\nParameter name: baseMethod")]
     public void CallBase_Abstract ()
     {
-      _context.CallBase (ReflectionObjectMother.GetSomeAbstractMethod());
+      Assert.That (
+          () => _context.CallBase (ReflectionObjectMother.GetSomeAbstractMethod()),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Cannot perform base call on abstract method.\r\nParameter name: baseMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Cannot perform base call on generic method definition. Construct a method instantiation "
-                          + "with MethodInfoExtensions.MakeTypePipeGenericMethod.\r\nParameter name: baseMethod")]
     public void CallBase_MethodInstantiation ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Dev.T>());
-      _context.CallBase (method);
+      Assert.That (
+          () => _context.CallBase (method),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Cannot perform base call on generic method definition. Construct a method instantiation "
+                  + "with MethodInfoExtensions.MakeTypePipeGenericMethod.\r\nParameter name: baseMethod"));
     }
 
     [Test]

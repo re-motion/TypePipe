@@ -350,45 +350,51 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Only virtual methods can be overridden.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_NonVirtualMethod ()
     {
       var method = ReflectionObjectMother.GetSomeNonVirtualMethod();
-      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
+      Assert.That (
+          () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Only virtual methods can be overridden.\r\nParameter name: overriddenMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The specified method must be either a non-generic method or a generic method definition; "
-                          + "it cannot be a method instantiation.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_MethodInstantiation ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.GenericMethod<TypeThatCompliesWithConstraints> (7, null));
-      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
+      Assert.That (
+          () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "The specified method must be either a non-generic method or a generic method definition; "
+                  + "it cannot be a method instantiation.\r\nParameter name: overriddenMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by type 'IDisposable' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_UnrelatedDeclaringType ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose());
-      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
+      Assert.That (
+          () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Method is declared by type 'IDisposable' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method is declared by type 'MyAbcType' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod")]
     public void GetOrCreateOverride_DeclaredOnProxyType ()
     {
       var method = _mutableType.AddMethod ("method", MethodAttributes.Virtual, bodyProvider: ctx => Expression.Empty());
-      _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated);
+      Assert.That (
+          () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Method is declared by type 'MyAbcType' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
-        + "Use AddExplicitOverride to create an explicit implementation.")]
     public void GetOrAddImplementation_InterfaceMethod_InvalidCandidate ()
     {
       _mutableType.AddInterface(typeof(IAddedInterface));
@@ -406,8 +412,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
                   It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
                   It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
           .Throws (new InvalidOperationException());
-
-      _factory.GetOrCreateImplementation(_mutableType, interfaceMethod, out _isNewlyCreated);
+      Assert.That (
+          () => _factory.GetOrCreateImplementation(_mutableType, interfaceMethod, out _isNewlyCreated),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Interface method 'InvalidCandidate' cannot be implemented because a method with equal name and signature already exists. "
+                  + "Use AddExplicitOverride to create an explicit implementation."));
     }
 
     private void CallAndCheckGetOrAddOverride (

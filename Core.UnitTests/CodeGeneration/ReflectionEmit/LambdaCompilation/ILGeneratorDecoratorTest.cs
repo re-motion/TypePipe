@@ -234,13 +234,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException), ExpectedMessage = 
-        "Constructor calls cannot have optional parameters.\r\nParameter name: optionalParameterTypes")]
     public void EmitCall_MethodInfo_BaseConstructorMethodInfo_WithOptionalParameters ()
     {
       var methodInfo = new ConstructorAsMethodInfoAdapter (ReflectionObjectMother.GetSomeDefaultConstructor ());
-
-      _decorator.EmitCall (OpCodes.Call, methodInfo, new[] { ReflectionObjectMother.GetSomeType() });
+      Assert.That (
+          () => _decorator.EmitCall (OpCodes.Call, methodInfo, new[] { ReflectionObjectMother.GetSomeType() }),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Constructor calls cannot have optional parameters.\r\nParameter name: optionalParameterTypes"));
     }
 
     [Test]

@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -185,19 +185,11 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "An error occurred during code generation for 'DomainType':\r\n"
-        + "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types "
-        + "returned by Type.BaseType and Type.GetInterfaces must terminate.\r\n"
-        + "At least one of the following types is causing the dependency cycle: 'IInterface1', 'IInterface2'.\r\n"
-        + "The following participants are currently configured and may have caused the error: 'ParticipantStub'.")]
     public void CircularDependency_Throws ()
     {
       SkipSavingAndPeVerification();
-
-      // public interface IInterface1 : IInterface2 { }
-      // public interface IInterface2 : IInterface1 { }
-      AssembleType<DomainType> (
+      Assert.That (
+          () => AssembleType<DomainType> (
           typeContext =>
           {
             var interface1 = typeContext.CreateInterface (new object(), "IInterface1", "ns");
@@ -205,7 +197,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
 
             interface1.AddInterface (interface2);
             interface2.AddInterface (interface1);
-          });
+          }),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "An error occurred during code generation for 'DomainType':\r\n"
+                  + "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types "
+                  + "returned by Type.BaseType and Type.GetInterfaces must terminate.\r\n"
+                  + "At least one of the following types is causing the dependency cycle: 'IInterface1', 'IInterface2'.\r\n"
+                  + "The following participants are currently configured and may have caused the error: 'ParticipantStub'."));
     }
 
     public class DomainType

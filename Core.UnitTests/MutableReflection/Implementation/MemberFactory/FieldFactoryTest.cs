@@ -61,10 +61,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Field cannot be of type void.\r\nParameter name: type")]
     public void CreateField_VoidType ()
     {
-      _factory.CreateField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
+      Assert.That (
+          () => _factory.CreateField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Field cannot be of type void.\r\nParameter name: type"));
     }
 
     [Test]

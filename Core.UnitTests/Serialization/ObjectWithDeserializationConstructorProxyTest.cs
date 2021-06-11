@@ -65,11 +65,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    [ExpectedException (typeof (SerializationException), ExpectedMessage =
-        "The constructor to deserialize an object of type 'requested type name' was not found.")]
     public void PopulateInstance_MissingDeserializationConstructor ()
     {
-      _proxy.Invoke ("PopulateInstance", new int(), _serializationInfo, _streamingContext, _requestedTypeName);
+      Assert.That (
+          () => _proxy.Invoke ("PopulateInstance", new int(), _serializationInfo, _streamingContext, _requestedTypeName),
+          Throws.InstanceOf<SerializationException>()
+              .With.Message.EqualTo ("The constructor to deserialize an object of type 'requested type name' was not found."));
     }
 
     [Test]

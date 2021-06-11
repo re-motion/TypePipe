@@ -167,12 +167,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IDisposable' is not fully implemented. The following methods have no implementation: 'Dispose'.")]
     public void ComputeMapping_AddedInterface_NotFullyImplemented_Throws ()
     {
       _mutableType.AddInterface (typeof (IDisposable));
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IDisposable), false);
+      Assert.That (
+          () => _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IDisposable), false),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "The added interface 'IDisposable' is not fully implemented. The following methods have no implementation: 'Dispose'."));
     }
 
     [Test]
@@ -190,27 +192,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IImplementationCandidates' is not fully implemented. The following methods have no implementation: " +
-        "'NonPublicMethod', 'NonVirtualMethod'.")]
     public void ComputeMapping_AddedInterface_Candidates_Throws ()
     {
       _mutableType.AddInterface (typeof (IImplementationCandidates));
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IImplementationCandidates), false);
+      Assert.That (
+          () => _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IImplementationCandidates), false),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "The added interface 'IImplementationCandidates' is not fully implemented. The following methods have no implementation: " +
+                  "'NonPublicMethod', 'NonVirtualMethod'."));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type passed must be an interface.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NoInterfaceType ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (object), false);
+      Assert.That (
+          () => _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (object), false),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Type passed must be an interface.\r\nParameter name: interfaceType"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Interface not found.\r\nParameter name: interfaceType")]
     public void ComputeMapping_NotImplemented ()
     {
-      _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IDisposable), false);
+      Assert.That (
+          () => _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IDisposable), false),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Interface not found.\r\nParameter name: interfaceType"));
     }
 
     // Tuple means: 1) interface method, 2) implementation method

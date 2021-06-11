@@ -210,11 +210,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true).")]
     public void MakeGenericType_NoGenericMethodDefinition ()
     {
-      Dev.Null = _genericType.MakeGenericType();
+      Assert.That (
+          () => Dev.Null = _genericType.MakeGenericType(),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true)."));
     }
 
     [Test]
@@ -239,10 +240,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentOutOfRangeException), ExpectedMessage = "Array rank must be greater than zero.\r\nParameter name: rank")]
     public void MakeArrayType_ThrowsForInvalidRank ()
     {
-      Dev.Null = _customType.MakeArrayType (0);
+      Assert.That (
+          () => Dev.Null = _customType.MakeArrayType (0),
+          Throws.InstanceOf<ArgumentOutOfRangeException>()
+              .With.Message.EqualTo (
+                  "Array rank must be greater than zero.\r\nParameter name: rank"));
     }
 
     [Test]
@@ -356,12 +360,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous interface name 'IDisposable'.")]
     public void GetInterface_IgnoreCase_Ambiguous ()
     {
       _customType.Interfaces = new[] { typeof (IDisposable), typeof (Idisposable) };
-
-      Dev.Null = _customType.GetInterface ("IDisposable", true);
+      Assert.That (
+          () => Dev.Null = _customType.GetInterface ("IDisposable", true),
+          Throws.InstanceOf<AmbiguousMatchException>()
+              .With.Message.EqualTo ("Ambiguous interface name 'IDisposable'."));
     }
 
     [Test]
@@ -671,12 +676,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Property UnderlyingSystemType is not supported. "
-        + "Use a replacement method from class TypeExtensions (e.g. IsTypePipeAssignableFrom) to avoid accessing the property.")]
     public void UnderlyingSystemType ()
     {
-      Dev.Null = _customType.UnderlyingSystemType;
+      Assert.That (
+          () => Dev.Null = _customType.UnderlyingSystemType,
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Property UnderlyingSystemType is not supported. "
+                  + "Use a replacement method from class TypeExtensions (e.g. IsTypePipeAssignableFrom) to avoid accessing the property."));
     }
 
     [Test]

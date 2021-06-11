@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -169,21 +169,25 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Cannot re-implement interface method 'ExplicitlyImplemented' because its base implementation on 'DomainType' is not accessible.")]
     public void Modify_Explicit_Existing ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDomainInterface obj) => obj.ExplicitlyImplemented());
-      AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod));
+      Assert.That (
+          () => AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod)),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Cannot re-implement interface method 'ExplicitlyImplemented' because its base implementation on 'DomainType' is not accessible."));
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Cannot re-implement interface method 'ExplicitlyImplemented' because its base implementation on 'DomainTypeBase' is not accessible.")]
     public void Modify_Explicit_ExistingOnBase ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IBaseInterface obj) => obj.ExplicitlyImplemented());
-      AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod));
+      Assert.That (
+          () => AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod)),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Cannot re-implement interface method 'ExplicitlyImplemented' because its base implementation on 'DomainTypeBase' is not accessible."));
     }
 
     [Test]

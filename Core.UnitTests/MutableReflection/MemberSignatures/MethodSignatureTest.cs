@@ -66,11 +66,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Closed generic methods are not supported.\r\nParameter name: methodBase")]
     public void Create_ClosedGenericMethod ()
     {
       var method = _genericMethod1.MakeGenericMethod (typeof (int), typeof (int));
-      MethodSignature.Create (method);
+      Assert.That (
+          () => MethodSignature.Create (method),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Closed generic methods are not supported.\r\nParameter name: methodBase"));
     }
 
     [Test]

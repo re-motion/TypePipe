@@ -63,23 +63,27 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "'ToString' is not a generic method definition. MakeTypePipeGenericMethod may only be called on a method for which"
-        + " MethodInfo.IsGenericMethodDefinition is true.")]
     public void MakeTypePipeGenericMethod_NoGenericTypeDefinition ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod (() => ToString());
-      method.MakeTypePipeGenericMethod (typeof (int));
+      Assert.That (
+          () => method.MakeTypePipeGenericMethod (typeof (int)),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "'ToString' is not a generic method definition. MakeTypePipeGenericMethod may only be called on a method for which"
+                  + " MethodInfo.IsGenericMethodDefinition is true."));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The generic definition 'Method' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
-                          + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments")]
     public void MakeTypePipeGenericType_UsesGenericArgumentUtilityToValidateGenericArguments ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Method<Dev.T, Dev.T>());
-      method.MakeTypePipeGenericMethod (typeof (int));
+      Assert.That (
+          () => method.MakeTypePipeGenericMethod (typeof (int)),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "The generic definition 'Method' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
+                  + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments"));
     }
 
     private void Method<T1, T2> () {}
