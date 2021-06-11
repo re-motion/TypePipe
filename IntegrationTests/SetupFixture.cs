@@ -47,6 +47,11 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       s_generatedFileDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "GeneratedAssemblies");
       _copiedFileNames = new HashSet<string>();
+
+      // Explicitly set the current directory to the output folder since NUnit 3 has it set to a temporary directory
+      // and some tests break because of it. Tests break because PEVerify cannot find referenced assemblies located
+      // in the output folder.
+      Environment.CurrentDirectory = Path.GetDirectoryName (typeof (SetupFixture).Assembly.Location);
       
       PrepareOutputDirectory ();
     }

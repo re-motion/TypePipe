@@ -540,11 +540,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.Setup (mock => mock.HasRightAttributes (It.IsAny<MethodAttributes>(), bindingFlags)).Returns (true).Verifiable();
 
-      _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType);
       Assert.That (
-          () => _bindingFlagsEvaluatorMock.Verify (mock => mock.HasRightAttributes (It.IsAny<MethodAttributes>(), bindingFlags), Times.Exactly (2)),
+          () => _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType),
           Throws.InstanceOf<AmbiguousMatchException>()
               .With.Message.EqualTo ("Ambiguous event name 'Event'."));
+      _bindingFlagsEvaluatorMock.Verify (mock => mock.HasRightAttributes (It.IsAny<MethodAttributes>(), bindingFlags), Times.Exactly (2));
     }
 
     private Type CreateTypeStub (string name = null, TypeAttributes attributes = TypeAttributes.Public)
