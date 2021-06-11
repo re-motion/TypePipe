@@ -66,13 +66,13 @@ namespace Remotion.TypePipe.IntegrationTests
 
     private ICodeManager _codeManager;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public virtual void TestFixtureSetUp ()
     {
       _assembliesToDelete = new List<string>();
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public virtual void TestFixtureTearDown ()
     {
       foreach (var assembly in _assembliesToDelete)
