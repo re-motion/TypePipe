@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
         // The assembly name must be different, i.e. the new app domain should use an in-memory assembly.
         var type = deserializedInstance.GetType();
         Assert.That (type.AssemblyQualifiedName, Is.Not.EqualTo (ctx.ExpectedAssemblyQualifiedName));
-        Assert.That (type.Assembly.GetName().Name, Is.StringStarting ("TypePipe_GeneratedAssembly_"));
+        Assert.That (type.Assembly.GetName().Name, Does.StartWith ("TypePipe_GeneratedAssembly_"));
         Assert.That (type.Module.Name, Is.EqualTo ("<In Memory Module>"));
 
         // The generated type is always the single type in the assembly. Its name is therefore the same as the serialized type name, but with
