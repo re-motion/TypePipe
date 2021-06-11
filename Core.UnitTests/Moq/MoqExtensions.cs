@@ -24,7 +24,7 @@ namespace Remotion.TypePipe.UnitTests.Moq
   {
     public static bool IsEquivalent<T> (this IEnumerable<T> actual, IEnumerable<T> expected)
     {
-      return new CollectionEquivalentConstraint (expected).Matches (actual);
+      return new CollectionEquivalentConstraint (expected).ApplyTo (actual).IsSuccess;
     }
   }
 }
