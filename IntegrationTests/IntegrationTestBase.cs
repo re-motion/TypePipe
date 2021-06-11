@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -105,7 +106,7 @@ namespace Remotion.TypePipe.IntegrationTests
       }
       catch
       {
-        if (TestContext.CurrentContext.Result.Status != TestStatus.Failed)
+        if (TestContext.CurrentContext.Result.Outcome != ResultState.Failure)
           throw;
 
         // Else: Swallow exception if test already had failed state in order to avoid overwriting any exceptions.

@@ -18,6 +18,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using Remotion.Development.UnitTesting.IO;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
@@ -69,7 +70,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
 
     public override void TearDown ()
     {
-      if (TestContext.CurrentContext.Result.Status == TestStatus.Passed)
+      if (TestContext.CurrentContext.Result.Outcome == ResultState.Success)
         EnableSavingAndPeVerification();
 
       _blockingMutexA.Dispose();
