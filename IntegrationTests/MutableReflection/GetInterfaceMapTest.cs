@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -149,22 +149,26 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: 'MethodOnAddedInterface'.")]
     public void AddedInterface_NotImplemented ()
     {
       _mutableType.AddInterface (typeof (IAddedInterface));
-      _mutableType.GetInterfaceMap (typeof (IAddedInterface));
+      Assert.That (
+          () => _mutableType.GetInterfaceMap (typeof (IAddedInterface)),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "The added interface 'IAddedInterface' is not fully implemented. The following methods have no implementation: 'MethodOnAddedInterface'."));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The added interface 'IImplementationCandidates' is not fully implemented. The following methods have no implementation: "
-        + "'NonPublicMethod', 'NonVirtualMethod', 'StaticMethod'.")]
     public void AddedInterface_NotImplemented_Candidates ()
     {
       _mutableType.AddInterface (typeof (IImplementationCandidates));
-      _mutableType.GetInterfaceMap (typeof (IImplementationCandidates));
+      Assert.That (
+          () => _mutableType.GetInterfaceMap (typeof (IImplementationCandidates)),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "The added interface 'IImplementationCandidates' is not fully implemented. The following methods have no implementation: "
+                  + "'NonPublicMethod', 'NonVirtualMethod', 'StaticMethod'."));
     }
 
     private void CheckGetInterfaceMap (MutableType mutableType, MethodInfo interfaceMethod, MethodInfo expectedImplementationMethod)

@@ -70,10 +70,12 @@ namespace Remotion.TypePipe.UnitTests.Serialization
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "This method should not be called.")]
     public void GetObjectData ()
     {
-      _objectDeserializationProxyBase.GetObjectData (null, new StreamingContext ());
+      Assert.That (
+          () => _objectDeserializationProxyBase.GetObjectData (null, new StreamingContext ()),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo ("This method should not be called."));
     }
 
     [Test]

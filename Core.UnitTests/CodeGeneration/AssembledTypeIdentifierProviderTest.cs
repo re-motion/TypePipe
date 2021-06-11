@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -180,16 +180,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The expression returned from 'GetFlatValueExpressionForSerialization' must build an serializable instance of 'IFlatValue'.")]
     public void GetFlattenedExpressionForSerialization_ProviderReturnsNonFlatValue ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
       var nonFlatValueExpression = ExpressionTreeObjectMother.GetSomeExpression();
       _identifierProviderMock.Setup (_ => _.GetFlatValueExpressionForSerialization ("abc")).Returns (nonFlatValueExpression);
-
-      _provider.GetAssembledTypeIDDataExpression (typeID);
+      Assert.That (
+          () => _provider.GetAssembledTypeIDDataExpression (typeID),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "The expression returned from 'GetFlatValueExpressionForSerialization' must build an serializable instance of 'IFlatValue'."));
     }
 
     private static void CheckTypeIDDataExpression (Expression result, Type requestedType, Expression idPartExpression)

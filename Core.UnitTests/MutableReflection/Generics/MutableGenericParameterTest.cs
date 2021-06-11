@@ -173,23 +173,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.\r\nParameter name: constraints")]
     public void SetGenericParameterConstraints_BaseConstraintConflicts_WithNotNullableValueTypeConstraint ()
     {
       var parameter = MutableGenericParameterObjectMother.Create (genericParameterAttributes: GenericParameterAttributes.NotNullableValueTypeConstraint);
-      parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeSubclassableType() });
+      Assert.That (
+          () => parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeSubclassableType() }),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.\r\nParameter name: constraints"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "A generic parameter cannot have multiple base constraints.\r\nParameter name: constraints")]
     public void SetGenericParameterConstraints_MoreThanOneBaseConstraint ()
     {
       var baseConstraint1 = ReflectionObjectMother.GetSomeSubclassableType();
       var baseConstraint2 = ReflectionObjectMother.GetSomeSubclassableType();
-
-      _parameter.SetGenericParameterConstraints (new[] { baseConstraint1, baseConstraint2 });
+      Assert.That (
+          () => _parameter.SetGenericParameterConstraints (new[] { baseConstraint1, baseConstraint2 }),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("A generic parameter cannot have multiple base constraints.\r\nParameter name: constraints"));
     }
 
     [Test]

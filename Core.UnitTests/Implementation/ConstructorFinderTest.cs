@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -78,21 +78,25 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (MissingMethodException), ExpectedMessage =
-        "Type 'Remotion.TypePipe.UnitTests.Implementation.ConstructorFinderTest+RequestedType' does not contain a constructor with the following "
-        + "signature: (IDisposable, String).")]
     public void GetConstructor_ThrowsForMissingMember ()
     {
-      _finder.GetConstructor (_requestedType, new[] { typeof (IDisposable), typeof (string) }, false, _assembledType);
+      Assert.That (
+          () => _finder.GetConstructor (_requestedType, new[] { typeof (IDisposable), typeof (string) }, false, _assembledType),
+          Throws.InstanceOf<MissingMethodException>()
+              .With.Message.EqualTo (
+                  "Type 'Remotion.TypePipe.UnitTests.Implementation.ConstructorFinderTest+RequestedType' does not contain a constructor with the following "
+                  + "signature: (IDisposable, String)."));
     }
 
     [Test]
-    [ExpectedException (typeof (MissingMethodException), ExpectedMessage =
-        "Type 'Remotion.TypePipe.UnitTests.Implementation.ConstructorFinderTest+RequestedType' contains a constructor with the required signature, "
-        + "but it is not public (and the allowNonPublic flag is not set).")]
     public void GetConstructor_ThrowsForNonPublic ()
     {
-      _finder.GetConstructor (_requestedType, Type.EmptyTypes, false, _assembledType);
+      Assert.That (
+          () => _finder.GetConstructor (_requestedType, Type.EmptyTypes, false, _assembledType),
+          Throws.InstanceOf<MissingMethodException>()
+              .With.Message.EqualTo (
+                  "Type 'Remotion.TypePipe.UnitTests.Implementation.ConstructorFinderTest+RequestedType' contains a constructor with the required signature, "
+                  + "but it is not public (and the allowNonPublic flag is not set)."));
     }
 
     [Test]

@@ -61,18 +61,22 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Test")]
     public void InvokeFunc_WithException ()
     {
-      _implementation0.InvokeFunc (((Func<object>) (() => { throw new InvalidOperationException ("Test"); })));
+      Assert.That (
+          () => _implementation0.InvokeFunc (((Func<object>) (() => { throw new InvalidOperationException ("Test"); }))),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("Test"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Parameter 'func' has type 'System.Func`1[System.Int32]' when type 'System.Func`1[System.Object]' was expected.\r\nParameter name: func")]
     public void InvokeFunc_InvalidDelegate ()
     {
-      _implementation0.InvokeFunc (((Func<int>) (() => 5)));
+      Assert.That (
+          () => _implementation0.InvokeFunc (((Func<int>) (() => 5))),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Parameter 'func' has type 'System.Func`1[System.Int32]' when type 'System.Func`1[System.Object]' was expected.\r\nParameter name: func"));
     }
 
     [Test]
@@ -90,18 +94,22 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Test")]
     public void InvokeAction_WithException ()
     {
-      _implementation0.InvokeAction (((Action) (() => { throw new InvalidOperationException ("Test"); })));
+      Assert.That (
+          () => _implementation0.InvokeAction (((Action) (() => { throw new InvalidOperationException ("Test"); }))),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("Test"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
-        "Parameter 'action' has type 'System.Action`1[System.Int32]' when type 'System.Action' was expected.\r\nParameter name: action")]
     public void InvokeAction_InvalidDelegate ()
     {
-      _implementation0.InvokeAction (((Action<int>) (i => { })));
+      Assert.That (
+          () => _implementation0.InvokeAction (((Action<int>) (i => { }))),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Parameter 'action' has type 'System.Action`1[System.Int32]' when type 'System.Action' was expected.\r\nParameter name: action"));
     }
 
     [Test]

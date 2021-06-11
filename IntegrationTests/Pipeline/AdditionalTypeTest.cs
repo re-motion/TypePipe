@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -72,11 +72,14 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "No participant provided an additional type for the given identifier.")]
     public void NoParticipantProvidesAdditionalType ()
     {
       var pipeline = CreatePipeline(/* no participants */);
-      pipeline.ReflectionService.GetAdditionalType (new object());
+      Assert.That (
+          () => pipeline.ReflectionService.GetAdditionalType (new object()),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "No participant provided an additional type for the given identifier."));
     }
   }
 }

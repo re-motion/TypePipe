@@ -200,11 +200,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Parameter 'handlerType' is a 'System.Int32', which cannot be assigned to type 'System.Delegate'.\r\nParameter name: handlerType")]
     public void CreateEvent_Providers_ThrowsForNonDelegateHandlerType ()
     {
-      _factory.CreateEvent (_mutableType, "Event", typeof (int), 0, null, null, null);
+      Assert.That (
+          () => _factory.CreateEvent (_mutableType, "Event", typeof (int), 0, null, null, null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Parameter 'handlerType' is a 'System.Int32', which cannot be assigned to type 'System.Delegate'.\r\nParameter name: handlerType"));
     }
 
     [Test]
@@ -339,14 +341,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The type of the handler parameter is different for the add and remove method.\r\nParameter name: removeMethod")]
     public void CreateEvent_Accessors_ThrowsForNonMatchingAddRemoveHandlerParameter ()
     {
       var addMethod = MutableMethodInfoObjectMother.Create (_mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
       var removeMethod = MutableMethodInfoObjectMother.Create (_mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Func<int>)) });
-
-      _factory.CreateEvent (_mutableType, "Event", 0, addMethod, removeMethod, null);
+      Assert.That (
+          () => _factory.CreateEvent (_mutableType, "Event", 0, addMethod, removeMethod, null),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("The type of the handler parameter is different for the add and remove method.\r\nParameter name: removeMethod"));
     }
 
     [Test]

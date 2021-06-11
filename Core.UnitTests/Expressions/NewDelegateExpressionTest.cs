@@ -81,22 +81,26 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Instance method requires target.\r\nParameter name: target")]
     public void Initialization_InstanceMethodRequiresTarget ()
     {
       var method = ReflectionObjectMother.GetSomeInstanceMethod();
-
-      new NewDelegateExpression (typeof (Action), null, method);
+      Assert.That (
+          () => new NewDelegateExpression (typeof (Action), null, method),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Instance method requires target.\r\nParameter name: target"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Static method must not have target.\r\nParameter name: target")]
     public void Initialization_StaticMethodRequiresNullTarget ()
     {
       var method = ReflectionObjectMother.GetSomeStaticMethod();
       var target = ExpressionTreeObjectMother.GetSomeExpression (method.DeclaringType);
-
-      new NewDelegateExpression (typeof (Action), target, method);
+      Assert.That (
+          () => new NewDelegateExpression (typeof (Action), target, method),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Static method must not have target.\r\nParameter name: target"));
     }
 
     [Test]
@@ -119,14 +123,16 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException), ExpectedMessage = "Method signature must match delegate type.\r\nParameter name: method")]
     public void Initialization_MethodSignatureMustMatchDelegateType ()
     {
       var delegateType = typeof (Action<string>);
       var target = ExpressionTreeObjectMother.GetSomeExpression (typeof (DomainType));
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.Method ());
-
-      new NewDelegateExpression (delegateType, target, method);
+      Assert.That (
+          () => new NewDelegateExpression (delegateType, target, method),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Method signature must match delegate type.\r\nParameter name: method"));
     }
 
     [Test]

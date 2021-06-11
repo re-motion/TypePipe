@@ -81,17 +81,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type cannot be null.\r\nParameter name: baseType")]
     public void CreateType_BaseType_CannotBeNull ()
     {
-      _factory.CreateType ("Name", "ns", TypeAttributes.Class, baseType: null, declaringType: null);
+      Assert.That (
+          () => _factory.CreateType ("Name", "ns", TypeAttributes.Class, baseType: null, declaringType: null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Base type cannot be null.\r\nParameter name: baseType"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Base type must be null for interfaces. Type: 'System.Object'\r\nParameter name: baseType")]
     public void CreateType_BaseType_MustBeNullForInterfaces ()
     {
-      _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), null);
+      Assert.That (
+          () => _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Base type must be null for interfaces. Type: 'System.Object'\r\nParameter name: baseType"));
     }
 
     [Test]

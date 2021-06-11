@@ -55,19 +55,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Specified type must be a generic type definition.\r\nParameter name: genericTypeDefinition")]
     public void Initialization_NoGenericTypeDefinition ()
     {
-      Dev.Null = new TypeInstantiationInfo (typeof (List<int>), Type.EmptyTypes);
+      Assert.That (
+          () => Dev.Null = new TypeInstantiationInfo (typeof (List<int>), Type.EmptyTypes),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Specified type must be a generic type definition.\r\nParameter name: genericTypeDefinition"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Generic parameter count of the generic type definition does not match the number of supplied type arguments.\r\nParameter name: typeArguments")]
     public void Initialization_NonMatchingGenericArgumentCount ()
     {
-      Dev.Null = new TypeInstantiationInfo (typeof (List<>), Type.EmptyTypes);
+      Assert.That (
+          () => Dev.Null = new TypeInstantiationInfo (typeof (List<>), Type.EmptyTypes),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Generic parameter count of the generic type definition does not match the number of supplied type arguments.\r\nParameter name: typeArguments"));
     }
 
     [Test]

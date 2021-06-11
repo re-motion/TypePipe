@@ -81,10 +81,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
       
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
     public void PreviousBody_ThrowsForNoPreviousBody ()
     {
-      Dev.Null = _contextWithoutPreviousBody.PreviousBody;
+      Assert.That (
+          () => Dev.Null = _contextWithoutPreviousBody.PreviousBody,
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("An abstract method has no body."));
     }
 
     [Test]
@@ -109,10 +111,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
     public void InvokePreviousBodyWithArguments_Params_ThrowsForNoPreviousBody ()
     {
-      _contextWithoutPreviousBody.InvokePreviousBodyWithArguments();
+      Assert.That (
+          () => _contextWithoutPreviousBody.InvokePreviousBodyWithArguments(),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("An abstract method has no body."));
     }
   }
 }

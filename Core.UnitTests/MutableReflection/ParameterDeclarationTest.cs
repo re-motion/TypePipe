@@ -75,10 +75,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Parameter cannot be of type void.\r\nParameter name: type")]
     public void Initialization_VoidType ()
     {
-      Dev.Null = new ParameterDeclaration (typeof (void), "foo");
+      Assert.That (
+          () => Dev.Null = new ParameterDeclaration (typeof (void), "foo"),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Parameter cannot be of type void.\r\nParameter name: type"));
     }
   }
 }

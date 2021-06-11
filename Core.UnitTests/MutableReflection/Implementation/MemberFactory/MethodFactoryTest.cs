@@ -250,7 +250,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Cannot override final method 'B.FinalBaseMethodInB'.")]
     public void CreateMethod_ImplicitOverride_FinalBaseMethod ()
     {
       var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
@@ -259,19 +258,20 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           .Setup (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
           .Returns (fakeBaseMethod)
           .Verifiable();
-
-      CallCreateMethod (
-          _mutableType,
-          "MethodName",
-          MethodAttributes.Public | MethodAttributes.Virtual,
-          typeof (void),
-          ParameterDeclaration.None,
-          ctx => Expression.Empty());
+      Assert.That (
+          () => CallCreateMethod (
+              _mutableType,
+              "MethodName",
+              MethodAttributes.Public | MethodAttributes.Virtual,
+              typeof (void),
+              ParameterDeclaration.None,
+              ctx => Expression.Empty()),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Cannot override final method 'B.FinalBaseMethodInB'."));
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Cannot override method 'B.InaccessibleBaseMethodInB' as it is not visible from the proxy.")]
     public void CreateMethod_ImplicitOverride_InaccessibleBaseMethod ()
     {
       var signature = new MethodSignature (typeof (void), Type.EmptyTypes, 0);
@@ -280,28 +280,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           .Setup (mock => mock.GetMostDerivedVirtualMethod ("MethodName", signature, _mutableType.BaseType))
           .Returns (fakeBaseMethod)
           .Verifiable();
-
-      CallCreateMethod (
-          _mutableType,
-          "MethodName",
-          MethodAttributes.Public | MethodAttributes.Virtual,
-          typeof (void),
-          ParameterDeclaration.None,
-          ctx => Expression.Empty());
+      Assert.That (
+          () => CallCreateMethod (
+              _mutableType,
+              "MethodName",
+              MethodAttributes.Public | MethodAttributes.Virtual,
+              typeof (void),
+              ParameterDeclaration.None,
+              ctx => Expression.Empty()),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo ("Cannot override method 'B.InaccessibleBaseMethodInB' as it is not visible from the proxy."));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentNullException), ExpectedMessage = "Non-abstract methods must have a body.\r\nParameter name: bodyProvider")]
     public void CreateMethod_ThrowsIfNotAbstractAndNullBodyProvider ()
     {
-      CallCreateMethod (_mutableType, "NotImportant", 0, typeof (void), ParameterDeclaration.None, null);
+      Assert.That (
+          () => CallCreateMethod (_mutableType, "NotImportant", 0, typeof (void), ParameterDeclaration.None, null),
+          Throws.ArgumentNullException
+              .With.Message.EqualTo (
+                  "Non-abstract methods must have a body.\r\nParameter name: bodyProvider"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods cannot have a body.\r\nParameter name: bodyProvider")]
     public void CreateMethod_ThrowsIfAbstractAndBodyProvider ()
     {
-      CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, ctx => null);
+      Assert.That (
+          () => CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, ctx => null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Abstract methods cannot have a body.\r\nParameter name: bodyProvider"));
     }
 
     [Test]
@@ -312,33 +320,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Abstract methods must also be virtual.\r\nParameter name: attributes")]
     public void CreateMethod_ThrowsIfAbstractAndNotVirtual ()
     {
-      CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, null);
+      Assert.That (
+          () => CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Abstract methods must also be virtual.\r\nParameter name: attributes"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "NewSlot methods must also be virtual.\r\nParameter name: attributes")]
     public void CreateMethod_ThrowsIfNonVirtualAndNewSlot ()
     {
-      CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty ());
+      Assert.That (
+          () => CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty ()),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "NewSlot methods must also be virtual.\r\nParameter name: attributes"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: returnTypeProvider")]
     public void CreateMethod_ThrowsForNullReturningReturnTypeProvider ()
     {
-      _factory.CreateMethod (
-          _mutableType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => null, ctx => ParameterDeclaration.None, ctx => Expression.Empty ());
+      Assert.That (
+          () => _factory.CreateMethod (
+          _mutableType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => null, ctx => ParameterDeclaration.None, ctx => Expression.Empty ()),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Provider must not return null.\r\nParameter name: returnTypeProvider"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: parameterProvider")]
     public void CreateMethod_ThrowsForNullReturningParameterProvider ()
     {
-      _factory.CreateMethod (
-          _mutableType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => typeof (int), ctx => null, ctx => Expression.Empty ());
+      Assert.That (
+          () => _factory.CreateMethod (
+          _mutableType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => typeof (int), ctx => null, ctx => Expression.Empty ()),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Provider must not return null.\r\nParameter name: parameterProvider"));
     }
 
     [Test]

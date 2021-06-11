@@ -60,12 +60,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: bodyProvider")]
     public void GetTypedBody_ThrowsForNullBody ()
     {
       var bodyProvider = CreateBodyProvider (returnedBody: null);
-
-      BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context);
+      Assert.That (
+          () => BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Provider must not return null.\r\nParameter name: bodyProvider"));
     }
 
     private Func<BodyContextBase, Expression> CreateBodyProvider (Expression returnedBody)
