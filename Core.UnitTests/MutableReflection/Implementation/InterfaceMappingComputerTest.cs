@@ -50,13 +50,35 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       public bool Equals (MethodMapping other)
       {
-        if (ReferenceEquals (null, other)) 
+        if (ReferenceEquals (null, other))
           return false;
 
         if (ReferenceEquals (this, other))
           return true;
 
         return Equals (InterfaceMethod, other.InterfaceMethod) && Equals (ImplementationMethod, other.ImplementationMethod);
+      }
+
+      public override bool Equals (object obj)
+      {
+        if (ReferenceEquals (null, obj))
+          return false;
+
+        if (ReferenceEquals (this, obj))
+          return true;
+
+        if (obj.GetType() != this.GetType())
+          return false;
+
+        return Equals ((MethodMapping) obj);
+      }
+
+      public override int GetHashCode ()
+      {
+        unchecked
+        {
+          return ((InterfaceMethod != null ? InterfaceMethod.GetHashCode() : 0) * 397) ^ (ImplementationMethod != null ? ImplementationMethod.GetHashCode() : 0);
+        }
       }
     }
 

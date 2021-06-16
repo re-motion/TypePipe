@@ -125,9 +125,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CustomNamePatternWithoutCounter_OverwritesPreviousAssembly ()
     {
-      var outputDirectory = Path.GetDirectoryName (typeof (FlushGeneratedCodeTest).Assembly.Location);
       var settings = PipelineSettings.New()
-          .SetAssemblyDirectory (outputDirectory)
+          .SetAssemblyDirectory (TestContext.CurrentContext.TestDirectory)
           .SetAssemblyNamePattern ("xxx")
           .Build();
 
@@ -142,9 +141,8 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     [Test]
     public void CustomNamePatternIncludingCounter_ProducesUniqueAssemblyNames ()
     {
-      var outputDirectory = Path.GetDirectoryName (typeof (FlushGeneratedCodeTest).Assembly.Location);
       var settings = PipelineSettings.New()
-          .SetAssemblyDirectory (outputDirectory)
+          .SetAssemblyDirectory (TestContext.CurrentContext.TestDirectory)
           .SetAssemblyNamePattern ("xxx_{counter}")
           .Build();
 
