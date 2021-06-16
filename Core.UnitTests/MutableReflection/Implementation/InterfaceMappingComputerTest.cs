@@ -36,52 +36,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       InterfaceMapping Get (Type interfaceType);
     }
 
-    public class MethodMapping : IEquatable<MethodMapping>
-    {
-      public MethodInfo InterfaceMethod { get; }
-
-      public MethodInfo ImplementationMethod { get; }
-
-      public MethodMapping (MethodInfo interfaceMethod, MethodInfo implementationMethod)
-      {
-        InterfaceMethod = interfaceMethod;
-        ImplementationMethod = implementationMethod;
-      }
-
-      public bool Equals (MethodMapping other)
-      {
-        if (ReferenceEquals (null, other))
-          return false;
-
-        if (ReferenceEquals (this, other))
-          return true;
-
-        return Equals (InterfaceMethod, other.InterfaceMethod) && Equals (ImplementationMethod, other.ImplementationMethod);
-      }
-
-      public override bool Equals (object obj)
-      {
-        if (ReferenceEquals (null, obj))
-          return false;
-
-        if (ReferenceEquals (this, obj))
-          return true;
-
-        if (obj.GetType() != this.GetType())
-          return false;
-
-        return Equals ((MethodMapping) obj);
-      }
-
-      public override int GetHashCode ()
-      {
-        unchecked
-        {
-          return ((InterfaceMethod != null ? InterfaceMethod.GetHashCode() : 0) * 397) ^ (ImplementationMethod != null ? ImplementationMethod.GetHashCode() : 0);
-        }
-      }
-    }
-
     private InterfaceMappingComputer _computer;
 
     private Mock<IInterfaceMappingProvider> _interfaceMapProviderMock;
@@ -126,8 +80,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       CallComputeMappingAndCheckResult (
           _mutableType,
           typeof (IExistingInterface),
-          new MethodMapping (_existingInterfaceMethod1, implicitImplementation1),
-          new MethodMapping (_existingInterfaceMethod2, (MethodInfo) explicitImplementation));
+          Tuple.Create (_existingInterfaceMethod1, implicitImplementation1),
+          Tuple.Create (_existingInterfaceMethod2, (MethodInfo) explicitImplementation));
     }
 
     [Test]
@@ -151,8 +105,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       CallComputeMappingAndCheckResult (
           _mutableType,
           typeof (IExistingInterface),
-          new MethodMapping (_existingInterfaceMethod1, implicitImplementation1),
-          new MethodMapping (_existingInterfaceMethod2, (MethodInfo) baseImplementationOverride));
+          Tuple.Create (_existingInterfaceMethod1, implicitImplementation1),
+          Tuple.Create (_existingInterfaceMethod2, (MethodInfo) baseImplementationOverride));
     }
 
     [Test]
@@ -175,9 +129,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       CallComputeMappingAndCheckResult (
           _mutableType,
           typeof (IAddedInterface),
-          new MethodMapping (_addedInterfaceMethod1, (MethodInfo) explicitImplementation),
-          new MethodMapping (_addedInterfaceMethod2, (MethodInfo) implicitImplementation2),
-          new MethodMapping (_addedInterfaceMethod3, implicitImplementation3));
+          Tuple.Create (_addedInterfaceMethod1, (MethodInfo) explicitImplementation),
+          Tuple.Create (_addedInterfaceMethod2, (MethodInfo) implicitImplementation2),
+          Tuple.Create (_addedInterfaceMethod3, implicitImplementation3));
     }
 
     [Test]
@@ -198,9 +152,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       CallComputeMappingAndCheckResult (
           _mutableType,
           typeof (IAddedInterface),
-          new MethodMapping (_addedInterfaceMethod1, methods.First (m => m.Name == "Method21")),
-          new MethodMapping (_addedInterfaceMethod2, methods.First (m => m.Name == "Method22")),
-          new MethodMapping (_addedInterfaceMethod3, methods.First (m => m.Name == "Method23")));
+          Tuple.Create (_addedInterfaceMethod1, methods.First (m => m.Name == "Method21")),
+          Tuple.Create (_addedInterfaceMethod2, methods.First (m => m.Name == "Method22")),
+          Tuple.Create (_addedInterfaceMethod3, methods.First (m => m.Name == "Method23")));
     }
 
     [Test]
@@ -209,7 +163,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _mutableType.AddInterface (typeof (IDisposable));
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IDisposable obj) => obj.Dispose ());
 
-      CallComputeMappingAndCheckResult (_mutableType, typeof (IDisposable), new MethodMapping (interfaceMethod, null));
+      CallComputeMappingAndCheckResult (_mutableType, typeof (IDisposable), Tuple.Create (interfaceMethod, (MethodInfo) null));
     }
 
     [Test]
@@ -233,8 +187,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       CallComputeMappingAndCheckResult (
           _mutableType,
           typeof (IImplementationCandidates),
-          new MethodMapping (interfaceMethod1, null),
-          new MethodMapping (interfaceMethod2, null));
+          Tuple.Create (interfaceMethod1, (MethodInfo) null),
+          Tuple.Create (interfaceMethod2, (MethodInfo) null));
     }
 
     [Test]
@@ -269,7 +223,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
                   "Interface not found.\r\nParameter name: interfaceType"));
     }
 
-    private void CallComputeMappingAndCheckResult (MutableType mutableType, Type interfaceType, params MethodMapping[] expectedMapping)
+    // Tuple means: 1) interface method, 2) implementation method
+    private void CallComputeMappingAndCheckResult (MutableType mutableType, Type interfaceType, params Tuple<MethodInfo, MethodInfo>[] expectedMapping)
     {
       var mapping = _computer.ComputeMapping (mutableType, _interfaceMapProviderMock.Object.Get, interfaceType, true);
 
@@ -277,7 +232,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (mutableType));
       // Order matters for "expectedMapping".
-      var enumerable = mapping.InterfaceMethods.Zip (mapping.TargetMethods, (a, b) => new MethodMapping (a, b)).ToArray();
+      var enumerable = mapping.InterfaceMethods.Zip (mapping.TargetMethods, Tuple.Create).ToArray();
       Assert.That (enumerable, Is.EquivalentTo (expectedMapping));
     }
 
