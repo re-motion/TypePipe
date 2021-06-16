@@ -188,6 +188,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void CircularDependency_Throws ()
     {
       SkipSavingAndPeVerification();
+
+      // public interface IInterface1 : IInterface2 { }
+      // public interface IInterface2 : IInterface1 { }
       Assert.That (
           () => AssembleType<DomainType> (
           typeContext =>
