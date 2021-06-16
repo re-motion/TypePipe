@@ -255,7 +255,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (mapping.InterfaceType, Is.SameAs (interfaceType));
       Assert.That (mapping.TargetType, Is.SameAs (mutableType));
       // Order matters for "expectedMapping".
-      var enumerable = mapping.InterfaceMethods.Zip (mapping.TargetMethods, (a, b) => new MethodMapping(a, b)).ToArray();
+      var enumerable = mapping.InterfaceMethods.Zip (mapping.TargetMethods, (a, b) => new MethodMapping (a, b)).ToArray();
       Assert.That (enumerable, Is.EquivalentTo (expectedMapping));
     }
 
