@@ -196,6 +196,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     private static void PeVerifyAssembly (string assemblyPath)
     {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
       try
       {
         PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
@@ -205,6 +206,9 @@ namespace Remotion.TypePipe.IntegrationTests
         Console.WriteLine (exception);
         throw;
       }
+#else
+      throw new PlatformNotSupportedException ("AssemblyBuilder.Save() is not supported in .NET 5.0");
+#endif
     }
 
     private static string GetNameOfRunningTest ()
