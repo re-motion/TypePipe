@@ -4,7 +4,7 @@
     <AssemblyInfoFile>$(SolutionDirectory)AssemblyInfoShared.*</AssemblyInfoFile>
     <CompanyName>rubicon IT GmbH</CompanyName>
     <CompanyUrl>http://www.rubicon.eu</CompanyUrl>
-    <Copyright>Copyright (c) rubicon IT GmbH, www.rubicon.eu - Licensed under GNU LGPL 2.1 (or later)</Copyright>
+    <Copyright>Copyright (c) rubicon IT GmbH, www.rubicon.eu - Licensed under Apache License 2.0</Copyright>
     <ProductName>re-motion Framework: TypePipe (www.re-motion.org)</ProductName>
     <DocumentationRootPage>$(SolutionDirectory)Core\Doc\include\GettingStartedWithTypePipe.aml</DocumentationRootPage>
     <DocumentationNamespaceSummaryFiles>$(SolutionDirectory)**\Doc\include\*.NamespaceDoc.xml</DocumentationNamespaceSummaryFiles>

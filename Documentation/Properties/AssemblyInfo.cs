@@ -17,8 +17,5 @@
 using System;
 using System.Reflection;
 
-[assembly: AssemblyTitle ("Documentation for Remotion.TypePipe")]
-[assembly: AssemblyDescription ("Contains the documentation file for re-motion TypePipe.")]
-[assembly: AssemblyMetadata ("tags", "re-motion TypePipe Documentation")]
 [assembly: AssemblyCulture ("")]
 [assembly: CLSCompliant (true)]
