@@ -17,7 +17,5 @@
 using System;
 using System.Reflection;
 
-[assembly: AssemblyTitle ("Development Support Library for Remotion.TypePipe")]
-[assembly: AssemblyDescription ("Support for unit testing of libraries based on the re-motion TypePipe.")]
 [assembly: AssemblyCulture ("")]
 [assembly: CLSCompliant (true)]
