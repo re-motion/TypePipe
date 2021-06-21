@@ -23,6 +23,10 @@
     <PackageTags>re-motion TypePipe</PackageTags>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <BinaryFormatterSerializationObsoleteWarning>SYSLIB0011</BinaryFormatterSerializationObsoleteWarning>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(ProjectType)' == 'Library'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>1591</NoWarn>
@@ -35,12 +39,13 @@
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Test'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>0067;0649;0169</NoWarn>
+    <NoWarn>0067;0649;0169;$(BinaryFormatterSerializationObsoleteWarning)</NoWarn>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>False</IsPackable>
     <TargetFrameworks>net5.0;net45</TargetFrameworks>
     <DefineConstants>$(DefineConstants)</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE</DefineConstants>
+    <EnableUnsafeBinaryFormatterSerialization Condition="'$(TargetFramework)' == 'net5.0'">true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
