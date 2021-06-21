@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.IntegrationTests
 
     private HashSet<string > _copiedFileNames;
 
-    [SetUp]
+    [OneTimeSetUp]
     public void SetUp ()
     {
       s_generatedFileDirectory = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "GeneratedAssemblies");
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.IntegrationTests
       PrepareOutputDirectory ();
     }
 
-    [TearDown]
+    [OneTimeTearDown]
     public void TearDown ()
     {
       CleanupOutputDirectory();

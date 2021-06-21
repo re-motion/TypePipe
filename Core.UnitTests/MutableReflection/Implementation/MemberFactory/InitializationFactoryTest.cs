@@ -58,10 +58,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: initializationProvider")]
     public void CreateInitialization_NullBody ()
     {
-      _factory.CreateInitialization (_mutableType, ctx => null);
+      Assert.That (
+          () => _factory.CreateInitialization (_mutableType, ctx => null),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Provider must not return null.\r\nParameter name: initializationProvider"));
     }
   }
 }

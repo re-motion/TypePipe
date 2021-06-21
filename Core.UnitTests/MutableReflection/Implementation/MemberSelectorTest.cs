@@ -287,7 +287,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous field name 'field1'.")]
     public void SelectSingleField_Ambiguous ()
     {
       var fields = new[] { CreateFieldStub ("field1", FieldAttributes.Assembly), CreateFieldStub ("field1", FieldAttributes.Public) };
@@ -295,8 +294,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.Setup (mock => mock.HasRightAttributes (fields[0].Attributes, bindingFlags)).Returns (true).Verifiable();
       _bindingFlagsEvaluatorMock.Setup (mock => mock.HasRightAttributes (fields[1].Attributes, bindingFlags)).Returns (true).Verifiable();
-
-      _selector.SelectSingleField (fields, bindingFlags, "field1", _someDeclaringType);
+      Assert.That (
+          () => _selector.SelectSingleField (fields, bindingFlags, "field1", _someDeclaringType),
+          Throws.InstanceOf<AmbiguousMatchException>()
+              .With.Message.EqualTo ("Ambiguous field name 'field1'."));
     }
 
     [Test]
@@ -373,7 +374,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous method name 'Method1'.")]
     public void SelectSingleMethod_TypesNull_Ambiguous ()
     {
       var methods = new[] { CreateMethodStub ("Method1"), CreateMethodStub ("Method1") };
@@ -383,7 +383,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       _bindingFlagsEvaluatorMock.Setup (mock => mock.HasRightAttributes (methods[1].Attributes, bindingFlags)).Returns (true).Verifiable();
 
       var binderStub = new Mock<Binder>();
-      _selector.SelectSingleMethod (methods, binderStub.Object, bindingFlags, "Method1", _someDeclaringType, parameterTypesOrNull: null, modifiersOrNull: null);
+      Assert.That (
+          () => _selector.SelectSingleMethod (methods, binderStub.Object, bindingFlags, "Method1", _someDeclaringType, parameterTypesOrNull: null, modifiersOrNull: null),
+          Throws.InstanceOf<AmbiguousMatchException>()
+              .With.Message.EqualTo ("Ambiguous method name 'Method1'."));
     }
 
     [Test]
@@ -408,8 +411,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Modifiers must not be specified if parameter types are null.\r\nParameter name: modifiers")]
     public void SelectSingleMethod_TypesNull_ModifiersNotNull ()
     {
       var methods = new[] { CreateMethodStub() };
@@ -417,7 +418,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var modifiersOrNull = new[] { new ParameterModifier (2) };
 
       var binderStub = new Mock<Binder>();
-      _selector.SelectSingleMethod (methods, binderStub.Object, bindingFlags, "Whatever", _someDeclaringType, null, modifiersOrNull);
+      Assert.That (
+          () => _selector.SelectSingleMethod (methods, binderStub.Object, bindingFlags, "Whatever", _someDeclaringType, null, modifiersOrNull),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Modifiers must not be specified if parameter types are null.\r\nParameter name: modifiers"));
     }
 
     [Test]
@@ -481,8 +485,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Modifiers must not be specified if parameter types are null.\r\nParameter name: modifiers")]
     public void SelectSingleProperty_TypesNull_ModifiersNotNull ()
     {
       var properties = new[] { CreatePropertyStub() };
@@ -491,7 +493,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var modifiersOrNull = new[] { new ParameterModifier (2) };
 
       var binderStub = new Mock<Binder>();
-      _selector.SelectSingleProperty (properties, binderStub.Object, bindingFlags, "Whatever", _someDeclaringType, propertyType, null, modifiersOrNull);
+      Assert.That (
+          () => _selector.SelectSingleProperty (properties, binderStub.Object, bindingFlags, "Whatever", _someDeclaringType, propertyType, null, modifiersOrNull),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("Modifiers must not be specified if parameter types are null.\r\nParameter name: modifiers"));
     }
 
     [Test]
@@ -528,7 +533,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous event name 'Event'.")]
     public void SelectSingleEvent_Ambiguous ()
     {
       var events = new[] { CreateEventStub ("Event"), CreateEventStub ("Event") };
@@ -536,8 +540,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       _bindingFlagsEvaluatorMock.Setup (mock => mock.HasRightAttributes (It.IsAny<MethodAttributes>(), bindingFlags)).Returns (true).Verifiable();
 
-      _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType);
-
+      Assert.That (
+          () => _selector.SelectSingleEvent (events, bindingFlags, "Event", _someDeclaringType),
+          Throws.InstanceOf<AmbiguousMatchException>()
+              .With.Message.EqualTo ("Ambiguous event name 'Event'."));
       _bindingFlagsEvaluatorMock.Verify (mock => mock.HasRightAttributes (It.IsAny<MethodAttributes>(), bindingFlags), Times.Exactly (2));
     }
 

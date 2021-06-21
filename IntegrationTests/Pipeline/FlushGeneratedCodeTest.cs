@@ -126,6 +126,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void CustomNamePatternWithoutCounter_OverwritesPreviousAssembly ()
     {
       var settings = PipelineSettings.New()
+          .SetAssemblyDirectory (TestContext.CurrentContext.TestDirectory)
           .SetAssemblyNamePattern ("xxx")
           .Build();
 
@@ -141,6 +142,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void CustomNamePatternIncludingCounter_ProducesUniqueAssemblyNames ()
     {
       var settings = PipelineSettings.New()
+          .SetAssemblyDirectory (TestContext.CurrentContext.TestDirectory)
           .SetAssemblyNamePattern ("xxx_{counter}")
           .Build();
 

@@ -67,25 +67,34 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Another pipeline is already registered for identifier 'some id'.")]
     public void Register_ExistingPipeline ()
     {
       Assert.That (() => _registry.Register (_somePipeline), Throws.Nothing);
-      _registry.Register (_somePipeline);
+      Assert.That (
+          () => _registry.Register (_somePipeline),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Another pipeline is already registered for identifier 'some id'."));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "The default pipeline ('default id') cannot be unregistered.")]
     public void Unregister_DefaultPipeline ()
     {
-      _registry.Unregister (_defaultPipeline.ParticipantConfigurationID);
+      Assert.That (
+          () => _registry.Unregister (_defaultPipeline.ParticipantConfigurationID),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "The default pipeline ('default id') cannot be unregistered."));
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "No pipeline registered for identifier 'missingPipeline'.")]
     public void Get_MissingPipeline ()
     {
-      _registry.Get ("missingPipeline");
+      Assert.That (
+          () => _registry.Get ("missingPipeline"),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "No pipeline registered for identifier 'missingPipeline'."));
     }
 
     private IPipeline CreatePipelineStub (string participantConfigurationID)

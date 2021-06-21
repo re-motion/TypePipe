@@ -325,10 +325,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type must be an interface.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfNotAnInterface ()
     {
-      _mutableType.AddInterface (typeof (string));
+      Assert.That (
+          () => _mutableType.AddInterface (typeof (string)),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "Type must be an interface.\r\nParameter name: interfaceType"));
     }
 
     [Test]
@@ -705,11 +708,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Method GetInterfaceMap is not supported by interface types.")]
     public void GetInterfaceMap_Interface_Throws ()
     {
       var mutableInterfaceType = MutableTypeObjectMother.CreateInterface();
-      mutableInterfaceType.GetInterfaceMap (ReflectionObjectMother.GetSomeType());
+      Assert.That (
+          () => mutableInterfaceType.GetInterfaceMap (ReflectionObjectMother.GetSomeType()),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Method GetInterfaceMap is not supported by interface types."));
     }
 
     [Test]

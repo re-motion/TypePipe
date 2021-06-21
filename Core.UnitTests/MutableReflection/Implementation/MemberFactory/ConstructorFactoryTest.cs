@@ -113,11 +113,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "A type initializer (static constructor) cannot have parameters.\r\nParameter name: parameters")]
     public void CreateConstructor_ThrowsIfStaticAndNonEmptyParameters ()
     {
-      _factory.CreateConstructor (_mutableType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null);
+      Assert.That (
+          () => _factory.CreateConstructor (_mutableType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null),
+          Throws.ArgumentException
+              .With.Message.EqualTo ("A type initializer (static constructor) cannot have parameters.\r\nParameter name: parameters"));
     }
 
     [Test]

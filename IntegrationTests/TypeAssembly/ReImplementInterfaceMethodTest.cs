@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -116,12 +116,14 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Cannot re-implement interface method 'Method3' because its base implementation on 'DomainType' is not accessible.")]
     public void NonVirtualBase_ReImplement_BaseNonAccessible ()
     {
       var interfaceMethod = NormalizingMemberInfoFromExpressionUtility.GetMethod ((IMyInterface o) => o.Method3());
-      AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod).SetBody (ctx => null));
+      Assert.That (
+          () => AssembleType<DomainType> (p => p.GetOrAddImplementation (interfaceMethod).SetBody (ctx => null)),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Cannot re-implement interface method 'Method3' because its base implementation on 'DomainType' is not accessible."));
     }
 
     public class DomainType : IMyInterface

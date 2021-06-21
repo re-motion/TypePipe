@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -53,10 +53,11 @@ namespace Remotion.TypePipe.UnitTests.Caching
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException))]
     public void Equals_Object ()
     {
-      Dev.Null = _id1.Equals (null);
+      Assert.That (
+          () => Dev.Null = _id1.Equals (null),
+          Throws.InstanceOf<NotSupportedException>());
     }
     
     [Test]

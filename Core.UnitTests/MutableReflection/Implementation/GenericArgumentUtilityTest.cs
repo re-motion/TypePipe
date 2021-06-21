@@ -27,12 +27,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   public class GenericArgumentUtilityTest
   {
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The generic definition 'xxx' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
-                          + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments")]
     public void ValidateGenericArguments_WrongNumberOfTypeArguments ()
     {
-      CallValidateGenericArguments (typeof (Dictionary<,>), typeof (int));
+      Assert.That (
+          () => CallValidateGenericArguments (typeof (Dictionary<,>), typeof (int)),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "The generic definition 'xxx' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
+                  + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments"));
     }
 
     [Test]

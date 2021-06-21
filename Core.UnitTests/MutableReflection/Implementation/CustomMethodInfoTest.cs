@@ -153,11 +153,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "MakeGenericMethod can only be called on generic method definitions (IsGenericMethodDefinition must be true).")]
     public void MakeGenericMethod_NoGenericMethodDefinition ()
     {
-      _genericMethod.MakeGenericMethod();
+      Assert.That (
+          () => _genericMethod.MakeGenericMethod(),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("MakeGenericMethod can only be called on generic method definitions (IsGenericMethodDefinition must be true)."));
     }
 
     [Test]

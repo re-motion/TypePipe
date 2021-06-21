@@ -83,15 +83,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "MemberParameterOnInstantiation can only represent parameters of members on TypeInstantiation or parameters of "
-                          + "MethodInstantiation instances.\r\nParameter name: declaringMember")]
     public void Initialization_NonTypeInstantiationMember ()
     {
       var member = ReflectionObjectMother.GetSomeMember();
       var parameter = ReflectionObjectMother.GetSomeParameter();
-
-      Dev.Null = new MemberParameterOnInstantiation (member, parameter);
+      Assert.That (
+          () => Dev.Null = new MemberParameterOnInstantiation (member, parameter),
+          Throws.ArgumentException
+              .With.Message.EqualTo (
+                  "MemberParameterOnInstantiation can only represent parameters of members on TypeInstantiation or parameters of "
+                  + "MethodInstantiation instances.\r\nParameter name: declaringMember"));
     }
 
     [Test]
