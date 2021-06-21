@@ -322,9 +322,11 @@ namespace System.Linq.Expressions.Compiler {
             return _ilg.DeclareLocal(localType);
         }
 
+#if FEATURE_PDBEMIT
         internal void MarkSequencePoint(ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn) {
             _ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
         }
+#endif
 
         #endregion
 
