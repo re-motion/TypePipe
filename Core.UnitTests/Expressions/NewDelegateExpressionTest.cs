@@ -23,6 +23,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.Expressions
 {
@@ -68,16 +69,16 @@ namespace Remotion.TypePipe.UnitTests.Expressions
     {
       Assert.That (
           () => new NewDelegateExpression (typeof (string), _target, _nonVirtualInstanceMethod),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "Delegate type must be subclass of 'System.MulticastDelegate'.\r\nParameter name: delegateType"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (
+              "Delegate type must be subclass of 'System.MulticastDelegate'.", "delegateType"));
       Assert.That (
           () => new NewDelegateExpression (typeof (Delegate), _target, _nonVirtualInstanceMethod),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "Delegate type must be subclass of 'System.MulticastDelegate'.\r\nParameter name: delegateType"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (
+              "Delegate type must be subclass of 'System.MulticastDelegate'.", "delegateType"));
       Assert.That (
           () => new NewDelegateExpression (typeof (MulticastDelegate), _target, _nonVirtualInstanceMethod),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "Delegate type must be subclass of 'System.MulticastDelegate'.\r\nParameter name: delegateType"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (
+              "Delegate type must be subclass of 'System.MulticastDelegate'.", "delegateType"));
     }
 
     [Test]
@@ -87,8 +88,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (
           () => new NewDelegateExpression (typeof (Action), null, method),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Instance method requires target.\r\nParameter name: target"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Instance method requires target.", "target"));
     }
 
     [Test]
@@ -99,8 +100,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (
           () => new NewDelegateExpression (typeof (Action), target, method),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Static method must not have target.\r\nParameter name: target"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Static method must not have target.", "target"));
     }
 
     [Test]
@@ -119,7 +120,7 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
       Assert.That (
           () => new NewDelegateExpression (typeof (Action), target, unrelatedMethod),
-          Throws.ArgumentException.With.Message.EqualTo ("Method is not declared on type hierarchy of target.\r\nParameter name: method"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo ("Method is not declared on type hierarchy of target.", "method"));
     }
 
     [Test]
@@ -131,8 +132,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
       Assert.That (
           () => new NewDelegateExpression (delegateType, target, method),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Method signature must match delegate type.\r\nParameter name: method"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Method signature must match delegate type.", "method"));
     }
 
     [Test]

@@ -28,6 +28,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -163,13 +164,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     [Test]
     public void SetGenericParameterConstraints_ValueTypeBaseConstraint ()
     {
-      var message = "A generic parameter cannot be constrained by a value type.\r\nParameter name: constraints";
+      var message = "A generic parameter cannot be constrained by a value type.";
+      var paramName = "constraints";
       Assert.That (
           () => _parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeValueType() }),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
       Assert.That (
           () => _parameter.SetGenericParameterConstraints (new[] { typeof (ValueType) }),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -179,8 +181,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (
           () => parameter.SetGenericParameterConstraints (new[] { ReflectionObjectMother.GetSomeSubclassableType() }),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.\r\nParameter name: constraints"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.", "constraints"));
     }
 
     [Test]
@@ -191,7 +193,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (
           () => _parameter.SetGenericParameterConstraints (new[] { baseConstraint1, baseConstraint2 }),
           Throws.ArgumentException
-              .With.Message.EqualTo ("A generic parameter cannot have multiple base constraints.\r\nParameter name: constraints"));
+              .With.ArgumentExceptionMessageEqualTo ("A generic parameter cannot have multiple base constraints.", "constraints"));
     }
 
     [Test]

@@ -20,6 +20,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -81,9 +82,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => method.MakeTypePipeGenericMethod (typeof (int)),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "The generic definition 'Method' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
-                  + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments"));
+                  + "A generic argument must be provided for each generic parameter.", "typeArguments"));
     }
 
     private void Method<T1, T2> () {}

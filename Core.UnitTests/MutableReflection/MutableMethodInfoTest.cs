@@ -30,6 +30,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -192,13 +193,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var nonVirtualMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
       var finalMethodDefinition = typeof (DomainType).GetMethod ("FinalMethod");
 
-      var message = "Method must be virtual and non-final.\r\nParameter name: overriddenMethodBaseDefinition";
+      var message = "Method must be virtual and non-final.";
+      var paramName = "overriddenMethodBaseDefinition";
       Assert.That (
           () => _virtualMethod.AddExplicitBaseDefinition (nonVirtualMethodDefinition),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
       Assert.That (
           () => _virtualMethod.AddExplicitBaseDefinition (finalMethodDefinition),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -209,7 +211,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => _virtualMethod.AddExplicitBaseDefinition (differentSignatureMethodDefinition),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Method signatures must be equal.\r\nParameter name: overriddenMethodBaseDefinition"));
+              .With.ArgumentExceptionMessageEqualTo ("Method signatures must be equal.", "overriddenMethodBaseDefinition"));
     }
 
     [Test]
@@ -219,7 +221,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => _virtualMethod.AddExplicitBaseDefinition (unrelatedMethodDefinition),
           Throws.ArgumentException
-              .With.Message.EqualTo ("The overridden method must be from the same type hierarchy.\r\nParameter name: overriddenMethodBaseDefinition"));
+              .With.ArgumentExceptionMessageEqualTo ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition"));
     }
 
     [Test]
@@ -229,9 +231,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => _virtualMethod.AddExplicitBaseDefinition (nonBaseDefinitionMethod),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)\r\n"
-                  + "Parameter name: overriddenMethodBaseDefinition"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)",
+                  "overriddenMethodBaseDefinition"));
     }
 
     [Test]

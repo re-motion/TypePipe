@@ -24,6 +24,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -421,7 +422,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _selector.SelectSingleMethod (methods, binderStub.Object, bindingFlags, "Whatever", _someDeclaringType, null, modifiersOrNull),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Modifiers must not be specified if parameter types are null.\r\nParameter name: modifiers"));
+              .With.ArgumentExceptionMessageEqualTo ("Modifiers must not be specified if parameter types are null.", "modifiers"));
     }
 
     [Test]
@@ -496,7 +497,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _selector.SelectSingleProperty (properties, binderStub.Object, bindingFlags, "Whatever", _someDeclaringType, propertyType, null, modifiersOrNull),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Modifiers must not be specified if parameter types are null.\r\nParameter name: modifiers"));
+              .With.ArgumentExceptionMessageEqualTo ("Modifiers must not be specified if parameter types are null.", "modifiers"));
     }
 
     [Test]

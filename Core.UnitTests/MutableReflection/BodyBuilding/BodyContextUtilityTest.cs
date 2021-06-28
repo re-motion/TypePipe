@@ -21,6 +21,7 @@ using Remotion.TypePipe.Development.UnitTesting.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -55,7 +56,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (
           () => CallReplaceParameters(),
           Throws.ArgumentException
-              .With.Message.EqualTo ("The argument count (0) does not match the parameter count (2).\r\nParameter name: arguments"));
+              .With.ArgumentExceptionMessageEqualTo ("The argument count (0) does not match the parameter count (2).", "arguments"));
     }
 
     [Test]
@@ -66,10 +67,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (
           () => CallReplaceParameters (arg1, arg2),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "The argument at index 0 has an invalid type: Type 'System.String' cannot be implicitly converted to type 'System.Int32'. "
-                  + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.\r\n"
-                  + "Parameter name: arguments"));
+                  + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.",
+                  "arguments"));
     }
 
     [Test]

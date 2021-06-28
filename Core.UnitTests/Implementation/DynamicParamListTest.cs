@@ -17,6 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
@@ -54,7 +55,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => new DynamicParamList (new Type[0], new object[] { 1 }),
           Throws.ArgumentException
-              .With.Message.EqualTo ("The number of parameter values must match the number of parameter types.\r\nParameter name: parameterValues"));
+              .With.ArgumentExceptionMessageEqualTo ("The number of parameter values must match the number of parameter types.", "parameterValues"));
     }
 
     [Test]
@@ -129,10 +130,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => _implementation3.InvokeFunc (((Func<int>) (() => 5))),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "Parameter 'func' has type 'System.Func`1[System.Int32]' when a delegate "
-                  +"returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double)."
-                  + "\r\nParameter name: func"));
+                  +"returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double).",
+                  "func"));
     }
 
     [Test]
@@ -141,10 +142,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => _implementation3.InvokeFunc (((Func<int, int, int, object>) ((i, j, k) => 5))),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "Parameter 'func' has type 'System.Func`4[System.Int32,System.Int32,System.Int32,System.Object]' when a delegate "
-                  + "returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double)."
-                  + "\r\nParameter name: func"));
+                  + "returning System.Object with the following parameter signature was expected: (System.Int32, System.String, System.Double).",
+                  "func"));
     }
 
     [Test]
@@ -181,10 +182,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => _implementation3.InvokeAction (((Action<int>) (i => { }))),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "Parameter 'action' has type 'System.Action`1[System.Int32]' when a delegate with the following parameter signature was expected: "
-                  + "(System.Int32, System.String, System.Double)."
-                  + "\r\nParameter name: action"));
+                  + "(System.Int32, System.String, System.Double).",
+                  "action"));
     }
 
     [Test]
@@ -193,10 +194,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => _implementation3.InvokeAction (((Action<int, int, int>) ((i, j, k) => { }))),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "Parameter 'action' has type 'System.Action`3[System.Int32,System.Int32,System.Int32]' " +
-                  "when a delegate with the following parameter signature was expected: (System.Int32, System.String, System.Double)."
-                  + "\r\nParameter name: action"));
+                  "when a delegate with the following parameter signature was expected: (System.Int32, System.String, System.Double).",
+                  "action"));
     }
 
     [Test]

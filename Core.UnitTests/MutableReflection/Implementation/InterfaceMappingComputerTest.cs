@@ -25,6 +25,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -209,8 +210,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (object), false),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Type passed must be an interface.\r\nParameter name: interfaceType"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Type passed must be an interface.", "interfaceType"));
     }
 
     [Test]
@@ -219,8 +220,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _computer.ComputeMapping (_mutableType, _interfaceMapProviderMock.Object.Get, typeof (IDisposable), false),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Interface not found.\r\nParameter name: interfaceType"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Interface not found.", "interfaceType"));
     }
 
     // Tuple means: 1) interface method, 2) implementation method

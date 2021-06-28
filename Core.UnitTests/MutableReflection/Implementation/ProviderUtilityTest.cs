@@ -17,6 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -46,8 +47,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => ProviderUtility.GetNonNullValue (provider, "", "argumentName"),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Provider must not return null.\r\nParameter name: argumentName"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Provider must not return null.", "argumentName"));
     }
   }
 }

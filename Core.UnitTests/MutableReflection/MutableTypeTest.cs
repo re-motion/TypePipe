@@ -31,6 +31,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -330,8 +331,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => _mutableType.AddInterface (typeof (string)),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Type must be an interface.\r\nParameter name: interfaceType"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Type must be an interface.", "interfaceType"));
     }
 
     [Test]
@@ -343,7 +344,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => _mutableType.AddInterface (interfaceType, throwIfAlreadyImplemented: false), Throws.Nothing);
       Assert.That (
           () => _mutableType.AddInterface (interfaceType),
-          Throws.TypeOf<ArgumentException>().With.Message.EqualTo ("Interface 'IDisposable' is already implemented.\r\nParameter name: interfaceType"));
+          Throws.TypeOf<ArgumentException>().With.ArgumentExceptionMessageEqualTo ("Interface 'IDisposable' is already implemented.", "interfaceType"));
     }
 
     [Test]

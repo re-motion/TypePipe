@@ -31,6 +31,7 @@ using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Moq;
 using Remotion.TypePipe.UnitTests.Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -356,8 +357,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Only virtual methods can be overridden.\r\nParameter name: overriddenMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Only virtual methods can be overridden.", "overriddenMethod"));
     }
 
     [Test]
@@ -367,9 +368,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "The specified method must be either a non-generic method or a generic method definition; "
-                  + "it cannot be a method instantiation.\r\nParameter name: overriddenMethod"));
+                  + "it cannot be a method instantiation.", "overriddenMethod"));
     }
 
     [Test]
@@ -379,8 +380,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Method is declared by type 'IDisposable' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Method is declared by type 'IDisposable' outside of the proxy base class hierarchy.", "overriddenMethod"));
     }
 
     [Test]
@@ -390,8 +391,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.GetOrCreateOverride (_mutableType, method, out _isNewlyCreated),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Method is declared by type 'MyAbcType' outside of the proxy base class hierarchy.\r\nParameter name: overriddenMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Method is declared by type 'MyAbcType' outside of the proxy base class hierarchy.", "overriddenMethod"));
     }
 
     [Test]

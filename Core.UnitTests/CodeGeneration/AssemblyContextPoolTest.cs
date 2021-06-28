@@ -19,6 +19,7 @@ using System.Linq;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
@@ -31,7 +32,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       Assert.That (
           () => new AssemblyContextPool (Enumerable.Empty<AssemblyContext>()),
           Throws.ArgumentException
-              .With.Message.EqualTo ("The AssemblyContextPool cannot be initialized with an empty list.\r\nParameter name: assemblyContexts"));
+              .With.ArgumentExceptionMessageEqualTo ("The AssemblyContextPool cannot be initialized with an empty list.", "assemblyContexts"));
     }
 
     [Test]
