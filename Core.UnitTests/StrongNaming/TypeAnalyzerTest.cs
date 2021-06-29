@@ -89,7 +89,13 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     public void IsStrongNamed_TypeBuilder ()
     {
       var typeBuilder = ReflectionEmitObjectMother.CreateTypeBuilder();
+#if NETFRAMEWORK
+      // TypeBuilder in .NET Framework returns null for non-generic types.
+      // Type returns empty, same as Type and TypeBuilder do in .NET 5.
       Assert.That (typeBuilder.GetGenericArguments(), Is.Null);
+#else
+      Assert.That (typeBuilder.GetGenericArguments(), Is.Empty);
+#endif
       _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (typeBuilder.Assembly)).Returns (true);
 
       Assert.That (_analyzer.IsStrongNamed (typeBuilder), Is.True);
