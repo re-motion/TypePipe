@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Implementation;
@@ -86,25 +87,47 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public void CreateModuleBuilder_StrongNamed_FallbackKey ()
     {
+      try
+      {
+        Dev.Null = FallbackKey.KeyPair.PublicKey;
+      }
+      catch (PlatformNotSupportedException)
+      {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+        throw;
+#else
+        Assert.Ignore (".NET does not support assembly persistence.");
+#endif
+      }
+
       var result1 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
       var result2 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty);
 
       var publicKey = FallbackKey.KeyPair.PublicKey;
 
       CheckAdapterBehavior (result1, expectedPublicKey: publicKey);
-#if FEATURE_ASSEMBLYBUILDER_SAVE
       CheckSaveToDiskBehavior (result1, _currentDirectory);
-#endif
 
       CheckAdapterBehavior (result2, expectedPublicKey: publicKey);
-#if FEATURE_ASSEMBLYBUILDER_SAVE
       CheckSaveToDiskBehavior (result2, _currentDirectory);
-#endif
     }
 
     [Test]
     public void CreateModuleBuilder_StrongNamed_ProvidedKey ()
     {
+      try
+      {
+        Dev.Null = FallbackKey.KeyPair.PublicKey;
+      }
+      catch (PlatformNotSupportedException)
+      {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+        throw;
+#else
+        Assert.Ignore (".NET does not support assembly persistence.");
+#endif
+      }
+
       var otherKeyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"CodeGeneration\ReflectionEmit\OtherKey.snk");
       var result = _factory.CreateModuleBuilder (
           c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath);
@@ -112,16 +135,19 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var publicKey = new StrongNameKeyPair (File.ReadAllBytes (otherKeyPath)).PublicKey;
 
       CheckAdapterBehavior (result, expectedPublicKey: publicKey);
-#if FEATURE_ASSEMBLYBUILDER_SAVE
       CheckSaveToDiskBehavior (result, _currentDirectory);
-#endif
     }
 
     private void CheckAdapterBehavior (IModuleBuilder moduleBuilder, byte[] expectedPublicKey = null)
     {
       Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var moduleBuilderAdapter = (ModuleBuilderAdapter) moduleBuilder;
+#if FEATURE_ASSEMBLYBUILDER_SAVE
       Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo (c_assemblyFileName));
+#else
+      // .NET5 as a hardcoded module name since it does not support AssemblyBuilder.Save().
+      Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo ("RefEmit_InMemoryManifestModule"));
+#endif
       Assert.That (moduleBuilderAdapter.AssemblyBuilder, Is.TypeOf<AssemblyBuilderAdapter>());
       var assemblyBuilderAdapter = (AssemblyBuilderAdapter) moduleBuilder.AssemblyBuilder;
 

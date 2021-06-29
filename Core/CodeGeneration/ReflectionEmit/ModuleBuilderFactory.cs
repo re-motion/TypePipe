@@ -27,6 +27,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
   /// <summary>
   /// This class creates instances of <see cref="IModuleBuilder"/>.
   /// </summary>
@@ -34,6 +35,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <see langword="true"/>.
   /// </remarks>
   /// <threadsafety static="true" instance="true"/>
+#else
+  /// <summary>
+  /// This class creates instances of <see cref="IModuleBuilder"/>.
+  /// </summary>
+  /// <remarks> The module will be created with <see cref="AssemblyBuilderAccess.Run"/>.
+  /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
+#endif
   public class ModuleBuilderFactory : IModuleBuilderFactory
   {
     private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =

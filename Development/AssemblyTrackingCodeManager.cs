@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+#if FEATURE_ASSEMBLYBUILDER_SAVE
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -114,3 +115,4 @@ namespace Remotion.TypePipe.Development
     }
   }
 }
+#endif

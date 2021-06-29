@@ -59,7 +59,12 @@ namespace System.Linq.Expressions.Compiler {
             };
 
             _myAssembly = AssemblyBuilder.DefineDynamicAssembly (name, AssemblyBuilderAccess.Run, attributes);
+
+#if FEATURE_PDBEMIT
             _myModule = _myAssembly.DefineDynamicModule (name.Name, false);
+#else
+            _myModule = _myAssembly.DefineDynamicModule (name.Name);
+#endif
 
 #if FEATURE_ASSEMBLYBUILDER_SAVE
             _myAssembly.DefineVersionInfoResource();
