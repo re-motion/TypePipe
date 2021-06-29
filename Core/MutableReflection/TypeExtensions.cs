@@ -30,11 +30,11 @@ namespace Remotion.TypePipe.MutableReflection
   public static class TypeExtensions
   {
     /// <summary>
-    /// Determines whether the current <see cref="Type"/> instance itself is of type <see cref="System.RuntimeType"/>, i.e., the type is a standard
+    /// Determines whether the current <see cref="Type"/> instance itself is of type <see cref="T:System.RuntimeType"/>, i.e., the type is a standard
     /// reflection <see cref="Type"/>.
     /// </summary>
     /// <param name="type">The type instance.</param>
-    /// <returns><c>true</c> if the given type is an instance of <see cref="System.RuntimeType"/>; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> if the given type is an instance of <see cref="T:System.RuntimeType"/>; otherwise, <c>false</c>.</returns>
     public static bool IsRuntimeType (this Type type)
     {
       ArgumentUtility.CheckNotNull ("type", type);
