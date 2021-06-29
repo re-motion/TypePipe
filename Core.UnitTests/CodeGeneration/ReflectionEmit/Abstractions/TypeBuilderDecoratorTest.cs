@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.Moq.UnitTesting;
@@ -151,8 +152,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void DefineMethodOverride ()
     {
       var methods = ReflectionObjectMother.GetMultipeMethods (2);
+      var type1ParseMethodInfo = typeof (int).GetMethod ("Parse", Type.EmptyTypes);
+      var type2ParseMethodInfo = typeof (bool).GetMethod ("Parse", new[] { typeof (string) });
 
-      var emittableMethods = new[] { typeof (int).GetMethod ("Parse", Type.EmptyTypes), typeof (bool).GetMethod ("Parse") };
+      var emittableMethods = new[] { type1ParseMethodInfo, type2ParseMethodInfo };
       _operandProvider.Setup (mock => mock.GetEmittableMethod (methods[0])).Returns (emittableMethods[0]).Verifiable();
       _operandProvider.Setup (mock => mock.GetEmittableMethod (methods[1])).Returns (emittableMethods[1]).Verifiable();
       _innerMock.Setup (mock => mock.DefineMethodOverride (emittableMethods[0], emittableMethods[1])).Verifiable();
