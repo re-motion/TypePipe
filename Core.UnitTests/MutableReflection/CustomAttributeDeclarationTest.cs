@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -79,9 +80,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[0]),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+NonAttributeClass' does not derive from 'System.Attribute'."
-                  + "\r\nParameter name: constructor"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+NonAttributeClass' does not derive from 'System.Attribute'.",
+                  "constructor"));
     }
 
     [Test]
@@ -91,8 +92,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[] { "ctorArg" }),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.\r\nParameter name: constructor"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.", "constructor"));
     }
 
     [Test]
@@ -102,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[0]),
           Throws.ArgumentException
-              .With.Message.EqualTo ("The attribute constructor 'Void .cctor()' is not a public instance constructor.\r\nParameter name: constructor"));
+              .With.ArgumentExceptionMessageEqualTo ("The attribute constructor 'Void .cctor()' is not a public instance constructor.", "constructor"));
     }
 
     [Test]
@@ -112,9 +113,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[0]),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "The attribute type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+PrivateCustomAttribute' is not publicly "
-                  + "visible.\r\nParameter name: constructor"));
+                  + "visible.", "constructor"));
     }
 
     [Test]
@@ -124,7 +125,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[] { 7, 8 }),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Expected 1 constructor argument(s), but was 2.\r\nParameter name: constructorArguments"));
+              .With.ArgumentExceptionMessageEqualTo ("Expected 1 constructor argument(s), but was 2.", "constructorArguments"));
     }
 
     [Test]
@@ -134,9 +135,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[] { "string" }),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Item 0 of parameter 'constructorArguments' has the type 'System.String' instead of 'System.ValueType'."
-                  + "\r\nParameter name: constructorArguments"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Item 0 of parameter 'constructorArguments' has the type 'System.String' instead of 'System.ValueType'.",
+                  "constructorArguments"));
     }
 
     [Test]
@@ -146,8 +147,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[] { null }),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Constructor parameter at position 0 of type 'System.Int32' cannot be null.\r\nParameter name: constructorArguments"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Constructor parameter at position 0 of type 'System.Int32' cannot be null.", "constructorArguments"));
     }
 
     [Test]
@@ -158,10 +159,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new CustomAttributeDeclaration (constructor, new object[0], new NamedArgumentDeclaration(property, 7)),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "Named argument 'PropertyInDerivedType' cannot be used with custom attribute type "
-                  + "'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+DomainAttribute'."
-                  + "\r\nParameter name: namedArguments"));
+                  + "'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+DomainAttribute'.",
+                  "namedArguments"));
     }
 
     [Test]

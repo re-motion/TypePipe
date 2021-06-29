@@ -19,6 +19,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -46,7 +47,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (propertyInfo, value),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value"));
+              .With.ArgumentExceptionMessageEqualTo ("Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.", "value"));
     }
 
     [Test]
@@ -75,7 +76,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (nonNullMember, null),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value"));
+              .With.ArgumentExceptionMessageEqualTo ("Parameter 'value' has type '<null>' when type 'System.Int32' was expected.", "value"));
     }
 
     [Test]
@@ -85,7 +86,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (property, 0),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Property 'Length' has no public setter.\r\nParameter name: propertyInfo"));
+              .With.ArgumentExceptionMessageEqualTo ("Property 'Length' has no public setter.", "propertyInfo"));
     }
 
     [Test]
@@ -95,7 +96,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (property, ""),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Property 'PrivateProperty' has no public setter.\r\nParameter name: propertyInfo"));
+              .With.ArgumentExceptionMessageEqualTo ("Property 'PrivateProperty' has no public setter.", "propertyInfo"));
     }
 
     [Test]
@@ -105,7 +106,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (property, ""),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Property 'StaticProperty' is not an instance property.\r\nParameter name: propertyInfo"));
+              .With.ArgumentExceptionMessageEqualTo ("Property 'StaticProperty' is not an instance property.", "propertyInfo"));
     }
 
     [Test]
@@ -129,8 +130,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (propertyInfo, value),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.\r\nParameter name: value"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Parameter 'value' has type 'System.String' when type 'System.ValueType' was expected.", "value"));
     }
 
     [Test]
@@ -159,7 +160,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (nonNullMember, null),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Parameter 'value' has type '<null>' when type 'System.Int32' was expected.\r\nParameter name: value"));
+              .With.ArgumentExceptionMessageEqualTo ("Parameter 'value' has type '<null>' when type 'System.Int32' was expected.", "value"));
     }
 
     [Test]
@@ -169,7 +170,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (readonlyField, Type.EmptyTypes),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Field 'EmptyTypes' is not writable.\r\nParameter name: fieldInfo"));
+              .With.ArgumentExceptionMessageEqualTo ("Field 'EmptyTypes' is not writable.", "fieldInfo"));
     }
 
     [Test]
@@ -179,7 +180,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (literalField, "value"),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Field 'c_string' is not writable.\r\nParameter name: fieldInfo"));
+              .With.ArgumentExceptionMessageEqualTo ("Field 'c_string' is not writable.", "fieldInfo"));
     }
 
     [Test]
@@ -189,7 +190,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (privateField, ""),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Field '_privateFied' is not public.\r\nParameter name: fieldInfo"));
+              .With.ArgumentExceptionMessageEqualTo ("Field '_privateFied' is not public.", "fieldInfo"));
     }
 
     [Test]
@@ -199,7 +200,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => new NamedArgumentDeclaration (staticField, ""),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Field 'StaticField' is not an instance field.\r\nParameter name: fieldInfo"));
+              .With.ArgumentExceptionMessageEqualTo ("Field 'StaticField' is not an instance field.", "fieldInfo"));
     }
 
     public const string c_string = "string";

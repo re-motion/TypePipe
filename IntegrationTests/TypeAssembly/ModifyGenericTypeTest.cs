@@ -64,10 +64,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (
           () => AssembleType (typeof (DomainType<>)),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.Message.StartsWith (
                   "Base type must not be sealed, an interface, an array, a byref type, a pointer, a generic parameter, "
-                  + "contain generic parameters and must have an accessible constructor. Type: 'Remotion.TypePipe.IntegrationTests.TypeAssembly.ModifyGenericTypeTest+DomainType`1'"
-                  + "\r\nParameter name: baseType"));
+                  + "contain generic parameters and must have an accessible constructor. Type: 'Remotion.TypePipe.IntegrationTests.TypeAssembly.ModifyGenericTypeTest+DomainType`1'"));
     }
 
     public class DomainType<T>

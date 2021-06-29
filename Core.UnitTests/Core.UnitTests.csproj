@@ -144,6 +144,7 @@
     <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons.cs" />
     <Compile Include="MutableReflection\MemberSignatures\TestDomain\ClassForSignatureComparisons2.cs" />
     <Compile Include="Implementation\ParamListTest.cs" />
+    <Compile Include="NUnit\NUnitExtensions.cs" />
     <Compile Include="Serialization\SerializationEventRaiserTest.cs" />
     <Compile Include="Serialization\TestDomain\BaseClassWithDeserializationEvents.cs" />
     <Compile Include="Serialization\TestDomain\ClassWithDeserializationEvents.cs" />

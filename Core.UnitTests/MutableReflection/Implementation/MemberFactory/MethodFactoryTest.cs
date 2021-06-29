@@ -32,6 +32,7 @@ using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.TypePipe.MutableReflection.MemberSignatures;
 using Remotion.Utilities;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -298,8 +299,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => CallCreateMethod (_mutableType, "NotImportant", 0, typeof (void), ParameterDeclaration.None, null),
           Throws.ArgumentNullException
-              .With.Message.EqualTo (
-                  "Non-abstract methods must have a body.\r\nParameter name: bodyProvider"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Non-abstract methods must have a body.", "bodyProvider"));
     }
 
     [Test]
@@ -308,15 +309,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, ctx => null),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Abstract methods cannot have a body.\r\nParameter name: bodyProvider"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Abstract methods cannot have a body.", "bodyProvider"));
     }
 
     [Test]
     public void CreateMethod_ThrowsForInvalidMethodAttributes ()
     {
-      var message = "The following MethodAttributes are not supported for methods: RequireSecObject.\r\nParameter name: attributes";
-      Assert.That (() => CreateMethod (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following MethodAttributes are not supported for methods: RequireSecObject.";
+      var paramName = "attributes";
+      Assert.That (() => CreateMethod (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -325,8 +327,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.Abstract, typeof (void), ParameterDeclaration.None, null),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Abstract methods must also be virtual.\r\nParameter name: attributes"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Abstract methods must also be virtual.", "attributes"));
     }
 
     [Test]
@@ -335,8 +337,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => CallCreateMethod (_mutableType, "NotImportant", MethodAttributes.NewSlot, typeof (void), ParameterDeclaration.None, ctx => Expression.Empty ()),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "NewSlot methods must also be virtual.\r\nParameter name: attributes"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "NewSlot methods must also be virtual.", "attributes"));
     }
 
     [Test]
@@ -346,8 +348,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           () => _factory.CreateMethod (
           _mutableType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => null, ctx => ParameterDeclaration.None, ctx => Expression.Empty ()),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Provider must not return null.\r\nParameter name: returnTypeProvider"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Provider must not return null.", "returnTypeProvider"));
     }
 
     [Test]
@@ -357,8 +359,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           () => _factory.CreateMethod (
           _mutableType, "NotImportant", 0, GenericParameterDeclaration.None, ctx => typeof (int), ctx => null, ctx => Expression.Empty ()),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Provider must not return null.\r\nParameter name: parameterProvider"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Provider must not return null.", "parameterProvider"));
     }
 
     [Test]

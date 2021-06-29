@@ -26,6 +26,7 @@ using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -102,14 +103,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       const string message =
           "The following MethodAttributes are not supported for constructors: " +
-          "Final, Virtual, CheckAccessOnOverride, Abstract, PinvokeImpl, UnmanagedExport, RequireSecObject.\r\nParameter name: attributes";
-      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.Final), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.Virtual), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.CheckAccessOnOverride), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.Abstract), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+          "Final, Virtual, CheckAccessOnOverride, Abstract, PinvokeImpl, UnmanagedExport, RequireSecObject.";
+      const string paramName = "attributes";
+      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.Final), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.Virtual), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.CheckAccessOnOverride), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.Abstract), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.PinvokeImpl), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.UnmanagedExport), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateConstructor (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -118,7 +120,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateConstructor (_mutableType, MethodAttributes.Static, ParameterDeclarationObjectMother.CreateMultiple (1), ctx => null),
           Throws.ArgumentException
-              .With.Message.EqualTo ("A type initializer (static constructor) cannot have parameters.\r\nParameter name: parameters"));
+              .With.ArgumentExceptionMessageEqualTo ("A type initializer (static constructor) cannot have parameters.", "parameters"));
     }
 
     [Test]

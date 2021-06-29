@@ -21,6 +21,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -71,9 +72,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (
           () => MethodDeclaration.CreateEquivalent (ReflectionObjectMother.GetSomeMethodInstantiation()),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.\r\n"
-                  + "Parameter name: method"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.",
+                  "method"));
     }
 
     public TRet Method<TRet, TArg, TValue> (out int i, TArg t)

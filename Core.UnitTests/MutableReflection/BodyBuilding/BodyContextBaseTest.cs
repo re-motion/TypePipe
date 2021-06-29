@@ -30,6 +30,7 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -106,8 +107,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (
           () => _context.CallBase (ReflectionObjectMother.GetSomeStaticMethod()),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Cannot perform base call for static method.\r\nParameter name: baseMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Cannot perform base call for static method.", "baseMethod"));
     }
 
     [Test]
@@ -116,8 +117,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (
           () => _context.CallBase (ReflectionObjectMother.GetSomeAbstractMethod()),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Cannot perform base call on abstract method.\r\nParameter name: baseMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Cannot perform base call on abstract method.", "baseMethod"));
     }
 
     [Test]
@@ -127,9 +128,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
       Assert.That (
           () => _context.CallBase (method),
           Throws.ArgumentException
-              .With.Message.EqualTo (
+              .With.ArgumentExceptionMessageEqualTo (
                   "Cannot perform base call on generic method definition. Construct a method instantiation "
-                  + "with MethodInfoExtensions.MakeTypePipeGenericMethod.\r\nParameter name: baseMethod"));
+                  + "with MethodInfoExtensions.MakeTypePipeGenericMethod.", "baseMethod"));
     }
 
     [Test]
@@ -155,12 +156,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (
           () => _staticContext.CopyMethodBody (MutableMethodInfoObjectMother.Create (_mutableType)),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "The body of an instance method cannot be copied into a static method.\r\nParameter name: otherMethod"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (
+              "The body of an instance method cannot be copied into a static method.", "otherMethod"));
       Assert.That (
           () => _context.CopyMethodBody (MutableMethodInfoObjectMother.Create (MutableTypeObjectMother.Create (name: "Abc"))),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "The specified method is declared by a different type 'Abc'.\r\nParameter name: otherMethod"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (
+              "The specified method is declared by a different type 'Abc'.", "otherMethod"));
     }
 
     [Test]

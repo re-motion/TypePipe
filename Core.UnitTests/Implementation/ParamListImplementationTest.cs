@@ -17,6 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
@@ -75,8 +76,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => _implementation0.InvokeFunc (((Func<int>) (() => 5))),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Parameter 'func' has type 'System.Func`1[System.Int32]' when type 'System.Func`1[System.Object]' was expected.\r\nParameter name: func"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Parameter 'func' has type 'System.Func`1[System.Int32]' when type 'System.Func`1[System.Object]' was expected.", "func"));
     }
 
     [Test]
@@ -108,8 +109,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => _implementation0.InvokeAction (((Action<int>) (i => { }))),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Parameter 'action' has type 'System.Action`1[System.Int32]' when type 'System.Action' was expected.\r\nParameter name: action"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Parameter 'action' has type 'System.Action`1[System.Int32]' when type 'System.Action' was expected.", "action"));
     }
 
     [Test]

@@ -27,6 +27,7 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -205,16 +206,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", typeof (int), 0, null, null, null),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Parameter 'handlerType' is a 'System.Int32', which cannot be assigned to type 'System.Delegate'.\r\nParameter name: handlerType"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Parameter 'handlerType' is a 'System.Int32', which cannot be assigned to type 'System.Delegate'.", "handlerType"));
     }
 
     [Test]
     public void CreateEvent_Providers_ThrowsForInvalidAccessorAttributes ()
     {
-      var message = "The following MethodAttributes are not supported for event accessor methods: "
-                    + "RequireSecObject.\r\nParameter name: accessorAttributes";
-      Assert.That (() => CreateEvent (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following MethodAttributes are not supported for event accessor methods: RequireSecObject.";
+      var paramName = "accessorAttributes";
+      Assert.That (() => CreateEvent (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -273,16 +274,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var staticMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
       var instanceMethod = MutableMethodInfoObjectMother.Create (attributes: 0 /*instance*/);
 
-      var message = "Accessor methods must be all either static or non-static.\r\nParameter name: addMethod";
+      var message = "Accessor methods must be all either static or non-static.";
+      var paramName = "addMethod";
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, staticMethod, instanceMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, instanceMethod, staticMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, instanceMethod, instanceMethod, staticMethod),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -291,16 +293,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var method = MutableMethodInfoObjectMother.Create (_mutableType);
       var nonMatchingMethod = MutableMethodInfoObjectMother.Create ();
 
-      var message = "{0} method is not declared on the current type.\r\nParameter name: {1}";
+      var message = "{0} method is not declared on the current type.";
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, nonMatchingMethod, method, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Add"), "addMethod"));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, method, nonMatchingMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Remove"), "removeMethod"));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, method, method, nonMatchingMethod),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Raise", "raiseMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Raise"), "raiseMethod"));
     }
 
     [Test]
@@ -309,13 +311,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var nonVoidMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: typeof (int));
       var voidMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType);
 
-      var message = "{0} method must have return type void.\r\nParameter name: {1}";
+      var message = "{0} method must have return type void.";
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, nonVoidMethod, voidMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Add"), "addMethod"));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, voidMethod, nonVoidMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Remove"), "removeMethod"));
     }
 
     [Test]
@@ -325,19 +327,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var nonDelegateMethod = MutableMethodInfoObjectMother.Create (_mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create () });
       var method = MutableMethodInfoObjectMother.Create (_mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (Action)) });
 
-      var message = "{0} method must have a single parameter that is assignable to 'System.Delegate'.\r\nParameter name: {1}";
+      var message = "{0} method must have a single parameter that is assignable to 'System.Delegate'.";
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, nonParameterMethod, method, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Add"), "addMethod"));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, method, nonParameterMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Remove"), "removeMethod"));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, nonDelegateMethod, method, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Add", "addMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Add"), "addMethod"));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, method, nonDelegateMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Remove", "removeMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Remove"), "removeMethod"));
     }
 
     [Test]
@@ -348,7 +350,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, addMethod, removeMethod, null),
           Throws.ArgumentException
-              .With.Message.EqualTo ("The type of the handler parameter is different for the add and remove method.\r\nParameter name: removeMethod"));
+              .With.ArgumentExceptionMessageEqualTo ("The type of the handler parameter is different for the add and remove method.", "removeMethod"));
     }
 
     [Test]
@@ -360,13 +362,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var addOrRemoveMethod2 = MutableMethodInfoObjectMother.Create (_mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (handlerType2) });
       var raiseMethod = MutableMethodInfoObjectMother.Create (_mutableType, parameters: new[] { ParameterDeclarationObjectMother.Create (typeof (int)) });
 
-      var message = "The signature of the raise method does not match the handler type.\r\nParameter name: raiseMethod";
+      var message = "The signature of the raise method does not match the handler type.";
+      var paramName = "raiseMethod";
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, addOrRemoveMethod1, addOrRemoveMethod1, raiseMethod),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
       Assert.That (
           () => _factory.CreateEvent (_mutableType, "Event", 0, addOrRemoveMethod2, addOrRemoveMethod2, raiseMethod),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]

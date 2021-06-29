@@ -31,6 +31,7 @@ using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
 {
@@ -98,7 +99,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       Assert.That (typeAssembler.GetRequestedType (_assembledType), Is.SameAs (typeof (RequestedType)));
       Assert.That (
           () => typeAssembler.GetRequestedType (otherType),
-          Throws.ArgumentException.With.Message.EqualTo ("The argument type 'Int32' is not an assembled type.\r\nParameter name: assembledType"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo ("The argument type 'Int32' is not an assembled type.", "assembledType"));
     }
 
     [Test]
@@ -132,7 +133,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       Assert.That (typeAssembler.ExtractTypeID (_assembledType), Is.EqualTo (fakeTypeID));
       Assert.That (
           () => typeAssembler.ExtractTypeID (otherType),
-          Throws.ArgumentException.With.Message.EqualTo ("The argument type 'Int32' is not an assembled type.\r\nParameter name: assembledType"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo ("The argument type 'Int32' is not an assembled type.", "assembledType"));
     }
 
     [Test]

@@ -27,6 +27,7 @@ using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -86,8 +87,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _factory.CreateType ("Name", "ns", TypeAttributes.Class, baseType: null, declaringType: null),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Base type cannot be null.\r\nParameter name: baseType"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Base type cannot be null.", "baseType"));
     }
 
     [Test]
@@ -96,8 +97,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => _factory.CreateType ("Name", "ns", TypeAttributes.Interface, typeof (object), null),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Base type must be null for interfaces. Type: 'System.Object'\r\nParameter name: baseType"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Base type must be null for interfaces. Type: 'System.Object'", "baseType"));
     }
 
     [Test]
@@ -196,9 +197,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     {
       var message = string.Format (
           "Base type must not be sealed, an interface, an array, a byref type, a pointer, a generic parameter, "
-          + "contain generic parameters and must have an accessible constructor. Type: '{0}'\r\nParameter name: baseType",
+          + "contain generic parameters and must have an accessible constructor. Type: '{0}'",
           invalidBaseType.FullName);
-      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType, null), Throws.ArgumentException.With.Message.EqualTo (message));
+      var paramName = "baseType";
+      Assert.That (() => _factory.CreateType ("t", "ns", TypeAttributes.Class, invalidBaseType, null), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     public class DomainType

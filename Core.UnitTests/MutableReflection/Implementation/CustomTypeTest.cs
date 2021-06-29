@@ -28,6 +28,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -245,8 +246,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (
           () => Dev.Null = _customType.MakeArrayType (0),
           Throws.InstanceOf<ArgumentOutOfRangeException>()
-              .With.Message.EqualTo (
-                  "Array rank must be greater than zero.\r\nParameter name: rank"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Array rank must be greater than zero.", "rank"));
     }
 
     [Test]

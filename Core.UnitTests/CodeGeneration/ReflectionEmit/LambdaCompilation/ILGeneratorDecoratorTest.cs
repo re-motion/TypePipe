@@ -23,6 +23,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompilation
 {
@@ -240,7 +241,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.LambdaCompil
       Assert.That (
           () => _decorator.EmitCall (OpCodes.Call, methodInfo, new[] { ReflectionObjectMother.GetSomeType() }),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Constructor calls cannot have optional parameters.\r\nParameter name: optionalParameterTypes"));
+              .With.ArgumentExceptionMessageEqualTo ("Constructor calls cannot have optional parameters.", "optionalParameterTypes"));
     }
 
     [Test]

@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -62,7 +63,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (
           () => Dev.Null = new MethodInstantiationInfo (method, Type.EmptyTypes),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Specified method must be a generic method definition.\r\nParameter name: genericMethodDefinition"));
+              .With.ArgumentExceptionMessageEqualTo ("Specified method must be a generic method definition.", "genericMethodDefinition"));
     }
 
     [Test]
@@ -71,8 +72,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
       Assert.That (
           () => Dev.Null = new MethodInstantiationInfo (_genericMethodDefinition, Type.EmptyTypes),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Generic parameter count of the generic method definition does not match the number of supplied type arguments.\r\nParameter name: typeArguments"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Generic parameter count of the generic method definition does not match the number of supplied type arguments.", "typeArguments"));
     }
 
     [Test]

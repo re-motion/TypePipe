@@ -59,10 +59,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
       Assert.That (_reflectionService.GetRequestedType (assembledType1), Is.SameAs (typeof (RequestedType1)));
       Assert.That (_reflectionService.GetRequestedType (assembledType2), Is.SameAs (typeof (RequestedType2)));
 
-      var message1 = "The argument type 'AdditionalType' is not an assembled type.\r\nParameter name: assembledType";
-      var message2 = "The argument type 'Random' is not an assembled type.\r\nParameter name: assembledType";
-      Assert.That (() => _reflectionService.GetRequestedType (otherGeneratedType), Throws.ArgumentException.With.Message.EqualTo (message1));
-      Assert.That (() => _reflectionService.GetRequestedType (unrelatedType), Throws.ArgumentException.With.Message.EqualTo (message2));
+      var message1 = "The argument type 'AdditionalType' is not an assembled type.";
+      var message2 = "The argument type 'Random' is not an assembled type.";
+      Assert.That (() => _reflectionService.GetRequestedType (otherGeneratedType), Throws.ArgumentException.With.Message.StartsWith (message1));
+      Assert.That (() => _reflectionService.GetRequestedType (unrelatedType), Throws.ArgumentException.With.Message.StartsWith (message2));
     }
 
     [Test]

@@ -24,6 +24,7 @@ using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.MemberSignatures;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
 {
@@ -72,8 +73,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
       Assert.That (
           () => MethodSignature.Create (method),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Closed generic methods are not supported.\r\nParameter name: methodBase"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Closed generic methods are not supported.", "methodBase"));
     }
 
     [Test]

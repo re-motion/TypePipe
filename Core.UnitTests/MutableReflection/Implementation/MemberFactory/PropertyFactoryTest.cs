@@ -29,6 +29,7 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -192,9 +193,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [Test]
     public void CreateProperty_Providers_ThrowsForInvalidAccessorAttributes ()
     {
-      var message = "The following MethodAttributes are not supported for property accessor methods: " +
-                    "RequireSecObject.\r\nParameter name: accessorAttributes";
-      Assert.That (() => CreateProperty (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following MethodAttributes are not supported for property accessor methods: RequireSecObject.";
+      var paramName = "accessorAttributes";
+      Assert.That (() => CreateProperty (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -204,7 +205,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
           () => _factory.CreateProperty (
           _mutableType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null),
           Throws.ArgumentException
-              .With.Message.EqualTo ("At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider"));
+              .With.ArgumentExceptionMessageEqualTo ("At least one accessor body provider must be specified.", "getBodyProvider"));
     }
 
     [Test]
@@ -257,11 +258,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void CreateProperty_Accessors_ThrowsForInvalidPropertyAttributes ()
     {
       var message = "The following PropertyAttributes are not supported for properties: " +
-                    "HasDefault, Reserved2, Reserved3, Reserved4.\r\nParameter name: attributes";
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved4), Throws.ArgumentException.With.Message.EqualTo (message));
+                    "HasDefault, Reserved2, Reserved3, Reserved4.";
+      var paramName = "attributes";
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved4), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
@@ -270,8 +272,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod: null, setMethod: null),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Property must have at least one accessor.\r\nParameter name: getMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Property must have at least one accessor.", "getMethod"));
     }
 
     [Test]
@@ -282,7 +284,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Accessor methods must be both either static or non-static.\r\nParameter name: getMethod"));
+              .With.ArgumentExceptionMessageEqualTo ("Accessor methods must be both either static or non-static.", "getMethod"));
     }
 
     [Test]
@@ -290,13 +292,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var nonMatchingMethod = MutableMethodInfoObjectMother.Create ();
 
-      var message = "{0} method is not declared on the current type.\r\nParameter name: {1}";
+      var message = "{0} method is not declared on the current type.";
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, nonMatchingMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Get", "getMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Get"), "getMethod"));
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, null, nonMatchingMethod),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Set", "setMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Set"), "setMethod"));
     }
 
     [Test]
@@ -306,8 +308,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, null),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Get accessor must be a non-void method.\r\nParameter name: getMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Get accessor must be a non-void method.", "getMethod"));
     }
 
     [Test]
@@ -317,8 +319,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, null, setMethod),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "Set accessor must have return type void.\r\nParameter name: setMethod"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Set accessor must have return type void.", "setMethod"));
     }
 
     [Test]
@@ -332,7 +334,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod),
           Throws.ArgumentException
-              .With.Message.EqualTo ("Get and set accessor methods must have a matching signature.\r\nParameter name: setMethod"));
+              .With.ArgumentExceptionMessageEqualTo ("Get and set accessor methods must have a matching signature.", "setMethod"));
     }
 
     [Test]
