@@ -64,7 +64,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Remotion.BuildTools.MSBuildTasks">
-      <HintPath>..\packages\Remotion.BuildTools.MSBuildTasks.1.0.7562.19810\lib\net45\Remotion.BuildTools.MSBuildTasks.dll</HintPath>
+      <HintPath>..\packages\Remotion.BuildTools.MSBuildTasks.1.0.7772.22933\lib\net45\Remotion.BuildTools.MSBuildTasks.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Remotion.ReleaseProcessScript">

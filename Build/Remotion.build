@@ -20,6 +20,11 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
+    <RemotionBuildScriptPath>C:\Development\Remotion\SharedSource-Build\BuildScript\BuildTargets\</RemotionBuildScriptPath>
+    <RemotionBuildScriptTasksPath>C:\Development\Remotion\SharedSource-Build\BuildScript\bin\Debug\</RemotionBuildScriptTasksPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackagesDirectory Condition="'$(PackagesDirectory)' == ''">$(MSBuildProjectDirectory)\..\packages\</PackagesDirectory>
     <MSBuildExtensionPackPath Condition="'$(MSBuildExtensionPackPath)' == ''">$(PackagesDirectory)MSBuild.Extension.Pack.1.5.0\tools\net40\</MSBuildExtensionPackPath>
     <ExtensionTasksPath>$(MSBuildExtensionPackPath)</ExtensionTasksPath>
@@ -28,21 +33,18 @@
     <NUnitToolPath Condition="'$(NUnitToolPath)' == ''">$(PackagesDirectory)NUnit.ConsoleRunner.3.11.1\tools\</NUnitToolPath>
     <NuGetToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)NuGet.CommandLine.3.5.0\tools\</NuGetToolPath>
     <NuGetForMSBuildPath Condition="'$(NuGetForMSBuildPath)' == ''">$(PackagesDirectory)NuGet.for.MSBuild.1.4.3\build\</NuGetForMSBuildPath>
-    <RemotionBuildTasksPath Condition="'$(RemotionBuildTasksPath)' == ''">$(PackagesDirectory)Remotion.BuildTools.MSBuildTasks.1.0.7562.19810\tools\</RemotionBuildTasksPath>
-    <RemotionBuildScriptPath Condition="'$(RemotionBuildScriptPath)' == ''">$(PackagesDirectory)Remotion.BuildScript.2.0.0-alpha025\BuildTargets\</RemotionBuildScriptPath>
+    <RemotionBuildTasksPath Condition="'$(RemotionBuildTasksPath)' == ''">$(PackagesDirectory)Remotion.BuildTools.MSBuildTasks.1.0.7772.22933\tools\</RemotionBuildTasksPath>
+    <RemotionBuildScriptPath Condition="'$(RemotionBuildScriptPath)' == ''">$(PackagesDirectory)Remotion.BuildScript.2.0.0-alpha026\BuildTargets\</RemotionBuildScriptPath>
+    <RemotionBuildScriptTasksPath Condition="'$(RemotionBuildScriptTasksPath)' == ''">$(RemotionBuildScriptTasksPath)..\lib\net461\</RemotionBuildScriptTasksPath>
   </PropertyGroup>
 
   <ItemGroup>
-      <NUnitExtensionsPaths Include="$(PackagesDirectory)NUnit.Extension.NUnitV2Driver.3.8.0\"/>
-  </ItemGroup>
-
-  <ItemGroup>
-      <SupportedBrowsers Remove="@(SupportedBrowsers)"/>
-      <SupportedPlatforms Include="x86;x64"/>
-      <SupportedDatabaseSystems Remove="@(SupportedDatabaseSystems)"/>
-      <SupportedExecutionRuntimes Include="Win_NET462=$(DockerImageDotNetFrameworkRuntime4_6);Win_NET472=$(DockerImageDotNetFrameworkRuntime4_7);Win_NET48=$(DockerImageDotNetFrameworkRuntime4_8)"/>
-      <SupportedTargetRuntimes Include="NET462;NET472;NET48;"/>
-      <SupportedConfigurationIDs Include="Debug;Release"/>
+    <SupportedBrowsers Remove="@(SupportedBrowsers)"/>
+    <SupportedPlatforms Include="x86;x64"/>
+    <SupportedDatabaseSystems Remove="@(SupportedDatabaseSystems)"/>
+    <SupportedExecutionRuntimes Include="Win_NET462=$(DockerImageDotNetFrameworkRuntime4_6);Win_NET472=$(DockerImageDotNetFrameworkRuntime4_7);Win_NET48=$(DockerImageDotNetFrameworkRuntime4_8)"/>
+    <SupportedTargetRuntimes Include="NET462;NET472;NET48;"/>
+    <SupportedConfigurationIDs Include="Debug;Release"/>
   </ItemGroup>
 
   <Import Project="$(RemotionBuildScriptPath)*.targets" />
@@ -52,14 +54,15 @@
 
   <PropertyGroup>
     <!-- Define settings that can be overridden in Customizations.build script. -->
-    <Version></Version>
-    <AdditionalBuildMetadata></AdditionalBuildMetadata>
-    <SkipTests>False</SkipTests>
-    <SkipDocumentation>False</SkipDocumentation>
-    <SkipNuGetOrg>False</SkipNuGetOrg>
-    <SkipSourceLinks>False</SkipSourceLinks>
-    <SkipNuGet>False</SkipNuGet>
-    <SkipDependDB>False</SkipDependDB>
+    <Version Condition="'$(Version)' == ''"></Version>
+    <AdditionalBuildMetadata Condition="'$(AdditionalBuildMetadata)' == ''"></AdditionalBuildMetadata>
+    <SkipCleanProjects Condition="'$(SkipCleanProjects)' == ''"></SkipCleanProjects>
+    <SkipTests Condition="'$(SkipTests)' == ''"></SkipTests>
+    <SkipDocumentation Condition="'$(SkipDocumentation)' == ''"></SkipDocumentation>
+    <SkipNuGetOrg Condition="'$(SkipNuGetOrg)' == ''"></SkipNuGetOrg>
+    <SkipSourceLinks Condition="'$(SkipSourceLinks)' == ''"></SkipSourceLinks>
+    <SkipNuGet Condition="'$(SkipNuGet)' == ''"></SkipNuGet>
+    <SkipDependDB Condition="'$(SkipDependDB)' == ''"></SkipDependDB>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -84,21 +87,21 @@
   <Target Name="PrepareBuildProperties">
     <PropertyGroup>
       <BuildProperties>
-          SolutionKeyFile=$(SolutionKeyFile);
-          SolutionDirectory=$(SolutionDirectory);
-          OutputDirectory=$(OutputDirectory);
-          TempDirectory=$(TempDirectory);
-          LogDirectory=$(LogDirectory);
-          Version=$(Version);
-          AdditionalBuildMetadata=$(AdditionalBuildMetadata);
-          VcsUrlTemplate=$(VcsUrlTemplate);
-          VcsUrlRequiresWindowsCredentials=$(VcsUrlRequiresWindowsCredentials);
-          Platforms=$(Platforms);
-          DatabaseSystems=$(DatabaseSystems);
-          Browsers=$(Browsers);
-          ExecutionRuntimes=$(ExecutionRuntimes);
-          TargetRuntimes=$(TargetRuntimes);
-          TestCategoriesToExclude=$(TestCategoriesToExclude);
+        SolutionKeyFile=$(SolutionKeyFile);
+        SolutionDirectory=$(SolutionDirectory);
+        OutputDirectory=$(OutputDirectory);
+        TempDirectory=$(TempDirectory);
+        LogDirectory=$(LogDirectory);
+        Version=$(Version);
+        AdditionalBuildMetadata=$(AdditionalBuildMetadata);
+        VcsUrlTemplate=$(VcsUrlTemplate);
+        VcsUrlRequiresWindowsCredentials=$(VcsUrlRequiresWindowsCredentials);
+        Platforms=$(Platforms);
+        DatabaseSystems=$(DatabaseSystems);
+        Browsers=$(Browsers);
+        ExecutionRuntimes=$(ExecutionRuntimes);
+        TargetRuntimes=$(TargetRuntimes);
+        TestCategoriesToExclude=$(TestCategoriesToExclude);
       </BuildProperties>
     </PropertyGroup>
 
@@ -107,6 +110,8 @@
 
   <Target Name="PrepareBuildTargets">
     <PropertyGroup>
+
+      <CleanProjectsTarget Condition="'$(SkipCleanProjects)' != 'True'">CleanProjects</CleanProjectsTarget>
 
       <RunTestsTarget Condition="'$(SkipTests)' != 'True'">RunTests</RunTestsTarget>
 
@@ -120,55 +125,42 @@
 
       <DependDBTarget Condition="'$(SkipDependDB)' != 'True'">ProcessForDependDB</DependDBTarget>
 
-      <TestBuildTargets>
-          BuildReleaseProjects;
-          BuildTestProjects;
-          $(RunTestsTarget);
-          RestoreBackupFiles;
-      </TestBuildTargets>
-
       <!-- TODO: include RunMixinXRefTest with the targets -->
 
-      <FullBuildTargets>
-          LogConfiguration;
-          CleanProjects;
-          BuildReleaseProjects;
-          BuildTestProjects;
-          $(RunTestsTarget);
-          $(GenerateDocumentationTarget);
-          $(PackageNuGetOrgTarget);
-          $(SourceLinkTarget);
-          $(PackageNuGetTarget);
-          $(DependDBTarget);
-          RestoreBackupFiles;
-      </FullBuildTargets>
+      <BuildTargets>
+        LogConfiguration;
+        $(CleanProjectsTarget);
+        BuildReleaseProjects;
+        BuildTestProjects;
+        $(RunTestsTarget);
+        $(GenerateDocumentationTarget);
+        $(SourceLinkTarget);
+        $(PackageNuGetTarget);
+        $(PackageNuGetOrgTarget);
+        $(DependDBTarget);
+        RestoreBackupFiles;
+      </BuildTargets>
 
     </PropertyGroup>
-    
-    <Message Text="Selected build targets for test builds: $(TestBuildTargets)" />
-    <Message Text="Selected build targets for full builds: $(FullBuildTargets)" />
+
+    <Message Text="Selected build targets: $(BuildTargets)" />
   </Target>
 
   <Target Name="BuildAll" DependsOnTargets="CleanFolders;PrepareBuildProperties;PrepareBuildTargets;">
+    <PropertyGroup>
+      <!-- Property function replaces semi-colum with escape-sequence. -->
+      <_configurations>$([MSBuild]::Unescape($(Configurations.Replace('+',';'))))</_configurations>
+    </PropertyGroup>
 
     <ItemGroup>
-      <_configurationIDs Remove="@(_allConfigurations)" />
-      <!-- By listing the debug-build first, the documentation will be generated based on the debug output. -->
-      <_configurationIDs Include="Debug" />
-      <_configurationIDs Include="Release" />
+      <_configurationIDs Remove="@(_configurationIDs)" />
+      <_configurationIDs Include="$(_configurations)" />
     </ItemGroup>
 
     <MSBuild Projects="$(MSBuildProjectFile)"
              BuildInParallel="false"
-             Targets="$(FullBuildTargets)"
+             Targets="$(BuildTargets)"
              Properties="ConfigurationID=%(_configurationIDs.Identity);$(BuildProperties);"/>
-  </Target>
-  
-  <Target Name="TestBuildDebugOnly" DependsOnTargets="CleanFolders;PrepareBuildProperties;PrepareBuildTargets;">
-    <MSBuild Projects="$(MSBuildProjectFile)"
-             BuildInParallel="false"
-             Targets="$(TestBuildTargets)"
-             Properties="ConfigurationID=Debug;$(BuildProperties);"/>
   </Target>
 
   <Target Name="UpdateAssemblyInfosForDevelopment" DependsOnTargets="CheckVersion;PrepareBuildProperties;UpdateVersionProps;PrepareVersionWithoutPrerelease">
