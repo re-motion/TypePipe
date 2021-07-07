@@ -3,15 +3,12 @@ pushd %~dp0
 
 set program-path=%ProgramFiles(x86)%
 if not exist "%program-path%" set program-path=%ProgramFiles%
-set msbuild="%program-path%\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBuild.exe"
-if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
-if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe"
-if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe"
+set msbuild="%program-path%\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe"
 
 set log-dir=build\BuildOutput\log
-set nuget-bin=build\BuildOutput\temp\nuget-bin
-set nuget=%nuget-bin%\nuget.exe
-set nuget-download=powershell.exe -NoProfile -Command "& {(New-Object System.Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/latest/nuget.exe','%nuget%')}"
 set solution=Remotion-TypePipe.sln
 
 if not exist remotion.snk goto nosnk
@@ -44,45 +41,35 @@ goto build_succeeded
 
 :run_test_build
 mkdir %log-dir%
-mkdir %nuget-bin%
-%nuget-download%
-%nuget% restore %solution% -NonInteractive
+%msbuild% %solutionFile% /t:restore /p:RestorePackagesPath=packages
 %msbuild% build\Remotion.Local.build /t:TestBuild /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
 :run_full_build
 mkdir %log-dir%
-mkdir %nuget-bin%
-%nuget-download%
-%nuget% restore %solution% -NonInteractive
+%msbuild% %solutionFile% /t:restore /p:RestorePackagesPath=packages
 %msbuild% build\Remotion.Local.build /t:FullBuildWithoutDocumentation /maxcpucount /verbosity:normal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
 :run_docs_build
 mkdir %log-dir%
-mkdir %nuget-bin%
-%nuget-download%
-%nuget% restore %solution% -NonInteractive
+%msbuild% %solutionFile% /t:restore /p:RestorePackagesPath=packages
 %msbuild% build\Remotion.Local.build /t:DocumentationBuild /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
 :run_pkg_build
 mkdir %log-dir%
-mkdir %nuget-bin%
-%nuget-download%
-%nuget% restore %solution% -NonInteractive
+%msbuild% %solutionFile% /t:restore /p:RestorePackagesPath=packages
 %msbuild% build\Remotion.Local.build /t:PackageBuild /maxcpucount /verbosity:minimal /flp:verbosity=normal;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
 
 :run_dependdb
 mkdir %log-dir%
-mkdir %nuget-bin%
-%nuget-download%
-%nuget% restore %solution% -NonInteractive
+%msbuild% %solutionFile% /t:restore /p:RestorePackagesPath=packages
 %msbuild% build\Remotion.Local.build /t:DependDBBuild /maxcpucount /verbosity:normal /flp:verbosity=detailed;logfile=build\BuildOutput\log\build.log
 if not %ERRORLEVEL%==0 goto build_failed
 goto build_succeeded
