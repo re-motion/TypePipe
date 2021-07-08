@@ -6,6 +6,7 @@
     <CompanyUrl>http://www.rubicon.eu</CompanyUrl>
     <Copyright>Copyright (c) rubicon IT GmbH, www.rubicon.eu - Licensed under Apache License 2.0</Copyright>
     <ProductName>re-motion Framework: TypePipe (www.re-motion.org)</ProductName>
+    <DocumentationFileName>Remotion.TypePipe</DocumentationFileName>
     <DocumentationRootPage>$(SolutionDirectory)Core\Doc\include\GettingStartedWithTypePipe.aml</DocumentationRootPage>
     <DocumentationNamespaceSummaryFiles>$(SolutionDirectory)**\Doc\include\*.NamespaceDoc.xml</DocumentationNamespaceSummaryFiles>
     <DependDBProjectName>re-motion TypePipe</DependDBProjectName>

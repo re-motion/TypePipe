@@ -21,6 +21,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AllowedOutputExtensionsInPackageBuildOutputFolder Condition="'$(IncludeSymbols)' != 'True'">$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageTags>re-motion TypePipe</PackageTags>
+    <DebugType Condition="'$(TargetFramework)' == 'net45'">Full</DebugType>
   </PropertyGroup>
 
   <PropertyGroup>

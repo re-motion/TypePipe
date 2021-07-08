@@ -9,7 +9,7 @@
   <PropertyGroup>
     <AssemblyTitle>Documentation for Remotion.TypePipe</AssemblyTitle>
     <Description>Contains the documentation file for re-motion TypePipe.</Description>
-    <AssemblyName>Remotion.TypePipe.Development</AssemblyName>
+    <AssemblyName>Remotion.TypePipe.Documentation</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <PackageTags>$(PackageTags) Documentation</PackageTags>
   </PropertyGroup>
