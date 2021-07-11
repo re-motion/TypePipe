@@ -33,7 +33,6 @@
     <NUnitToolPath Condition="'$(NUnitToolPath)' == ''">$(PackagesDirectory)NUnit.ConsoleRunner.3.11.1\tools\</NUnitToolPath>
     <NuGetToolPath Condition="'$(NuGetToolPath)' == ''">$(PackagesDirectory)NuGet.CommandLine.3.5.0\tools\</NuGetToolPath>
     <NuGetForMSBuildPath Condition="'$(NuGetForMSBuildPath)' == ''">$(PackagesDirectory)NuGet.for.MSBuild.1.4.3\build\</NuGetForMSBuildPath>
-    <RemotionBuildTasksPath Condition="'$(RemotionBuildTasksPath)' == ''">$(PackagesDirectory)Remotion.BuildTools.MSBuildTasks.1.0.7772.22933\tools\</RemotionBuildTasksPath>
     <RemotionBuildScriptPath Condition="'$(RemotionBuildScriptPath)' == ''">$(PackagesDirectory)Remotion.BuildScript.2.0.0-alpha026\BuildTargets\</RemotionBuildScriptPath>
     <RemotionBuildScriptTasksPath Condition="'$(RemotionBuildScriptTasksPath)' == ''">$(RemotionBuildScriptTasksPath)..\lib\net461\</RemotionBuildScriptTasksPath>
   </PropertyGroup>
@@ -50,7 +49,6 @@
   <Import Project="$(RemotionBuildScriptPath)*.targets" />
   <Import Project="$(MSBuildExtensionPackPath)MSBuild.ExtensionPack.tasks" />
   <Import Project="$(NuGetForMSBuildPath)NuGet.For.MSBuild.tasks" />
-  <Import Project="$(RemotionBuildTasksPath)Remotion.BuildTools.MSBuildTasks.tasks"/>
 
   <PropertyGroup>
     <!-- Define settings that can be overridden in Customizations.build script. -->

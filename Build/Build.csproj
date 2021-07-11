@@ -63,10 +63,6 @@
       <HintPath>..\packages\JetBrains.Annotations.2019.1.3\lib\net20\JetBrains.Annotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Remotion.BuildTools.MSBuildTasks">
-      <HintPath>..\packages\Remotion.BuildTools.MSBuildTasks.1.0.7772.22933\lib\net45\Remotion.BuildTools.MSBuildTasks.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Remotion.ReleaseProcessScript">
       <HintPath>..\packages\Remotion.ReleaseProcessScript.2.0.0-alpha025\lib\net45\Remotion.ReleaseProcessScript.dll</HintPath>
       <Private>True</Private>
