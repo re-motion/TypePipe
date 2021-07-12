@@ -55,6 +55,13 @@
     <None Include="**\*.licenseheader" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(DocumentationFile)' != ''">
+    <Content Include="$(DocumentationFile)" Condition="'$(IsPackable)' == 'True'">
+      <Pack>true</Pack>
+      <PackagePath>doc</PackagePath>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup Condition="'$(ProjectType)' == 'Library'" >
   </ItemGroup>
 
