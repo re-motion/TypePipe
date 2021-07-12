@@ -14,8 +14,4 @@
     <PackageTags>$(PackageTags) Documentation</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup>
-
-  </ItemGroup>
-
 </Project>

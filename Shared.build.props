@@ -80,4 +80,8 @@
     <PackageVersion>$(_version)-x.9</PackageVersion>
   </PropertyGroup>
 
+  <Target Name="X1" BeforeTargets="Pack">
+    <Message Importance="High" Text="DocumentationFile=$(DocumentationFile)"/>
+  </Target>
+
 </Project>
