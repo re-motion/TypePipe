@@ -38,6 +38,14 @@
     <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(ProjectType)' == 'Documentation'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IsPackable>True</IsPackable>
+    <TargetFrameworks>net5.0;net45</TargetFrameworks>
+    <PackageTags>$(PackageTags) Documentation</PackageTags>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(ProjectType)' == 'Test'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>0067;0649;0169;$(BinaryFormatterSerializationObsoleteWarning)</NoWarn>
@@ -55,17 +63,17 @@
     <None Include="**\*.licenseheader" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(DocumentationFile)' != ''">
-    <Content Include="$(DocumentationFile)" Condition="'$(IsPackable)' == 'True'">
+  <ItemGroup Condition="'$(ProjectType)' == 'Library'">
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ProjectType)' == 'Documentation'">
+    <None Include="$(DocumentationFile)" Condition="'$(DocumentationFile)' != ''">
       <Pack>true</Pack>
       <PackagePath>doc</PackagePath>
-    </Content>
+    </None>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(ProjectType)' == 'Library'" >
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(ProjectType)' == 'Test'" >
+  <ItemGroup Condition="'$(ProjectType)' == 'Test'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="NUNit" Version="3.13.1" />

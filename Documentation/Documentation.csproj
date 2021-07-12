@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ProjectType>Library</ProjectType>
+    <ProjectType>Documentation</ProjectType>
   </PropertyGroup>
 
   <Import Project="..\Shared.build.props" />
@@ -11,7 +11,7 @@
     <Description>Contains the documentation file for re-motion TypePipe.</Description>
     <AssemblyName>Remotion.TypePipe.Documentation</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-    <PackageTags>$(PackageTags) Documentation</PackageTags>
+    <PackageTags>$(PackageTags)</PackageTags>
   </PropertyGroup>
 
 </Project>
