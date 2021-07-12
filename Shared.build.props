@@ -67,17 +67,10 @@
 
   <PropertyGroup>
     <_version>$(Version.Split('-')[0])</_version>
-
-    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">$(_version).0</AssemblyVersion>
-    <AssemblyVersion Condition="'$(AssemblyVersion)' != ''">$(AssemblyVersion)</AssemblyVersion>
-
-    <FileVersion Condition="'$(AssemblyFileVersion)' == ''">$(_version).24009</FileVersion>
-    <FileVersion Condition="'$(AssemblyFileVersion)' != ''">$(AssemblyFileVersion)</FileVersion>
-
-    <InformationalVersion Condition="'$(AssemblyInformationalVersion)' == ''">$(_version)-x.9+$(Configuration)</InformationalVersion>
-    <InformationalVersion Condition="'$(AssemblyInformationalVersion)' != ''">$(AssemblyInformationalVersion)</InformationalVersion>
-
-    <PackageVersion Condition="'$(AssemblyNuGetVersion)' == ''">$(_version)-x.9</PackageVersion>
-    <PackageVersion Condition="'$(AssemblyNuGetVersion)' != ''">$(AssemblyNuGetVersion)</PackageVersion>
+    <AssemblyVersion>$(_version).0</AssemblyVersion>
+    <FileVersion>$(_version).24009</FileVersion>
+    <InformationalVersion>$(_version)-x.9+$(Configuration)</InformationalVersion>
+    <PackageVersion>$(_version)-x.9</PackageVersion>
   </PropertyGroup>
+
 </Project>
