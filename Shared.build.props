@@ -90,6 +90,7 @@
 
   <Target Name="X1" BeforeTargets="Pack">
     <Message Importance="High" Text="DocumentationFile=$(DocumentationFile)"/>
+    <Message Importance="High" Text="None=%(None.Identity)"/>
   </Target>
 
 </Project>
