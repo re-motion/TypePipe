@@ -29,11 +29,11 @@ namespace Remotion.TypePipe.MutableReflection
   public static class MethodInfoExtensions
   {
     /// <summary>
-    /// Determines whether the current <see cref="MethodInfo"/> instance itself is of type <see cref="System.Reflection.RuntimeMethodInfo"/>, i.e.,
+    /// Determines whether the current <see cref="MethodInfo"/> instance itself is of type <see cref="T:System.Reflection.RuntimeMethodInfo"/>, i.e.,
     /// the method is a standard reflection <see cref="MethodInfo"/>.
     /// </summary>
     /// <param name="method">The method instance.</param>
-    /// <returns><c>true</c> if the given method is an instance of <see cref="System.Reflection.RuntimeMethodInfo"/>; otherwise, <c>false</c>.</returns>
+    /// <returns><c>true</c> if the given method is an instance of <see cref="T:System.Reflection.RuntimeMethodInfo"/>; otherwise, <c>false</c>.</returns>
     public static bool IsRuntimeMethodInfo (this MethodInfo method)
     {
       ArgumentUtility.CheckNotNull ("method", method);

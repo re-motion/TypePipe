@@ -100,7 +100,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var method = ReflectionObjectMother.GetSomeMethod();
       var emittableMethod = ReflectionEmitObjectMother.CreateMethodBuilder();
+#if NETFRAMEWORK
+      // MethodBuilder in .NET Framework returns null for non-generic types.
+      // MethodInfo returns empty, same as MethodInfo and MethodBuilder do in .NET 5.
       Assert.That (emittableMethod.GetGenericArguments(), Is.Null);
+#else
+      Assert.That (emittableMethod.GetGenericArguments(), Is.Empty);
+#endif
       _innerMock.Setup (stub => stub.GetEmittableMethod (method)).Returns (emittableMethod);
       _typeAnalyzerMock.Setup (stub => stub.IsStrongNamed (emittableMethod.DeclaringType)).Returns (true);
 
