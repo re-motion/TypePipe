@@ -17,7 +17,7 @@
  ! under the License.
 -->
 
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <Import Project="Remotion.build" />
 
@@ -106,7 +106,9 @@
     <Error Text="The property 'BuildNumber' is not set." Condition="'$(BuildNumber)' == ''" />
 
     <PropertyGroup>
-      <Version>$(Version)-x.1.$(BuildNumber)</Version>
+      <_version>$(Version.Split('-')[0])</_version>
+      <Version>$(_version)-x.1.$(BuildNumber)</Version>
+      <HasCustomVersion>True</HasCustomVersion>
     </PropertyGroup>
   </Target>
 

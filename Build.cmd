@@ -3,10 +3,10 @@ pushd %~dp0
 
 set program-path=%ProgramFiles(x86)%
 if not exist "%program-path%" set program-path=%ProgramFiles%
-set msbuild="%program-path%\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBuild.exe"
-if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
-if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBuild.exe"
-if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe"
+set msbuild="%program-path%\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe"
+if not exist %msbuild% set msbuild="%program-path%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe"
 
 set log-dir=build\BuildOutput\log
 set nuget-bin=build\BuildOutput\temp\nuget-bin

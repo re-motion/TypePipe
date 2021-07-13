@@ -17,7 +17,7 @@
  ! under the License.
 -->
 
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <Import Project="Remotion.build" />
 
@@ -112,14 +112,21 @@
     </MSBuild.ExtensionPack.Framework.DateAndTime>
 
     <PropertyGroup>
-      <Version>$(Version)-x.9.$(_formattedDateTime)</Version>
+      <_version>$(Version.Split('-')[0])</_version>
+      <Version>$(_version)-x.9.$(_formattedDateTime)</Version>
+      <HasCustomVersion>True</HasCustomVersion>
     </PropertyGroup>
   </Target>
 
-  <Target Name="SetVersionTestBuild">
+  <Target Name="SetVersionTestBuild" DependsOnTargets="PrepareVersionTestBuild;CheckVersion" />
+
+  <Target Name="PrepareVersionTestBuild" Condition="'$(Version)' != ''">
     <PropertyGroup>
-      <!-- With local test builds, no version update is needed. -->
-      <Version></Version>
+      <_version>$(Version.Split('-')[0])</_version>
+      <!-- For local test builds, we don't want unique version to prevent unnecessary re-compiles. -->
+      <Version>$(_version)-x.9</Version>
+      <!-- For local test builds, we don't want to update the AssemblyInfo files. -->
+      <HasCustomVersion>False</HasCustomVersion>
     </PropertyGroup>
   </Target>
 
