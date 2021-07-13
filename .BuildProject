@@ -2,5 +2,4 @@
 <!--Marks the path fo the releaseProcessScript config file-->
 <configFile>
   <path>Build/Customizations/releaseProcessScript.config</path>
-  <buildToolsVersion>1.0.7562.19810</buildToolsVersion>
 </configFile>
