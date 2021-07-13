@@ -29,15 +29,16 @@
     <NoWarn>1591</NoWarn>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>True</IsPackable>
-    <TargetFrameworks>net45</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);TypePipe;FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT</DefineConstants>
+    <TargetFrameworks>net5.0;net45</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);TypePipe</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Documentation'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>True</IsPackable>
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net5.0;net45</TargetFrameworks>
     <PackageTags>$(PackageTags) Documentation</PackageTags>
   </PropertyGroup>
 
@@ -46,8 +47,9 @@
     <NoWarn>0067;0649;0169</NoWarn>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>False</IsPackable>
-    <TargetFrameworks>net45</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE</DefineConstants>
+    <TargetFrameworks>net5.0;net45</TargetFrameworks>
+    <DefineConstants>$(DefineConstants)</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
