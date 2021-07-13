@@ -17,8 +17,8 @@
  ! under the License.
 -->
 
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
   <Import Project="Remotion.build" />
 
   <Import Project="$(CustomizationsDirectory)Local\*.props" />
@@ -29,85 +29,108 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DockerImageDotNetFrameworkRuntime4_6 Condition="'$(DockerImageDotNetFrameworkRuntime4_6)' == ''">Unavailable</DockerImageDotNetFrameworkRuntime4_6>
-    <DockerImageDotNetFrameworkRuntime4_7 Condition="'$(DockerImageDotNetFrameworkRuntime4_7)' == ''">Unavailable</DockerImageDotNetFrameworkRuntime4_7>
     <DockerImageDotNetFrameworkRuntime4_8 Condition="'$(DockerImageDotNetFrameworkRuntime4_8)' == ''">Unavailable</DockerImageDotNetFrameworkRuntime4_8>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <SkipTests>True</SkipTests>
-    <SkipDocumentation>True</SkipDocumentation>
-    <SkipNuGetOrg>True</SkipNuGetOrg>
-    <SkipSourceLinks>True</SkipSourceLinks>
-    <SkipNuGet>True</SkipNuGet>
-    <SkipDependDB>True</SkipDependDB>
   </PropertyGroup>
 
   <Target Name="TestBuild_Configuration">
     <PropertyGroup>
-      <Platforms>x86</Platforms>
-      <DatabaseSystems>NoDB</DatabaseSystems>
-      <Browsers>NoBrowser</Browsers>
-      <ExecutionRuntimes>LocalMachine</ExecutionRuntimes>
-      <TargetRuntimes>NET48</TargetRuntimes>
-      <TestCategoriesToExclude></TestCategoriesToExclude>
-      <SkipTests>False</SkipTests>
+      <Configurations Condition="'$(Configurations)' == ''">Debug</Configurations>
+      <Platforms Condition="'$(Platforms)' == ''">x86</Platforms>
+      <DatabaseSystems Condition="'$(DatabaseSystems)' == ''">NoDB</DatabaseSystems>
+      <Browsers Condition="'$(Browsers)' == ''">NoBrowser</Browsers>
+      <ExecutionRuntimes Condition="'$(ExecutionRuntimes)' == ''">LocalMachine</ExecutionRuntimes>
+      <TargetRuntimes Condition="'$(TargetRuntimes)' == ''">NET48</TargetRuntimes>
+      <TestCategoriesToExclude Condition="'$(TestCategoriesToExclude)' == ''"></TestCategoriesToExclude>
+      <SkipCleanProjects Condition="'$(SkipCleanProjects)' == ''">False</SkipCleanProjects>
+      <SkipTests Condition="'$(SkipTests)' == ''">False</SkipTests>
+      <SkipDocumentation Condition="'$(SkipDocumentation)' == ''">True</SkipDocumentation>
+      <SkipNuGetOrg Condition="'$(SkipNuGetOrg)' == ''">True</SkipNuGetOrg>
+      <SkipSourceLinks Condition="'$(SkipSourceLinks)' == ''">True</SkipSourceLinks>
+      <SkipNuGet Condition="'$(SkipNuGet)' == ''">True</SkipNuGet>
+      <SkipDependDB Condition="'$(SkipDependDB)' == ''">True</SkipDependDB>
     </PropertyGroup>
   </Target>
-  
+
   <Target Name="FullBuild_Configuration">
     <PropertyGroup>
-      <Platforms>x64</Platforms>
-      <DatabaseSystems>NoDB</DatabaseSystems>
-      <Browsers>NoBrowser</Browsers>
-      <ExecutionRuntimes>LocalMachine</ExecutionRuntimes>
-      <TargetRuntimes>NET48</TargetRuntimes>
-      <TestCategoriesToExclude></TestCategoriesToExclude>
+      <Configurations Condition="'$(Configurations)' == ''">Debug+Release</Configurations>
+      <Platforms Condition="'$(Platforms)' == ''">x64</Platforms>
+      <DatabaseSystems Condition="'$(DatabaseSystems)' == ''">NoDB</DatabaseSystems>
+      <Browsers Condition="'$(Browsers)' == ''">NoBrowser</Browsers>
+      <ExecutionRuntimes Condition="'$(ExecutionRuntimes)' == ''">LocalMachine</ExecutionRuntimes>
+      <TargetRuntimes Condition="'$(TargetRuntimes)' == ''">NET48</TargetRuntimes>
+      <TestCategoriesToExclude Condition="'$(TestCategoriesToExclude)' == ''"></TestCategoriesToExclude>
+      <SkipCleanProjects>False</SkipCleanProjects>
       <SkipTests>False</SkipTests>
+      <SkipDocumentation>True</SkipDocumentation>
+      <SkipNuGetOrg>True</SkipNuGetOrg>
+      <SkipSourceLinks>True</SkipSourceLinks>
       <SkipNuGet>False</SkipNuGet>
       <SkipDependDB>False</SkipDependDB>
     </PropertyGroup>
   </Target>
-  
-  <Target Name="DocumentationBuild_Configuration">
+
+  <Target Name="DocumentationBuild_Configuration" DependsOnTargets="Configuration_Defaults">
     <PropertyGroup>
+      <Configurations>Debug</Configurations>
       <SkipDocumentation>False</SkipDocumentation>
     </PropertyGroup>
   </Target>
 
-  <Target Name="PackageBuild_Configuration">
+  <Target Name="PackageBuild_Configuration" DependsOnTargets="Configuration_Defaults">
     <PropertyGroup>
+      <Configurations>Debug+Release</Configurations>
       <SkipNuGet>False</SkipNuGet>
     </PropertyGroup>
   </Target>
 
-  <Target Name="DependDBBuild_Configuration">
+  <Target Name="DependDBBuild_Configuration" DependsOnTargets="Configuration_Defaults">
     <PropertyGroup>
+      <Configurations>Debug</Configurations>
       <SkipNuGet>False</SkipNuGet>
       <SkipDependDB>False</SkipDependDB>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="Configuration_Defaults">
+    <PropertyGroup>
+      <SkipCleanProjects>False</SkipCleanProjects>
+      <SkipTests>True</SkipTests>
+      <SkipDocumentation>True</SkipDocumentation>
+      <SkipNuGetOrg>True</SkipNuGetOrg>
+      <SkipSourceLinks>True</SkipSourceLinks>
+      <SkipNuGet>True</SkipNuGet>
+      <SkipDependDB>True</SkipDependDB>
     </PropertyGroup>
   </Target>
 
   <Target Name="SetVersion" DependsOnTargets="PrepareVersion;CheckVersion" />
 
   <Target Name="PrepareVersion" Condition="'$(Version)' != ''">
-    <MSBuild.ExtensionPack.Framework.DateAndTime TaskAction="Get" Format="yyMMdd-HHmmss"> 
-      <Output TaskParameter="Result" PropertyName="_formattedDateTime"/> 
+    <MSBuild.ExtensionPack.Framework.DateAndTime TaskAction="Get" Format="yyMMdd-HHmmss">
+      <Output TaskParameter="Result" PropertyName="_formattedDateTime"/>
     </MSBuild.ExtensionPack.Framework.DateAndTime>
-    
+
     <PropertyGroup>
-      <Version>$(Version)-x.9.$(_formattedDateTime)</Version>
+      <_version>$(Version.Split('-')[0])</_version>
+      <Version>$(_version)-x.9.$(_formattedDateTime)</Version>
+      <HasCustomVersion>True</HasCustomVersion>
     </PropertyGroup>
   </Target>
 
-  <Target Name="SetVersionTestBuild">
+  <Target Name="SetVersionTestBuild" DependsOnTargets="PrepareVersionTestBuild;CheckVersion" />
+
+  <Target Name="PrepareVersionTestBuild" Condition="'$(Version)' != ''">
     <PropertyGroup>
-      <!-- With local test builds, no version update is needed. -->
-      <Version></Version>
+      <_version>$(Version.Split('-')[0])</_version>
+      <!-- For local test builds, we don't want unique version to prevent unnecessary re-compiles. -->
+      <Version>$(_version)-x.9</Version>
+      <!-- For local test builds, we don't want to update the AssemblyInfo files. -->
+      <HasCustomVersion>False</HasCustomVersion>
     </PropertyGroup>
   </Target>
 
-  <Target Name="TestBuild" DependsOnTargets="TestBuild_Configuration;SetVersionTestBuild;TestBuildDebugOnly;" />
+  <Target Name="TestBuild" DependsOnTargets="TestBuild_Configuration;SetVersionTestBuild;BuildAll;" />
   <Target Name="FullBuildWithoutDocumentation" DependsOnTargets="FullBuild_Configuration;SetVersion;BuildAll;" />
   <Target Name="DocumentationBuild" DependsOnTargets="DocumentationBuild_Configuration;SetVersion;BuildAll;" />
   <Target Name="PackageBuild" DependsOnTargets="PackageBuild_Configuration;SetVersion;BuildAll;" />

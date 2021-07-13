@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <SupportedExecutionRuntimes Remove="@(SupportedExecutionRuntimes)"/>
+    <SupportedExecutionRuntimes Include="Win_NET462=$(DockerImageDotNetFrameworkRuntime4_6);Win_NET472=$(DockerImageDotNetFrameworkRuntime4_7);Win_NET48=$(DockerImageDotNetFrameworkRuntime4_8)"/>
+
+    <SupportedTargetRuntimes Remove="@(SupportedTargetRuntimes)"/>
+    <SupportedTargetRuntimes Include="NET462;NET472;NET48;"/>
+  </ItemGroup>
+
+</Project>

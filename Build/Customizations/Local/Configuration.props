@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <DockerImageDotNetFrameworkRuntime4_6 Condition="'$(DockerImageDotNetFrameworkRuntime4_6)' == ''">Unavailable</DockerImageDotNetFrameworkRuntime4_6>
+    <DockerImageDotNetFrameworkRuntime4_7 Condition="'$(DockerImageDotNetFrameworkRuntime4_7)' == ''">Unavailable</DockerImageDotNetFrameworkRuntime4_7>
+    <DockerImageDotNetFrameworkRuntime4_8 Condition="'$(DockerImageDotNetFrameworkRuntime4_8)' == ''">Unavailable</DockerImageDotNetFrameworkRuntime4_8>
+  </PropertyGroup>
+
+</Project>

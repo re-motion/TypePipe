@@ -25,20 +25,16 @@
     <ReleaseProjectFiles Include="$(SolutionDirectory)Core\Core.csproj">
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
-
     <ReleaseProjectFiles Include="$(SolutionDirectory)Documentation\Documentation.csproj">
       <CreateDocumentationFile>True</CreateDocumentationFile>
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
-
     <ReleaseProjectFiles Include="$(SolutionDirectory)Development\Development.csproj">
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
-
     <UnitTestProjectFiles Include="$(SolutionDirectory)Core.UnitTests\Core.UnitTests.csproj">
       <TestConfiguration>$(NormalTestConfiguration)</TestConfiguration>
     </UnitTestProjectFiles>
-
     <IntegrationTestProjectFiles Include="$(SolutionDirectory)IntegrationTests\IntegrationTests.csproj">
       <TestConfiguration>$(NormalTestConfiguration)</TestConfiguration>
     </IntegrationTestProjectFiles>
