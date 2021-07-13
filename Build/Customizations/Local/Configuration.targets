@@ -1,7 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="Before_TestBuild_Configuration" BeforeTargets="TestBuild_Configuration">
+    <PropertyGroup>
+      <ExecutionRuntimes Condition="'$(ExecutionRuntimes)' == ''">LocalMachine</ExecutionRuntimes>
+      <TargetRuntimes Condition="'$(TargetRuntimes)' == ''">NET48</TargetRuntimes>
+    </PropertyGroup>
+  </Target>
   <Target Name="After_TestBuild_Configuration" AfterTargets="TestBuild_Configuration">
     <PropertyGroup>
+    </PropertyGroup>
+  </Target>
+  <Target Name="Before_FullBuild_Configuration" BeforeTargets="FullBuild_Configuration">
+    <PropertyGroup>
+      <ExecutionRuntimes Condition="'$(ExecutionRuntimes)' == ''">LocalMachine</ExecutionRuntimes>
+      <TargetRuntimes Condition="'$(TargetRuntimes)' == ''">NET48</TargetRuntimes>
     </PropertyGroup>
   </Target>
   <Target Name="After_FullBuild_Configuration" AfterTargets="FullBuild_Configuration">
