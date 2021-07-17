@@ -64,6 +64,11 @@
 
   <Import Project="$(CustomizationsDirectory)*.props" />
 
+  <ItemGroup>
+    <!-- Workaround for RMSRCBUILD-178, can be removed when upgrading to Remotion.BuildScript v3.0.0-alpha.3. -->
+    <NUnitExtensionsPaths Include="$(TempDirectory)FakeNUnitExtensionsPath\"/>
+  </ItemGroup>
+
   <PropertyGroup>
     <!-- Define settings that use previously defined properties. -->
     <SolutionDirectory>$(MSBuildProjectDirectory)\..\</SolutionDirectory>
