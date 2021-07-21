@@ -21,6 +21,7 @@ using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
+  [TestFixture]
   public class PipelineRegistryTest
   {
     private IPipelineRegistry _registry;
