@@ -127,6 +127,9 @@ packages/
 # Visual Studio 2015
 .vs/
 
+# Rider
+.idea/
+
 # Windows Azure Build Output
 csx
 *.build.csdef
