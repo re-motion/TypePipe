@@ -26,16 +26,17 @@
 
   <PropertyGroup>
     <BinaryFormatterSerializationObsoleteWarning>SYSLIB0011</BinaryFormatterSerializationObsoleteWarning>
+    <StrongNameSigningObsoleteWarning>SYSLIB0017</StrongNameSigningObsoleteWarning>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Library'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;$(StrongNameSigningObsoleteWarning)</NoWarn>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>True</IsPackable>
     <TargetFrameworks>net5.0;net45</TargetFrameworks>
     <DefineConstants>$(DefineConstants);TypePipe</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT;FEATURE_STRONGNAMESIGNING</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Documentation'">
@@ -48,12 +49,12 @@
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Test'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>0067;0649;0169;$(BinaryFormatterSerializationObsoleteWarning)</NoWarn>
+    <NoWarn>0067;0649;0169;$(BinaryFormatterSerializationObsoleteWarning);$(StrongNameSigningObsoleteWarning)</NoWarn>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>False</IsPackable>
     <TargetFrameworks>net5.0;net45</TargetFrameworks>
     <DefineConstants>$(DefineConstants)</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_STRONGNAMESIGNING</DefineConstants>
     <EnableUnsafeBinaryFormatterSerialization Condition="'$(TargetFramework)' == 'net5.0'">true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
