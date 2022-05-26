@@ -123,7 +123,7 @@ namespace Remotion.TypePipe
     /// If <see langword="true"/>, the pipeline signs all generated assemblies or throws an <see cref="InvalidOperationException"/> if that is not
     /// possible.
     /// </summary>
-#if !NETFRAMEWORK
+#if !FEATURE_STRONGNAMESIGNING
     [Obsolete("Strong name signing is not supported and throws PlatformNotSupportedException.", DiagnosticId="SYSLIB0017", UrlFormat="https://aka.ms/dotnet-warnings/{0}")]
 #endif
     public bool ForceStrongNaming
@@ -135,7 +135,7 @@ namespace Remotion.TypePipe
     /// When <see cref="ForceStrongNaming"/> is enabled, the key file (<c>*.snk</c>) denoted by this property is used to sign generated assemblies.
     /// If this property is <see langword="null"/> a pipeline-provided default key file is used instead.
     /// </summary>
-#if !NETFRAMEWORK
+#if !FEATURE_STRONGNAMESIGNING
     [Obsolete("Strong name signing is not supported and throws PlatformNotSupportedException.", DiagnosticId="SYSLIB0017", UrlFormat="https://aka.ms/dotnet-warnings/{0}")]
 #endif
     [CanBeNull]
