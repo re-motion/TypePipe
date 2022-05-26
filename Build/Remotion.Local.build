@@ -107,11 +107,8 @@
   <Target Name="SetVersion" DependsOnTargets="PrepareVersion;CheckVersion" />
 
   <Target Name="PrepareVersion" Condition="'$(Version)' != ''">
-    <MSBuild.ExtensionPack.Framework.DateAndTime TaskAction="Get" Format="yyMMdd-HHmmss">
-      <Output TaskParameter="Result" PropertyName="_formattedDateTime"/>
-    </MSBuild.ExtensionPack.Framework.DateAndTime>
-
     <PropertyGroup>
+      <_formattedDateTime>$([System.DateTime]::Now.ToString("yyMMdd-HHmmss"))</_formattedDateTime>
       <_version>$(Version.Split('-')[0])</_version>
       <Version>$(_version)-x.9.$(_formattedDateTime)</Version>
       <HasCustomVersion>True</HasCustomVersion>
