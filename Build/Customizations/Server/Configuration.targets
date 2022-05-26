@@ -16,6 +16,8 @@
       <TargetRuntimes Condition="'$(TargetRuntimes)' == ''">NET48+NET472+NET462</TargetRuntimes>
       <!-- Disable Documentation until RMSRCBUILD-173 is fixed. -->
       <SkipDocumentation Condition="'$(SkipDocumentation)' == ''">True</SkipDocumentation>
+      <!-- Disable DependDB until RMSRCBUILD-277 (path to MSBuild) is fixed. -->
+      <SkipDependDB Condition="'$(SkipDependDB)' == ''">True</SkipDependDB>
     </PropertyGroup>
   </Target>
   <Target Name="After_FullBuild_Configuration" AfterTargets="FullBuild_Configuration">
