@@ -30,6 +30,9 @@ using Remotion.TypePipe.StrongNaming;
 namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
   [TestFixture]
+#if !FEATURE_STRONGNAMESIGNING
+  [Ignore ("Strong name signing is not supported.")]
+#endif
   public class StrongNamingTest : IntegrationTestBase
   {
     private Type _signedType;
