@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -14,6 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+#if NETFRAMEWORK
+
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -193,38 +196,41 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
 
     [Test]
-    [ExpectedException (typeof (SerializationException), ExpectedMessage =
-        "The requested type implements ISerializable but GetObjectData is not accessible from the proxy. "
-        + "Make sure that GetObjectData is implemented implicitly (not explicitly).")]
     public void ISerializable_CannotAccessGetObjectData ()
     {
       var pipeline = CreatePipelineForSerialization (CreateFieldAddingParticipant);
       var instance = pipeline.Create<ExplicitISerializableType>();
-
-      CheckInstanceIsSerializable (instance);
+      Assert.That (
+          () => CheckInstanceIsSerializable (instance),
+          Throws.InstanceOf<SerializationException>()
+              .With.Message.EqualTo (
+                  "The requested type implements ISerializable but GetObjectData is not accessible from the proxy. "
+                  + "Make sure that GetObjectData is implemented implicitly (not explicitly)."));
     }
 
     [Test]
-    [ExpectedException (typeof (SerializationException), MatchType = MessageMatch.Regex, ExpectedMessage =
-        "The constructor to deserialize an object of type '.*CustomSerializableTypeWithoutConstructor.*' was not found.")]
     public void ISerializable_MissingDeserializationConstructor ()
     {
       var pipeline = CreatePipelineForSerialization (CreateFieldAddingParticipant);
       var instance = pipeline.Create<CustomSerializableTypeWithoutConstructor>();
-
-      CheckInstanceIsSerializable (instance);
+      Assert.That (
+          () => CheckInstanceIsSerializable (instance),
+          Throws.InstanceOf<SerializationException>()
+              .With.Message.Matches (
+                  "The constructor to deserialize an object of type '.*CustomSerializableTypeWithoutConstructor.*' was not found."));
     }
 
     [Test]
-    [ExpectedException (typeof (SerializationException), ExpectedMessage =
-        "The requested type implements IDeserializationCallback but OnDeserialization is not accessible from the proxy. "
-        + "Make sure that OnDeserialization is implemented implicitly (not explicitly).")]
     public void IDeserializationCallback_CannotAccesOverrideOnDeserialization ()
     {
       var pipeline = CreatePipelineForSerialization (CreateInitializationAddingParticipant);
       var instance = pipeline.Create<ExplicitIDeserializationCallbackType>();
-
-      CheckInstanceIsSerializable (instance);
+      Assert.That (
+          () => CheckInstanceIsSerializable (instance),
+          Throws.InstanceOf<SerializationException>()
+              .With.Message.EqualTo (
+                  "The requested type implements IDeserializationCallback but OnDeserialization is not accessible from the proxy. "
+                  + "Make sure that OnDeserialization is implemented implicitly (not explicitly)."));
     }
 
     private T CreateCyclicInstance<T> (IPipeline pipeline) where T : ReferencingSerializableType
@@ -463,3 +469,5 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
   }
 }
+
+#endif

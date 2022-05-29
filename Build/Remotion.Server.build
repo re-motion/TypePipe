@@ -17,8 +17,8 @@
  ! under the License.
 -->
 
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
   <Import Project="Remotion.build" />
 
   <Import Project="$(CustomizationsDirectory)Server\*.props" />
@@ -46,37 +46,58 @@
       <AdditionalBuildMetadata>Commit-$(CommitID)</AdditionalBuildMetadata>
     </PropertyGroup>
   </Target>
-  
+
   <Target Name="TestBuild_Configuration">
     <PropertyGroup>
-      <Platforms>x86</Platforms>
-      <DatabaseSystems>SqlServer2008R2</DatabaseSystems>
-      <Browsers>Chrome</Browsers>
-      <TestCategoriesToExclude></TestCategoriesToExclude>
+      <Configurations Condition="'$(Configurations)' == ''">Debug</Configurations>
+      <Platforms Condition="'$(Platforms)' == ''">x86</Platforms>
+      <DatabaseSystems Condition="'$(DatabaseSystems)' == ''">NoDB</DatabaseSystems>
+      <Browsers Condition="'$(Browsers)' == ''">NoBrowser</Browsers>
+      <ExecutionRuntimes Condition="'$(ExecutionRuntimes)' == ''">Win_NET48+EnforcedLocalMachine</ExecutionRuntimes>
+      <TargetRuntimes Condition="'$(TargetRuntimes)' == ''">NET48</TargetRuntimes>
+      <TestCategoriesToExclude Condition="'$(TestCategoriesToExclude)' == ''"></TestCategoriesToExclude>
+      <SkipCleanProjects Condition="'$(SkipCleanProjects)' == ''">False</SkipCleanProjects>
+      <SkipTests Condition="'$(SkipTests)' == ''">False</SkipTests>
+      <SkipDocumentation Condition="'$(SkipDocumentation)' == ''">True</SkipDocumentation>
+      <SkipNuGetOrg Condition="'$(SkipNuGetOrg)' == ''">True</SkipNuGetOrg>
+      <SkipSourceLinks Condition="'$(SkipSourceLinks)' == ''">True</SkipSourceLinks>
+      <SkipNuGet Condition="'$(SkipNuGet)' == ''">True</SkipNuGet>
+      <SkipDependDB Condition="'$(SkipDependDB)' == ''">True</SkipDependDB>
     </PropertyGroup>
   </Target>
-  
+
   <Target Name="FullBuild_Configuration">
     <PropertyGroup>
-      <Platforms>x86+x64</Platforms>
-      <DatabaseSystems>SqlServer2005+SqlServer2008+SqlServer2008R2+SqlServer2012+SqlServer2014</DatabaseSystems>
-      <Browsers>Chrome+InternetExplorer</Browsers>
-      <TestCategoriesToExclude></TestCategoriesToExclude>
+      <!-- By listing the debug-build first, the documentation will be generated based on the debug output. -->
+      <Configurations Condition="'$(Configurations)' == ''">Debug+Release</Configurations>
+      <Platforms Condition="'$(Platforms)' == ''">x86+x64</Platforms>
+      <DatabaseSystems Condition="'$(DatabaseSystems)' == ''">NoDB</DatabaseSystems>
+      <Browsers Condition="'$(Browsers)' == ''">NoBrowser</Browsers>
+      <ExecutionRuntimes Condition="'$(ExecutionRuntimes)' == ''">Win_NET48+EnforcedLocalMachine</ExecutionRuntimes>
+      <TargetRuntimes Condition="'$(TargetRuntimes)' == ''">NET48</TargetRuntimes>
+      <TestCategoriesToExclude Condition="'$(TestCategoriesToExclude)' == ''"></TestCategoriesToExclude>
+      <SkipCleanProjects Condition="'$(SkipCleanProjects)' == ''">False</SkipCleanProjects>
+      <SkipTests Condition="'$(SkipTests)' == ''">False</SkipTests>
+      <SkipDocumentation Condition="'$(SkipDocumentation)' == ''">False</SkipDocumentation>
+      <SkipNuGetOrg Condition="'$(SkipNuGetOrg)' == ''">False</SkipNuGetOrg>
+      <SkipSourceLinks Condition="'$(SkipSourceLinks)' == ''">False</SkipSourceLinks>
+      <SkipNuGet Condition="'$(SkipNuGet)' == ''">False</SkipNuGet>
+      <SkipDependDB Condition="'$(SkipDependDB)' == ''">False</SkipDependDB>
     </PropertyGroup>
   </Target>
-  
-  <Target Name="TestBuild" DependsOnTargets="TestBuild_Configuration;TestBuildDebugOnly;" />
+
+  <Target Name="TestBuild" DependsOnTargets="TestBuild_Configuration;CreateAdditionalBuildMetadata;BuildAll;" />
 
   <Target Name="FullBuild" DependsOnTargets="FullBuild_Configuration;CreateAdditionalBuildMetadata;BuildAll;" />
 
   <!-- Check properties -->
-  
+
   <Target Name="CheckProperties" DependsOnTargets="
           CheckBuildConfigurationProperties;
           CheckBuildLocationProperties;" />
 
   <!-- Versioning -->
-    
+
   <Target Name="SetVersionCiAndNightlyBuild" DependsOnTargets="PrepareVersionCiAndNightlyBuild;CheckVersion">
     <Message Text="##teamcity[buildNumber '$(Version)']" />
   </Target>
@@ -85,7 +106,9 @@
     <Error Text="The property 'BuildNumber' is not set." Condition="'$(BuildNumber)' == ''" />
 
     <PropertyGroup>
-      <Version>$(Version)-x.1.$(BuildNumber)</Version>
+      <_version>$(Version.Split('-')[0])</_version>
+      <Version>$(_version)-x.1.$(BuildNumber)</Version>
+      <HasCustomVersion>True</HasCustomVersion>
     </PropertyGroup>
   </Target>
 
@@ -93,7 +116,7 @@
     <Message Text="##teamcity[buildNumber '$(Version)']" />
   </Target>
 
-  <!-- Main Build Targets -->  
+  <!-- Main Build Targets -->
 
   <Target Name="Server_CIBuild" DependsOnTargets="CheckProperties;SetVersionCiAndNightlyBuild;TestBuild" />
   <Target Name="Server_NightlyBuild" DependsOnTargets="CheckProperties;SetVersionCiAndNightlyBuild;FullBuild" />

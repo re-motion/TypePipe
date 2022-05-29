@@ -18,15 +18,15 @@ using System;
 using NUnit.Framework;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class EventBuilderDecoratorTest
   {
-    private IEventBuilder _innerMock;
-    private IEmittableOperandProvider _operandProviderMock;
+    private Mock<IEventBuilder> _innerMock;
+    private Mock<IEmittableOperandProvider> _operandProviderMock;
 
     private EventBuilderDecorator _decorator;
 
@@ -36,43 +36,43 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<IEventBuilder>();
-      _operandProviderMock = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _innerMock = new Mock<IEventBuilder> (MockBehavior.Strict);
+      _operandProviderMock = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = new EventBuilderDecorator (_innerMock, _operandProviderMock);
+      _decorator = new EventBuilderDecorator (_innerMock.Object, _operandProviderMock.Object);
 
-      _decoratedMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      _methodBuilderDecorator = new MethodBuilderDecorator (_decoratedMethodBuilder, _operandProviderMock);
+      _decoratedMethodBuilder = new Mock<IMethodBuilder>().Object;
+      _methodBuilderDecorator = new MethodBuilderDecorator (_decoratedMethodBuilder, _operandProviderMock.Object);
     }
 
     [Test]
     public void SetAddOnMethod ()
     {
-      _innerMock.Expect (mock => mock.SetAddOnMethod (_decoratedMethodBuilder));
+      _innerMock.Setup (mock => mock.SetAddOnMethod (_decoratedMethodBuilder)).Verifiable();
 
       _decorator.SetAddOnMethod (_methodBuilderDecorator);
 
-      _innerMock.VerifyAllExpectations();
+      _innerMock.Verify();
     }
 
     [Test]
     public void SetRemoveOnMethod ()
     {
-      _innerMock.Expect (mock => mock.SetRemoveOnMethod (_decoratedMethodBuilder));
+      _innerMock.Setup (mock => mock.SetRemoveOnMethod (_decoratedMethodBuilder)).Verifiable();
 
       _decorator.SetRemoveOnMethod (_methodBuilderDecorator);
 
-      _innerMock.VerifyAllExpectations();
+      _innerMock.Verify();
     }
 
     [Test]
     public void SetRaiseMethod ()
     {
-      _innerMock.Expect (mock => mock.SetRaiseMethod (_decoratedMethodBuilder));
+      _innerMock.Setup (mock => mock.SetRaiseMethod (_decoratedMethodBuilder)).Verifiable();
 
       _decorator.SetRaiseMethod (_methodBuilderDecorator);
 
-      _innerMock.VerifyAllExpectations();
+      _innerMock.Verify();
     }
   }
 }

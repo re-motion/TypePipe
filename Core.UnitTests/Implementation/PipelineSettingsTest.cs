@@ -16,6 +16,7 @@
 // 
 using System;
 using NUnit.Framework;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
@@ -40,8 +41,8 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => new PipelineSettings (false, null, false, null, "assemblyName", 0),
           Throws.TypeOf<ArgumentOutOfRangeException>()
-              .With.Message.EqualTo (
-                  "The degree of parallelism must be greater than 0.\r\nParameter name: degreeOfParallelism\r\nActual value was 0."));
+              .With.ArgumentOutOfRangeExceptionMessageEqualTo (
+                  "The degree of parallelism must be greater than 0.", "degreeOfParallelism", 0));
     }
 
     [Test]
@@ -50,9 +51,9 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => new PipelineSettings (false, null, false, null, "assemblyName", 2),
           Throws.ArgumentException
-              .With.Message.EqualTo (
-                  "When a degree of parallelism greater than 1 is specified, the '{counter}' placeholder must be included in the assembly name pattern."
-                  + "\r\nParameter name: assemblyNamePattern"));
+              .With.ArgumentExceptionMessageEqualTo (
+                  "When a degree of parallelism greater than 1 is specified, the '{counter}' placeholder must be included in the assembly name pattern.",
+                  "assemblyNamePattern"));
     }
 
     [Test]
@@ -117,7 +118,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       Assert.That (
           () => builder.SetDegreeOfParallelism (0),
           Throws.TypeOf<ArgumentOutOfRangeException>()
-              .With.Message.EqualTo ("The degree of parallelism must be greater than 0.\r\nParameter name: value\r\nActual value was 0."));
+              .With.ArgumentOutOfRangeExceptionMessageEqualTo ("The degree of parallelism must be greater than 0.", "value", 0));
     }
   }
 }

@@ -27,6 +27,7 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
   /// <summary>
   /// This class creates instances of <see cref="IModuleBuilder"/>.
   /// </summary>
@@ -34,6 +35,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   /// <see langword="true"/>.
   /// </remarks>
   /// <threadsafety static="true" instance="true"/>
+#else
+  /// <summary>
+  /// This class creates instances of <see cref="IModuleBuilder"/>.
+  /// </summary>
+  /// <remarks> The module will be created with <see cref="AssemblyBuilderAccess.Run"/>.
+  /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
+#endif
   public class ModuleBuilderFactory : IModuleBuilderFactory
   {
     private static readonly ConstructorInfo s_typePipeAssemblyAttributeCtor =
@@ -53,11 +62,27 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       var assemName = new AssemblyName (assemblyName);
       if (strongNamed)
+      {
+#if FEATURE_STRONGNAMESIGNING
         assemName.KeyPair = GetKeyPair (keyFilePathOrNull);
+#else
+        throw new PlatformNotSupportedException();
+#endif
+      }
+
+#if FEATURE_ASSEMBLYBUILDER_SAVE
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
+#else
+      var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.Run);
+#endif
 
       var moduleName = assemblyName + ".dll";
+
+#if FEATURE_PDBEMIT
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName, emitSymbolInfo: true);
+#else
+      var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName);
+#endif
 
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
 
@@ -67,6 +92,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       return moduleBuilderAdapter;
     }
 
+#if FEATURE_STRONGNAMESIGNING
     [NotNull]
     private StrongNameKeyPair GetKeyPair ([CanBeNull]string keyFilePathOrNull)
     {
@@ -76,5 +102,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       using (var fileStream = File.OpenRead (keyFilePathOrNull))
         return new StrongNameKeyPair (fileStream);
     }
+#endif
   }
 }

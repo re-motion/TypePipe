@@ -78,7 +78,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public DebugInfoGenerator DebugInfoGenerator
     {
-      get { return _moduleContext.DebugInfoGenerator ?? (_moduleContext.DebugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator()); }
+      get
+      {
+        return _moduleContext.DebugInfoGenerator ??
+#if FEATURE_PDBEMIT
+           (_moduleContext.DebugInfoGenerator = DebugInfoGenerator.CreatePdbGenerator());
+#else
+           (_moduleContext.DebugInfoGenerator = NullDebugInfoGenerator.Instance);
+#endif
+      }
     }
 
     public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)

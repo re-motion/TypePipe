@@ -24,6 +24,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -83,15 +84,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "MemberParameterOnInstantiation can only represent parameters of members on TypeInstantiation or parameters of "
-                          + "MethodInstantiation instances.\r\nParameter name: declaringMember")]
     public void Initialization_NonTypeInstantiationMember ()
     {
       var member = ReflectionObjectMother.GetSomeMember();
       var parameter = ReflectionObjectMother.GetSomeParameter();
-
-      Dev.Null = new MemberParameterOnInstantiation (member, parameter);
+      Assert.That (
+          () => Dev.Null = new MemberParameterOnInstantiation (member, parameter),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "MemberParameterOnInstantiation can only represent parameters of members on TypeInstantiation or parameters of "
+                  + "MethodInstantiation instances.", "declaringMember"));
     }
 
     [Test]

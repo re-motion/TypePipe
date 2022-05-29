@@ -30,6 +30,7 @@ using Remotion.TypePipe.Expressions;
 using Remotion.TypePipe.Expressions.ReflectionAdapters;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -91,34 +92,45 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "Cannot perform base call from static method.")]
     public void CallBase_StaticContext ()
     {
-      _staticContext.CallBase (ReflectionObjectMother.GetSomeInstanceMethod());
+      Assert.That (
+          () => _staticContext.CallBase (ReflectionObjectMother.GetSomeInstanceMethod()),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "Cannot perform base call from static method."));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call for static method.\r\nParameter name: baseMethod")]
     public void CallBase_StaticMethodInfo ()
     {
-      _context.CallBase (ReflectionObjectMother.GetSomeStaticMethod());
+      Assert.That (
+          () => _context.CallBase (ReflectionObjectMother.GetSomeStaticMethod()),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Cannot perform base call for static method.", "baseMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Cannot perform base call on abstract method.\r\nParameter name: baseMethod")]
     public void CallBase_Abstract ()
     {
-      _context.CallBase (ReflectionObjectMother.GetSomeAbstractMethod());
+      Assert.That (
+          () => _context.CallBase (ReflectionObjectMother.GetSomeAbstractMethod()),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Cannot perform base call on abstract method.", "baseMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Cannot perform base call on generic method definition. Construct a method instantiation "
-                          + "with MethodInfoExtensions.MakeTypePipeGenericMethod.\r\nParameter name: baseMethod")]
     public void CallBase_MethodInstantiation ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition ((DomainType o) => o.GenericMethod<Dev.T>());
-      _context.CallBase (method);
+      Assert.That (
+          () => _context.CallBase (method),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Cannot perform base call on generic method definition. Construct a method instantiation "
+                  + "with MethodInfoExtensions.MakeTypePipeGenericMethod.", "baseMethod"));
     }
 
     [Test]
@@ -144,12 +156,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 
       Assert.That (
           () => _staticContext.CopyMethodBody (MutableMethodInfoObjectMother.Create (_mutableType)),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "The body of an instance method cannot be copied into a static method.\r\nParameter name: otherMethod"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (
+              "The body of an instance method cannot be copied into a static method.", "otherMethod"));
       Assert.That (
           () => _context.CopyMethodBody (MutableMethodInfoObjectMother.Create (MutableTypeObjectMother.Create (name: "Abc"))),
-          Throws.ArgumentException.With.Message.EqualTo (
-              "The specified method is declared by a different type 'Abc'.\r\nParameter name: otherMethod"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (
+              "The specified method is declared by a different type 'Abc'.", "otherMethod"));
     }
 
     [Test]

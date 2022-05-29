@@ -27,14 +27,15 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
   [TestFixture]
   public class CustomTypeTest
   {
-    private IMemberSelector _memberSelectorMock;
+    private Mock<IMemberSelector> _memberSelectorMock;
 
     private string _name;
     private string _namespace;
@@ -52,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     [SetUp]
     public void SetUp ()
     {
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
+      _memberSelectorMock = new Mock<IMemberSelector> (MockBehavior.Strict);
 
       _name = "TypeName";
       _namespace = "MyNamespace";
@@ -73,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
                         Properties = new[] { ReflectionObjectMother.GetSomeProperty() },
                         Events = new[] { ReflectionObjectMother.GetSomeEvent() }
                     };
-      _customType.SetMemberSelector (_memberSelectorMock);
+      _customType.SetMemberSelector (_memberSelectorMock.Object);
 
       _typeArgument = ReflectionObjectMother.GetSomeType();
       _genericTypeUnderlyingDefinition = typeof (IList<>);
@@ -210,11 +211,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true).")]
     public void MakeGenericType_NoGenericMethodDefinition ()
     {
-      Dev.Null = _genericType.MakeGenericType();
+      Assert.That (
+          () => Dev.Null = _genericType.MakeGenericType(),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true)."));
     }
 
     [Test]
@@ -239,10 +241,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentOutOfRangeException), ExpectedMessage = "Array rank must be greater than zero.\r\nParameter name: rank")]
     public void MakeArrayType_ThrowsForInvalidRank ()
     {
-      Dev.Null = _customType.MakeArrayType (0);
+      Assert.That (
+          () => Dev.Null = _customType.MakeArrayType (0),
+          Throws.InstanceOf<ArgumentOutOfRangeException>()
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Array rank must be greater than zero.", "rank"));
     }
 
     [Test]
@@ -294,11 +299,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.NestedTypes, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeType() };
-      _memberSelectorMock.Expect (mock => mock.SelectTypes (_customType.NestedTypes, bindingAttr)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectTypes (_customType.NestedTypes, bindingAttr)).Returns (fakeResult).Verifiable();
 
       var result = _customType.GetNestedTypes (bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -309,11 +314,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = ReflectionObjectMother.GetSomeType();
-      _memberSelectorMock.Expect (mock => mock.SelectSingleType (_customType.NestedTypes, bindingAttr, name)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectSingleType (_customType.NestedTypes, bindingAttr, name)).Returns (fakeResult).Verifiable();
 
       var resultType = _customType.GetNestedType (name, bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That(resultType, Is.SameAs(fakeResult));
     }
 
@@ -356,12 +361,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (AmbiguousMatchException), ExpectedMessage = "Ambiguous interface name 'IDisposable'.")]
     public void GetInterface_IgnoreCase_Ambiguous ()
     {
       _customType.Interfaces = new[] { typeof (IDisposable), typeof (Idisposable) };
-
-      Dev.Null = _customType.GetInterface ("IDisposable", true);
+      Assert.That (
+          () => Dev.Null = _customType.GetInterface ("IDisposable", true),
+          Throws.InstanceOf<AmbiguousMatchException>()
+              .With.Message.EqualTo ("Ambiguous interface name 'IDisposable'."));
     }
 
     [Test]
@@ -370,11 +376,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Fields, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeField () };
-      _memberSelectorMock.Expect (mock => mock.SelectFields (_customType.Fields, bindingAttr, _customType)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectFields (_customType.Fields, bindingAttr, _customType)).Returns (fakeResult).Verifiable();
 
       var result = _customType.GetFields (bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations ();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -385,11 +391,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = ReflectionObjectMother.GetSomeField();
-      _memberSelectorMock.Expect (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name, _customType)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectSingleField (_customType.Fields, bindingAttr, name, _customType)).Returns (fakeResult).Verifiable();
 
       var resultField = _customType.GetField (name, bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
@@ -399,11 +405,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Constructors, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeConstructor() };
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Constructors, bindingAttr, _customType)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectMethods (_customType.Constructors, bindingAttr, _customType)).Returns (fakeResult).Verifiable();
 
       var result = _customType.GetConstructors (bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations ();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -413,11 +419,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Methods, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeMethod() };
-      _memberSelectorMock.Expect (mock => mock.SelectMethods (_customType.Methods, bindingAttr, _customType)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectMethods (_customType.Methods, bindingAttr, _customType)).Returns (fakeResult).Verifiable();
 
       var result = _customType.GetMethods (bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -427,11 +433,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Properties, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeProperty() };
-      _memberSelectorMock.Expect (mock => mock.SelectProperties (_customType.Properties, bindingAttr, _customType)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectProperties (_customType.Properties, bindingAttr, _customType)).Returns (fakeResult).Verifiable();
 
       var result = _customType.GetProperties (bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -441,11 +447,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (_customType.Events, Is.Not.Null.And.Not.Empty);
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = new[] { ReflectionObjectMother.GetSomeEvent() };
-      _memberSelectorMock.Expect (mock => mock.SelectEvents (_customType.Events, bindingAttr, _customType)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectEvents (_customType.Events, bindingAttr, _customType)).Returns (fakeResult).Verifiable();
 
       var result = _customType.GetEvents (bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -456,11 +462,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var name = "some name";
       var bindingAttr = BindingFlags.NonPublic;
       var fakeResult = ReflectionObjectMother.GetSomeEvent();
-      _memberSelectorMock.Expect (mock => mock.SelectSingleEvent (_customType.Events, bindingAttr, name, _customType)).Return (fakeResult);
+      _memberSelectorMock.Setup (mock => mock.SelectSingleEvent (_customType.Events, bindingAttr, name, _customType)).Returns (fakeResult).Verifiable();
 
       var resultField = _customType.GetEvent (name, bindingAttr);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (resultField, Is.SameAs (fakeResult));
     }
 
@@ -475,15 +481,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var modifiersOrNull = new[] { new ParameterModifier (1) };
       var fakeResult = ReflectionObjectMother.GetSomeConstructor();
       _memberSelectorMock
-          .Expect (
-              mock =>
-              mock.SelectSingleMethod (_customType.Constructors, expectedBinder, bindingAttr, null, _customType, typesOrNull, modifiersOrNull))
-          .Return (fakeResult);
+          .Setup (mock => mock.SelectSingleMethod (_customType.Constructors, expectedBinder, bindingAttr, null, _customType, typesOrNull, modifiersOrNull))
+          .Returns (fakeResult)
+          .Verifiable();
 
       var arguments = new object[] { bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
       var result = (ConstructorInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetConstructorImpl", arguments);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
@@ -500,14 +505,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var fakeResult = ReflectionObjectMother.GetSomeMethod();
       _memberSelectorMock
-          .Expect (
-              mock => mock.SelectSingleMethod (_customType.Methods, expectedBinder, bindingAttr, name, _customType, typesOrNull, modifiersOrNull))
-          .Return (fakeResult);
+          .Setup (mock => mock.SelectSingleMethod (_customType.Methods, expectedBinder, bindingAttr, name, _customType, typesOrNull, modifiersOrNull))
+          .Returns (fakeResult)
+          .Verifiable();
 
       var arguments = new object[] { name, bindingAttr, inputBinder, callingConvention, typesOrNull, modifiersOrNull };
       var result = (MethodInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetMethodImpl", arguments);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
@@ -524,23 +529,31 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 
       var fakeResult = ReflectionObjectMother.GetSomeProperty();
       _memberSelectorMock
-          .Expect (
+          .Setup (
               mock => mock.SelectSingleProperty (
-                  _customType.Properties, expectedBinder, bindingAttr, name, _customType, returnTypeOrNull, typesOrNull, modifiersOrNull))
-          .Return (fakeResult);
+                  _customType.Properties,
+                  expectedBinder,
+                  bindingAttr,
+                  name,
+                  _customType,
+                  returnTypeOrNull,
+                  typesOrNull,
+                  modifiersOrNull))
+          .Returns (fakeResult)
+          .Verifiable();
 
       var arguments = new object[] { name, bindingAttr, inputBinder, returnTypeOrNull, typesOrNull, modifiersOrNull };
       var result = (PropertyInfo) PrivateInvoke.InvokeNonPublicMethod (_customType, "GetPropertyImpl", arguments);
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
 
-    public static IEnumerable GetBinderTestCases ()
+    public static IEnumerable<TestCaseData> GetBinderTestCases ()
     {
-      var binderStub = MockRepository.GenerateStub<Binder> ();
-      yield return new object[] { binderStub, binderStub };
-      yield return new object[] { null, Type.DefaultBinder };
+      var binderStub = new Mock<Binder>();
+      yield return new TestCaseData (binderStub.Object, binderStub.Object).SetName ("{m}(BinderStub, BinderStub)");
+      yield return new TestCaseData (null, Type.DefaultBinder);
     }
 
     [Test]
@@ -627,23 +640,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     public void VirtualMethodsImplementedByType ()
     {
       _memberSelectorMock
-          .Stub (stub => stub.SelectTypes (Arg<IEnumerable<Type>>.Is.Anything, Arg<BindingFlags>.Is.Anything))
-          .Return(new Type[0]);
+          .Setup (stub => stub.SelectTypes (It.IsAny<IEnumerable<Type>>(), It.IsAny<BindingFlags>()))
+          .Returns(new Type[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectEvents (Arg<IEnumerable<EventInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new EventInfo[0]);
+          .Setup (stub => stub.SelectEvents (It.IsAny<IEnumerable<EventInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
+          .Returns (new EventInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<MethodInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new MethodInfo[0]);
+          .Setup (stub => stub.SelectMethods (It.IsAny<IEnumerable<MethodInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
+          .Returns (new MethodInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectMethods (Arg<IEnumerable<ConstructorInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new ConstructorInfo[0]);
+          .Setup (stub => stub.SelectMethods (It.IsAny<IEnumerable<ConstructorInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
+          .Returns (new ConstructorInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectFields (Arg<IEnumerable<FieldInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new FieldInfo[0]);
+          .Setup (stub => stub.SelectFields (It.IsAny<IEnumerable<FieldInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
+          .Returns (new FieldInfo[0]);
       _memberSelectorMock
-          .Stub (stub => stub.SelectProperties (Arg<IEnumerable<PropertyInfo>>.Is.Anything, Arg<BindingFlags>.Is.Anything, Arg<MutableType>.Is.Anything))
-          .Return (new PropertyInfo[0]);
+          .Setup (stub => stub.SelectProperties (It.IsAny<IEnumerable<PropertyInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
+          .Returns (new PropertyInfo[0]);
 
       // None of these virtual members should throw an exception.
       Dev.Null = _customType.MemberType;
@@ -664,12 +677,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Property UnderlyingSystemType is not supported. "
-        + "Use a replacement method from class TypeExtensions (e.g. IsTypePipeAssignableFrom) to avoid accessing the property.")]
     public void UnderlyingSystemType ()
     {
-      Dev.Null = _customType.UnderlyingSystemType;
+      Assert.That (
+          () => Dev.Null = _customType.UnderlyingSystemType,
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Property UnderlyingSystemType is not supported. "
+                  + "Use a replacement method from class TypeExtensions (e.g. IsTypePipeAssignableFrom) to avoid accessing the property."));
     }
 
     [Test]

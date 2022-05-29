@@ -22,6 +22,7 @@ using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Generics;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
 {
@@ -56,20 +57,23 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Generics
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Specified method must be a generic method definition.\r\nParameter name: genericMethodDefinition")]
     public void Initialization_NoGenericMethodDefinition ()
     {
       var method = ReflectionObjectMother.GetSomeNonGenericMethod();
-      Dev.Null = new MethodInstantiationInfo (method, Type.EmptyTypes);
+      Assert.That (
+          () => Dev.Null = new MethodInstantiationInfo (method, Type.EmptyTypes),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("Specified method must be a generic method definition.", "genericMethodDefinition"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Generic parameter count of the generic method definition does not match the number of supplied type arguments.\r\nParameter name: typeArguments")]
     public void Initialization_NonMatchingGenericArgumentCount ()
     {
-      Dev.Null = new MethodInstantiationInfo (_genericMethodDefinition, Type.EmptyTypes);
+      Assert.That (
+          () => Dev.Null = new MethodInstantiationInfo (_genericMethodDefinition, Type.EmptyTypes),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Generic parameter count of the generic method definition does not match the number of supplied type arguments.", "typeArguments"));
     }
 
     [Test]

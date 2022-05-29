@@ -1,21 +1,42 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <NormalTestConfiguration Condition="'$(NormalTestConfiguration)' == ''">
+      Win_NET48 + NET48 + NoBrowser + NoDB + Debug + x86;
+      Win_NET48 + NET48 + NoBrowser + NoDB + Release + x86;
+      Win_NET48 + NET48 + NoBrowser + NoDB + Debug + x64;
+      Win_NET48 + NET48 + NoBrowser + NoDB + Release + x64;
+
+      <!-- Local-->
+      LocalMachine + NET48 + NoBrowser + NoDB + Debug + x86;
+      LocalMachine + NET48 + NoBrowser + NoDB + Release + x86;
+      LocalMachine + NET48 + NoBrowser + NoDB + Debug + x64;
+      LocalMachine + NET48 + NoBrowser + NoDB + Release + x64;
+
+      <!-- Exercise compatibility between installed .NET version, target framework and SQL Server -->
+      Win_NET48 + NET472 + NoBrowser + NoDB + Release + x64;
+      Win_NET48 + NET462 + NoBrowser + NoDB + Release + x64;
+      Win_NET472 + NET472 + NoBrowser + NoDB + Release + x64;
+      Win_NET472 + NET462 + NoBrowser + NoDB + Release + x64;
+      Win_NET462 + NET462 + NoBrowser + NoDB + Release + x64;
+    </NormalTestConfiguration>
+  </PropertyGroup>
   <ItemGroup>
     <ReleaseProjectFiles Include="$(SolutionDirectory)Core\Core.csproj">
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
-
     <ReleaseProjectFiles Include="$(SolutionDirectory)Documentation\Documentation.csproj">
       <CreateDocumentationFile>True</CreateDocumentationFile>
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
-
     <ReleaseProjectFiles Include="$(SolutionDirectory)Development\Development.csproj">
       <CreateNuGetPackageWithSymbolServerSupport>True</CreateNuGetPackageWithSymbolServerSupport>
     </ReleaseProjectFiles>
-
-    <UnitTestProjectFiles Include="$(SolutionDirectory)Core.UnitTests\Core.UnitTests.csproj"/>
-
-    <IntegrationTestProjectFiles Include="$(SolutionDirectory)IntegrationTests\IntegrationTests.csproj"/>
+    <UnitTestProjectFiles Include="$(SolutionDirectory)Core.UnitTests\Core.UnitTests.csproj">
+      <TestConfiguration>$(NormalTestConfiguration)</TestConfiguration>
+    </UnitTestProjectFiles>
+    <IntegrationTestProjectFiles Include="$(SolutionDirectory)IntegrationTests\IntegrationTests.csproj">
+      <TestConfiguration>$(NormalTestConfiguration)</TestConfiguration>
+    </IntegrationTestProjectFiles>
   </ItemGroup>
 </Project>

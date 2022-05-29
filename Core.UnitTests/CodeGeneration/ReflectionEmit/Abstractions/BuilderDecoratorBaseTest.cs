@@ -22,25 +22,25 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class BuilderDecoratorBaseTest
   {
-    private ICustomAttributeTargetBuilder _innerMock;
-    private IEmittableOperandProvider _operandProvider;
+    private Mock<ICustomAttributeTargetBuilder> _innerMock;
+    private Mock<IEmittableOperandProvider> _operandProvider;
 
     private BuilderDecoratorBase _decorator;
 
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<ICustomAttributeTargetBuilder>();
-      _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _innerMock = new Mock<ICustomAttributeTargetBuilder> (MockBehavior.Strict);
+      _operandProvider = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = MockRepository.GeneratePartialMock<BuilderDecoratorBase> (_innerMock, _operandProvider);
+      _decorator = new Mock<BuilderDecoratorBase> (_innerMock.Object, _operandProvider.Object).Object;
     }
 
     [Test]
@@ -53,29 +53,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var declaration = new CustomAttributeDeclaration (attributeCtor, new object[] { ctorArg }, new NamedArgumentDeclaration (field, type));
 
       var emittableType = ReflectionObjectMother.GetSomeOtherType();
-      _operandProvider.Expect (mock => mock.GetEmittableType (type)).Return (emittableType).Repeat.Twice();
+      _operandProvider.Setup (mock => mock.GetEmittableType (type)).Returns (emittableType).Verifiable();
       _innerMock
-          .Expect (mock => mock.SetCustomAttribute (Arg<CustomAttributeDeclaration>.Is.Anything))
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.SetCustomAttribute (It.IsAny<CustomAttributeDeclaration>()))
+          .Callback (
+              (CustomAttributeDeclaration customAttributeDeclaration) =>
               {
-                var emittableDeclaration = (ICustomAttributeData) mi.Arguments[0];
+                var emittableDeclaration = (ICustomAttributeData) customAttributeDeclaration;
                 Assert.That (emittableDeclaration, Is.Not.SameAs (declaration));
                 Assert.That (emittableDeclaration.Constructor, Is.SameAs (attributeCtor));
 
                 Assert.That (emittableDeclaration.ConstructorArguments, Has.Count.EqualTo (1));
-                Assert.That (emittableDeclaration.ConstructorArguments.Single(), Is.EqualTo (new object[] { 7, new object[] { "7", emittableType } }));
+                Assert.That (
+                    emittableDeclaration.ConstructorArguments.Single(),
+                    Is.EqualTo (new object[] { 7, new object[] { "7", emittableType } }));
 
                 Assert.That (emittableDeclaration.NamedArguments, Has.Count.EqualTo (1));
                 var namedArgument = emittableDeclaration.NamedArguments.Single();
                 Assert.That (namedArgument.MemberInfo, Is.EqualTo (field));
                 Assert.That (namedArgument.Value, Is.SameAs (emittableType));
-              });
+              })
+          .Verifiable();
 
       _decorator.SetCustomAttribute (declaration);
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _operandProvider.Verify (mock => mock.GetEmittableType (type), Times.Exactly (2));
+      _innerMock.Verify();
     }
 
     public class AbcAttribute : Attribute

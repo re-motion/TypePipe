@@ -69,13 +69,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (MemberAccessException), ExpectedMessage = "The matching constructor is not visible from the proxy type.")]
     public void CallBaseConstructor_NotVisibleFromProxy ()
     {
       var ctor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainType());
       Assert.That (ctor, Is.Not.Null);
-
-      _context.CallBaseConstructor();
+      Assert.That (
+          () => _context.CallBaseConstructor(),
+          Throws.InstanceOf<MemberAccessException>()
+              .With.Message.EqualTo (
+                  "The matching constructor is not visible from the proxy type."));
     }
 
     [Test]

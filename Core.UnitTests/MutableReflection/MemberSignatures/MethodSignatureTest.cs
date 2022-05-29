@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -22,7 +23,8 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection.MemberSignatures;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
 {
@@ -65,11 +67,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Closed generic methods are not supported.\r\nParameter name: methodBase")]
     public void Create_ClosedGenericMethod ()
     {
       var method = _genericMethod1.MakeGenericMethod (typeof (int), typeof (int));
-      MethodSignature.Create (method);
+      Assert.That (
+          () => MethodSignature.Create (method),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Closed generic methods are not supported.", "methodBase"));
     }
 
     [Test]
@@ -77,14 +82,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.MemberSignatures
     {
       var returnType = typeof (int);
       var parameterTypes = new[] { typeof (double) };
-      var signatureBuilderMock = MockRepository.GenerateStrictMock<IMethodSignatureStringBuilderHelper>();
-      signatureBuilderMock.Expect (mock => mock.AppendTypeString (Arg<StringBuilder>.Is.Anything, Arg.Is (returnType)));
-      signatureBuilderMock.Expect (mock => mock.AppendSeparatedTypeStrings (Arg<StringBuilder>.Is.Anything, Arg.Is (parameterTypes)));
-      var signature = new MethodSignature (returnType, parameterTypes, 0, signatureBuilderMock);
+      var signatureBuilderMock = new Mock<IMethodSignatureStringBuilderHelper> (MockBehavior.Strict);
+      signatureBuilderMock.Setup (mock => mock.AppendTypeString (It.IsAny<StringBuilder>(), returnType)).Verifiable();
+      signatureBuilderMock.Setup (mock => mock.AppendSeparatedTypeStrings (It.IsAny<StringBuilder>(), parameterTypes)).Verifiable();
+      var signature = new MethodSignature (returnType, parameterTypes, 0, signatureBuilderMock.Object);
 
       Dev.Null = signature.ToString();
 
-      signatureBuilderMock.VerifyAllExpectations();
+      signatureBuilderMock.Verify();
     }
 
     [Test]

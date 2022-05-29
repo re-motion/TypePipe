@@ -21,6 +21,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -60,12 +61,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: bodyProvider")]
     public void GetTypedBody_ThrowsForNullBody ()
     {
       var bodyProvider = CreateBodyProvider (returnedBody: null);
-
-      BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context);
+      Assert.That (
+          () => BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, _context),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Provider must not return null.", "bodyProvider"));
     }
 
     private Func<BodyContextBase, Expression> CreateBodyProvider (Expression returnedBody)

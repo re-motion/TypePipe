@@ -20,6 +20,7 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -58,10 +59,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: initializationProvider")]
     public void CreateInitialization_NullBody ()
     {
-      _factory.CreateInitialization (_mutableType, ctx => null);
+      Assert.That (
+          () => _factory.CreateInitialization (_mutableType, ctx => null),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Provider must not return null.", "initializationProvider"));
     }
   }
 }

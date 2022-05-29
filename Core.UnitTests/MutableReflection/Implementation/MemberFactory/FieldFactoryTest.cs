@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
@@ -53,18 +54,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void CreateField_ThrowsForInvalidFieldAttributes ()
     {
       var message = "The following FieldAttributes are not supported for fields: " +
-                    "Literal, HasFieldMarshal, HasDefault, HasFieldRVA.\r\nParameter name: attributes";
-      Assert.That (() => CreateField (_mutableType, FieldAttributes.Literal), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasFieldMarshal), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasFieldRVA), Throws.ArgumentException.With.Message.EqualTo (message));
+                    "Literal, HasFieldMarshal, HasDefault, HasFieldRVA.";
+      var paramName = "attributes";
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.Literal), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasFieldMarshal), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasDefault), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateField (_mutableType, FieldAttributes.HasFieldRVA), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Field cannot be of type void.\r\nParameter name: type")]
     public void CreateField_VoidType ()
     {
-      _factory.CreateField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask);
+      Assert.That (
+          () => _factory.CreateField (_mutableType, "NotImportant", typeof (void), FieldAttributes.ReservedMask),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Field cannot be of type void.", "type"));
     }
 
     [Test]

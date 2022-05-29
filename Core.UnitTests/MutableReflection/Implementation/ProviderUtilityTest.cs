@@ -17,6 +17,7 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -40,12 +41,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Provider must not return null.\r\nParameter name: argumentName")]
     public void GetNonNullValue_ThrowsForNullReturningProvider ()
     {
       Func<string, object> provider = ctx => null;
-
-      ProviderUtility.GetNonNullValue (provider, "", "argumentName");
+      Assert.That (
+          () => ProviderUtility.GetNonNullValue (provider, "", "argumentName"),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Provider must not return null.", "argumentName"));
     }
   }
 }

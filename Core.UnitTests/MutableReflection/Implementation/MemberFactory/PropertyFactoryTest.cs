@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Enumerables;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
@@ -29,14 +28,15 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFactory
 {
   [TestFixture]
   public class PropertyFactoryTest
   {
-    private IMethodFactory _methodFactoryMock;
+    private Mock<IMethodFactory> _methodFactoryMock;
 
     private PropertyFactory _factory;
 
@@ -45,9 +45,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [SetUp]
     public void SetUp ()
     {
-      _methodFactoryMock = MockRepository.GenerateStrictMock<IMethodFactory>();
+      _methodFactoryMock = new Mock<IMethodFactory> (MockBehavior.Strict);
 
-      _factory = new PropertyFactory (_methodFactoryMock);
+      _factory = new PropertyFactory (_methodFactoryMock.Object);
 
       _mutableType = MutableTypeObjectMother.Create();
     }
@@ -67,52 +67,67 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var fakeSetMethod = MutableMethodInfoObjectMother.Create (parameters: setterParameters);
 
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock => mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("get_Property"),
-                  Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg.Is (getBodyProvider)))
-          .WhenCalled (
-              mi =>
+                  _mutableType,
+                  "get_Property",
+                  accessorAttributes | MethodAttributes.SpecialName,
+                  GenericParameterDeclaration.None,
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  getBodyProvider))
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string nameArgument,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProvider) =>
               {
-                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                var returnType = returnTypeProvider (null);
                 Assert.That (returnType, Is.SameAs (propertyType));
 
-                var parameters = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).ToList();
+                var parameters = parameterProvider (null).ToList();
                 Assert.That (parameters.Select (p => p.Type), Is.EqualTo (indexParameters.Select (p => p.Type)));
                 Assert.That (parameters.Select (p => p.Name), Is.EqualTo (indexParameters.Select (p => p.Name)));
               })
-          .Return (fakeGetMethod);
+          .Returns (fakeGetMethod);
       _methodFactoryMock
-          .Expect (
+          .Setup (
               mock => mock.CreateMethod (
-                  Arg.Is (_mutableType),
-                  Arg.Is ("set_Property"),
-                  Arg.Is (accessorAttributes | MethodAttributes.SpecialName),
-                  Arg.Is (GenericParameterDeclaration.None),
-                  Arg<Func<GenericParameterContext, Type>>.Is.Anything,
-                  Arg<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>.Is.Anything,
-                  Arg.Is (setBodyProvider)))
-          .WhenCalled (
-              mi =>
+                  _mutableType,
+                  "set_Property",
+                  (accessorAttributes | MethodAttributes.SpecialName),
+                  GenericParameterDeclaration.None,
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  setBodyProvider))
+          .Callback (
+              (
+                  MutableType declaringType,
+                  string nameArgument,
+                  MethodAttributes attributes,
+                  IEnumerable<GenericParameterDeclaration> genericParameters,
+                  Func<GenericParameterContext, Type> returnTypeProvider,
+                  Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
+                  Func<MethodBodyCreationContext, Expression> bodyProvider) =>
               {
-                var returnType = mi.Arguments[4].As<Func<GenericParameterContext, Type>>() (null);
+                var returnType = returnTypeProvider (null);
                 Assert.That (returnType, Is.SameAs (typeof (void)));
 
-                var parameters = mi.Arguments[5].As<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>() (null).ToList();
+                var parameters = parameterProvider (null).ToList();
                 Assert.That (parameters.Select (p => p.Type), Is.EqualTo (setterParameters.Select (p => p.Type)));
                 Assert.That (parameters.Select (p => p.Name), Is.EqualTo (setterParameters.Select (p => p.Name)));
               })
-          .Return (fakeSetMethod);
+          .Returns (fakeSetMethod)
+          .Verifiable();
 
       var result = _factory.CreateProperty (
           _mutableType, name, propertyType, indexParameters.AsOneTime(), accessorAttributes, getBodyProvider, setBodyProvider);
 
-      _methodFactoryMock.VerifyAllExpectations();
+      _methodFactoryMock.Verify();
       Assert.That (result.DeclaringType, Is.SameAs (_mutableType));
       Assert.That (result.Name, Is.EqualTo (name));
       Assert.That (result.Attributes, Is.EqualTo (PropertyAttributes.None));
@@ -128,9 +143,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> getBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (type);
       var fakeGetMethod = MutableMethodInfoObjectMother.Create (returnType: type);
       _methodFactoryMock
-          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null, null)).IgnoreArguments ()
-          .WhenCalled (mi => Assert.That (mi.Arguments[1], Is.EqualTo ("get_Property")))
-          .Return (fakeGetMethod);
+          .Setup (
+              stub => stub.CreateMethod (
+                  It.IsAny<MutableType>(),
+                  "get_Property",
+                  It.IsAny<MethodAttributes>(),
+                  It.IsAny<IEnumerable<GenericParameterDeclaration>>(),
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+          .Returns (fakeGetMethod);
 
       var result = _factory.CreateProperty (
           _mutableType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: getBodyProvider, setBodyProvider: null);
@@ -145,12 +167,25 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => ExpressionTreeObjectMother.GetSomeExpression (typeof (void));
       var fakeSetMethod = MutableMethodInfoObjectMother.Create (parameters: new[] { ParameterDeclarationObjectMother.Create (type) });
       _methodFactoryMock
-          .Stub (stub => stub.CreateMethod (null, null, 0, null, null, null, null)).IgnoreArguments()
-          .WhenCalled (mi => Assert.That (mi.Arguments[1], Is.EqualTo ("set_Property")))
-          .Return (fakeSetMethod);
+          .Setup (
+              stub => stub.CreateMethod (
+                  It.IsAny<MutableType>(),
+                  "set_Property",
+                  It.IsAny<MethodAttributes>(),
+                  It.IsAny<IEnumerable<GenericParameterDeclaration>>(),
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+          .Returns (fakeSetMethod);
 
       var result = _factory.CreateProperty (
-          _mutableType, "Property", type, ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: setBodyProvider);
+          _mutableType,
+          "Property",
+          type,
+          ParameterDeclaration.None,
+          0,
+          getBodyProvider: null,
+          setBodyProvider: setBodyProvider);
 
       Assert.That (result.MutableGetMethod, Is.Null);
     }
@@ -158,18 +193,19 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     [Test]
     public void CreateProperty_Providers_ThrowsForInvalidAccessorAttributes ()
     {
-      var message = "The following MethodAttributes are not supported for property accessor methods: " +
-                    "RequireSecObject.\r\nParameter name: accessorAttributes";
-      Assert.That (() => CreateProperty (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.Message.EqualTo (message));
+      var message = "The following MethodAttributes are not supported for property accessor methods: RequireSecObject.";
+      var paramName = "accessorAttributes";
+      Assert.That (() => CreateProperty (_mutableType, MethodAttributes.RequireSecObject), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "At least one accessor body provider must be specified.\r\nParameter name: getBodyProvider")]
     public void CreateProperty_Providers_NoAccessorProviders ()
     {
-      _factory.CreateProperty (
-          _mutableType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null);
+      Assert.That (
+          () => _factory.CreateProperty (
+          _mutableType, "Property", typeof (int), ParameterDeclaration.None, 0, getBodyProvider: null, setBodyProvider: null),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("At least one accessor body provider must be specified.", "getBodyProvider"));
     }
 
     [Test]
@@ -222,29 +258,33 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     public void CreateProperty_Accessors_ThrowsForInvalidPropertyAttributes ()
     {
       var message = "The following PropertyAttributes are not supported for properties: " +
-                    "HasDefault, Reserved2, Reserved3, Reserved4.\r\nParameter name: attributes";
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.Message.EqualTo (message));
-      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved4), Throws.ArgumentException.With.Message.EqualTo (message));
+                    "HasDefault, Reserved2, Reserved3, Reserved4.";
+      var paramName = "attributes";
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.HasDefault), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved2), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved3), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
+      Assert.That (() => CreateProperty (_mutableType, PropertyAttributes.Reserved4), Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Property must have at least one accessor.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_NoAccessorProviders ()
     {
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod: null, setMethod: null);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod: null, setMethod: null),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Property must have at least one accessor.", "getMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Accessor methods must be both either static or non-static.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_ThrowsForDifferentStaticness ()
     {
       var getMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
       var setMethod = MutableMethodInfoObjectMother.Create (attributes: 0 /*instance*/);
-
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("Accessor methods must be both either static or non-static.", "getMethod"));
     }
 
     [Test]
@@ -252,34 +292,38 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
     {
       var nonMatchingMethod = MutableMethodInfoObjectMother.Create ();
 
-      var message = "{0} method is not declared on the current type.\r\nParameter name: {1}";
+      var message = "{0} method is not declared on the current type.";
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, nonMatchingMethod, null),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Get", "getMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Get"), "getMethod"));
       Assert.That (
           () => _factory.CreateProperty (_mutableType, "Property", 0, null, nonMatchingMethod),
-          Throws.ArgumentException.With.Message.EqualTo (string.Format (message, "Set", "setMethod")));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (string.Format (message, "Set"), "setMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Get accessor must be a non-void method.\r\nParameter name: getMethod")]
     public void CreateProperty_Accessors_ThrowsForVoidGetMethod ()
     {
       var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: typeof (void));
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, null);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, null),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Get accessor must be a non-void method.", "getMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Set accessor must have return type void.\r\nParameter name: setMethod")]
     public void CreateProperty_Accessors_ThrowsForNonVoidSetMethod ()
     {
       var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: typeof (int));
-      _factory.CreateProperty (_mutableType, "Property", 0, null, setMethod);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, null, setMethod),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Set accessor must have return type void.", "setMethod"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "Get and set accessor methods must have a matching signature.\r\nParameter name: setMethod")]
     public void CreateProperty_Accessors_ThrowsForDifferentIndexParameters ()
     {
       var indexParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (int)) };
@@ -287,8 +331,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation.MemberFac
       var nonMatchingSetParameters = new[] { ParameterDeclarationObjectMother.Create (typeof (long)), valueParameter };
       var getMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, returnType: valueParameter.Type, parameters: indexParameters);
       var setMethod = MutableMethodInfoObjectMother.Create (declaringType: _mutableType, parameters: nonMatchingSetParameters);
-
-      _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod);
+      Assert.That (
+          () => _factory.CreateProperty (_mutableType, "Property", 0, getMethod, setMethod),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("Get and set accessor methods must have a matching signature.", "setMethod"));
     }
 
     [Test]

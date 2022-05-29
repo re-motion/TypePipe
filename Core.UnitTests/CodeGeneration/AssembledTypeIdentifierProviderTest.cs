@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -29,35 +29,35 @@ using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration
 {
   [TestFixture]
   public class AssembledTypeIdentifierProviderTest
   {
-    private IParticipant _participantWithoutIdentifierProvider;
-    private IParticipant _participantWithIdentifierProvider;
-    private ITypeIdentifierProvider _identifierProviderMock;
+    private Mock<IParticipant> _participantWithoutIdentifierProvider;
+    private Mock<IParticipant> _participantWithIdentifierProvider;
+    private Mock<ITypeIdentifierProvider> _identifierProviderMock;
 
     private AssembledTypeIdentifierProvider _provider;
 
     [SetUp]
     public void SetUp ()
     {
-      _participantWithoutIdentifierProvider = MockRepository.GenerateStub<IParticipant>();
-      _participantWithIdentifierProvider = MockRepository.GenerateStub<IParticipant>();
-      _identifierProviderMock = MockRepository.GenerateMock<ITypeIdentifierProvider>();
-      _participantWithIdentifierProvider.Stub (_ => _.PartialTypeIdentifierProvider).Return (_identifierProviderMock);
+      _participantWithoutIdentifierProvider = new Mock<IParticipant>();
+      _participantWithIdentifierProvider = new Mock<IParticipant>();
+      _identifierProviderMock = new Mock<ITypeIdentifierProvider>();
+      _participantWithIdentifierProvider.SetupGet (_ => _.PartialTypeIdentifierProvider).Returns (_identifierProviderMock.Object);
 
-      _provider = new AssembledTypeIdentifierProvider (new[] { _participantWithoutIdentifierProvider, _participantWithIdentifierProvider }.AsOneTime());
+      _provider = new AssembledTypeIdentifierProvider (new[] { _participantWithoutIdentifierProvider.Object, _participantWithIdentifierProvider.Object }.AsOneTime());
     }
 
     [Test]
     public void ComputeTypeID ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
-      _identifierProviderMock.Stub (_ => _.GetID (requestedType)).Return ("abc");
+      _identifierProviderMock.Setup (_ => _.GetID (requestedType)).Returns ("abc");
 
       var result = _provider.ComputeTypeID (requestedType);
 
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var typeID = AssembledTypeIDObjectMother.Create (parts: new object[0]);
 
-      var result = _provider.GetPart (typeID, _participantWithoutIdentifierProvider);
+      var result = _provider.GetPart (typeID, _participantWithoutIdentifierProvider.Object);
 
       Assert.That (result, Is.Null);
     }
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { "abc", "def" });
 
-      var result = _provider.GetPart (typeID, _participantWithIdentifierProvider);
+      var result = _provider.GetPart (typeID, _participantWithIdentifierProvider.Object);
 
       Assert.That (result, Is.EqualTo ("abc"));
     }
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
       var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _identifierProviderMock.Stub (_ => _.GetExpression ("abc")).Return (idPartExpression);
+      _identifierProviderMock.Setup (_ => _.GetExpression ("abc")).Returns (idPartExpression);
 
       _provider.AddTypeID (proxyType, typeID);
 
@@ -113,7 +113,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       _provider.AddTypeID (proxyType, typeID);
 
-      _identifierProviderMock.AssertWasNotCalled (mock => mock.GetExpression (Arg<object>.Is.Anything));
+      _identifierProviderMock.Verify (mock => mock.GetExpression (It.IsAny<object>()), Times.Never());
       var expectedIdPartExpression = Expression.Constant (null);
       CheckTypeIDInitialization (proxyType, typeID.RequestedType, expectedIdPartExpression);
     }
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var proxyType = MutableTypeObjectMother.Create();
       var typeID = AssembledTypeIDObjectMother.Create (parts: new object[] { "abc" });
-      _identifierProviderMock.Stub (_ => _.GetExpression ("abc")).Return (null);
+      _identifierProviderMock.Setup (_ => _.GetExpression ("abc")).Returns ((Expression) null);
 
       _provider.AddTypeID (proxyType, typeID);
 
@@ -146,7 +146,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
       var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (IFlatValue));
-      _identifierProviderMock.Stub (_ => _.GetFlatValueExpressionForSerialization ("abc")).Return (idPartExpression);
+      _identifierProviderMock.Setup (_ => _.GetFlatValueExpressionForSerialization ("abc")).Returns (idPartExpression);
 
       var result = _provider.GetAssembledTypeIDDataExpression (typeID);
 
@@ -161,7 +161,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       var result = _provider.GetAssembledTypeIDDataExpression (typeID);
 
-      _identifierProviderMock.AssertWasNotCalled (mock => mock.GetFlatValueExpressionForSerialization (Arg<object>.Is.Anything));
+      _identifierProviderMock.Verify (mock => mock.GetFlatValueExpressionForSerialization (It.IsAny<object>()), Times.Never());
       var expectedIdPartExpression = Expression.Constant (null, typeof (IFlatValue));
       CheckTypeIDDataExpression (result, requestedType, expectedIdPartExpression);
     }
@@ -171,7 +171,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var requestedType = ReflectionObjectMother.GetSomeType ();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
-      _identifierProviderMock.Stub (_ => _.GetFlatValueExpressionForSerialization ("abc")).Return (null);
+      _identifierProviderMock.Setup (_ => _.GetFlatValueExpressionForSerialization ("abc")).Returns ((Expression) null);
 
       var result = _provider.GetAssembledTypeIDDataExpression (typeID);
 
@@ -180,16 +180,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "The expression returned from 'GetFlatValueExpressionForSerialization' must build an serializable instance of 'IFlatValue'.")]
     public void GetFlattenedExpressionForSerialization_ProviderReturnsNonFlatValue ()
     {
       var requestedType = ReflectionObjectMother.GetSomeType();
       var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
       var nonFlatValueExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _identifierProviderMock.Stub (_ => _.GetFlatValueExpressionForSerialization ("abc")).Return (nonFlatValueExpression);
-
-      _provider.GetAssembledTypeIDDataExpression (typeID);
+      _identifierProviderMock.Setup (_ => _.GetFlatValueExpressionForSerialization ("abc")).Returns (nonFlatValueExpression);
+      Assert.That (
+          () => _provider.GetAssembledTypeIDDataExpression (typeID),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "The expression returned from 'GetFlatValueExpressionForSerialization' must build an serializable instance of 'IFlatValue'."));
     }
 
     private static void CheckTypeIDDataExpression (Expression result, Type requestedType, Expression idPartExpression)

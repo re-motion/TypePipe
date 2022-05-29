@@ -18,7 +18,7 @@ using System;
 using NUnit.Framework;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -49,11 +49,11 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void ParticipantIsSuppliedWithHisTypeIDPart ()
     {
       var typeIDPart = "type ID part";
-      var typeIdentifierProviderStub = MockRepository.GenerateStub<ITypeIdentifierProvider> ();
-      typeIdentifierProviderStub.Stub (_ => _.GetID (typeof (RequestedType))).Return (typeIDPart);
+      var typeIdentifierProviderStub = new Mock<ITypeIdentifierProvider>();
+      typeIdentifierProviderStub.Setup (_ => _.GetID (typeof (RequestedType))).Returns (typeIDPart);
 
       var participant1 = CreateParticipant ((id, ctx) => Assert.That (id, Is.Null));
-      var participant2 = CreateParticipant ((id, ctx) => Assert.That (id, Is.EqualTo (typeIDPart)), typeIdentifierProviderStub);
+      var participant2 = CreateParticipant ((id, ctx) => Assert.That (id, Is.EqualTo (typeIDPart)), typeIdentifierProviderStub.Object);
       var pipeline = CreatePipeline (participant1, participant2);
 
       Assert.That (() => pipeline.Create<RequestedType>(), Throws.Nothing);

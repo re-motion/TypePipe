@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Implementation;
@@ -51,7 +52,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
 
-      CheckAdapterAndSaveToDiskBehavior (result, _currentDirectory);
+      CheckAdapterBehavior (result);
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+      CheckSaveToDiskBehavior (result, _currentDirectory);
+#endif
     }
 
     [Test]
@@ -74,47 +78,91 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var tempDirectory = Path.GetTempPath();
       var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null);
 
-      CheckAdapterAndSaveToDiskBehavior (result, tempDirectory);
+      CheckAdapterBehavior (result);
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+      CheckSaveToDiskBehavior (result, tempDirectory);
+#endif
     }
 
     [Test]
     public void CreateModuleBuilder_StrongNamed_FallbackKey ()
     {
+      try
+      {
+        Dev.Null = FallbackKey.KeyPair.PublicKey;
+      }
+      catch (PlatformNotSupportedException)
+      {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+        throw;
+#else
+        Assert.Ignore (".NET does not support assembly persistence.");
+#endif
+      }
+
       var result1 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
       var result2 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty);
 
       var publicKey = FallbackKey.KeyPair.PublicKey;
-      CheckAdapterAndSaveToDiskBehavior (result1, _currentDirectory, expectedPublicKey: publicKey);
-      CheckAdapterAndSaveToDiskBehavior (result2, _currentDirectory, expectedPublicKey: publicKey);
+
+      CheckAdapterBehavior (result1, expectedPublicKey: publicKey);
+      CheckSaveToDiskBehavior (result1, _currentDirectory);
+
+      CheckAdapterBehavior (result2, expectedPublicKey: publicKey);
+      CheckSaveToDiskBehavior (result2, _currentDirectory);
     }
 
     [Test]
     public void CreateModuleBuilder_StrongNamed_ProvidedKey ()
     {
+      try
+      {
+        Dev.Null = FallbackKey.KeyPair.PublicKey;
+      }
+      catch (PlatformNotSupportedException)
+      {
+#if FEATURE_ASSEMBLYBUILDER_SAVE
+        throw;
+#else
+        Assert.Ignore (".NET does not support assembly persistence.");
+#endif
+      }
+
       var otherKeyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"CodeGeneration\ReflectionEmit\OtherKey.snk");
       var result = _factory.CreateModuleBuilder (
           c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: otherKeyPath);
 
       var publicKey = new StrongNameKeyPair (File.ReadAllBytes (otherKeyPath)).PublicKey;
-      CheckAdapterAndSaveToDiskBehavior (result, _currentDirectory, expectedPublicKey: publicKey);
+
+      CheckAdapterBehavior (result, expectedPublicKey: publicKey);
+      CheckSaveToDiskBehavior (result, _currentDirectory);
     }
 
-    private void CheckAdapterAndSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory, byte[] expectedPublicKey = null)
+    private void CheckAdapterBehavior (IModuleBuilder moduleBuilder, byte[] expectedPublicKey = null)
     {
       Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var moduleBuilderAdapter = (ModuleBuilderAdapter) moduleBuilder;
+#if FEATURE_ASSEMBLYBUILDER_SAVE
       Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo (c_assemblyFileName));
+#else
+      // .NET5 as a hardcoded module name since it does not support AssemblyBuilder.Save().
+      Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo ("RefEmit_InMemoryManifestModule"));
+#endif
       Assert.That (moduleBuilderAdapter.AssemblyBuilder, Is.TypeOf<AssemblyBuilderAdapter>());
       var assemblyBuilderAdapter = (AssemblyBuilderAdapter) moduleBuilder.AssemblyBuilder;
+
       Assert.That (assemblyBuilderAdapter.AssemblyName, Is.EqualTo (c_assemblyName));
       Assert.That (assemblyBuilderAdapter.PublicKey, Is.EqualTo (expectedPublicKey ?? new byte[0]));
+    }
 
+    private void CheckSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory)
+    {
       var assemblyPath = Path.Combine (assemblyDirectory, c_assemblyFileName);
       var pdbPath = Path.Combine (assemblyDirectory, c_pdbFileName);
       Assert.That (File.Exists (assemblyPath), Is.False);
       Assert.That (File.Exists (pdbPath), Is.False);
 
-      var result = assemblyBuilderAdapter.SaveToDisk();
+      var result = moduleBuilder.AssemblyBuilder.SaveToDisk();
 
       Assert.That (File.Exists (assemblyPath), Is.True);
       Assert.That (File.Exists (pdbPath), Is.True);

@@ -30,6 +30,7 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.UnitTests.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -110,12 +111,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage = "An abstract method has no body.")]
     public void Body_ThrowsForAbstractMethod ()
     {
       var method = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Abstract);
-
-      Dev.Null = method.Body;
+      Assert.That (
+          () => Dev.Null = method.Body,
+          Throws.InvalidOperationException
+              .With.Message.EqualTo ("An abstract method has no body."));
     }
 
     [Test]
@@ -176,13 +178,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage =
-        "Cannot add an explicit base definition to the non-virtual method 'NonVirtualMethod'.")]
     public void AddExplicitBaseDefinition_CannotAddExplicitBaseDefinition ()
     {
       var overriddenMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethod ());
-
-      _method.AddExplicitBaseDefinition (overriddenMethodDefinition);
+      Assert.That (
+          () => _method.AddExplicitBaseDefinition (overriddenMethodDefinition),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo ("Cannot add an explicit base definition to the non-virtual method 'NonVirtualMethod'."));
     }
 
     [Test]
@@ -191,45 +193,47 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var nonVirtualMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.NonVirtualMethod ());
       var finalMethodDefinition = typeof (DomainType).GetMethod ("FinalMethod");
 
-      var message = "Method must be virtual and non-final.\r\nParameter name: overriddenMethodBaseDefinition";
+      var message = "Method must be virtual and non-final.";
+      var paramName = "overriddenMethodBaseDefinition";
       Assert.That (
           () => _virtualMethod.AddExplicitBaseDefinition (nonVirtualMethodDefinition),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
       Assert.That (
           () => _virtualMethod.AddExplicitBaseDefinition (finalMethodDefinition),
-          Throws.ArgumentException.With.Message.EqualTo (message));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, paramName));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Method signatures must be equal.\r\nParameter name: overriddenMethodBaseDefinition")]
     public void AddExplicitBaseDefinition_IncompatibleSignatures ()
     {
       var differentSignatureMethodDefinition =
           NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType obj) => obj.VirtualMethodWithDifferentSignature (7));
-
-      _virtualMethod.AddExplicitBaseDefinition (differentSignatureMethodDefinition);
+      Assert.That (
+          () => _virtualMethod.AddExplicitBaseDefinition (differentSignatureMethodDefinition),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("Method signatures must be equal.", "overriddenMethodBaseDefinition"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The overridden method must be from the same type hierarchy.\r\nParameter name: overriddenMethodBaseDefinition")]
     public void AddExplicitBaseDefinition_UnrelatedMethod ()
     {
       var unrelatedMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetMethod ((UnrelatedType obj) => obj.VirtualMethod ());
-
-      _virtualMethod.AddExplicitBaseDefinition (unrelatedMethodDefinition);
+      Assert.That (
+          () => _virtualMethod.AddExplicitBaseDefinition (unrelatedMethodDefinition),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = 
-        "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)\r\n"
-        + "Parameter name: overriddenMethodBaseDefinition")]
     public void AddExplicitBaseDefinition_NoRootMethod ()
     {
       var nonBaseDefinitionMethod = typeof (DomainType).GetMethod ("OverridingMethod");
-
-      _virtualMethod.AddExplicitBaseDefinition (nonBaseDefinitionMethod);
+      Assert.That (
+          () => _virtualMethod.AddExplicitBaseDefinition (nonBaseDefinitionMethod),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)",
+                  "overriddenMethodBaseDefinition"));
     }
 
     [Test]

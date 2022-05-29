@@ -30,6 +30,9 @@ using Remotion.TypePipe.StrongNaming;
 namespace Remotion.TypePipe.IntegrationTests.StrongNaming
 {
   [TestFixture]
+#if !FEATURE_STRONGNAMESIGNING
+  [Ignore ("Strong name signing is not supported.")]
+#endif
   public class StrongNamingTest : IntegrationTestBase
   {
     private Type _signedType;
@@ -305,7 +308,7 @@ namespace Remotion.TypePipe.IntegrationTests.StrongNaming
     private Type CreateUnsignedType (TypeAttributes attributes, Type baseType)
     {
       var assemblyName = "testAssembly";
-      var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
+      var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly (new AssemblyName (assemblyName), AssemblyBuilderAccess.Run);
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (assemblyName + ".dll");
       var typeBuilder = moduleBuilder.DefineType ("UnsignedType", attributes | TypeAttributes.Public, baseType);
 

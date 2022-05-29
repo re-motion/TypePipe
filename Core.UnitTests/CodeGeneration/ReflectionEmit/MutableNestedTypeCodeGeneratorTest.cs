@@ -21,14 +21,14 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class MutableNestedTypeCodeGeneratorTest
   {
-    private ITypeBuilder _enclosingTypeBuilderMock;
+    private Mock<ITypeBuilder> _enclosingTypeBuilderMock;
     private MutableType _mutableType;
 
     private MutableNestedTypeCodeGenerator _generator;
@@ -36,32 +36,32 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _enclosingTypeBuilderMock = MockRepository.GenerateStrictMock<ITypeBuilder>();
+      _enclosingTypeBuilderMock = new Mock<ITypeBuilder> (MockBehavior.Strict);
       _mutableType = MutableTypeObjectMother.Create();
 
       _generator = new MutableNestedTypeCodeGenerator
           (
-          _enclosingTypeBuilderMock,
+          _enclosingTypeBuilderMock.Object,
           _mutableType,
-          MockRepository.GenerateStub<IMutableNestedTypeCodeGeneratorFactory>(),
-          MockRepository.GenerateStub<IReflectionEmitCodeGenerator>(),
-          MockRepository.GenerateStub<IEmittableOperandProvider>(),
-          MockRepository.GenerateStub<IMemberEmitter>(),
-          MockRepository.GenerateStub<IInitializationBuilder>(),
-          MockRepository.GenerateStub<IProxySerializationEnabler>());
+          new Mock<IMutableNestedTypeCodeGeneratorFactory>().Object,
+          new Mock<IReflectionEmitCodeGenerator>().Object,
+          new Mock<IEmittableOperandProvider>().Object,
+          new Mock<IMemberEmitter>().Object,
+          new Mock<IInitializationBuilder>().Object,
+          new Mock<IProxySerializationEnabler>().Object);
     }
 
     [Test]
     public void DeclareType ()
     {
-      var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
-      _enclosingTypeBuilderMock.Expect (mock => mock.DefineNestedType (_mutableType.Name, _mutableType.Attributes)).Return (fakeTypeBuilder);
-      var codeGeneratorStub = MockRepository.GenerateStub<IReflectionEmitCodeGenerator>();
-      var emittableOperandProviderStub = MockRepository.GenerateStub<IEmittableOperandProvider>();
+      var fakeTypeBuilder = new Mock<ITypeBuilder>().Object;
+      _enclosingTypeBuilderMock.Setup (mock => mock.DefineNestedType (_mutableType.Name, _mutableType.Attributes)).Returns (fakeTypeBuilder).Verifiable();
+      var codeGeneratorStub = new Mock<IReflectionEmitCodeGenerator>();
+      var emittableOperandProviderStub = new Mock<IEmittableOperandProvider>();
 
-      var result = _generator.Invoke ("DefineType", codeGeneratorStub, emittableOperandProviderStub);
+      var result = _generator.Invoke ("DefineType", codeGeneratorStub.Object, emittableOperandProviderStub.Object);
 
-      _enclosingTypeBuilderMock.VerifyAllExpectations();
+      _enclosingTypeBuilderMock.Verify();
       Assert.That (result, Is.SameAs (fakeTypeBuilder));
     }
   }

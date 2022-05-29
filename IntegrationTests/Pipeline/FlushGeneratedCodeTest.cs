@@ -28,6 +28,9 @@ using Remotion.TypePipe.MutableReflection;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+  [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
   public class FlushGeneratedCodeTest : IntegrationTestBase
   {
     [Test]
@@ -123,6 +126,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void CustomNamePatternWithoutCounter_OverwritesPreviousAssembly ()
     {
       var settings = PipelineSettings.New()
+          .SetAssemblyDirectory (TestContext.CurrentContext.TestDirectory)
           .SetAssemblyNamePattern ("xxx")
           .Build();
 
@@ -138,6 +142,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void CustomNamePatternIncludingCounter_ProducesUniqueAssemblyNames ()
     {
       var settings = PipelineSettings.New()
+          .SetAssemblyDirectory (TestContext.CurrentContext.TestDirectory)
           .SetAssemblyNamePattern ("xxx_{counter}")
           .Build();
 

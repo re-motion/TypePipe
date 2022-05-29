@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -16,7 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
@@ -25,27 +25,28 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Implementation;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.TypeAssembly.Implementation;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
   [TestFixture]
   public class CodeManagerTest
   {
-    private ITypeCache _typeCacheMock;
-    private ITypeAssembler _typeAssemblerMock;
-    private IAssemblyContextPool _assemblyContextPool;
+    private Mock<ITypeCache> _typeCacheMock;
+    private Mock<ITypeAssembler> _typeAssemblerMock;
+    private Mock<IAssemblyContextPool> _assemblyContextPool;
 
     private CodeManager _manager;
 
     [SetUp]
     public void SetUp ()
     {
-      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
-      _typeAssemblerMock = MockRepository.GenerateStrictMock<ITypeAssembler>();
-      _assemblyContextPool = MockRepository.GenerateStrictMock<IAssemblyContextPool>();
+      _typeCacheMock = new Mock<ITypeCache> (MockBehavior.Strict);
+      _typeAssemblerMock = new Mock<ITypeAssembler> (MockBehavior.Strict);
+      _assemblyContextPool = new Mock<IAssemblyContextPool> (MockBehavior.Strict);
 
-      _manager = new CodeManager (_typeCacheMock, _typeAssemblerMock, _assemblyContextPool);
+      _manager = new CodeManager (_typeCacheMock.Object, _typeAssemblerMock.Object, _assemblyContextPool.Object);
     }
 
     [Test]
@@ -53,90 +54,97 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
 
-      var generatedCodeFlusherMock1 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
-      var assemblyContext1 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock1);
+      var generatedCodeFlusherMock1 = new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict);
+      var assemblyContext1 = new AssemblyContext (new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object, generatedCodeFlusherMock1.Object);
       var participantState1 = assemblyContext1.ParticipantState;
 
-      var generatedCodeFlusherMock2 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
-      var assemblyContext2 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock2);
+      var generatedCodeFlusherMock2 = new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict);
+      var assemblyContext2 = new AssemblyContext (new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object, generatedCodeFlusherMock2.Object);
       var participantState2 = assemblyContext2.ParticipantState;
 
-      var generatedCodeFlusherMock3 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
-      var assemblyContext3 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock3);
+      var generatedCodeFlusherMock3 = new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict);
+      var assemblyContext3 = new AssemblyContext (new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object, generatedCodeFlusherMock3.Object);
       var participantState3 = assemblyContext3.ParticipantState;
 
-      bool isDequeued = false;
+      var isDequeued = false;
       _assemblyContextPool
-          .Expect (mock => mock.DequeueAll())
-          .Return (new[] { assemblyContext1, assemblyContext2, assemblyContext3 })
-          .WhenCalled (mi => { isDequeued = true; });
+          .Setup (mock => mock.DequeueAll())
+          .Returns (new[] { assemblyContext1, assemblyContext2, assemblyContext3 })
+          .Callback (() => { isDequeued = true; })
+          .Verifiable();
 
-      bool isFlushed1 = false;
+      var isFlushed1 = false;
       generatedCodeFlusherMock1
-          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
-          .Return ("path1")
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.FlushCodeToDisk (It.IsAny<IEnumerable<CustomAttributeDeclaration>>()))
+          .Returns ("path1")
+          .Callback (
+              (IEnumerable<CustomAttributeDeclaration> assemblyAttributes) =>
               {
                 Assert.That (isDequeued, Is.True);
                 isFlushed1 = true;
-              });
+              })
+          .Verifiable();
 
-      bool isFlushed2 = false;
+      var isFlushed2 = false;
       generatedCodeFlusherMock2
-          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
-          .Return (null)
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.FlushCodeToDisk (It.IsAny<IEnumerable<CustomAttributeDeclaration>>()))
+          .Returns ((string) null)
+          .Callback (
+              (IEnumerable<CustomAttributeDeclaration> assemblyAttributes) =>
               {
                 Assert.That (isDequeued, Is.True);
                 isFlushed2 = true;
-              });
+              })
+          .Verifiable();
 
-      bool isFlushed3 = false;
+      var isFlushed3 = false;
       generatedCodeFlusherMock3
-          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
-          .Return ("path3")
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.FlushCodeToDisk (It.IsAny<IEnumerable<CustomAttributeDeclaration>>()))
+          .Returns ("path3")
+          .Callback (
+              (IEnumerable<CustomAttributeDeclaration> assemblyAttributes) =>
               {
                 Assert.That (isDequeued, Is.True);
                 isFlushed3 = true;
-              });
+              })
+          .Verifiable();
 
       _assemblyContextPool
-          .Expect (mock => mock.Enqueue (assemblyContext1))
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.Enqueue (assemblyContext1))
+          .Callback (
+              (AssemblyContext _) =>
               {
                 Assert.That (isFlushed1, Is.True);
                 Assert.That (assemblyContext1.ParticipantState, Is.Not.SameAs (participantState1));
-              });
+              })
+          .Verifiable();
 
       _assemblyContextPool
-          .Expect (mock => mock.Enqueue (assemblyContext2))
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.Enqueue (assemblyContext2))
+          .Callback (
+              (AssemblyContext assemblyContext) =>
               {
                 Assert.That (isFlushed2, Is.True);
                 Assert.That (assemblyContext2.ParticipantState, Is.Not.SameAs (participantState2));
-              });
+              })
+          .Verifiable();
 
       _assemblyContextPool
-          .Expect (mock => mock.Enqueue (assemblyContext3))
-          .WhenCalled (
-              mi =>
+          .Setup (mock => mock.Enqueue (assemblyContext3))
+          .Callback (
+              (AssemblyContext assemblyContext) =>
               {
                 Assert.That (isFlushed3, Is.True);
                 Assert.That (assemblyContext3.ParticipantState, Is.Not.SameAs (participantState3));
-              });
+              })
+          .Verifiable();
 
       var result = _manager.FlushCodeToDisk (new[] { assemblyAttribute });
 
-      _assemblyContextPool.VerifyAllExpectations();
-      generatedCodeFlusherMock1.VerifyAllExpectations();
-      generatedCodeFlusherMock2.VerifyAllExpectations();
-      generatedCodeFlusherMock3.VerifyAllExpectations();
+      _assemblyContextPool.Verify();
+      generatedCodeFlusherMock1.Verify();
+      generatedCodeFlusherMock2.Verify();
+      generatedCodeFlusherMock3.Verify();
 
       Assert.That (result, Is.EquivalentTo (new[] { "path1", "path3" }));
     }
@@ -147,42 +155,46 @@ namespace Remotion.TypePipe.UnitTests.Implementation
       var expectedException = new Exception();
       var assemblyAttribute = CustomAttributeDeclarationObjectMother.Create();
 
-      var generatedCodeFlusherMock1 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
-      var assemblyContext1 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock1);
+      var generatedCodeFlusherMock1 = new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict);
+      var assemblyContext1 = new AssemblyContext (new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object, generatedCodeFlusherMock1.Object);
 
-      var generatedCodeFlusherMock2 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
-      var assemblyContext2 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock2);
+      var generatedCodeFlusherMock2 = new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict);
+      var assemblyContext2 = new AssemblyContext (new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object, generatedCodeFlusherMock2.Object);
 
-      var generatedCodeFlusherMock3 = MockRepository.GenerateStrictMock<IGeneratedCodeFlusher>();
-      var assemblyContext3 = new AssemblyContext (MockRepository.GenerateStrictMock<IMutableTypeBatchCodeGenerator>(), generatedCodeFlusherMock3);
+      var generatedCodeFlusherMock3 = new Mock<IGeneratedCodeFlusher> (MockBehavior.Strict);
+      var assemblyContext3 = new AssemblyContext (new Mock<IMutableTypeBatchCodeGenerator> (MockBehavior.Strict).Object, generatedCodeFlusherMock3.Object);
 
       _assemblyContextPool
-          .Expect (mock => mock.DequeueAll())
-          .Return (new[] { assemblyContext1, assemblyContext2, assemblyContext3 });
+          .Setup (mock => mock.DequeueAll())
+          .Returns (new[] { assemblyContext1, assemblyContext2, assemblyContext3 })
+          .Verifiable();
 
       generatedCodeFlusherMock1
-          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
-          .Return ("path1");
+          .Setup (mock => mock.FlushCodeToDisk (It.IsAny<IEnumerable<CustomAttributeDeclaration>>()))
+          .Returns ("path1")
+          .Verifiable();
 
       generatedCodeFlusherMock2
-          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
-          .Throw (expectedException);
+          .Setup (mock => mock.FlushCodeToDisk (It.IsAny<IEnumerable<CustomAttributeDeclaration>>()))
+          .Throws (expectedException)
+          .Verifiable();
 
       generatedCodeFlusherMock3
-          .Expect (mock => mock.FlushCodeToDisk (Arg<IEnumerable<CustomAttributeDeclaration>>.Is.Anything))
-          .Return ("path3");
+          .Setup (mock => mock.FlushCodeToDisk (It.IsAny<IEnumerable<CustomAttributeDeclaration>>()))
+          .Returns ("path3")
+          .Verifiable();
 
-      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext1));
-      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext2));
-      _assemblyContextPool.Expect (mock => mock.Enqueue (assemblyContext3));
+      _assemblyContextPool.Setup (mock => mock.Enqueue (assemblyContext1)).Verifiable();
+      _assemblyContextPool.Setup (mock => mock.Enqueue (assemblyContext2)).Verifiable();
+      _assemblyContextPool.Setup (mock => mock.Enqueue (assemblyContext3)).Verifiable();
 
       var aggregateException = Assert.Throws<AggregateException> (() => _manager.FlushCodeToDisk (new[] { assemblyAttribute }));
       Assert.That (aggregateException.InnerExceptions, Is.EquivalentTo (new[] { expectedException }));
 
-      _assemblyContextPool.VerifyAllExpectations();
-      generatedCodeFlusherMock1.VerifyAllExpectations();
-      generatedCodeFlusherMock2.VerifyAllExpectations();
-      generatedCodeFlusherMock3.VerifyAllExpectations();
+      _assemblyContextPool.Verify();
+      generatedCodeFlusherMock1.Verify();
+      generatedCodeFlusherMock2.Verify();
+      generatedCodeFlusherMock3.Verify();
     }
 
     [Test]
@@ -190,43 +202,55 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var type = ReflectionObjectMother.GetSomeType();
       var assemblyMock = CreateAssemblyMock ("config", type);
-      _typeAssemblerMock.Expect (mock => mock.ParticipantConfigurationID).Return ("config");
-      _typeCacheMock.Expect (mock => mock.LoadTypes (new[] { type }));
+      _typeAssemblerMock.SetupGet (mock => mock.ParticipantConfigurationID).Returns ("config").Verifiable();
+      _typeCacheMock.Setup (mock => mock.LoadTypes (new[] { type })).Verifiable();
 
-      _manager.LoadFlushedCode (assemblyMock);
+      _manager.LoadFlushedCode (assemblyMock.Object);
 
-      assemblyMock.VerifyAllExpectations();
-      _typeCacheMock.VerifyAllExpectations();
-      _typeAssemblerMock.VerifyAllExpectations();
+      assemblyMock.Verify();
+      _typeCacheMock.Verify();
+      _typeAssemblerMock.Verify();
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The specified assembly was not generated by the pipeline.\r\nParameter name: assembly")]
     public void LoadFlushedCode_MissingTypePipeAssemblyAttribute ()
     {
-      _manager.LoadFlushedCode (GetType().Assembly);
+      Assert.That (
+          () => _manager.LoadFlushedCode (GetType().Assembly),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("The specified assembly was not generated by the pipeline.", "assembly"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The specified assembly was generated with a different participant configuration: 'different config'.\r\nParameter name: assembly")]
     public void LoadFlushedCode_InvalidParticipantConfigurationID ()
     {
-      _typeAssemblerMock.Stub (stub => stub.ParticipantConfigurationID).Return ("config");
+      _typeAssemblerMock.SetupGet (stub => stub.ParticipantConfigurationID).Returns ("config");
       var assemblyMock = CreateAssemblyMock ("different config");
-
-      _manager.LoadFlushedCode (assemblyMock);
+      Assert.That (
+          () => _manager.LoadFlushedCode (assemblyMock.Object),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The specified assembly was generated with a different participant configuration: 'different config'.", "assembly"));
     }
 
-    private _Assembly CreateAssemblyMock (string participantConfigurationID, params Type[] types)
+    private Mock<FakeAssembly> CreateAssemblyMock (string participantConfigurationID, params Type[] types)
     {
-      var assemblyMock = MockRepository.GenerateStrictMock<_Assembly>();
+      var assemblyMock = new Mock<FakeAssembly> (MockBehavior.Strict);
       var assemblyAttribute = new TypePipeAssemblyAttribute (participantConfigurationID);
-      assemblyMock.Expect (mock => mock.GetCustomAttributes (typeof (TypePipeAssemblyAttribute), false)).Return (new object[] { assemblyAttribute });
-      assemblyMock.Expect (mock => mock.GetTypes()).Return (types);
+      assemblyMock.Setup (mock => mock.GetCustomAttributes (typeof (TypePipeAssemblyAttribute), false)).Returns (new object[] { assemblyAttribute }).Verifiable();
+      assemblyMock.Setup (mock => mock.GetTypes()).Returns (types).Verifiable();
 
       return assemblyMock;
+    }
+
+    /// <remarks>
+    /// Castle does not support creating a proxy for <see cref="Assembly"/> directly ("The type System.Reflection.Assembly implements ISerializable,
+    /// but failed to provide a deserialization constructor"), thus this type is required. <see cref="Assembly"/> defines the needed methods
+    /// <see cref="Assembly.GetCustomAttributes(System.Type,bool)"/> and <see cref="Assembly.GetTypes()"/> as virtual, allowing the type to be
+    /// mocked for our purpose.
+    /// </remarks>
+    public class FakeAssembly : Assembly
+    {
     }
   }
 }

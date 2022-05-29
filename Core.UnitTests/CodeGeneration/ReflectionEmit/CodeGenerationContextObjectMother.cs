@@ -20,7 +20,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
@@ -34,9 +34,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       return new CodeGenerationContext (
           mutableType ?? MutableTypeObjectMother.Create (),
-          typeBuilder ?? MockRepository.GenerateStub<ITypeBuilder>(),
-          debugInfoGenerator ?? MockRepository.GenerateStub<DebugInfoGenerator>(),
-          emittableOperandProvider ?? MockRepository.GenerateStub<IEmittableOperandProvider>());
+          typeBuilder ?? new Mock<ITypeBuilder>().Object,
+          debugInfoGenerator ?? new Mock<DebugInfoGenerator>().Object,
+          emittableOperandProvider ?? new Mock<IEmittableOperandProvider>().Object);
     }
   }
 }

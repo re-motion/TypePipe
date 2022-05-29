@@ -17,32 +17,32 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.Moq.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class MethodBaseBuilderDecoratorBaseTest
   {
-    private IMethodBaseBuilder _innerMock;
-    private IEmittableOperandProvider _operandProvider;
+    private Mock<IMethodBaseBuilder> _innerMock;
+    private Mock<IEmittableOperandProvider> _operandProvider;
 
-    private MethodBaseBuilderDecoratorBase _decorator;
+    private Mock<MethodBaseBuilderDecoratorBase> _decorator;
 
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<IMethodBaseBuilder> ();
-      _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider> ();
+      _innerMock = new Mock<IMethodBaseBuilder> (MockBehavior.Strict);
+      _operandProvider = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = MockRepository.GeneratePartialMock<MethodBaseBuilderDecoratorBase> (_innerMock, _operandProvider);
+      _decorator = new Mock<MethodBaseBuilderDecoratorBase> (_innerMock.Object, _operandProvider.Object) { CallBase = true };
     }
 
     [Test]
@@ -52,27 +52,27 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var attributes = (ParameterAttributes) 7;
       var parameterName = "parameter";
 
-      var fakeParameterBuilder = MockRepository.GenerateStub<IParameterBuilder>();
-      _innerMock.Expect (mock => mock.DefineParameter (iSequence, attributes, parameterName)).Return (fakeParameterBuilder);
+      var fakeParameterBuilder = new Mock<IParameterBuilder>();
+      _innerMock.Setup (mock => mock.DefineParameter (iSequence, attributes, parameterName)).Returns (fakeParameterBuilder.Object).Verifiable();
 
-      var result = _decorator.DefineParameter (iSequence, attributes, parameterName);
+      var result = _decorator.Object.DefineParameter (iSequence, attributes, parameterName);
 
-      _innerMock.VerifyAllExpectations();
+      _innerMock.Verify();
       Assert.That (result, Is.TypeOf<ParameterBuilderDecorator>());
       // Use field from base class 'BuilderDecoratorBase'.
-      Assert.That (PrivateInvoke.GetNonPublicField (result, "_customAttributeTargetBuilder"), Is.SameAs (fakeParameterBuilder));
+      Assert.That (PrivateInvoke.GetNonPublicField (result, "_customAttributeTargetBuilder"), Is.SameAs (fakeParameterBuilder.Object));
     }
 
     [Test]
     public void DelegatingMembers ()
     {
       var lambdaExpression = Expression.Lambda (Expression.Empty());
-      var ilGeneratorFactoryStub = MockRepository.GenerateStub<IILGeneratorFactory>();
-      var debugInfoGenerator = MockRepository.GenerateStub<DebugInfoGenerator>();
+      var ilGeneratorFactoryStub = new Mock<IILGeneratorFactory>();
+      var debugInfoGenerator = new Mock<DebugInfoGenerator>();
 
-      var helper = new DecoratorTestHelper<IMethodBaseBuilder> (_decorator, _innerMock);
+      var helper = new DecoratorTestHelper<IMethodBaseBuilder> (_decorator.Object, _innerMock);
 
-      helper.CheckDelegation (d => d.SetBody (lambdaExpression, ilGeneratorFactoryStub, debugInfoGenerator));
+      helper.CheckDelegation (d => d.SetBody (lambdaExpression, ilGeneratorFactoryStub.Object, debugInfoGenerator.Object));
     }
   }
 }

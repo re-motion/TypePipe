@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +30,8 @@ using Remotion.TypePipe.MutableReflection.BodyBuilding;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection.Implementation.MemberFactory;
 using Remotion.Utilities;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -38,9 +40,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
   {
     private const BindingFlags c_all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-    private IMemberSelector _memberSelectorMock;
-    private IInterfaceMappingComputer _interfaceMappingComputerMock;
-    private IMutableMemberFactory _mutableMemberFactoryMock;
+    private Mock<IMemberSelector> _memberSelectorMock;
+    private Mock<IInterfaceMappingComputer> _interfaceMappingComputerMock;
+    private Mock<IMutableMemberFactory> _mutableMemberFactoryMock;
 
     private MutableType _mutableType;
     private MutableType _mutableTypeWithoutMocks;
@@ -48,16 +50,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     [SetUp]
     public void SetUp ()
     {
-      _memberSelectorMock = MockRepository.GenerateStrictMock<IMemberSelector>();
-      _interfaceMappingComputerMock = MockRepository.GenerateStrictMock<IInterfaceMappingComputer>();
-      _mutableMemberFactoryMock = MockRepository.GenerateStrictMock<IMutableMemberFactory>();
+      _memberSelectorMock = new Mock<IMemberSelector> (MockBehavior.Strict);
+      _interfaceMappingComputerMock = new Mock<IInterfaceMappingComputer> (MockBehavior.Strict);
+      _mutableMemberFactoryMock = new Mock<IMutableMemberFactory> (MockBehavior.Strict);
 
       _mutableType = MutableTypeObjectMother.Create (
           name: "MyAbcType",
           baseType: typeof (DomainType),
-          memberSelector: _memberSelectorMock,
-          interfaceMappingComputer: _interfaceMappingComputerMock,
-          mutableMemberFactory: _mutableMemberFactoryMock);
+          memberSelector: _memberSelectorMock.Object,
+          interfaceMappingComputer: _interfaceMappingComputerMock.Object,
+          mutableMemberFactory: _mutableMemberFactoryMock.Object);
 
       _mutableTypeWithoutMocks = MutableTypeObjectMother.Create (baseType: typeof (DomainType));
     }
@@ -72,7 +74,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var attributes = (TypeAttributes) 7;
 
       var mutableType = new MutableType (
-          declaringType, baseType, name, @namespace, attributes, _interfaceMappingComputerMock, _mutableMemberFactoryMock);
+          declaringType, baseType, name, @namespace, attributes, _interfaceMappingComputerMock.Object, _mutableMemberFactoryMock.Object);
 
       Assert.That (mutableType.DeclaringType, Is.SameAs (declaringType));
       Assert.That (mutableType.MutableDeclaringType, Is.SameAs (declaringType));
@@ -203,14 +205,22 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
           parameters: ParameterDeclaration.None,
           baseMethod: baseMethod);
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateMethod (null, null, 0, null, null, null, null))
-          .IgnoreArguments()
-          .Return (fakeOverride);
+          .Setup (
+              mock => mock.CreateMethod (
+                  It.IsAny<MutableType>(),
+                  It.IsAny<string>(),
+                  It.IsAny<MethodAttributes>(),
+                  It.IsAny<IEnumerable<GenericParameterDeclaration>>(),
+                  It.IsAny<Func<GenericParameterContext, Type>>(),
+                  It.IsAny<Func<GenericParameterContext, IEnumerable<ParameterDeclaration>>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+          .Returns (fakeOverride)
+          .Verifiable();
       _mutableType.AddMethod ("in", 0, typeof (int), ParameterDeclaration.None, ctx => null);
 
       var result = _mutableType.GetAllMethods().ToArray();
 
-      _memberSelectorMock.VerifyAllExpectations();
+      _memberSelectorMock.Verify();
       Assert.That (result, Has.Member (fakeOverride));
       Assert.That (result, Has.No.Member (baseMethod));
       Assert.That (result, Has.No.Member (null));
@@ -245,12 +255,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var typeAttributes = TypeAttributes.NestedFamily;
       var baseType = ReflectionObjectMother.GetSomeType();
       var nestedTypeFake = MutableTypeObjectMother.Create();
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateNestedType (_mutableType, typeName, typeAttributes, baseType)).Return (nestedTypeFake);
+      _mutableMemberFactoryMock.Setup (mock => mock.CreateNestedType (_mutableType, typeName, typeAttributes, baseType)).Returns (nestedTypeFake).Verifiable();
 
       var result = _mutableType.AddNestedType (typeName, typeAttributes, baseType);
 
       Assert.That (result, Is.SameAs (nestedTypeFake));
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
     }
 
     [Test]
@@ -260,12 +270,12 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var typeName = "NestedType";
       var typeAttributes = TypeAttributes.NestedFamily;
       var nestedTypeFake = MutableTypeObjectMother.Create ();
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateNestedType (_mutableType, typeName, typeAttributes, baseType: null)).Return (nestedTypeFake);
+      _mutableMemberFactoryMock.Setup (mock => mock.CreateNestedType (_mutableType, typeName, typeAttributes, null)).Returns (nestedTypeFake).Verifiable();
 
       var result = _mutableType.AddNestedType (typeName, typeAttributes, baseType: null);
 
       Assert.That (result, Is.SameAs (nestedTypeFake));
-      _mutableMemberFactoryMock.VerifyAllExpectations ();
+      _mutableMemberFactoryMock.Verify();
     }
 
     [Test]
@@ -275,10 +285,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => null;
       var typeInitializerFake = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
       _mutableMemberFactoryMock
-          .Expect (
-              mock => mock.CreateConstructor (
-                  _mutableType, MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.None, bodyProvider))
-          .Return (typeInitializerFake);
+          .Setup (mock => mock.CreateConstructor (_mutableType, MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.None, bodyProvider))
+          .Returns (typeInitializerFake)
+          .Verifiable();
 
       var result = _mutableType.AddTypeInitializer (bodyProvider);
 
@@ -293,11 +302,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<InitializationBodyContext, Expression> initializationProvider = ctx => null;
 
       var fakeExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateInitialization (_mutableType, initializationProvider)).Return (fakeExpression);
+      _mutableMemberFactoryMock.Setup (mock => mock.CreateInitialization (_mutableType, initializationProvider)).Returns (fakeExpression).Verifiable();
 
       _mutableType.AddInitialization (initializationProvider);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (_mutableType.Initialization.Expressions, Is.EqualTo (new[] { fakeExpression }));
     }
 
@@ -317,10 +326,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Type must be an interface.\r\nParameter name: interfaceType")]
     public void AddInterface_ThrowsIfNotAnInterface ()
     {
-      _mutableType.AddInterface (typeof (string));
+      Assert.That (
+          () => _mutableType.AddInterface (typeof (string)),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Type must be an interface.", "interfaceType"));
     }
 
     [Test]
@@ -332,7 +344,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Assert.That (() => _mutableType.AddInterface (interfaceType, throwIfAlreadyImplemented: false), Throws.Nothing);
       Assert.That (
           () => _mutableType.AddInterface (interfaceType),
-          Throws.TypeOf<ArgumentException>().With.Message.EqualTo ("Interface 'IDisposable' is already implemented.\r\nParameter name: interfaceType"));
+          Throws.TypeOf<ArgumentException>().With.ArgumentExceptionMessageEqualTo ("Interface 'IDisposable' is already implemented.", "interfaceType"));
     }
 
     [Test]
@@ -342,11 +354,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var type = ReflectionObjectMother.GetSomeType();
       var attributes = (FieldAttributes) 7;
       var fakeField = MutableFieldInfoObjectMother.Create (_mutableType);
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateField (_mutableType, name, type, attributes)).Return (fakeField);
+      _mutableMemberFactoryMock.Setup (mock => mock.CreateField (_mutableType, name, type, attributes)).Returns (fakeField).Verifiable();
 
       var result = _mutableType.AddField (name, attributes, type);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeField));
       Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { result }));
     }
@@ -359,12 +371,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<ConstructorBodyCreationContext, Expression> bodyProvider = ctx => null;
       var fakeConstructor = MutableConstructorInfoObjectMother.Create();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateConstructor (_mutableType, attributes, parameters, bodyProvider))
-          .Return (fakeConstructor);
+          .Setup (mock => mock.CreateConstructor (_mutableType, attributes, parameters, bodyProvider))
+          .Returns (fakeConstructor)
+          .Verifiable();
 
       var result = _mutableType.AddConstructor (attributes, parameters, bodyProvider);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeConstructor));
       Assert.That (_mutableType.AddedConstructors, Is.EqualTo (new[] { result }));
     }
@@ -374,7 +387,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       Assert.That (_mutableType.MutableTypeInitializer, Is.Null);
       var typeInitializerFake = MutableConstructorInfoObjectMother.Create (attributes: MethodAttributes.Static);
-      _mutableMemberFactoryMock.Stub (stub => stub.CreateConstructor (null, 0, null, null)).IgnoreArguments().Return (typeInitializerFake);
+      _mutableMemberFactoryMock
+          .Setup (
+              stub => stub.CreateConstructor (
+                  It.IsAny<MutableType>(),
+                  It.IsAny<MethodAttributes>(),
+                  It.IsAny<IEnumerable<ParameterDeclaration>>(),
+                  It.IsAny<Func<ConstructorBodyCreationContext, Expression>>())).Returns (typeInitializerFake);
 
       var result = _mutableType.AddConstructor (0, ParameterDeclaration.None, ctx => Expression.Empty());
 
@@ -394,14 +413,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
       var fakeMethod = MutableMethodInfoObjectMother.Create();
       _mutableMemberFactoryMock
-          .Expect (
-              mock =>
-              mock.CreateMethod (_mutableType, name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider))
-          .Return (fakeMethod);
+          .Setup (mock => mock.CreateMethod (_mutableType, name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider))
+          .Returns (fakeMethod)
+          .Verifiable();
 
       var result = _mutableType.AddMethod (name, attributes, genericParameterDeclarations, returnTypeProvider, parameterProvider, bodyProvider);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeMethod));
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result }));
     }
@@ -412,7 +430,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var method = ReflectionObjectMother.GetSomeMethod();
       Func<MethodBodyCreationContext, Expression> bodyProvider = ctx => null;
       var fakeMethod = MutableMethodInfoObjectMother.Create();
-      _mutableMemberFactoryMock.Expect (mock => mock.CreateExplicitOverride (_mutableType, method, bodyProvider)).Return (fakeMethod);
+      _mutableMemberFactoryMock.Setup (mock => mock.CreateExplicitOverride (_mutableType, method, bodyProvider)).Returns (fakeMethod).Verifiable();
 
       var result = _mutableType.AddExplicitOverride (method, bodyProvider);
 
@@ -425,13 +443,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseMethod = ReflectionObjectMother.GetSomeMethod();
       var fakeOverride = MutableMethodInfoObjectMother.Create();
+      var isNewlyCreated = true;
       _mutableMemberFactoryMock
-          .Expect (
+          .Setup (
               mock => mock.GetOrCreateOverride (
-                  Arg.Is (_mutableType),
-                  Arg.Is (baseMethod),
-                  out Arg<bool>.Out (true).Dummy))
-          .Return (fakeOverride);
+                  _mutableType,
+                  baseMethod,
+                  out isNewlyCreated))
+          .Returns (fakeOverride)
+          .Verifiable();
 
       var result = _mutableType.GetOrAddOverride (baseMethod);
 
@@ -444,13 +464,11 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var baseMethod = ReflectionObjectMother.GetSomeMethod();
       var fakeOverride = MutableMethodInfoObjectMother.Create();
+      var isNewlyCreated = false;
       _mutableMemberFactoryMock
-          .Expect (
-              mock => mock.GetOrCreateOverride (
-                  Arg.Is (_mutableType),
-                  Arg.Is (baseMethod),
-                  out Arg<bool>.Out (false).Dummy))
-          .Return (fakeOverride);
+          .Setup (mock => mock.GetOrCreateOverride (_mutableType, baseMethod, out isNewlyCreated))
+          .Returns (fakeOverride)
+          .Verifiable();
 
       var result = _mutableType.GetOrAddOverride (baseMethod);
 
@@ -463,13 +481,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var interfaceMethod = ReflectionObjectMother.GetSomeMethod();
       var fakeImplementation = MutableMethodInfoObjectMother.Create ();
+      var isNewlyCreated = true;
       _mutableMemberFactoryMock
-          .Expect (
+          .Setup (
               mock => mock.GetOrCreateImplementation (
-                  Arg.Is (_mutableType),
-                  Arg.Is (interfaceMethod),
-                  out Arg<bool>.Out (true).Dummy))
-          .Return (fakeImplementation);
+                  _mutableType,
+                  interfaceMethod,
+                  out isNewlyCreated))
+          .Returns (fakeImplementation)
+          .Verifiable();
 
       var result = _mutableType.GetOrAddImplementation (interfaceMethod);
 
@@ -482,13 +502,15 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var interfaceMethod = ReflectionObjectMother.GetSomeMethod();
       var fakeImplementation = MutableMethodInfoObjectMother.Create();
+      var isNewlyCreated = false;
       _mutableMemberFactoryMock
-          .Expect (
+          .Setup (
               mock => mock.GetOrCreateImplementation (
-                  Arg.Is (_mutableType),
-                  Arg.Is (interfaceMethod),
-                  out Arg<bool>.Out (false).Dummy))
-          .Return (fakeImplementation);
+                  _mutableType,
+                  interfaceMethod,
+                  out isNewlyCreated))
+          .Returns (fakeImplementation)
+          .Verifiable();
 
       var result = _mutableType.GetOrAddImplementation (interfaceMethod);
 
@@ -507,12 +529,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       Func<MethodBodyCreationContext, Expression> setBodyProvider = ctx => null;
       var fakeProperty = MutablePropertyInfoObjectMother.CreateReadWrite();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateProperty (_mutableType, name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider))
-          .Return (fakeProperty);
+          .Setup (mock => mock.CreateProperty (_mutableType, name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider))
+          .Returns (fakeProperty)
+          .Verifiable();
 
       var result = _mutableType.AddProperty (name, type, indexParameters, accessorAttributes, getBodyProvider, setBodyProvider);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeProperty));
       Assert.That (_mutableType.AddedProperties, Is.EqualTo (new[] { result }));
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result.MutableGetMethod, result.MutableSetMethod }));
@@ -529,8 +552,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeProperty = MutablePropertyInfoObjectMother.Create (getMethod: fakeGetMethod);
       Assert.That (fakeProperty.MutableSetMethod, Is.Null);
       _mutableMemberFactoryMock
-          .Stub (stub => stub.CreateProperty (_mutableType, "Property", type, ParameterDeclaration.None, MethodAttributes.Public, getBodyProvider, null))
-          .Return (fakeProperty);
+          .Setup (stub => stub.CreateProperty (_mutableType, "Property", type, ParameterDeclaration.None, MethodAttributes.Public, getBodyProvider, null))
+          .Returns (fakeProperty);
 
       _mutableType.AddProperty ("Property", type, getBodyProvider: getBodyProvider);
 
@@ -546,8 +569,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeProperty = MutablePropertyInfoObjectMother.Create (setMethod: fakeSetMethod);
       Assert.That (fakeProperty.MutableGetMethod, Is.Null);
       _mutableMemberFactoryMock
-        .Stub (stub => stub.CreateProperty (_mutableType, "Property", type, ParameterDeclaration.None, MethodAttributes.Public, null, setBodyProvider))
-        .Return (fakeProperty);
+          .Setup (stub => stub.CreateProperty (_mutableType, "Property", type, ParameterDeclaration.None, MethodAttributes.Public, null, setBodyProvider))
+          .Returns (fakeProperty);
 
       _mutableType.AddProperty ("Property", type, setBodyProvider: setBodyProvider);
 
@@ -563,12 +586,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var setMethod = MutableMethodInfoObjectMother.Create (attributes: MethodAttributes.Static);
       var fakeProperty = MutablePropertyInfoObjectMother.Create();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateProperty (_mutableType, name, attributes, getMethod, setMethod))
-          .Return (fakeProperty);
+          .Setup (mock => mock.CreateProperty (_mutableType, name, attributes, getMethod, setMethod))
+          .Returns (fakeProperty)
+          .Verifiable();
 
       var result = _mutableType.AddProperty (name, attributes, getMethod, setMethod);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeProperty));
       Assert.That (_mutableType.AddedProperties, Is.EqualTo (new[] { result }));
     }
@@ -585,13 +609,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
 
       var fakeEvent = MutableEventInfoObjectMother.CreateWithAccessors (createRaiseMethod: true);
       _mutableMemberFactoryMock
-          .Expect (
+          .Setup (
               mock => mock.CreateEvent (_mutableType, name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider))
-          .Return (fakeEvent);
+          .Returns (fakeEvent)
+          .Verifiable();
 
       var result = _mutableType.AddEvent (name, handlerType, accessorAttributes, addBodyProvider, removeBodyProvider, raiseBodyProvider);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeEvent));
       Assert.That (_mutableType.AddedEvents, Is.EqualTo (new[] { result }));
       Assert.That (_mutableType.AddedMethods, Is.EqualTo (new[] { result.MutableAddMethod, result.MutableRemoveMethod, result.MutableRaiseMethod }));
@@ -610,9 +635,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var fakeEvent = MutableEventInfoObjectMother.Create (addMethod: addMethod, removeMethod: removeMethod);
       Assert.That (fakeEvent.MutableRaiseMethod, Is.Null);
       _mutableMemberFactoryMock
-        .Stub (stub => stub.CreateEvent (null, null, null, 0, null, null, null))
-        .IgnoreArguments()
-        .Return (fakeEvent);
+          .Setup (
+              stub => stub.CreateEvent (
+                  It.IsAny<MutableType>(),
+                  It.IsAny<string>(),
+                  It.IsAny<Type>(),
+                  It.IsAny<MethodAttributes>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>(),
+                  It.IsAny<Func<MethodBodyCreationContext, Expression>>()))
+        .Returns (fakeEvent);
 
       var result = _mutableType.AddEvent ("Event", handlerType, addBodyProvider: addBodyProvider, removeBodyProvider: removeBodyProvider);
 
@@ -628,12 +660,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var raiseMethod = MutableMethodInfoObjectMother.Create();
       var fakeEvent = MutableEventInfoObjectMother.CreateWithAccessors();
       _mutableMemberFactoryMock
-          .Expect (mock => mock.CreateEvent (_mutableType, "Event", eventAttributes, addMethod, removeMethod, raiseMethod))
-          .Return (fakeEvent);
+          .Setup (mock => mock.CreateEvent (_mutableType, "Event", eventAttributes, addMethod, removeMethod, raiseMethod))
+          .Returns (fakeEvent)
+          .Verifiable();
 
       var result = _mutableType.AddEvent ("Event", eventAttributes, addMethod, removeMethod, raiseMethod);
 
-      _mutableMemberFactoryMock.VerifyAllExpectations();
+      _mutableMemberFactoryMock.Verify();
       Assert.That (result, Is.SameAs (fakeEvent));
       Assert.That (_mutableType.AddedEvents, Is.EqualTo (new[] { result }));
     }
@@ -643,14 +676,17 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     {
       var interfaceType = typeof (IDomainInterface);
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
-      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      _memberSelectorMock
+          .Setup (stub => stub.SelectMethods (It.IsAny<IEnumerable<MethodInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
+          .Returns (new MethodInfo[0]);
       _interfaceMappingComputerMock
-          .Expect (mock => mock.ComputeMapping (_mutableType, typeof (DomainType).GetInterfaceMap, interfaceType, false))
-          .Return (fakeResult);
+          .Setup (mock => mock.ComputeMapping (_mutableType, typeof (DomainType).GetInterfaceMap, interfaceType, false))
+          .Returns (fakeResult)
+          .Verifiable();
 
       var result = _mutableType.GetInterfaceMap (interfaceType);
 
-      _interfaceMappingComputerMock.VerifyAllExpectations();
+      _interfaceMappingComputerMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
     }
 
@@ -660,30 +696,36 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       var interfaceType = typeof (IDomainInterface);
       var allowPartial = BooleanObjectMother.GetRandomBoolean();
       var fakeResult = new InterfaceMapping { InterfaceType = ReflectionObjectMother.GetSomeType() };
-      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      _memberSelectorMock.Setup (stub => stub.SelectMethods<MethodInfo> (It.IsAny<IEnumerable<MethodInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>())).Returns (new MethodInfo[0]);
       _interfaceMappingComputerMock
-          .Expect (mock => mock.ComputeMapping (_mutableType, typeof (DomainType).GetInterfaceMap, interfaceType, allowPartial))
-          .Return (fakeResult);
+          .Setup (mock => mock.ComputeMapping (_mutableType, typeof (DomainType).GetInterfaceMap, interfaceType, allowPartial))
+          .Returns (fakeResult)
+          .Verifiable();
 
       var result = _mutableType.GetInterfaceMap (interfaceType, allowPartial);
 
-      _interfaceMappingComputerMock.VerifyAllExpectations();
+      _interfaceMappingComputerMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult), "Interface mapping is a struct, therefore we must use EqualTo and a non-empty struct.");
     }
 
     [Test]
-    [ExpectedException (typeof (NotSupportedException), ExpectedMessage = "Method GetInterfaceMap is not supported by interface types.")]
     public void GetInterfaceMap_Interface_Throws ()
     {
       var mutableInterfaceType = MutableTypeObjectMother.CreateInterface();
-      mutableInterfaceType.GetInterfaceMap (ReflectionObjectMother.GetSomeType());
+      Assert.That (
+          () => mutableInterfaceType.GetInterfaceMap (ReflectionObjectMother.GetSomeType()),
+          Throws.InstanceOf<NotSupportedException>()
+              .With.Message.EqualTo (
+                  "Method GetInterfaceMap is not supported by interface types."));
     }
 
     [Test]
     public void GetAttributeFlagsImpl_Serializable ()
     {
-      var proxyType = MutableTypeObjectMother.Create (memberSelector: _memberSelectorMock);
-      _memberSelectorMock.Stub (stub => stub.SelectMethods<MethodInfo> (null, 0, null)).IgnoreArguments().Return (new MethodInfo[0]);
+      var proxyType = MutableTypeObjectMother.Create (memberSelector: _memberSelectorMock.Object);
+      _memberSelectorMock
+          .Setup (stub => stub.SelectMethods<MethodInfo> (It.IsAny<IEnumerable<MethodInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
+          .Returns (new MethodInfo[0]);
       Assert.That (proxyType.IsTypePipeSerializable(), Is.False);
 
       proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));

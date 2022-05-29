@@ -22,23 +22,23 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.StrongNaming;
 using Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.StrongNaming
 {
   [TestFixture]
   public class TypeAnalyzerTest
   {
-    private IAssemblyAnalyzer _assemblyAnalyzerMock;
+    private Mock<IAssemblyAnalyzer> _assemblyAnalyzerMock;
 
     private TypeAnalyzer _analyzer;
 
     [SetUp]
     public void SetUp ()
     {
-      _assemblyAnalyzerMock = MockRepository.GenerateStrictMock<IAssemblyAnalyzer>();
+      _assemblyAnalyzerMock = new Mock<IAssemblyAnalyzer> (MockBehavior.Strict);
 
-      _analyzer = new TypeAnalyzer (_assemblyAnalyzerMock);
+      _analyzer = new TypeAnalyzer (_assemblyAnalyzerMock.Object);
     }
 
     [Test]
@@ -46,12 +46,12 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = ReflectionObjectMother.GetSomeType();
       var fakeResult = BooleanObjectMother.GetRandomBoolean();
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (fakeResult);
+      _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (type.Assembly)).Returns (fakeResult).Verifiable();
 
       var result1 = _analyzer.IsStrongNamed (type);
       var result2 = _analyzer.IsStrongNamed (type);
 
-      _assemblyAnalyzerMock.VerifyAllExpectations();
+      _assemblyAnalyzerMock.Verify();
       Assert.That (result1, Is.EqualTo (fakeResult));
       Assert.That (result2, Is.EqualTo (fakeResult));
     }
@@ -61,13 +61,13 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = typeof (IList<Lazy<IParticipant>>);
       var fakeResult = BooleanObjectMother.GetRandomBoolean();
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (IList<>).Assembly)).Return (true);
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (Lazy<>).Assembly)).Return (true);
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (typeof (IParticipant).Assembly)).Return (fakeResult);
+      _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (typeof (IList<>).Assembly)).Returns (true).Verifiable();
+      _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (typeof (Lazy<>).Assembly)).Returns (true).Verifiable();
+      _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (typeof (IParticipant).Assembly)).Returns (fakeResult).Verifiable();
 
       var result = _analyzer.IsStrongNamed (type);
 
-      _assemblyAnalyzerMock.VerifyAllExpectations();
+      _assemblyAnalyzerMock.Verify();
       Assert.That (result, Is.EqualTo (fakeResult));
     }
 
@@ -76,21 +76,27 @@ namespace Remotion.TypePipe.UnitTests.StrongNaming
     {
       var type = typeof (object);
       var proxyType = MutableTypeObjectMother.Create (baseType: type, memberSelector: null);
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (type.Assembly)).Return (true);
-      _assemblyAnalyzerMock.Expect (x => x.IsStrongNamed (proxyType.Assembly)).Return (true);
+      _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (type.Assembly)).Returns (true).Verifiable();
+      _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (proxyType.Assembly)).Returns (true).Verifiable();
 
       _analyzer.IsStrongNamed (type);
       _analyzer.IsStrongNamed (proxyType);
 
-      _assemblyAnalyzerMock.VerifyAllExpectations();
+      _assemblyAnalyzerMock.Verify();
     }
 
     [Test]
     public void IsStrongNamed_TypeBuilder ()
     {
       var typeBuilder = ReflectionEmitObjectMother.CreateTypeBuilder();
+#if NETFRAMEWORK
+      // TypeBuilder in .NET Framework returns null for non-generic types.
+      // Type returns empty, same as Type and TypeBuilder do in .NET 5.
       Assert.That (typeBuilder.GetGenericArguments(), Is.Null);
-      _assemblyAnalyzerMock.Stub (x => x.IsStrongNamed (typeBuilder.Assembly)).Return (true);
+#else
+      Assert.That (typeBuilder.GetGenericArguments(), Is.Empty);
+#endif
+      _assemblyAnalyzerMock.Setup (x => x.IsStrongNamed (typeBuilder.Assembly)).Returns (true);
 
       Assert.That (_analyzer.IsStrongNamed (typeBuilder), Is.True);
     }

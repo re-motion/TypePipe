@@ -84,17 +84,18 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types returned by "
-        + "Type.BaseType and Type.GetInterfaces must terminate.\r\nAt least one of the following types is causing the dependency cycle: 'Ifc1', 'Ifc2'.")]
     public void Sort_ThrowsForCycles ()
     {
       var interface1 = MutableTypeObjectMother.CreateInterface ("Ifc1");
       var interface2 = MutableTypeObjectMother.CreateInterface ("Ifc2");
       interface1.AddInterface (interface2);
       interface2.AddInterface (interface1);
-
-      _sorter.Sort (new[] { interface1, interface2 }).ForceEnumeration();
+      Assert.That (
+          () => _sorter.Sort (new[] { interface1, interface2 }).ForceEnumeration(),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "MutableTypes must not contain cycles in their dependencies, i.e., an algorithm that recursively follows the types returned by "
+                  + "Type.BaseType and Type.GetInterfaces must terminate.\r\nAt least one of the following types is causing the dependency cycle: 'Ifc1', 'Ifc2'."));
     }
   }
 }

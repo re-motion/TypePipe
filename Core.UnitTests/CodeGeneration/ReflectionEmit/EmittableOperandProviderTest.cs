@@ -29,14 +29,15 @@ using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Generics;
 using Remotion.TypePipe.MutableReflection.Implementation;
 using Remotion.Utilities;
-using Rhino.Mocks;
+using Moq;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   [TestFixture]
   public class EmittableOperandProviderTest
   {
-    private IDelegateProvider _delegateProviderMock;
+    private Mock<IDelegateProvider> _delegateProviderMock;
 
     private EmittableOperandProvider _provider;
 
@@ -51,9 +52,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [SetUp]
     public void SetUp ()
     {
-      _delegateProviderMock = MockRepository.GenerateStrictMock<IDelegateProvider>();
+      _delegateProviderMock = new Mock<IDelegateProvider> (MockBehavior.Strict);
 
-      _provider = new EmittableOperandProvider (_delegateProviderMock);
+      _provider = new EmittableOperandProvider (_delegateProviderMock.Object);
 
       _mutableType = MutableTypeObjectMother.Create();
       _mutableGenericParameter = MutableGenericParameterObjectMother.Create();
@@ -78,15 +79,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void AddMapping_Twice ()
     {
       CheckAddMappingTwiceThrows<MutableType, Type> (
-          _provider.AddMapping, _mutableType, "Type '{memberName}' is already mapped.\r\nParameter name: mappedType");
+          _provider.AddMapping, _mutableType, "Type '{memberName}' is already mapped.", "mappedType");
       CheckAddMappingTwiceThrows<MutableGenericParameter, Type> (
-          _provider.AddMapping, _mutableGenericParameter, "Type '{memberName}' is already mapped.\r\nParameter name: mappedType");
+          _provider.AddMapping, _mutableGenericParameter, "Type '{memberName}' is already mapped.", "mappedType");
       CheckAddMappingTwiceThrows<MutableFieldInfo, FieldInfo> (
-          _provider.AddMapping, _mutableField, "FieldInfo '{memberName}' is already mapped.\r\nParameter name: mappedField");
+          _provider.AddMapping, _mutableField, "FieldInfo '{memberName}' is already mapped.", "mappedField");
       CheckAddMappingTwiceThrows<MutableConstructorInfo, ConstructorInfo> (
-          _provider.AddMapping, _mutableConstructor, "ConstructorInfo '{memberName}' is already mapped.\r\nParameter name: mappedConstructor");
+          _provider.AddMapping, _mutableConstructor, "ConstructorInfo '{memberName}' is already mapped.", "mappedConstructor");
       CheckAddMappingTwiceThrows<MutableMethodInfo, MethodInfo> (
-          _provider.AddMapping, _mutableMethod, "MethodInfo '{memberName}' is already mapped.\r\nParameter name: mappedMethod");
+          _provider.AddMapping, _mutableMethod, "MethodInfo '{memberName}' is already mapped.", "mappedMethod");
     }
 
     [Test]
@@ -173,7 +174,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var delegateTypePlaceholder = new DelegateTypePlaceholder (mutableReturnType, new[] { _mutableType });
 
       var fakeResult = ReflectionObjectMother.GetSomeDelegateType();
-      _delegateProviderMock.Expect (mock => mock.GetDelegateType (mutableReturnType, new[] { _mutableType })).Return (fakeResult);
+      _delegateProviderMock.Setup (mock => mock.GetDelegateType (mutableReturnType, new[] { _mutableType })).Returns (fakeResult).Verifiable();
 
       var result = _provider.GetEmittableType (delegateTypePlaceholder);
 
@@ -278,7 +279,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
         where TMutable : T
         where T : class
     {
-      var fakeOperand = MockRepository.GenerateStub<T>();
+      var fakeOperand = new Mock<T>().Object;
 
       addMappingMethod (operandToBeEmitted, fakeOperand);
 
@@ -287,16 +288,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     private void CheckAddMappingTwiceThrows<TMutable, TBuilder> (
-        Action<TMutable, TBuilder> addMappingMethod, TMutable operandToBeEmitted, string expectedMessageTemplate)
+        Action<TMutable, TBuilder> addMappingMethod, TMutable operandToBeEmitted, string expectedMessageTemplate, string paramName)
         where TMutable : MemberInfo
         where TBuilder : class
     {
-      addMappingMethod (operandToBeEmitted, MockRepository.GenerateStub<TBuilder>());
+      addMappingMethod (operandToBeEmitted, new Mock<TBuilder>().Object);
 
       var expectedMessage = expectedMessageTemplate.Replace ("{memberName}", operandToBeEmitted.Name);
       Assert.That (
-          () => addMappingMethod (operandToBeEmitted, MockRepository.GenerateStub<TBuilder>()),
-          Throws.ArgumentException.With.Message.EqualTo (expectedMessage));
+          () => addMappingMethod (operandToBeEmitted, new Mock<TBuilder>().Object),
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (expectedMessage, paramName));
     }
   }
 }

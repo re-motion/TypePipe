@@ -14,6 +14,9 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
+#if NETFRAMEWORK
+
 using System;
 using System.Linq;
 using NUnit.Framework;
@@ -22,6 +25,9 @@ using Remotion.Development.UnitTesting;
 namespace Remotion.TypePipe.IntegrationTests.Serialization
 {
   [TestFixture]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+  [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
   public class SimpleSerializationTest : SerializationTestBase
   {
     protected override IPipeline CreatePipelineForSerialization (params Func<IParticipant>[] participantProviders)
@@ -52,3 +58,5 @@ namespace Remotion.TypePipe.IntegrationTests.Serialization
     }
   }
 }
+
+#endif

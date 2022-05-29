@@ -23,6 +23,9 @@ using Remotion.Development.UnitTesting.IO;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+  [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
   public class ParticipantStateTest : IntegrationTestBase
   {
     private const string c_participantConfigurationID = "ParticipantStateTest";

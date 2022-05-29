@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+#if FEATURE_ASSEMBLYBUILDER_SAVE
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
@@ -43,3 +44,4 @@ namespace Remotion.TypePipe.Development
     }
   }
 }
+#endif

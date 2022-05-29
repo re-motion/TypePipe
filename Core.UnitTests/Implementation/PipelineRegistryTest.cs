@@ -17,10 +17,11 @@
 using System;
 using NUnit.Framework;
 using Remotion.TypePipe.Development.UnitTesting;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Implementation
 {
+  [TestFixture]
   public class PipelineRegistryTest
   {
     private IPipelineRegistry _registry;
@@ -30,7 +31,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       Assert.That (PipelineRegistry.HasInstanceProvider, Is.False);
 
-      _registry = MockRepository.GenerateStub<IPipelineRegistry>();
+      _registry = new Mock<IPipelineRegistry>().Object;
     }
 
     [TearDown]

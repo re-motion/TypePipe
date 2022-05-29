@@ -17,13 +17,5 @@
 using System;
 using System.Reflection;
 
-[assembly: AssemblyTitle ("re-motion TypePipe")]
-[assembly: AssemblyDescription (@"Provides a high-level API for type generation based on expression trees.
-Key features:
-- Type modifications through subclass proxies
-- Libraries can independently add modifications to any single type
-- Reflection.Emit code generator
-- Support for adding other code generators")]
-[assembly: AssemblyMetadata ("tags", "re-motion TypePipe code generation expression trees msil")]
 [assembly: AssemblyCulture ("")]
 [assembly: CLSCompliant (true)]

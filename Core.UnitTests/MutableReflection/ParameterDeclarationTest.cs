@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -75,10 +76,13 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage = "Parameter cannot be of type void.\r\nParameter name: type")]
     public void Initialization_VoidType ()
     {
-      Dev.Null = new ParameterDeclaration (typeof (void), "foo");
+      Assert.That (
+          () => Dev.Null = new ParameterDeclaration (typeof (void), "foo"),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Parameter cannot be of type void.", "type"));
     }
   }
 }

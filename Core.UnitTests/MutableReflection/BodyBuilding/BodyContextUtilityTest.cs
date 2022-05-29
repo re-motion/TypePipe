@@ -21,6 +21,7 @@ using Remotion.TypePipe.Development.UnitTesting.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection.BodyBuilding;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
 {
@@ -50,24 +51,26 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.BodyBuilding
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The argument count (0) does not match the parameter count (2).\r\nParameter name: arguments")]
     public void ReplaceParameters_WrongNumberOfArguments ()
     {
-      CallReplaceParameters();
+      Assert.That (
+          () => CallReplaceParameters(),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("The argument count (0) does not match the parameter count (2).", "arguments"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The argument at index 0 has an invalid type: Type 'System.String' cannot be implicitly converted to type 'System.Int32'. "
-        + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.\r\n"
-        + "Parameter name: arguments")]
     public void ReplaceParameters_WrongArgumentType ()
     {
       var arg1 = ExpressionTreeObjectMother.GetSomeExpression (typeof (string));
       var arg2 = ExpressionTreeObjectMother.GetSomeExpression (_parameters[1].Type);
-
-      CallReplaceParameters (arg1, arg2);
+      Assert.That (
+          () => CallReplaceParameters (arg1, arg2),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The argument at index 0 has an invalid type: Type 'System.String' cannot be implicitly converted to type 'System.Int32'. "
+                  + "Use Expression.Convert or Expression.ConvertChecked to make the conversion explicit.",
+                  "arguments"));
     }
 
     [Test]

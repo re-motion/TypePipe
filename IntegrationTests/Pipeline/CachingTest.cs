@@ -20,7 +20,7 @@ using NUnit.Framework;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.Implementation;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
@@ -83,12 +83,10 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
             if (providerFunc == null)
               return null;
 
-            var stub = MockRepository.GenerateStub<ITypeIdentifierProvider>();
-            stub.Stub (x => x.GetID (Arg<Type>.Is.Anything)).Do (providerFunc);
-            stub.Stub (x => x.GetExpression (Arg<Type>.Is.Anything))
-                .Return (null)
-                .WhenCalled (mi => mi.ReturnValue = Expression.Constant (mi.Arguments[0]));
-            return stub;
+            var stub = new Mock<ITypeIdentifierProvider>();
+            stub.Setup (x => x.GetID (It.IsAny<Type>())).Returns (providerFunc);
+            stub.Setup (x => x.GetExpression (It.IsAny<object>())).Returns ((object id) => Expression.Constant (id));
+            return stub.Object;
           });
 
       var participantStubs = cacheKeyProviderStubs.Select (typeIdProvider => CreateParticipant (typeIdentifierProvider: typeIdProvider));

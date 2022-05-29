@@ -21,6 +21,7 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Generics;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection.Implementation;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -159,20 +160,24 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (InvalidOperationException), ExpectedMessage =
-        "'Int32' is not a generic type definition. MakeTypePipeGenericType may only be called on a type for which Type.IsGenericTypeDefinition is true.")]
     public void MakeTypePipeGenericType_NoGenericTypeDefinition ()
     {
-      typeof (int).MakeTypePipeGenericType (typeof (int));
+      Assert.That (
+          () => typeof (int).MakeTypePipeGenericType (typeof (int)),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (
+                  "'Int32' is not a generic type definition. MakeTypePipeGenericType may only be called on a type for which Type.IsGenericTypeDefinition is true."));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The generic definition 'Dictionary`2' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
-                          + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments")]
     public void MakeTypePipeGenericType_UsesGenericArgumentUtilityToValidateGenericArguments ()
     {
-      typeof (Dictionary<,>).MakeTypePipeGenericType (typeof (int));
+      Assert.That (
+          () => typeof (Dictionary<,>).MakeTypePipeGenericType (typeof (int)),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The generic definition 'Dictionary`2' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
+                  + "A generic argument must be provided for each generic parameter.", "typeArguments"));
     }
   }
 }

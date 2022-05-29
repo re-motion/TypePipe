@@ -1,12 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A51AD28-5762-462C-B619-7836416AB3C6}"
 	ProjectSection(SolutionItems) = preProject
 		.BuildProject = .BuildProject
 		How to build.txt = How to build.txt
+		Shared.build.props = Shared.build.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{98E7F7AA-12B2-4A6B-8922-52C8E53B378E}"
@@ -16,11 +17,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{81C58D26-AD10-4422-8AB1-999C34CA8D79}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Development", "Development\Development.csproj", "{F6FAF727-9405-4BCC-9153-803F73853E67}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9646C3FE-4FC7-4FF5-AD16-8A5AF052E6E3}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Build", "Build\Build.csproj", "{6A1A04E3-5411-4F8C-BCB8-0FE00884DC5A}"
 EndProject
@@ -59,5 +55,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7EBB386E-F280-41A0-99E8-A938BC859D6A}
 	EndGlobalSection
 EndGlobal

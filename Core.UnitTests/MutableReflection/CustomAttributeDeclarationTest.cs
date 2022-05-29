@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection
 {
@@ -73,89 +74,95 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+NonAttributeClass' does not derive from 'System.Attribute'."
-        + "\r\nParameter name: constructor")]
     public void Initialization_NoAttributeType ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new NonAttributeClass());
-
-      new CustomAttributeDeclaration (constructor, new object[0]);
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[0]),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+NonAttributeClass' does not derive from 'System.Attribute'.",
+                  "constructor"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.\r\nParameter name: constructor")]
     public void Initialization_NonPublicConstructor ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ("internal"));
-
-      new CustomAttributeDeclaration (constructor, new object[] { "ctorArg" });
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[] { "ctorArg" }),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The attribute constructor 'Void .ctor(System.String)' is not a public instance constructor.", "constructor"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "The attribute constructor 'Void .cctor()' is not a public instance constructor.\r\nParameter name: constructor")]
     public void Initialization_TypeInitializer ()
     {
       var constructor = typeof (DomainAttribute).GetConstructor (BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
-      
-      new CustomAttributeDeclaration (constructor, new object[0]);
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[0]),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("The attribute constructor 'Void .cctor()' is not a public instance constructor.", "constructor"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "The attribute type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+PrivateCustomAttribute' is not publicly "
-        + "visible.\r\nParameter name: constructor")]
     public void Initialization_NonVisibleCustomAttributeType ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new PrivateCustomAttribute ());
-
-      new CustomAttributeDeclaration (constructor, new object[0]);
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[0]),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The attribute type 'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+PrivateCustomAttribute' is not publicly "
+                  + "visible.", "constructor"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-      "Expected 1 constructor argument(s), but was 2.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidConstructorArgumentCount ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((ValueType) null));
-
-      new CustomAttributeDeclaration (constructor, new object[] { 7, 8 });
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[] { 7, 8 }),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo ("Expected 1 constructor argument(s), but was 2.", "constructorArguments"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Item 0 of parameter 'constructorArguments' has the type 'System.String' instead of 'System.ValueType'."
-        + "\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidConstructorArgumentType ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ((ValueType) null));
-
-      new CustomAttributeDeclaration (constructor, new object[] { "string" });
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[] { "string" }),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Item 0 of parameter 'constructorArguments' has the type 'System.String' instead of 'System.ValueType'.",
+                  "constructorArguments"));
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException), ExpectedMessage =
-        "Constructor parameter at position 0 of type 'System.Int32' cannot be null.\r\nParameter name: constructorArguments")]
     public void Initialization_InvalidNullArgument ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute (0));
-
-      new CustomAttributeDeclaration (constructor, new object[] { null });
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[] { null }),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Constructor parameter at position 0 of type 'System.Int32' cannot be null.", "constructorArguments"));
     }
 
     [Test]
-    [ExpectedException (typeof(ArgumentException), ExpectedMessage =
-      "Named argument 'PropertyInDerivedType' cannot be used with custom attribute type "
-      + "'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+DomainAttribute'."
-      + "\r\nParameter name: namedArguments")]
     public void Initialization_InvalidMemberDeclaringType ()
     {
       var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new DomainAttribute ());
       var property = NormalizingMemberInfoFromExpressionUtility.GetProperty ((DerivedAttribute attr) => attr.PropertyInDerivedType);
-
-      new CustomAttributeDeclaration (constructor, new object[0], new NamedArgumentDeclaration(property, 7));
+      Assert.That (
+          () => new CustomAttributeDeclaration (constructor, new object[0], new NamedArgumentDeclaration(property, 7)),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "Named argument 'PropertyInDerivedType' cannot be used with custom attribute type "
+                  + "'Remotion.TypePipe.UnitTests.MutableReflection.CustomAttributeDeclarationTest+DomainAttribute'.",
+                  "namedArguments"));
     }
 
     [Test]

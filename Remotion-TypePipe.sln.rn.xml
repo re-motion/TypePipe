@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CustomizeVSWindowTitle>
+  <SettingsSet
+    AppendedString=" "
+    PatternIfRunningMode="RM-TypePipe - [gitBranchName] (Running)"
+    PatternIfBreakMode="RM-TypePipe - [gitBranchName] (Debugging)"
+    PatternIfDesignMode="RM-TypePipe - [gitBranchName]" />
+</CustomizeVSWindowTitle>

@@ -16,40 +16,40 @@
 // 
 using System;
 using NUnit.Framework;
-using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.Moq.UnitTesting;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class ConstructorBuilderDecoratorTest
   {
-    private IConstructorBuilder _innerMock;
-    private IEmittableOperandProvider _operandProvider;
+    private Mock<IConstructorBuilder> _innerMock;
+    private Mock<IEmittableOperandProvider> _operandProvider;
 
     private ConstructorBuilderDecorator _decorator;
 
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<IConstructorBuilder>();
-      _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider>();
+      _innerMock = new Mock<IConstructorBuilder> (MockBehavior.Strict);
+      _operandProvider = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = new ConstructorBuilderDecorator (_innerMock, _operandProvider);
+      _decorator = new ConstructorBuilderDecorator (_innerMock.Object, _operandProvider.Object);
     }
 
     [Test]
     public void DelegatingMembers ()
     {
-      var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
+      var emittableOperandProvider = new Mock<IEmittableOperandProvider>();
       var mutableConstructor = MutableConstructorInfoObjectMother.Create();
 
       var helper = new DecoratorTestHelper<IConstructorBuilder> (_decorator, _innerMock);
 
-      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, mutableConstructor));
+      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider.Object, mutableConstructor));
     }
   }
 }

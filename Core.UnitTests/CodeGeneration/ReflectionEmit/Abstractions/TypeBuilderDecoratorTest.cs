@@ -15,33 +15,34 @@
 // under the License.
 // 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Remotion.Development.RhinoMocks.UnitTesting;
+using Remotion.Development.Moq.UnitTesting;
 using Remotion.Development.UnitTesting;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit;
 using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 {
   [TestFixture]
   public class TypeBuilderDecoratorTest
   {
-    private ITypeBuilder _innerMock;
-    private IEmittableOperandProvider _operandProvider;
+    private Mock<ITypeBuilder> _innerMock;
+    private Mock<IEmittableOperandProvider> _operandProvider;
 
     private TypeBuilderDecorator _decorator;
 
     [SetUp]
     public void SetUp ()
     {
-      _innerMock = MockRepository.GenerateStrictMock<ITypeBuilder> ();
-      _operandProvider = MockRepository.GenerateStrictMock<IEmittableOperandProvider> ();
+      _innerMock = new Mock<ITypeBuilder> (MockBehavior.Strict);
+      _operandProvider = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
 
-      _decorator = new TypeBuilderDecorator (_innerMock, _operandProvider);
+      _decorator = new TypeBuilderDecorator (_innerMock.Object, _operandProvider.Object);
     }
 
     [Test]
@@ -50,13 +51,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var baseType = ReflectionObjectMother.GetSomeSubclassableType();
 
       var emittableType = ReflectionObjectMother.GetSomeOtherType();
-      _operandProvider.Expect (mock => mock.GetEmittableType (baseType)).Return (emittableType);
-      _innerMock.Expect (mock => mock.SetParent (emittableType));
+      _operandProvider.Setup (mock => mock.GetEmittableType (baseType)).Returns (emittableType).Verifiable();
+      _innerMock.Setup (mock => mock.SetParent (emittableType)).Verifiable();
 
       _decorator.SetParent (baseType);
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
     }
 
     [Test]
@@ -65,13 +66,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var interfaceType = ReflectionObjectMother.GetSomeInterfaceType();
 
       var emittableType = ReflectionObjectMother.GetSomeOtherType();
-      _operandProvider.Expect (mock => mock.GetEmittableType (interfaceType)).Return (emittableType);
-      _innerMock.Expect (mock => mock.AddInterfaceImplementation (emittableType));
+      _operandProvider.Setup (mock => mock.GetEmittableType (interfaceType)).Returns (emittableType).Verifiable();
+      _innerMock.Setup (mock => mock.AddInterfaceImplementation (emittableType)).Verifiable();
 
       _decorator.AddInterfaceImplementation (interfaceType);
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
     }
 
     [Test]
@@ -80,13 +81,13 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var name = "type";
       var attributes = (TypeAttributes) 7;
 
-      var fakeTypeBuilder = MockRepository.GenerateStub<ITypeBuilder>();
-      _innerMock.Expect (mock => mock.DefineNestedType (name, attributes)).Return (fakeTypeBuilder);
+      var fakeTypeBuilder = new Mock<ITypeBuilder>().Object;
+      _innerMock.Setup (mock => mock.DefineNestedType (name, attributes)).Returns (fakeTypeBuilder).Verifiable();
 
       var result = _decorator.DefineNestedType (name, attributes);
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
       Assert.That (result, Is.TypeOf<TypeBuilderDecorator>());
       Assert.That (result.As<TypeBuilderDecorator>().DecoratedTypeBuilder, Is.SameAs (fakeTypeBuilder));
     }
@@ -99,14 +100,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var attributes = (FieldAttributes) 7;
 
       var emittableType = ReflectionObjectMother.GetSomeOtherType();
-      var fakeFieldBuilder = MockRepository.GenerateStub<IFieldBuilder>();
-      _operandProvider.Expect (mock => mock.GetEmittableType (type)).Return (emittableType);
-      _innerMock.Expect (mock => mock.DefineField (name, emittableType, attributes)).Return (fakeFieldBuilder);
+      var fakeFieldBuilder = new Mock<IFieldBuilder>().Object;
+      _operandProvider.Setup (mock => mock.GetEmittableType (type)).Returns (emittableType).Verifiable();
+      _innerMock.Setup (mock => mock.DefineField (name, emittableType, attributes)).Returns (fakeFieldBuilder).Verifiable();
 
       var result = _decorator.DefineField (name, type, attributes);
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
       Assert.That (result, Is.TypeOf<FieldBuilderDecorator>());
       Assert.That (result.As<FieldBuilderDecorator>().DecoratedFieldBuilder, Is.SameAs (fakeFieldBuilder));
     }
@@ -119,14 +120,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var callingConvention = (CallingConventions) 7;
 
       var emittableParameterType = ReflectionObjectMother.GetSomeOtherType();
-      var fakeConstructorBuilder = MockRepository.GenerateStub<IConstructorBuilder>();
-      _operandProvider.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
-      _innerMock.Expect (mock => mock.DefineConstructor (attributes, callingConvention, new[] { emittableParameterType })).Return (fakeConstructorBuilder);
+      var fakeConstructorBuilder = new Mock<IConstructorBuilder>().Object;
+      _operandProvider.Setup (mock => mock.GetEmittableType (parameterType)).Returns (emittableParameterType).Verifiable();
+      _innerMock.Setup (mock => mock.DefineConstructor (attributes, callingConvention, new[] { emittableParameterType })).Returns (fakeConstructorBuilder).Verifiable();
 
       var result = _decorator.DefineConstructor (attributes, callingConvention, new[] { parameterType });
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
       Assert.That (result, Is.TypeOf<ConstructorBuilderDecorator>());
       Assert.That (result.As<ConstructorBuilderDecorator>().DecoratedConstructorBuilder, Is.SameAs (fakeConstructorBuilder));
     }
@@ -137,12 +138,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var name = "method";
       var attributes = (MethodAttributes) 7;
 
-      var fakeMethodBuilder = MockRepository.GenerateStub<IMethodBuilder>();
-      _innerMock.Expect (mock => mock.DefineMethod (name, attributes)).Return (fakeMethodBuilder);
+      var fakeMethodBuilder = new Mock<IMethodBuilder>().Object;
+      _innerMock.Setup (mock => mock.DefineMethod (name, attributes)).Returns (fakeMethodBuilder).Verifiable();
 
       var result = _decorator.DefineMethod (name, attributes);
 
-      _innerMock.VerifyAllExpectations();
+      _innerMock.Verify();
       Assert.That (result, Is.TypeOf<MethodBuilderDecorator>());
       Assert.That (result.As<MethodBuilderDecorator>().DecoratedMethodBuilder, Is.SameAs (fakeMethodBuilder));
     }
@@ -151,16 +152,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     public void DefineMethodOverride ()
     {
       var methods = ReflectionObjectMother.GetMultipeMethods (2);
+      var type1ParseMethodInfo = typeof (int).GetMethod ("Parse", Type.EmptyTypes);
+      var type2ParseMethodInfo = typeof (bool).GetMethod ("Parse", new[] { typeof (string) });
 
-      var emittableMethods = new[] { typeof (int).GetMethod ("Parse", Type.EmptyTypes), typeof (bool).GetMethod ("Parse") };
-      _operandProvider.Expect (mock => mock.GetEmittableMethod (methods[0])).Return (emittableMethods[0]);
-      _operandProvider.Expect (mock => mock.GetEmittableMethod (methods[1])).Return (emittableMethods[1]);
-      _innerMock.Expect (mock => mock.DefineMethodOverride (emittableMethods[0], emittableMethods[1]));
+      var emittableMethods = new[] { type1ParseMethodInfo, type2ParseMethodInfo };
+      _operandProvider.Setup (mock => mock.GetEmittableMethod (methods[0])).Returns (emittableMethods[0]).Verifiable();
+      _operandProvider.Setup (mock => mock.GetEmittableMethod (methods[1])).Returns (emittableMethods[1]).Verifiable();
+      _innerMock.Setup (mock => mock.DefineMethodOverride (emittableMethods[0], emittableMethods[1])).Verifiable();
 
       _decorator.DefineMethodOverride (methods[0], methods[1]);
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
     }
 
     [Test]
@@ -174,16 +177,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
 
       var emittableReturnType = typeof (bool);
       var emittableParameterType = typeof (double);
-      var fakePropertyBuilder = MockRepository.GenerateStub<IPropertyBuilder>();
-      _operandProvider.Expect (mock => mock.GetEmittableType (returnType)).Return (emittableReturnType);
-      _operandProvider.Expect (mock => mock.GetEmittableType (parameterType)).Return (emittableParameterType);
-      _innerMock.Expect (mock => mock.DefineProperty (name, attributes, callingConventions, emittableReturnType, new[] { emittableParameterType }))
-                .Return (fakePropertyBuilder);
+      var fakePropertyBuilder = new Mock<IPropertyBuilder>().Object;
+      _operandProvider.Setup (mock => mock.GetEmittableType (returnType)).Returns (emittableReturnType).Verifiable();
+      _operandProvider.Setup (mock => mock.GetEmittableType (parameterType)).Returns (emittableParameterType).Verifiable();
+      _innerMock
+          .Setup (mock => mock.DefineProperty (name, attributes, callingConventions, emittableReturnType, new[] { emittableParameterType })).Returns (fakePropertyBuilder)
+          .Verifiable();
 
       var result = _decorator.DefineProperty (name, attributes, callingConventions, returnType, new[] { parameterType });
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
       Assert.That (result, Is.TypeOf<PropertyBuilderDecorator>());
       Assert.That (result.As<PropertyBuilderDecorator>().DecoratedPropertyBuilder, Is.SameAs (fakePropertyBuilder));
     }
@@ -196,14 +200,14 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       var eventType = typeof (Action<string, int>);
 
       var emittableEventType = ReflectionObjectMother.GetSomeType();
-      var fakeEventBuilder = MockRepository.GenerateStub<IEventBuilder>();
-      _operandProvider.Expect (mock => mock.GetEmittableType (eventType)).Return (emittableEventType);
-      _innerMock.Expect (mock => mock.DefineEvent (name, attributes, emittableEventType)).Return (fakeEventBuilder);
+      var fakeEventBuilder = new Mock<IEventBuilder>().Object;
+      _operandProvider.Setup (mock => mock.GetEmittableType (eventType)).Returns (emittableEventType).Verifiable();
+      _innerMock.Setup (mock => mock.DefineEvent (name, attributes, emittableEventType)).Returns (fakeEventBuilder).Verifiable();
 
       var result = _decorator.DefineEvent (name, attributes, eventType);
 
-      _operandProvider.VerifyAllExpectations();
-      _innerMock.VerifyAllExpectations();
+      _operandProvider.Verify();
+      _innerMock.Verify();
       Assert.That (result, Is.TypeOf<EventBuilderDecorator>());
       Assert.That (result.As<EventBuilderDecorator>().DecoratedEventBuilder, Is.SameAs (fakeEventBuilder));
     }
@@ -211,12 +215,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
     [Test]
     public void DelegatingMembers ()
     {
-      var emittableOperandProvider = MockRepository.GenerateStub<IEmittableOperandProvider>();
+      var emittableOperandProvider = new Mock<IEmittableOperandProvider>();
       var proxyType = MutableTypeObjectMother.Create();
 
       var helper = new DecoratorTestHelper<ITypeBuilder> (_decorator, _innerMock);
 
-      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider, proxyType));
+      helper.CheckDelegation (d => d.RegisterWith (emittableOperandProvider.Object, proxyType));
       helper.CheckDelegation (d => d.CreateType(), ReflectionObjectMother.GetSomeType());
     }
   }

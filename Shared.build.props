@@ -1,0 +1,92 @@
+<Project>
+
+  <Import Project="$(MSBuildThisFileDirectory)Build\Customizations\Properties.props" />
+  <Import Project="$(MSBuildThisFileDirectory)Build\Customizations\Version.props" Condition="'$(Version)' == ''" />
+
+  <PropertyGroup>
+    <Product>$(ProductName)</Product>
+    <Company>$(CompanyName)</Company>
+    <Copyright>$(Copyright)</Copyright>
+    <Authors>$(Company)</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>http://www.re-motion.org</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/re-motion/TypePipe/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>7.2</LangVersion>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)remotion.snk</AssemblyOriginatorKeyFile>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder Condition="'$(IncludeSymbols)' != 'True'">$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageTags>re-motion TypePipe</PackageTags>
+    <DebugType Condition="'$(TargetFramework)' == 'net45'">Full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BinaryFormatterSerializationObsoleteWarning>SYSLIB0011</BinaryFormatterSerializationObsoleteWarning>
+    <StrongNameSigningObsoleteWarning>SYSLIB0017</StrongNameSigningObsoleteWarning>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ProjectType)' == 'Library'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591;$(StrongNameSigningObsoleteWarning)</NoWarn>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IsPackable>True</IsPackable>
+    <TargetFrameworks>net6.0;net45</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);TypePipe</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT;FEATURE_STRONGNAMESIGNING</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ProjectType)' == 'Documentation'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <IsPackable>True</IsPackable>
+    <TargetFrameworks>net6.0;net45</TargetFrameworks>
+    <PackageTags>$(PackageTags) Documentation</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ProjectType)' == 'Test'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>0067;0649;0169;$(BinaryFormatterSerializationObsoleteWarning);$(StrongNameSigningObsoleteWarning)</NoWarn>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <IsPackable>False</IsPackable>
+    <TargetFrameworks>net6.0;net45</TargetFrameworks>
+    <DefineConstants>$(DefineConstants)</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_STRONGNAMESIGNING</DefineConstants>
+    <EnableUnsafeBinaryFormatterSerialization Condition="'$(TargetFramework)' == 'net6.0'">true</EnableUnsafeBinaryFormatterSerialization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Apache-2.0.licenseheader" Link="Apache-2.0.licenseheader" />
+    <None Include="$(MSBuildThisFileDirectory)remotion.snk" Link="remotion.snk" />
+    <None Include="**\*.licenseheader" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ProjectType)' == 'Library'">
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ProjectType)' == 'Documentation'">
+    <None Include="$(DocumentationFile)" Condition="'$(DocumentationFile)' != ''">
+      <Pack>true</Pack>
+      <PackagePath>doc</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ProjectType)' == 'Test'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
+    <PackageReference Include="Moq" Version="4.13.1" />
+    <PackageReference Include="NUNit" Version="3.13.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <_version>$(Version.Split('-')[0])</_version>
+    <AssemblyVersion>$(_version).0</AssemblyVersion>
+    <FileVersion>$(_version).24009</FileVersion>
+    <InformationalVersion>$(_version)-x.9+$(Configuration)</InformationalVersion>
+    <PackageVersion>$(_version)-x.9</PackageVersion>
+  </PropertyGroup>
+
+</Project>

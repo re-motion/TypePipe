@@ -36,6 +36,7 @@ namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
     using ILGenerator = IILGenerator;
 #endif
 
+#if FEATURE_PDBEMIT
     /// <summary>
     /// Generator of PDB debugging information for expression trees.
     /// </summary>
@@ -71,4 +72,5 @@ namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
             localBuilder.SetLocalSymInfo(name);
         }
     }
+#endif
 }

@@ -20,6 +20,7 @@ using System.IO;
 using NUnit.Framework;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.UnitTests.NUnit;
 
 namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
 {
@@ -27,12 +28,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
   public class GenericArgumentUtilityTest
   {
     [Test]
-    [ExpectedException (typeof (ArgumentException),
-        ExpectedMessage = "The generic definition 'xxx' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
-                          + "A generic argument must be provided for each generic parameter.\r\nParameter name: typeArguments")]
     public void ValidateGenericArguments_WrongNumberOfTypeArguments ()
     {
-      CallValidateGenericArguments (typeof (Dictionary<,>), typeof (int));
+      Assert.That (
+          () => CallValidateGenericArguments (typeof (Dictionary<,>), typeof (int)),
+          Throws.ArgumentException
+              .With.ArgumentExceptionMessageEqualTo (
+                  "The generic definition 'xxx' has 2 generic parameter(s), but 1 generic argument(s) were provided. "
+                  + "A generic argument must be provided for each generic parameter.", "typeArguments"));
     }
 
     [Test]
@@ -105,7 +108,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       Assert.That (() => CallValidateGenericArguments (genericTypeDefinition, validTypeArgument), Throws.Nothing);
       Assert.That (
           () => CallValidateGenericArguments (genericTypeDefinition, invalidTypeArgument),
-          Throws.ArgumentException.With.Message.EqualTo (message + "\r\nParameter name: typeArguments"));
+          Throws.ArgumentException.With.ArgumentExceptionMessageEqualTo (message, "typeArguments"));
     }
 
     private void CallValidateGenericArguments (Type genericMethodDefinition, params Type[] typeArguments)

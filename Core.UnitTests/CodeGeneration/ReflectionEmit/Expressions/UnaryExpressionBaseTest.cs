@@ -22,7 +22,8 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.UnitTests.Expressions;
-using Rhino.Mocks;
+using Moq;
+using Moq.Protected;
 
 namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
 {
@@ -32,7 +33,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     private Expression _operand;
     private Type _type;
 
-    private UnaryExpressionBase _expressionPartialMock;
+    private Mock<UnaryExpressionBase> _expressionPartialMock;
 
     [SetUp]
     public void SetUp ()
@@ -40,32 +41,36 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
       _operand = ExpressionTreeObjectMother.GetSomeExpression();
       _type = ReflectionObjectMother.GetSomeType();
 
-      _expressionPartialMock = MockRepository.GeneratePartialMock<UnaryExpressionBase> (_operand, _type);
+      _expressionPartialMock = new Mock<UnaryExpressionBase> (_operand, _type) { CallBase = true };
     }
 
     [Test]
     public void Initialization ()
     {
-      Assert.That (_expressionPartialMock.Operand, Is.SameAs (_operand));
-      Assert.That (_expressionPartialMock.Type, Is.SameAs (_type));
+      Assert.That (_expressionPartialMock.Object.Operand, Is.SameAs (_operand));
+      Assert.That (_expressionPartialMock.Object.Type, Is.SameAs (_type));
     }
 
     [Test]
     public void Update_NoChanges ()
     {
-      var result = _expressionPartialMock.Update (_operand);
+      var result = _expressionPartialMock.Object.Update (_operand);
 
-      Assert.That (result, Is.SameAs (_expressionPartialMock));
+      Assert.That (result, Is.SameAs (_expressionPartialMock.Object));
     }
 
     [Test]
     public void Update_WithChanges ()
     {
       var newOperand = ExpressionTreeObjectMother.GetSomeExpression();
-      var fakeResult = MockRepository.GenerateStrictMock<UnaryExpressionBase>(_operand, _type);
-      _expressionPartialMock.Expect (mock => mock.Invoke ("CreateSimiliar", newOperand)).Return (fakeResult);
+      var fakeResult = new Mock<UnaryExpressionBase> (_operand, _type).Object;
+      _expressionPartialMock
+          .Protected()
+          .Setup<UnaryExpressionBase> ("CreateSimiliar", newOperand)
+          .Returns (fakeResult)
+          .Verifiable();
 
-      var result = _expressionPartialMock.Update (newOperand);
+      var result = _expressionPartialMock.Object.Update (newOperand);
 
       Assert.That (result, Is.SameAs (fakeResult));
     }
@@ -80,15 +85,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Expressions
     [Test]
     public void VisitChildren_WithChanges ()
     {
-      var expressionVisitorMock = MockRepository.GenerateStrictMock<ExpressionVisitor>();
+      var expressionVisitorMock = new Mock<ExpressionVisitor> (MockBehavior.Strict);
       var fakeOperand = ExpressionTreeObjectMother.GetSomeExpression();
-      var fakeResult = MockRepository.GenerateStub<UnaryExpressionBase> (_operand, _type);
-      expressionVisitorMock.Expect (mock => mock.Visit (_operand)).Return (fakeOperand);
-      _expressionPartialMock.Expect (mock => mock.Update (fakeOperand)).Return (fakeResult);
+      var fakeResult = new Mock<UnaryExpressionBase> (_operand, _type).Object;
+      expressionVisitorMock.Setup (mock => mock.Visit (_operand)).Returns (fakeOperand).Verifiable();
+      _expressionPartialMock.Protected().Setup<UnaryExpressionBase> ("CreateSimiliar", fakeOperand).Returns (fakeResult).Verifiable();
 
-      var result = _expressionPartialMock.Invoke ("VisitChildren", expressionVisitorMock);
+      var result = _expressionPartialMock.Object.Invoke ("VisitChildren", expressionVisitorMock.Object);
 
-      expressionVisitorMock.VerifyAllExpectations();
+      expressionVisitorMock.Verify();
       Assert.That (result, Is.SameAs (fakeResult));
     }
   }

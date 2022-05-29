@@ -8,15 +8,15 @@ using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Caching;
-using Rhino.Mocks;
+using Moq;
 
 namespace Remotion.TypePipe.UnitTests.Caching
 {
   [TestFixture]
   public class ConstructorCallCacheTest
   {   
-    private ITypeCache _typeCacheMock;
-    private IConstructorDelegateFactory _constructorDelegateFactoryMock;
+    private Mock<ITypeCache> _typeCacheMock;
+    private Mock<IConstructorDelegateFactory> _constructorDelegateFactoryMock;
 
     private ConstructorCallCache _constructorCallCache;
 
@@ -30,11 +30,11 @@ namespace Remotion.TypePipe.UnitTests.Caching
     [SetUp]
     public void SetUp ()
     {
-      _typeCacheMock = MockRepository.GenerateStrictMock<ITypeCache>();
+      _typeCacheMock = new Mock<ITypeCache> (MockBehavior.Strict);
 
-      _constructorDelegateFactoryMock = MockRepository.GenerateStrictMock<IConstructorDelegateFactory>();
+      _constructorDelegateFactoryMock = new Mock<IConstructorDelegateFactory> (MockBehavior.Strict);
 
-      _constructorCallCache = new ConstructorCallCache (_typeCacheMock, _constructorDelegateFactoryMock);
+      _constructorCallCache = new ConstructorCallCache (_typeCacheMock.Object, _constructorDelegateFactoryMock.Object);
       _constructorCalls = (ConcurrentDictionary<ConstructionKey, Delegate>) PrivateInvoke.GetNonPublicField (_constructorCallCache, "_constructorCalls");
 
       _delegateType = ReflectionObjectMother.GetSomeDelegateType();
@@ -58,15 +58,17 @@ namespace Remotion.TypePipe.UnitTests.Caching
       var typeID = AssembledTypeIDObjectMother.Create();
 
       _typeCacheMock
-          .Expect (
+          .Setup (
               mock => mock.GetOrCreateType (
                   // Use strongly typed Equals overload.
-                  Arg<AssembledTypeID>.Matches (id => id.Equals (typeID))))
-          .Return (_assembledType);
+                  It.Is<AssembledTypeID> (id => id.Equals (typeID))))
+          .Returns (_assembledType)
+          .Verifiable();
 
       _constructorDelegateFactoryMock
-          .Expect (mock => mock.CreateConstructorCall (typeID.RequestedType, _assembledType, _delegateType, _allowNonPublic))
-          .Return (_generatedCtorCall);
+          .Setup (mock => mock.CreateConstructorCall (typeID.RequestedType, _assembledType, _delegateType, _allowNonPublic))
+          .Returns (_generatedCtorCall)
+          .Verifiable();
 
       var result = _constructorCallCache.GetOrCreateConstructorCall (typeID, _delegateType, _allowNonPublic);
 
