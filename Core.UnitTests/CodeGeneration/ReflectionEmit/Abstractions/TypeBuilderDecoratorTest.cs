@@ -181,7 +181,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit.Abstractions
       _operandProvider.Setup (mock => mock.GetEmittableType (returnType)).Returns (emittableReturnType).Verifiable();
       _operandProvider.Setup (mock => mock.GetEmittableType (parameterType)).Returns (emittableParameterType).Verifiable();
       _innerMock
-          .Setup (mock => mock.DefineProperty (name, attributes, callingConventions, emittableReturnType, new[] { emittableParameterType })).Returns (fakePropertyBuilder)
+          .Setup (mock => mock.DefineProperty (name, attributes, callingConventions, emittableReturnType, new[] { emittableParameterType }))
+          .Returns (fakePropertyBuilder)
           .Verifiable();
 
       var result = _decorator.DefineProperty (name, attributes, callingConventions, returnType, new[] { parameterType });

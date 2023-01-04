@@ -89,7 +89,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void Dequeue_TwiceOnSameThread_ReturnsAssemblyContextFromThreadLocalCacheOnSecondCall ()
     {
       var hasDequeued = false;
-      _assemblyContextPoolMock.Setup (mock => mock.Dequeue())
+      _assemblyContextPoolMock
+          .Setup (mock => mock.Dequeue())
           .Callback (
               () =>
               {
