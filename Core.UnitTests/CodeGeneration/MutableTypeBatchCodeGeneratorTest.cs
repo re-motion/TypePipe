@@ -65,45 +65,41 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
           .Returns (new[] { generatorMock1.Object, generatorMock2.Object })
           .Verifiable();
 
-      var sequence = new MockSequence();
+      var sequence = new VerifiableSequence();
       generatorMock1
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (_ => _.DeclareType());
       generatorMock1
-          .InSequence (sequence)
-          .Setup (_ => _.CreateNestedTypeGenerators()).Returns (new[] { nestedGeneratorMock.Object });
+          .InVerifiableSequence (sequence)
+          .Setup (_ => _.CreateNestedTypeGenerators())
+          .Returns (new[] { nestedGeneratorMock.Object });
       nestedGeneratorMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (_ => _.DeclareType());
       nestedGeneratorMock
-          .InSequence (sequence)
-          .Setup (_ => _.CreateNestedTypeGenerators()).Returns (new IMutableTypeCodeGenerator[0]);
+          .InVerifiableSequence (sequence)
+          .Setup (_ => _.CreateNestedTypeGenerators())
+          .Returns (new IMutableTypeCodeGenerator[0]);
       generatorMock2
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (_ => _.DeclareType());
       generatorMock2
-          .InSequence (sequence)
-          .Setup (_ => _.CreateNestedTypeGenerators()).Returns (new IMutableTypeCodeGenerator[0]);
+          .InVerifiableSequence (sequence)
+          .Setup (_ => _.CreateNestedTypeGenerators())
+          .Returns (new IMutableTypeCodeGenerator[0]);
 
       generatorMock1
-          .InSequence (sequence)
-          .SetupGet (_ => _.MutableType).Returns (mutableType1);
+          .SetupGet (_ => _.MutableType)
+          .Returns (mutableType1)
+          .Verifiable();
       nestedGeneratorMock
-          .InSequence (sequence)
-          .SetupGet (_ => _.MutableType).Returns (nestedMutableType);
+          .SetupGet (_ => _.MutableType)
+          .Returns (nestedMutableType)
+          .Verifiable();
       generatorMock2
-          .InSequence (sequence)
-          .SetupGet (_ => _.MutableType).Returns (mutableType2);
-
-      generatorMock1
-          .InSequence (sequence)
-          .SetupGet (_ => _.MutableType).Returns (mutableType1);
-      nestedGeneratorMock
-          .InSequence (sequence)
-          .SetupGet (_ => _.MutableType).Returns (nestedMutableType);
-      generatorMock2
-          .InSequence (sequence)
-          .SetupGet (_ => _.MutableType).Returns (mutableType2);
+          .SetupGet (_ => _.MutableType)
+          .Returns (mutableType2)
+          .Verifiable();
 
       _dependentTypeSorterMock
           .Setup (
@@ -114,11 +110,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       generatorMock2.Setup (_ => _.DefineTypeFacets()).Verifiable();
       generatorMock1.Setup (_ => _.DefineTypeFacets()).Verifiable();
       nestedGeneratorMock.Setup (_ => _.DefineTypeFacets()).Verifiable();
-      generatorMock2.SetupGet (_ => _.MutableType).Returns (mutableType2).Verifiable();
       generatorMock2.Setup (_ => _.CreateType()).Returns (fakeType2).Verifiable();
-      generatorMock1.SetupGet (_ => _.MutableType).Returns (mutableType1).Verifiable();
       generatorMock1.Setup (_ => _.CreateType()).Returns (fakeType1).Verifiable();
-      nestedGeneratorMock.SetupGet (_ => _.MutableType).Returns (nestedMutableType).Verifiable();
       nestedGeneratorMock.Setup (_ => _.CreateType()).Returns (fakeNestedType).Verifiable();
 
       var result = _generator.GenerateTypes (new[] { mutableType1, mutableType2 }).ForceEnumeration();
@@ -126,6 +119,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
       generatorMock1.Verify();
       generatorMock2.Verify();
       nestedGeneratorMock.Verify();
+      sequence.Verify();
 
       var expectedMapping =
           new[]

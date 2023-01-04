@@ -119,10 +119,8 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var bindingFlags = (BindingFlags) 1;
       var declaringType = ReflectionObjectMother.GetSomeType();
 
-      var sequence = new MockSequence();
-      _bindingFlagsEvaluatorMock.InSequence (sequence).Setup (mock => mock.HasRightAttributes (wantedAttribute, bindingFlags)).Returns (true);
-      _bindingFlagsEvaluatorMock.InSequence (sequence).Setup (mock => mock.HasRightAttributes (unwantedAttribute, bindingFlags)).Returns (false);
-      _bindingFlagsEvaluatorMock.InSequence (sequence).Setup (mock => mock.HasRightAttributes (wantedAttribute, bindingFlags)).Returns (true);
+      _bindingFlagsEvaluatorMock.Setup (mock => mock.HasRightAttributes (wantedAttribute, bindingFlags)).Returns (true);
+      _bindingFlagsEvaluatorMock.Setup (mock => mock.HasRightAttributes (unwantedAttribute, bindingFlags)).Returns (false);
 
       var result = _selector.SelectMethods (candidates, bindingFlags, declaringType).ForceEnumeration();
 
