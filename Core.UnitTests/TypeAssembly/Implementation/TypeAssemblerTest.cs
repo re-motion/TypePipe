@@ -153,37 +153,37 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var fakeGeneratedType = ReflectionObjectMother.GetSomeType();
       var fakeGeneratedAdditionalType = ReflectionObjectMother.GetSomeType();
 
-      var sequence = new MockSequence();
+      var sequence = new VerifiableSequence();
       var typeIdentifierProviderMock = new Mock<ITypeIdentifierProvider> (MockBehavior.Strict);
       participantMock1
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .SetupGet (mock => mock.PartialTypeIdentifierProvider)
           .Returns (typeIdentifierProviderMock.Object);
       participantMock2
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .SetupGet (mock => mock.PartialTypeIdentifierProvider)
           .Returns ((ITypeIdentifierProvider) null);
 
       var proxyType = MutableTypeObjectMother.Create();
       var typeModificationTrackerMock = new Mock<ITypeModificationTracker> (MockBehavior.Strict);
       mutableTypeFactoryMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.CreateProxy (_requestedType, ProxyKind.AssembledType))
           .Returns (typeModificationTrackerMock.Object);
       typeModificationTrackerMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .SetupGet (stub => stub.Type)
           .Returns (proxyType);
 
       var idPart = new object();
       assembledTypeIdentifierProviderMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.GetPart (It.Is<AssembledTypeID> (id => id.Equals (typeID)), participantMock1.Object))
           .Returns (idPart);
 
       IProxyTypeAssemblyContext proxyTypeAssemblyContextPassedToParticipant1 = null;
       participantMock1
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.Participate (idPart, It.IsAny<IProxyTypeAssemblyContext>()))
           .Callback (
               (object id, IProxyTypeAssemblyContext proxyTypeAssemblyContextArg) =>
@@ -204,15 +204,15 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
               });
       var additionalType = MutableTypeObjectMother.Create();
       mutableTypeFactoryMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int), null)).Returns (additionalType);
 
       assembledTypeIdentifierProviderMock
-          .InSequence (sequence)
-          .Setup (mock => mock.GetPart (It.Is<AssembledTypeID> (id => id.Equals (typeID)), participantMock2.Object))
+          .InVerifiableSequence (sequence)
+          .Setup (mock => mock.GetPart (It.Is (typeID, EqualityComparer<AssembledTypeID>.Default), participantMock2.Object))
           .Returns ((object) null);
       participantMock2
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.Participate (null, It.IsAny<IProxyTypeAssemblyContext>()))
           .Callback (
               (object _, IProxyTypeAssemblyContext proxyTypeAssemblyContext) =>
@@ -221,23 +221,23 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
               });
 
       typeModificationTrackerMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.IsModified()).Returns (true);
 
       assembledTypeIdentifierProviderMock
-          .InSequence (sequence)
-          .Setup (mock => mock.AddTypeID (proxyType, It.Is<AssembledTypeID> (id => id.Equals (typeID))));
+          .InVerifiableSequence (sequence)
+          .Setup (mock => mock.AddTypeID (proxyType, It.Is (typeID, EqualityComparer<AssembledTypeID>.Default)));
       complexSerializationEnablerMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (
               mock => mock.MakeSerializable (
                   proxyType,
                   participantConfigurationID,
                   assembledTypeIdentifierProviderMock.Object,
-                  It.Is<AssembledTypeID> (id => id.Equals (typeID))));
+                  It.Is (typeID, EqualityComparer<AssembledTypeID>.Default)));
 
       codeGeneratorMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.GenerateTypes (It.Is<IEnumerable<MutableType>> (mutableTypes => mutableTypes.SequenceEqual (new[] { additionalType, proxyType }))))
           .Returns (
               new[]
@@ -271,6 +271,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       typeModificationTrackerMock.Verify();
       assembledTypeIdentifierProviderMock.Verify();
       codeGeneratorMock.Verify();
+      sequence.Verify();
 
       Assert.That (generationCompletedEventRaised, Is.True);
       Assert.That (result, Is.Not.Null);
@@ -338,10 +339,11 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       var exception1 = new InvalidOperationException ("blub");
       var exception2 = new NotSupportedException ("blub");
       var exception3 = new Exception();
-      var sequence = new MockSequence();
-      typeAssemblyContextCodeGeneratorMock.InSequence (sequence).Setup (mock => mock.GenerateTypes (It.IsAny<IEnumerable<MutableType>>())).Throws (exception1);
-      typeAssemblyContextCodeGeneratorMock.InSequence (sequence).Setup (mock => mock.GenerateTypes (It.IsAny<IEnumerable<MutableType>>())).Throws (exception2);
-      typeAssemblyContextCodeGeneratorMock.InSequence (sequence).Setup (mock => mock.GenerateTypes (It.IsAny<IEnumerable<MutableType>>())).Throws (exception3);
+      typeAssemblyContextCodeGeneratorMock
+          .SetupSequence(mock => mock.GenerateTypes (It.IsAny<IEnumerable<MutableType>>()))
+          .Throws (exception1)
+          .Throws (exception2)
+          .Throws (exception3);
       var typeAssembler = CreateTypeAssembler (participants: new Mock<IParticipant>().Object);
 
       var expectedMessageRegex = "An error occurred during code generation for '" + _requestedType.Name + "':\r\nblub\r\n"
@@ -380,9 +382,9 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       IAdditionalTypeAssemblyContext additionalTypeAssemblyContextPassedToParticipant1 = null;
       var additionalMutableType = MutableTypeObjectMother.Create();
       var otherAdditionalType = MutableTypeObjectMother.Create();
-      var sequence = new MockSequence();
+      var sequence = new VerifiableSequence();
       participantMock1
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.GetOrCreateAdditionalType (additionalTypeID, It.IsAny<IAdditionalTypeAssemblyContext>()))
           .Returns ((Type) null)
           .Callback (
@@ -403,14 +405,14 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
                 };
               });
       mutableTypeFactoryMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.CreateType ("AdditionalType", null, 0, typeof (int), null)).Returns (additionalMutableType);
       mutableTypeFactoryMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.CreateType ("OtherAdditionalType", null, 0, typeof (int), null)).Returns (otherAdditionalType);
 
       participantMock2
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.GetOrCreateAdditionalType (additionalTypeID, It.IsAny<IAdditionalTypeAssemblyContext>()))
           .Returns (additionalMutableType)
           .Callback (
@@ -421,7 +423,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       // Participant 3 is not invoked.
 
       codeGeneratorMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.GenerateTypes (new[] { additionalMutableType, otherAdditionalType }))
           .Returns (
               new[]
@@ -442,6 +444,7 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       participantMock3.Verify();
       mutableTypeFactoryMock.Verify();
       codeGeneratorMock.Verify();
+      sequence.Verify();
       Assert.That (generationCompletedEventRaised, Is.True);
       Assert.That (result, Is.Not.Null);
       Assert.That (result.Type, Is.SameAs (fakeAdditionalType));

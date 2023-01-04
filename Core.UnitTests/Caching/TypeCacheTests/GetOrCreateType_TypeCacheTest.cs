@@ -113,28 +113,39 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
       var expectedException = new Exception();
       var typeID = AssembledTypeIDObjectMother.Create();
       var assemblyContext = CreateAssemblyContext();
+      var assembleTypeCount = 0;
 
-      var sequence = new MockSequence();
+      var sequence = new VerifiableSequence();
       _assemblyContextPoolMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.Dequeue())
           .Returns (assemblyContext);
       _typeAssemblerMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AssembleType (It.IsAny<AssembledTypeID>(), It.IsAny<IParticipantState>(), It.IsAny<IMutableTypeBatchCodeGenerator>()))
           .Throws (expectedException);
       _assemblyContextPoolMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.Enqueue (assemblyContext));
       _assemblyContextPoolMock
-          .InSequence (sequence).Setup (mock => mock.Dequeue())
+          .InVerifiableSequence (sequence)
+          .Setup (mock => mock.Dequeue())
           .Returns (assemblyContext);
       _typeAssemblerMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AssembleType (It.IsAny<AssembledTypeID>(), It.IsAny<IParticipantState>(), It.IsAny<IMutableTypeBatchCodeGenerator>()))
-          .Returns (new TypeAssemblyResult (_assembledType));
+          .Returns (new TypeAssemblyResult (_assembledType))
+          .Callback (
+              () =>
+              {
+                if (assembleTypeCount == 0)
+                {
+                  assembleTypeCount++;
+                  throw expectedException;
+                }
+              });
       _assemblyContextPoolMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.Enqueue (assemblyContext));
 
       Assert.That (() => _cache.GetOrCreateType (typeID), Throws.Exception.SameAs (expectedException));
@@ -142,6 +153,7 @@ namespace Remotion.TypePipe.UnitTests.Caching.TypeCacheTests
 
       _typeAssemblerMock.Verify();
       _assemblyContextPoolMock.Verify();
+      sequence.Verify();
     }
 
     [Test]

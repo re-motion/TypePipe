@@ -35,9 +35,10 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
       var fakeMethodDefinition1 = ReflectionObjectMother.GetSomeMethod();
       var fakeMethodDefinition2 = ReflectionObjectMother.GetSomeMethod();
 
-      var sequence = new MockSequence();
-      customMethodInfoMock.InSequence (sequence).Setup (mock => mock.GetBaseDefinition()).Returns (fakeMethodDefinition1);
-      customMethodInfoMock.InSequence (sequence).Setup (mock => mock.GetBaseDefinition()).Returns (fakeMethodDefinition2);
+      customMethodInfoMock
+          .SetupSequence (mock => mock.GetBaseDefinition())
+          .Returns (fakeMethodDefinition1)
+          .Returns (fakeMethodDefinition2);
 
       var result1 = MethodBaseDefinitionCache.GetBaseDefinition (customMethodInfoMock.Object);
       var result2 = MethodBaseDefinitionCache.GetBaseDefinition (customMethodInfoMock.Object);

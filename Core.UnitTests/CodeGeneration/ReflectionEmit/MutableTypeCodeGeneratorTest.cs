@@ -93,22 +93,24 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     [Test]
     public virtual void DeclareType ()
     {
-      var sequence = new MockSequence();
+      var sequence = new VerifiableSequence();
       _codeGeneratorMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.DefineType (_mutableType.FullName, _mutableType.Attributes, _emittableOperandProviderMock.Object))
           .Returns (_typeBuilderMock.Object);
       _typeBuilderMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.RegisterWith (_emittableOperandProviderMock.Object, _mutableType));
       _codeGeneratorMock
-          .InSequence (sequence)
-          .SetupGet (mock => mock.DebugInfoGenerator).Returns (_debugInfoGeneratorMock.Object);
+          .InVerifiableSequence (sequence)
+          .SetupGet (mock => mock.DebugInfoGenerator)
+          .Returns (_debugInfoGeneratorMock.Object);
 
       _generator.DeclareType();
 
       _codeGeneratorMock.Verify();
       _typeBuilderMock.Verify();
+      sequence.Verify();
       var context = (CodeGenerationContext) PrivateInvoke.GetNonPublicField (_generator, "_context");
       Assert.That (context, Is.Not.Null);
       Assert.That (context.MutableType, Is.SameAs (_mutableType));
@@ -154,47 +156,48 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
 
       var context = PopulateContext (_generator, 2);
-      var sequence = new MockSequence();
+      var sequence = new VerifiableSequence();
 
       _typeBuilderMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.SetParent (_mutableType.BaseType));
 
       _memberEmitterMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddConstructor (context, typeInitializer));
 
       _initializationBuilderMock
-          .InSequence (sequence)
-          .Setup (mock => mock.CreateInitializationMembers (_mutableType)).Returns (_fakeInitializationMembers);
+          .InVerifiableSequence (sequence)
+          .Setup (mock => mock.CreateInitializationMembers (_mutableType))
+          .Returns (_fakeInitializationMembers);
       _proxySerializationEnablerMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
 
       _typeBuilderMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.SetCustomAttribute (customAttribute));
       _typeBuilderMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddInterfaceImplementation (@interface));
       _memberEmitterMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddField (context, field));
       _initializationBuilderMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock.Object));
       _memberEmitterMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddConstructor (context, constructor));
       _memberEmitterMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddMethod (context, method));
-      SetupExpectationsForAccessors (_memberEmitterMock, _mutableType.AddedMethods.Except (new[] { method }));
+      SetupExpectationsForAccessors (sequence, _memberEmitterMock, _mutableType.AddedMethods.Except (new[] { method }));
       _memberEmitterMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddProperty (context, property));
       _memberEmitterMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddEvent (context, event_));
 
       _generator.DefineTypeFacets();
@@ -203,6 +206,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _memberEmitterMock.Verify();
       _initializationBuilderMock.Verify();
       _proxySerializationEnablerMock.Verify();
+      sequence.Verify();
     }
 
     [Test]
@@ -309,12 +313,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       return context;
     }
 
-    private void SetupExpectationsForAccessors (Mock<IMemberEmitter> memberEmitterMock, IEnumerable<MutableMethodInfo> methods)
+    private void SetupExpectationsForAccessors (VerifiableSequence sequence, Mock<IMemberEmitter> memberEmitterMock, IEnumerable<MutableMethodInfo> methods)
     {
       foreach (var method in methods)
       {
         var m = method;
-        memberEmitterMock.Setup (mock => mock.AddMethod (It.IsAny<CodeGenerationContext>(), m)).Verifiable();
+        memberEmitterMock
+            .InVerifiableSequence (sequence)
+            .Setup (mock => mock.AddMethod (It.IsAny<CodeGenerationContext>(), m))
+            .Verifiable();
       }
     }
 
