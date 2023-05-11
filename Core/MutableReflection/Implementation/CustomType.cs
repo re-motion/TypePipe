@@ -203,15 +203,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     }
 
     /// <summary>
-    /// Implements reference equality for <see cref="CustomType"/> derivatives. The method which is hidden by this method,
-    /// i.e., <see cref="Type.Equals(System.Type)"/> in class <see cref="Type"/>, still works as intended but is slower as it accesses
-    /// the <see cref="UnderlyingSystemType"/> property.
+    /// Implements reference equality for <see cref="CustomType"/> derivatives.
     /// </summary>
-    public new virtual bool Equals (Type type)
+    public override bool Equals (Type other)
     {
-      // ReSharper disable PossibleUnintendedReferenceComparison
-      return this == type;
-      // ReSharper restore PossibleUnintendedReferenceComparison
+      return object.ReferenceEquals (this, other);
     }
 
     /// <summary>
