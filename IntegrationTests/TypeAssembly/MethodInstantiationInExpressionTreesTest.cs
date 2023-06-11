@@ -33,15 +33,20 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void ExistingMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.Method());
-      var genericMethodDefiniton = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Enumerable.Empty<Dev.T>());
-
+      var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (
+#if NETFRAMEWORK
+          () => Enumerable.Empty<Dev.T>()
+#else
+          () => Array.Empty<Dev.T>()
+#endif
+          );
       var type = AssembleType<DomainType> (
           p =>
           p.GetOrAddOverride (method)
            .SetBody (
                ctx =>
                {
-                 var methodInstantiation = genericMethodDefiniton.MakeTypePipeGenericMethod (p);
+                 var methodInstantiation = genericMethodDefinition.MakeTypePipeGenericMethod (p);
                  Assert.That (methodInstantiation.IsGenericMethod, Is.True);
                  Assert.That (methodInstantiation.IsGenericMethodDefinition, Is.False);
                  Assert.That (methodInstantiation.GetGenericArguments(), Is.EqualTo (new[] { p }));
@@ -62,7 +67,13 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     public void AddedMethod ()
     {
       var method = NormalizingMemberInfoFromExpressionUtility.GetMethod ((DomainType o) => o.Method());
-      var genericMethodDefiniton = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (() => Enumerable.Empty<Dev.T>());
+      var genericMethodDefinition = NormalizingMemberInfoFromExpressionUtility.GetGenericMethodDefinition (
+#if NETFRAMEWORK
+          () => Enumerable.Empty<Dev.T>()
+#else
+          () => Array.Empty<Dev.T>()
+#endif
+          );
 
       var type = AssembleType<DomainType> (
           proxyType =>
@@ -73,7 +84,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
                 new[] { new GenericParameterDeclaration ("T") },
                 ctx => typeof (IEnumerable<>).MakeTypePipeGenericType (ctx.GenericParameters[0]),
                 ctx => ParameterDeclaration.None,
-                ctx => Expression.Call (genericMethodDefiniton.MakeTypePipeGenericMethod (ctx.GenericParameters[0])));
+                ctx => Expression.Call (genericMethodDefinition.MakeTypePipeGenericMethod (ctx.GenericParameters[0])));
 
             proxyType.GetOrAddOverride (method).SetBody (
                 ctx =>

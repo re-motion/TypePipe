@@ -85,7 +85,7 @@ namespace Remotion.TypePipe.IntegrationTests.MutableReflection
     public void StandardReflection_BehavesEqually ()
     {
       CheckAbcAttributeOnly (TypePipeCustomAttributeData.GetCustomAttributes (_assembly), CustomAttributeData.GetCustomAttributes (_assembly));
-      CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_module), CustomAttributeData.GetCustomAttributes (_module));
+      CheckAbcAttributeOnly (TypePipeCustomAttributeData.GetCustomAttributes (_module), CustomAttributeData.GetCustomAttributes (_module));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_type), CustomAttributeData.GetCustomAttributes (_type));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_typeInitializer), CustomAttributeData.GetCustomAttributes (_typeInitializer));
       CheckAbcAttribute (TypePipeCustomAttributeData.GetCustomAttributes (_field), CustomAttributeData.GetCustomAttributes (_field));
