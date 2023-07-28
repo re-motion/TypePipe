@@ -18,6 +18,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
+using System.Threading;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.Utilities;
 
@@ -25,6 +26,17 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 {
   public static class ReflectionEmitObjectMother
   {
+    private static readonly Lazy<Type> c_typeBuilderType = new Lazy<Type> (GetTypeBuilderType, LazyThreadSafetyMode.None);
+
+    private static Type GetTypeBuilderType ()
+    {
+#if NETFRAMEWORK || NET6_0 || NET7_0
+      return typeof(TypeBuilder);
+#else
+      return Type.GetType ("System.Reflection.Emit.TypeBuilderImpl, System.Reflection.Emit", throwOnError: true, ignoreCase: false);
+#endif
+    }
+
     public static ModuleBuilder CreateModuleBuilder ()
     {
       var assemblyName = "test";
@@ -46,7 +58,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public static TypeBuilder GetSomeTypeBuilder ()
     {
-      return (TypeBuilder) FormatterServices.GetUninitializedObject (typeof (TypeBuilder));
+      return (TypeBuilder) FormatterServices.GetUninitializedObject (c_typeBuilderType.Value);
     }
 
     public static GenericTypeParameterBuilder GetSomeGenericTypeParameterBuilder ()
