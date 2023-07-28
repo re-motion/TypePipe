@@ -68,7 +68,11 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       Assert.That (
           () => data.CreateTypeID(),
           Throws.InstanceOf<TypeLoadException>()
-              .With.Message.StartsWith ("Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, "));
+#if NETFRAMEWORK || NET6_0 || NET7_0
+              .With.Message.StartsWith ("Could not load type 'UnknownType' from assembly 'Remotion.TypePipe, Version="));
+#else
+              .With.Message.StartsWith ("Could not resolve type 'UnknownType' in assembly 'Remotion.TypePipe, Version="));
+#endif
     }
   }
 }
