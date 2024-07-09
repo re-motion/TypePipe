@@ -76,11 +76,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(ProjectType)' == 'Test'">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
-    <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="Moq.VerifiableSequence" Version="4.16.1.2" />
-    <PackageReference Include="NUNit" Version="3.13.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Moq.VerifiableSequence" />
+    <PackageReference Include="NUNit" />
+    <PackageReference Include="NUnit3TestAdapter" />
   </ItemGroup>
 
   <PropertyGroup>

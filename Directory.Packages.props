@@ -1,0 +1,15 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+    <PackageVersion Include="Moq" Version="4.16.1" />
+    <PackageVersion Include="Moq.VerifiableSequence" Version="4.16.1.2" />
+    <PackageVersion Include="NUNit" Version="3.13.1" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>
