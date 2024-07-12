@@ -27,6 +27,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   public static class ReflectionEmitObjectMother
   {
     private static readonly Lazy<Type> c_typeBuilderType = new Lazy<Type> (GetTypeBuilderType, LazyThreadSafetyMode.None);
+    private static readonly Lazy<Type> c_localBuilderType = new Lazy<Type> (GetLocalBuilderType, LazyThreadSafetyMode.None);
 
     private static Type GetTypeBuilderType ()
     {
@@ -34,6 +35,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       return typeof(TypeBuilder);
 #else
       return Type.GetType ("System.Reflection.Emit.TypeBuilderImpl, System.Reflection.Emit", throwOnError: true, ignoreCase: false);
+#endif
+    }
+
+    private static Type GetLocalBuilderType ()
+    {
+#if NET9_0_OR_GREATER
+      return Type.GetType ("System.Reflection.Emit.LocalBuilderImpl, System.Reflection.Emit", throwOnError: true, ignoreCase: false);
+#else
+      return typeof(LocalBuilder);
 #endif
     }
 
@@ -93,7 +103,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
     public static LocalBuilder GetSomeLocalBuilder ()
     {
-      return (LocalBuilder) FormatterServices.GetUninitializedObject (typeof (LocalBuilder));
+      return (LocalBuilder) FormatterServices.GetUninitializedObject (c_localBuilderType.Value);
     }
 
     public static Type GetSomeTypeBuilderInstantiation ()

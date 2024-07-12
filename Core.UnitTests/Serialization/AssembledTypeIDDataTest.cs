@@ -40,6 +40,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       _data = new AssembledTypeIDData (_type.AssemblyQualifiedName, new IFlatValue[] { _flatValueStub, null });
     }
 
+#if !NET9_0_OR_GREATER
     [Test]
     public void IsSerializable ()
     {
@@ -48,6 +49,7 @@ namespace Remotion.TypePipe.UnitTests.Serialization
       Assert.That (result.RequestedTypeAssemblyQualifiedName, Is.EqualTo (_data.RequestedTypeAssemblyQualifiedName));
       Assert.That (result.FlattenedSerializableIDParts, Is.EqualTo (_data.FlattenedSerializableIDParts));
     }
+#endif
 
     [Test]
     public void CreateTypeID ()
