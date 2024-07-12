@@ -22,7 +22,6 @@ using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.CodeGeneration;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
-using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
@@ -43,24 +42,19 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     private readonly IReadOnlyCollection<IParticipant> _participants;
     private readonly IMutableTypeFactory _mutableTypeFactory;
     private readonly IAssembledTypeIdentifierProvider _assembledTypeIdentifierProvider;
-    private readonly IComplexSerializationEnabler _complexSerializationEnabler;
 
     public TypeAssembler (
         string participantConfigurationID,
         IEnumerable<IParticipant> participants,
-        IMutableTypeFactory mutableTypeFactory,
-        IComplexSerializationEnabler complexSerializationEnabler)
+        IMutableTypeFactory mutableTypeFactory)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNull ("participants", participants);
       ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
-      ArgumentUtility.CheckNotNull ("complexSerializationEnabler", complexSerializationEnabler);
-      
 
       _participantConfigurationID = participantConfigurationID;
       _participants = participants.ToList().AsReadOnly();
       _mutableTypeFactory = mutableTypeFactory;
-      _complexSerializationEnabler = complexSerializationEnabler;
 
       _assembledTypeIdentifierProvider = new AssembledTypeIdentifierProvider (_participants);
     }
@@ -209,9 +203,6 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
       // Add '__typeID' and initialization code.
       _assembledTypeIdentifierProvider.AddTypeID (context.ProxyType, typeID);
-
-      // Enable complex serialization.
-      _complexSerializationEnabler.MakeSerializable (context.ProxyType, _participantConfigurationID,_assembledTypeIdentifierProvider, typeID);
 
       var mutableTypes = context.AdditionalTypes.Values.Concat (new[] { context.ProxyType });
       return GenerateTypesWithDiagnostics (codeGenerator, mutableTypes, context.RequestedType.Name);

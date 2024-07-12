@@ -31,24 +31,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IMemberEmitterFactory _memberEmitterFactory;
     private readonly IReflectionEmitCodeGenerator _codeGenerator;
     private readonly IInitializationBuilder _initializationBuilder;
-    private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     [CLSCompliant (false)]
     public MutableTypeCodeGeneratorFactory (
         IMemberEmitterFactory memberEmitterFactory,
         IReflectionEmitCodeGenerator codeGenerator,
-        IInitializationBuilder initializationBuilder,
-        IProxySerializationEnabler proxySerializationEnabler)
+        IInitializationBuilder initializationBuilder)
     {
       ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
       ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
-      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _memberEmitterFactory = memberEmitterFactory;
       _codeGenerator = codeGenerator;
       _initializationBuilder = initializationBuilder;
-      _proxySerializationEnabler = proxySerializationEnabler;
     }
 
     [CLSCompliant (false)]
@@ -66,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         MutableType mutableType, IEmittableOperandProvider emittableOperandProvider, IMemberEmitter memberEmitter)
     {
       var nestedTypeCodeGeneratorFactory = new MutableNestedTypeCodeGeneratorFactory (
-          _codeGenerator, emittableOperandProvider, memberEmitter, _initializationBuilder, _proxySerializationEnabler);
+          _codeGenerator, emittableOperandProvider, memberEmitter, _initializationBuilder);
 
       return new MutableTypeCodeGenerator (
           mutableType,
@@ -74,8 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           _codeGenerator,
           emittableOperandProvider,
           memberEmitter,
-          _initializationBuilder,
-          _proxySerializationEnabler);
+          _initializationBuilder);
     }
   }
 }

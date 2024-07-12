@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       var incrementedCounter = Interlocked.Increment (ref _counter);
 
       var name = string.Format ("{0}_{1}Proxy_{2}", baseType.Name, proxyKind, incrementedCounter);
-      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit | (baseType.IsTypePipeSerializable() ? TypeAttributes.Serializable : 0);
+      var attributes = TypeAttributes.Public | TypeAttributes.BeforeFieldInit;
 
       var proxyType = CreateType (name, baseType.Namespace, attributes, baseType, null);
       var constructorBodies = CopyConstructors (baseType, proxyType);
