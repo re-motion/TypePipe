@@ -481,7 +481,6 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// </remarks>
     /// <exception cref="NotSupportedException">Always thrown.</exception>
     /// <seealso cref="TypeExtensions.IsTypePipeAssignableFrom"/>
-    /// <seealso cref="TypeExtensions.IsTypePipeSerializable"/>
     public override Type UnderlyingSystemType
     {
       get

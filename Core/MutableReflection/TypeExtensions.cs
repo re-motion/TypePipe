@@ -58,20 +58,6 @@ namespace Remotion.TypePipe.MutableReflection
     }
 
     /// <summary>
-    /// Determines whether a given type is serializable.
-    /// Use this as an replacement for <see cref="Type.IsSerializable"/>.
-    /// </summary>
-    /// <returns><c>true</c> if the <see cref="Type"/> is serializable; otherwise, <c>false</c>.</returns>
-    public static bool IsTypePipeSerializable (this Type type)
-    {
-      var customType = type as CustomType;
-      if (customType != null)
-        return customType.Attributes.IsSet (TypeAttributes.Serializable);
-
-      return type.IsSerializable;
-    }
-
-    /// <summary>
     /// Determines whether an instance of the current <see cref="Type"/> can be assigned from an instance of the specified type.
     /// Use this as an replacement for <see cref="Type.IsAssignableFrom"/>.
     /// </summary>

@@ -15,11 +15,8 @@
 // under the License.
 // 
 using System;
-using System.Reflection;
-using System.Runtime.Serialization;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization;
 
 namespace Remotion.TypePipe.Caching
 {
@@ -32,7 +29,6 @@ namespace Remotion.TypePipe.Caching
   /// <remarks>
   /// This interface must be implemented if the generated types cannot be cached unconditionally.
   /// If the generated types can be cached unconditionally <see cref="IParticipant.PartialTypeIdentifierProvider"/> should return <see langword="null"/>.
-  /// Furthermore, the returned identifier must be serializable if the <see cref="ComplexSerializationEnabler"/> is used.
   /// </remarks>
   public interface ITypeIdentifierProvider
   {
@@ -58,26 +54,5 @@ namespace Remotion.TypePipe.Caching
     /// <returns>An expression that builds an identifier equivalent to <paramref name="id"/>.</returns>
     /// <remarks>This method is not called if <see cref="GetID"/> returned <see langword="null"/>.</remarks>
     Expression GetExpression (object id);
-
-    /// <summary>
-    /// Gets an expression of type <see cref="IFlatValue"/> that re-builds a flattened serializable representation of the specified identifier
-    /// in code. On deserialization <see cref="IFlatValue.GetRealValue"/> is called on the deserialized flat value to create an identifier that is
-    /// equivalent to the original identifier.
-    /// </summary>
-    /// <param name="id">An identifier previously returned by <see cref="GetID"/>.</param>
-    /// <returns>An expression of type <see cref="IFlatValue"/> that builds a flattened serializable representation of <paramref name="id"/>.</returns>
-    /// <remarks>
-    /// <para>
-    /// This method is only called when using the complex serialization strategy and <see cref="GetID"/> did not return <see langword="null"/>.
-    /// </para>
-    /// <para>
-    /// A "flattened" value is a value that is immediately deserializable in one step. It must not contain any cycles or objects
-    /// that implement <see cref="IObjectReference"/>, such as <see cref="Type"/>, <see cref="MethodInfo"/>, etc. Instead of such objects, include
-    /// some simple identifier in the flattened value, e.g., <see cref="Type.AssemblyQualifiedName"/>.
-    /// </para>
-    /// </remarks>
-    /// <seealso cref="IFlatValue"/>
-    /// <seealso cref="PipelineSettings.EnableSerializationWithoutAssemblySaving"/>
-    Expression GetFlatValueExpressionForSerialization (object id);
   }
 }

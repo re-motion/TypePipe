@@ -44,7 +44,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     private Mock<IEmittableOperandProvider> _emittableOperandProviderMock;
     private Mock<IMemberEmitter> _memberEmitterMock;
     private Mock<IInitializationBuilder> _initializationBuilderMock;
-    private Mock<IProxySerializationEnabler> _proxySerializationEnablerMock;
 
     private MutableTypeCodeGenerator _generator;
 
@@ -65,7 +64,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _emittableOperandProviderMock = new Mock<IEmittableOperandProvider> (MockBehavior.Strict);
       _memberEmitterMock = new Mock<IMemberEmitter> (MockBehavior.Strict);
       _initializationBuilderMock = new Mock<IInitializationBuilder> (MockBehavior.Strict);
-      _proxySerializationEnablerMock = new Mock<IProxySerializationEnabler> (MockBehavior.Strict);
 
       _generator = new MutableTypeCodeGenerator (
           _mutableType,
@@ -73,8 +71,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           _codeGeneratorMock.Object,
           _emittableOperandProviderMock.Object,
           _memberEmitterMock.Object,
-          _initializationBuilderMock.Object,
-          _proxySerializationEnablerMock.Object);
+          _initializationBuilderMock.Object);
 
       _typeBuilderMock = new Mock<ITypeBuilder> (MockBehavior.Strict);
       _debugInfoGeneratorMock = new Mock<DebugInfoGenerator> (MockBehavior.Strict);
@@ -170,9 +167,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .InVerifiableSequence (sequence)
           .Setup (mock => mock.CreateInitializationMembers (_mutableType))
           .Returns (_fakeInitializationMembers);
-      _proxySerializationEnablerMock
-          .InVerifiableSequence (sequence)
-          .Setup (mock => mock.MakeSerializable (_mutableType, _fakeInitializationMethod));
 
       _typeBuilderMock
           .InVerifiableSequence (sequence)
@@ -185,7 +179,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           .Setup (mock => mock.AddField (context, field));
       _initializationBuilderMock
           .InVerifiableSequence (sequence)
-          .Setup (mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers, _proxySerializationEnablerMock.Object));
+          .Setup (mock => mock.WireConstructorWithInitialization (constructor, _fakeInitializationMembers));
       _memberEmitterMock
           .InVerifiableSequence (sequence)
           .Setup (mock => mock.AddConstructor (context, constructor));
@@ -205,7 +199,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _typeBuilderMock.Verify();
       _memberEmitterMock.Verify();
       _initializationBuilderMock.Verify();
-      _proxySerializationEnablerMock.Verify();
       sequence.Verify();
     }
 
@@ -223,19 +216,16 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           _codeGeneratorMock.Object,
           _emittableOperandProviderMock.Object,
           _memberEmitterMock.Object,
-          _initializationBuilderMock.Object,
-          _proxySerializationEnablerMock.Object);
+          _initializationBuilderMock.Object);
       PopulateContext (generator, 2);
 
       // No call to SetParent because of null BaseType.
       // No call to AddConstructor because of null TypeInitializer.
       _initializationBuilderMock.Setup (mock => mock.CreateInitializationMembers (mutableType)).Returns ((Tuple<FieldInfo, MethodInfo>) null).Verifiable();
-      _proxySerializationEnablerMock.Setup (mock => mock.MakeSerializable (mutableType, null)).Verifiable();
 
       generator.DefineTypeFacets();
 
       _initializationBuilderMock.Verify();
-      _proxySerializationEnablerMock.Verify();
     }
 
     [Test]
@@ -261,7 +251,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var emittableOperandProviderStub = new Mock<IEmittableOperandProvider>();
       var memberEmitterStub = new Mock<IMemberEmitter>();
       var initializationBuilderStub = new Mock<IInitializationBuilder>();
-      var proxySerializationEnablerStub = new Mock<IProxySerializationEnabler>();
       _typeBuilderMock.Setup (stub => stub.RegisterWith (emittableOperandProviderStub.Object, _mutableType));
       _typeBuilderMock.Setup (stub => stub.SetParent (_mutableType.BaseType));
       _typeBuilderMock.Setup (stub => stub.CreateType()).Returns ((Type) null);
@@ -276,8 +265,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           codeGeneratorStub.Object,
           emittableOperandProviderStub.Object,
           memberEmitterStub.Object,
-          initializationBuilderStub.Object,
-          proxySerializationEnablerStub.Object);
+          initializationBuilderStub.Object);
 
       CheckThrowsForInvalidOperation (generator.DefineTypeFacets);
       CheckThrowsForInvalidOperation (() => generator.CreateNestedTypeGenerators().ForceEnumeration());
