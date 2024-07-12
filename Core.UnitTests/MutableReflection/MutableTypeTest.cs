@@ -720,20 +720,6 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
-    public void GetAttributeFlagsImpl_Serializable ()
-    {
-      var proxyType = MutableTypeObjectMother.Create (memberSelector: _memberSelectorMock.Object);
-      _memberSelectorMock
-          .Setup (stub => stub.SelectMethods<MethodInfo> (It.IsAny<IEnumerable<MethodInfo>>(), It.IsAny<BindingFlags>(), It.IsAny<Type>()))
-          .Returns (new MethodInfo[0]);
-      Assert.That (proxyType.IsTypePipeSerializable(), Is.False);
-
-      proxyType.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (SerializableAttribute)));
-
-      Assert.That (proxyType.IsTypePipeSerializable(), Is.True);
-    }
-
-    [Test]
     public void GetAttributeFlagsImpl_Abstract ()
     {
       var proxyType = MutableTypeObjectMother.Create (baseType: typeof (AbstractType));

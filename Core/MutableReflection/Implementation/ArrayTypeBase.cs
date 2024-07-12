@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         : base (
             GetArrayTypeName (ArgumentUtility.CheckNotNull ("elementType", elementType).Name, rank),
             elementType.Namespace,
-            TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.Serializable,
+            TypeAttributes.Public | TypeAttributes.Sealed,
             null,
             EmptyTypes)
     {

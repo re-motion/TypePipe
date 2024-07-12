@@ -28,7 +28,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   [TestFixture]
   public class MutableTypeCodeGeneratorFactoryTest
   {
-    private Mock<IProxySerializationEnabler> _proxySerializationEnablerMock;
     private Mock<IReflectionEmitCodeGenerator> _codeGeneratorMock;
     private Mock<IInitializationBuilder> _initializationBuilderMock;
     private Mock<IMemberEmitterFactory> _memberEmitterFactoryMock;
@@ -41,10 +40,9 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       _memberEmitterFactoryMock = new Mock<IMemberEmitterFactory> (MockBehavior.Strict);
       _codeGeneratorMock = new Mock<IReflectionEmitCodeGenerator> (MockBehavior.Strict);
       _initializationBuilderMock = new Mock<IInitializationBuilder> (MockBehavior.Strict);
-      _proxySerializationEnablerMock = new Mock<IProxySerializationEnabler> (MockBehavior.Strict);
 
       _factory = new MutableTypeCodeGeneratorFactory (
-          _memberEmitterFactoryMock.Object, _codeGeneratorMock.Object, _initializationBuilderMock.Object, _proxySerializationEnablerMock.Object);
+          _memberEmitterFactoryMock.Object, _codeGeneratorMock.Object, _initializationBuilderMock.Object);
     }
 
     [Test]
@@ -65,7 +63,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_codeGenerator"), Is.SameAs (_codeGeneratorMock.Object));
       Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_memberEmitter"), Is.SameAs (fakeMemberEmitter));
       Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_initializationBuilder"), Is.SameAs (_initializationBuilderMock.Object));
-      Assert.That (PrivateInvoke.GetNonPublicField (result[0], "_proxySerializationEnabler"), Is.SameAs (_proxySerializationEnablerMock.Object));
 
       Assert.That (PrivateInvoke.GetNonPublicField (result[1], "_mutableType"), Is.SameAs (mutableType2));
       Assert.That (

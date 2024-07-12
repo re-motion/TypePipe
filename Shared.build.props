@@ -25,14 +25,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <BinaryFormatterSerializationObsoleteWarning>SYSLIB0011</BinaryFormatterSerializationObsoleteWarning>
-    <BinaryFormatterSerializationObsoleteInNet8Warning>SYSLIB0050</BinaryFormatterSerializationObsoleteInNet8Warning>
     <StrongNameSigningObsoleteWarning>SYSLIB0017</StrongNameSigningObsoleteWarning>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Library'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>1591;$(StrongNameSigningObsoleteWarning);$(BinaryFormatterSerializationObsoleteInNet8Warning)</NoWarn>
+    <NoWarn>1591;$(StrongNameSigningObsoleteWarning)</NoWarn>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>True</IsPackable>
     <TargetFrameworks>net6.0;net7.0;net8.0;net9.0;net45</TargetFrameworks>
@@ -50,13 +48,12 @@
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Test'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>0067;0649;0169;$(BinaryFormatterSerializationObsoleteWarning);$(BinaryFormatterSerializationObsoleteInNet8Warning);$(StrongNameSigningObsoleteWarning)</NoWarn>
+    <NoWarn>0067;0649;0169;$(StrongNameSigningObsoleteWarning)</NoWarn>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>False</IsPackable>
     <TargetFrameworks>net6.0;net7.0;net8.0;net9.0;net45</TargetFrameworks>
     <DefineConstants>$(DefineConstants)</DefineConstants>
     <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_STRONGNAMESIGNING</DefineConstants>
-    <EnableUnsafeBinaryFormatterSerialization Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' or '$(TargetFramework)' == 'net8.0'">true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>

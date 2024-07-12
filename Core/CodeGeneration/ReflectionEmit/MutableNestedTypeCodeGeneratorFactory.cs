@@ -30,27 +30,23 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
-    private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     [CLSCompliant (false)]
     public MutableNestedTypeCodeGeneratorFactory (
         IReflectionEmitCodeGenerator reflectionEmitCodeGenerator,
         IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter,
-        IInitializationBuilder initializationBuilder,
-        IProxySerializationEnabler proxySerializationEnabler)
+        IInitializationBuilder initializationBuilder)
     {
       ArgumentUtility.CheckNotNull ("reflectionEmitCodeGenerator", reflectionEmitCodeGenerator);
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
-      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _reflectionEmitCodeGenerator = reflectionEmitCodeGenerator;
       _emittableOperandProvider = emittableOperandProvider;
       _memberEmitter = memberEmitter;
       _initializationBuilder = initializationBuilder;
-      _proxySerializationEnabler = proxySerializationEnabler;
     }
 
     [CLSCompliant (false)]
@@ -66,8 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
           _reflectionEmitCodeGenerator,
           _emittableOperandProvider,
           _memberEmitter,
-          _initializationBuilder,
-          _proxySerializationEnabler);
+          _initializationBuilder);
     }
   }
 }
