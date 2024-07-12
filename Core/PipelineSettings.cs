@@ -50,6 +50,7 @@ namespace Remotion.TypePipe
       return New()
           .SetForceStrongNaming (settings.ForceStrongNaming)
           .SetKeyFilePath (settings.KeyFilePath)
+          .SetEnableSerializationWithoutAssemblySaving (settings.EnableSerializationWithoutAssemblySaving)
           .SetAssemblyDirectory (settings.AssemblyDirectory)
           .SetAssemblyNamePattern (settings.AssemblyNamePattern)
           .SetDegreeOfParallelism (settings.DegreeOfParallelism);
@@ -59,6 +60,8 @@ namespace Remotion.TypePipe
 
     [CanBeNull]
     private readonly string _keyFilePath;
+
+    private readonly bool _enableSerializationWithoutAssemblySaving;
 
     [CanBeNull]
     private readonly string _assemblyDirectory;
@@ -70,6 +73,7 @@ namespace Remotion.TypePipe
     public PipelineSettings (
         bool forceStrongNaming,
         [CanBeNull] string keyFilePath,
+        bool enableSerializationWithoutAssemblySaving,
         [CanBeNull] string assemblyDirectory,
         string assemblyNamePattern,
         int degreeOfParallelism)
@@ -86,6 +90,7 @@ namespace Remotion.TypePipe
 
       _forceStrongNaming = forceStrongNaming;
       _keyFilePath = keyFilePath;
+      _enableSerializationWithoutAssemblySaving = enableSerializationWithoutAssemblySaving;
       _assemblyDirectory = assemblyDirectory;
       _assemblyNamePattern = assemblyNamePattern;
       _degreeOfParallelism = degreeOfParallelism;
@@ -139,6 +144,14 @@ namespace Remotion.TypePipe
       get { return _keyFilePath; }
     }
 
+    /// <summary>
+    /// Enables the serialization of assembled type instances without the need of saving the generated assembly to disk.
+    /// </summary>
+    public bool EnableSerializationWithoutAssemblySaving
+    {
+      get { return _enableSerializationWithoutAssemblySaving; }
+    }
+
     public int DegreeOfParallelism
     {
       get { return _degreeOfParallelism; }
@@ -153,6 +166,8 @@ namespace Remotion.TypePipe
 
       [CanBeNull]
       private string _keyFilePath;
+
+      private bool _enableSerializationWithoutAssemblySaving;
 
       [CanBeNull]
       private string _assemblyDirectory;
@@ -171,6 +186,12 @@ namespace Remotion.TypePipe
       public Builder SetKeyFilePath ([CanBeNull] string value)
       {
         _keyFilePath = value;
+        return this;
+      }
+
+      public Builder SetEnableSerializationWithoutAssemblySaving (bool enableSerializationWithoutAssemblySaving)
+      {
+        _enableSerializationWithoutAssemblySaving = enableSerializationWithoutAssemblySaving;
         return this;
       }
 
@@ -200,6 +221,7 @@ namespace Remotion.TypePipe
         return new PipelineSettings (
             _forceStrongNaming,
             _keyFilePath,
+            _enableSerializationWithoutAssemblySaving,
             _assemblyDirectory,
             _assemblyNamePattern ?? c_defaultAssemblyNamePattern,
             _degreeOfParallelism);

@@ -26,9 +26,10 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void Initialization ()
     {
-      var settings = new PipelineSettings (true, "keyFile", "assemblyDirectory", "assemblyName{counter}suffix", 2);
+      var settings = new PipelineSettings (true, "keyFile", true, "assemblyDirectory", "assemblyName{counter}suffix", 2);
       Assert.That (settings.ForceStrongNaming, Is.True);
       Assert.That (settings.KeyFilePath, Is.EqualTo ("keyFile"));
+      Assert.That (settings.EnableSerializationWithoutAssemblySaving, Is.True);
       Assert.That (settings.AssemblyDirectory, Is.EqualTo ("assemblyDirectory"));
       Assert.That (settings.AssemblyNamePattern, Is.EqualTo ("assemblyName{counter}suffix"));
       Assert.That (settings.DegreeOfParallelism, Is.EqualTo (2));
@@ -38,7 +39,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Initialization_WithDegreeOfParallelism_LessThanOne_ThrowsArgumentOutOfRangeException ()
     {
       Assert.That (
-          () => new PipelineSettings (false, null, null, "assemblyName", 0),
+          () => new PipelineSettings (false, null, false, null, "assemblyName", 0),
           Throws.TypeOf<ArgumentOutOfRangeException>()
               .With.ArgumentOutOfRangeExceptionMessageEqualTo (
                   "The degree of parallelism must be greater than 0.", "degreeOfParallelism", 0));
@@ -48,7 +49,7 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     public void Initialization_WithDegreeOfParallelism_GreaterThanOneAndAssemblyNamePatternDoesNotContainCounter_ThrowsArgumentException ()
     {
       Assert.That (
-          () => new PipelineSettings (false, null, null, "assemblyName", 2),
+          () => new PipelineSettings (false, null, false, null, "assemblyName", 2),
           Throws.ArgumentException
               .With.ArgumentExceptionMessageEqualTo (
                   "When a degree of parallelism greater than 1 is specified, the '{counter}' placeholder must be included in the assembly name pattern.",
@@ -58,10 +59,11 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     [Test]
     public void Build_FromExisting_CopiesValues ()
     {
-      var settings = new PipelineSettings (true, "keyFile", "assemblyDirectory", "assemblyName_{counter}", 2);
+      var settings = new PipelineSettings (true, "keyFile", true, "assemblyDirectory", "assemblyName_{counter}", 2);
       var newSettings = PipelineSettings.From (settings).Build();
       Assert.That (newSettings.ForceStrongNaming, Is.True);
       Assert.That (newSettings.KeyFilePath, Is.EqualTo ("keyFile"));
+      Assert.That (newSettings.EnableSerializationWithoutAssemblySaving, Is.True);
       Assert.That (newSettings.AssemblyDirectory, Is.EqualTo ("assemblyDirectory"));
       Assert.That (newSettings.AssemblyNamePattern, Is.EqualTo ("assemblyName_{counter}"));
       Assert.That (newSettings.DegreeOfParallelism, Is.EqualTo (2));
@@ -79,6 +81,13 @@ namespace Remotion.TypePipe.UnitTests.Implementation
     {
       var settings = PipelineSettings.New().SetKeyFilePath ("set_value").Build();
       Assert.That (settings.KeyFilePath, Is.EqualTo ("set_value"));
+    }
+
+    [Test]
+    public void Build_SetEnableSerializationWithoutAssemblySaving ()
+    {
+      var settings = PipelineSettings.New().SetEnableSerializationWithoutAssemblySaving (true).Build();
+      Assert.That (settings.EnableSerializationWithoutAssemblySaving, Is.True);
     }
 
     [Test]

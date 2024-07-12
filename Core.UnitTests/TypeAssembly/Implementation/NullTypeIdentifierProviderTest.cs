@@ -18,6 +18,7 @@ using System;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
 using Remotion.TypePipe.Dlr.Ast;
+using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 
 namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
@@ -49,6 +50,17 @@ namespace Remotion.TypePipe.UnitTests.TypeAssembly.Implementation
       Assert.That (result, Is.TypeOf<ConstantExpression>());
       var constantExpression = (ConstantExpression) result;
       Assert.That (constantExpression.Type, Is.SameAs (typeof (object)));
+      Assert.That (constantExpression.Value, Is.Null);
+    }
+
+    [Test]
+    public void GetFlattenedExpressionForSerialization ()
+    {
+      var result = _provider.GetFlatValueExpressionForSerialization (id: null);
+
+      Assert.That (result, Is.InstanceOf<ConstantExpression>());
+      var constantExpression = (ConstantExpression) result;
+      Assert.That (constantExpression.Type, Is.SameAs (typeof (IFlatValue)));
       Assert.That (constantExpression.Value, Is.Null);
     }
   }

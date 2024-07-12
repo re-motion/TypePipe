@@ -40,6 +40,17 @@ namespace Remotion.TypePipe.MutableReflection
       get { return (MutableType) DeclaringType; }
     }
 
+    public override FieldAttributes Attributes
+    {
+      get
+      {
+        if (_customAttributeContainer.AddedCustomAttributes.Any (a => a.Type == typeof (NonSerializedAttribute)))
+          return base.Attributes | FieldAttributes.NotSerialized;
+
+        return base.Attributes;
+      }
+    }
+
     public IReadOnlyCollection<CustomAttributeDeclaration> AddedCustomAttributes
     {
       get { return _customAttributeContainer.AddedCustomAttributes; }

@@ -37,6 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private readonly IEmittableOperandProvider _emittableOperandProvider;
     private readonly IMemberEmitter _memberEmitter;
     private readonly IInitializationBuilder _initializationBuilder;
+    private readonly IProxySerializationEnabler _proxySerializationEnabler;
 
     private int _state;
     private CodeGenerationContext _context;
@@ -48,7 +49,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IReflectionEmitCodeGenerator codeGenerator,
         IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter,
-        IInitializationBuilder initializationBuilder)
+        IInitializationBuilder initializationBuilder,
+        IProxySerializationEnabler proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("mutableType", mutableType);
       ArgumentUtility.CheckNotNull ("nestedTypeCodeGeneratorFactory", nestedTypeCodeGeneratorFactory);
@@ -56,6 +58,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
       ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
       ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
+      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
       _mutableType = mutableType;
       _nestedTypeCodeGeneratorFactory = nestedTypeCodeGeneratorFactory;
@@ -63,6 +66,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       _emittableOperandProvider = emittableOperandProvider;
       _memberEmitter = memberEmitter;
       _initializationBuilder = initializationBuilder;
+      _proxySerializationEnabler = proxySerializationEnabler;
     }
 
     public MutableType MutableType
@@ -100,6 +104,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
       // Creation of initialization members must happen before interfaces, fields or methods are added.
       var initializationMembers = _initializationBuilder.CreateInitializationMembers (_mutableType);
+      var initializationMethod = initializationMembers != null ? initializationMembers.Item2 : null;
+      _proxySerializationEnabler.MakeSerializable (_mutableType, initializationMethod);
 
       foreach (var attribute in _mutableType.AddedCustomAttributes)
         _context.TypeBuilder.SetCustomAttribute (attribute);
@@ -136,7 +142,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     private void WireAndAddConstructor (
         IMemberEmitter member, CodeGenerationContext context, MutableConstructorInfo constructor, Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
-      _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers);
+      _initializationBuilder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnabler);
       member.AddConstructor (context, constructor);
     }
 

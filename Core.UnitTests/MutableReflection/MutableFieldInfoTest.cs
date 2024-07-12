@@ -54,6 +54,16 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     }
 
     [Test]
+    public void Attributes_NonSerialized ()
+    {
+      Assert.That (_field.IsNotSerialized, Is.False);
+
+      _field.AddCustomAttribute (CustomAttributeDeclarationObjectMother.Create (typeof (NonSerializedAttribute)));
+
+      Assert.That (_field.IsNotSerialized, Is.True);
+    }
+
+    [Test]
     public void CustomAttributeMethods ()
     {
       var declaration = CustomAttributeDeclarationObjectMother.Create (typeof (ObsoleteAttribute));

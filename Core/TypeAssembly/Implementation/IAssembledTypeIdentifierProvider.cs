@@ -16,6 +16,7 @@
 // 
 using System;
 using Remotion.TypePipe.Caching;
+using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
@@ -33,5 +34,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     void AddTypeID (MutableType proxyType, AssembledTypeID typeID);
 
     AssembledTypeID ExtractTypeID (Type assembledType);
+
+    Expression GetAssembledTypeIDDataExpression (AssembledTypeID typeID);
   }
 }

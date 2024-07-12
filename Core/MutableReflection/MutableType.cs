@@ -473,6 +473,10 @@ namespace Remotion.TypePipe.MutableReflection
     {
       var attributes = base.GetAttributeFlagsImpl();
 
+      var isSerializable = _customAttributes.AddedCustomAttributes.Any (a => a.Type == typeof (SerializableAttribute));
+      if (isSerializable)
+        attributes |= TypeAttributes.Serializable;
+
       if (attributes.IsSet (TypeAttributes.Interface))
         return attributes | TypeAttributes.Abstract;
 

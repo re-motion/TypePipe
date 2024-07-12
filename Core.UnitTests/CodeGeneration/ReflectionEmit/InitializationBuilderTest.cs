@@ -35,6 +35,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
   {
     private InitializationBuilder _builder;
 
+    private Mock<IProxySerializationEnabler> _proxySerializationEnablerMock;
     private MutableType _mutableType;
 
     [SetUp]
@@ -42,6 +43,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       _builder = new InitializationBuilder();
 
+      _proxySerializationEnablerMock = new Mock<IProxySerializationEnabler> (MockBehavior.Strict);
       _mutableType = MutableTypeObjectMother.Create();
     }
 
@@ -63,6 +65,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       Assert.That (_mutableType.AddedFields, Is.EqualTo (new[] { counter }));
       Assert.That (counter.Name, Is.EqualTo ("<tp>_ctorRunCounter"));
       Assert.That (counter.FieldType, Is.SameAs (typeof (int)));
+      Assert.That (counter.AddedCustomAttributes.Single().Type, Is.SameAs (typeof (NonSerializedAttribute)));
 
       // Initialization method added.
       var methodAttributes = MethodAttributes.Private | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig;
@@ -103,8 +106,11 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constructor = MutableConstructorInfoObjectMother.Create (_mutableType);
       var oldBody = constructor.Body;
 
-      _builder.WireConstructorWithInitialization (constructor, initializationMembers);
+      _proxySerializationEnablerMock.Setup (mock => mock.IsDeserializationConstructor (constructor)).Returns (false).Verifiable();
 
+      _builder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnablerMock.Object);
+
+      _proxySerializationEnablerMock.Verify();
       var expectedBody = Expression.Block (
           Expression.Assign (
               Expression.Field (new ThisExpression (_mutableType), counter),
@@ -126,8 +132,23 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var constructor = MutableConstructorInfoObjectMother.Create();
       var oldBody = constructor.Body;
 
-      _builder.WireConstructorWithInitialization (constructor, initializationMembers: null);
+      _builder.WireConstructorWithInitialization (constructor, initializationMembers: null, proxySerializationEnabler:_proxySerializationEnablerMock.Object);
 
+      _proxySerializationEnablerMock.Verify (mock => mock.IsDeserializationConstructor (constructor), Times.Never());
+      Assert.That (constructor.Body, Is.SameAs (oldBody));
+    }
+
+    [Test]
+    public void WireConstructorWithInitialization_DeserializationConstructor ()
+    {
+      var constructor = MutableConstructorInfoObjectMother.Create();
+      var oldBody = constructor.Body;
+      var initializationMembers = new Tuple<FieldInfo, MethodInfo> (null, null);
+      _proxySerializationEnablerMock.Setup (x => x.IsDeserializationConstructor (constructor)).Returns (true).Verifiable();
+      
+      _builder.WireConstructorWithInitialization (constructor, initializationMembers, _proxySerializationEnablerMock.Object);
+
+      _proxySerializationEnablerMock.Verify();
       Assert.That (constructor.Body, Is.SameAs (oldBody));
     }
   }

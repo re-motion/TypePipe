@@ -161,6 +161,14 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection.Implementation
     }
 
     [Test]
+    public void CreateProxy_Serializable ()
+    {
+      var result = _factory.CreateProxy (typeof (SerializableType), ProxyKind.AssembledType).Type;
+
+      Assert.That (result.IsSerializable, Is.True);
+    }
+
+    [Test]
     public void CreateProxy_CopiesAccessibleInstanceConstructors_WithPublicVisibility ()
     {
       var result = _factory.CreateProxy (_domainType, ProxyKind.AssembledType).Type;

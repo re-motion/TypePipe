@@ -21,6 +21,7 @@ using System.Reflection;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
+using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
@@ -35,6 +36,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     private static readonly ConstructorInfo s_assembledTypeIDConstructor =
         MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeID (typeof (object), new object[0]));
+
+    private static readonly ConstructorInfo s_assembledTypeIDDataConstructor =
+        MemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeIDData ("type name", new IFlatValue[0]));
 
     private readonly IReadOnlyList<ITypeIdentifierProvider> _identifierProviders;
     private readonly IReadOnlyDictionary<IParticipant, int> _identifierProviderIndexes;
@@ -97,6 +101,17 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       Assertion.IsNotNull (typeIDField);
 
       return (AssembledTypeID) typeIDField.GetValue (null);
+    }
+
+    public Expression GetAssembledTypeIDDataExpression (AssembledTypeID typeID)
+    {
+      return CreateNewTypeIDExpression (
+          s_assembledTypeIDDataConstructor,
+          typeID.RequestedType.AssemblyQualifiedName,
+          typeID.Parts,
+          typeof (IFlatValue),
+          (p, id) => p.GetFlatValueExpressionForSerialization (id),
+          "GetFlatValueExpressionForSerialization");
     }
 
     private Expression CreateNewTypeIDExpression (

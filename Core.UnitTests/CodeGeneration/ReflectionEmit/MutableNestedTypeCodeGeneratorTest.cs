@@ -47,7 +47,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
           new Mock<IReflectionEmitCodeGenerator>().Object,
           new Mock<IEmittableOperandProvider>().Object,
           new Mock<IMemberEmitter>().Object,
-          new Mock<IInitializationBuilder>().Object);
+          new Mock<IInitializationBuilder>().Object,
+          new Mock<IProxySerializationEnabler>().Object);
     }
 
     [Test]

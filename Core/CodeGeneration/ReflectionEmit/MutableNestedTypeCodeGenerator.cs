@@ -36,14 +36,16 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IReflectionEmitCodeGenerator codeGenerator,
         IEmittableOperandProvider emittableOperandProvider,
         IMemberEmitter memberEmitter,
-        IInitializationBuilder initializationBuilder)
+        IInitializationBuilder initializationBuilder,
+        IProxySerializationEnabler proxySerializationEnabler)
         : base (
             mutableType,
             nestedTypeCodeGeneratorFactory,
             codeGenerator,
             emittableOperandProvider,
             memberEmitter,
-            initializationBuilder)
+            initializationBuilder,
+            proxySerializationEnabler)
     {
       ArgumentUtility.CheckNotNull ("enclosingTypeBuilder", enclosingTypeBuilder);
 

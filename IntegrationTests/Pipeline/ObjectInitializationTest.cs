@@ -15,11 +15,7 @@
 // under the License.
 // 
 using System;
-#if NETFRAMEWORK
 using System.Runtime.Serialization;
-#else
-using System.Runtime.CompilerServices;
-#endif
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Remotion.Development.UnitTesting.Reflection;
@@ -64,11 +60,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     public void GetAssembledType_PrepareAssembledTypeInstance ()
     {
       var type = _pipeline.ReflectionService.GetAssembledType (typeof (DomainType));
-#if NETFRAMEWORK
       var instance = (DomainType) FormatterServices.GetUninitializedObject (type);
-#else
-      var instance = (DomainType) RuntimeHelpers.GetUninitializedObject (type);
-#endif
 
       Assert.That (instance.CtorCalled, Is.False);
       Assert.That (instance.String, Is.Null);

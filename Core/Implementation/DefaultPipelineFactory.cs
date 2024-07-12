@@ -25,6 +25,7 @@ using Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions;
 using Remotion.TypePipe.Dlr.Runtime.CompilerServices;
 using Remotion.TypePipe.MutableReflection;
 using Remotion.TypePipe.MutableReflection.Implementation;
+using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Remotion.Utilities;
 
@@ -88,7 +89,7 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull ("settings", settings);
       ArgumentUtility.CheckNotNull ("participants", participants);
 
-      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants);
+      var typeAssembler = NewTypeAssembler (participantConfigurationID, participants, settings.EnableSerializationWithoutAssemblySaving);
       var assemblyContextPool = NewAssemblyContextPool (participantConfigurationID, settings);
       var typeCache = NewTypeCache (typeAssembler, assemblyContextPool);
       var codeManager = NewCodeManager (typeCache, typeAssembler, assemblyContextPool);
@@ -158,11 +159,13 @@ namespace Remotion.TypePipe.Implementation
 
     protected virtual ITypeAssembler NewTypeAssembler (
         string participantConfigurationID,
-        IEnumerable<IParticipant> participants)
+        IEnumerable<IParticipant> participants,
+        bool enableSerializationWithoutAssemblySaving)
     {
       var mutableTypeFactory = NewMutableTypeFactory();
+      var complexSerializationEnabler = ComplexSerializationEnabler (enableSerializationWithoutAssemblySaving);
 
-      return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory);
+      return new TypeAssembler (participantConfigurationID, participants, mutableTypeFactory, complexSerializationEnabler);
     }
 
     [CLSCompliant (false)]
@@ -170,8 +173,9 @@ namespace Remotion.TypePipe.Implementation
     {
       var memberEmitterFactory = NewMemberEmitterFactory();
       var initializationBuilder = NewInitializationBuilder();
+      var proxySerializationEnabler = NewProxySerializationEnabler();
 
-      return new MutableTypeCodeGeneratorFactory (memberEmitterFactory, reflectionEmitCodeGenerator, initializationBuilder);
+      return new MutableTypeCodeGeneratorFactory (memberEmitterFactory, reflectionEmitCodeGenerator, initializationBuilder, proxySerializationEnabler);
     }
 
     [CLSCompliant (false)]
@@ -217,6 +221,23 @@ namespace Remotion.TypePipe.Implementation
     protected virtual IDependentTypeSorter NewDependentTypeSorter ()
     {
       return new DependentTypeSorter();
+    }
+
+    protected virtual IComplexSerializationEnabler ComplexSerializationEnabler (bool enableComplexSerialization)
+    {
+      return enableComplexSerialization ? (IComplexSerializationEnabler) new ComplexSerializationEnabler() : new NullComplexSerializationEnabler();
+    }
+
+    protected virtual IProxySerializationEnabler NewProxySerializationEnabler ()
+    {
+      var serializableFieldFinder = NewSerializableFieldFinder();
+
+      return new ProxySerializationEnabler (serializableFieldFinder);
+    }
+
+    protected virtual ISerializableFieldFinder NewSerializableFieldFinder ()
+    {
+      return new SerializableFieldFinder();
     }
 
     protected virtual IInitializationBuilder NewInitializationBuilder ()

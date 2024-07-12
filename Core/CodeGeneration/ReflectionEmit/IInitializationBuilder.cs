@@ -32,6 +32,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     void WireConstructorWithInitialization (
         [NotNull] MutableConstructorInfo constructor,
-        [CanBeNull] Tuple<FieldInfo, MethodInfo> initializationMembers);
+        [CanBeNull] Tuple<FieldInfo, MethodInfo> initializationMembers,
+        [NotNull] IProxySerializationEnabler proxySerializationEnabler);
   }
 }
