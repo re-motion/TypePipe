@@ -24,7 +24,7 @@ using Remotion.TypePipe.Implementation;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
-  [Timeout (1000)] // Set timeout for all tests.
+  [CancelAfter (1000)] // Set timeout for all tests.
   public class ConcurrencyTest_WithSingleGenerationThread : IntegrationTestBase
   {
     private Mutex _blockingMutex;
