@@ -42,10 +42,18 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
         : base (ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder).SetCustomAttribute)
     {
+#if NET9_0_OR_GREATER
+      Assertion.IsTrue (moduleBuilder.Assembly is PersistedAssemblyBuilder);
+#else
       Assertion.IsTrue (moduleBuilder.Assembly is AssemblyBuilder);
+#endif
 
       _moduleBuilder = moduleBuilder;
+#if NET9_0_OR_GREATER
+      _assemblyBuilder = new AssemblyBuilderAdapter ((PersistedAssemblyBuilder) moduleBuilder.Assembly, moduleBuilder);
+#else
       _assemblyBuilder = new AssemblyBuilderAdapter (((AssemblyBuilder) moduleBuilder.Assembly), moduleBuilder);
+#endif
     }
 
     [CLSCompliant (false)]

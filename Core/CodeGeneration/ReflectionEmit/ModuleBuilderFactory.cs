@@ -27,11 +27,19 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK
   /// <summary>
   /// This class creates instances of <see cref="IModuleBuilder"/>.
   /// </summary>
   /// <remarks> The module will be created with <see cref="AssemblyBuilderAccess.RunAndSave"/> and the <c>emitSymbolInfo</c> flag set to
+  /// <see langword="true"/>.
+  /// </remarks>
+  /// <threadsafety static="true" instance="true"/>
+#elif NET9_0_OR_GREATER
+  /// <summary>
+  /// This class creates instances of <see cref="IModuleBuilder"/>.
+  /// </summary>
+  /// <remarks> The module will be created with <see cref="PersistedAssemblyBuilder"/> and the <c>emitSymbolInfo</c> flag set to
   /// <see langword="true"/>.
   /// </remarks>
   /// <threadsafety static="true" instance="true"/>
@@ -70,8 +78,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 #endif
       }
 
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK
       var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.RunAndSave, assemblyDirectoryOrNull);
+#elif NET9_0_OR_GREATER
+      var assemblyBuilder = new PersistedAssemblyBuilder (new AssemblyName(assemblyName), typeof(object).Assembly);
 #else
       var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly (assemName, AssemblyBuilderAccess.Run);
 #endif

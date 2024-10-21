@@ -20,15 +20,29 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
+#if NET9_0_OR_GREATER
+  /// <summary>
+  /// Adapts <see cref="PersistedAssemblyBuilder"/> with the <see cref="IAssemblyBuilder"/> interface.
+  /// </summary>
+#else
   /// <summary>
   /// Adapts <see cref="AssemblyBuilder"/> with the <see cref="IAssemblyBuilder"/> interface.
   /// </summary>
+#endif
   public class AssemblyBuilderAdapter : BuilderAdapterBase, IAssemblyBuilder
   {
+#if NET9_0_OR_GREATER
+    private readonly PersistedAssemblyBuilder _assemblyBuilder;
+#else
     private readonly AssemblyBuilder _assemblyBuilder;
+#endif
     private readonly ModuleBuilder _moduleBuilder;
 
+#if NET9_0_OR_GREATER
+    public AssemblyBuilderAdapter (PersistedAssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
+#else
     public AssemblyBuilderAdapter (AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
+#endif
         : base (ArgumentUtility.CheckNotNull ("assemblyBuilder", assemblyBuilder).SetCustomAttribute)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
@@ -49,7 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public string SaveToDisk ()
     {
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK || NET9_0_OR_GREATER
       // Scope name is the module name or file name, i.e., assembly name + '.dll'.
       _assemblyBuilder.Save (_moduleBuilder.ScopeName);
 
