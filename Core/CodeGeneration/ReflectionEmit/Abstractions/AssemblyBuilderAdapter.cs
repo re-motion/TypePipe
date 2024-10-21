@@ -20,15 +20,31 @@ using Remotion.Utilities;
 
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 {
+#if NET9_0_OR_GREATER
+  /// <summary>
+  /// Adapts <see cref="PersistedAssemblyBuilder"/> with the <see cref="IAssemblyBuilder"/> interface.
+  /// </summary>
+#else
   /// <summary>
   /// Adapts <see cref="AssemblyBuilder"/> with the <see cref="IAssemblyBuilder"/> interface.
   /// </summary>
+#endif
   public class AssemblyBuilderAdapter : BuilderAdapterBase, IAssemblyBuilder
   {
+#if NET9_0_OR_GREATER
+    private readonly PersistedAssemblyBuilder _assemblyBuilder;
+#else
     private readonly AssemblyBuilder _assemblyBuilder;
+#endif
     private readonly ModuleBuilder _moduleBuilder;
 
-    public AssemblyBuilderAdapter (AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
+    public AssemblyBuilderAdapter (
+#if NET9_0_OR_GREATER
+        PersistedAssemblyBuilder assemblyBuilder, 
+#else
+        AssemblyBuilder assemblyBuilder, 
+#endif
+        ModuleBuilder moduleBuilder)
         : base (ArgumentUtility.CheckNotNull ("assemblyBuilder", assemblyBuilder).SetCustomAttribute)
     {
       ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
@@ -49,14 +65,20 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public string SaveToDisk ()
     {
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NET8_0
+      throw new PlatformNotSupportedException ("Assembly persistence is not supported.");
+#elif NET9_0_OR_GREATER
       // Scope name is the module name or file name, i.e., assembly name + '.dll'.
       _assemblyBuilder.Save (_moduleBuilder.ScopeName);
 
       // This is the absolute path to the module, which is also the assembly file path for single-module assemblies.
       return _moduleBuilder.FullyQualifiedName;
 #else
-      throw new PlatformNotSupportedException ("Assembly persistence is not supported.");
+      // Scope name is the module name or file name, i.e., assembly name + '.dll'.
+      _assemblyBuilder.Save (_moduleBuilder.ScopeName);
+
+      // This is the absolute path to the module, which is also the assembly file path for single-module assemblies.
+      return _moduleBuilder.FullyQualifiedName;
 #endif
     }
   }
