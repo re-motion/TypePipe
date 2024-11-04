@@ -47,6 +47,15 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
 
       _currentDirectory = Environment.CurrentDirectory;
     }
+
+    [TearDown]
+    public void TearDown ()
+    {
+      var assemblyPath = Path.Combine (_currentDirectory, c_assemblyFileName);
+      if (File.Exists (assemblyPath))
+        File.Delete (assemblyPath);
+    }
+
     [Test]
     public void CreateModuleBuilder ()
     {
