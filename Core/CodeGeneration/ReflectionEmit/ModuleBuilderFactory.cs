@@ -94,8 +94,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       var moduleBuilder = assemblyBuilder.DefineDynamicModule (moduleName);
 #endif
 
+#if NET9_0_OR_GREATER
+      var assmeblyDirectory =  assemblyDirectoryOrNull ?? Environment.CurrentDirectory;
+      var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder, assmeblyDirectory);
+#else
       var moduleBuilderAdapter = new ModuleBuilderAdapter (moduleBuilder);
-
+#endif
       var typePipeAttribute = new CustomAttributeDeclaration (s_typePipeAssemblyAttributeCtor, new object[] { _participantConfigurationID });
       moduleBuilderAdapter.AssemblyBuilder.SetCustomAttribute (typePipeAttribute);
 

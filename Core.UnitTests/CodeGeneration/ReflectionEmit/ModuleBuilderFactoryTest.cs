@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     public void CreateModuleBuilder_AppliesTypePipeAssemblyAttribute ()
     {
       var assemblyName = c_assemblyName + Guid.NewGuid();
-      _factory.CreateModuleBuilder (assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
+      var moduleBuilder = _factory.CreateModuleBuilder (assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
 
       var assembly = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(a => a.GetName().Name == assemblyName);
       Assert.That (assembly, Is.Not.Null);
