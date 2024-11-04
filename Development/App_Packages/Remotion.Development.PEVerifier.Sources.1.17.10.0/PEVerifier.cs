@@ -14,7 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK
 using System;
 using System.Diagnostics;
 using System.Reflection;

@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
-#if !FEATURE_ASSEMBLYBUILDER_SAVE
+#if NET8_0
     [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
 #endif
     public void CodeManagerAPIs_CannotRunWhileCodeIsGenerated ()

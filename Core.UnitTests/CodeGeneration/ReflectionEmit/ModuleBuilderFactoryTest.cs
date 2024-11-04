@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var result = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: false, keyFilePathOrNull: null);
 
       CheckAdapterBehavior (result);
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK || NET9_0_OR_GREATER
       CheckSaveToDiskBehavior (result, _currentDirectory);
 #endif
     }
@@ -79,26 +79,18 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var result = _factory.CreateModuleBuilder (c_assemblyName, tempDirectory, false, null);
 
       CheckAdapterBehavior (result);
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK || NET9_0_OR_GREATER
       CheckSaveToDiskBehavior (result, tempDirectory);
 #endif
     }
 
     [Test]
+#if !FEATURE_STRONGNAMESIGNING
+    [Ignore("Platform does not support strong named assembly signing.")]
+#endif
     public void CreateModuleBuilder_StrongNamed_FallbackKey ()
     {
-      try
-      {
-        Dev.Null = FallbackKey.KeyPair.PublicKey;
-      }
-      catch (PlatformNotSupportedException)
-      {
-#if FEATURE_ASSEMBLYBUILDER_SAVE
-        throw;
-#else
-        Assert.Ignore (".NET does not support assembly persistence.");
-#endif
-      }
+      Dev.Null = FallbackKey.KeyPair.PublicKey;
 
       var result1 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: null);
       var result2 = _factory.CreateModuleBuilder (c_assemblyName, assemblyDirectoryOrNull: null, strongNamed: true, keyFilePathOrNull: string.Empty);
@@ -113,20 +105,12 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     }
 
     [Test]
+#if !FEATURE_STRONGNAMESIGNING
+    [Ignore("Platform does not support strong named assembly signing.")]
+#endif
     public void CreateModuleBuilder_StrongNamed_ProvidedKey ()
     {
-      try
-      {
-        Dev.Null = FallbackKey.KeyPair.PublicKey;
-      }
-      catch (PlatformNotSupportedException)
-      {
-#if FEATURE_ASSEMBLYBUILDER_SAVE
-        throw;
-#else
-        Assert.Ignore (".NET does not support assembly persistence.");
-#endif
-      }
+      Dev.Null = FallbackKey.KeyPair.PublicKey;
 
       var otherKeyPath = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, @"CodeGeneration\ReflectionEmit\OtherKey.snk");
       var result = _factory.CreateModuleBuilder (
@@ -142,7 +126,7 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
     {
       Assert.That (moduleBuilder, Is.TypeOf<ModuleBuilderAdapter>());
       var moduleBuilderAdapter = (ModuleBuilderAdapter) moduleBuilder;
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK || NET9_0_OR_GREATER
       Assert.That (moduleBuilderAdapter.ScopeName, Is.EqualTo (c_assemblyFileName));
 #else
       // .NET5 as a hardcoded module name since it does not support AssemblyBuilder.Save().
@@ -152,20 +136,26 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration.ReflectionEmit
       var assemblyBuilderAdapter = (AssemblyBuilderAdapter) moduleBuilder.AssemblyBuilder;
 
       Assert.That (assemblyBuilderAdapter.AssemblyName, Is.EqualTo (c_assemblyName));
+#if NET9_0_OR_GREATER
+      Assert.That (assemblyBuilderAdapter.PublicKey, Is.EqualTo (expectedPublicKey));
+#else
       Assert.That (assemblyBuilderAdapter.PublicKey, Is.EqualTo (expectedPublicKey ?? new byte[0]));
+#endif
     }
 
     private void CheckSaveToDiskBehavior (IModuleBuilder moduleBuilder, string assemblyDirectory)
     {
       var assemblyPath = Path.Combine (assemblyDirectory, c_assemblyFileName);
       var pdbPath = Path.Combine (assemblyDirectory, c_pdbFileName);
-      Assert.That (File.Exists (assemblyPath), Is.False);
-      Assert.That (File.Exists (pdbPath), Is.False);
+      Assert.That (File.Exists (assemblyPath), Is.False, assemblyPath);
+      Assert.That (File.Exists (pdbPath), Is.False, pdbPath);
 
       var result = moduleBuilder.AssemblyBuilder.SaveToDisk();
 
-      Assert.That (File.Exists (assemblyPath), Is.True);
-      Assert.That (File.Exists (pdbPath), Is.True);
+      Assert.That (File.Exists (assemblyPath), Is.True, assemblyPath);
+#if FEATURE_PDBEMIT
+      Assert.That (File.Exists (pdbPath), Is.True, pdbPath);
+#endif
       Assert.That (result, Is.EqualTo (assemblyPath));
 
       FileUtility.DeleteAndWaitForCompletion (Path.Combine (assemblyDirectory, c_assemblyFileName));

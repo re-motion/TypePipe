@@ -23,7 +23,7 @@ using Remotion.Development.UnitTesting.IO;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
-#if !FEATURE_ASSEMBLYBUILDER_SAVE
+#if NET8_0
   [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
 #endif
   public class ParticipantStateTest : IntegrationTestBase

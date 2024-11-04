@@ -14,10 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK || NET9_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using Remotion.Development.UnitTesting;
@@ -67,6 +68,7 @@ namespace Remotion.TypePipe.Development
       }
     }
 
+#if NETFRAMEWORK
     public void PeVerifySavedAssemblies ()
     {
       lock (_lockObject)
@@ -75,6 +77,18 @@ namespace Remotion.TypePipe.Development
           PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
       }
     }
+#elif NET9_0_OR_GREATER
+    public void ProcessSavedAssemblies (Action<string> processor)
+    {
+      ArgumentUtility.CheckNotNull ("processor", processor);
+
+      lock (_lockObject)
+      {
+        foreach (var assemblyPath in _savedAssemblies)
+          processor (assemblyPath);
+      }
+    }
+#endif
 
     public void DeleteSavedAssemblies ()
     {
