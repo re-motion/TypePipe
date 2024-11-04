@@ -39,10 +39,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       get { return _assemblyBuilder; }
     }
 
+#if NET9_0_OR_GREATER
+    public ModuleBuilderAdapter (ModuleBuilder moduleBuilder, string assemblyDirectory)
+#else
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
+#endif
         : base (ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder).SetCustomAttribute)
     {
 #if NET9_0_OR_GREATER
+      ArgumentUtility.CheckNotNullOrEmpty ("assemblyDirectory", assemblyDirectory);
       Assertion.IsTrue (moduleBuilder.Assembly is PersistedAssemblyBuilder);
 #else
       Assertion.IsTrue (moduleBuilder.Assembly is AssemblyBuilder);
@@ -50,9 +55,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
       _moduleBuilder = moduleBuilder;
 #if NET9_0_OR_GREATER
-      _assemblyBuilder = new AssemblyBuilderAdapter ((PersistedAssemblyBuilder) moduleBuilder.Assembly, moduleBuilder);
+      _assemblyBuilder = new AssemblyBuilderAdapter ((PersistedAssemblyBuilder) moduleBuilder.Assembly, moduleBuilder, assemblyDirectory);
 #else
-      _assemblyBuilder = new AssemblyBuilderAdapter (((AssemblyBuilder) moduleBuilder.Assembly), moduleBuilder);
+      _assemblyBuilder = new AssemblyBuilderAdapter ((AssemblyBuilder) moduleBuilder.Assembly, moduleBuilder);
 #endif
     }
 
