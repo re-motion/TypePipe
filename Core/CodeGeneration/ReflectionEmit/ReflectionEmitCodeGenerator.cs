@@ -31,13 +31,13 @@ using Remotion.Utilities;
 namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 {
   /// <summary>
-  /// The Reflection.Emit-based code generator and <see cref="IGeneratedCodeFlusher"/> of the pipeline.
+  /// The Reflection.Emit-based code generator of the pipeline.
   /// </summary>
   /// <remarks>
   /// This class is not thread-safe. Thread-safety will be enforced by the <see cref="TypeCache"/>.
   /// </remarks>
   /// <threadsafety static="true" instance="false"/>
-  public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator, IGeneratedCodeFlusher
+  public class ReflectionEmitCodeGenerator : IReflectionEmitCodeGenerator
   {
     private class ModuleContext
     {

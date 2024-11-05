@@ -27,7 +27,6 @@ using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.Expressions;
 using Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflection;
 using Remotion.TypePipe.Dlr.Ast;
 using Remotion.TypePipe.MutableReflection;
-using Remotion.TypePipe.Serialization;
 using Remotion.TypePipe.TypeAssembly.Implementation;
 using Moq;
 
@@ -138,67 +137,6 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       Assert.That (result.RequestedType, Is.SameAs (typeof (int)));
       Assert.That (result.Parts, Is.EqualTo (new object[] { 1, "2" }));
-    }
-
-    [Test]
-    public void GetFlattenedExpressionForSerialization ()
-    {
-      var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
-      var idPartExpression = ExpressionTreeObjectMother.GetSomeExpression (typeof (IFlatValue));
-      _identifierProviderMock.Setup (_ => _.GetFlatValueExpressionForSerialization ("abc")).Returns (idPartExpression);
-
-      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
-
-      CheckTypeIDDataExpression (result, requestedType, idPartExpression);
-    }
-
-    [Test]
-    public void GetFlattenedExpressionForSerialization_ProviderNotCalledForNull ()
-    {
-      var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { null });
-
-      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
-
-      _identifierProviderMock.Verify (mock => mock.GetFlatValueExpressionForSerialization (It.IsAny<object>()), Times.Never());
-      var expectedIdPartExpression = Expression.Constant (null, typeof (IFlatValue));
-      CheckTypeIDDataExpression (result, requestedType, expectedIdPartExpression);
-    }
-
-    [Test]
-    public void GetFlattenedExpressionForSerialization_ProviderReturnsNull_IsSubstitutedForConstantNullExpression ()
-    {
-      var requestedType = ReflectionObjectMother.GetSomeType ();
-      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
-      _identifierProviderMock.Setup (_ => _.GetFlatValueExpressionForSerialization ("abc")).Returns ((Expression) null);
-
-      var result = _provider.GetAssembledTypeIDDataExpression (typeID);
-
-      var expectedIdPartExpression = Expression.Constant (null, typeof (IFlatValue));
-      CheckTypeIDDataExpression (result, requestedType, expectedIdPartExpression);
-    }
-
-    [Test]
-    public void GetFlattenedExpressionForSerialization_ProviderReturnsNonFlatValue ()
-    {
-      var requestedType = ReflectionObjectMother.GetSomeType();
-      var typeID = AssembledTypeIDObjectMother.Create (requestedType, new object[] { "abc" });
-      var nonFlatValueExpression = ExpressionTreeObjectMother.GetSomeExpression();
-      _identifierProviderMock.Setup (_ => _.GetFlatValueExpressionForSerialization ("abc")).Returns (nonFlatValueExpression);
-      Assert.That (
-          () => _provider.GetAssembledTypeIDDataExpression (typeID),
-          Throws.InvalidOperationException
-              .With.Message.EqualTo (
-                  "The expression returned from 'GetFlatValueExpressionForSerialization' must build an serializable instance of 'IFlatValue'."));
-    }
-
-    private static void CheckTypeIDDataExpression (Expression result, Type requestedType, Expression idPartExpression)
-    {
-      var constructor = NormalizingMemberInfoFromExpressionUtility.GetConstructor (() => new AssembledTypeIDData ("name", null));
-      var expected = Expression.New (
-          constructor, Expression.Constant (requestedType.AssemblyQualifiedName), Expression.NewArrayInit (typeof (IFlatValue), idPartExpression));
-      ExpressionTreeComparer.CheckAreEqualTrees (expected, result);
     }
 
     private static void CheckTypeIDInitialization (MutableType proxyType, Type requestedType, Expression idPartExpression)

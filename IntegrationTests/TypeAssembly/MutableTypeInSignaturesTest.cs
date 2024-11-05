@@ -30,6 +30,9 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
   public class MutableTypeInSignaturesTest : TypeAssemblerIntegrationTestBase
   {
     [Test]
+#if NET6_0
+    [Ignore("This test fails in .NET 6 due to a bug in the .NET Runtime (https://github.com/dotnet/runtime/issues/67802). It was fixed in .NET 7 and may receive a backup.")]
+#endif
     public void CustomAttributes ()
     {
       var type = AssembleType<DomainType> (

@@ -52,8 +52,6 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
       mutableType.AddInterface (typeof (IInitializableObject));
 
       var counter = mutableType.AddField ("<tp>_ctorRunCounter", FieldAttributes.Private, typeof (int));
-      var nonSerializedCtor = MemberInfoFromExpressionUtility.GetConstructor (() => new NonSerializedAttribute());
-      counter.AddCustomAttribute (new CustomAttributeDeclaration (nonSerializedCtor, new object[0]));
 
       var initializationMethod = mutableType.AddExplicitOverride (s_interfaceMethod, ctx => CreateInitializationBody (ctx, initialization));
 
@@ -70,13 +68,11 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void WireConstructorWithInitialization (
         MutableConstructorInfo constructor,
-        Tuple<FieldInfo, MethodInfo> initializationMembers,
-        IProxySerializationEnabler proxySerializationEnabler)
+        Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
       ArgumentUtility.CheckNotNull ("constructor", constructor);
-      ArgumentUtility.CheckNotNull ("proxySerializationEnabler", proxySerializationEnabler);
 
-      if (initializationMembers == null || proxySerializationEnabler.IsDeserializationConstructor (constructor))
+      if (initializationMembers == null)
         return;
 
       // We cannot protect the decrement with try-finally because the this pointer must be initialized before entering a try block.

@@ -21,11 +21,10 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <AllowedOutputExtensionsInPackageBuildOutputFolder Condition="'$(IncludeSymbols)' != 'True'">$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PackageTags>re-motion TypePipe</PackageTags>
-    <DebugType Condition="'$(TargetFramework)' == 'net45'">Full</DebugType>
+    <DebugType Condition="'$(TargetFramework)' == 'net462'">Full</DebugType>
   </PropertyGroup>
 
   <PropertyGroup>
-    <BinaryFormatterSerializationObsoleteWarning>SYSLIB0011</BinaryFormatterSerializationObsoleteWarning>
     <StrongNameSigningObsoleteWarning>SYSLIB0017</StrongNameSigningObsoleteWarning>
   </PropertyGroup>
 
@@ -34,28 +33,27 @@
     <NoWarn>1591;$(StrongNameSigningObsoleteWarning)</NoWarn>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>True</IsPackable>
-    <TargetFrameworks>net6.0;net45</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net462</TargetFrameworks>
     <DefineConstants>$(DefineConstants);TypePipe</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT;FEATURE_STRONGNAMESIGNING</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net462'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT;FEATURE_STRONGNAMESIGNING</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Documentation'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <IsPackable>True</IsPackable>
-    <TargetFrameworks>net6.0;net45</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net462</TargetFrameworks>
     <PackageTags>$(PackageTags) Documentation</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Test'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>0067;0649;0169;$(BinaryFormatterSerializationObsoleteWarning);$(StrongNameSigningObsoleteWarning)</NoWarn>
+    <NoWarn>0067;0649;0169;$(StrongNameSigningObsoleteWarning)</NoWarn>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <IsPackable>False</IsPackable>
-    <TargetFrameworks>net6.0;net45</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net462</TargetFrameworks>
     <DefineConstants>$(DefineConstants)</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net45'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_STRONGNAMESIGNING</DefineConstants>
-    <EnableUnsafeBinaryFormatterSerialization Condition="'$(TargetFramework)' == 'net6.0'">true</EnableUnsafeBinaryFormatterSerialization>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net462'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_STRONGNAMESIGNING</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -75,10 +73,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(ProjectType)' == 'Test'">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="Moq" Version="4.13.1" />
-    <PackageReference Include="NUNit" Version="3.13.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Moq.VerifiableSequence" />
+    <PackageReference Include="NUNit" />
+    <PackageReference Include="NUnit3TestAdapter" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -89,7 +89,8 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     public void Dequeue_TwiceOnSameThread_ReturnsAssemblyContextFromThreadLocalCacheOnSecondCall ()
     {
       var hasDequeued = false;
-      _assemblyContextPoolMock.Setup (mock => mock.Dequeue())
+      _assemblyContextPoolMock
+          .Setup (mock => mock.Dequeue())
           .Callback (
               () =>
               {
@@ -254,19 +255,33 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
     {
       var exception = new Exception();
       var hasEnqueued = false;
+      var enqueueCount = 0;
 
-      var sequence = new MockSequence();
+      var sequence = new VerifiableSequence();
       _assemblyContextPoolMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.Dequeue()).Returns (_assemblyContext);
       _assemblyContextPoolMock
-          .InSequence (sequence)
-          .Setup (mock => mock.Enqueue (_assemblyContext))
-          .Throws (exception);
+          .InVerifiableSequence (sequence)
+          .Setup (mock => mock.Enqueue (_assemblyContext));
       _assemblyContextPoolMock
-          .InSequence (sequence)
+          .InVerifiableSequence (sequence)
           .Setup (mock => mock.Enqueue (_assemblyContext))
-          .Callback ((AssemblyContext _) => { hasEnqueued = true; });
+          .Callback (
+              new Action<AssemblyContext> (
+                  _ =>
+                  {
+                    if (enqueueCount == 0)
+                    {
+                      enqueueCount++;
+                      throw exception;
+                    }
+                    else
+                    {
+                      enqueueCount++;
+                      hasEnqueued = true;
+                    }
+                  }));
 
       var assemblyContext = _decorator.Dequeue();
 
@@ -275,8 +290,10 @@ namespace Remotion.TypePipe.UnitTests.CodeGeneration
 
       Assert.That (() => _decorator.Enqueue (assemblyContext), Throws.Nothing);
       Assert.That (hasEnqueued, Is.True);
+      Assert.That (enqueueCount, Is.EqualTo (2));
 
       _assemblyContextPoolMock.Verify();
+      sequence.Verify();
     }
 
     [Test]

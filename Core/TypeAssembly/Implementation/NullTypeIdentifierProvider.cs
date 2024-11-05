@@ -17,7 +17,6 @@
 using System;
 using Remotion.TypePipe.Caching;
 using Remotion.TypePipe.Dlr.Ast;
-using Remotion.TypePipe.Serialization;
 using Remotion.Utilities;
 
 namespace Remotion.TypePipe.TypeAssembly.Implementation
@@ -37,11 +36,6 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
       Assertion.IsNull (id);
 
       return Expression.Constant (null, typeof (object));
-    }
-
-    public Expression GetFlatValueExpressionForSerialization (object id)
-    {
-      return Expression.Constant (null, typeof (IFlatValue));
     }
   }
 }

@@ -24,7 +24,7 @@ using Remotion.Development.UnitTesting.IO;
 namespace Remotion.TypePipe.IntegrationTests.Pipeline
 {
   [TestFixture]
-  [Timeout (1000)] // Set timeout for all tests.
+  [CancelAfter (1000)] // Set timeout for all tests.
   public class ConcurrencyTest_WithMultipleGenerationThreads : IntegrationTestBase
   {
     private Mutex _blockingMutexA;
@@ -159,6 +159,9 @@ namespace Remotion.TypePipe.IntegrationTests.Pipeline
     }
 
     [Test]
+#if !FEATURE_ASSEMBLYBUILDER_SAVE
+    [Ignore ("CodeManager.FlushCodeToDisk() is not supported.")]
+#endif
     public void CodeManagerAPIs_FlushIsBlockedUntilAllCodeGenerationIsComplete ()
     {
       var t1 = StartAndWaitUntilBlocked (() => _pipeline.Create<DomainTypeCausingParticipantToBlockMutexA>());

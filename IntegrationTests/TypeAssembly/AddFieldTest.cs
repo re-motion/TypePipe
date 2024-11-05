@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
     {
       Assert.That (GetAllFieldNames (typeof (OriginalType)), Is.EquivalentTo (new[] { "OriginalField" }));
 
-      var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static | FieldAttributes.NotSerialized;
+      var fieldAttributes = FieldAttributes.Public | FieldAttributes.Static;
       var type = AssembleType<OriginalType> (proxyType => proxyType.AddField ("PublicStaticField", fieldAttributes, typeof (int)));
 
       Assert.That (GetAllFieldNames (type), Is.EquivalentTo (new[] { "OriginalField", "PublicStaticField" }));
@@ -55,7 +55,6 @@ namespace Remotion.TypePipe.IntegrationTests.TypeAssembly
       Assert.That (fieldInfo, Is.Not.Null);
       Assert.That (fieldInfo.FieldType, Is.EqualTo (typeof (int)));
       Assert.That (fieldInfo.Attributes, Is.EqualTo (fieldAttributes));
-      Assert.That (fieldInfo.IsNotSerialized, Is.True);
     }
 
     [Test]
