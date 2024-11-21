@@ -93,9 +93,7 @@ namespace Remotion.TypePipe.IntegrationTests
     [TearDown]
     public virtual void TearDown ()
     {
-#if !FEATURE_ASSEMBLYBUILDER_SAVE
       SkipSavingAndPeVerification();
-#endif
 
       if (_skipSavingAndVerification)
         return;
@@ -196,10 +194,21 @@ namespace Remotion.TypePipe.IntegrationTests
 
     private static void PeVerifyAssembly (string assemblyPath)
     {
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK
       try
       {
         PEVerifier.CreateDefault().VerifyPEFile (assemblyPath);
+      }
+      catch (Exception exception)
+      {
+        Console.WriteLine (exception);
+        throw;
+      }
+#elif NET9_0_OR_GREATER
+      try
+      {
+        // RM-9285
+        // new ILVerify.Verifier()
       }
       catch (Exception exception)
       {

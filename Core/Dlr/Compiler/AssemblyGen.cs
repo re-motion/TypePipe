@@ -60,13 +60,13 @@ namespace System.Linq.Expressions.Compiler {
 
             _myAssembly = AssemblyBuilder.DefineDynamicAssembly (name, AssemblyBuilderAccess.Run, attributes);
 
-#if FEATURE_PDBEMIT
+#if NETFRAMEWORK
             _myModule = _myAssembly.DefineDynamicModule (name.Name, false);
 #else
             _myModule = _myAssembly.DefineDynamicModule (name.Name);
 #endif
 
-#if FEATURE_ASSEMBLYBUILDER_SAVE
+#if NETFRAMEWORK
             _myAssembly.DefineVersionInfoResource();
 #endif
 

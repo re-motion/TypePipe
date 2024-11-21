@@ -35,7 +35,7 @@
     <IsPackable>True</IsPackable>
     <TargetFrameworks>net8.0;net9.0;net462</TargetFrameworks>
     <DefineConstants>$(DefineConstants);TypePipe</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net462'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_REMOTING;FEATURE_PDBEMIT;FEATURE_STRONGNAMESIGNING</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net462'">$(DefineConstants);FEATURE_REMOTING;FEATURE_PDBEMIT;FEATURE_STRONGNAMESIGNING</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ProjectType)' == 'Documentation'">
@@ -53,7 +53,7 @@
     <IsPackable>False</IsPackable>
     <TargetFrameworks>net8.0;net9.0;net462</TargetFrameworks>
     <DefineConstants>$(DefineConstants)</DefineConstants>
-    <DefineConstants Condition="'$(TargetFramework)' == 'net462'">$(DefineConstants);FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_STRONGNAMESIGNING</DefineConstants>
+    <DefineConstants Condition="'$(TargetFramework)' == 'net462'">$(DefineConstants);FEATURE_PDBEMIT;FEATURE_STRONGNAMESIGNING</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
