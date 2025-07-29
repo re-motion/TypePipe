@@ -56,38 +56,6 @@ class Build : RemotionBuild, IDependDB, ITest
       .TriggeredBy<IPack>()
       .Executes (() => { });
 
-  public override ISbomGeneratorBuilder ConfigureSbomGenerationInfoBuilder (Solution solution)
-  {
-      var version = ((IBuildMetadata)this).GetBaseVersion();
-
-      var semanticVersion = SemanticVersion.Parse(version);
-      var shortenedVersion = $"{semanticVersion.Major}.{semanticVersion.Minor}.{semanticVersion.Patch}";
-
-      var blacklistedProjects = new[]
-                                {
-                                    "Web.Dependencies.Javascript",
-                                    "*.Analyzers*"
-                                    // We disregard test projects when generating the sbom already, so these are not required here.
-                                };
-
-      var packageJsonPath = solution.Directory / "Remotion" / "Web" / "Dependencies.JavaScript" / "package.json";
-      var packageJsonWithVersion = TemporaryDirectory / "sbom" / "package.json";
-
-      AddVersionToPackageJson(packageJsonPath, packageJsonWithVersion, shortenedVersion);
-
-      var outputFolderPath = ((IBaseBuild)this).OutputFolder / "SBOM";
-      outputFolderPath.CreateDirectory();
-
-      var outputSbomPath = outputFolderPath / "re-motion.sbom.json";
-
-      // We do not require github auth because we do not do enough requests for licenses and package infos
-      var builder = new SolutionSbomGeneratorBuilder(solution, semanticVersion.ToString(), TemporaryDirectory / "sbomGeneration", outputSbomPath, "", "")
-              .WithProjectsBlackListed(blacklistedProjects)
-              .WithPackageJsonFile(packageJsonWithVersion);
-
-      return builder;
-  }
-
   public override void ConfigureProjects (ProjectsBuilder projects)
   {
     [CanBeNull]
