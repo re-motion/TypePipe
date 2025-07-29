@@ -1,5 +1,6 @@
 {
   "$schema": "./build.schema.json",
+  "Solution": "Remotion-TypePipe.sln",
   "DependDBProjectName": "re-motion Framework: TypePipe (www.re-motion.org)",
   "DependDBRetentionTime": "10",
   "DependDBProjectBranch": "Main",

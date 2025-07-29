@@ -54,15 +54,7 @@ class Build : RemotionBuild, IDependDB, ITest
   [UsedImplicitly]
   public Target AddRemotionPackagingArtefacts => _ => _
       .TriggeredBy<IPack>()
-      .Executes(() =>
-      {
-        // Create NPM package
-        var packageJsonPath = ((IBaseBuild)this).Solution.Directory / "Remotion" / "Web" / "Dependencies.JavaScript" / "package.json";
-        Assert.FileExists(packageJsonPath);
-
-        var outputPackageJson = ((IBaseBuild)this).OutputFolder / "Npm" / "remotion.dependencies" / "package.json";
-        AddVersionToPackageJson(packageJsonPath, outputPackageJson, ((IBuildMetadata)this).BuildMetadataPerConfiguration.First().Value.Version);
-      });
+      .Executes (() => { });
 
   public override ISbomGeneratorBuilder ConfigureSbomGenerationInfoBuilder (Solution solution)
   {
@@ -131,8 +123,8 @@ class Build : RemotionBuild, IDependDB, ITest
   public override void ConfigureSupportedTestDimensions (SupportedTestDimensionsBuilder supportedTestDimensions)
   {
     supportedTestDimensions.AddOperatingSystemsDimension();
-    supportedTestDimensions.AddSupportedDimension<ExecutionRuntimes>(LocalMachine, Docker_Win_NET48);
-    supportedTestDimensions.AddSupportedDimension<TargetFrameworks>(NET48);
+    supportedTestDimensions.AddSupportedDimension<ExecutionRuntimes>(LocalMachine, Docker_Win_NET48, Docker_Win_NET472, Docker_Win_NET462);
+    supportedTestDimensions.AddSupportedDimension<TargetFrameworks>(NET48, NET472, NET462);
     supportedTestDimensions.AddSupportedDimension<Configurations>(Debug, Release);
     supportedTestDimensions.AddSupportedDimension<Platforms>(x64, x86);
     supportedTestDimensions.AddSupportedDimension<Databases>(NoDB);
