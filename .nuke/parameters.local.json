@@ -1,6 +1,6 @@
 {
   "$schema": "./build.schema.json",
-  "Target": [ "LocalBuild" ],
+  "Target": [ "CIBuild" ],
   "TestConfigurations": [ "Debug" ],
   "TestExecutionRuntimes": [ "LocalMachine" ],
   "TestPlatforms": [ "x86" ],

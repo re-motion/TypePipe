@@ -190,6 +190,7 @@
               "Docker_Win_NET462",
               "Docker_Win_NET472",
               "Docker_Win_NET48",
+              "EnforcedLocalMachine",
               "LocalMachine"
             ]
           }
