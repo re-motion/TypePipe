@@ -1,0 +1,10 @@
+{
+  "$schema": "./build.schema.json",
+  "DependDBProjectName": "re-motion Framework: TypePipe (www.re-motion.org)",
+  "DependDBRetentionTime": "10",
+  "DependDBProjectBranch": "Main",
+  "DependDBProjectImportNotificationMailAddressCc": "nonexistent@nonexistent.nonexistent",
+  "DependDBTrackedReferences": "Remotion.*",
+  "DependDBNugetConfig": "~/nuget.config",
+  "DependDBTargetFramework": "net45"
+}

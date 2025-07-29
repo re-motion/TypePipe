@@ -49,4 +49,8 @@ Key features:
     <None Include="doc\include\Remotion.TypePipe.NamespaceDoc.xml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include=".nuke\" />
+  </ItemGroup>
+
 </Project>

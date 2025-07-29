@@ -1,0 +1,17 @@
+{
+  "$schema": "./build.schema.json",
+  "Target": [ "CIBuild" ],
+  "TestConfigurations": [ "Debug" ],
+  "TestExecutionRuntimes": [ "Docker_Win_NET48", "EnforcedLocalMachine" ],
+  "TestPlatforms": [ "x86" ],
+  "TestTargetRuntimes": [ "NET48" ],
+  "TestBrowsers": [ "NoBrowser" ],
+  "TestSqlServers": [ "NoDB" ],
+  "SkipCleanProjects": "False",
+  "SkipTests": "False",
+  "SkipDocumentation": "True",
+  "SkipNuGetOrg": "True",
+  "SkipSourceLinks": "True",
+  "SkipNuGet": "True",
+  "SkipDependDB": "True"
+}

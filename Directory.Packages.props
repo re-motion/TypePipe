@@ -10,6 +10,9 @@
     <PackageVersion Include="Moq.VerifiableSequence" Version="4.16.1.2" />
     <PackageVersion Include="NUNit" Version="4.2.2" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageVersion Include="Remotion.Linq" Version="2.2.0" />
+    <PackageVersion Include="Remotion.Linq.Development" Version="2.2.0" />
+    <PackageVersion Include="CycloneDX" Version="4.2.0" />
   </ItemGroup>
 
 </Project>
