@@ -4,7 +4,7 @@
   "TestConfigurations": [ "Debug" ],
   "TestExecutionRuntimes": [ "Docker_Win_NET48", "EnforcedLocalMachine" ],
   "TestPlatforms": [ "x86" ],
-  "TestTargetRuntimes": [ "NET48" ],
+  "TestTargetRuntimes": [ "NET462" ],
   "TestBrowsers": [ "NoBrowser" ],
   "TestSqlServers": [ "NoDB" ],
   "SkipCleanProjects": "False",

@@ -128,16 +128,16 @@ class Build : RemotionBuild, IDependDB, ITest
         "NormalTestMatrix",
         new TestDimension[,]
         {
-            { Windows, Docker_Win_NET48, NET48, NoDB, Debug, x86 },
-            { Windows, Docker_Win_NET48, NET48, NoDB, Release, x86 },
-            { Windows, Docker_Win_NET48, NET48, NoDB, Debug, x64 },
-            { Windows, Docker_Win_NET48, NET48, NoDB, Release, x64 },
+            { Windows, Docker_Win_NET48, NET462, NoDB, Debug, x86 },
+            { Windows, Docker_Win_NET48, NET462, NoDB, Release, x86 },
+            { Windows, Docker_Win_NET48, NET462, NoDB, Debug, x64 },
+            { Windows, Docker_Win_NET48, NET462, NoDB, Release, x64 },
 
             //  Local-->
-            { Windows, LocalMachine, NET48, NoDB, Debug, x86 },
-            { Windows, LocalMachine, NET48, NoDB, Release, x86 },
-            { Windows, LocalMachine, NET48, NoDB, Debug, x64 },
-            { Windows, LocalMachine, NET48, NoDB, Release, x64 },
+            { Windows, LocalMachine, NET462, NoDB, Debug, x86 },
+            { Windows, LocalMachine, NET462, NoDB, Release, x86 },
+            { Windows, LocalMachine, NET462, NoDB, Debug, x64 },
+            { Windows, LocalMachine, NET462, NoDB, Release, x64 },
             
             // Exercise compatibility between installed .NET version, target framework and SQL Server
             { Windows, Docker_Win_NET48, NET472, NoDB, Release, x64 },
