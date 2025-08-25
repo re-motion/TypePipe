@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("handlerType", handlerType, typeof (Delegate));
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom (nameof(handlerType), handlerType, typeof (Delegate));
       ArgumentUtility.CheckNotNull (nameof(addBodyProvider), addBodyProvider);
       ArgumentUtility.CheckNotNull (nameof(removeBodyProvider), removeBodyProvider);
       // Raise body provider may be null.

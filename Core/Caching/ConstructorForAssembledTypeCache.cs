@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.Caching
     public Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic)
     {
       ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom (nameof(delegateType), delegateType, typeof (Delegate));
 
       var reverseConstructionKey = new ConstructorForAssembledTypeCacheKey (assembledType, delegateType, allowNonPublic);
 
