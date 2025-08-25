@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetGetMethod (IMethodBuilder getMethodBuilder)
     {
-      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> ("getMethodBuilder", getMethodBuilder);
+      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> (nameof(getMethodBuilder), getMethodBuilder);
 
       _propertyBuilder.SetGetMethod (adapter.AdaptedMethodBuilder);
     }
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetSetMethod (IMethodBuilder setMethodBuilder)
     {
-      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> ("setMethodBuilder", setMethodBuilder);
+      var adapter = ArgumentUtility.CheckNotNullAndType<MethodBuilderAdapter> (nameof(setMethodBuilder), setMethodBuilder);
 
       _propertyBuilder.SetSetMethod (adapter.AdaptedMethodBuilder);
     }

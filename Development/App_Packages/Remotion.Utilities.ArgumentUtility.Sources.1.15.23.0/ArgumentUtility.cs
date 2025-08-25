@@ -32,7 +32,7 @@ namespace Remotion.Utilities
   /// <code><![CDATA[
   /// void foo (object o) 
   /// {
-  ///   int i = ArgumentUtility.CheckNotNullAndType<int> ("o", o);
+  ///   int i = ArgumentUtility.CheckNotNullAndType<int> (nameof(o), o);
   /// }
   /// ]]></code>
   /// In some other cases, the input value is returned unmodified. This makes it easier to use the argument checks in calls to base class constructors
