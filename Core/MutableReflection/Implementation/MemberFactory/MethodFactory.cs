@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
       var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
       if (!isAbstract && bodyProvider == null)
-        throw new ArgumentNullException ("bodyProvider", "Non-abstract methods must have a body.");
+        throw new ArgumentNullException (nameof(bodyProvider), "Non-abstract methods must have a body.");
       if (isAbstract && bodyProvider != null)
         throw new ArgumentException ("Abstract methods cannot have a body.", "bodyProvider");
 

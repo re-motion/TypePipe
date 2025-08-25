@@ -24,9 +24,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static void CheckMethod (Action unsupportedMemberAction, string methodName)
     {
       if (unsupportedMemberAction == null)
-        throw new ArgumentNullException ("unsupportedMemberAction");
+        throw new ArgumentNullException(nameof(unsupportedMemberAction));
       if (methodName == null)
-        throw new ArgumentNullException ("methodName");
+        throw new ArgumentNullException(nameof(methodName));
       if (methodName.Length == 0)
         throw new ArgumentException ("Value cannot be empty", "methodName");
 
@@ -36,9 +36,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static void CheckMethod (Func<object> unsupportedMemberFunc, string methodName)
     {
       if (unsupportedMemberFunc == null)
-        throw new ArgumentNullException ("unsupportedMemberFunc");
+        throw new ArgumentNullException(nameof(unsupportedMemberFunc));
       if (methodName == null)
-        throw new ArgumentNullException ("methodName");
+        throw new ArgumentNullException(nameof(methodName));
       if (methodName.Length == 0)
         throw new ArgumentException ("Value cannot be empty", "methodName");
 
@@ -48,9 +48,9 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
     public static void CheckProperty (Func<object> unsupportedPropertyFunc, string propertyName)
     {
       if (unsupportedPropertyFunc == null)
-        throw new ArgumentNullException ("unsupportedPropertyFunc");
+        throw new ArgumentNullException(nameof(unsupportedPropertyFunc));
       if (propertyName == null)
-        throw new ArgumentNullException ("propertyName");
+        throw new ArgumentNullException(nameof(propertyName));
       if (propertyName.Length == 0)
         throw new ArgumentException ("Value cannot be empty", "propertyName");
 

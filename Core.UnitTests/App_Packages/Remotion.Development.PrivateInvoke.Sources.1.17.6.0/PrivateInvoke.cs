@@ -226,13 +226,13 @@ namespace Remotion.Development.UnitTesting
 
     public static object GetPublicProperty (object target, string propertyName)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       return GetPropertyInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.Public, propertyName);
     }
 
     public static object GetNonPublicProperty (object target, string propertyName)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       return GetPropertyInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.NonPublic, propertyName);
     }
 
@@ -246,13 +246,13 @@ namespace Remotion.Development.UnitTesting
 
     public static object GetPublicStaticProperty (Type type, string propertyName)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       return GetPropertyInternal (null, type, BindingFlags.Static | BindingFlags.Public, propertyName);
     }
 
     public static object GetNonPublicStaticProperty (Type type, string propertyName)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       return GetPropertyInternal (null, type, BindingFlags.Static | BindingFlags.NonPublic, propertyName);
     }
 
@@ -281,33 +281,33 @@ namespace Remotion.Development.UnitTesting
 
     public static void SetPublicProperty (object target, string propertyName, object value)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       SetPropertyInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.Public, propertyName, value);
     }
 
     public static void SetNonPublicProperty (object target, string propertyName, object value)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       SetPropertyInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.NonPublic, propertyName, value);
     }
 
     public static void SetNonPublicProperty (object target, Type declaringType, string propertyName, object value)
     {
       if (target == null)
-        throw new ArgumentNullException ("target");
+        throw new ArgumentNullException(nameof(target));
       SetPropertyInternal (target, declaringType, BindingFlags.Instance | BindingFlags.NonPublic, propertyName, value);
     }
 
     public static void SetPublicStaticProperty (Type type, string propertyName, object value)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       PropertyInfo property = type.GetProperty (propertyName, BindingFlags.Static | BindingFlags.Public);
       SetPropertyInternal (null, type, BindingFlags.Static | BindingFlags.Public, propertyName, value);
     }
 
     public static void SetNonPublicStaticProperty (Type type, string propertyName, object value)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       SetPropertyInternal (null, type, BindingFlags.Static | BindingFlags.NonPublic, propertyName, value);
     }
 
@@ -330,13 +330,13 @@ namespace Remotion.Development.UnitTesting
 
     public static object GetPublicField (object target, string fieldName)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       return GetFieldInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.Public, fieldName);
     }
 
     public static object GetNonPublicField (object target, string fieldName)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       var declaringType = target.GetType();
       return GetNonPublicField(target, declaringType, fieldName);
     }
@@ -351,13 +351,13 @@ namespace Remotion.Development.UnitTesting
 
     public static object GetPublicStaticField (Type type, string fieldName)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       return GetFieldInternal (null, type, BindingFlags.Static | BindingFlags.Public, fieldName);
     }
 
     public static object GetNonPublicStaticField (Type type, string fieldName)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       return GetFieldInternal (null, type, BindingFlags.Static | BindingFlags.NonPublic, fieldName);
     }
 
@@ -386,25 +386,25 @@ namespace Remotion.Development.UnitTesting
 
     public static void SetPublicField (object target, string fieldName, object value)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       SetFieldInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.Public, fieldName, value);
     }
 
     public static void SetNonPublicField (object target, string fieldName, object value)
     {
-      if (target == null) throw new ArgumentNullException ("target");
+      if (target == null) throw new ArgumentNullException(nameof(target));
       SetFieldInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.NonPublic, fieldName, value);
     }
 
     public static void SetPublicStaticField (Type type, string fieldName, object value)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       SetFieldInternal (null, type, BindingFlags.Static | BindingFlags.Public, fieldName, value);
     }
 
     public static void SetNonPublicStaticField (Type type, string fieldName, object value)
     {
-      if (type == null) throw new ArgumentNullException ("type");
+      if (type == null) throw new ArgumentNullException(nameof(type));
       SetFieldInternal (null, type, BindingFlags.Static | BindingFlags.NonPublic, fieldName, value);
     }
 

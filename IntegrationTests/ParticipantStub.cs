@@ -37,13 +37,13 @@ namespace Remotion.TypePipe.IntegrationTests
     {
       // Type identifier provider may be null.
       if (participateAction == null)
-        throw new ArgumentNullException ("participateAction");
+        throw new ArgumentNullException(nameof(participateAction));
       if (getAdditionalTypeIDFunc == null)
-        throw new ArgumentNullException ("getAdditionalTypeIDFunc");
+        throw new ArgumentNullException(nameof(getAdditionalTypeIDFunc));
       if (handleNonSubclassableTypeAction == null)
-        throw new ArgumentNullException ("handleNonSubclassableTypeAction");
+        throw new ArgumentNullException(nameof(handleNonSubclassableTypeAction));
       if (getOrCreateAdditionalTypeFunc == null)
-        throw new ArgumentNullException ("getOrCreateAdditionalTypeFunc");
+        throw new ArgumentNullException(nameof(getOrCreateAdditionalTypeFunc));
 
       _typeIdentifierProvider = typeIdentifierProvider;
       _participateAction = participateAction;
