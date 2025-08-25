@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         [NotNull] string assemblyNamePattern)
     {
       ArgumentUtility.CheckNotNull (nameof(moduleBuilderFactory), moduleBuilderFactory);
-      ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(assemblyNamePattern), assemblyNamePattern);
 
       _moduleBuilderFactory = moduleBuilderFactory;
       _forceStrongNaming = forceStrongNaming;
@@ -114,7 +114,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     public ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
 
       if (_moduleContext.ModuleBuilder == null)

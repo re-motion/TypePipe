@@ -16,7 +16,7 @@ namespace Remotion.TypePipe.TypeAssembly
 
     public void AddState (string id, object value)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("id", id);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(id), id);
       ArgumentUtility.CheckNotNull (nameof(value), value);
 
       if (_state.ContainsKey (id))
@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.TypeAssembly
 
     public object GetState (string id)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("id", id);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(id), id);
 
       object value;
       if (_state.TryGetValue (id, out value))

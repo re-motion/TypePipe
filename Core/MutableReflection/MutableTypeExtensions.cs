@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection
         IEnumerable<ParameterDeclaration> parameters = null,
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       returnType = returnType ?? typeof (void);
       parameters = parameters ?? ParameterDeclaration.None;
       // Body provider may be null (for abstract methods).
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(methodDeclaration), methodDeclaration);
       // Body provider may be null (for abstract methods).
 
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.MutableReflection
         IEnumerable<ParameterDeclaration> parameters = null)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       returnType = returnType ?? typeof (void);
       parameters = parameters ?? ParameterDeclaration.None;
 

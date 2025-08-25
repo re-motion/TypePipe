@@ -194,7 +194,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableType AddNestedType (string typeName, TypeAttributes attributes, Type baseType)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("typeName", typeName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(typeName), typeName);
       // Base type can be null
 
       var nestedType = _mutableMemberFactory.CreateNestedType (this, typeName, attributes, baseType);
@@ -257,7 +257,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableFieldInfo AddField (string name, FieldAttributes attributes, Type type)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(type), type);
 
       var field = _mutableMemberFactory.CreateField (this, name, type, attributes);
@@ -292,7 +292,7 @@ namespace Remotion.TypePipe.MutableReflection
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(genericParameters), genericParameters);
       ArgumentUtility.CheckNotNull (nameof(returnTypeProvider), returnTypeProvider);
       ArgumentUtility.CheckNotNull (nameof(parameterProvider), parameterProvider);
@@ -374,7 +374,7 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> getBodyProvider,
         Func<MethodBodyCreationContext, Expression> setBodyProvider)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(type), type);
       ArgumentUtility.CheckNotNull (nameof(indexParameters), indexParameters);
       // Get body provider may be null (for write-only properties).
@@ -393,7 +393,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutablePropertyInfo AddProperty (string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Set method may be null (for write-only properties).
       // Get method may be null (for read-only properties).
 
@@ -411,7 +411,7 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> removeBodyProvider,
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider = null)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(handlerType), handlerType);
       ArgumentUtility.CheckNotNull (nameof(addBodyProvider), addBodyProvider);
       ArgumentUtility.CheckNotNull (nameof(removeBodyProvider), removeBodyProvider);
@@ -432,7 +432,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableEventInfo AddEvent (
         string name, EventAttributes attributes, MutableMethodInfo addMethod, MutableMethodInfo removeMethod, MutableMethodInfo raiseMethod = null)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(addMethod), addMethod);
       ArgumentUtility.CheckNotNull (nameof(removeMethod), removeMethod);
       // Raise method may be null.

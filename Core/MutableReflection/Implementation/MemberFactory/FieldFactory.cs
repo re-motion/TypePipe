@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     public MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(type), type);
 
       if (type == typeof (void))

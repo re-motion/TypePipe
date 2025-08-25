@@ -27,7 +27,7 @@ namespace Remotion.Development.UnitTesting.PEVerifyPathSources
 
     public CompoundPEVerifyPathSource (params IPEVerifyPathSource[] sources)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("sources", sources);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(sources), sources);
       _sources = sources;
     }
 

@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(genericParameters), genericParameters);
       ArgumentUtility.CheckNotNull (nameof(returnTypeProvider), returnTypeProvider);
       ArgumentUtility.CheckNotNull (nameof(parameterProvider), parameterProvider);

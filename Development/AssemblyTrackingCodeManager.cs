@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.Development
 
     public void AddSavedAssembly (string assemblyPath)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("assemblyPath", assemblyPath);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(assemblyPath), assemblyPath);
       lock (_lockObject)
       {
         _savedAssemblies.Add (assemblyPath);

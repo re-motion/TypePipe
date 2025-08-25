@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Namespace may be null.
       // Generic type definition may be null (for non-generic types and generic type definitions).
       ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
@@ -277,7 +277,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Note that a generic type definition is not instantiated (at least not fully) and should "stay" a generic type definition.
       // See MethodOnTypeInstantiation constructor and GetGenericMethodDefinition. (Should work similiar for NestedTypeOnTypeInstantiation).
       // Create an integration test for this!
-      ArgumentUtility.CheckNotNullOrEmpty("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return _memberSelector.SelectSingleType (GetAllNestedTypes(), bindingAttr, name);
     }
@@ -289,7 +289,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type GetInterface (string name, bool ignoreCase)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var comparisonMode = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
       var interfaces = GetAllInterfaces().Where (iface => iface.Name.Equals (name, comparisonMode)).ToArray();
@@ -305,7 +305,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name, this);
     }
@@ -337,7 +337,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return _memberSelector.SelectSingleEvent (GetAllEvents(), bindingAttr, name, this);
     }

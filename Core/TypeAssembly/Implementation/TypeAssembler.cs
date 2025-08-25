@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         IEnumerable<IParticipant> participants,
         IMutableTypeFactory mutableTypeFactory)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(participantConfigurationID), participantConfigurationID);
       ArgumentUtility.CheckNotNull (nameof(participants), participants);
       ArgumentUtility.CheckNotNull (nameof(mutableTypeFactory), mutableTypeFactory);
 

@@ -40,13 +40,13 @@ namespace Remotion.Utilities
   /// <code><![CDATA[
   /// class MyType : MyBaseType
   /// {
-  ///   public MyType (string name) : base (ArgumentUtility.CheckNotNullOrEmpty ("name", name))
+  ///   public MyType (string name) : base (ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name))
   ///   {
   ///   }
   /// 
   ///   public override Name
   ///   {
-  ///     set { base.Name = ArgumentUtility.CheckNotNullOrEmpty ("value", value); }
+  ///     set { base.Name = ArgumentUtility.CheckNotNullOrEmpty (nameof(value), value); }
   ///   }
   /// }
   /// ]]></code>

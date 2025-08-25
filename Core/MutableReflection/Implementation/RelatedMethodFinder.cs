@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <inheritdoc />
     public MethodInfo GetMostDerivedVirtualMethod (string name, MethodSignature signature, Type typeToStartSearch)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(signature), signature);
       ArgumentUtility.CheckNotNull (nameof(typeToStartSearch), typeToStartSearch);
 

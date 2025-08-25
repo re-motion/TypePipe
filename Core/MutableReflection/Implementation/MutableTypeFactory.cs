@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Name space may be null.
       // Base type may be null (for interfaces).
       // Declaring type may be null.

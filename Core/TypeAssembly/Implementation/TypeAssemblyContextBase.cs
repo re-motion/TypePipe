@@ -38,7 +38,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     protected TypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IParticipantState participantState)
     {
       ArgumentUtility.CheckNotNull (nameof(mutableTypeFactory), mutableTypeFactory);
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(participantConfigurationID), participantConfigurationID);
       ArgumentUtility.CheckNotNull (nameof(participantState), participantState);
 
       _mutableTypeFactory = mutableTypeFactory;
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
     public MutableType CreateAdditionalType (object additionalTypeID, string name, string @namespace, TypeAttributes attributes, Type baseType)
     {
       ArgumentUtility.CheckNotNull (nameof(additionalTypeID), additionalTypeID);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Namespace may be null.
       // Base type may be null (for interfaces).
 

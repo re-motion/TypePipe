@@ -29,7 +29,7 @@ namespace Remotion.Development.UnitTesting.IO
   {
     public static Assembly LoadWithoutLocking (string assemblyFilenameOrPath)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("assemblyFilenameOrPath", assemblyFilenameOrPath);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(assemblyFilenameOrPath), assemblyFilenameOrPath);
 
       var bytes = File.ReadAllBytes (assemblyFilenameOrPath);
       return Assembly.Load (bytes);

@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull (nameof(typeParameters), typeParameters);
       ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
-      ArgumentUtility.CheckNotNullOrEmpty ("typeOrMethodName", typeOrMethodName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(typeOrMethodName), typeOrMethodName);
 
       if (typeParameters.Length != typeArguments.Length)
       {

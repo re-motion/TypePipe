@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected CustomFieldInfo (CustomType declaringType, string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(type), type);
       Assertion.IsTrue (type != typeof (void));
 

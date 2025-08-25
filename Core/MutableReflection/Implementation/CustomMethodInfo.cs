@@ -46,7 +46,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         IEnumerable<Type> typeArguments)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Generic method definition may be null (for non-generic methods and generic method definitions).
       ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 

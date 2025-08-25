@@ -84,7 +84,7 @@ namespace Remotion.TypePipe.Implementation
 
     public virtual IPipeline Create (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(participantConfigurationID), participantConfigurationID);
       ArgumentUtility.CheckNotNull (nameof(settings), settings);
       ArgumentUtility.CheckNotNull (nameof(participants), participants);
 

@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         CustomType declaringType, string name, PropertyAttributes attributes, CustomMethodInfo getMethod, CustomMethodInfo setMethod)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Getter may be null.
       // Setter may be null.
       Assertion.IsTrue (getMethod != null || setMethod != null);

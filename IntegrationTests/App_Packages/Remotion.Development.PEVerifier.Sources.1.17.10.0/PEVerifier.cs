@@ -90,7 +90,7 @@ namespace Remotion.Development.UnitTesting
 
     public void VerifyPEFile (string modulePath, PEVerifyVersion version)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("modulePath", modulePath);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(modulePath), modulePath);
 
       var process = StartPEVerifyProcess (modulePath, version);
 

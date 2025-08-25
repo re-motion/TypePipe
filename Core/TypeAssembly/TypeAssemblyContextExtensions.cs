@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.TypeAssembly
     {
       ArgumentUtility.CheckNotNull (nameof(context), context);
       ArgumentUtility.CheckNotNull (nameof(additionalTypeID), additionalTypeID);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(baseType), baseType);
 
       var attributes = TypeAttributes.Public | TypeAttributes.Class;
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.TypeAssembly
     {
       ArgumentUtility.CheckNotNull (nameof(context), context);
       ArgumentUtility.CheckNotNull (nameof(additionalTypeID), additionalTypeID);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var attributes = TypeAttributes.Public | TypeAttributes.Interface | TypeAttributes.Abstract;
       return context.CreateAdditionalType (additionalTypeID, name, @namespace, attributes, baseType: null);

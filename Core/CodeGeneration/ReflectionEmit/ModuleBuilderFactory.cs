@@ -58,7 +58,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     public IModuleBuilder CreateModuleBuilder (string assemblyName, string assemblyDirectoryOrNull, bool strongNamed, string keyFilePathOrNull)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("assemblyName", assemblyName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(assemblyName), assemblyName);
 
       var assemName = new AssemblyName (assemblyName);
       if (strongNamed)

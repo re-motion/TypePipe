@@ -111,7 +111,7 @@ namespace Remotion.Development.UnitTesting
     public static object InvokeNonPublicStaticMethod (Type type, string methodName, params object[] arguments)
     {
       ArgumentUtility.CheckNotNull (nameof(type), type);
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(methodName), methodName);
 
       return InvokeMethodInternal (null, type, BindingFlags.Static | BindingFlags.NonPublic, methodName, arguments);
     }
@@ -119,7 +119,7 @@ namespace Remotion.Development.UnitTesting
     public static object InvokePublicStaticMethod (Type type, string methodName, params object[] arguments)
     {
       ArgumentUtility.CheckNotNull (nameof(type), type);
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(methodName), methodName);
 
       return InvokeMethodInternal (null, type, BindingFlags.Static | BindingFlags.Public, methodName, arguments);
     }
@@ -136,7 +136,7 @@ namespace Remotion.Development.UnitTesting
       ArgumentUtility.CheckNotNull (nameof(target), target);
       ArgumentUtility.CheckNotNull (nameof(definingType), definingType);
       ArgumentUtility.CheckType ("target", target, definingType);
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(methodName), methodName);
 
       return InvokeMethodInternal (target, definingType, BindingFlags.Instance | BindingFlags.NonPublic, methodName, arguments);
     }
@@ -144,7 +144,7 @@ namespace Remotion.Development.UnitTesting
     public static object InvokePublicMethod (object target, string methodName, params object[] arguments)
     {
       ArgumentUtility.CheckNotNull (nameof(target), target);
-      ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(methodName), methodName);
 
       return InvokeMethodInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.Public, methodName, arguments);
     }

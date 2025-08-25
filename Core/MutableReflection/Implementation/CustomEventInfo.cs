@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         MethodInfo raiseMethod)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(addMethod), addMethod);
       ArgumentUtility.CheckNotNull (nameof(removeMethod), removeMethod);
       // Raise method may be null.

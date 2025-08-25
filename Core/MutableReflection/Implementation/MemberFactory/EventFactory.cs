@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("handlerType", handlerType, typeof (Delegate));
       ArgumentUtility.CheckNotNull (nameof(addBodyProvider), addBodyProvider);
       ArgumentUtility.CheckNotNull (nameof(removeBodyProvider), removeBodyProvider);
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         MutableMethodInfo raiseMethod)
     {
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(addMethod), addMethod);
       ArgumentUtility.CheckNotNull (nameof(removeMethod), removeMethod);
       // Raise method may be null.

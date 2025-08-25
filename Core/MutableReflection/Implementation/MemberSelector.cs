@@ -87,7 +87,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public Type SelectSingleType (IEnumerable<Type> types, BindingFlags bindingAttr, string name)
     {
       ArgumentUtility.CheckNotNull (nameof(types), types);
-      ArgumentUtility.CheckNotNullOrEmpty("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return SelectSingle (types, name, bindingAttr, null, SelectTypes, "nested type");
     }
@@ -95,7 +95,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType)
     {
       ArgumentUtility.CheckNotNull (nameof(fields), fields);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return SelectSingle (fields, name, bindingAttr, declaringType, SelectFields, "field");
     }
@@ -149,7 +149,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     {
       ArgumentUtility.CheckNotNull (nameof(properties), properties);
       ArgumentUtility.CheckNotNull (nameof(binder), binder);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       CheckModifiers (indexerTypesOrNull, modifiersOrNull);
@@ -166,7 +166,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public EventInfo SelectSingleEvent (IEnumerable<EventInfo> events, BindingFlags bindingAttr, string name, Type declaringType)
     {
       ArgumentUtility.CheckNotNull (nameof(events), events);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       return SelectSingle (events, name, bindingAttr, declaringType, SelectEvents, "event");

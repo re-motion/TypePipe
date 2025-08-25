@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]    
     public ITypeBuilder DefineNestedType (string name, TypeAttributes attributes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var typeBuilder = _typeBuilder.DefineNestedType (name, attributes);
 
@@ -80,7 +80,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(type), type);
 
       var emittableType = EmittableOperandProvider.GetEmittableType (type);
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public IMethodBuilder DefineMethod (string name, MethodAttributes attributes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes);
       return new MethodBuilderDecorator (methodBuilder, EmittableOperandProvider);
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     public IPropertyBuilder DefineProperty (
         string name, PropertyAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
       ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
@@ -137,7 +137,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       ArgumentUtility.CheckNotNull (nameof(eventtype), eventtype);
 
       var emittableEventType = EmittableOperandProvider.GetEmittableType (eventtype);
