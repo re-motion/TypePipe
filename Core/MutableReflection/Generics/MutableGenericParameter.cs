@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public void InitializeDeclaringMember (MemberInfo declaringMember)
     {
-      ArgumentUtility.CheckNotNull ("declaringMember", declaringMember);
+      ArgumentUtility.CheckNotNull (nameof(declaringMember), declaringMember);
       Assertion.IsTrue (declaringMember is MutableType || declaringMember is MutableMethodInfo);
 
       if (_declaringMember != null)
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public void SetGenericParameterConstraints (IEnumerable<Type> constraints)
     {
-      ArgumentUtility.CheckNotNull ("constraints", constraints);
+      ArgumentUtility.CheckNotNull (nameof(constraints), constraints);
 
       var cons = constraints.ToList().AsReadOnly();
 
@@ -133,7 +133,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull (nameof(customAttribute), customAttribute);
 
       _customAttributeContainer.AddCustomAttribute (customAttribute);
     }

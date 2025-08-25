@@ -151,7 +151,7 @@ namespace Remotion.Utilities
     /// <exception cref="ArgumentNullException">The <paramref name="objects"/> parameter was <see langword="null"/>.</exception>
     public static int GetRotatedHashCode (IEnumerable objects)
     {
-      ArgumentUtility.CheckNotNull ("objects", objects);
+      ArgumentUtility.CheckNotNull (nameof(objects), objects);
       int hc = 0;
       foreach (object value in objects)
       {
@@ -228,7 +228,7 @@ namespace Remotion.Utilities
     public static bool NotNullAndSameType<T> (T a, T b)
       where T: class, IEquatable<T>
     {
-      ArgumentUtility.CheckNotNull ("a", a);
+      ArgumentUtility.CheckNotNull (nameof(a), a);
       return (b != null) && a.GetType() == b.GetType();
     }
 

@@ -67,8 +67,8 @@ namespace Remotion.TypePipe.MutableReflection
     {
       // Base type may be null (for interfaces).
       // Declaring type may be null.
-      ArgumentUtility.CheckNotNull ("interfaceMappingComputer", interfaceMappingComputer);
-      ArgumentUtility.CheckNotNull ("mutableMemberFactory", mutableMemberFactory);
+      ArgumentUtility.CheckNotNull (nameof(interfaceMappingComputer), interfaceMappingComputer);
+      ArgumentUtility.CheckNotNull (nameof(mutableMemberFactory), mutableMemberFactory);
 
       SetDeclaringType (declaringType);
       SetBaseType (baseType);
@@ -187,7 +187,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull (nameof(customAttribute), customAttribute);
 
       _customAttributes.AddCustomAttribute(customAttribute);
     }
@@ -205,7 +205,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableConstructorInfo AddTypeInitializer (Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       return AddConstructor (MethodAttributes.Private | MethodAttributes.Static, ParameterDeclaration.None, bodyProvider);
     }
@@ -229,7 +229,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <seealso cref="Initialization"/>
     public void AddInitialization (Func<InitializationBodyContext, Expression> initializationProvider)
     {
-      ArgumentUtility.CheckNotNull ("initializationProvider", initializationProvider);
+      ArgumentUtility.CheckNotNull (nameof(initializationProvider), initializationProvider);
 
       var initialization = _mutableMemberFactory.CreateInitialization (this, initializationProvider);
       _initialization.Expressions.Add (initialization);
@@ -237,7 +237,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public void AddInterface (Type interfaceType, bool throwIfAlreadyImplemented = true)
     {
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull (nameof(interfaceType), interfaceType);
 
       if (!interfaceType.IsInterface)
         throw new ArgumentException ("Type must be an interface.", "interfaceType");
@@ -258,7 +258,7 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableFieldInfo AddField (string name, FieldAttributes attributes, Type type)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       var field = _mutableMemberFactory.CreateField (this, name, type, attributes);
       _addedFields.Add (field);
@@ -269,8 +269,8 @@ namespace Remotion.TypePipe.MutableReflection
     public MutableConstructorInfo AddConstructor (
         MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       var constructor = _mutableMemberFactory.CreateConstructor (this, attributes, parameters, bodyProvider);
       if (constructor.IsStatic)
@@ -293,9 +293,9 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
-      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
-      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
+      ArgumentUtility.CheckNotNull (nameof(genericParameters), genericParameters);
+      ArgumentUtility.CheckNotNull (nameof(returnTypeProvider), returnTypeProvider);
+      ArgumentUtility.CheckNotNull (nameof(parameterProvider), parameterProvider);
       // Body provider may be null (for abstract methods).
 
       var method = _mutableMemberFactory.CreateMethod (this, name, attributes, genericParameters, returnTypeProvider, parameterProvider, bodyProvider);
@@ -306,8 +306,8 @@ namespace Remotion.TypePipe.MutableReflection
 
     public MutableMethodInfo AddExplicitOverride (MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(overriddenMethodBaseDefinition), overriddenMethodBaseDefinition);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       var overrideMethod = _mutableMemberFactory.CreateExplicitOverride (this, overriddenMethodBaseDefinition, bodyProvider);
       AddTrackedMethod(overrideMethod);
@@ -325,7 +325,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </exception>
     public MutableMethodInfo GetOrAddOverride (MethodInfo overriddenMethod)
     {
-      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      ArgumentUtility.CheckNotNull (nameof(overriddenMethod), overriddenMethod);
 
       bool isNewlyCreated;
       var method = _mutableMemberFactory.GetOrCreateOverride (this, overriddenMethod, out isNewlyCreated);
@@ -356,7 +356,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </remarks>
     public MutableMethodInfo GetOrAddImplementation (MethodInfo interfaceMethod)
     {
-      ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
+      ArgumentUtility.CheckNotNull (nameof(interfaceMethod), interfaceMethod);
 
       bool isNewlyCreated;
       var method = _mutableMemberFactory.GetOrCreateImplementation (this, interfaceMethod, out isNewlyCreated);
@@ -375,8 +375,8 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> setBodyProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
-      ArgumentUtility.CheckNotNull ("indexParameters", indexParameters);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
+      ArgumentUtility.CheckNotNull (nameof(indexParameters), indexParameters);
       // Get body provider may be null (for write-only properties).
       // Set body provider may be null (for read-only properties).
 
@@ -412,9 +412,9 @@ namespace Remotion.TypePipe.MutableReflection
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("handlerType", handlerType);
-      ArgumentUtility.CheckNotNull ("addBodyProvider", addBodyProvider);
-      ArgumentUtility.CheckNotNull ("removeBodyProvider", removeBodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(handlerType), handlerType);
+      ArgumentUtility.CheckNotNull (nameof(addBodyProvider), addBodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(removeBodyProvider), removeBodyProvider);
       // Raise body provider may be null.
 
       var event_ = _mutableMemberFactory.CreateEvent (
@@ -433,8 +433,8 @@ namespace Remotion.TypePipe.MutableReflection
         string name, EventAttributes attributes, MutableMethodInfo addMethod, MutableMethodInfo removeMethod, MutableMethodInfo raiseMethod = null)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("addMethod", addMethod);
-      ArgumentUtility.CheckNotNull ("removeMethod", removeMethod);
+      ArgumentUtility.CheckNotNull (nameof(addMethod), addMethod);
+      ArgumentUtility.CheckNotNull (nameof(removeMethod), removeMethod);
       // Raise method may be null.
 
       var event_ = _mutableMemberFactory.CreateEvent (this, name, attributes, addMethod, removeMethod, raiseMethod);
@@ -445,7 +445,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public override InterfaceMapping GetInterfaceMap (Type interfaceType)
     {
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull (nameof(interfaceType), interfaceType);
 
       return GetInterfaceMap (interfaceType, allowPartialInterfaceMapping: false);
     }
@@ -460,7 +460,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns></returns>
     public InterfaceMapping GetInterfaceMap (Type interfaceType, bool allowPartialInterfaceMapping)
     {
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull (nameof(interfaceType), interfaceType);
 
       if (IsInterface)
         throw new NotSupportedException ("Method GetInterfaceMap is not supported by interface types.");

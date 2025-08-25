@@ -39,8 +39,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     public DelegateTypePlaceholder (Type returnType, IEnumerable<Type> parameterTypes)
         : base ("DelegateTypePlaceholder", null, c_delegateTypeAttributes, null, EmptyTypes)
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       SetBaseType (typeof (MulticastDelegate));
 

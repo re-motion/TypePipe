@@ -44,8 +44,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     public UnemittableExpressionVisitor (CodeGenerationContext context, IMethodTrampolineProvider methodTrampolineProvider)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(methodTrampolineProvider), methodTrampolineProvider);
 
       _context = context;
       _methodTrampolineProvider = methodTrampolineProvider;
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     protected internal override Expression VisitConstant (ConstantExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       if (node.Value == null)
         return base.VisitConstant (node);
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     protected internal override Expression VisitNew (NewExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       var constructor = node.Constructor;
       if (constructor != null && constructor.DeclaringType is ArrayTypeBase)
@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     protected internal override Expression VisitUnary (UnaryExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       if (node.NodeType == ExpressionType.Convert)
       {
@@ -132,7 +132,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     protected internal override Expression VisitLambda (LambdaExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       var thisClosureVariable = Expression.Variable (_context.MutableType, "thisClosure");
       Func<Expression, Expression> lambdaPreparer = expr =>

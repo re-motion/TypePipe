@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.Expressions
 
     public ReplacingExpressionVisitor (IDictionary<Expression, Expression> replacements)
     {
-      ArgumentUtility.CheckNotNull ("replacements", replacements);
+      ArgumentUtility.CheckNotNull (nameof(replacements), replacements);
       _replacements = replacements;
     }
 

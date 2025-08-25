@@ -36,8 +36,8 @@ namespace Remotion.TypePipe.CodeGeneration
     [CLSCompliant (false)]
     public MutableTypeBatchCodeGenerator (IDependentTypeSorter dependentTypeSorter, IMutableTypeCodeGeneratorFactory mutableTypeCodeGeneratorFactory)
     {
-      ArgumentUtility.CheckNotNull ("dependentTypeSorter", dependentTypeSorter);
-      ArgumentUtility.CheckNotNull ("mutableTypeCodeGeneratorFactory", mutableTypeCodeGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(dependentTypeSorter), dependentTypeSorter);
+      ArgumentUtility.CheckNotNull (nameof(mutableTypeCodeGeneratorFactory), mutableTypeCodeGeneratorFactory);
 
       _dependentTypeSorter = dependentTypeSorter;
       _mutableTypeCodeGeneratorFactory = mutableTypeCodeGeneratorFactory;
@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public IEnumerable<KeyValuePair<MutableType, Type>> GenerateTypes (IEnumerable<MutableType> mutableTypes)
     {
-      ArgumentUtility.CheckNotNull ("mutableTypes", mutableTypes);
+      ArgumentUtility.CheckNotNull (nameof(mutableTypes), mutableTypes);
 
       // For all types, declare the types first (including nested types), then declare the members/base type/interfaces/etc.,
       // then finish the type (including method bodies, etc.). That way, it is ensured that types can reference each other.

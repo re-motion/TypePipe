@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static MethodDeclaration CreateEquivalent (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       if (method.IsGenericMethodInstantiation())
         throw new ArgumentException (
@@ -87,9 +87,9 @@ namespace Remotion.TypePipe.MutableReflection
         Func<GenericParameterContext, Type> returnTypeProvider,
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider)
     {
-      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
-      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
-      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
+      ArgumentUtility.CheckNotNull (nameof(genericParameters), genericParameters);
+      ArgumentUtility.CheckNotNull (nameof(returnTypeProvider), returnTypeProvider);
+      ArgumentUtility.CheckNotNull (nameof(parameterProvider), parameterProvider);
 
       _genericParameters = genericParameters.ToList().AsReadOnly();
       _returnTypeProvider = returnTypeProvider;

@@ -43,9 +43,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public CodeGenerationContext (
         MutableType mutableType, ITypeBuilder typeBuilder, DebugInfoGenerator debugInfoGeneratorOrNull, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-      ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(mutableType), mutableType);
+      ArgumentUtility.CheckNotNull (nameof(typeBuilder), typeBuilder);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
 
       _mutableType = mutableType;
       _typeBuilder = typeBuilder;

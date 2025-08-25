@@ -41,8 +41,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         MethodInfo baseMethod)
         : base (declaringType, isStatic, parameterExpressions)
     {
-      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull (nameof(genericParameters), genericParameters);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
       // Base method may be null.
 
       _genericParameters = genericParameters.ToList ().AsReadOnly ();
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     public MethodCallExpression DelegateTo (Expression instance, MethodInfo methodToCall)
     {
       // Instance may be null (for static methods).
-      ArgumentUtility.CheckNotNull ("methodToCall", methodToCall);
+      ArgumentUtility.CheckNotNull (nameof(methodToCall), methodToCall);
 
       var instantiatedMethodToCall = InstantiateWithOwnGenericParameters (methodToCall);
 
@@ -88,7 +88,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public MethodCallExpression DelegateToBase (MethodInfo baseMethod)
     {
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
+      ArgumentUtility.CheckNotNull (nameof(baseMethod), baseMethod);
 
       var instantiatedBaseMethod = InstantiateWithOwnGenericParameters (baseMethod);
 

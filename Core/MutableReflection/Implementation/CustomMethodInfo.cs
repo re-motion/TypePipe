@@ -45,10 +45,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         MethodInfo genericMethodDefinition,
         IEnumerable<Type> typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Generic method definition may be null (for non-generic methods and generic method definitions).
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 
       _declaringType = declaringType;
       _name = name;
@@ -146,14 +146,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }

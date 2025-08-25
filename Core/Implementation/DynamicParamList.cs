@@ -86,8 +86,8 @@ namespace Remotion.TypePipe.Implementation
 
     public DynamicParamList (Type[] parameterTypes, object[] parameterValues)
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
-      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(parameterValues), parameterValues);
 
       if (parameterValues.Length != parameterTypes.Length)
         throw new ArgumentException ("The number of parameter values must match the number of parameter types.", "parameterValues");
@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       try
       {
@@ -164,7 +164,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       try
       {

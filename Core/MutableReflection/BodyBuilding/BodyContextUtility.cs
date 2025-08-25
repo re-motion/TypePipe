@@ -38,9 +38,9 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     /// <returns></returns>
     public static Expression ReplaceParameters (IEnumerable<ParameterExpression> parameters, Expression body, IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("body", body);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
+      ArgumentUtility.CheckNotNull (nameof(body), body);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       var parameterCollection = parameters.ToList();
       var argumentCollection = arguments.ToList();
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public static Type[] GetArgumentTypes (IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return arguments.Select (GetArgumentType).ToArray();
     }

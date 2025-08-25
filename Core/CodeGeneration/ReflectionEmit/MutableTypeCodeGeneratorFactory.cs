@@ -38,9 +38,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IReflectionEmitCodeGenerator codeGenerator,
         IInitializationBuilder initializationBuilder)
     {
-      ArgumentUtility.CheckNotNull ("memberEmitterFactory", memberEmitterFactory);
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
-      ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
+      ArgumentUtility.CheckNotNull (nameof(memberEmitterFactory), memberEmitterFactory);
+      ArgumentUtility.CheckNotNull (nameof(codeGenerator), codeGenerator);
+      ArgumentUtility.CheckNotNull (nameof(initializationBuilder), initializationBuilder);
 
       _memberEmitterFactory = memberEmitterFactory;
       _codeGenerator = codeGenerator;
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     public IEnumerable<IMutableTypeCodeGenerator> CreateGenerators (IEnumerable<MutableType> mutableTypes)
     {
-      ArgumentUtility.CheckNotNull ("mutableTypes", mutableTypes);
+      ArgumentUtility.CheckNotNull (nameof(mutableTypes), mutableTypes);
 
       var emittableOperandProvider = _codeGenerator.CreateEmittableOperandProvider();
       var memberEmitter = _memberEmitterFactory.CreateMemberEmitter (emittableOperandProvider);

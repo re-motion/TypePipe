@@ -29,8 +29,8 @@ namespace Remotion.TypePipe.TypeAssembly
 
     public LoadedProxy (Type requestedType, Type assembledType)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNull (nameof(requestedType), requestedType);
+      ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
 
       _requestedType = requestedType;
       _assembledType = assembledType;

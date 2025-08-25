@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.StrongNaming
 
     public bool IsStrongNamed (Assembly assembly)
     {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
+      ArgumentUtility.CheckNotNull (nameof(assembly), assembly);
 
       bool value;
       if (_cache.TryGetValue (assembly, out value))

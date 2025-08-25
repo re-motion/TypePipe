@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public MethodTrampolineProvider (IMemberEmitter memberEmitter)
     {
-      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
+      ArgumentUtility.CheckNotNull (nameof(memberEmitter), memberEmitter);
 
       _memberEmitter = memberEmitter;
     }
@@ -47,8 +47,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public MethodInfo GetNonVirtualCallTrampoline (CodeGenerationContext context, MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       MethodInfo trampoline;
       if (!context.TrampolineMethods.TryGetValue (method, out trampoline))

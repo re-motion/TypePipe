@@ -28,8 +28,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static void ValidateGenericArguments (Type[] typeParameters, Type[] typeArguments, string typeOrMethodName)
     {
-      ArgumentUtility.CheckNotNull ("typeParameters", typeParameters);
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(typeParameters), typeParameters);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
       ArgumentUtility.CheckNotNullOrEmpty ("typeOrMethodName", typeOrMethodName);
 
       if (typeParameters.Length != typeArguments.Length)

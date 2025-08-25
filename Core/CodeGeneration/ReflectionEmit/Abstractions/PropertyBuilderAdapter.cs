@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     [CLSCompliant (false)]
     public PropertyBuilderAdapter (PropertyBuilder propertyBuilder)
-        : base (ArgumentUtility.CheckNotNull ("propertyBuilder", propertyBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(propertyBuilder), propertyBuilder).SetCustomAttribute)
     {
       _propertyBuilder = propertyBuilder;
     }

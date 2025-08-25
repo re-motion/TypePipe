@@ -37,9 +37,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     protected TypeAssemblyContextBase (IMutableTypeFactory mutableTypeFactory, string participantConfigurationID, IParticipantState participantState)
     {
-      ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
+      ArgumentUtility.CheckNotNull (nameof(mutableTypeFactory), mutableTypeFactory);
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull (nameof(participantState), participantState);
 
       _mutableTypeFactory = mutableTypeFactory;
       _participantConfigurationID = participantConfigurationID;
@@ -65,7 +65,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public MutableType CreateAdditionalType (object additionalTypeID, string name, string @namespace, TypeAttributes attributes, Type baseType)
     {
-      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+      ArgumentUtility.CheckNotNull (nameof(additionalTypeID), additionalTypeID);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
       // Base type may be null (for interfaces).
@@ -78,7 +78,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public MutableType CreateAddtionalProxyType (object additionalTypeID, Type baseType)
     {
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      ArgumentUtility.CheckNotNull (nameof(baseType), baseType);
 
       var type = _mutableTypeFactory.CreateProxy (baseType, ProxyKind.AdditionalType).Type;
       _additionalTypes.Add (additionalTypeID, type);

@@ -50,8 +50,8 @@ namespace Remotion.TypePipe.Caching
 
     public ConstructorForAssembledTypeCache (ITypeAssembler typeAssembler, IConstructorDelegateFactory constructorDelegateFactory)
     {
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
+      ArgumentUtility.CheckNotNull (nameof(typeAssembler), typeAssembler);
+      ArgumentUtility.CheckNotNull (nameof(constructorDelegateFactory), constructorDelegateFactory);
 
       _typeAssembler = typeAssembler;
       _constructorDelegateFactory = constructorDelegateFactory;
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.Caching
 
     public Delegate GetOrCreateConstructorCall (Type assembledType, Type delegateType, bool allowNonPublic)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
 
       var reverseConstructionKey = new ConstructorForAssembledTypeCacheKey (assembledType, delegateType, allowNonPublic);

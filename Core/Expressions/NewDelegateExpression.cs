@@ -32,10 +32,10 @@ namespace Remotion.TypePipe.Expressions
     private readonly MethodInfo _method;
 
     public NewDelegateExpression (Type delegateType, Expression target, MethodInfo method)
-        : base (ArgumentUtility.CheckNotNull ("delegateType", delegateType))
+        : base (ArgumentUtility.CheckNotNull (nameof(delegateType), delegateType))
     {
       // target may be null for static methods
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
       Assertion.IsNotNull (method.DeclaringType);
 
       if (!delegateType.IsSubclassOf (typeof (MulticastDelegate)))
@@ -69,14 +69,14 @@ namespace Remotion.TypePipe.Expressions
 
     public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       return visitor.VisitNewDelegate (this);
     }
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       var newTarget = visitor.Visit (_target);
       if (newTarget == _target)

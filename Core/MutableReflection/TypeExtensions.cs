@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns><c>true</c> if the given type is an instance of <see cref="T:System.RuntimeType"/>; otherwise, <c>false</c>.</returns>
     public static bool IsRuntimeType (this Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       // ReSharper disable PossibleMistakenCallToGetType.2
       return type.GetType().FullName == "System.RuntimeType";
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns><c>true</c> if the type is a generic type instantiation; otherwise, <c>false</c>.</returns>
     public static bool IsGenericTypeInstantiation (this Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       return type.IsGenericType && !type.IsGenericTypeDefinition;
     }
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns><c>true</c> if this type is "assignable from" the specified type; <c>false</c> otherwise.</returns>
     public static bool IsTypePipeAssignableFrom (this Type toType, Type fromType)
     {
-      ArgumentUtility.CheckNotNull ("toType", toType);
+      ArgumentUtility.CheckNotNull (nameof(toType), toType);
       // fromType may be null.
 
       if (fromType == null)
@@ -96,7 +96,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns>The appropriate type code.</returns>
     public static TypeCode GetTypePipeTypeCode (this Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       return type is CustomType ? TypeCode.Object : Type.GetTypeCode (type);
     }
@@ -110,7 +110,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns>The generic type instantiation.</returns>
     public static Type MakeTypePipeGenericType (this Type genericTypeDefinition, params Type[] typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
       ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
 
       if (!genericTypeDefinition.IsGenericTypeDefinition)

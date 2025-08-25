@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public PropertyFactory (IMethodFactory methodFactory)
     {
-      ArgumentUtility.CheckNotNull ("methodFactory", methodFactory);
+      ArgumentUtility.CheckNotNull (nameof(methodFactory), methodFactory);
 
       _methodFactory = methodFactory;
     }
@@ -48,10 +48,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<MethodBodyCreationContext, Expression> getBodyProvider,
         Func<MethodBodyCreationContext, Expression> setBodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
-      ArgumentUtility.CheckNotNull ("indexParameters", indexParameters);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
+      ArgumentUtility.CheckNotNull (nameof(indexParameters), indexParameters);
       // Get body provider may be null.
       // Set body provider may be null.
 
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     public MutablePropertyInfo CreateProperty (
         MutableType declaringType, string name, PropertyAttributes attributes, MutableMethodInfo getMethod, MutableMethodInfo setMethod)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Get method may be null.
       // Set method may be null.

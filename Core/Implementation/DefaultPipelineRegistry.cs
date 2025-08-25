@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.Implementation
 
     public DefaultPipelineRegistry (IPipeline defaultPipeline)
     {
-      ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
+      ArgumentUtility.CheckNotNull (nameof(defaultPipeline), defaultPipeline);
 
       Register (defaultPipeline);
       DefaultPipeline = defaultPipeline;
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.Implementation
 
     public void Register (IPipeline pipeline)
     {
-      ArgumentUtility.CheckNotNull ("pipeline", pipeline);
+      ArgumentUtility.CheckNotNull (nameof(pipeline), pipeline);
       Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
       lock (_pipelines.SyncRoot)

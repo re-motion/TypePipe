@@ -39,8 +39,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     [CLSCompliant (false)]
     public CodeGenerationExpressionEmitter (IILGenerator ilGenerator, Action<Expression> childExpressionEmitter)
     {
-      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
-      ArgumentUtility.CheckNotNull ("childExpressionEmitter", childExpressionEmitter);
+      ArgumentUtility.CheckNotNull (nameof(ilGenerator), ilGenerator);
+      ArgumentUtility.CheckNotNull (nameof(childExpressionEmitter), childExpressionEmitter);
 
       _ilGenerator = ilGenerator;
       _childExpressionEmitter = childExpressionEmitter;
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public Expression VisitThis (ThisExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       _ilGenerator.Emit (OpCodes.Ldarg_0);
 
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public Expression VisitNewDelegate (NewDelegateExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       var constructorInfo = node.Type.GetConstructor (new[] { typeof (object), typeof (IntPtr) });
 
@@ -86,7 +86,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public Expression VisitBox (BoxAndCastExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       _childExpressionEmitter (node.Operand);
       _ilGenerator.Emit (OpCodes.Box, node.Operand.Type);
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public Expression VisitUnbox (UnboxExpression node)
     {
-      ArgumentUtility.CheckNotNull ("node", node);
+      ArgumentUtility.CheckNotNull (nameof(node), node);
 
       _childExpressionEmitter (node.Operand);
       _ilGenerator.Emit (OpCodes.Unbox_Any, node.Type);

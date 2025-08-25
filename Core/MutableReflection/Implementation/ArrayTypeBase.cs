@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected ArrayTypeBase (CustomType elementType, int rank)
         : base (
-            GetArrayTypeName (ArgumentUtility.CheckNotNull ("elementType", elementType).Name, rank),
+            GetArrayTypeName (ArgumentUtility.CheckNotNull (nameof(elementType), elementType).Name, rank),
             elementType.Namespace,
             TypeAttributes.Public | TypeAttributes.Sealed,
             null,

@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public PropertyInfo GetBaseProperty (PropertyInfo property)
     {
-      ArgumentUtility.CheckNotNull ("property", property);
+      ArgumentUtility.CheckNotNull (nameof(property), property);
 
       Assertion.IsNotNull (property.DeclaringType);
       var baseTypeSequence = EnumerableExtensions.CreateSequence (property.DeclaringType.BaseType, t => t.BaseType);

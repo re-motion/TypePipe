@@ -46,54 +46,54 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public EmittableOperandProvider (IDelegateProvider delegateProvider)
     {
-      ArgumentUtility.CheckNotNull ("delegateProvider", delegateProvider);
+      ArgumentUtility.CheckNotNull (nameof(delegateProvider), delegateProvider);
 
       _delegateProvider = delegateProvider;
     }
 
     public void AddMapping (MutableType mappedType, Type emittableType)
     {
-      ArgumentUtility.CheckNotNull ("mappedType", mappedType);
-      ArgumentUtility.CheckNotNull ("emittableType", emittableType);
+      ArgumentUtility.CheckNotNull (nameof(mappedType), mappedType);
+      ArgumentUtility.CheckNotNull (nameof(emittableType), emittableType);
 
       AddMapping (_mappedTypes, mappedType, emittableType);
     }
 
     public void AddMapping (MutableGenericParameter mappedGenericParameter, Type emittableGenericParameter)
     {
-      ArgumentUtility.CheckNotNull ("mappedGenericParameter", mappedGenericParameter);
-      ArgumentUtility.CheckNotNull ("emittableGenericParameter", emittableGenericParameter);
+      ArgumentUtility.CheckNotNull (nameof(mappedGenericParameter), mappedGenericParameter);
+      ArgumentUtility.CheckNotNull (nameof(emittableGenericParameter), emittableGenericParameter);
 
       AddMapping (_mappedTypes, mappedGenericParameter, emittableGenericParameter);
     }
 
     public void AddMapping (MutableFieldInfo mappedField, FieldInfo emittableField)
     {
-      ArgumentUtility.CheckNotNull ("mappedField", mappedField);
-      ArgumentUtility.CheckNotNull ("emittableField", emittableField);
+      ArgumentUtility.CheckNotNull (nameof(mappedField), mappedField);
+      ArgumentUtility.CheckNotNull (nameof(emittableField), emittableField);
 
       AddMapping (_mappedFields, mappedField, emittableField);
     }
 
     public void AddMapping (MutableConstructorInfo mappedConstructor, ConstructorInfo emittableConstructor)
     {
-      ArgumentUtility.CheckNotNull ("mappedConstructor", mappedConstructor);
-      ArgumentUtility.CheckNotNull ("emittableConstructor", emittableConstructor);
+      ArgumentUtility.CheckNotNull (nameof(mappedConstructor), mappedConstructor);
+      ArgumentUtility.CheckNotNull (nameof(emittableConstructor), emittableConstructor);
 
       AddMapping (_mappedConstructors, mappedConstructor, emittableConstructor);
     }
 
     public void AddMapping (MutableMethodInfo mappedMethod, MethodInfo emittableMethod)
     {
-      ArgumentUtility.CheckNotNull ("mappedMethod", mappedMethod);
-      ArgumentUtility.CheckNotNull ("emittableMethod", emittableMethod);
+      ArgumentUtility.CheckNotNull (nameof(mappedMethod), mappedMethod);
+      ArgumentUtility.CheckNotNull (nameof(emittableMethod), emittableMethod);
 
       AddMapping (_mappedMethods, mappedMethod, emittableMethod);
     }
 
     public Type GetEmittableType (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       var emittable = GetDirectlyEmittableOperand (_mappedTypes, type);
       if (emittable != null)
@@ -120,7 +120,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("field", field);
+      ArgumentUtility.CheckNotNull (nameof(field), field);
 
       var emittable = GetDirectlyEmittableOperand (_mappedFields, field);
       if (emittable != null)
@@ -131,7 +131,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
 
       var emittable = GetDirectlyEmittableOperand (_mappedConstructors, constructor);
       if (emittable != null)
@@ -142,7 +142,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       var emittable = GetDirectlyEmittableOperand (_mappedMethods, method);
       if (emittable != null)

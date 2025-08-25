@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     protected BuilderDecoratorBase (ICustomAttributeTargetBuilder customAttributeTargetBuilder, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeTargetBuilder", customAttributeTargetBuilder);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeTargetBuilder), customAttributeTargetBuilder);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
 
       _customAttributeTargetBuilder = customAttributeTargetBuilder;
       EmittableOperandProvider = emittableOperandProvider;
@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeDeclaration), customAttributeDeclaration);
 
       var emittableConstructorArguments = customAttributeDeclaration.ConstructorArguments.Select (MakeAttributeArgumentEmittable).ToArray();
       var emittableNamedArguments = customAttributeDeclaration.NamedArguments.Select (MakeEmittable).ToArray();

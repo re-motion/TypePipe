@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
   {
     public static EventSignature Create (EventInfo eventInfo)
     {
-      ArgumentUtility.CheckNotNull ("eventInfo", eventInfo);
+      ArgumentUtility.CheckNotNull (nameof(eventInfo), eventInfo);
       return new EventSignature (eventInfo.EventHandlerType);
     }
 
@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 
     public EventSignature (Type eventHandlerType)
     {
-      ArgumentUtility.CheckNotNull ("eventHandlerType", eventHandlerType);
+      ArgumentUtility.CheckNotNull (nameof(eventHandlerType), eventHandlerType);
       _eventHandlerType = eventHandlerType;
     }
 

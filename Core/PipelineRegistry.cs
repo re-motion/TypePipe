@@ -83,7 +83,7 @@ namespace Remotion.TypePipe
     /// </remarks>
     public static void SetInstanceProvider ([NotNull] Func<IPipelineRegistry> pipelineRegistryProvider)
     {
-      ArgumentUtility.CheckNotNull ("pipelineRegistryProvider", pipelineRegistryProvider);
+      ArgumentUtility.CheckNotNull (nameof(pipelineRegistryProvider), pipelineRegistryProvider);
 
       lock (s_instanceProviderLockObject)
       {

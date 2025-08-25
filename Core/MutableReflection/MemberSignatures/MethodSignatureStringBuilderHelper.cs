@@ -36,8 +36,8 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
   {
     public virtual void AppendTypeString (StringBuilder sb, Type type)
     {
-      ArgumentUtility.CheckNotNull ("sb", sb);
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(sb), sb);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       if (type.IsGenericParameter)
       {
@@ -72,8 +72,8 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 
     public virtual void AppendSeparatedTypeStrings (StringBuilder sb, IEnumerable<Type> types)
     {
-      ArgumentUtility.CheckNotNull ("sb", sb);
-      ArgumentUtility.CheckNotNull ("types", types);
+      ArgumentUtility.CheckNotNull (nameof(sb), sb);
+      ArgumentUtility.CheckNotNull (nameof(types), types);
 
       bool first = true;
       foreach (var type in types)

@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant(false)]
     public MemberEmitter (IExpressionPreparer expressionPreparer, IILGeneratorFactory ilGeneratorFactory)
     {
-      ArgumentUtility.CheckNotNull ("expressionPreparer", expressionPreparer);
-      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(expressionPreparer), expressionPreparer);
+      ArgumentUtility.CheckNotNull (nameof(ilGeneratorFactory), ilGeneratorFactory);
 
       _expressionPreparer = expressionPreparer;
       _ilGeneratorFactory = ilGeneratorFactory;
@@ -58,8 +58,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddField (CodeGenerationContext context, MutableFieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("field", field);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(field), field);
 
       var fieldBuilder = context.TypeBuilder.DefineField (field.Name, field.FieldType, field.Attributes);
       fieldBuilder.RegisterWith (context.EmittableOperandProvider, field);
@@ -69,8 +69,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddConstructor (CodeGenerationContext context, MutableConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
 
       var parameterTypes = GetParameterTypes (constructor);
       var ctorBuilder = context.TypeBuilder.DefineConstructor (constructor.Attributes, constructor.CallingConvention, parameterTypes);
@@ -85,8 +85,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddMethod (CodeGenerationContext context, MutableMethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       var methodBuilder = context.TypeBuilder.DefineMethod (method.Name, method.Attributes);
       methodBuilder.RegisterWith (context.EmittableOperandProvider, method);
@@ -114,8 +114,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddProperty (CodeGenerationContext context, MutablePropertyInfo property)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("property", property);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(property), property);
 
       var getMethod = property.MutableGetMethod;
       var setMethod = property.MutableSetMethod;
@@ -136,8 +136,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddEvent (CodeGenerationContext context, MutableEventInfo event_)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("event_", event_);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(event_), event_);
 
       var addMethod = event_.MutableAddMethod;
       var removeMethod = event_.MutableRemoveMethod;

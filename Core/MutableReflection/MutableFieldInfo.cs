@@ -47,7 +47,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull (nameof(customAttribute), customAttribute);
 
       _customAttributeContainer.AddCustomAttribute (customAttribute);
     }

@@ -34,15 +34,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly ConstructorBuilder _constructorBuilder;
 
     public ConstructorBuilderAdapter (ConstructorBuilder constructorBuilder)
-        : base (ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(constructorBuilder), constructorBuilder).SetCustomAttribute)
     {
       _constructorBuilder = constructorBuilder;
     }
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
 
       emittableOperandProvider.AddMapping (constructor, _constructorBuilder);
     }
@@ -58,8 +58,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
-      ArgumentUtility.CheckNotNull ("body", body);
-      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(body), body);
+      ArgumentUtility.CheckNotNull (nameof(ilGeneratorFactory), ilGeneratorFactory);
 
       if (body.ReturnType != typeof (void))
         throw new ArgumentException("Body must be of void type.", "body");

@@ -26,8 +26,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static bool IsSet (this Enum attributes, Enum flags)
     {
-      ArgumentUtility.CheckNotNull ("attributes", attributes);
-      ArgumentUtility.CheckNotNull ("flags", flags);
+      ArgumentUtility.CheckNotNull (nameof(attributes), attributes);
+      ArgumentUtility.CheckNotNull (nameof(flags), flags);
 
       Assertion.DebugAssert (attributes.GetType() == flags.GetType());
 
@@ -40,9 +40,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public static bool IsSet<T> (this Enum attributes, T mask, T flags)
     {
-      ArgumentUtility.CheckNotNull ("attributes", attributes);
-      ArgumentUtility.CheckNotNull ("mask", mask);
-      ArgumentUtility.CheckNotNull ("flags", flags);
+      ArgumentUtility.CheckNotNull (nameof(attributes), attributes);
+      ArgumentUtility.CheckNotNull (nameof(mask), mask);
+      ArgumentUtility.CheckNotNull (nameof(flags), flags);
 
       Assertion.DebugAssert (attributes.GetType () == typeof (T));
 
@@ -56,16 +56,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public static bool IsUnset (this Enum attributes, Enum flags)
     {
-      ArgumentUtility.CheckNotNull ("attributes", attributes);
-      ArgumentUtility.CheckNotNull ("flags", flags);
+      ArgumentUtility.CheckNotNull (nameof(attributes), attributes);
+      ArgumentUtility.CheckNotNull (nameof(flags), flags);
 
       return !IsSet (attributes, flags);
     }
 
     public static T Set<T> (this Enum attributes, T flags)
     {
-      ArgumentUtility.CheckNotNull ("attributes", attributes);
-      ArgumentUtility.CheckNotNull ("flags", flags);
+      ArgumentUtility.CheckNotNull (nameof(attributes), attributes);
+      ArgumentUtility.CheckNotNull (nameof(flags), flags);
 
       Assertion.DebugAssert (attributes.GetType () == typeof (T));
 
@@ -74,8 +74,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public static T Unset<T> (this Enum attributes, T flags)
     {
-      ArgumentUtility.CheckNotNull ("attributes", attributes);
-      ArgumentUtility.CheckNotNull ("flags", flags);
+      ArgumentUtility.CheckNotNull (nameof(attributes), attributes);
+      ArgumentUtility.CheckNotNull (nameof(flags), flags);
 
       Assertion.DebugAssert (attributes.GetType () == typeof (T));
 

@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     public override Expression Accept (ICodeGenerationExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       return visitor.VisitUnbox (this);
     }

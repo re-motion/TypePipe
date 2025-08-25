@@ -110,7 +110,7 @@ namespace Remotion.Development.UnitTesting
 
     public static object InvokeNonPublicStaticMethod (Type type, string methodName, params object[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
       ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
 
       return InvokeMethodInternal (null, type, BindingFlags.Static | BindingFlags.NonPublic, methodName, arguments);
@@ -118,7 +118,7 @@ namespace Remotion.Development.UnitTesting
 
     public static object InvokePublicStaticMethod (Type type, string methodName, params object[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
       ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
 
       return InvokeMethodInternal (null, type, BindingFlags.Static | BindingFlags.Public, methodName, arguments);
@@ -126,15 +126,15 @@ namespace Remotion.Development.UnitTesting
 
     public static object InvokeNonPublicMethod (object target, string methodName, params object[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("target", target);
+      ArgumentUtility.CheckNotNull (nameof(target), target);
 
       return InvokeNonPublicMethod (target, target.GetType(), methodName, arguments);
     }
 
     public static object InvokeNonPublicMethod (object target, Type definingType, string methodName, params object[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("target", target);
-      ArgumentUtility.CheckNotNull ("definingType", definingType);
+      ArgumentUtility.CheckNotNull (nameof(target), target);
+      ArgumentUtility.CheckNotNull (nameof(definingType), definingType);
       ArgumentUtility.CheckType ("target", target, definingType);
       ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
 
@@ -143,7 +143,7 @@ namespace Remotion.Development.UnitTesting
 
     public static object InvokePublicMethod (object target, string methodName, params object[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("target", target);
+      ArgumentUtility.CheckNotNull (nameof(target), target);
       ArgumentUtility.CheckNotNullOrEmpty ("methodName", methodName);
 
       return InvokeMethodInternal (target, target.GetType(), BindingFlags.Instance | BindingFlags.Public, methodName, arguments);
@@ -238,8 +238,8 @@ namespace Remotion.Development.UnitTesting
 
     public static object GetNonPublicProperty (object target, Type declaringType, string propertyName)
     {
-      ArgumentUtility.CheckNotNull ("target", target);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(target), target);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       return GetPropertyInternal (target, declaringType, BindingFlags.Instance | BindingFlags.NonPublic, propertyName);
     }
@@ -343,8 +343,8 @@ namespace Remotion.Development.UnitTesting
 
     public static object GetNonPublicField(object target, Type declaringType, string fieldName)
     {
-      ArgumentUtility.CheckNotNull ("target", target);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(target), target);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       return GetFieldInternal (target, declaringType, BindingFlags.Instance | BindingFlags.NonPublic, fieldName);
     }

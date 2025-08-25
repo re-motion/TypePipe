@@ -45,15 +45,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       _methodBuilder.RegisterWith (emittableOperandProvider, method);
     }
 
     public IGenericTypeParameterBuilder[] DefineGenericParameters (string[] names)
     {
-      ArgumentUtility.CheckNotNull ("names", names);
+      ArgumentUtility.CheckNotNull (nameof(names), names);
 
       return _methodBuilder
           .DefineGenericParameters (names)
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void SetReturnType (Type returnType)
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
 
       var emittableReturnType = EmittableOperandProvider.GetEmittableType (returnType);
       _methodBuilder.SetReturnType (emittableReturnType);
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void SetParameters (Type[] parameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       var emittableParameterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
       _methodBuilder.SetParameters (emittableParameterTypes);

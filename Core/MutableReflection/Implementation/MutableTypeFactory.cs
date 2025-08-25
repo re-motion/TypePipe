@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public ITypeModificationTracker CreateProxy (Type baseType, ProxyKind proxyKind)
     {
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      ArgumentUtility.CheckNotNull (nameof(baseType), baseType);
 
       var incrementedCounter = Interlocked.Increment (ref _counter);
 

@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public NamedArgumentDeclaration (PropertyInfo propertyInfo, object value)
     {
-      ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
+      ArgumentUtility.CheckNotNull (nameof(propertyInfo), propertyInfo);
       ArgumentUtility.CheckType ("value", value, propertyInfo.PropertyType);
 
       var setMethod = propertyInfo.GetSetMethod ();
@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public NamedArgumentDeclaration (FieldInfo fieldInfo, object value)
     {
-      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
+      ArgumentUtility.CheckNotNull (nameof(fieldInfo), fieldInfo);
       ArgumentUtility.CheckType ("value", value, fieldInfo.FieldType);
 
       if (fieldInfo.IsLiteral || fieldInfo.IsInitOnly)

@@ -57,7 +57,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Namespace may be null.
       // Generic type definition may be null (for non-generic types and generic type definitions).
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 
       _name = name;
       _namespace = @namespace;
@@ -253,14 +253,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }

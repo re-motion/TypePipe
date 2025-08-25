@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MemberInfo member, bool inherit = false)
     {
-      ArgumentUtility.CheckNotNull ("member", member);
+      ArgumentUtility.CheckNotNull (nameof(member), member);
 
       switch (member.MemberType)
       {
@@ -69,35 +69,35 @@ namespace Remotion.TypePipe.MutableReflection
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Type type, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       return GetCachedAttributes (type, inherit, s_baseTypeProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (FieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("field", field);
+      ArgumentUtility.CheckNotNull (nameof(field), field);
 
       return GetCachedAttributes (field, inherit: false, baseMemberProvider: null);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
 
       return GetCachedAttributes (constructor, inherit: false, baseMemberProvider: null);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (MethodInfo method, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       return GetCachedAttributes (method, inherit, s_baseMethodProvider);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (PropertyInfo property, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("property", property);
+      ArgumentUtility.CheckNotNull (nameof(property), property);
 
       return GetCachedAttributes (property, inherit, s_basePropertyProvider);
     }
@@ -111,21 +111,21 @@ namespace Remotion.TypePipe.MutableReflection
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (ParameterInfo parameter)
     {
-      ArgumentUtility.CheckNotNull ("parameter", parameter);
+      ArgumentUtility.CheckNotNull (nameof(parameter), parameter);
 
       return GetCachedAttributes (parameter, s_customAttributeDataRetriever.GetCustomAttributeData);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Assembly assembly)
     {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
+      ArgumentUtility.CheckNotNull (nameof(assembly), assembly);
 
       return GetCachedAttributes (assembly, s_customAttributeDataRetriever.GetCustomAttributeData);
     }
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (Module module)
     {
-      ArgumentUtility.CheckNotNull ("module", module);
+      ArgumentUtility.CheckNotNull (nameof(module), module);
 
       return GetCachedAttributes (module, s_customAttributeDataRetriever.GetCustomAttributeData);
     }

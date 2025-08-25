@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.Development
 
     public AssemblyTrackingCodeManager (ICodeManager codeManager)
     {
-      ArgumentUtility.CheckNotNull ("codeManager", codeManager);
+      ArgumentUtility.CheckNotNull (nameof(codeManager), codeManager);
 
       _codeManager = codeManager;
     }
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.Development
 
     public string[] FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
     {
-      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
+      ArgumentUtility.CheckNotNull (nameof(assemblyAttributes), assemblyAttributes);
 
       lock (_lockObject)
       {
@@ -106,7 +106,7 @@ namespace Remotion.TypePipe.Development
 
     public void LoadFlushedCode (Assembly assembly)
     {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
+      ArgumentUtility.CheckNotNull (nameof(assembly), assembly);
 
       lock (_lockObject)
       {

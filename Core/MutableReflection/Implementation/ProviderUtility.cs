@@ -27,9 +27,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public static TResult GetNonNullValue<TResult, TContext> (Func<TContext, TResult> provider, TContext context, string providerArgumentName)
         where TResult : class
     {
-      ArgumentUtility.CheckNotNull ("provider", provider);
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("providerArgumentName", providerArgumentName);
+      ArgumentUtility.CheckNotNull (nameof(provider), provider);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(providerArgumentName), providerArgumentName);
 
       var value = provider (context);
 

@@ -118,7 +118,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public void Enqueue (AssemblyContext assemblyContext)
     {
-      ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
+      ArgumentUtility.CheckNotNull (nameof(assemblyContext), assemblyContext);
 
       var data = _threadLocalCache.Value;
       if (data == null)

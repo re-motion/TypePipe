@@ -39,9 +39,9 @@ namespace Remotion.TypePipe.Implementation
 
     public CodeManager (ITypeCache typeCache, ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
     {
-      ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("typeCache", typeCache);
+      ArgumentUtility.CheckNotNull (nameof(assemblyContextPool), assemblyContextPool);
+      ArgumentUtility.CheckNotNull (nameof(typeAssembler), typeAssembler);
+      ArgumentUtility.CheckNotNull (nameof(typeCache), typeCache);
 
       _typeCache = typeCache;
       _typeAssembler = typeAssembler;
@@ -50,7 +50,7 @@ namespace Remotion.TypePipe.Implementation
 
     public string[] FlushCodeToDisk (params CustomAttributeDeclaration[] assemblyAttributes)
     {
-      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
+      ArgumentUtility.CheckNotNull (nameof(assemblyAttributes), assemblyAttributes);
 
       AssemblyContext[] assemblyContexts = _assemblyContextPool.DequeueAll();
       try
@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.Implementation
 
     public void LoadFlushedCode (Assembly assembly)
     {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
+      ArgumentUtility.CheckNotNull (nameof(assembly), assembly);
 
       var typePipeAttribute = 
           (TypePipeAssemblyAttribute) assembly.GetCustomAttributes (typeof (TypePipeAssemblyAttribute), inherit: false).SingleOrDefault();

@@ -49,8 +49,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         IMutableTypeFactory mutableTypeFactory)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNull ("participants", participants);
-      ArgumentUtility.CheckNotNull ("mutableTypeFactory", mutableTypeFactory);
+      ArgumentUtility.CheckNotNull (nameof(participants), participants);
+      ArgumentUtility.CheckNotNull (nameof(mutableTypeFactory), mutableTypeFactory);
 
       _participantConfigurationID = participantConfigurationID;
       _participants = participants.ToList().AsReadOnly();
@@ -71,14 +71,14 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public bool IsAssembledType (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       return type.IsDefined (typeof (AssembledTypeAttribute), inherit: false);
     }
 
     public Type GetRequestedType (Type assembledType)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
       CheckIsAssembledType (assembledType);
 
       return assembledType.BaseType;
@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public AssembledTypeID ExtractTypeID (Type assembledType)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
       CheckIsAssembledType (assembledType);
 
       return _assembledTypeIdentifierProvider.ExtractTypeID (assembledType);
@@ -101,9 +101,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public TypeAssemblyResult AssembleType (AssembledTypeID typeID, IParticipantState participantState, IMutableTypeBatchCodeGenerator codeGenerator)
     {
-      ArgumentUtility.CheckNotNull ("typeID", typeID);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
+      ArgumentUtility.CheckNotNull (nameof(typeID), typeID);
+      ArgumentUtility.CheckNotNull (nameof(participantState), participantState);
+      ArgumentUtility.CheckNotNull (nameof(codeGenerator), codeGenerator);
 
       var requestedType = typeID.RequestedType;
       CheckRequestedType (requestedType);
@@ -137,9 +137,9 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         IParticipantState participantState,
         IMutableTypeBatchCodeGenerator codeGenerator)
     {
-      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
+      ArgumentUtility.CheckNotNull (nameof(additionalTypeID), additionalTypeID);
+      ArgumentUtility.CheckNotNull (nameof(participantState), participantState);
+      ArgumentUtility.CheckNotNull (nameof(codeGenerator), codeGenerator);
 
       var context = new AdditionalTypeAssemblyContext (_mutableTypeFactory, _participantConfigurationID, participantState);
       var additionalType = _participants.Select (p => p.GetOrCreateAdditionalType (additionalTypeID, context)).FirstOrDefault (t => t != null);
@@ -162,7 +162,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public object GetAdditionalTypeID (Type additionalType)
     {
-      ArgumentUtility.CheckNotNull ("additionalType", additionalType);
+      ArgumentUtility.CheckNotNull (nameof(additionalType), additionalType);
 
       var ids = _participants.Select (p => p.GetAdditionalTypeID (additionalType)).Where (t => t != null).ToList();
       if (ids.Count > 1)

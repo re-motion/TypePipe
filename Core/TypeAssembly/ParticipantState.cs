@@ -17,7 +17,7 @@ namespace Remotion.TypePipe.TypeAssembly
     public void AddState (string id, object value)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("id", id);
-      ArgumentUtility.CheckNotNull ("value", value);
+      ArgumentUtility.CheckNotNull (nameof(value), value);
 
       if (_state.ContainsKey (id))
         throw new InvalidOperationException (string.Format ("State identified by the id '{0}' already exists. State identifier must be unique.", id));

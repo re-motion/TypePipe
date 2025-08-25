@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public MethodOverrideFactory (IRelatedMethodFinder relatedMethodFinder, IMethodFactory methodFactory)
     {
-      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
-      ArgumentUtility.CheckNotNull ("methodFactory", methodFactory);
+      ArgumentUtility.CheckNotNull (nameof(relatedMethodFinder), relatedMethodFinder);
+      ArgumentUtility.CheckNotNull (nameof(methodFactory), methodFactory);
 
       _relatedMethodFinder = relatedMethodFinder;
       _methodFactory = methodFactory;
@@ -42,17 +42,17 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
     public MutableMethodInfo CreateExplicitOverride (
         MutableType declaringType, MethodInfo overriddenMethodBaseDefinition, Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNull (nameof(overriddenMethodBaseDefinition), overriddenMethodBaseDefinition);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       return PrivateCreateExplicitOverrideAllowAbstract (declaringType, overriddenMethodBaseDefinition, bodyProvider);
     }
 
     public MutableMethodInfo GetOrCreateOverride (MutableType declaringType, MethodInfo overriddenMethod, out bool isNewlyCreated)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("overriddenMethod", overriddenMethod);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNull (nameof(overriddenMethod), overriddenMethod);
       Assertion.IsNotNull (overriddenMethod.DeclaringType);
 
       if (!overriddenMethod.IsVirtual)
@@ -88,8 +88,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public MutableMethodInfo GetOrCreateImplementation (MutableType declaringType, MethodInfo interfaceMethod, out bool isNewlyCreated)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("interfaceMethod", interfaceMethod);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNull (nameof(interfaceMethod), interfaceMethod);
       Assertion.IsNotNull (interfaceMethod.DeclaringType);
 
       if (!interfaceMethod.DeclaringType.IsInterface)

@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public EventFactory (IMethodFactory methodFactory)
     {
-      ArgumentUtility.CheckNotNull ("methodFactory", methodFactory);
+      ArgumentUtility.CheckNotNull (nameof(methodFactory), methodFactory);
 
       _methodFactory = methodFactory;
     }
@@ -48,11 +48,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<MethodBodyCreationContext, Expression> removeBodyProvider,
         Func<MethodBodyCreationContext, Expression> raiseBodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("handlerType", handlerType, typeof (Delegate));
-      ArgumentUtility.CheckNotNull ("addBodyProvider", addBodyProvider);
-      ArgumentUtility.CheckNotNull ("removeBodyProvider", removeBodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(addBodyProvider), addBodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(removeBodyProvider), removeBodyProvider);
       // Raise body provider may be null.
 
       MemberAttributesUtility.ValidateAttributes (
@@ -87,10 +87,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         MutableMethodInfo removeMethod,
         MutableMethodInfo raiseMethod)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("addMethod", addMethod);
-      ArgumentUtility.CheckNotNull ("removeMethod", removeMethod);
+      ArgumentUtility.CheckNotNull (nameof(addMethod), addMethod);
+      ArgumentUtility.CheckNotNull (nameof(removeMethod), removeMethod);
       // Raise method may be null.
 
       MemberAttributesUtility.ValidateAttributes ("events", MemberAttributesUtility.InvalidEventAttributes, attributes, "attributes");

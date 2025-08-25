@@ -36,9 +36,9 @@ namespace Remotion.TypePipe.MutableReflection
         object[] constructorArguments,
         params NamedArgumentDeclaration[] namedArguments)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
-      ArgumentUtility.CheckNotNull ("constructorArguments", constructorArguments);
-      ArgumentUtility.CheckNotNull ("namedArguments", namedArguments);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
+      ArgumentUtility.CheckNotNull (nameof(constructorArguments), constructorArguments);
+      ArgumentUtility.CheckNotNull (nameof(namedArguments), namedArguments);
 
       CheckConstructor (constructor);
       CheckConstructorArguments(constructor, constructorArguments);

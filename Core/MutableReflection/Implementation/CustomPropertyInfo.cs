@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     protected CustomPropertyInfo (
         CustomType declaringType, string name, PropertyAttributes attributes, CustomMethodInfo getMethod, CustomMethodInfo setMethod)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
       // Getter may be null.
       // Setter may be null.
@@ -125,14 +125,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }

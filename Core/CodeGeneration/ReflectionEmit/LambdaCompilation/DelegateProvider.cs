@@ -29,8 +29,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     public Type GetDelegateType (Type returnType, IEnumerable<Type> parameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       var types = parameterTypes.Concat (new[] { returnType }).ToArray();
       return DelegateHelpers.MakeDelegateType (types);

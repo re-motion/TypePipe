@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.Implementation
 
       public ReflectionEmitCodeGeneratorDecoratorWithGeneratedCodeFlusherSemantics (ReflectionEmitCodeGenerator reflectionEmitCodeGenerator)
       {
-        ArgumentUtility.CheckNotNull ("reflectionEmitCodeGenerator", reflectionEmitCodeGenerator);
+        ArgumentUtility.CheckNotNull (nameof(reflectionEmitCodeGenerator), reflectionEmitCodeGenerator);
         
         _reflectionEmitCodeGenerator = reflectionEmitCodeGenerator;
       }
@@ -85,8 +85,8 @@ namespace Remotion.TypePipe.Implementation
     public virtual IPipeline Create (string participantConfigurationID, PipelineSettings settings, IEnumerable<IParticipant> participants)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
-      ArgumentUtility.CheckNotNull ("settings", settings);
-      ArgumentUtility.CheckNotNull ("participants", participants);
+      ArgumentUtility.CheckNotNull (nameof(settings), settings);
+      ArgumentUtility.CheckNotNull (nameof(participants), participants);
 
       var typeAssembler = NewTypeAssembler (participantConfigurationID, participants);
       var assemblyContextPool = NewAssemblyContextPool (participantConfigurationID, settings);

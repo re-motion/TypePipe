@@ -34,8 +34,8 @@ namespace Remotion.TypePipe.Caching
 
     public ConstructorCallCache (ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)
     {
-      ArgumentUtility.CheckNotNull ("typeCache", typeCache);
-      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
+      ArgumentUtility.CheckNotNull (nameof(typeCache), typeCache);
+      ArgumentUtility.CheckNotNull (nameof(constructorDelegateFactory), constructorDelegateFactory);
 
       _typeCache = typeCache;
       _constructorDelegateFactory = constructorDelegateFactory;

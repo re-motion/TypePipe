@@ -30,29 +30,29 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly TypeBuilder _typeBuilder;
 
     public TypeBuilderAdapter (TypeBuilder typeBuilder)
-        : base (ArgumentUtility.CheckNotNull ("typeBuilder", typeBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(typeBuilder), typeBuilder).SetCustomAttribute)
     {
       _typeBuilder = typeBuilder;
     }
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       emittableOperandProvider.AddMapping (type, _typeBuilder);
     }
 
     public void SetParent (Type parent)
     {
-      ArgumentUtility.CheckNotNull ("parent", parent);
+      ArgumentUtility.CheckNotNull (nameof(parent), parent);
 
       _typeBuilder.SetParent (parent);
     }
 
     public void AddInterfaceImplementation (Type interfaceType)
     {
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull (nameof(interfaceType), interfaceType);
 
       _typeBuilder.AddInterfaceImplementation (interfaceType);
     }
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     public IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       var fieldBuilder = _typeBuilder.DefineField (name, type, attributes);
       return new FieldBuilderAdapter (fieldBuilder);
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       var constructorBuilder = _typeBuilder.DefineConstructor (attributes, callingConvention, parameterTypes);
       return new ConstructorBuilderAdapter (constructorBuilder);
@@ -96,8 +96,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
     {
-      ArgumentUtility.CheckNotNull ("methodInfoBody", methodInfoBody);
-      ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
+      ArgumentUtility.CheckNotNull (nameof(methodInfoBody), methodInfoBody);
+      ArgumentUtility.CheckNotNull (nameof(methodInfoDeclaration), methodInfoDeclaration);
 
       _typeBuilder.DefineMethodOverride (methodInfoBody, methodInfoDeclaration);
     }
@@ -107,8 +107,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
         string name, PropertyAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       // We need to use the complex overload which takes a CallingConventions parameter here to correctly emit 'instance properties'.
       var propertyBuilder = _typeBuilder.DefineProperty (
@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     public IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("eventtype", eventtype);
+      ArgumentUtility.CheckNotNull (nameof(eventtype), eventtype);
 
       var eventBuilder = _typeBuilder.DefineEvent (name, attributes, eventtype);
       return new EventBuilderAdapter (eventBuilder);

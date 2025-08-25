@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public MemberParameterOnInstantiation (MemberInfo declaringMember, ParameterInfo parameter)
         : base (
-            ArgumentUtility.CheckNotNull ("declaringMember", declaringMember),
-            ArgumentUtility.CheckNotNull ("parameter", parameter).Position,
+            ArgumentUtility.CheckNotNull (nameof(declaringMember), declaringMember),
+            ArgumentUtility.CheckNotNull (nameof(parameter), parameter).Position,
             parameter.Name,
             Substitute (declaringMember, parameter.ParameterType),
             parameter.Attributes)

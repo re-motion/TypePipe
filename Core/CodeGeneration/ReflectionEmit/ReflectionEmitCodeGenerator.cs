@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         [CanBeNull] string assemblyDirectory,
         [NotNull] string assemblyNamePattern)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilderFactory", moduleBuilderFactory);
+      ArgumentUtility.CheckNotNull (nameof(moduleBuilderFactory), moduleBuilderFactory);
       ArgumentUtility.CheckNotNullOrEmpty ("assemblyNamePattern", assemblyNamePattern);
 
       _moduleBuilderFactory = moduleBuilderFactory;
@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public string FlushCodeToDisk (IEnumerable<CustomAttributeDeclaration> assemblyAttributes)
     {
-      ArgumentUtility.CheckNotNull ("assemblyAttributes", assemblyAttributes);
+      ArgumentUtility.CheckNotNull (nameof(assemblyAttributes), assemblyAttributes);
 
       var moduleBuilder = _moduleContext.ModuleBuilder;
       if (moduleBuilder == null)
@@ -115,7 +115,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     public ITypeBuilder DefineType (string name, TypeAttributes attributes, IEmittableOperandProvider emittableOperandProvider)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
 
       if (_moduleContext.ModuleBuilder == null)
       {

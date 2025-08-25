@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
         MutableType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions, Expression previousBody)
         : base (declaringType, isStatic, parameterExpressions)
     {
-      ArgumentUtility.CheckNotNull ("previousBody", previousBody);
+      ArgumentUtility.CheckNotNull (nameof(previousBody), previousBody);
 
       _previousBody = previousBody;
     }
@@ -45,14 +45,14 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public Expression InvokePreviousBodyWithArguments (params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return InvokePreviousBodyWithArguments ((IEnumerable<Expression>) arguments);
     }
 
     public Expression InvokePreviousBodyWithArguments (IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return BodyContextUtility.ReplaceParameters (Parameters, _previousBody, arguments);
     }

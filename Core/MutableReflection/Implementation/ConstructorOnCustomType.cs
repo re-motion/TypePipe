@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public ConstructorOnCustomType (CustomType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters)
         : base (declaringType, attributes)
     {
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
 
       _parameters = parameters.Select ((p, i) => new ParameterOnCustomMember (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();
     }

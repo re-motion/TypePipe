@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public AssembledTypeIdentifierProvider (IEnumerable<IParticipant> participants)
     {
-      ArgumentUtility.CheckNotNull ("participants", participants);
+      ArgumentUtility.CheckNotNull (nameof(participants), participants);
 
       var providersWithIndex = participants
           .Select (p => new { Participant = p, IdentifierProvider = p.PartialTypeIdentifierProvider })
@@ -67,7 +67,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public object GetPart (AssembledTypeID typeID, IParticipant participant)
     {
-      ArgumentUtility.CheckNotNull ("participant", participant);
+      ArgumentUtility.CheckNotNull (nameof(participant), participant);
 
       int index;
       if (_identifierProviderIndexes.TryGetValue (participant, out index))
@@ -78,8 +78,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public void AddTypeID (MutableType proxyType, AssembledTypeID typeID)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
-      ArgumentUtility.CheckNotNull ("typeID", typeID);
+      ArgumentUtility.CheckNotNull (nameof(proxyType), proxyType);
+      ArgumentUtility.CheckNotNull (nameof(typeID), typeID);
 
       var typeIDField = proxyType.AddField (c_typeIDFieldName, FieldAttributes.Private | FieldAttributes.Static, typeof (AssembledTypeID));
       var typeIDExpression = CreateNewTypeIDExpression (
@@ -91,7 +91,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public AssembledTypeID ExtractTypeID (Type assembledType)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
+      ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
 
       var typeIDField = assembledType.GetField (c_typeIDFieldName, BindingFlags.NonPublic | BindingFlags.Static);
       Assertion.IsNotNull (typeIDField);

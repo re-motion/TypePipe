@@ -36,9 +36,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       MemberAttributesUtility.ValidateAttributes ("constructors", MemberAttributesUtility.InvalidConstructorAttributes, attributes, "attributes");
 

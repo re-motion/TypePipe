@@ -29,24 +29,24 @@ namespace Remotion.TypePipe.Expressions
   {
     public static Expression Replace (this Expression expression, IDictionary<Expression, Expression> replacements)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-      ArgumentUtility.CheckNotNull ("replacements", replacements);
+      ArgumentUtility.CheckNotNull (nameof(expression), expression);
+      ArgumentUtility.CheckNotNull (nameof(replacements), replacements);
 
       return new ReplacingExpressionVisitor (replacements).Visit (expression);
     }
 
     public static Expression InlinedVisit (this Expression expression, Func<Expression, Expression> expressionVisitorDelegate)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-      ArgumentUtility.CheckNotNull ("expressionVisitorDelegate", expressionVisitorDelegate);
+      ArgumentUtility.CheckNotNull (nameof(expression), expression);
+      ArgumentUtility.CheckNotNull (nameof(expressionVisitorDelegate), expressionVisitorDelegate);
 
       return new DelegateBasedExpressionVisitor (expressionVisitorDelegate).Visit (expression);
     }
 
     public static IEnumerable<Expression> Collect (this Expression expression, Predicate<Expression> predicate)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-      ArgumentUtility.CheckNotNull ("predicate", predicate);
+      ArgumentUtility.CheckNotNull (nameof(expression), expression);
+      ArgumentUtility.CheckNotNull (nameof(predicate), predicate);
 
       var matchingNodes = new HashSet<Expression>();
       Func<Expression, Expression> collectingDelegate = expr =>
@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.Expressions
     public static IEnumerable<T> Collect<T> (this Expression expression, Predicate<T> predicate = null)
         where T : Expression
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
+      ArgumentUtility.CheckNotNull (nameof(expression), expression);
 
       var matchingExpressions = predicate == null
                             ? Collect (expression, expr => expr is T)

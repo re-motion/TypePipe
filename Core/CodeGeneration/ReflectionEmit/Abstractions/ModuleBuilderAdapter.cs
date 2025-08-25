@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
-        : base (ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(moduleBuilder), moduleBuilder).SetCustomAttribute)
     {
       Assertion.IsTrue (moduleBuilder.Assembly is AssemblyBuilder);
 

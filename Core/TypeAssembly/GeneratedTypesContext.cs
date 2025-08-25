@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.TypeAssembly
 
     public GeneratedTypesContext (IEnumerable<KeyValuePair<MutableType, Type>> mutableToGeneratedTypeMapping)
     {
-      ArgumentUtility.CheckNotNull ("mutableToGeneratedTypeMapping", mutableToGeneratedTypeMapping);
+      ArgumentUtility.CheckNotNull (nameof(mutableToGeneratedTypeMapping), mutableToGeneratedTypeMapping);
 
       _mapping = mutableToGeneratedTypeMapping.ToDictionary (t => (IMutableMember) t.Key, t => (MemberInfo) t.Value);
     }
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.TypeAssembly
     /// <returns>The generated member.</returns>
     public MemberInfo GetGeneratedMember (IMutableMember mutableMember)
     {
-      ArgumentUtility.CheckNotNull ("mutableMember", mutableMember);
+      ArgumentUtility.CheckNotNull (nameof(mutableMember), mutableMember);
 
       MemberInfo generatedMember;
       if (_mapping.TryGetValue (mutableMember, out generatedMember))

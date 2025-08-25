@@ -33,8 +33,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public StrongNameCheckingEmittableOperandProviderDecorator (IEmittableOperandProvider emittableOperandProvider, ITypeAnalyzer typeAnalyzer)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("typeAnalyzer", typeAnalyzer);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(typeAnalyzer), typeAnalyzer);
 
       _emittableOperandProvider = emittableOperandProvider;
       _typeAnalyzer = typeAnalyzer;
@@ -72,7 +72,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Type GetEmittableType (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       var emittableType = _emittableOperandProvider.GetEmittableType (type);
       CheckStrongNameCompatibility (emittableType);
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public FieldInfo GetEmittableField (FieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("field", field);
+      ArgumentUtility.CheckNotNull (nameof(field), field);
 
       var emittableField = _emittableOperandProvider.GetEmittableField (field);
       CheckStrongNameCompatibility (emittableField.DeclaringType);
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public ConstructorInfo GetEmittableConstructor (ConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
 
       var emittableConstructor = _emittableOperandProvider.GetEmittableConstructor (constructor);
       CheckStrongNameCompatibility (emittableConstructor.DeclaringType);
@@ -102,7 +102,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public MethodInfo GetEmittableMethod (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       var emittableMethod = _emittableOperandProvider.GetEmittableMethod (method);
 

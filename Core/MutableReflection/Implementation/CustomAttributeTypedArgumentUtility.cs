@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static object Unwrap (CustomAttributeTypedArgument typedArgument)
     {
-      ArgumentUtility.CheckNotNull ("typedArgument", typedArgument);
+      ArgumentUtility.CheckNotNull (nameof(typedArgument), typedArgument);
 
       if (typedArgument.ArgumentType.IsArray)
       {

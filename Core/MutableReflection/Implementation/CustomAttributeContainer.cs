@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull (nameof(customAttribute), customAttribute);
 
       if (_addedCustomAttributes.Any (a => a.Type == customAttribute.Type && !AttributeUtility.IsAttributeAllowMultiple (a.Type)))
       {

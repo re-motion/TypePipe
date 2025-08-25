@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public MethodInstantiationInfo (MethodInfo genericMethodDefinition, IEnumerable<Type> typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(genericMethodDefinition), genericMethodDefinition);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 
       if (!genericMethodDefinition.IsGenericMethodDefinition)
         throw new ArgumentException ("Specified method must be a generic method definition.", "genericMethodDefinition");

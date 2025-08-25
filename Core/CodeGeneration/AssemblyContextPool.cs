@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public AssemblyContextPool (IEnumerable<AssemblyContext> assemblyContexts)
     {
-      ArgumentUtility.CheckNotNull ("assemblyContexts", assemblyContexts);
+      ArgumentUtility.CheckNotNull (nameof(assemblyContexts), assemblyContexts);
       var allContexts = assemblyContexts.ToDictionary (c => c, c => (object) null);
       if (allContexts.Count == 0)
         throw new ArgumentException ("The AssemblyContextPool cannot be initialized with an empty list.", "assemblyContexts");
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public void Enqueue (AssemblyContext assemblyContext)
     {
-      ArgumentUtility.CheckNotNull ("assemblyContext", assemblyContext);
+      ArgumentUtility.CheckNotNull (nameof(assemblyContext), assemblyContext);
 
       if (!_registeredContexts.ContainsKey (assemblyContext))
         throw new InvalidOperationException ("The provided AssemblyContext is not registered with this AssemblyContextPool.");

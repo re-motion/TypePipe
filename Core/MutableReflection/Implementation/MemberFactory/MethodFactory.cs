@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public MethodFactory (IRelatedMethodFinder relatedMethodFinder)
     {
-      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+      ArgumentUtility.CheckNotNull (nameof(relatedMethodFinder), relatedMethodFinder);
 
       _relatedMethodFinder = relatedMethodFinder;
     }
@@ -67,11 +67,11 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
-      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
-      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
+      ArgumentUtility.CheckNotNull (nameof(genericParameters), genericParameters);
+      ArgumentUtility.CheckNotNull (nameof(returnTypeProvider), returnTypeProvider);
+      ArgumentUtility.CheckNotNull (nameof(parameterProvider), parameterProvider);
       // Body provider may be null (for abstract methods).
 
       // TODO 5478: virtual and static is an invalid combination

@@ -36,7 +36,7 @@ namespace Remotion.TypePipe
     /// <returns>An new instance of <see cref="IPipeline"/>.</returns>
     public static IPipeline Create (this IPipelineFactory pipelineFactory, string participantConfigurationID, params IParticipant[] participants)
     {
-      ArgumentUtility.CheckNotNull ("pipelineFactory", pipelineFactory);
+      ArgumentUtility.CheckNotNull (nameof(pipelineFactory), pipelineFactory);
       ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
       ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
 

@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     [CLSCompliant (false)]
     public EventBuilderAdapter (EventBuilder eventBuilder)
-        : base (ArgumentUtility.CheckNotNull ("eventBuilder", eventBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(eventBuilder), eventBuilder).SetCustomAttribute)
     {
       _eventBuilder = eventBuilder;
     }

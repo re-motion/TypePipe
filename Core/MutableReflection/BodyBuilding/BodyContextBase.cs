@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     protected BodyContextBase (MutableType declaringType, bool isStatic)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       _declaringType = declaringType;
       _isStatic = isStatic;
@@ -64,16 +64,16 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public MethodCallExpression CallBase (MethodInfo baseMethod, params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(baseMethod), baseMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return CallBase (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
     public MethodCallExpression CallBase (MethodInfo baseMethod, IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(baseMethod), baseMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       EnsureNotStatic();
       CheckNotStatic (baseMethod);
@@ -87,16 +87,16 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(otherMethod), otherMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return CopyMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
     }
 
     public Expression CopyMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(otherMethod), otherMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       // ReSharper disable PossibleUnintendedReferenceComparison
       if (otherMethod.DeclaringType != _declaringType)
