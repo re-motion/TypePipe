@@ -135,7 +135,7 @@ namespace Remotion.Development.UnitTesting
     {
       ArgumentUtility.CheckNotNull (nameof(target), target);
       ArgumentUtility.CheckNotNull (nameof(definingType), definingType);
-      ArgumentUtility.CheckType ("target", target, definingType);
+      ArgumentUtility.CheckType (nameof(target), target, definingType);
       ArgumentUtility.CheckNotNullOrEmpty (nameof(methodName), methodName);
 
       return InvokeMethodInternal (target, definingType, BindingFlags.Instance | BindingFlags.NonPublic, methodName, arguments);
