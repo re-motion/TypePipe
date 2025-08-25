@@ -54,7 +54,7 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public AssembledTypeID ComputeTypeID (Type requestedType)
     {
-      ArgumentUtility.DebugCheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.DebugCheckNotNull (nameof(requestedType), requestedType);
 
       var parts = new object[_identifierProviders.Count];
 

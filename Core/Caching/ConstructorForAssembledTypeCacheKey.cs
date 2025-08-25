@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.Caching
 
     public ConstructorForAssembledTypeCacheKey (Type assembledType, Type delegateType, bool allowNonPublic)
     {
-      ArgumentUtility.DebugCheckNotNull ("assembledType", assembledType);
-      ArgumentUtility.DebugCheckNotNull ("delegateType", delegateType);
+      ArgumentUtility.DebugCheckNotNull (nameof(assembledType), assembledType);
+      ArgumentUtility.DebugCheckNotNull (nameof(delegateType), delegateType);
 
       _assembledType = assembledType;
       _delegateType = delegateType;

@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.Caching
 
     public ConstructionKey (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
     {
-      ArgumentUtility.DebugCheckNotNull ("delegateType", delegateType);
+      ArgumentUtility.DebugCheckNotNull (nameof(delegateType), delegateType);
 
       _typeID = typeID;
       _delegateType = delegateType;

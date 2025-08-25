@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.Implementation
 
     public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
-      ArgumentUtility.DebugCheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.DebugCheckNotNull (nameof(requestedType), requestedType);
 
       constructorArguments = constructorArguments ?? ParamList.Empty;
 
