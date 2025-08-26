@@ -38,7 +38,7 @@ namespace Remotion.TypePipe
     {
       ArgumentUtility.CheckNotNull (nameof(pipelineFactory), pipelineFactory);
       ArgumentUtility.CheckNotNullOrEmpty (nameof(participantConfigurationID), participantConfigurationID);
-      ArgumentUtility.CheckNotNullOrItemsNull ("participants", participants);
+      ArgumentUtility.CheckNotNullOrItemsNull (nameof(participants), participants);
 
       return pipelineFactory.Create (participantConfigurationID, PipelineSettings.Defaults, participants);
     }

@@ -64,7 +64,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static MethodInfo MakeTypePipeGenericMethod (this MethodInfo genericMethodDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull (nameof(genericMethodDefinition), genericMethodDefinition);
-      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrItemsNull (nameof(typeArguments), typeArguments);
 
       if (!genericMethodDefinition.IsGenericMethodDefinition)
       {

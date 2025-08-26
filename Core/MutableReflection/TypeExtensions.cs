@@ -111,7 +111,7 @@ namespace Remotion.TypePipe.MutableReflection
     public static Type MakeTypePipeGenericType (this Type genericTypeDefinition, params Type[] typeArguments)
     {
       ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
-      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrItemsNull (nameof(typeArguments), typeArguments);
 
       if (!genericTypeDefinition.IsGenericTypeDefinition)
       {

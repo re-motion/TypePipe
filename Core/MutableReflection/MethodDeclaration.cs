@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
 
       if (method.IsGenericMethodInstantiation())
         throw new ArgumentException (
-            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.", "method");
+            "The specified method must be either a non-generic method or a generic method definition; it cannot be a method instantiation.", nameof(method));
 
       var oldGenericParameters = method.GetGenericArguments();
       var instantiationContext = new TypeInstantiationContext();

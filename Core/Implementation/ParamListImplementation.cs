@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction ();
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc ();
@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1);
@@ -138,7 +138,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1);
@@ -191,7 +191,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2);
@@ -208,7 +208,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2);
@@ -263,7 +263,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3);
@@ -280,7 +280,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3);
@@ -337,7 +337,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4);
@@ -354,7 +354,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4);
@@ -413,7 +413,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5);
@@ -430,7 +430,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5);
@@ -491,7 +491,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6);
@@ -508,7 +508,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6);
@@ -571,7 +571,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
@@ -588,7 +588,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
@@ -653,7 +653,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
@@ -670,7 +670,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
@@ -737,7 +737,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
@@ -754,7 +754,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
@@ -823,7 +823,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
@@ -840,7 +840,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
@@ -911,7 +911,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
@@ -928,7 +928,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
@@ -1001,7 +1001,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
@@ -1018,7 +1018,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
@@ -1093,7 +1093,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
@@ -1110,7 +1110,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
@@ -1187,7 +1187,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
@@ -1204,7 +1204,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
@@ -1283,7 +1283,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
@@ -1300,7 +1300,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
@@ -1381,7 +1381,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
@@ -1398,7 +1398,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
@@ -1481,7 +1481,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
@@ -1498,7 +1498,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
@@ -1583,7 +1583,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
@@ -1600,7 +1600,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
@@ -1687,7 +1687,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
@@ -1704,7 +1704,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
@@ -1793,7 +1793,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);
@@ -1810,7 +1810,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);

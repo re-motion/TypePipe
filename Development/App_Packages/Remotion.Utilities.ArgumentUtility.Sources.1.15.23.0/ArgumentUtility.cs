@@ -323,7 +323,7 @@ namespace Remotion.Utilities
         Type actualType, 
         [AssertionCondition (AssertionConditionType.IS_NOT_NULL)] Type expectedType)
     {
-      CheckNotNull ("expectedType", expectedType);
+      CheckNotNull (nameof(expectedType), expectedType);
       if (actualType != null)
       {
         if (!expectedType.GetTypeInfo().IsAssignableFrom (actualType.GetTypeInfo()))

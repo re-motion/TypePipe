@@ -198,7 +198,7 @@ namespace Remotion.TypePipe.MutableReflection
       {
         throw new ArgumentException (
             "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)",
-            "overriddenMethodBaseDefinition");
+            nameof(overriddenMethodBaseDefinition));
       }
 
       // TODO: check all mutable methods not just the current one

@@ -186,7 +186,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type MakeGenericType (params Type[] typeArguments)
     {
-      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrItemsNull (nameof(typeArguments), typeArguments);
 
       if (!IsGenericTypeDefinition)
         throw new InvalidOperationException ("MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true).");
@@ -236,7 +236,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type MakeArrayType (int rank)
     {
       if (rank <= 0)
-        throw new ArgumentOutOfRangeException ("rank", "Array rank must be greater than zero.");
+        throw new ArgumentOutOfRangeException (nameof(rank), "Array rank must be greater than zero.");
 
       return new MultiDimensionalArrayType (this, rank);
     }

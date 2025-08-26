@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
       if (genericMethodDefinition.GetGenericArguments().Length != _typeArguments.Count)
         throw new ArgumentException (
-            "Generic parameter count of the generic method definition does not match the number of supplied type arguments.", "typeArguments");
+            "Generic parameter count of the generic method definition does not match the number of supplied type arguments.", nameof(typeArguments));
     }
 
     public MethodInfo GenericMethodDefinition

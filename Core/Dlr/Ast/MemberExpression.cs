@@ -149,9 +149,9 @@ namespace System.Linq.Expressions {
             ContractUtils.RequiresNotNull(field, "field");
 
             if (field.IsStatic) {
-                if (expression != null) throw new ArgumentException(Strings.OnlyStaticFieldsHaveNullInstance, "expression");
+                if (expression != null) throw new ArgumentException(Strings.OnlyStaticFieldsHaveNullInstance, nameof(expression));
             } else {
-                if (expression == null) throw new ArgumentException(Strings.OnlyStaticFieldsHaveNullInstance, "field");
+                if (expression == null) throw new ArgumentException(Strings.OnlyStaticFieldsHaveNullInstance, nameof(field));
                 RequiresCanRead(expression, "expression");
                 if (!TypeUtils.AreReferenceAssignable(field.DeclaringType, expression.Type)) {
                     throw Error.FieldInfoNotDefinedForType(field.DeclaringType, field.Name, expression.Type);
@@ -265,9 +265,9 @@ namespace System.Linq.Expressions {
             }
 
             if (mi.IsStatic) {
-                if (expression != null) throw new ArgumentException(Strings.OnlyStaticPropertiesHaveNullInstance, "expression");
+                if (expression != null) throw new ArgumentException(Strings.OnlyStaticPropertiesHaveNullInstance, nameof(expression));
             } else {
-                if (expression == null) throw new ArgumentException(Strings.OnlyStaticPropertiesHaveNullInstance, "property");
+                if (expression == null) throw new ArgumentException(Strings.OnlyStaticPropertiesHaveNullInstance, nameof(property));
                 RequiresCanRead(expression, "expression");
                 if (!TypeUtils.IsValidInstanceType(property, expression.Type)) {
                     throw Error.PropertyNotDefinedForType(property, expression.Type);

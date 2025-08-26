@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public static IEnumerable<ICustomAttributeData> GetCustomAttributes (EventInfo @event, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("event", @event);
+      ArgumentUtility.CheckNotNull (nameof(@event), @event);
 
       return GetCachedAttributes (@event, inherit, s_baseEventProvider);
     }

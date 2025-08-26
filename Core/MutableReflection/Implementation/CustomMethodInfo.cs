@@ -126,7 +126,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override MethodInfo MakeGenericMethod (params Type[] typeArguments)
     {
-      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrItemsNull (nameof(typeArguments), typeArguments);
 
       if (!IsGenericMethodDefinition)
         throw new InvalidOperationException ("MakeGenericMethod can only be called on generic method definitions (IsGenericMethodDefinition must be true).");

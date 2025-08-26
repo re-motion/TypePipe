@@ -141,7 +141,7 @@ namespace Remotion.TypePipe.MutableReflection
         }
         else if (!parameterType.IsInstanceOfType (argument))
         {
-          throw ArgumentUtility.CreateArgumentItemTypeException ("constructorArguments", i, parameterType, argument.GetType());
+          throw ArgumentUtility.CreateArgumentItemTypeException (nameof(constructorArguments), i, parameterType, argument.GetType());
         }
       }
     }

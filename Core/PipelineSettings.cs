@@ -76,12 +76,12 @@ namespace Remotion.TypePipe
     {
       ArgumentUtility.CheckNotNull (nameof(assemblyNamePattern), assemblyNamePattern);
       if (degreeOfParallelism < 1)
-        throw new ArgumentOutOfRangeException ("degreeOfParallelism", degreeOfParallelism, "The degree of parallelism must be greater than 0.");
+        throw new ArgumentOutOfRangeException (nameof(degreeOfParallelism), degreeOfParallelism, "The degree of parallelism must be greater than 0.");
       if (degreeOfParallelism > 1 && !assemblyNamePattern.Contains (CounterPattern))
       {
         throw new ArgumentException (
             "When a degree of parallelism greater than 1 is specified, the '{counter}' placeholder must be included in the assembly name pattern.",
-            "assemblyNamePattern");
+            nameof(assemblyNamePattern));
       }
 
       _forceStrongNaming = forceStrongNaming;
@@ -189,7 +189,7 @@ namespace Remotion.TypePipe
       public Builder SetDegreeOfParallelism (int value)
       {
         if (value < 1)
-          throw new ArgumentOutOfRangeException ("value", value, "The degree of parallelism must be greater than 0.");
+          throw new ArgumentOutOfRangeException (nameof(value), value, "The degree of parallelism must be greater than 0.");
 
         _degreeOfParallelism = value;
         return this;
