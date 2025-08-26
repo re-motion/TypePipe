@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 
       if (!genericTypeDefinition.IsGenericTypeDefinition)
-        throw new ArgumentException ("Specified type must be a generic type definition.", "genericTypeDefinition");
+        throw new ArgumentException ("Specified type must be a generic type definition.", nameof(genericTypeDefinition));
 
       _genericTypeDefinition = genericTypeDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();

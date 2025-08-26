@@ -240,7 +240,7 @@ namespace Remotion.TypePipe.MutableReflection
       ArgumentUtility.CheckNotNull (nameof(interfaceType), interfaceType);
 
       if (!interfaceType.IsInterface)
-        throw new ArgumentException ("Type must be an interface.", "interfaceType");
+        throw new ArgumentException ("Type must be an interface.", nameof(interfaceType));
 
       // TODO 4744: Check that interface is visible.
 
@@ -248,7 +248,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (alreadyImplemented && throwIfAlreadyImplemented)
       {
         var message = string.Format ("Interface '{0}' is already implemented.", interfaceType.Name);
-        throw new ArgumentException (message, "interfaceType");
+        throw new ArgumentException (message, nameof(interfaceType));
       }
 
       if (!alreadyImplemented)

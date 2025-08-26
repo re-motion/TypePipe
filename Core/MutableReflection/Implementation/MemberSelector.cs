@@ -205,7 +205,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private void CheckModifiers (Type[] parameterTypes, ParameterModifier[] modifiers)
     {
       if (parameterTypes == null && modifiers != null)
-        throw new ArgumentException ("Modifiers must not be specified if parameter types are null.", "modifiers");
+        throw new ArgumentException ("Modifiers must not be specified if parameter types are null.", nameof(modifiers));
     }
   }
 }

@@ -186,13 +186,13 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       if (!overriddenMethodBaseDefinition.IsVirtual || overriddenMethodBaseDefinition.IsFinal)
-        throw new ArgumentException ("Method must be virtual and non-final.", "overriddenMethodBaseDefinition");
+        throw new ArgumentException ("Method must be virtual and non-final.", nameof(overriddenMethodBaseDefinition));
 
       if (!MethodSignature.AreEqual (this, overriddenMethodBaseDefinition))
-        throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
+        throw new ArgumentException ("Method signatures must be equal.", nameof(overriddenMethodBaseDefinition));
 
       if (!overriddenMethodBaseDefinition.DeclaringType.IsTypePipeAssignableFrom (DeclaringType))
-        throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
+        throw new ArgumentException ("The overridden method must be from the same type hierarchy.", nameof(overriddenMethodBaseDefinition));
 
       if (MethodBaseDefinitionCache.GetBaseDefinition (overriddenMethodBaseDefinition) != overriddenMethodBaseDefinition)
       {

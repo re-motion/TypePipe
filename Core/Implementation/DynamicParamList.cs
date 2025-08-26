@@ -90,7 +90,7 @@ namespace Remotion.TypePipe.Implementation
       ArgumentUtility.CheckNotNull (nameof(parameterValues), parameterValues);
 
       if (parameterValues.Length != parameterTypes.Length)
-        throw new ArgumentException ("The number of parameter values must match the number of parameter types.", "parameterValues");
+        throw new ArgumentException ("The number of parameter values must match the number of parameter types.", nameof(parameterValues));
 
       _parameterTypes = parameterTypes;
       _parameterValues = parameterValues;
@@ -200,7 +200,7 @@ namespace Remotion.TypePipe.Implementation
           "Parameter 'action' has type '{0}' when a delegate with the following parameter signature was expected: ({1}).",
           action.GetType(),
           string.Join (", ", _parameterTypes.Select (t => t.FullName)));
-      return new ArgumentException (message, "action");
+      return new ArgumentException (message, nameof(action));
     }
 
     private ArgumentException CreateFuncTypeException (Delegate func)
@@ -209,7 +209,7 @@ namespace Remotion.TypePipe.Implementation
           "Parameter 'func' has type '{0}' when a delegate returning System.Object with the following parameter signature was expected: ({1}).",
           func.GetType(),
           string.Join (", ", _parameterTypes.Select (t => t.FullName)));
-      return new ArgumentException (message, "func");
+      return new ArgumentException (message, nameof(func));
     }
   }
 }

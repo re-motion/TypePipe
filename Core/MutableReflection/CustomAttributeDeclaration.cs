@@ -101,19 +101,19 @@ namespace Remotion.TypePipe.MutableReflection
       if (!typeof (Attribute).IsTypePipeAssignableFrom (constructor.DeclaringType))
       {
         var message = string.Format ("Type '{0}' does not derive from '{1}'.", constructor.DeclaringType.FullName, typeof(Attribute).FullName);
-        throw new ArgumentException (message, "constructor");
+        throw new ArgumentException (message, nameof(constructor));
       }
 
       if (!constructor.IsPublic)
       {
         var message = string.Format ("The attribute constructor '{0}' is not a public instance constructor.", constructor);
-        throw new ArgumentException (message, "constructor");
+        throw new ArgumentException (message, nameof(constructor));
       }
 
       if (!constructor.DeclaringType.IsVisible)
       {
         var message = string.Format ("The attribute type '{0}' is not publicly visible.", constructor.DeclaringType.FullName);
-        throw new ArgumentException (message, "constructor");
+        throw new ArgumentException (message, nameof(constructor));
       }
     }
 
@@ -123,7 +123,7 @@ namespace Remotion.TypePipe.MutableReflection
       if (parameters.Length != constructorArguments.Length)
       {
         var message = string.Format ("Expected {0} constructor argument(s), but was {1}.", parameters.Length, constructorArguments.Length);
-        throw new ArgumentException (message, "constructorArguments");
+        throw new ArgumentException (message, nameof(constructorArguments));
       }
 
       for (int i = 0; i < parameters.Length; i++)
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.MutableReflection
           if (!NullableTypeUtility.IsNullableType (parameterType))
           {
             var message = string.Format ("Constructor parameter at position {0} of type '{1}' cannot be null.", i, parameterType);
-            throw new ArgumentException (message, "constructorArguments");
+            throw new ArgumentException (message, nameof(constructorArguments));
           }
         }
         else if (!parameterType.IsInstanceOfType (argument))
@@ -156,7 +156,7 @@ namespace Remotion.TypePipe.MutableReflection
         {
           var message = string.Format (
             "Named argument '{0}' cannot be used with custom attribute type '{1}'.", namedArgument.MemberInfo.Name, attributeType);
-          throw new ArgumentException (message, "namedArguments");
+          throw new ArgumentException (message, nameof(namedArguments));
         }
       }
     }

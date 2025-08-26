@@ -38,13 +38,13 @@ namespace Remotion.TypePipe.MutableReflection
       if (setMethod == null)
       {
         var message = string.Format ("Property '{0}' has no public setter.", propertyInfo.Name);
-        throw new ArgumentException (message, "propertyInfo");
+        throw new ArgumentException (message, nameof(propertyInfo));
       }
 
       if (setMethod.IsStatic)
       {
         var message = string.Format ("Property '{0}' is not an instance property.", propertyInfo.Name);
-        throw new ArgumentException (message, "propertyInfo");
+        throw new ArgumentException (message, nameof(propertyInfo));
       }
 
       _memberInfo = propertyInfo;
@@ -60,19 +60,19 @@ namespace Remotion.TypePipe.MutableReflection
       if (fieldInfo.IsLiteral || fieldInfo.IsInitOnly)
       {
         var message = string.Format ("Field '{0}' is not writable.", fieldInfo.Name);
-        throw new ArgumentException (message, "fieldInfo");
+        throw new ArgumentException (message, nameof(fieldInfo));
       }
 
       if (!fieldInfo.IsPublic)
       {
         var message = string.Format ("Field '{0}' is not public.", fieldInfo.Name);
-        throw new ArgumentException (message, "fieldInfo");
+        throw new ArgumentException (message, nameof(fieldInfo));
       }
 
       if (fieldInfo.IsStatic)
       {
         var message = string.Format ("Field '{0}' is not an instance field.", fieldInfo.Name);
-        throw new ArgumentException (message, "fieldInfo");
+        throw new ArgumentException (message, nameof(fieldInfo));
       }
 
       _memberInfo = fieldInfo;

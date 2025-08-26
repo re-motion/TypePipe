@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       ArgumentUtility.CheckNotNull (nameof(type), type);
 
       if (type == typeof (void))
-        throw new ArgumentException ("Field cannot be of type void.", "type");
+        throw new ArgumentException ("Field cannot be of type void.", nameof(type));
 
       MemberAttributesUtility.ValidateAttributes ("fields", MemberAttributesUtility.InvalidFieldAttributes, attributes, "attributes");
 

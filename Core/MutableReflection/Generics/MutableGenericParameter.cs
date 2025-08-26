@@ -108,17 +108,17 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       var cons = constraints.ToList().AsReadOnly();
 
       if (cons.Any (c => c.IsValueType || c == typeof (ValueType)))
-        throw new ArgumentException ("A generic parameter cannot be constrained by a value type.", "constraints");
+        throw new ArgumentException ("A generic parameter cannot be constrained by a value type.", nameof(constraints));
 
       var baseTypes = cons.Where (c => c.IsClass && !c.IsGenericParameter).ToList();
       if (baseTypes.Count > 1)
-        throw new ArgumentException ("A generic parameter cannot have multiple base constraints.", "constraints");
+        throw new ArgumentException ("A generic parameter cannot have multiple base constraints.", nameof(constraints));
       var baseType = baseTypes.SingleOrDefault ();
 
       if (baseType != null)
       {
         if (_genericParameterAttributes.IsSet (GenericParameterAttributes.NotNullableValueTypeConstraint))
-          throw new ArgumentException ("A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.", "constraints");
+          throw new ArgumentException ("A generic parameter cannot have a base constraint if the NotNullableValueTypeConstraint flag is set.", nameof(constraints));
 
         SetBaseType (baseType);
       }

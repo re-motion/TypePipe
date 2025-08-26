@@ -56,14 +56,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       Assertion.IsNotNull (overriddenMethod.DeclaringType);
 
       if (!overriddenMethod.IsVirtual)
-        throw new ArgumentException ("Only virtual methods can be overridden.", "overriddenMethod");
+        throw new ArgumentException ("Only virtual methods can be overridden.", nameof(overriddenMethod));
 
       CheckIsNotMethodInstantiation (overriddenMethod, "overriddenMethod");
 
       if (!declaringType.IsSubclassOf (overriddenMethod.DeclaringType))
       {
         var message = string.Format ("Method is declared by type '{0}' outside of the proxy base class hierarchy.", overriddenMethod.DeclaringType.Name);
-        throw new ArgumentException (message, "overriddenMethod");
+        throw new ArgumentException (message, nameof(overriddenMethod));
       }
 
       var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (overriddenMethod);
@@ -93,7 +93,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       Assertion.IsNotNull (interfaceMethod.DeclaringType);
 
       if (!interfaceMethod.DeclaringType.IsInterface)
-        throw new ArgumentException ("The specified method is not an interface method.", "interfaceMethod");
+        throw new ArgumentException ("The specified method is not an interface method.", nameof(interfaceMethod));
 
       CheckIsNotMethodInstantiation (interfaceMethod, "interfaceMethod");
 
@@ -104,7 +104,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Assertion.IsNotNull (interfaceMethod.DeclaringType);
         var message = string.Format (
             "Method is declared by an interface that is not implemented by the proxy: '{0}'.", interfaceMethod.DeclaringType.Name);
-        throw new ArgumentException (message, "interfaceMethod");
+        throw new ArgumentException (message, nameof(interfaceMethod));
       }
 
       var baseImplementation = GetOrCreateImplementationMethod (declaringType, interfaceMethod, out isNewlyCreated);

@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             typeof (MemberParameterOnInstantiation).Name,
             typeof (TypeInstantiation).Name,
             typeof (MethodInstantiation).Name);
-        throw new ArgumentException (message, "declaringMember");
+        throw new ArgumentException (message, nameof(declaringMember));
       }
 
       return methodInstantiation != null

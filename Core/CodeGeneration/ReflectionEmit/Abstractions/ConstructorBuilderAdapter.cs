@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
       ArgumentUtility.CheckNotNull (nameof(ilGeneratorFactory), ilGeneratorFactory);
 
       if (body.ReturnType != typeof (void))
-        throw new ArgumentException("Body must be of void type.", "body");
+        throw new ArgumentException("Body must be of void type.", nameof(body));
 
       var builderForLambdaCompiler = new ConstructorBuilderForLambdaCompiler(_constructorBuilder, ilGeneratorFactory);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);

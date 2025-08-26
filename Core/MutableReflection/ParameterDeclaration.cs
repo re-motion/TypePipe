@@ -42,7 +42,7 @@ namespace Remotion.TypePipe.MutableReflection
       // Name may be null.
 
       if (type == typeof (void))
-        throw new ArgumentException ("Parameter cannot be of type void.", "type");
+        throw new ArgumentException ("Parameter cannot be of type void.", nameof(type));
 
       _type = type;
       _name = name;

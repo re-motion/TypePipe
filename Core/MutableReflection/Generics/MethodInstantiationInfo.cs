@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
       ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 
       if (!genericMethodDefinition.IsGenericMethodDefinition)
-        throw new ArgumentException ("Specified method must be a generic method definition.", "genericMethodDefinition");
+        throw new ArgumentException ("Specified method must be a generic method definition.", nameof(genericMethodDefinition));
 
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();

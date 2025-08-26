@@ -96,35 +96,35 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       MemberAttributesUtility.ValidateAttributes ("events", MemberAttributesUtility.InvalidEventAttributes, attributes, "attributes");
 
       if (addMethod.IsStatic != removeMethod.IsStatic || (raiseMethod != null && raiseMethod.IsStatic != addMethod.IsStatic))
-        throw new ArgumentException ("Accessor methods must be all either static or non-static.", "addMethod");
+        throw new ArgumentException ("Accessor methods must be all either static or non-static.", nameof(addMethod));
 
       if (!ReferenceEquals (addMethod.DeclaringType, declaringType))
-        throw new ArgumentException ("Add method is not declared on the current type.", "addMethod");
+        throw new ArgumentException ("Add method is not declared on the current type.", nameof(addMethod));
       if (!ReferenceEquals (removeMethod.DeclaringType, declaringType))
-        throw new ArgumentException ("Remove method is not declared on the current type.", "removeMethod");
+        throw new ArgumentException ("Remove method is not declared on the current type.", nameof(removeMethod));
       if (raiseMethod != null && !ReferenceEquals (raiseMethod.DeclaringType, declaringType))
-        throw new ArgumentException ("Raise method is not declared on the current type.", "raiseMethod");
+        throw new ArgumentException ("Raise method is not declared on the current type.", nameof(raiseMethod));
 
       if (addMethod.ReturnType != typeof (void))
-        throw new ArgumentException ("Add method must have return type void.", "addMethod");
+        throw new ArgumentException ("Add method must have return type void.", nameof(addMethod));
       if (removeMethod.ReturnType != typeof (void))
-        throw new ArgumentException ("Remove method must have return type void.", "removeMethod");
+        throw new ArgumentException ("Remove method must have return type void.", nameof(removeMethod));
 
       var addMethodParameterTypes = addMethod.GetParameters ().Select (p => p.ParameterType).ToList ();
       var removeMethodParameterTypes = removeMethod.GetParameters ().Select (p => p.ParameterType).ToList ();
 
       if (addMethodParameterTypes.Count != 1 || !addMethodParameterTypes[0].IsSubclassOf (typeof (Delegate)))
-        throw new ArgumentException ("Add method must have a single parameter that is assignable to 'System.Delegate'.", "addMethod");
+        throw new ArgumentException ("Add method must have a single parameter that is assignable to 'System.Delegate'.", nameof(addMethod));
       if (removeMethodParameterTypes.Count != 1 || !removeMethodParameterTypes[0].IsSubclassOf (typeof (Delegate)))
-        throw new ArgumentException ("Remove method must have a single parameter that is assignable to 'System.Delegate'.", "removeMethod");
+        throw new ArgumentException ("Remove method must have a single parameter that is assignable to 'System.Delegate'.", nameof(removeMethod));
 
       if (addMethodParameterTypes.Single () != removeMethodParameterTypes.Single ())
-        throw new ArgumentException ("The type of the handler parameter is different for the add and remove method.", "removeMethod");
+        throw new ArgumentException ("The type of the handler parameter is different for the add and remove method.", nameof(removeMethod));
 
       var handlerType = addMethodParameterTypes.Single ();
       var invokeMethod = GetInvokeMethod (handlerType);
       if (raiseMethod != null && !MethodSignature.AreEqual (raiseMethod, invokeMethod))
-        throw new ArgumentException ("The signature of the raise method does not match the handler type.", "raiseMethod");
+        throw new ArgumentException ("The signature of the raise method does not match the handler type.", nameof(raiseMethod));
 
       var signature = new EventSignature (handlerType);
       if (declaringType.AddedEvents.Any (e => e.Name == name && EventSignature.Create (e).Equals (signature)))

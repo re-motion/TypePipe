@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
       var isInterface = attributes.IsSet (TypeAttributes.Interface);
       if (!isInterface && baseType == null)
-        throw new ArgumentException ("Base type cannot be null.", "baseType");
+        throw new ArgumentException ("Base type cannot be null.", nameof(baseType));
       if (isInterface && baseType != null)
         throw new ArgumentException (string.Format ("Base type must be null for interfaces. Type: '{0}'", baseType.FullName), "baseType");
 

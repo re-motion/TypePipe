@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (methodName == null)
         throw new ArgumentNullException(nameof(methodName));
       if (methodName.Length == 0)
-        throw new ArgumentException ("Value cannot be empty", "methodName");
+        throw new ArgumentException ("Value cannot be empty", nameof(methodName));
 
       Check (() => unsupportedMemberAction(), "Method", methodName);
     }
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (methodName == null)
         throw new ArgumentNullException(nameof(methodName));
       if (methodName.Length == 0)
-        throw new ArgumentException ("Value cannot be empty", "methodName");
+        throw new ArgumentException ("Value cannot be empty", nameof(methodName));
 
       Check (() => unsupportedMemberFunc(), "Method", methodName);
     }
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.UnitTests.MutableReflection
       if (propertyName == null)
         throw new ArgumentNullException(nameof(propertyName));
       if (propertyName.Length == 0)
-        throw new ArgumentException ("Value cannot be empty", "propertyName");
+        throw new ArgumentException ("Value cannot be empty", nameof(propertyName));
 
       Check (() => unsupportedPropertyFunc(), "Property", propertyName);
     }

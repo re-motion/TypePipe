@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       {
         var message = string.Format (
             "The argument count ({0}) does not match the parameter count ({1}).", argumentCollection.Count, parameterCollection.Count);
-        throw new ArgumentException (message, "arguments");
+        throw new ArgumentException (message, nameof(arguments));
       }
 
       var replacements = parameterCollection

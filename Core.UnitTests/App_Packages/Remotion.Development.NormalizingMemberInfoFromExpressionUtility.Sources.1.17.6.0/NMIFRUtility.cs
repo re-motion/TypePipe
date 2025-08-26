@@ -153,7 +153,7 @@ namespace Remotion.Development.UnitTesting.Reflection
       if (expression is NewExpression)
         return GetConstructorInfoFromNewExpression (expression);
 
-      throw new ArgumentException ("Must be a MemberExpression, MethodCallExpression or NewExpression.", "expression");
+      throw new ArgumentException ("Must be a MemberExpression, MethodCallExpression or NewExpression.", nameof(expression));
     }
 
     private static T GetTypedMemberInfoFromMemberExpression<T> (Expression expression, string memberType)
@@ -161,13 +161,13 @@ namespace Remotion.Development.UnitTesting.Reflection
     {
       var memberExpression = expression as MemberExpression;
       if (memberExpression == null)
-        throw new ArgumentException ("Must be a MemberExpression.", "expression");
+        throw new ArgumentException ("Must be a MemberExpression.", nameof(expression));
 
       var member = memberExpression.Member as T;
       if (member == null)
       {
         var message = string.Format ("Must hold a {0} access expression.", memberType);
-        throw new ArgumentException (message, "expression");
+        throw new ArgumentException (message, nameof(expression));
       }
 
       return member;
@@ -209,7 +209,7 @@ namespace Remotion.Development.UnitTesting.Reflection
     {
       var newExpression = expression as NewExpression;
       if (newExpression == null)
-        throw new ArgumentException ("Must be a NewExpression.", "expression");
+        throw new ArgumentException ("Must be a NewExpression.", nameof(expression));
 
       return newExpression.Constructor;
     }
@@ -218,7 +218,7 @@ namespace Remotion.Development.UnitTesting.Reflection
     {
       var methodCallExpression = expression as MethodCallExpression;
       if (methodCallExpression == null)
-        throw new ArgumentException ("Must be a MethodCallExpression.", "expression");
+        throw new ArgumentException ("Must be a MethodCallExpression.", nameof(expression));
 
       // For virtual methods the MethodCallExpression containts the root definition.
       var method = methodCallExpression.Method;
@@ -247,7 +247,7 @@ namespace Remotion.Development.UnitTesting.Reflection
     {
       var methodInfo = GetMethodInfoFromMethodCallExpression (sourceObjectType, expression);
       if (!methodInfo.IsGenericMethod)
-        throw new ArgumentException ("Must hold a generic method access expression.", "expression");
+        throw new ArgumentException ("Must hold a generic method access expression.", nameof(expression));
 
       return methodInfo.GetGenericMethodDefinition();
     }

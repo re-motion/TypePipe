@@ -196,7 +196,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
       if (constructorAsMethod != null)
       {
         if (optionalParameterTypes != null && optionalParameterTypes.Any())
-          throw new ArgumentException ("Constructor calls cannot have optional parameters.", "optionalParameterTypes");
+          throw new ArgumentException ("Constructor calls cannot have optional parameters.", nameof(optionalParameterTypes));
 
         Emit (opcode, constructorAsMethod.AdaptedConstructor);
         return;

@@ -80,16 +80,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       if (!isAbstract && bodyProvider == null)
         throw new ArgumentNullException (nameof(bodyProvider), "Non-abstract methods must have a body.");
       if (isAbstract && bodyProvider != null)
-        throw new ArgumentException ("Abstract methods cannot have a body.", "bodyProvider");
+        throw new ArgumentException ("Abstract methods cannot have a body.", nameof(bodyProvider));
 
       MemberAttributesUtility.ValidateAttributes ("methods", MemberAttributesUtility.InvalidMethodAttributes, attributes, "attributes");
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
       if (isAbstract && !isVirtual)
-        throw new ArgumentException ("Abstract methods must also be virtual.", "attributes");
+        throw new ArgumentException ("Abstract methods must also be virtual.", nameof(attributes));
       if (!isVirtual && isNewSlot)
-        throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
+        throw new ArgumentException ("NewSlot methods must also be virtual.", nameof(attributes));
 
       var methodItems = GetMethodSignatureItems (declaringType, genericParameters, returnTypeProvider, parameterProvider);
 

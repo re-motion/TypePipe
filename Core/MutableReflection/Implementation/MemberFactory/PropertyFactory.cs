@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
           "property accessor methods", MemberAttributesUtility.InvalidMethodAttributes, accessorAttributes, "accessorAttributes");
 
       if (getBodyProvider == null && setBodyProvider == null)
-        throw new ArgumentException ("At least one accessor body provider must be specified.", "getBodyProvider");
+        throw new ArgumentException ("At least one accessor body provider must be specified.", nameof(getBodyProvider));
 
       var indexParams = indexParameters.ToList();
       var signature = new PropertySignature (type, indexParams.Select (pd => pd.Type));
@@ -90,28 +90,28 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
       MemberAttributesUtility.ValidateAttributes ("properties", MemberAttributesUtility.InvalidPropertyAttributes, attributes, "attributes");
 
       if (getMethod == null && setMethod == null)
-        throw new ArgumentException ("Property must have at least one accessor.", "getMethod");
+        throw new ArgumentException ("Property must have at least one accessor.", nameof(getMethod));
 
       var readWriteProperty = getMethod != null && setMethod != null;
       if (readWriteProperty && getMethod.IsStatic != setMethod.IsStatic)
-        throw new ArgumentException ("Accessor methods must be both either static or non-static.", "getMethod");
+        throw new ArgumentException ("Accessor methods must be both either static or non-static.", nameof(getMethod));
 
       if (getMethod != null && !ReferenceEquals (getMethod.DeclaringType, declaringType))
-        throw new ArgumentException ("Get method is not declared on the current type.", "getMethod");
+        throw new ArgumentException ("Get method is not declared on the current type.", nameof(getMethod));
       if (setMethod != null && !ReferenceEquals (setMethod.DeclaringType, declaringType))
-        throw new ArgumentException ("Set method is not declared on the current type.", "setMethod");
+        throw new ArgumentException ("Set method is not declared on the current type.", nameof(setMethod));
 
       if (getMethod != null && getMethod.ReturnType == typeof (void))
-        throw new ArgumentException ("Get accessor must be a non-void method.", "getMethod");
+        throw new ArgumentException ("Get accessor must be a non-void method.", nameof(getMethod));
       if (setMethod != null && setMethod.ReturnType != typeof (void))
-        throw new ArgumentException ("Set accessor must have return type void.", "setMethod");
+        throw new ArgumentException ("Set accessor must have return type void.", nameof(setMethod));
 
       var getSignature = getMethod != null ? new PropertySignature (getMethod.ReturnType, getMethod.GetParameters ().Select (p => p.ParameterType)) : null;
       var setParameters = setMethod != null ? setMethod.GetParameters ().Select (p => p.ParameterType).ToList () : null;
       var setSignature = setMethod != null ? new PropertySignature (setParameters.Last (), setParameters.Take (setParameters.Count - 1)) : null;
 
       if (readWriteProperty && !getSignature.Equals (setSignature))
-        throw new ArgumentException ("Get and set accessor methods must have a matching signature.", "setMethod");
+        throw new ArgumentException ("Get and set accessor methods must have a matching signature.", nameof(setMethod));
 
       var signature = getSignature ?? setSignature;
       if (declaringType.AddedProperties.Any (p => p.Name == name && PropertySignature.Create (p).Equals (signature)))
