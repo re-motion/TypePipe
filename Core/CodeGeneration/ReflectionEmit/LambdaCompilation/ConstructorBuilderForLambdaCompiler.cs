@@ -35,8 +35,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public ConstructorBuilderForLambdaCompiler (ConstructorBuilder constructorBuilder, IILGeneratorFactory ilGeneratorFactory)
     {
-      ArgumentUtility.CheckNotNull ("constructorBuilder", constructorBuilder);
-      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(constructorBuilder), constructorBuilder);
+      ArgumentUtility.CheckNotNull (nameof(ilGeneratorFactory), ilGeneratorFactory);
 
       _constructorBuilder = constructorBuilder;
       _ilGeneratorFactory = ilGeneratorFactory;

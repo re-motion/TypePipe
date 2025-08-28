@@ -45,7 +45,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
             memberEmitter,
             initializationBuilder)
     {
-      ArgumentUtility.CheckNotNull ("enclosingTypeBuilder", enclosingTypeBuilder);
+      ArgumentUtility.CheckNotNull (nameof(enclosingTypeBuilder), enclosingTypeBuilder);
 
       _enclosingTypeBuilder = enclosingTypeBuilder;
     }

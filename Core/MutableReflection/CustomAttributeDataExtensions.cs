@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static object CreateInstance (this ICustomAttributeData customAttributeData)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeData), customAttributeData);
 
       var instance = customAttributeData.Constructor.Invoke (customAttributeData.ConstructorArguments.ToArray());
       foreach (var namedArgument in customAttributeData.NamedArguments)

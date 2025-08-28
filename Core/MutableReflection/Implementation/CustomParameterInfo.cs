@@ -39,9 +39,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected CustomParameterInfo (MemberInfo declaringMember, int position, string name, Type type, ParameterAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringMember", declaringMember);
+      ArgumentUtility.CheckNotNull (nameof(declaringMember), declaringMember);
       // Name may be null.
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
       Assertion.IsTrue (type != typeof (void) || position == -1);
       Assertion.IsTrue (position >= -1);
 
@@ -96,14 +96,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }

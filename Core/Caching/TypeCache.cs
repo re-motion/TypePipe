@@ -43,8 +43,8 @@ namespace Remotion.TypePipe.Caching
 
     public TypeCache (ITypeAssembler typeAssembler, IAssemblyContextPool assemblyContextPool)
     {
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
-      ArgumentUtility.CheckNotNull ("assemblyContextPool", assemblyContextPool);
+      ArgumentUtility.CheckNotNull (nameof(typeAssembler), typeAssembler);
+      ArgumentUtility.CheckNotNull (nameof(assemblyContextPool), assemblyContextPool);
 
       _typeAssembler = typeAssembler;
       _assemblyContextPool = assemblyContextPool;
@@ -97,7 +97,7 @@ namespace Remotion.TypePipe.Caching
 
     public Type GetOrCreateAdditionalType (object additionalTypeID)
     {
-      ArgumentUtility.CheckNotNull ("additionalTypeID", additionalTypeID);
+      ArgumentUtility.CheckNotNull (nameof(additionalTypeID), additionalTypeID);
 
       var lazyType = _additionalTypes.GetOrAdd (additionalTypeID, _createAdditionalTypeFunc);
 
@@ -146,7 +146,7 @@ namespace Remotion.TypePipe.Caching
 
     public void LoadTypes (IEnumerable<Type> generatedTypes)
     {
-      ArgumentUtility.CheckNotNull ("generatedTypes", generatedTypes);
+      ArgumentUtility.CheckNotNull (nameof(generatedTypes), generatedTypes);
 
       // Dequeuing all assembly contexts is not required for consistent loading of types 
       // but helps to ensure that the pre-generated types are preferred.

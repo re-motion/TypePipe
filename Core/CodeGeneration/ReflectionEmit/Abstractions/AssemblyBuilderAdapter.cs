@@ -29,9 +29,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly ModuleBuilder _moduleBuilder;
 
     public AssemblyBuilderAdapter (AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
-        : base (ArgumentUtility.CheckNotNull ("assemblyBuilder", assemblyBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(assemblyBuilder), assemblyBuilder).SetCustomAttribute)
     {
-      ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder);
+      ArgumentUtility.CheckNotNull (nameof(moduleBuilder), moduleBuilder);
 
       _assemblyBuilder = assemblyBuilder;
       _moduleBuilder = moduleBuilder;

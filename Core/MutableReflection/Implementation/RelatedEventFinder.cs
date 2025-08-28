@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public EventInfo GetBaseEvent (EventInfo @event)
     {
-      ArgumentUtility.CheckNotNull ("event", @event);
+      ArgumentUtility.CheckNotNull (nameof(@event), @event);
 
       Assertion.IsNotNull (@event.DeclaringType);
       var baseTypeSequence = EnumerableExtensions.CreateSequence (@event.DeclaringType.BaseType, t => t.BaseType);

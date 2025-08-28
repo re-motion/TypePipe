@@ -32,14 +32,14 @@ namespace Remotion.TypePipe.StrongNaming
 
     public TypeAnalyzer (IAssemblyAnalyzer assemblyAnalyzer)
     {
-      ArgumentUtility.CheckNotNull ("assemblyAnalyzer", assemblyAnalyzer);
+      ArgumentUtility.CheckNotNull (nameof(assemblyAnalyzer), assemblyAnalyzer);
 
       _assemblyAnalyzer = assemblyAnalyzer;
     }
 
     public bool IsStrongNamed (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       bool value;
       if (_cache.TryGetValue (type, out value))

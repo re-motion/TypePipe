@@ -32,7 +32,7 @@ namespace Remotion.Utilities
   /// <code><![CDATA[
   /// void foo (object o) 
   /// {
-  ///   int i = ArgumentUtility.CheckNotNullAndType<int> ("o", o);
+  ///   int i = ArgumentUtility.CheckNotNullAndType<int> (nameof(o), o);
   /// }
   /// ]]></code>
   /// In some other cases, the input value is returned unmodified. This makes it easier to use the argument checks in calls to base class constructors
@@ -40,13 +40,13 @@ namespace Remotion.Utilities
   /// <code><![CDATA[
   /// class MyType : MyBaseType
   /// {
-  ///   public MyType (string name) : base (ArgumentUtility.CheckNotNullOrEmpty ("name", name))
+  ///   public MyType (string name) : base (ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name))
   ///   {
   ///   }
   /// 
   ///   public override Name
   ///   {
-  ///     set { base.Name = ArgumentUtility.CheckNotNullOrEmpty ("value", value); }
+  ///     set { base.Name = ArgumentUtility.CheckNotNullOrEmpty (nameof(value), value); }
   ///   }
   /// }
   /// ]]></code>
@@ -323,7 +323,7 @@ namespace Remotion.Utilities
         Type actualType, 
         [AssertionCondition (AssertionConditionType.IS_NOT_NULL)] Type expectedType)
     {
-      CheckNotNull ("expectedType", expectedType);
+      CheckNotNull (nameof(expectedType), expectedType);
       if (actualType != null)
       {
         if (!expectedType.GetTypeInfo().IsAssignableFrom (actualType.GetTypeInfo()))

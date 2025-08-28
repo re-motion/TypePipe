@@ -49,8 +49,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
-      ArgumentUtility.CheckNotNull ("body", body);
-      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(body), body);
+      ArgumentUtility.CheckNotNull (nameof(ilGeneratorFactory), ilGeneratorFactory);
 
       _methodBaseBuilder.SetBody (body, ilGeneratorFactory, debugInfoGeneratorOrNull);
     }

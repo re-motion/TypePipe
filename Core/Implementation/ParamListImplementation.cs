@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action castAction;
       try
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction ();
@@ -61,7 +61,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<object> castFunc;
       try
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc ();
@@ -112,7 +112,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1> castAction;
       try
@@ -121,7 +121,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1);
@@ -129,7 +129,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, object> castFunc;
       try
@@ -138,7 +138,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1);
@@ -182,7 +182,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2> castAction;
       try
@@ -191,7 +191,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2);
@@ -199,7 +199,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, object> castFunc;
       try
@@ -208,7 +208,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2);
@@ -254,7 +254,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3> castAction;
       try
@@ -263,7 +263,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3);
@@ -271,7 +271,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, object> castFunc;
       try
@@ -280,7 +280,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3);
@@ -328,7 +328,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4> castAction;
       try
@@ -337,7 +337,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4);
@@ -345,7 +345,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, object> castFunc;
       try
@@ -354,7 +354,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4);
@@ -404,7 +404,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5> castAction;
       try
@@ -413,7 +413,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5);
@@ -421,7 +421,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, object> castFunc;
       try
@@ -430,7 +430,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5);
@@ -482,7 +482,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6> castAction;
       try
@@ -491,7 +491,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6);
@@ -499,7 +499,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, object> castFunc;
       try
@@ -508,7 +508,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6);
@@ -562,7 +562,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7> castAction;
       try
@@ -571,7 +571,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
@@ -579,7 +579,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, object> castFunc;
       try
@@ -588,7 +588,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7);
@@ -644,7 +644,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8> castAction;
       try
@@ -653,7 +653,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
@@ -661,7 +661,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, object> castFunc;
       try
@@ -670,7 +670,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8);
@@ -728,7 +728,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9> castAction;
       try
@@ -737,7 +737,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
@@ -745,7 +745,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, object> castFunc;
       try
@@ -754,7 +754,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
@@ -814,7 +814,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> castAction;
       try
@@ -823,7 +823,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
@@ -831,7 +831,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, object> castFunc;
       try
@@ -840,7 +840,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10);
@@ -902,7 +902,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> castAction;
       try
@@ -911,7 +911,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
@@ -919,7 +919,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, object> castFunc;
       try
@@ -928,7 +928,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11);
@@ -992,7 +992,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> castAction;
       try
@@ -1001,7 +1001,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
@@ -1009,7 +1009,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, object> castFunc;
       try
@@ -1018,7 +1018,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12);
@@ -1084,7 +1084,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> castAction;
       try
@@ -1093,7 +1093,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
@@ -1101,7 +1101,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, object> castFunc;
       try
@@ -1110,7 +1110,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13);
@@ -1178,7 +1178,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> castAction;
       try
@@ -1187,7 +1187,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
@@ -1195,7 +1195,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, object> castFunc;
       try
@@ -1204,7 +1204,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14);
@@ -1274,7 +1274,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> castAction;
       try
@@ -1283,7 +1283,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
@@ -1291,7 +1291,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, object> castFunc;
       try
@@ -1300,7 +1300,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15);
@@ -1372,7 +1372,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> castAction;
       try
@@ -1381,7 +1381,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
@@ -1389,7 +1389,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, object> castFunc;
       try
@@ -1398,7 +1398,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16);
@@ -1472,7 +1472,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> castAction;
       try
@@ -1481,7 +1481,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
@@ -1489,7 +1489,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, object> castFunc;
       try
@@ -1498,7 +1498,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17);
@@ -1574,7 +1574,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> castAction;
       try
@@ -1583,7 +1583,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
@@ -1591,7 +1591,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, object> castFunc;
       try
@@ -1600,7 +1600,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18);
@@ -1678,7 +1678,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> castAction;
       try
@@ -1687,7 +1687,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
@@ -1695,7 +1695,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, object> castFunc;
       try
@@ -1704,7 +1704,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19);
@@ -1784,7 +1784,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> castAction;
       try
@@ -1793,7 +1793,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("action", action.GetType(), ActionType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(action), action.GetType(), ActionType);
       }
 
       castAction (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);
@@ -1801,7 +1801,7 @@ namespace Remotion.TypePipe.Implementation
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, object> castFunc;
       try
@@ -1810,7 +1810,7 @@ namespace Remotion.TypePipe.Implementation
       }
       catch (InvalidCastException)
       {
-        throw ArgumentUtility.CreateArgumentTypeException ("func", func.GetType(), FuncType);
+        throw ArgumentUtility.CreateArgumentTypeException (nameof(func), func.GetType(), FuncType);
       }
 
       return castFunc (_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, _a10, _a11, _a12, _a13, _a14, _a15, _a16, _a17, _a18, _a19, _a20);

@@ -31,20 +31,20 @@ namespace Remotion.TypePipe.MutableReflection
 
     public NamedArgumentDeclaration (PropertyInfo propertyInfo, object value)
     {
-      ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
-      ArgumentUtility.CheckType ("value", value, propertyInfo.PropertyType);
+      ArgumentUtility.CheckNotNull (nameof(propertyInfo), propertyInfo);
+      ArgumentUtility.CheckType (nameof(value), value, propertyInfo.PropertyType);
 
       var setMethod = propertyInfo.GetSetMethod ();
       if (setMethod == null)
       {
         var message = string.Format ("Property '{0}' has no public setter.", propertyInfo.Name);
-        throw new ArgumentException (message, "propertyInfo");
+        throw new ArgumentException (message, nameof(propertyInfo));
       }
 
       if (setMethod.IsStatic)
       {
         var message = string.Format ("Property '{0}' is not an instance property.", propertyInfo.Name);
-        throw new ArgumentException (message, "propertyInfo");
+        throw new ArgumentException (message, nameof(propertyInfo));
       }
 
       _memberInfo = propertyInfo;
@@ -54,25 +54,25 @@ namespace Remotion.TypePipe.MutableReflection
 
     public NamedArgumentDeclaration (FieldInfo fieldInfo, object value)
     {
-      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
-      ArgumentUtility.CheckType ("value", value, fieldInfo.FieldType);
+      ArgumentUtility.CheckNotNull (nameof(fieldInfo), fieldInfo);
+      ArgumentUtility.CheckType (nameof(value), value, fieldInfo.FieldType);
 
       if (fieldInfo.IsLiteral || fieldInfo.IsInitOnly)
       {
         var message = string.Format ("Field '{0}' is not writable.", fieldInfo.Name);
-        throw new ArgumentException (message, "fieldInfo");
+        throw new ArgumentException (message, nameof(fieldInfo));
       }
 
       if (!fieldInfo.IsPublic)
       {
         var message = string.Format ("Field '{0}' is not public.", fieldInfo.Name);
-        throw new ArgumentException (message, "fieldInfo");
+        throw new ArgumentException (message, nameof(fieldInfo));
       }
 
       if (fieldInfo.IsStatic)
       {
         var message = string.Format ("Field '{0}' is not an instance field.", fieldInfo.Name);
-        throw new ArgumentException (message, "fieldInfo");
+        throw new ArgumentException (message, nameof(fieldInfo));
       }
 
       _memberInfo = fieldInfo;

@@ -29,15 +29,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly FieldBuilder _fieldBuilder;
 
     public FieldBuilderAdapter (FieldBuilder fieldBuilder)
-        : base (ArgumentUtility.CheckNotNull ("fieldBuilder", fieldBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(fieldBuilder), fieldBuilder).SetCustomAttribute)
     {
       _fieldBuilder = fieldBuilder;
     }
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("field", field);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(field), field);
 
       emittableOperandProvider.AddMapping (field, _fieldBuilder);
     }

@@ -31,15 +31,15 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 
     public bool Equals (MemberInfo x, MemberInfo y)
     {
-      ArgumentUtility.CheckNotNull ("x", x);
-      ArgumentUtility.CheckNotNull ("y", y);
+      ArgumentUtility.CheckNotNull (nameof(x), x);
+      ArgumentUtility.CheckNotNull (nameof(y), y);
 
       return x.Name == y.Name && _signatureComparer.Equals (x, y);
     }
 
     public int GetHashCode (MemberInfo obj)
     {
-      ArgumentUtility.CheckNotNull ("obj", obj);
+      ArgumentUtility.CheckNotNull (nameof(obj), obj);
 
       return EqualityUtility.GetRotatedHashCode (obj.Name, _signatureComparer.GetHashCode (obj));
     }

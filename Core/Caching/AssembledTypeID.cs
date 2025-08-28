@@ -35,8 +35,8 @@ namespace Remotion.TypePipe.Caching
 
     public AssembledTypeID (Type requestedType, object[] parts)
     {
-      ArgumentUtility.DebugCheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.DebugCheckNotNull ("parts", parts);
+      ArgumentUtility.DebugCheckNotNull (nameof(requestedType), requestedType);
+      ArgumentUtility.DebugCheckNotNull (nameof(parts), parts);
 
       _requestedType = requestedType;
       _parts = parts;

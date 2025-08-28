@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns><c>true</c> if the given method is an instance of <see cref="T:System.Reflection.RuntimeMethodInfo"/>; otherwise, <c>false</c>.</returns>
     public static bool IsRuntimeMethodInfo (this MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       return method.GetType().FullName == "System.Reflection.RuntimeMethodInfo";
     }
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns><c>true</c> if the method is a generic method instantiation; otherwise, <c>false</c>.</returns>
     public static bool IsGenericMethodInstantiation (this MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       return method.IsGenericMethod && !method.IsGenericMethodDefinition;
     }
@@ -63,8 +63,8 @@ namespace Remotion.TypePipe.MutableReflection
     /// <returns>The generic method instantiation.</returns>
     public static MethodInfo MakeTypePipeGenericMethod (this MethodInfo genericMethodDefinition, params Type[] typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);
-      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(genericMethodDefinition), genericMethodDefinition);
+      ArgumentUtility.CheckNotNullOrItemsNull (nameof(typeArguments), typeArguments);
 
       if (!genericMethodDefinition.IsGenericMethodDefinition)
       {

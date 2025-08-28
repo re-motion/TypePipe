@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public MethodOnTypeInstantiation (TypeInstantiation declaringType, MethodInfo method)
         : base (
             declaringType,
-            ArgumentUtility.CheckNotNull ("method", method).Name,
+            ArgumentUtility.CheckNotNull (nameof(method), method).Name,
             method.Attributes,
             GetGenericMethodDefinition(method),
             method.GetGenericArguments())

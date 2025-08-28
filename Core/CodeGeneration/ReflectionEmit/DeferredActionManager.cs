@@ -34,7 +34,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public void AddAction (Action action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       _deferredActions.Enqueue (action);
     }

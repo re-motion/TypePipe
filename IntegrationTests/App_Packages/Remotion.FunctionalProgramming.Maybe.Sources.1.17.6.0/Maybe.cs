@@ -237,7 +237,7 @@ namespace Remotion.FunctionalProgramming
     /// </returns>
     public Maybe<TR> Select<TR> (Func<T, TR> selector)
     {
-      ArgumentUtility.CheckNotNull ("selector", selector);
+      ArgumentUtility.CheckNotNull (nameof(selector), selector);
 
       if (_hasValue)
         return Maybe.ForValue (selector (_value));
@@ -297,7 +297,7 @@ namespace Remotion.FunctionalProgramming
     /// </returns>
     public Maybe<TR> Select<TR> (Func<T, TR?> selector) where TR : struct
     {
-      ArgumentUtility.CheckNotNull ("selector", selector);
+      ArgumentUtility.CheckNotNull (nameof(selector), selector);
 
       if (_hasValue)
         return Maybe.ForValue (selector (_value));
@@ -315,7 +315,7 @@ namespace Remotion.FunctionalProgramming
     /// </returns>
     public Maybe<T> OtherwiseSelect (Func<T> selector)
     {
-      ArgumentUtility.CheckNotNull ("selector", selector);
+      ArgumentUtility.CheckNotNull (nameof(selector), selector);
 
       if (_hasValue)
         return this;

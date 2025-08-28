@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     public FieldOnTypeInstantiation (TypeInstantiation declaringType, FieldInfo field)
         : base (
             declaringType,
-            ArgumentUtility.CheckNotNull ("field", field).Name,
-            ArgumentUtility.CheckNotNull ("declaringType", declaringType).SubstituteGenericParameters (field.FieldType),
+            ArgumentUtility.CheckNotNull (nameof(field), field).Name,
+            ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType).SubstituteGenericParameters (field.FieldType),
             field.Attributes)
     {
       _field = field;

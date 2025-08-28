@@ -30,15 +30,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly GenericTypeParameterBuilder _genericTypeParameterBuilder;
 
     public GenericTypeParameterBuilderAdapter (GenericTypeParameterBuilder genericTypeParameterBuilder)
-        : base(ArgumentUtility.CheckNotNull ("genericTypeParameterBuilder", genericTypeParameterBuilder).SetCustomAttribute)
+        : base(ArgumentUtility.CheckNotNull (nameof(genericTypeParameterBuilder), genericTypeParameterBuilder).SetCustomAttribute)
     {
       _genericTypeParameterBuilder = genericTypeParameterBuilder;
     }
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableGenericParameter genericParameter)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("genericParameter", genericParameter);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(genericParameter), genericParameter);
 
       emittableOperandProvider.AddMapping (genericParameter, _genericTypeParameterBuilder);
     }
@@ -50,14 +50,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void SetBaseTypeConstraint (Type baseTypeConstraint)
     {
-      ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
+      ArgumentUtility.CheckNotNull (nameof(baseTypeConstraint), baseTypeConstraint);
 
       _genericTypeParameterBuilder.SetBaseTypeConstraint (baseTypeConstraint);
     }
 
     public void SetInterfaceConstraints (params Type[] interfaceConstraints)
     {
-      ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
+      ArgumentUtility.CheckNotNull (nameof(interfaceConstraints), interfaceConstraints);
 
       _genericTypeParameterBuilder.SetInterfaceConstraints (interfaceConstraints);
     }

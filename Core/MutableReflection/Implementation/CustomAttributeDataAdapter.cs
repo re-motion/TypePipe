@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public CustomAttributeDataAdapter (CustomAttributeData customAttributeData)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeData", customAttributeData);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeData), customAttributeData);
 
       _customAttributeData = customAttributeData;
     }

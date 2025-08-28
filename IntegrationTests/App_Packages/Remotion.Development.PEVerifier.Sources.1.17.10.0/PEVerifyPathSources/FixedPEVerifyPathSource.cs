@@ -26,7 +26,7 @@ namespace Remotion.Development.UnitTesting.PEVerifyPathSources
 
     public FixedPEVerifyPathSource (string path)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("path", path);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(path), path);
       _path = path;
     }
 

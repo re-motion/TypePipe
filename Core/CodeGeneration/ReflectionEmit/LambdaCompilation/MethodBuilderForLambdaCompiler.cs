@@ -36,8 +36,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public MethodBuilderForLambdaCompiler (MethodBuilder methodBuilder, IILGeneratorFactory ilGeneratorFactory, bool ignoreSignatureModifications)
     {
-      ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder);
-      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(methodBuilder), methodBuilder);
+      ArgumentUtility.CheckNotNull (nameof(ilGeneratorFactory), ilGeneratorFactory);
 
       _methodBuilder = methodBuilder;
       _ilGeneratorFactory = ilGeneratorFactory;

@@ -29,12 +29,12 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
   {
     public MutableFieldInfo CreateField (MutableType declaringType, string name, Type type, FieldAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       if (type == typeof (void))
-        throw new ArgumentException ("Field cannot be of type void.", "type");
+        throw new ArgumentException ("Field cannot be of type void.", nameof(type));
 
       MemberAttributesUtility.ValidateAttributes ("fields", MemberAttributesUtility.InvalidFieldAttributes, attributes, "attributes");
 

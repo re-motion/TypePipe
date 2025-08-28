@@ -29,8 +29,8 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
   {
     public bool Equals (MemberInfo x, MemberInfo y)
     {
-      ArgumentUtility.CheckNotNull ("x", x);
-      ArgumentUtility.CheckNotNull ("y", y);
+      ArgumentUtility.CheckNotNull (nameof(x), x);
+      ArgumentUtility.CheckNotNull (nameof(y), y);
 
       var signatureX = GetMemberSignature (x);
       var signatureY = GetMemberSignature (y);
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 
     public int GetHashCode (MemberInfo obj)
     {
-      ArgumentUtility.CheckNotNull ("obj", obj);
+      ArgumentUtility.CheckNotNull (nameof(obj), obj);
 
       var signature = GetMemberSignature (obj);
       return signature.GetHashCode();

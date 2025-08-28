@@ -32,9 +32,9 @@ namespace Remotion.TypePipe.Implementation
 
     public ConstructorInfo GetConstructor (Type requestedType, Type[] parameterTypes, bool allowNonPublic, Type assembledType)
     {
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(requestedType), requestedType);
 
       CheckConstructorOnRequestedType (requestedType, parameterTypes, allowNonPublic);
       CheckNotAbstract (assembledType, requestedType);

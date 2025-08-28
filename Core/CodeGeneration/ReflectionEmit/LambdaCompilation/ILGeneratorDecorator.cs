@@ -35,8 +35,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     [CLSCompliant (false)]
     public ILGeneratorDecorator (IILGenerator innerIlGenerator, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("innerIlGenerator", innerIlGenerator);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(innerIlGenerator), innerIlGenerator);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
 
       _innerILGenerator = innerIlGenerator;
       _emittableOperandProvider = emittableOperandProvider;
@@ -66,7 +66,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void BeginCatchBlock (Type exceptionType)
     {
-      ArgumentUtility.CheckNotNull ("exceptionType", exceptionType);
+      ArgumentUtility.CheckNotNull (nameof(exceptionType), exceptionType);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableType (exceptionType);
       _innerILGenerator.BeginCatchBlock (emittableOperand);
@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public LocalBuilder DeclareLocal (Type localType)
     {
-      ArgumentUtility.CheckNotNull ("localType", localType);
+      ArgumentUtility.CheckNotNull (nameof(localType), localType);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableType (localType);
       return _innerILGenerator.DeclareLocal (emittableOperand);
@@ -128,7 +128,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, ConstructorInfo con)
     {
-      ArgumentUtility.CheckNotNull ("con", con);
+      ArgumentUtility.CheckNotNull (nameof(con), con);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableConstructor (con);
       _innerILGenerator.Emit (opcode, emittableOperand);
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, Type cls)
     {
-      ArgumentUtility.CheckNotNull ("cls", cls);
+      ArgumentUtility.CheckNotNull (nameof(cls), cls);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableType (cls);
       _innerILGenerator.Emit (opcode, emittableOperand);
@@ -159,7 +159,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, FieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("field", field);
+      ArgumentUtility.CheckNotNull (nameof(field), field);
 
       var emittableOperand = _emittableOperandProvider.GetEmittableField (field);
       _innerILGenerator.Emit (opcode, emittableOperand);
@@ -167,7 +167,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void Emit (OpCode opcode, MethodInfo meth)
     {
-      ArgumentUtility.CheckNotNull ("meth", meth);
+      ArgumentUtility.CheckNotNull (nameof(meth), meth);
 
       var constructorAsMethod = meth as ConstructorAsMethodInfoAdapter;
       if (constructorAsMethod != null)
@@ -189,14 +189,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     public void EmitCall (OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("methodInfo", methodInfo);
+      ArgumentUtility.CheckNotNull (nameof(methodInfo), methodInfo);
       // Optional parameters may be null
 
       var constructorAsMethod = methodInfo as ConstructorAsMethodInfoAdapter;
       if (constructorAsMethod != null)
       {
         if (optionalParameterTypes != null && optionalParameterTypes.Any())
-          throw new ArgumentException ("Constructor calls cannot have optional parameters.", "optionalParameterTypes");
+          throw new ArgumentException ("Constructor calls cannot have optional parameters.", nameof(optionalParameterTypes));
 
         Emit (opcode, constructorAsMethod.AdaptedConstructor);
         return;

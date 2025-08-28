@@ -42,8 +42,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableFieldInfo field)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("field", field);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(field), field);
 
       _fieldBuilder.RegisterWith (emittableOperandProvider, field);
     }

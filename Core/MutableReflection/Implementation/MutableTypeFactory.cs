@@ -37,16 +37,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public MutableType CreateType (string name, string @namespace, TypeAttributes attributes, Type baseType, MutableType declaringType)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Name space may be null.
       // Base type may be null (for interfaces).
       // Declaring type may be null.
 
       var isInterface = attributes.IsSet (TypeAttributes.Interface);
       if (!isInterface && baseType == null)
-        throw new ArgumentException ("Base type cannot be null.", "baseType");
+        throw new ArgumentException ("Base type cannot be null.", nameof(baseType));
       if (isInterface && baseType != null)
-        throw new ArgumentException (string.Format ("Base type must be null for interfaces. Type: '{0}'", baseType.FullName), "baseType");
+        throw new ArgumentException (string.Format ("Base type must be null for interfaces. Type: '{0}'", baseType.FullName), nameof(baseType));
 
       if (baseType != null && !IsValidBaseType (baseType))
       {
@@ -55,7 +55,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
                 "Base type must not be sealed, an interface, an array, a byref type, a pointer, a generic parameter, "
                 + "contain generic parameters and must have an accessible constructor. Type: '{0}'",
                 baseType.FullName),
-            "baseType");
+            nameof(baseType));
       }
 
       return CreateMutableType (name, @namespace, attributes, baseType, declaringType);
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public ITypeModificationTracker CreateProxy (Type baseType, ProxyKind proxyKind)
     {
-      ArgumentUtility.CheckNotNull ("baseType", baseType);
+      ArgumentUtility.CheckNotNull (nameof(baseType), baseType);
 
       var incrementedCounter = Interlocked.Increment (ref _counter);
 

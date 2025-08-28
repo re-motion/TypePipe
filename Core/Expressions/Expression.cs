@@ -38,9 +38,9 @@ namespace Remotion.TypePipe.Dlr.Ast
     /// <param name="method">The method.</param>
     public static NewDelegateExpression NewDelegate (Type delegateType, Expression target, MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("delegateType", delegateType);
+      ArgumentUtility.CheckNotNull (nameof(delegateType), delegateType);
       // target can be null for static methods
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       return new NewDelegateExpression (delegateType, target, method);
     }
@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.Dlr.Ast
     /// <param name="constantValues">The elements of the array; will be wrapped in <see cref="Constant(object,System.Type)"/>.</param>
     public static NewArrayExpression ArrayConstant<T> (IEnumerable<T> constantValues)
     {
-      ArgumentUtility.CheckNotNull ("constantValues", constantValues);
+      ArgumentUtility.CheckNotNull (nameof(constantValues), constantValues);
 
       var elementType = typeof (T);
       var constantElements = constantValues.Select (value => Expression.Constant (value, elementType));
@@ -68,7 +68,7 @@ namespace Remotion.TypePipe.Dlr.Ast
     /// <param name="expressionsOrEmpty">A sequence of expressions which might be empty.</param>
     public static Expression BlockOrEmpty (IEnumerable<Expression> expressionsOrEmpty)
     {
-      ArgumentUtility.CheckNotNull ("expressionsOrEmpty", expressionsOrEmpty);
+      ArgumentUtility.CheckNotNull (nameof(expressionsOrEmpty), expressionsOrEmpty);
       var expressions = expressionsOrEmpty.ToList();
 
       return expressions.Count == 0 ? (Expression) Expression.Empty() : Expression.Block (expressions);

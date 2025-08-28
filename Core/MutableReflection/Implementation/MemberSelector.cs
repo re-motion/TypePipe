@@ -32,14 +32,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public MemberSelector (IBindingFlagsEvaluator bindingFlagsEvaluator)
     {
-      ArgumentUtility.CheckNotNull ("bindingFlagsEvaluator", bindingFlagsEvaluator);
+      ArgumentUtility.CheckNotNull (nameof(bindingFlagsEvaluator), bindingFlagsEvaluator);
 
       _bindingFlagsEvaluator = bindingFlagsEvaluator;
     }
 
     public IEnumerable<Type> SelectTypes(IEnumerable<Type> types, BindingFlags bindingAttr)
     {
-      ArgumentUtility.CheckNotNull("types", types);
+      ArgumentUtility.CheckNotNull (nameof(types), types);
 
       return SelectTypes (types, bindingAttr, null);
     }
@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public IEnumerable<FieldInfo> SelectFields (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, Type declaringType)
     {
-      ArgumentUtility.CheckNotNull ("fields", fields);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(fields), fields);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       return FilterByFlags (fields, bindingAttr, declaringType, f => _bindingFlagsEvaluator.HasRightAttributes (f.Attributes, bindingAttr));
     }
@@ -60,16 +60,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public IEnumerable<T> SelectMethods<T> (IEnumerable<T> methods, BindingFlags bindingAttr, Type declaringType)
         where T : MethodBase
     {
-      ArgumentUtility.CheckNotNull ("methods", methods);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(methods), methods);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       return FilterByFlags (methods, bindingAttr, declaringType, m => _bindingFlagsEvaluator.HasRightAttributes (m.Attributes, bindingAttr));
     }
 
     public IEnumerable<PropertyInfo> SelectProperties (IEnumerable<PropertyInfo> properties, BindingFlags bindingAttr, Type declaringType)
     {
-      ArgumentUtility.CheckNotNull ("properties", properties);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(properties), properties);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       Func<PropertyInfo, bool> predicate = p => p.GetAccessors (true).Any (a => _bindingFlagsEvaluator.HasRightAttributes (a.Attributes, bindingAttr));
       return FilterByFlags (properties, bindingAttr, declaringType, predicate);
@@ -77,8 +77,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public IEnumerable<EventInfo> SelectEvents (IEnumerable<EventInfo> events, BindingFlags bindingAttr, Type declaringType)
     {
-      ArgumentUtility.CheckNotNull ("events", events);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(events), events);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       Func<EventInfo, bool> predicate = e => _bindingFlagsEvaluator.HasRightAttributes (e.GetAddMethod (true).Attributes, bindingAttr);
       return FilterByFlags (events, bindingAttr, declaringType, predicate);
@@ -86,16 +86,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public Type SelectSingleType (IEnumerable<Type> types, BindingFlags bindingAttr, string name)
     {
-      ArgumentUtility.CheckNotNull("types", types);
-      ArgumentUtility.CheckNotNullOrEmpty("name", name);
+      ArgumentUtility.CheckNotNull (nameof(types), types);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return SelectSingle (types, name, bindingAttr, null, SelectTypes, "nested type");
     }
 
     public FieldInfo SelectSingleField (IEnumerable<FieldInfo> fields, BindingFlags bindingAttr, string name, Type declaringType)
     {
-      ArgumentUtility.CheckNotNull ("fields", fields);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull (nameof(fields), fields);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return SelectSingle (fields, name, bindingAttr, declaringType, SelectFields, "field");
     }
@@ -110,9 +110,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         ParameterModifier[] modifiersOrNull)
         where T : MethodBase
     {
-      ArgumentUtility.CheckNotNull ("methods", methods);
-      ArgumentUtility.CheckNotNull ("binder", binder);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(methods), methods);
+      ArgumentUtility.CheckNotNull (nameof(binder), binder);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       CheckModifiers (parameterTypesOrNull, modifiersOrNull);
 
       if (nameOrNull != null)
@@ -147,10 +147,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type[] indexerTypesOrNull,
         ParameterModifier[] modifiersOrNull)
     {
-      ArgumentUtility.CheckNotNull ("properties", properties);
-      ArgumentUtility.CheckNotNull ("binder", binder);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(properties), properties);
+      ArgumentUtility.CheckNotNull (nameof(binder), binder);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       CheckModifiers (indexerTypesOrNull, modifiersOrNull);
 
@@ -165,9 +165,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public EventInfo SelectSingleEvent (IEnumerable<EventInfo> events, BindingFlags bindingAttr, string name, Type declaringType)
     {
-      ArgumentUtility.CheckNotNull ("events", events);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(events), events);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       return SelectSingle (events, name, bindingAttr, declaringType, SelectEvents, "event");
     }
@@ -205,7 +205,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     private void CheckModifiers (Type[] parameterTypes, ParameterModifier[] modifiers)
     {
       if (parameterTypes == null && modifiers != null)
-        throw new ArgumentException ("Modifiers must not be specified if parameter types are null.", "modifiers");
+        throw new ArgumentException ("Modifiers must not be specified if parameter types are null.", nameof(modifiers));
     }
   }
 }

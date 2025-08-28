@@ -28,23 +28,23 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static object[] GetCustomAttributes (ICustomAttributeDataProvider customAttributeDataProvider, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeDataProvider), customAttributeDataProvider);
 
       return GetCustomAttributes (customAttributeDataProvider, typeof (object), inherit);
     }
 
     public static object[] GetCustomAttributes (ICustomAttributeDataProvider customAttributeDataProvider, Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeDataProvider), customAttributeDataProvider);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return GetCustomAttributes (customAttributeDataProvider.GetCustomAttributeData (inherit), attributeType);
     }
 
     public static bool IsDefined (ICustomAttributeDataProvider customAttributeDataProvider, Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDataProvider", customAttributeDataProvider);
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeDataProvider), customAttributeDataProvider);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return IsDefined (customAttributeDataProvider.GetCustomAttributeData (inherit), attributeType);
     }

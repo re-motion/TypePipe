@@ -34,7 +34,7 @@ namespace Remotion.Development.UnitTesting.Enumerables
 
       public OneTimeEnumerator (IEnumerator<T> enumerator)
       {
-        ArgumentUtility.CheckNotNull ("enumerator", enumerator);
+        ArgumentUtility.CheckNotNull (nameof(enumerator), enumerator);
         _enumerator = enumerator;
       }
 
@@ -69,7 +69,7 @@ namespace Remotion.Development.UnitTesting.Enumerables
 
     public OneTimeEnumerable (IEnumerable<T> enumerable)
     {
-      ArgumentUtility.CheckNotNull ("enumerable", enumerable);
+      ArgumentUtility.CheckNotNull (nameof(enumerable), enumerable);
       _enumerable = enumerable;
     }
 

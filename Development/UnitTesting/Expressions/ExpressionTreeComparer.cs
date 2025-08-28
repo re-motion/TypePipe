@@ -31,8 +31,8 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
   {
     public static void CheckAreEqualTrees (Expression expectedTree, Expression actualTree)
     {
-      ArgumentUtility.CheckNotNull ("expectedTree", expectedTree);
-      ArgumentUtility.CheckNotNull ("actualTree", actualTree);
+      ArgumentUtility.CheckNotNull (nameof(expectedTree), expectedTree);
+      ArgumentUtility.CheckNotNull (nameof(actualTree), actualTree);
 
       var comparer = new ExpressionTreeComparer (expectedTree.DebugView, actualTree.DebugView);
       comparer.CheckAreEqualNodes (expectedTree, actualTree);
@@ -43,8 +43,8 @@ namespace Remotion.TypePipe.Development.UnitTesting.Expressions
 
     private ExpressionTreeComparer (string expectedInitial, string actualInitial)
     {
-      ArgumentUtility.CheckNotNull ("expectedInitial", expectedInitial);
-      ArgumentUtility.CheckNotNull ("actualInitial", actualInitial);
+      ArgumentUtility.CheckNotNull (nameof(expectedInitial), expectedInitial);
+      ArgumentUtility.CheckNotNull (nameof(actualInitial), actualInitial);
 
       _expectedInitial = expectedInitial;
       _actualInitial = actualInitial;

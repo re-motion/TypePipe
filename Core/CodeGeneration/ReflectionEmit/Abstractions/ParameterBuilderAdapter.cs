@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
   public class ParameterBuilderAdapter : BuilderAdapterBase, IParameterBuilder
   {
     public ParameterBuilderAdapter (ParameterBuilder parameterBuilder)
-        : base (ArgumentUtility.CheckNotNull ("parameterBuilder", parameterBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(parameterBuilder), parameterBuilder).SetCustomAttribute)
     {
     }
   }

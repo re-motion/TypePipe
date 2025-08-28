@@ -54,9 +54,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <inheritdoc />
     public MethodInfo GetMostDerivedVirtualMethod (string name, MethodSignature signature, Type typeToStartSearch)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("signature", signature);
-      ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(signature), signature);
+      ArgumentUtility.CheckNotNull (nameof(typeToStartSearch), typeToStartSearch);
 
       Func<MethodInfo, bool> predicate = m => m.IsVirtual && m.Name == name && MethodSignature.Create (m).Equals (signature);
       return FirstOrDefaultFromOrderedBaseMethods (typeToStartSearch, predicate);
@@ -65,8 +65,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <inheritdoc />
     public MethodInfo GetMostDerivedOverride (MethodInfo baseDefinition, Type typeToStartSearch)
     {
-      ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
-      ArgumentUtility.CheckNotNull ("typeToStartSearch", typeToStartSearch);
+      ArgumentUtility.CheckNotNull (nameof(baseDefinition), baseDefinition);
+      ArgumentUtility.CheckNotNull (nameof(typeToStartSearch), typeToStartSearch);
       Assertion.DebugAssert (s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition)));
       
       Func<MethodInfo, bool> predicate = m => 
@@ -77,7 +77,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <inheritdoc />
     public MethodInfo GetBaseMethod (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
       Assertion.IsNotNull (method.DeclaringType);
 
       var baseDefinition = MethodBaseDefinitionCache.GetBaseDefinition (method);
@@ -90,8 +90,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <inheritdoc />
     public bool IsShadowed(MethodInfo baseDefinition, IEnumerable<MethodInfo> shadowingCandidates)
     {
-      ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
-      ArgumentUtility.CheckNotNull ("shadowingCandidates", shadowingCandidates);
+      ArgumentUtility.CheckNotNull (nameof(baseDefinition), baseDefinition);
+      ArgumentUtility.CheckNotNull (nameof(shadowingCandidates), shadowingCandidates);
       Assertion.DebugAssert (s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition)));
 
       return shadowingCandidates.Any (
@@ -104,8 +104,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     /// <inheritdoc />
     public MutableMethodInfo GetOverride (MethodInfo baseDefinition, IEnumerable<MutableMethodInfo> overrideCandidates)
     {
-      ArgumentUtility.CheckNotNull ("baseDefinition", baseDefinition);
-      ArgumentUtility.CheckNotNull ("overrideCandidates", overrideCandidates);
+      ArgumentUtility.CheckNotNull (nameof(baseDefinition), baseDefinition);
+      ArgumentUtility.CheckNotNull (nameof(overrideCandidates), overrideCandidates);
       Assertion.DebugAssert (s_memberInfoEqualityComparer.Equals (baseDefinition, MethodBaseDefinitionCache.GetBaseDefinition (baseDefinition)));
 
       return overrideCandidates.SingleOrDefault (

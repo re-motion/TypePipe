@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.Expressions
 
     protected PrimitiveTypePipeExpressionBase (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       _type = type;
     }
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.Expressions
 
     protected internal override Expression Accept (ExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       var typePipeExpressionVisitor = visitor as IPrimitiveTypePipeExpressionVisitor;
       if (typePipeExpressionVisitor != null)

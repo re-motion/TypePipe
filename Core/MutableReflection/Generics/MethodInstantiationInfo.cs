@@ -32,18 +32,18 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public MethodInstantiationInfo (MethodInfo genericMethodDefinition, IEnumerable<Type> typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("genericMethodDefinition", genericMethodDefinition);
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(genericMethodDefinition), genericMethodDefinition);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 
       if (!genericMethodDefinition.IsGenericMethodDefinition)
-        throw new ArgumentException ("Specified method must be a generic method definition.", "genericMethodDefinition");
+        throw new ArgumentException ("Specified method must be a generic method definition.", nameof(genericMethodDefinition));
 
       _genericMethodDefinition = genericMethodDefinition;
       _typeArguments = typeArguments.ToList().AsReadOnly();
 
       if (genericMethodDefinition.GetGenericArguments().Length != _typeArguments.Count)
         throw new ArgumentException (
-            "Generic parameter count of the generic method definition does not match the number of supplied type arguments.", "typeArguments");
+            "Generic parameter count of the generic method definition does not match the number of supplied type arguments.", nameof(typeArguments));
     }
 
     public MethodInfo GenericMethodDefinition

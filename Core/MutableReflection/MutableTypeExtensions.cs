@@ -31,8 +31,8 @@ namespace Remotion.TypePipe.MutableReflection
   {
     public static void AddTypeInitialization (this MutableType declaringType, Expression typeInitialization)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("typeInitialization", typeInitialization);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNull (nameof(typeInitialization), typeInitialization);
 
       if (declaringType.MutableTypeInitializer == null)
         declaringType.AddTypeInitializer (ctx => typeInitialization);
@@ -48,7 +48,7 @@ namespace Remotion.TypePipe.MutableReflection
         IEnumerable<ParameterDeclaration> parameters = null,
         Func<MethodBodyCreationContext, Expression> bodyProvider = null)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       returnType = returnType ?? typeof (void);
       parameters = parameters ?? ParameterDeclaration.None;
       // Body provider may be null (for abstract methods).
@@ -63,9 +63,9 @@ namespace Remotion.TypePipe.MutableReflection
         MethodDeclaration methodDeclaration,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("methodDeclaration", methodDeclaration);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(methodDeclaration), methodDeclaration);
       // Body provider may be null (for abstract methods).
 
       var md = methodDeclaration;
@@ -79,8 +79,8 @@ namespace Remotion.TypePipe.MutableReflection
         Type returnType = null,
         IEnumerable<ParameterDeclaration> parameters = null)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       returnType = returnType ?? typeof (void);
       parameters = parameters ?? ParameterDeclaration.None;
 

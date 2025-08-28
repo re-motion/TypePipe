@@ -31,14 +31,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public InterfaceMapping ComputeMapping (
         MutableType mutableType, Func<Type, InterfaceMapping> interfacMappingProvider, Type interfaceType, bool allowPartialInterfaceMapping)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-      ArgumentUtility.CheckNotNull ("interfacMappingProvider", interfacMappingProvider);
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull (nameof(mutableType), mutableType);
+      ArgumentUtility.CheckNotNull (nameof(interfacMappingProvider), interfacMappingProvider);
+      ArgumentUtility.CheckNotNull (nameof(interfaceType), interfaceType);
 
       if (!interfaceType.IsInterface)
-        throw new ArgumentException ("Type passed must be an interface.", "interfaceType");
+        throw new ArgumentException ("Type passed must be an interface.", nameof(interfaceType));
       if (!mutableType.GetInterfaces ().Contains (interfaceType))
-        throw new ArgumentException ("Interface not found.", "interfaceType");
+        throw new ArgumentException ("Interface not found.", nameof(interfaceType));
 
       var mapping = mutableType.AddedInterfaces.Contains (interfaceType)
                         ? CreateForAdded (mutableType, interfaceType)

@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public AssemblyContext (IMutableTypeBatchCodeGenerator mutableTypeBatchCodeGenerator, IGeneratedCodeFlusher generatedCodeFlusher)
     {
-      ArgumentUtility.CheckNotNull ("mutableTypeBatchCodeGenerator", mutableTypeBatchCodeGenerator);
-      ArgumentUtility.CheckNotNull ("generatedCodeFlusher", generatedCodeFlusher);
+      ArgumentUtility.CheckNotNull (nameof(mutableTypeBatchCodeGenerator), mutableTypeBatchCodeGenerator);
+      ArgumentUtility.CheckNotNull (nameof(generatedCodeFlusher), generatedCodeFlusher);
 
       _mutableTypeBatchCodeGenerator = mutableTypeBatchCodeGenerator;
       _generatedCodeFlusher = generatedCodeFlusher;

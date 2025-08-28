@@ -31,14 +31,14 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
   {
     public static NonVirtualCallMethodInfoAdapter Adapt (MethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       return new NonVirtualCallMethodInfoAdapter (method);
     }
 
     public static NonVirtualCallMethodInfoAdapter Adapt (ConstructorInfo constructor)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
 
       return Adapt (new ConstructorAsMethodInfoAdapter (constructor));
     }

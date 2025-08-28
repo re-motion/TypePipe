@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public ByRefType (CustomType elementType)
         : base (
-            ArgumentUtility.CheckNotNull ("elementType", elementType).Name + "&",
+            ArgumentUtility.CheckNotNull (nameof(elementType), elementType).Name + "&",
             elementType.Namespace,
             TypeAttributes.NotPublic,
             null,

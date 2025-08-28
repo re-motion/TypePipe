@@ -43,7 +43,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Tuple<FieldInfo, MethodInfo> CreateInitializationMembers (MutableType mutableType)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
+      ArgumentUtility.CheckNotNull (nameof(mutableType), mutableType);
 
       var initialization = mutableType.Initialization;
       if (initialization.Expressions.Count == 0)
@@ -70,7 +70,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         MutableConstructorInfo constructor,
         Tuple<FieldInfo, MethodInfo> initializationMembers)
     {
-      ArgumentUtility.CheckNotNull ("constructor", constructor);
+      ArgumentUtility.CheckNotNull (nameof(constructor), constructor);
 
       if (initializationMembers == null)
         return;

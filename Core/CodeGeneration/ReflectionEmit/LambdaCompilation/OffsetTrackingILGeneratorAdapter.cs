@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
 
     internal OffsetTrackingILGeneratorAdapter (OffsetTrackingILGenerator ilGenerator)
     {
-      ArgumentUtility.CheckNotNull ("ilGenerator", ilGenerator);
+      ArgumentUtility.CheckNotNull (nameof(ilGenerator), ilGenerator);
       _ilGenerator = ilGenerator;
     }
 

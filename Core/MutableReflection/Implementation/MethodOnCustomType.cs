@@ -40,8 +40,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         IEnumerable<ParameterDeclaration> parameters)
         : base (declaringType, name, attributes, null, typeArguments)
     {
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
 
       _returnParameter = new ParameterOnCustomMember (this, -1, null, returnType, ParameterAttributes.None);
       _parameters = parameters.Select ((p, i) => new ParameterOnCustomMember (this, i, p.Name, p.Type, p.Attributes)).ToList().AsReadOnly();

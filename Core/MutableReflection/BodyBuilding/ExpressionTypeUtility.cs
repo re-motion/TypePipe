@@ -27,8 +27,8 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
   {
     public static Expression EnsureCorrectType (Expression expression, Type expectedType)
     {
-      ArgumentUtility.CheckNotNull ("expression", expression);
-      ArgumentUtility.CheckNotNull ("expectedType", expectedType);
+      ArgumentUtility.CheckNotNull (nameof(expression), expression);
+      ArgumentUtility.CheckNotNull (nameof(expectedType), expectedType);
 
       if (expression.Type == expectedType)
         return expression;

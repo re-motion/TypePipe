@@ -32,26 +32,26 @@ namespace Remotion.TypePipe.Expressions
     private readonly MethodInfo _method;
 
     public NewDelegateExpression (Type delegateType, Expression target, MethodInfo method)
-        : base (ArgumentUtility.CheckNotNull ("delegateType", delegateType))
+        : base (ArgumentUtility.CheckNotNull (nameof(delegateType), delegateType))
     {
       // target may be null for static methods
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
       Assertion.IsNotNull (method.DeclaringType);
 
       if (!delegateType.IsSubclassOf (typeof (MulticastDelegate)))
-        throw new ArgumentException ("Delegate type must be subclass of 'System.MulticastDelegate'.", "delegateType");
+        throw new ArgumentException ("Delegate type must be subclass of 'System.MulticastDelegate'.", nameof(delegateType));
 
       if (!method.IsStatic && target == null)
-        throw new ArgumentException ("Instance method requires target.", "target");
+        throw new ArgumentException ("Instance method requires target.", nameof(target));
       
       if (method.IsStatic && target != null)
-        throw new ArgumentException ("Static method must not have target.", "target");
+        throw new ArgumentException ("Static method must not have target.", nameof(target));
 
       if (target != null && !method.DeclaringType.IsTypePipeAssignableFrom (target.Type))
-        throw new ArgumentException ("Method is not declared on type hierarchy of target.", "method");
+        throw new ArgumentException ("Method is not declared on type hierarchy of target.", nameof(method));
 
       if (!MethodSignature.AreEqual (delegateType.GetMethod ("Invoke"), method))
-        throw new ArgumentException ("Method signature must match delegate type.", "method");
+        throw new ArgumentException ("Method signature must match delegate type.", nameof(method));
 
       _target = target;
       _method = method;
@@ -69,14 +69,14 @@ namespace Remotion.TypePipe.Expressions
 
     public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       return visitor.VisitNewDelegate (this);
     }
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       var newTarget = visitor.Visit (_target);
       if (newTarget == _target)

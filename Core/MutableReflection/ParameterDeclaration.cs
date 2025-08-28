@@ -38,11 +38,11 @@ namespace Remotion.TypePipe.MutableReflection
 
     public ParameterDeclaration (Type type, string name = null, ParameterAttributes attributes = ParameterAttributes.None)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
       // Name may be null.
 
       if (type == typeof (void))
-        throw new ArgumentException ("Parameter cannot be of type void.", "type");
+        throw new ArgumentException ("Parameter cannot be of type void.", nameof(type));
 
       _type = type;
       _name = name;

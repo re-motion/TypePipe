@@ -53,7 +53,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public MethodFactory (IRelatedMethodFinder relatedMethodFinder)
     {
-      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+      ArgumentUtility.CheckNotNull (nameof(relatedMethodFinder), relatedMethodFinder);
 
       _relatedMethodFinder = relatedMethodFinder;
     }
@@ -67,29 +67,29 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         Func<GenericParameterContext, IEnumerable<ParameterDeclaration>> parameterProvider,
         Func<MethodBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("genericParameters", genericParameters);
-      ArgumentUtility.CheckNotNull ("returnTypeProvider", returnTypeProvider);
-      ArgumentUtility.CheckNotNull ("parameterProvider", parameterProvider);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(genericParameters), genericParameters);
+      ArgumentUtility.CheckNotNull (nameof(returnTypeProvider), returnTypeProvider);
+      ArgumentUtility.CheckNotNull (nameof(parameterProvider), parameterProvider);
       // Body provider may be null (for abstract methods).
 
       // TODO 5478: virtual and static is an invalid combination
 
       var isAbstract = attributes.IsSet (MethodAttributes.Abstract);
       if (!isAbstract && bodyProvider == null)
-        throw new ArgumentNullException ("bodyProvider", "Non-abstract methods must have a body.");
+        throw new ArgumentNullException (nameof(bodyProvider), "Non-abstract methods must have a body.");
       if (isAbstract && bodyProvider != null)
-        throw new ArgumentException ("Abstract methods cannot have a body.", "bodyProvider");
+        throw new ArgumentException ("Abstract methods cannot have a body.", nameof(bodyProvider));
 
       MemberAttributesUtility.ValidateAttributes ("methods", MemberAttributesUtility.InvalidMethodAttributes, attributes, "attributes");
 
       var isVirtual = attributes.IsSet (MethodAttributes.Virtual);
       var isNewSlot = attributes.IsSet (MethodAttributes.NewSlot);
       if (isAbstract && !isVirtual)
-        throw new ArgumentException ("Abstract methods must also be virtual.", "attributes");
+        throw new ArgumentException ("Abstract methods must also be virtual.", nameof(attributes));
       if (!isVirtual && isNewSlot)
-        throw new ArgumentException ("NewSlot methods must also be virtual.", "attributes");
+        throw new ArgumentException ("NewSlot methods must also be virtual.", nameof(attributes));
 
       var methodItems = GetMethodSignatureItems (declaringType, genericParameters, returnTypeProvider, parameterProvider);
 

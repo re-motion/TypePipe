@@ -36,7 +36,7 @@ namespace Remotion.Utilities
   {
     public static void DeleteOnDemandAndWaitForCompletion (string fileName)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("fileName", fileName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(fileName), fileName);
 
       if (File.Exists (fileName))
         DeleteAndWaitForCompletion (fileName);
@@ -44,7 +44,7 @@ namespace Remotion.Utilities
 
     public static void DeleteAndWaitForCompletion (string fileName)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("fileName", fileName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(fileName), fileName);
 
       File.Delete (fileName);
       while (File.Exists (fileName))
@@ -53,8 +53,8 @@ namespace Remotion.Utilities
 
     public static void MoveAndWaitForCompletion (string sourceFileName, string destinationFileName)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("sourceFileName", sourceFileName);
-      ArgumentUtility.CheckNotNullOrEmpty ("destinationFileName", destinationFileName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(sourceFileName), sourceFileName);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(destinationFileName), destinationFileName);
 
       File.Move (sourceFileName, destinationFileName);
 

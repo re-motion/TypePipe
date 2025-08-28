@@ -29,7 +29,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
   {
     public IILGenerator CreateAdaptedILGenerator (ILGenerator realILGenerator)
     {
-      ArgumentUtility.CheckNotNull ("realILGenerator", realILGenerator);
+      ArgumentUtility.CheckNotNull (nameof(realILGenerator), realILGenerator);
       
       // The OffsetTrackingILGenerator is defined by the DLR to add an ILOffsetProperty to ILGenerator under the CLR version 2 or Silverlight.
       // With .NET 4, the ILGenerator already has this property. When upgrading, we _could_ implement different ILGeneratorProvider and 

@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection
     public BodyChangedEventArgs (Expression oldBody, Expression newBody)
     {
       // Old body may be null.
-      ArgumentUtility.CheckNotNull ("newBody", newBody);
+      ArgumentUtility.CheckNotNull (nameof(newBody), newBody);
 
       _oldBody = oldBody;
       _newBody = newBody;
