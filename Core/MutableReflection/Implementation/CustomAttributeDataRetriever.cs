@@ -30,28 +30,28 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (MemberInfo member)
     {
-      ArgumentUtility.CheckNotNull ("member", member);
+      ArgumentUtility.CheckNotNull (nameof(member), member);
 
       return RetrieveCustomAttributes (CustomAttributeData.GetCustomAttributes, member);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (ParameterInfo parameter)
     {
-      ArgumentUtility.CheckNotNull ("parameter", parameter);
+      ArgumentUtility.CheckNotNull (nameof(parameter), parameter);
 
       return RetrieveCustomAttributes (CustomAttributeData.GetCustomAttributes, parameter);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (Assembly assembly)
     {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
+      ArgumentUtility.CheckNotNull (nameof(assembly), assembly);
 
       return RetrieveCustomAttributes (CustomAttributeData.GetCustomAttributes, assembly);
     }
 
     public IEnumerable<ICustomAttributeData> GetCustomAttributeData (Module module)
     {
-      ArgumentUtility.CheckNotNull ("module", module);
+      ArgumentUtility.CheckNotNull (nameof(module), module);
 
       return RetrieveCustomAttributes (CustomAttributeData.GetCustomAttributes, module);
     }

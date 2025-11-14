@@ -32,8 +32,8 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public ProxyTypeModificationTracker (MutableType proxyType, IEnumerable<Expression> constructorBodies)
     {
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
-      ArgumentUtility.CheckNotNull ("constructorBodies", constructorBodies);
+      ArgumentUtility.CheckNotNull (nameof(proxyType), proxyType);
+      ArgumentUtility.CheckNotNull (nameof(constructorBodies), constructorBodies);
 
       _proxyType = proxyType;
       _constructorBodies = constructorBodies.ToList().AsReadOnly();

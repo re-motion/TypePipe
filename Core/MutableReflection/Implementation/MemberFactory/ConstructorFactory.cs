@@ -36,16 +36,16 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
         IEnumerable<ParameterDeclaration> parameters,
         Func<ConstructorBodyCreationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       MemberAttributesUtility.ValidateAttributes ("constructors", MemberAttributesUtility.InvalidConstructorAttributes, attributes, "attributes");
 
       var isStatic = attributes.IsSet (MethodAttributes.Static);
       var paras = parameters.ToList();
       if (isStatic && paras.Count != 0)
-        throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", "parameters");
+        throw new ArgumentException ("A type initializer (static constructor) cannot have parameters.", nameof(parameters));
 
       var signature = new MethodSignature (typeof (void), paras.Select (p => p.Type), 0);
       if (declaringType.AddedConstructors.Any (ctor => ctor.IsStatic == isStatic && MethodSignature.Create (ctor).Equals (signature)))

@@ -68,21 +68,21 @@ namespace Remotion.Development.UnitTesting
 
     public void VerifyPEFile (Assembly assembly)
     {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
+      ArgumentUtility.CheckNotNull (nameof(assembly), assembly);
 
       VerifyPEFile (assembly.ManifestModule.FullyQualifiedName);
     }
 
     public void VerifyPEFile (Assembly assembly, PEVerifyVersion version)
     {
-      ArgumentUtility.CheckNotNull ("assembly", assembly);
+      ArgumentUtility.CheckNotNull (nameof(assembly), assembly);
 
       VerifyPEFile (assembly.ManifestModule.FullyQualifiedName, version);
     }
 
     public void VerifyPEFile (string modulePath)
     {
-      ArgumentUtility.CheckNotNull ("modulePath", modulePath);
+      ArgumentUtility.CheckNotNull (nameof(modulePath), modulePath);
 
       var version = GetDefaultVerifierVersion();
       VerifyPEFile (modulePath, version);
@@ -90,7 +90,7 @@ namespace Remotion.Development.UnitTesting
 
     public void VerifyPEFile (string modulePath, PEVerifyVersion version)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("modulePath", modulePath);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(modulePath), modulePath);
 
       var process = StartPEVerifyProcess (modulePath, version);
 

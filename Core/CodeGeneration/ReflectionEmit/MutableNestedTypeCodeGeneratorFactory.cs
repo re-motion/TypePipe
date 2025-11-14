@@ -38,10 +38,10 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IMemberEmitter memberEmitter,
         IInitializationBuilder initializationBuilder)
     {
-      ArgumentUtility.CheckNotNull ("reflectionEmitCodeGenerator", reflectionEmitCodeGenerator);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
-      ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
+      ArgumentUtility.CheckNotNull (nameof(reflectionEmitCodeGenerator), reflectionEmitCodeGenerator);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(memberEmitter), memberEmitter);
+      ArgumentUtility.CheckNotNull (nameof(initializationBuilder), initializationBuilder);
 
       _reflectionEmitCodeGenerator = reflectionEmitCodeGenerator;
       _emittableOperandProvider = emittableOperandProvider;
@@ -52,8 +52,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
     [CLSCompliant (false)]
     public IMutableTypeCodeGenerator Create (ITypeBuilder enclosingTypeBuilder, MutableType nestedType)
     {
-      ArgumentUtility.CheckNotNull ("enclosingTypeBuilder", enclosingTypeBuilder);
-      ArgumentUtility.CheckNotNull ("nestedType", nestedType);
+      ArgumentUtility.CheckNotNull (nameof(enclosingTypeBuilder), enclosingTypeBuilder);
+      ArgumentUtility.CheckNotNull (nameof(nestedType), nestedType);
 
       return new MutableNestedTypeCodeGenerator (
           enclosingTypeBuilder,

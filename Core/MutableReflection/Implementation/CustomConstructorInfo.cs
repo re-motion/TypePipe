@@ -36,7 +36,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     protected CustomConstructorInfo (CustomType declaringType, MethodAttributes attributes)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
       Assertion.IsTrue (attributes.IsSet (MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
 
       _declaringType = declaringType;
@@ -78,14 +78,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }

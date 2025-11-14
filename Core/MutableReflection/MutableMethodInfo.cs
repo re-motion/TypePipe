@@ -60,8 +60,8 @@ namespace Remotion.TypePipe.MutableReflection
             null,
             genericParameters.Cast<Type>())
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
       Assertion.IsTrue (baseMethod == null || (baseMethod.IsVirtual && attributes.IsSet (MethodAttributes.Virtual)));
       Assertion.IsTrue (body != null || attributes.IsSet (MethodAttributes.Abstract));
       Assertion.IsTrue (body == null || returnType.IsTypePipeAssignableFrom (body.Type));
@@ -176,7 +176,7 @@ namespace Remotion.TypePipe.MutableReflection
     /// </remarks>
     public void AddExplicitBaseDefinition (MethodInfo overriddenMethodBaseDefinition)
     {
-      ArgumentUtility.CheckNotNull ("overriddenMethodBaseDefinition", overriddenMethodBaseDefinition);
+      ArgumentUtility.CheckNotNull (nameof(overriddenMethodBaseDefinition), overriddenMethodBaseDefinition);
 
       if (!IsVirtual)
       {
@@ -186,19 +186,19 @@ namespace Remotion.TypePipe.MutableReflection
       }
 
       if (!overriddenMethodBaseDefinition.IsVirtual || overriddenMethodBaseDefinition.IsFinal)
-        throw new ArgumentException ("Method must be virtual and non-final.", "overriddenMethodBaseDefinition");
+        throw new ArgumentException ("Method must be virtual and non-final.", nameof(overriddenMethodBaseDefinition));
 
       if (!MethodSignature.AreEqual (this, overriddenMethodBaseDefinition))
-        throw new ArgumentException ("Method signatures must be equal.", "overriddenMethodBaseDefinition");
+        throw new ArgumentException ("Method signatures must be equal.", nameof(overriddenMethodBaseDefinition));
 
       if (!overriddenMethodBaseDefinition.DeclaringType.IsTypePipeAssignableFrom (DeclaringType))
-        throw new ArgumentException ("The overridden method must be from the same type hierarchy.", "overriddenMethodBaseDefinition");
+        throw new ArgumentException ("The overridden method must be from the same type hierarchy.", nameof(overriddenMethodBaseDefinition));
 
       if (MethodBaseDefinitionCache.GetBaseDefinition (overriddenMethodBaseDefinition) != overriddenMethodBaseDefinition)
       {
         throw new ArgumentException (
             "The given method must be a root method definition. (Use GetBaseDefinition to get a root method.)",
-            "overriddenMethodBaseDefinition");
+            nameof(overriddenMethodBaseDefinition));
       }
 
       // TODO: check all mutable methods not just the current one
@@ -212,7 +212,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public void SetBody (Func<MethodBodyModificationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       var context = new MethodBodyModificationContext (
           MutableDeclaringType, IsStatic, _parameterExpressions, _genericParameters.Cast<Type>(), ReturnType, _baseMethod, _body);
@@ -227,7 +227,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull (nameof(customAttribute), customAttribute);
 
       _customAttributeContainer.AddCustomAttribute (customAttribute);
     }

@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection
         GenericParameterAttributes attributes = GenericParameterAttributes.None,
         Func<GenericParameterContext, IEnumerable<Type>> constraintProvider = null)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Constraint provider may be null.
 
       _name = name;

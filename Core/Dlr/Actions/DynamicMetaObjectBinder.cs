@@ -81,7 +81,7 @@ namespace Remotion.TypePipe.Dlr.Dynamic {
                 throw Error.OutOfRange("parameters.Count", 1);
             }
             if (args.Length != parameters.Count) {
-                throw new ArgumentOutOfRangeException("args");
+                throw new ArgumentOutOfRangeException(nameof(args));
             }
 
             // Ensure that the binder's ReturnType matches CallSite's return

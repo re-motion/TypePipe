@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
   {
     public static FieldSignature Create (FieldInfo fieldInfo)
     {
-      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
+      ArgumentUtility.CheckNotNull (nameof(fieldInfo), fieldInfo);
       return new FieldSignature (fieldInfo.FieldType);
     }
 

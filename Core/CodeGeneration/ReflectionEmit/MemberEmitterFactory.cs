@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public IMemberEmitter CreateMemberEmitter (IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
       
       var ilGeneratorFactory = new ILGeneratorDecoratorFactory (new OffsetTrackingILGeneratorFactory(), emittableOperandProvider);
 

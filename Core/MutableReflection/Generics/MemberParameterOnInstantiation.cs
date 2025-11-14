@@ -39,7 +39,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
             typeof (MemberParameterOnInstantiation).Name,
             typeof (TypeInstantiation).Name,
             typeof (MethodInstantiation).Name);
-        throw new ArgumentException (message, "declaringMember");
+        throw new ArgumentException (message, nameof(declaringMember));
       }
 
       return methodInstantiation != null
@@ -51,8 +51,8 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public MemberParameterOnInstantiation (MemberInfo declaringMember, ParameterInfo parameter)
         : base (
-            ArgumentUtility.CheckNotNull ("declaringMember", declaringMember),
-            ArgumentUtility.CheckNotNull ("parameter", parameter).Position,
+            ArgumentUtility.CheckNotNull (nameof(declaringMember), declaringMember),
+            ArgumentUtility.CheckNotNull (nameof(parameter), parameter).Position,
             parameter.Name,
             Substitute (declaringMember, parameter.ParameterType),
             parameter.Attributes)

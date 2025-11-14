@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     }
 
     public ModuleBuilderAdapter (ModuleBuilder moduleBuilder)
-        : base (ArgumentUtility.CheckNotNull ("moduleBuilder", moduleBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(moduleBuilder), moduleBuilder).SetCustomAttribute)
     {
       Assertion.IsTrue (moduleBuilder.Assembly is AssemblyBuilder);
 
@@ -51,7 +51,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public ITypeBuilder DefineType (string name, TypeAttributes attr)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var typeBuilder = _moduleBuilder.DefineType (name, attr);
       return new TypeBuilderAdapter (typeBuilder);

@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
     protected UnaryExpressionBase (Expression operand, Type type)
         : base (type)
     {
-      ArgumentUtility.CheckNotNull ("operand", operand);
+      ArgumentUtility.CheckNotNull (nameof(operand), operand);
 
       _operand = operand;
     }
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     protected internal override Expression VisitChildren (ExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       var operand = visitor.Visit (_operand);
       return Update (operand);

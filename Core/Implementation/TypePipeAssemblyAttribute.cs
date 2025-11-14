@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.Implementation
 
     public TypePipeAssemblyAttribute (string participantConfigurationID)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(participantConfigurationID), participantConfigurationID);
 
       _participantConfigurationID = participantConfigurationID;
     }

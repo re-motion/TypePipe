@@ -41,7 +41,7 @@ namespace Remotion.TypePipe.Implementation
 
     public DefaultPipelineRegistry (IPipeline defaultPipeline)
     {
-      ArgumentUtility.CheckNotNull ("defaultPipeline", defaultPipeline);
+      ArgumentUtility.CheckNotNull (nameof(defaultPipeline), defaultPipeline);
 
       Register (defaultPipeline);
       DefaultPipeline = defaultPipeline;
@@ -49,7 +49,7 @@ namespace Remotion.TypePipe.Implementation
 
     public void Register (IPipeline pipeline)
     {
-      ArgumentUtility.CheckNotNull ("pipeline", pipeline);
+      ArgumentUtility.CheckNotNull (nameof(pipeline), pipeline);
       Assertion.IsNotNull (pipeline.ParticipantConfigurationID);
 
       lock (_pipelines.SyncRoot)
@@ -63,7 +63,7 @@ namespace Remotion.TypePipe.Implementation
 
     public void Unregister (string participantConfigurationID)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(participantConfigurationID), participantConfigurationID);
 
       if (participantConfigurationID == DefaultPipeline.ParticipantConfigurationID)
         throw new InvalidOperationException ($"The default pipeline ('{participantConfigurationID}') cannot be unregistered.");
@@ -76,7 +76,7 @@ namespace Remotion.TypePipe.Implementation
 
     public IPipeline Get (string participantConfigurationID)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("participantConfigurationID", participantConfigurationID);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(participantConfigurationID), participantConfigurationID);
 
       // ReSharper disable once InconsistentlySynchronizedField
       // _pipeline is a Hashtable. Hashtable is threadsafe for multi-readers / single-writer.

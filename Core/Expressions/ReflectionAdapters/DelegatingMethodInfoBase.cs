@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.Expressions.ReflectionAdapters
 
     protected DelegatingMethodInfoBase (TMethodBase innerMethod)
     {
-      ArgumentUtility.CheckNotNull ("innerMethod", innerMethod);
+      ArgumentUtility.CheckNotNull (nameof(innerMethod), innerMethod);
       _innerMethod = innerMethod;
     }
 

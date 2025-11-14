@@ -59,10 +59,10 @@ namespace Remotion.TypePipe.Dlr.Runtime.CompilerServices {
 
             object IRuntimeVariables.this[int index] {
                 get {
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
                 set {
-                    throw new ArgumentOutOfRangeException("index");
+                    throw new ArgumentOutOfRangeException(nameof(index));
                 }
             }
         }

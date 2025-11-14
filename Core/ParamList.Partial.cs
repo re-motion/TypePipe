@@ -49,8 +49,8 @@ namespace Remotion.TypePipe
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
     public static ParamList CreateDynamic (Type[] parameterTypes, object[] parameterValues)
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
-      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(parameterValues), parameterValues);
 
       return new DynamicParamList (parameterTypes, parameterValues);
     }
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe
     /// <returns>A <see cref="ParamList"/> encapsulating the passed parameters.</returns>
     public static ParamList CreateDynamic (params object[] parameterValues)
     {
-      ArgumentUtility.CheckNotNull ("parameterValues", parameterValues);
+      ArgumentUtility.CheckNotNull (nameof(parameterValues), parameterValues);
 
       var parameterTypes = Array.ConvertAll (parameterValues, p => p != null ? p.GetType () : typeof (object));
       return CreateDynamic (parameterTypes, parameterValues);

@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     protected MethodBaseBodyContextBase (MutableType declaringType, bool isStatic, IEnumerable<ParameterExpression> parameterExpressions)
         : base (declaringType, isStatic)
     {
-      ArgumentUtility.CheckNotNull ("parameterExpressions", parameterExpressions);
+      ArgumentUtility.CheckNotNull (nameof(parameterExpressions), parameterExpressions);
 
       _parameters = parameterExpressions.ToList().AsReadOnly();
     }

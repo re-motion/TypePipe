@@ -50,12 +50,12 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
         IMemberEmitter memberEmitter,
         IInitializationBuilder initializationBuilder)
     {
-      ArgumentUtility.CheckNotNull ("mutableType", mutableType);
-      ArgumentUtility.CheckNotNull ("nestedTypeCodeGeneratorFactory", nestedTypeCodeGeneratorFactory);
-      ArgumentUtility.CheckNotNull ("codeGenerator", codeGenerator);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("memberEmitter", memberEmitter);
-      ArgumentUtility.CheckNotNull ("initializationBuilder", initializationBuilder);
+      ArgumentUtility.CheckNotNull (nameof(mutableType), mutableType);
+      ArgumentUtility.CheckNotNull (nameof(nestedTypeCodeGeneratorFactory), nestedTypeCodeGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(codeGenerator), codeGenerator);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(memberEmitter), memberEmitter);
+      ArgumentUtility.CheckNotNull (nameof(initializationBuilder), initializationBuilder);
 
       _mutableType = mutableType;
       _nestedTypeCodeGeneratorFactory = nestedTypeCodeGeneratorFactory;

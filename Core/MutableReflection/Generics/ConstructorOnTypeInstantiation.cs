@@ -32,7 +32,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
     private readonly IReadOnlyCollection<ParameterInfo> _parameters;
 
     public ConstructorOnTypeInstantiation (TypeInstantiation declaringType, ConstructorInfo constructor)
-        : base (declaringType, ArgumentUtility.CheckNotNull ("constructor", constructor).Attributes)
+        : base (declaringType, ArgumentUtility.CheckNotNull (nameof(constructor), constructor).Attributes)
     {
       _constructor = constructor;
       _parameters = constructor

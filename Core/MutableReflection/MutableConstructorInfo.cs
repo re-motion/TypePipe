@@ -41,8 +41,8 @@ namespace Remotion.TypePipe.MutableReflection
         MutableType declaringType, MethodAttributes attributes, IEnumerable<ParameterDeclaration> parameters, Expression body)
         : base (declaringType, attributes)
     {
-      ArgumentUtility.CheckNotNull ("parameters", parameters);
-      ArgumentUtility.CheckNotNull ("body", body);
+      ArgumentUtility.CheckNotNull (nameof(parameters), parameters);
+      ArgumentUtility.CheckNotNull (nameof(body), body);
       Assertion.IsTrue (body.Type == typeof (void));
 
       var paras = parameters.ToList();
@@ -79,7 +79,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public void SetBody (Func<ConstructorBodyModificationContext, Expression> bodyProvider)
     {
-      ArgumentUtility.CheckNotNull ("bodyProvider", bodyProvider);
+      ArgumentUtility.CheckNotNull (nameof(bodyProvider), bodyProvider);
 
       var context = new ConstructorBodyModificationContext ((MutableType) DeclaringType, IsStatic, ParameterExpressions, _body);
       _body = BodyProviderUtility.GetTypedBody (typeof (void), bodyProvider, context);
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.MutableReflection
 
     public void AddCustomAttribute (CustomAttributeDeclaration customAttribute)
     {
-      ArgumentUtility.CheckNotNull ("customAttribute", customAttribute);
+      ArgumentUtility.CheckNotNull (nameof(customAttribute), customAttribute);
 
       _customAttributeContainer.AddCustomAttribute (customAttribute);
     }

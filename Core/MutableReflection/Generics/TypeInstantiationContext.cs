@@ -31,7 +31,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public Type Instantiate (TypeInstantiationInfo instantiationInfo)
     {
-      ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo);
+      ArgumentUtility.CheckNotNull (nameof(instantiationInfo), instantiationInfo);
 
       TypeInstantiation typeInstantiation;
       if (_instantiations.TryGetValue (instantiationInfo, out typeInstantiation))
@@ -48,16 +48,16 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public void Add (TypeInstantiationInfo instantiationInfo, TypeInstantiation typeInstantiation)
     {
-      ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo);
-      ArgumentUtility.CheckNotNull ("typeInstantiation", typeInstantiation);
+      ArgumentUtility.CheckNotNull (nameof(instantiationInfo), instantiationInfo);
+      ArgumentUtility.CheckNotNull (nameof(typeInstantiation), typeInstantiation);
 
       _instantiations.Add (instantiationInfo, typeInstantiation);
     }
 
     public Type SubstituteGenericParameters (Type type, IDictionary<Type, Type> parametersToArguments)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
-      ArgumentUtility.CheckNotNull ("parametersToArguments", parametersToArguments);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
+      ArgumentUtility.CheckNotNull (nameof(parametersToArguments), parametersToArguments);
 
       Type typeArgument;
       if (parametersToArguments.TryGetValue (type, out typeArgument))

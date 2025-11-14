@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     protected BodyContextBase (MutableType declaringType, bool isStatic)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
 
       _declaringType = declaringType;
       _isStatic = isStatic;
@@ -64,16 +64,16 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public MethodCallExpression CallBase (MethodInfo baseMethod, params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(baseMethod), baseMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return CallBase (baseMethod, (IEnumerable<Expression>) arguments);
     }
 
     public MethodCallExpression CallBase (MethodInfo baseMethod, IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("baseMethod", baseMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(baseMethod), baseMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       EnsureNotStatic();
       CheckNotStatic (baseMethod);
@@ -87,27 +87,27 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public Expression CopyMethodBody (MutableMethodInfo otherMethod, params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(otherMethod), otherMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return CopyMethodBody (otherMethod, (IEnumerable<Expression>) arguments);
     }
 
     public Expression CopyMethodBody (MutableMethodInfo otherMethod, IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("otherMethod", otherMethod);
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(otherMethod), otherMethod);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       // ReSharper disable PossibleUnintendedReferenceComparison
       if (otherMethod.DeclaringType != _declaringType)
       // ReSharper restore PossibleUnintendedReferenceComparison
       {
         var message = string.Format ("The specified method is declared by a different type '{0}'.", otherMethod.DeclaringType);
-        throw new ArgumentException (message, "otherMethod");
+        throw new ArgumentException (message, nameof(otherMethod));
       }
 
       if (IsStatic && !otherMethod.IsStatic)
-        throw new ArgumentException ("The body of an instance method cannot be copied into a static method.", "otherMethod");
+        throw new ArgumentException ("The body of an instance method cannot be copied into a static method.", nameof(otherMethod));
 
       return BodyContextUtility.ReplaceParameters (otherMethod.ParameterExpressions, otherMethod.Body, arguments);
     }
@@ -121,13 +121,13 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     private void CheckNotStatic (MethodInfo baseMethod)
     {
       if (baseMethod.IsStatic)
-        throw new ArgumentException ("Cannot perform base call for static method.", "baseMethod");
+        throw new ArgumentException ("Cannot perform base call for static method.", nameof(baseMethod));
     }
 
     private void CheckNotAbstract (MethodInfo baseMethod)
     {
       if (baseMethod.IsAbstract)
-        throw new ArgumentException ("Cannot perform base call on abstract method.", "baseMethod");
+        throw new ArgumentException ("Cannot perform base call on abstract method.", nameof(baseMethod));
     }
 
     private void CheckNoGenericMethodDefinition (MethodInfo baseMethod)
@@ -136,7 +136,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
       {
         var message = string.Format (
             "Cannot perform base call on generic method definition. Construct a method instantiation with MethodInfoExtensions.MakeTypePipeGenericMethod.");
-        throw new ArgumentException (message, "baseMethod");
+        throw new ArgumentException (message, nameof(baseMethod));
       }
     }
 

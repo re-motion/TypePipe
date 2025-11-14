@@ -28,9 +28,9 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static void ValidateGenericArguments (Type[] typeParameters, Type[] typeArguments, string typeOrMethodName)
     {
-      ArgumentUtility.CheckNotNull ("typeParameters", typeParameters);
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
-      ArgumentUtility.CheckNotNullOrEmpty ("typeOrMethodName", typeOrMethodName);
+      ArgumentUtility.CheckNotNull (nameof(typeParameters), typeParameters);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(typeOrMethodName), typeOrMethodName);
 
       if (typeParameters.Length != typeArguments.Length)
       {
@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
             typeOrMethodName,
             typeParameters.Length,
             typeArguments.Length);
-        throw new ArgumentException (message, "typeArguments");
+        throw new ArgumentException (message, nameof(typeArguments));
       }
 
       for (int i = 0; i < typeParameters.Length; i++)
@@ -56,7 +56,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
               i,
               typeOrMethodName,
               parameter.Name);
-          throw new ArgumentException (message, "typeArguments");
+          throw new ArgumentException (message, nameof(typeArguments));
         }
       }
     }

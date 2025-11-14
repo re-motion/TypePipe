@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.Expressions
     /// <param name="expressionVisitorDelegate">The expression delegate.</param>
     public DelegateBasedExpressionVisitor (Func<Expression, Expression> expressionVisitorDelegate)
     {
-      ArgumentUtility.CheckNotNull ("expressionVisitorDelegate", expressionVisitorDelegate);
+      ArgumentUtility.CheckNotNull (nameof(expressionVisitorDelegate), expressionVisitorDelegate);
 
       _expressionVisitorDelegate = expressionVisitorDelegate;
     }

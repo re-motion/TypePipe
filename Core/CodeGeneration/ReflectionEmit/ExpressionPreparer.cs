@@ -33,7 +33,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public ExpressionPreparer (IMethodTrampolineProvider methodTrampolineProvider)
     {
-      ArgumentUtility.CheckNotNull ("methodTrampolineProvider", methodTrampolineProvider);
+      ArgumentUtility.CheckNotNull (nameof(methodTrampolineProvider), methodTrampolineProvider);
 
       _methodTrampolineProvider = methodTrampolineProvider;
     }
@@ -45,8 +45,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
 
     public Expression PrepareBody (CodeGenerationContext context, Expression body)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("body", body);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(body), body);
 
       return new UnemittableExpressionVisitor (context, _methodTrampolineProvider).Visit (body);
     }

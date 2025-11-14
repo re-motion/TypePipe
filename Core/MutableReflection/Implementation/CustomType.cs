@@ -54,10 +54,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         Type genericTypeDefinition,
         IEnumerable<Type> typeArguments)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
       // Namespace may be null.
       // Generic type definition may be null (for non-generic types and generic type definitions).
-      ArgumentUtility.CheckNotNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNull (nameof(typeArguments), typeArguments);
 
       _name = name;
       _namespace = @namespace;
@@ -186,7 +186,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type MakeGenericType (params Type[] typeArguments)
     {
-      ArgumentUtility.CheckNotNullOrItemsNull ("typeArguments", typeArguments);
+      ArgumentUtility.CheckNotNullOrItemsNull (nameof(typeArguments), typeArguments);
 
       if (!IsGenericTypeDefinition)
         throw new InvalidOperationException ("MakeGenericType can only be called on generic type definitions (IsGenericTypeDefinition must be true).");
@@ -236,7 +236,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
     public override Type MakeArrayType (int rank)
     {
       if (rank <= 0)
-        throw new ArgumentOutOfRangeException ("rank", "Array rank must be greater than zero.");
+        throw new ArgumentOutOfRangeException (nameof(rank), "Array rank must be greater than zero.");
 
       return new MultiDimensionalArrayType (this, rank);
     }
@@ -253,14 +253,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }
@@ -277,7 +277,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
       // Note that a generic type definition is not instantiated (at least not fully) and should "stay" a generic type definition.
       // See MethodOnTypeInstantiation constructor and GetGenericMethodDefinition. (Should work similiar for NestedTypeOnTypeInstantiation).
       // Create an integration test for this!
-      ArgumentUtility.CheckNotNullOrEmpty("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return _memberSelector.SelectSingleType (GetAllNestedTypes(), bindingAttr, name);
     }
@@ -289,7 +289,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override Type GetInterface (string name, bool ignoreCase)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var comparisonMode = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
       var interfaces = GetAllInterfaces().Where (iface => iface.Name.Equals (name, comparisonMode)).ToArray();
@@ -305,7 +305,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override FieldInfo GetField (string name, BindingFlags bindingAttr)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return _memberSelector.SelectSingleField (GetAllFields(), bindingAttr, name, this);
     }
@@ -337,7 +337,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override EventInfo GetEvent (string name, BindingFlags bindingAttr)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       return _memberSelector.SelectSingleEvent (GetAllEvents(), bindingAttr, name, this);
     }

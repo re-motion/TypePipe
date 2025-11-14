@@ -47,13 +47,13 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public TypeInstantiation (TypeInstantiationInfo instantiationInfo, TypeInstantiationContext instantiationContext)
         : base (
-            ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericTypeDefinition.Name,
+            ArgumentUtility.CheckNotNull (nameof(instantiationInfo), instantiationInfo).GenericTypeDefinition.Name,
             instantiationInfo.GenericTypeDefinition.Namespace,
             instantiationInfo.GenericTypeDefinition.Attributes,
             genericTypeDefinition: instantiationInfo.GenericTypeDefinition,
             typeArguments: instantiationInfo.TypeArguments)
     {
-      ArgumentUtility.CheckNotNull ("instantiationContext", instantiationContext);
+      ArgumentUtility.CheckNotNull (nameof(instantiationContext), instantiationContext);
 
       _instantiationInfo = instantiationInfo;
       _instantiationContext = instantiationContext;
@@ -94,7 +94,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public Type SubstituteGenericParameters (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       return _instantiationContext.SubstituteGenericParameters (type, _parametersToArguments);
     }

@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
   {
     public static PropertySignature Create (PropertyInfo propertyInfo)
     {
-      ArgumentUtility.CheckNotNull ("propertyInfo", propertyInfo);
+      ArgumentUtility.CheckNotNull (nameof(propertyInfo), propertyInfo);
 
       var propertyType = propertyInfo.PropertyType;
       var indexParameterTypes = propertyInfo.GetIndexParameters ().Select (p => p.ParameterType);
@@ -43,8 +43,8 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 
     public PropertySignature (Type propertyType, IEnumerable<Type> indexParameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("propertyType", propertyType);
-      ArgumentUtility.CheckNotNull ("indexParameterTypes", indexParameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(propertyType), propertyType);
+      ArgumentUtility.CheckNotNull (nameof(indexParameterTypes), indexParameterTypes);
 
       _propertyType = propertyType;
       _indexParameterTypes = indexParameterTypes.ToList().AsReadOnly();

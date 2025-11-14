@@ -31,8 +31,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     [CLSCompliant (false)]
     public ILGeneratorDecoratorFactory (IILGeneratorFactory innerFactory, IEmittableOperandProvider emittableOperandProvider)
     {
-      ArgumentUtility.CheckNotNull ("innerFactory", innerFactory);
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(innerFactory), innerFactory);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
 
       _innerFactory = innerFactory;
       _emittableOperandProvider = emittableOperandProvider;
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.LambdaCompilation
     [CLSCompliant (false)]
     public IILGenerator CreateAdaptedILGenerator (ILGenerator realILGenerator)
     {
-      ArgumentUtility.CheckNotNull ("realILGenerator", realILGenerator);
+      ArgumentUtility.CheckNotNull (nameof(realILGenerator), realILGenerator);
 
       var innerILGenerator = _innerFactory.CreateAdaptedILGenerator (realILGenerator);
       return new ILGeneratorDecorator (innerILGenerator, _emittableOperandProvider);

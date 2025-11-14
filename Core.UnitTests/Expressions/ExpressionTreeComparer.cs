@@ -38,8 +38,8 @@ namespace Remotion.TypePipe.UnitTests.Expressions
 
     public ExpressionTreeComparer (object expectedInitial, object actualInitial)
     {
-      ArgumentUtility.CheckNotNull ("expectedInitial", expectedInitial);
-      ArgumentUtility.CheckNotNull ("actualInitial", actualInitial);
+      ArgumentUtility.CheckNotNull (nameof(expectedInitial), expectedInitial);
+      ArgumentUtility.CheckNotNull (nameof(actualInitial), actualInitial);
 
       _expectedInitial = expectedInitial;
       _actualInitial = actualInitial;

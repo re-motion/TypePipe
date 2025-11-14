@@ -38,10 +38,10 @@ namespace Remotion.TypePipe.Implementation
         IReflectionService reflectionService,
         ITypeAssembler typeAssembler)
     {
-      ArgumentUtility.CheckNotNull ("settings", settings);
-      ArgumentUtility.CheckNotNull ("codeManager", codeManager);
-      ArgumentUtility.CheckNotNull ("reflectionService", reflectionService);
-      ArgumentUtility.CheckNotNull ("typeAssembler", typeAssembler);
+      ArgumentUtility.CheckNotNull (nameof(settings), settings);
+      ArgumentUtility.CheckNotNull (nameof(codeManager), codeManager);
+      ArgumentUtility.CheckNotNull (nameof(reflectionService), reflectionService);
+      ArgumentUtility.CheckNotNull (nameof(typeAssembler), typeAssembler);
 
       _settings = settings;
       _codeManager = codeManager;
@@ -82,7 +82,7 @@ namespace Remotion.TypePipe.Implementation
 
     public object Create (Type requestedType, ParamList constructorArguments = null, bool allowNonPublicConstructor = false)
     {
-      ArgumentUtility.DebugCheckNotNull ("requestedType", requestedType);
+      ArgumentUtility.DebugCheckNotNull (nameof(requestedType), requestedType);
 
       constructorArguments = constructorArguments ?? ParamList.Empty;
 

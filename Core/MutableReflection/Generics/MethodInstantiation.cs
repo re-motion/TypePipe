@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public MethodInstantiation (MethodInstantiationInfo instantiationInfo)
         : base (
-            ArgumentUtility.CheckNotNull ("instantiationInfo", instantiationInfo).GenericMethodDefinition.DeclaringType,
+            ArgumentUtility.CheckNotNull (nameof(instantiationInfo), instantiationInfo).GenericMethodDefinition.DeclaringType,
             instantiationInfo.GenericMethodDefinition.Name,
             instantiationInfo.GenericMethodDefinition.Attributes,
             instantiationInfo.GenericMethodDefinition,
@@ -59,7 +59,7 @@ namespace Remotion.TypePipe.MutableReflection.Generics
 
     public Type SubstituteGenericParameters (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       return _instantiationContext.SubstituteGenericParameters (type, _parametersToArguments);
     }

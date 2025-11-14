@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     private readonly MethodBuilder _methodBuilder;
 
     public MethodBuilderAdapter (MethodBuilder methodBuilder)
-        : base (ArgumentUtility.CheckNotNull ("methodBuilder", methodBuilder).SetCustomAttribute)
+        : base (ArgumentUtility.CheckNotNull (nameof(methodBuilder), methodBuilder).SetCustomAttribute)
     {
       _methodBuilder = methodBuilder;
     }
@@ -47,15 +47,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableMethodInfo method)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("method", method);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(method), method);
 
       emittableOperandProvider.AddMapping (method, _methodBuilder);
     }
 
     public IGenericTypeParameterBuilder[] DefineGenericParameters (string[] names)
     {
-      ArgumentUtility.CheckNotNull ("names", names);
+      ArgumentUtility.CheckNotNull (nameof(names), names);
 
       return _methodBuilder
           .DefineGenericParameters (names)
@@ -64,14 +64,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void SetReturnType (Type returnType)
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
 
       _methodBuilder.SetReturnType (returnType);
     }
 
     public void SetParameters (Type[] parameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       _methodBuilder.SetParameters (parameterTypes);
     }
@@ -87,8 +87,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetBody (LambdaExpression body, IILGeneratorFactory ilGeneratorFactory, DebugInfoGenerator debugInfoGeneratorOrNull)
     {
-      ArgumentUtility.CheckNotNull ("body", body);
-      ArgumentUtility.CheckNotNull ("ilGeneratorFactory", ilGeneratorFactory);
+      ArgumentUtility.CheckNotNull (nameof(body), body);
+      ArgumentUtility.CheckNotNull (nameof(ilGeneratorFactory), ilGeneratorFactory);
 
       var builderForLambdaCompiler = new MethodBuilderForLambdaCompiler (_methodBuilder, ilGeneratorFactory, true);
       LambdaCompiler.Compile (body, builderForLambdaCompiler, debugInfoGeneratorOrNull);

@@ -35,7 +35,7 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public IEnumerable<MutableType> Sort (IEnumerable<MutableType> types)
     {
-      ArgumentUtility.CheckNotNull ("types", types);
+      ArgumentUtility.CheckNotNull (nameof(types), types);
 
       var remainingTypes = new HashSet<MutableType> (types);
 

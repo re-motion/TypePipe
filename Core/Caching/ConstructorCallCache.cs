@@ -34,8 +34,8 @@ namespace Remotion.TypePipe.Caching
 
     public ConstructorCallCache (ITypeCache typeCache, IConstructorDelegateFactory constructorDelegateFactory)
     {
-      ArgumentUtility.CheckNotNull ("typeCache", typeCache);
-      ArgumentUtility.CheckNotNull ("constructorDelegateFactory", constructorDelegateFactory);
+      ArgumentUtility.CheckNotNull (nameof(typeCache), typeCache);
+      ArgumentUtility.CheckNotNull (nameof(constructorDelegateFactory), constructorDelegateFactory);
 
       _typeCache = typeCache;
       _constructorDelegateFactory = constructorDelegateFactory;
@@ -44,8 +44,8 @@ namespace Remotion.TypePipe.Caching
 
     public Delegate GetOrCreateConstructorCall (AssembledTypeID typeID, Type delegateType, bool allowNonPublic)
     {
-      ArgumentUtility.DebugCheckNotNull ("delegateType", delegateType);
-      ArgumentUtility.DebugCheckTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+      ArgumentUtility.DebugCheckNotNull (nameof(delegateType), delegateType);
+      ArgumentUtility.DebugCheckTypeIsAssignableFrom (nameof(delegateType), delegateType, typeof (Delegate));
 
       var constructionKey = new ConstructionKey (typeID, delegateType, allowNonPublic);
       return _constructorCalls.GetOrAdd (constructionKey, _createConstructorCallFunc);

@@ -27,7 +27,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static string GetNameForExplicitImplementation (MemberInfo baseOrInterfaceMember)
     {
-      ArgumentUtility.CheckNotNull ("baseOrInterfaceMember", baseOrInterfaceMember);
+      ArgumentUtility.CheckNotNull (nameof(baseOrInterfaceMember), baseOrInterfaceMember);
 
       return baseOrInterfaceMember.DeclaringType.FullName.Replace ('+', '.') + "." + baseOrInterfaceMember.Name;
     }

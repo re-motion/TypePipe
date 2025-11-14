@@ -44,7 +44,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetAddOnMethod (IMethodBuilder addMethodBuilder)
     {
-      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("addMethodBuilder", addMethodBuilder);
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> (nameof(addMethodBuilder), addMethodBuilder);
 
       _eventBuilder.SetAddOnMethod (decorator.DecoratedMethodBuilder);
     }
@@ -52,7 +52,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetRemoveOnMethod (IMethodBuilder removeMethodBuilder)
     {
-      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("removeMethodBuilder", removeMethodBuilder);
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> (nameof(removeMethodBuilder), removeMethodBuilder);
 
       _eventBuilder.SetRemoveOnMethod (decorator.DecoratedMethodBuilder);
     }
@@ -60,7 +60,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public void SetRaiseMethod (IMethodBuilder raiseMethodBuilder)
     {
-      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> ("raiseMethodBuilder", raiseMethodBuilder);
+      var decorator = ArgumentUtility.CheckNotNullAndType<MethodBuilderDecorator> (nameof(raiseMethodBuilder), raiseMethodBuilder);
 
       _eventBuilder.SetRaiseMethod (decorator.DecoratedMethodBuilder);
     }

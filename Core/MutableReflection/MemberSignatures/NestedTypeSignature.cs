@@ -26,7 +26,7 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
   {
     public static NestedTypeSignature Create (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
       Assertion.IsNotNull (type.DeclaringType);
 
       return new NestedTypeSignature (type.GetGenericArguments().Length);

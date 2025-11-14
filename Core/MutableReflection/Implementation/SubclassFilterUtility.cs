@@ -28,7 +28,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
   {
     public static bool IsSubclassable (Type type)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       // TODO 4744: check that baseType.IsVisible
 
@@ -37,14 +37,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public static bool IsVisibleFromSubclass (FieldInfo fieldInfo)
     {
-      ArgumentUtility.CheckNotNull ("fieldInfo", fieldInfo);
+      ArgumentUtility.CheckNotNull (nameof(fieldInfo), fieldInfo);
 
       return fieldInfo.IsPublic || fieldInfo.IsFamilyOrAssembly || fieldInfo.IsFamily;
     }
 
     public static bool IsVisibleFromSubclass (MethodBase methodBase)
     {
-      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
+      ArgumentUtility.CheckNotNull (nameof(methodBase), methodBase);
 
       return methodBase.IsPublic || methodBase.IsFamilyOrAssembly || methodBase.IsFamily;
     }

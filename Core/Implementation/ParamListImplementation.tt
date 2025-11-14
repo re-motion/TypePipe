@@ -63,7 +63,7 @@ for (int i = 0; i <= parameterCount; i++)
 
     public override void InvokeAction (Delegate action)
     {
-      ArgumentUtility.CheckNotNull ("action", action);
+      ArgumentUtility.CheckNotNull (nameof(action), action);
 
       Action<#= typeArgumentsForAction #> castAction;
       try
@@ -80,7 +80,7 @@ for (int i = 0; i <= parameterCount; i++)
 
     public override object InvokeFunc (Delegate func)
     {
-      ArgumentUtility.CheckNotNull ("func", func);
+      ArgumentUtility.CheckNotNull (nameof(func), func);
 
       Func<#= typeArgumentsForFunc #> castFunc;
       try

@@ -32,14 +32,14 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     protected BuilderAdapterBase (Action<CustomAttributeBuilder> setCustomAttributeMethod)
     {
-      ArgumentUtility.CheckNotNull ("setCustomAttributeMethod", setCustomAttributeMethod);
+      ArgumentUtility.CheckNotNull (nameof(setCustomAttributeMethod), setCustomAttributeMethod);
 
       _setCustomAttributeMethod = setCustomAttributeMethod;
     }
 
     public void SetCustomAttribute (CustomAttributeDeclaration customAttributeDeclaration)
     {
-      ArgumentUtility.CheckNotNull ("customAttributeDeclaration", customAttributeDeclaration);
+      ArgumentUtility.CheckNotNull (nameof(customAttributeDeclaration), customAttributeDeclaration);
 
       var propertyArguments = customAttributeDeclaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Property).ToArray();
       var fieldArguments = customAttributeDeclaration.NamedArguments.Where (na => na.MemberInfo.MemberType == MemberTypes.Field).ToArray();

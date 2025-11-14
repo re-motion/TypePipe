@@ -32,16 +32,16 @@ namespace Remotion.TypePipe.CodeGeneration
 
     public ConstructorDelegateFactory (IConstructorFinder constructorFinder)
     {
-      ArgumentUtility.CheckNotNull ("constructorFinder", constructorFinder);
+      ArgumentUtility.CheckNotNull (nameof(constructorFinder), constructorFinder);
       
       _constructorFinder = constructorFinder;
     }
 
     public Delegate CreateConstructorCall (Type requestedType, Type assembledType, Type delegateType, bool allowNonPublic)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("assembledType", assembledType);
-      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom ("delegateType", delegateType, typeof (Delegate));
+      ArgumentUtility.CheckNotNull (nameof(requestedType), requestedType);
+      ArgumentUtility.CheckNotNull (nameof(assembledType), assembledType);
+      ArgumentUtility.CheckNotNullAndTypeIsAssignableFrom (nameof(delegateType), delegateType, typeof (Delegate));
 
       var ctorSignature = GetSignature (delegateType);
       var parameterTypes = ctorSignature.Item1;

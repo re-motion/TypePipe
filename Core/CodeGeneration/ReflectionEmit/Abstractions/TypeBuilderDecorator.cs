@@ -46,15 +46,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableType type)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       _typeBuilder.RegisterWith (emittableOperandProvider, type);
     }
 
     public void SetParent (Type parent)
     {
-      ArgumentUtility.CheckNotNull ("parent", parent);
+      ArgumentUtility.CheckNotNull (nameof(parent), parent);
 
       var emittableParent = EmittableOperandProvider.GetEmittableType (parent);
       _typeBuilder.SetParent (emittableParent);
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void AddInterfaceImplementation (Type interfaceType)
     {
-      ArgumentUtility.CheckNotNull ("interfaceType", interfaceType);
+      ArgumentUtility.CheckNotNull (nameof(interfaceType), interfaceType);
 
       var emittableInterfaceType = EmittableOperandProvider.GetEmittableType (interfaceType);
       _typeBuilder.AddInterfaceImplementation (emittableInterfaceType);
@@ -71,7 +71,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]    
     public ITypeBuilder DefineNestedType (string name, TypeAttributes attributes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var typeBuilder = _typeBuilder.DefineNestedType (name, attributes);
 
@@ -80,8 +80,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public IFieldBuilder DefineField (string name, Type type, FieldAttributes attributes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
 
       var emittableType = EmittableOperandProvider.GetEmittableType (type);
       var fieldBuilder = _typeBuilder.DefineField (name, emittableType, attributes);
@@ -92,7 +92,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]    
     public IConstructorBuilder DefineConstructor (MethodAttributes attributes, CallingConventions callingConvention, Type[] parameterTypes)
     {
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       var emittableParameterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
       var constructorBuilder = _typeBuilder.DefineConstructor (attributes, callingConvention, emittableParameterTypes);
@@ -103,7 +103,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public IMethodBuilder DefineMethod (string name, MethodAttributes attributes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
 
       var methodBuilder = _typeBuilder.DefineMethod (name, attributes);
       return new MethodBuilderDecorator (methodBuilder, EmittableOperandProvider);
@@ -111,8 +111,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void DefineMethodOverride (MethodInfo methodInfoBody, MethodInfo methodInfoDeclaration)
     {
-      ArgumentUtility.CheckNotNull ("methodInfoBody", methodInfoBody);
-      ArgumentUtility.CheckNotNull ("methodInfoDeclaration", methodInfoDeclaration);
+      ArgumentUtility.CheckNotNull (nameof(methodInfoBody), methodInfoBody);
+      ArgumentUtility.CheckNotNull (nameof(methodInfoDeclaration), methodInfoDeclaration);
 
       var emittableMethodInfoBody = EmittableOperandProvider.GetEmittableMethod (methodInfoBody);
       var emittableMethodInfoDeclaration = EmittableOperandProvider.GetEmittableMethod (methodInfoDeclaration);
@@ -123,9 +123,9 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     public IPropertyBuilder DefineProperty (
         string name, PropertyAttributes attributes, CallingConventions callingConvention, Type returnType, Type[] parameterTypes)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
 
       var emittableReturnType = EmittableOperandProvider.GetEmittableType (returnType);
       var emittableParmeterTypes = parameterTypes.Select (EmittableOperandProvider.GetEmittableType).ToArray();
@@ -137,8 +137,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
     [CLSCompliant (false)]
     public IEventBuilder DefineEvent (string name, EventAttributes attributes, Type eventtype)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("eventtype", eventtype);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(eventtype), eventtype);
 
       var emittableEventType = EmittableOperandProvider.GetEmittableType (eventtype);
       var eventBuilder = _typeBuilder.DefineEvent (name, attributes, emittableEventType);

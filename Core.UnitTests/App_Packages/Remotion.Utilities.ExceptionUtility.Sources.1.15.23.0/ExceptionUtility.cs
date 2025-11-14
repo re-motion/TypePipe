@@ -27,7 +27,7 @@ namespace Remotion.Utilities
     public static Exception PreserveStackTrace (this Exception exception)
     {
       if (exception == null)
-        throw new ArgumentNullException ("exception");
+        throw new ArgumentNullException(nameof(exception));
 
       // http://weblogs.asp.net/fmarguerie/archive/2008/01/02/rethrowing-exceptions-and-preserving-the-full-call-stack-trace.aspx
 

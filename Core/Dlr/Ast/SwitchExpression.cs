@@ -254,7 +254,7 @@ namespace System.Linq.Expressions {
                     // When no comparison method is provided, require all test values to have the same type.
                     for (int i = 0; i < c.TestValues.Count; i++) {
                         if (!TypeUtils.AreEquivalent(firstTestValue.Type, c.TestValues[i].Type)) {
-                            throw new ArgumentException(Strings.AllTestValuesMustHaveSameType, "cases");
+                            throw new ArgumentException(Strings.AllTestValuesMustHaveSameType, nameof(cases));
                         }
                     }
                 }

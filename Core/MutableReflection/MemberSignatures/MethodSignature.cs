@@ -45,10 +45,10 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 
     public static MethodSignature Create (MethodBase methodBase)
     {
-      ArgumentUtility.CheckNotNull ("methodBase", methodBase);
+      ArgumentUtility.CheckNotNull (nameof(methodBase), methodBase);
 
       if (methodBase.IsGenericMethod && !methodBase.IsGenericMethodDefinition)
-        throw new ArgumentException ("Closed generic methods are not supported.", "methodBase");
+        throw new ArgumentException ("Closed generic methods are not supported.", nameof(methodBase));
 
       var returnType = GetReturnType (methodBase);
       var parameterTypes = methodBase.GetParameters ().Select (p => p.ParameterType);
@@ -58,8 +58,8 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
 
     public static bool AreEqual (MethodBase method1, MethodBase method2)
     {
-      ArgumentUtility.CheckNotNull ("method1", method1);
-      ArgumentUtility.CheckNotNull ("method2", method2);
+      ArgumentUtility.CheckNotNull (nameof(method1), method1);
+      ArgumentUtility.CheckNotNull (nameof(method2), method2);
 
       return Create (method1).Equals (Create (method2));
     }
@@ -87,9 +87,9 @@ namespace Remotion.TypePipe.MutableReflection.MemberSignatures
         int genericParameterCount,
         IMethodSignatureStringBuilderHelper methodSignatureStringBuilderHelper)
     {
-      ArgumentUtility.CheckNotNull ("returnType", returnType);
-      ArgumentUtility.CheckNotNull ("parameterTypes", parameterTypes);
-      ArgumentUtility.CheckNotNull ("methodSignatureStringBuilderHelper", methodSignatureStringBuilderHelper);
+      ArgumentUtility.CheckNotNull (nameof(returnType), returnType);
+      ArgumentUtility.CheckNotNull (nameof(parameterTypes), parameterTypes);
+      ArgumentUtility.CheckNotNull (nameof(methodSignatureStringBuilderHelper), methodSignatureStringBuilderHelper);
 
       _returnType = returnType;
       _parameterTypes = parameterTypes;

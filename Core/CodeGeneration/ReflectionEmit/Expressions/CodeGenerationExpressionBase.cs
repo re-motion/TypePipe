@@ -37,7 +37,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Expressions
 
     public override Expression Accept (IPrimitiveTypePipeExpressionVisitor visitor)
     {
-      ArgumentUtility.CheckNotNull ("visitor", visitor);
+      ArgumentUtility.CheckNotNull (nameof(visitor), visitor);
 
       var codeGenerationExpressionVisitor = visitor as ICodeGenerationExpressionVisitor;
       if (codeGenerationExpressionVisitor != null)

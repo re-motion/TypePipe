@@ -25,8 +25,8 @@ namespace Remotion.TypePipe.Development.UnitTesting.ObjectMothers.MutableReflect
   {
     public static void SetMemberSelector (this CustomType customType, IMemberSelector memberSelector)
     {
-      ArgumentUtility.CheckNotNull ("customType", customType);
-      ArgumentUtility.CheckNotNull ("memberSelector", memberSelector);
+      ArgumentUtility.CheckNotNull (nameof(customType), customType);
+      ArgumentUtility.CheckNotNull (nameof(memberSelector), memberSelector);
 
       PrivateInvoke.SetNonPublicField (customType, "_memberSelector", memberSelector);
     }

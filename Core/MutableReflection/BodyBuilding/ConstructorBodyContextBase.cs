@@ -39,14 +39,14 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public MethodCallExpression CallBaseConstructor (params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return CallBaseConstructor ((IEnumerable<Expression>) arguments);
     }
 
     public MethodCallExpression CallBaseConstructor (IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
       EnsureNotStatic();
 
       var args = arguments.ToList();
@@ -59,14 +59,14 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
 
     public MethodCallExpression CallThisConstructor (params Expression[] arguments)
     {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
 
       return CallThisConstructor (((IEnumerable<Expression>) arguments));
     }
 
     public MethodCallExpression CallThisConstructor (IEnumerable<Expression> arguments)
     {
-      ArgumentUtility.CheckNotNull ("arguments", arguments);
+      ArgumentUtility.CheckNotNull (nameof(arguments), arguments);
       EnsureNotStatic();
 
       var args = arguments.ToList();

@@ -46,10 +46,10 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
         MethodInfo removeMethod,
         MethodInfo raiseMethod)
     {
-      ArgumentUtility.CheckNotNull ("declaringType", declaringType);
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
-      ArgumentUtility.CheckNotNull ("addMethod", addMethod);
-      ArgumentUtility.CheckNotNull ("removeMethod", removeMethod);
+      ArgumentUtility.CheckNotNull (nameof(declaringType), declaringType);
+      ArgumentUtility.CheckNotNullOrEmpty (nameof(name), name);
+      ArgumentUtility.CheckNotNull (nameof(addMethod), addMethod);
+      ArgumentUtility.CheckNotNull (nameof(removeMethod), removeMethod);
       // Raise method may be null.
       var delegateType = addMethod.GetParameters().Single().ParameterType;
       Assertion.IsTrue (typeof (Delegate).IsTypePipeAssignableFrom (delegateType));
@@ -114,14 +114,14 @@ namespace Remotion.TypePipe.MutableReflection.Implementation
 
     public override object[] GetCustomAttributes (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.GetCustomAttributes (this, attributeType, inherit);
     }
 
     public override bool IsDefined (Type attributeType, bool inherit)
     {
-      ArgumentUtility.CheckNotNull ("attributeType", attributeType);
+      ArgumentUtility.CheckNotNull (nameof(attributeType), attributeType);
 
       return CustomAttributeFinder.IsDefined (this, attributeType, inherit);
     }

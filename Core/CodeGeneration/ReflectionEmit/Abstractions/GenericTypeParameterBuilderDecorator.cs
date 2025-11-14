@@ -46,15 +46,15 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void RegisterWith (IEmittableOperandProvider emittableOperandProvider, MutableGenericParameter genericParameter)
     {
-      ArgumentUtility.CheckNotNull ("emittableOperandProvider", emittableOperandProvider);
-      ArgumentUtility.CheckNotNull ("genericParameter", genericParameter);
+      ArgumentUtility.CheckNotNull (nameof(emittableOperandProvider), emittableOperandProvider);
+      ArgumentUtility.CheckNotNull (nameof(genericParameter), genericParameter);
 
       _genericTypeParameterBuilder.RegisterWith (emittableOperandProvider, genericParameter);
     }
 
     public void SetBaseTypeConstraint (Type baseTypeConstraint)
     {
-      ArgumentUtility.CheckNotNull ("baseTypeConstraint", baseTypeConstraint);
+      ArgumentUtility.CheckNotNull (nameof(baseTypeConstraint), baseTypeConstraint);
 
       var emittableBaseTypeConstraint = EmittableOperandProvider.GetEmittableType (baseTypeConstraint);
       _genericTypeParameterBuilder.SetBaseTypeConstraint (emittableBaseTypeConstraint);
@@ -62,7 +62,7 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit.Abstractions
 
     public void SetInterfaceConstraints (Type[] interfaceConstraints)
     {
-      ArgumentUtility.CheckNotNull ("interfaceConstraints", interfaceConstraints);
+      ArgumentUtility.CheckNotNull (nameof(interfaceConstraints), interfaceConstraints);
 
       var emittableInterfaceConstraints = interfaceConstraints.Select (EmittableOperandProvider.GetEmittableType).ToArray();
       _genericTypeParameterBuilder.SetInterfaceConstraints (emittableInterfaceConstraints);

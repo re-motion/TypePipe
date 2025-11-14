@@ -39,8 +39,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
 
     public TypeAssemblyResult (Type type, IReadOnlyDictionary<object, Type> additionalTypes)
     {
-      ArgumentUtility.CheckNotNull ("type", type);
-      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
+      ArgumentUtility.CheckNotNull (nameof(type), type);
+      ArgumentUtility.CheckNotNull (nameof(additionalTypes), additionalTypes);
 
       _type = type;
       _additionalTypes = additionalTypes;

@@ -27,8 +27,8 @@ namespace Remotion.TypePipe.CodeGeneration.ReflectionEmit
   {
     public Expression PrepareBody (CodeGenerationContext context, Expression body)
     {
-      ArgumentUtility.CheckNotNull ("context", context);
-      ArgumentUtility.CheckNotNull ("body", body);
+      ArgumentUtility.CheckNotNull (nameof(context), context);
+      ArgumentUtility.CheckNotNull (nameof(body), body);
 
       return body;
     }

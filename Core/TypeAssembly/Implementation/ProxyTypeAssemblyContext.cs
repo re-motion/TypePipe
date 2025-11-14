@@ -35,8 +35,8 @@ namespace Remotion.TypePipe.TypeAssembly.Implementation
         MutableType proxyType)
         : base (mutableTypeFactory, participantConfigurationID, participantState)
     {
-      ArgumentUtility.CheckNotNull ("requestedType", requestedType);
-      ArgumentUtility.CheckNotNull ("proxyType", proxyType);
+      ArgumentUtility.CheckNotNull (nameof(requestedType), requestedType);
+      ArgumentUtility.CheckNotNull (nameof(proxyType), proxyType);
 
       _requestedType = requestedType;
       _proxyType = proxyType;

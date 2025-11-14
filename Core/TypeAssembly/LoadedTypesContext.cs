@@ -32,9 +32,9 @@ namespace Remotion.TypePipe.TypeAssembly
 
     public LoadedTypesContext (IEnumerable<LoadedProxy> proxyTypes, IEnumerable<Type> additionalTypes, IParticipantState participantState)
     {
-      ArgumentUtility.CheckNotNull ("proxyTypes", proxyTypes);
-      ArgumentUtility.CheckNotNull ("additionalTypes", additionalTypes);
-      ArgumentUtility.CheckNotNull ("participantState", participantState);
+      ArgumentUtility.CheckNotNull (nameof(proxyTypes), proxyTypes);
+      ArgumentUtility.CheckNotNull (nameof(additionalTypes), additionalTypes);
+      ArgumentUtility.CheckNotNull (nameof(participantState), participantState);
 
       _proxyTypes = proxyTypes.ToList().AsReadOnly();
       _additionalTypes = additionalTypes.ToList().AsReadOnly();

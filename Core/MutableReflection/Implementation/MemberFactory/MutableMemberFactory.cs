@@ -40,7 +40,7 @@ namespace Remotion.TypePipe.MutableReflection.Implementation.MemberFactory
 
     public MutableMemberFactory (IRelatedMethodFinder relatedMethodFinder)
     {
-      ArgumentUtility.CheckNotNull ("relatedMethodFinder", relatedMethodFinder);
+      ArgumentUtility.CheckNotNull (nameof(relatedMethodFinder), relatedMethodFinder);
 
       _nestedTypeFactory = new NestedTypeFactory (new MutableTypeFactory());
       _initializationFactory = new InitializationFactory();

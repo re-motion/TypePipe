@@ -30,7 +30,7 @@ namespace Remotion.TypePipe.MutableReflection.BodyBuilding
     public InitializationBodyContext (MutableType declaringType, bool isStatic, ParameterExpression initializationSemantics)
         : base (declaringType, isStatic)
     {
-      ArgumentUtility.CheckNotNull ("initializationSemantics", initializationSemantics);
+      ArgumentUtility.CheckNotNull (nameof(initializationSemantics), initializationSemantics);
 
       _initializationSemantics = initializationSemantics;
     }
