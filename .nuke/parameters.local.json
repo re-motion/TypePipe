@@ -1,0 +1,17 @@
+{
+  "$schema": "./build.schema.json",
+  "Target": [ "CIBuild" ],
+  "TestConfigurations": [ "Debug" ],
+  "TestExecutionRuntimes": [ "LocalMachine" ],
+  "TestPlatforms": [ "x86" ],
+  "TestTargetRuntimes": [ "NET462" ],
+  "TestBrowsers": [ "NoBrowser" ],
+  "TestSqlServers": [ "NoDB" ],
+  "SkipCleanProjects": "False",
+  "SkipTests": "False",
+  "SkipDocumentation": "True",
+  "SkipNuGetOrg": "True",
+  "SkipSourceLinks": "True",
+  "SkipNuGet": "True",
+  "SkipDependDB": "True"
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "./build.schema.json",
+  "Solution": "Remotion-TypePipe.sln",
+  "DependDBProjectName": "re-motion Framework TypePipe",
+  "DependDBRetentionTime": "10",
+  "DependDBProjectBranch": "Main",
+  "DependDBProjectImportNotificationMailAddress": "nonexistent@nonexistent.nonexistent",
+  "DependDBProjectImportNotificationMailAddressCc": "nonexistent@nonexistent.nonexistent",
+  "DependDBTrackedReferences": "Remotion.*",
+  "DependDBNugetConfig": "~/nuget.config",
+  "DependDBTargetFramework": "net462",
+  "VcsUrlTemplate": "example.com"
+}
